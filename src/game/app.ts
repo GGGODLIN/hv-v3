@@ -221,11 +221,11 @@ export class App {
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
         const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
-        const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${SIG_TEXT[bt.sig].icon}${bt.title}</small>` : '';
+        const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${bt.title}</small>` : '';
         return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small>Lv${abyssBaseLevel(dn)}</small>${bh}</span>${opts}</div>`;
       }
       const th = r.cp5 && f.n % 5 === 1 ? `<div class="theme-sep" data-themesep="${f.n}">▲ 第 ${f.n}–${f.n + 4} 層：${themeOf(f.n).zh}</div>` : '';
-      const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${SIG_TEXT[BOSS_BY_FLOOR[f.n]!.sig].icon}${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
+      const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
@@ -244,7 +244,7 @@ export class App {
       return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${id === 'health' && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
@@ -377,7 +377,7 @@ export class App {
     }
     const done = !!this.pending.loot || !!this.pending.text;
     return `<div class="panel node">${this.noticeHtml()}${body}${this.offerHtml()}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
-      <div class="foot"><span class="spacer"></span><button class="big" data-continue>${done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
+      <div class="foot"><span class="spacer"></span><button class="big" data-continue${this.run.offer ? ' disabled data-needpick title="先選一個 buff 或按「不拿」"' : ''}>${this.run.offer ? '先選 buff 或「不拿」' : done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
   }
 
   lastSettlement: Settlement | null = null;
@@ -431,7 +431,7 @@ export class App {
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
     on('[data-act]', (el) => this.command(el.dataset.act!));
-    on('[data-continue]', () => { this.modal = null; this.continueNode(); });
+    on('[data-continue]', () => { if (this.run.offer) return; this.modal = null; this.continueNode(); });
     on('[data-heal]', () => { this.pending.text = rest(this.p, this.run, 'heal'); this.save(); this.continueNode(); });
     on('[data-up]', (el) => { this.pending.text = rest(this.p, this.run, 'upgrade', el.dataset.up); this.save(); this.continueNode(); });
     on('[data-shrine]', (el) => { this.pending.text = shrine(this.p, this.run, el.dataset.shrine as 'might'); this.save(); this.render(); this.root.querySelectorAll<HTMLButtonElement>('[data-shrine]').forEach((b) => (b.disabled = true)); });
