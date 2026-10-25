@@ -73,11 +73,11 @@ npx tsx scripts/sim.ts 15 1   # 無頭模擬：同一角色連續爬塔 15 趟�
 - **結構化常數程式碼**
   - [`/src/core/data/constants.ts`](/src/core/data/constants.ts)：已轉為 TypeScript 結構的完整常數表（含 579 列裝備基底×詞綴數值範圍、品質區間、曲線指數 `1.52`、武器技能與怪物種族參數），可直接 import 或讀取使用。
 - **怪物池資料**
-  - [`/public/data/monsters.json`](/public/data/monsters.json)：由 `/.scratch/hv-v3/sources/persistent_monsters.json` 過濾驗證後的精簡怪物池陣列。每列格式為：
+  - [`/public/data/monsters.json`](/public/data/monsters.json)：由 `/.scratch/hv-v3/sources/persistent_monsters.json` 以 `scripts/build-monsters.py` 推導的精簡怪物池陣列（排除 plvl 0 系統怪、Tenboro 官方怪與 Snowflake 龍；`--check` 可驗證可重現）。每列格式為：
     `[id, race, name, pl, attack, trainer, piercing, crushing, slashing, cold, wind, elec, fire, dark, holy]`
 - **像素美術素材**
-  - [`/public/assets/pixel/`](/public/assets/pixel/)：已切格並對齊腳底錨點的單格 PNG 與 [`manifest.json`](/public/assets/pixel/manifest.json)
-  - [`/.scratch/hv-v3/art-trial/poc/pixel/`](/.scratch/hv-v3/art-trial/poc/pixel/) 與 [`poc-battle.html`](/.scratch/hv-v3/art-trial/poc-battle.html)：像素舞台美術 POC 原件
+  - [`/public/assets/pixel/`](/public/assets/pixel/)：原創程式繪製的單格 PNG 與 [`manifest.json`](/public/assets/pixel/manifest.json)，由 `python3 -I scripts/gen-pixel-art.py` 產生（CP3-D 重做）
+  - [`/.scratch/hv-v3/art-trial/poc/pixel/`](/.scratch/hv-v3/art-trial/poc/pixel/)：同一產生器輸出的四格 sheet（檢視用）
 
 ## 分支配置
 

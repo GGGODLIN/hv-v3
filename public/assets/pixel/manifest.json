@@ -6,9 +6,9 @@
       "scale": 2,
       "actions": {
         "idle": {
-          "w": 102,
-          "h": 111,
-          "anchor": 48,
+          "w": 104,
+          "h": 112,
+          "anchor": 47,
           "files": [
             "frames/hero-idle-f0.png",
             "frames/hero-idle-f1.png",
@@ -17,9 +17,9 @@
           ]
         },
         "attack": {
-          "w": 151,
-          "h": 114,
-          "anchor": 51,
+          "w": 152,
+          "h": 116,
+          "anchor": 68,
           "files": [
             "frames/hero-attack-f0.png",
             "frames/hero-attack-f1.png",
@@ -29,8 +29,8 @@
         },
         "hurt": {
           "w": 128,
-          "h": 137,
-          "anchor": 82,
+          "h": 136,
+          "anchor": 58,
           "files": [
             "frames/hero-hurt-f0.png",
             "frames/hero-hurt-f1.png",
@@ -40,8 +40,8 @@
         },
         "cast": {
           "w": 112,
-          "h": 109,
-          "anchor": 59,
+          "h": 112,
+          "anchor": 50,
           "files": [
             "frames/hero-cast-f0.png",
             "frames/hero-cast-f1.png",
@@ -57,7 +57,7 @@
         "attack": {
           "w": 180,
           "h": 148,
-          "anchor": 119,
+          "anchor": 76,
           "files": [
             "frames/undead-attack-f0.png",
             "frames/undead-attack-f1.png",
@@ -66,9 +66,9 @@
           ]
         },
         "hurt": {
-          "w": 137,
-          "h": 130,
-          "anchor": 66,
+          "w": 136,
+          "h": 132,
+          "anchor": 57,
           "files": [
             "frames/undead-hurt-f0.png",
             "frames/undead-hurt-f1.png",
@@ -83,8 +83,8 @@
       "actions": {
         "attack": {
           "w": 190,
-          "h": 95,
-          "anchor": 108,
+          "h": 96,
+          "anchor": 76,
           "files": [
             "frames/beast-attack-f0.png",
             "frames/beast-attack-f1.png",
@@ -95,7 +95,7 @@
         "hurt": {
           "w": 130,
           "h": 114,
-          "anchor": 61,
+          "anchor": 52,
           "files": [
             "frames/beast-hurt-f0.png",
             "frames/beast-hurt-f1.png",

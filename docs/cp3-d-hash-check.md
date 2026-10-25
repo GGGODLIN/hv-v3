@@ -1,0 +1,49 @@
+# CP3-D sha256 零重複比對（2026-10-25 20:08:11 Asia/Taipei）
+舊路徑：/workspace/hv-clone /workspace/hvp091（hentaiverse-clone-kb、CopyVerse 在本機找不到）；只算 sha256，未開啟任何舊檔。
+舊檔雜湊（去重）：5423
+新素材檔數：44；與舊專案相同：0；與 8e1ff32 舊素材相同：0
+
+a2d88651008a759dbe9d300d06cb636c88657a2f9db234d2922730e6b22a970a  public/assets/pixel/manifest.json
+ee8f4fbd2de13c70d536b8307e0f29df41bdbbede2d8ad5c6cfc6a2c1e0bb6c8  public/assets/pixel/frames/beast-hurt-f1.png
+68ba27035653e8baff8efb94e4dac88a623a2f01460257013b82cc39d99d4b6f  public/assets/pixel/frames/hero-hurt-f1.png
+954246c0d69eff077a79137b22e50dbc443fa59f3cc513c11321a15a753d4b9a  public/assets/pixel/frames/undead-hurt-f2.png
+28c52ffa7903d4d02d537b67ca4d07b30904173786286f8ff5f4a44a597bcd06  public/assets/pixel/frames/undead-hurt-f1.png
+def29df7a163767de3f46ab68b9740f081740c604f6c167aea1d72fb5e743a48  public/assets/pixel/frames/hero-cast-f3.png
+637dd0ec6013a0df03a72dc03d54348ac37135a00a1cca8185b6f1900f3b4678  public/assets/pixel/frames/beast-attack-f3.png
+449129d8f299cfd28ad2e1794ab1eb9140b4eaea9f9b49a37b8077f2105f2daf  public/assets/pixel/frames/hero-hurt-f3.png
+3ff41c64ac3d6babbf71be3403377f9a5cabf96139b857d815f54a57082eef9a  public/assets/pixel/frames/beast-hurt-f0.png
+c75eddaf98ab0e8ef6b27158f5622e633913953cbbda9d810eaa767bf41e73f2  public/assets/pixel/frames/beast-attack-f2.png
+8340250117921a7ee9a7415521317b62c76594f60d418257abc206d27b44fa59  public/assets/pixel/frames/hero-attack-f2.png
+3d7ac39ac8725b5f36e0c8f0181a0153b9875d09e40d7655122db1ac12f3d03c  public/assets/pixel/frames/hero-idle-f0.png
+662929693080701690744476e0e681e342af8e177c8e6a88cff38352e512cec8  public/assets/pixel/frames/undead-hurt-f3.png
+dbda4d8c803aa47df9a93794f463bdcedb930212e13060a5d9bd08f03e3d6a20  public/assets/pixel/frames/hero-hurt-f0.png
+e014dffa4db2987c6536046cf0b6c4c40a536cc232fbc4bb2af5b6e63d1229a4  public/assets/pixel/frames/undead-attack-f0.png
+10a06fd46c636545759d24ad15381f4fcd9c5fdb810f1d40dab5c0bb3937d120  public/assets/pixel/frames/hero-idle-f2.png
+a4bd6189648ee1f3ff5e9712a586f0e9759e46658f11805b036ea142d22f367d  public/assets/pixel/frames/beast-attack-f0.png
+763b60964c52013567db158ec183681c3fb92a0f01e3fff96d1177b68872580e  public/assets/pixel/frames/hero-idle-f3.png
+b919690798b6909c10a4f5a3da30cf2a3295933b5fa92e8dae8d055e06074a30  public/assets/pixel/frames/hero-attack-f1.png
+b36fe80fb11460cadf0cda3fa0f21d0975377707e906ccec9641935bb0acf07f  public/assets/pixel/frames/undead-hurt-f0.png
+ec9c85cacf0c889995e1ad3d83f4d69e567070370f9cb6b82a3255aa66fb691e  public/assets/pixel/frames/hero-cast-f1.png
+b2569749c0989187bf849cb5dbc5a06f8f65a9b545397bbbb1885fff61aee95d  public/assets/pixel/frames/undead-attack-f1.png
+470277d6cb3a02103085aa569098b8d0ec0a42361c62c43a8ad3d74173f4a0e4  public/assets/pixel/frames/beast-hurt-f3.png
+04796312e767b037a8a99ef641c2db43a1262b3d77b5f7d28839394a900073f7  public/assets/pixel/frames/bg.png
+0245af0a698c7681a9e1261e72a3e4880b93474acd7d64177c0a6cdd40631060  public/assets/pixel/frames/undead-attack-f2.png
+acbd0ec1f7bf80482b03cda9c40f033ca4e5cfd1b4b6a729e73cc2ca02ce74d1  public/assets/pixel/frames/undead-attack-f3.png
+398d52b21182e9aa1b853986b8af32bb66341f6bf5b6e3e36b9ae9b62bfad2df  public/assets/pixel/frames/hero-attack-f3.png
+7d74879b6755ace5156dec872a80c6cb998402a5e5f2ead6eb752112880e3a21  public/assets/pixel/frames/beast-attack-f1.png
+3029123dfef1c77d4ddc404ff806d7c3cdefb4025d13c6d2dd98d286ed359a8b  public/assets/pixel/frames/hero-idle-f1.png
+93a66c85d89859a94296f03651461524712b790d2ee9f4e20bf11e56b4c9f9b4  public/assets/pixel/frames/hero-hurt-f2.png
+435b346a43b5c5a91faec6b547d240fa31ee061914b7a7af876edad0be251a71  public/assets/pixel/frames/hero-cast-f0.png
+4fe9bd653f5b7c4be7cdd652037347cbab7150f287b53a83cdb4a5b277e026b5  public/assets/pixel/frames/hero-attack-f0.png
+169637736a0102c47ec5b5aca485f95cf71de1a987df8b70d669ade5f2dfcefb  public/assets/pixel/frames/beast-hurt-f2.png
+3705beacff5da2d9d621d2c33e134fc3ae20ef4fc7a993efbaf414fb85dd603d  public/assets/pixel/frames/hero-cast-f2.png
+a568b706a518686bb2f767ae7a7dd8d2080931c140dc1af119ae509500d1becc  .scratch/hv-v3/art-trial/poc/pixel/hero-cast.png
+0e8fb26af2c411bd5b141a2a451847d6ee637f194bc02c796ee5b0db4b9dcb19  .scratch/hv-v3/art-trial/poc/pixel/beast-hurt.png
+769dddca93aff9e67b5e1b8cdfaee6db1317ba2c51fb18e0f5ca55757fbc5f63  .scratch/hv-v3/art-trial/poc/pixel/undead-attack.png
+83240e1e6067f4cd9faf3ca8c98e43fbe8d5257105d15630b7894b5b29cc3548  .scratch/hv-v3/art-trial/poc/pixel/beast-attack.png
+f9c558b8e9ebd6e23d0fcee90fa642013a70798c2d9dce80566e3dced0238513  .scratch/hv-v3/art-trial/poc/pixel/hero-idle.png
+04796312e767b037a8a99ef641c2db43a1262b3d77b5f7d28839394a900073f7  .scratch/hv-v3/art-trial/poc/pixel/bg.png
+1d97aa2a2f82a09df18c9dcc09146c9ccea9b48aa8f1b2755c0eedafd2391e75  .scratch/hv-v3/art-trial/poc/pixel/undead-hurt.png
+d9b5672354690107dac50351ffcdaae31fe05a77284357f7a3ccee06d7d67d06  .scratch/hv-v3/art-trial/poc/pixel/hero-hurt.png
+7c5eb85fbc7f360d71aca64917c78b39431a69e38c636dfe525ee930af8e51d2  .scratch/hv-v3/art-trial/poc/pixel/hero-attack.png
+8555b007549c180c1feb48444122d63620c6d5be6b63d99e576bfbd25c2a244e  scripts/gen-pixel-art.py
