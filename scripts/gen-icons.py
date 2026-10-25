@@ -75,6 +75,20 @@ def gust(c):
   for i, (y, w) in enumerate([(3, 11), (7, 13), (11, 9)]): c.l((1 + i, y), (w, y), '#8affb0', 2); c.e(w - 1, y - 2, 4, 4, '#4ad080')
 def holy(c): c.e(2, 2, 12, 12, '#fff8c8'); c.r(7, 1, 2, 14, '#ecbe46'); c.r(2, 6, 12, 2, '#ecbe46')
 def dark(c): c.e(2, 1, 12, 11, '#b060ff'); c.r(5, 11, 6, 4, '#b060ff'); c.r(4, 5, 3, 3, '#200830'); c.r(9, 5, 3, 3, '#200830'); c.px(8, 9, '#200830'); [c.px(x, 14, '#200830') for x in (6, 8, 10)]
+# CP3-fix 12: command / skill / potion glyphs for the battle bar.
+def c_attack(c): sword(c)
+def c_defend(c): shield(c, 'kite')
+def c_focus(c): c.e(1, 4, 14, 8, '#e8f0ff'); c.e(5, 4, 6, 8, '#4aa0ff'); c.e(7, 6, 2, 4, '#102040')
+def c_spirit(c): c.e(1, 1, 14, 14, '#7a40c0'); c.p([(8, 2), (12, 8), (8, 14), (4, 8)], '#e0b0ff'); c.e(6, 6, 4, 4, '#ffffff')
+def k_bash(c): shield(c, 'buckler'); [c.px(x, y, '#fff04a') for x, y in ((13, 1), (14, 2), (12, 2), (13, 3), (1, 13), (2, 12))]
+def k_vital(c): dagger(c); c.e(11, 10, 4, 5, '#e02030'); c.px(12, 9, '#e02030')
+def k_merciful(c): axe(c); c.e(1, 9, 6, 6, '#e8e0d0'); c.px(2, 11, '#200810'); c.px(5, 11, '#200810')
+def bottle(col):
+  def f(c): c.r(6, 1, 4, 3, '#a06a3a'); c.r(5, 4, 6, 2, '#d8e2f0'); c.e(2, 5, 12, 10, '#d8e2f0'); c.e(3, 7, 10, 8, col); c.px(5, 8, '#ffffff')
+  return f
+CMDS = {'c-attack': c_attack, 'c-defend': c_defend, 'c-focus': c_focus, 'c-spirit': c_spirit,
+        'k-shieldBash': k_bash, 'k-vitalStrike': k_vital, 'k-mercifulBlow': k_merciful,
+        'p-health': bottle('#e03040'), 'p-mana': bottle('#3070f0'), 'p-spirit': bottle('#40d080')}
 SPELLS = {'fiery': flame, 'freeze': snow, 'shock': bolt, 'gale': gust, 'smite': holy, 'corruption': dark}
 
 def main():
@@ -89,6 +103,7 @@ def main():
   for fam in ARMOR:
     for sl in ('head', 'body', 'hands', 'legs', 'feet'): save(f'a-{fam}-{sl}', lambda c, s=sl, f=fam: armor(c, s, f))
   for k, f in SPELLS.items(): save(f'sp-{k}', f)
+  for k, f in CMDS.items(): save(k, f)
   (OUT / 'index.json').write_text(json.dumps(icons, indent=1) + '\n')
   ims = [Image.open(OUT / v) for v in icons.values()]
   cols = 10; S = N * PX * 2 + 8

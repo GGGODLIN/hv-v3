@@ -250,3 +250,10 @@ describe('CP3-fix 11: monster bodies', () => {
     for (const b of BODIES) expect(man.chars[`m-${b}`]).toBeTruthy();
   });
 });
+
+describe('CP3-fix 12: battle bar icons', () => {
+  it('every command, skill and potion has an icon', () => {
+    const idx = JSON.parse(rf8('public/assets/icons/index.json', 'utf8'));
+    for (const k of ['c-attack', 'c-defend', 'c-focus', 'c-spirit', 'k-shieldBash', 'k-vitalStrike', 'k-mercifulBlow', 'p-health', 'p-mana', 'p-spirit']) expect(idx[k]).toBeTruthy();
+  });
+});

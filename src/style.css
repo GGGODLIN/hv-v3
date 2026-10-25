@@ -9,7 +9,11 @@ html, body { margin: 0; background: radial-gradient(circle at 50% 0, #2a1b38, va
 button { font: inherit; color: var(--text); background: #33264a; border: 1px solid #6a5590; border-radius: 4px; padding: 5px 10px; cursor: pointer; transition: transform .05s, background .1s; }
 button:hover:not(:disabled) { background: #4a3768; border-color: var(--acc); }
 button:active:not(:disabled) { transform: translateY(1px); }
-button:disabled, button[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
+button:disabled { opacity: .38; cursor: not-allowed; }
+/* CP3-fix 12: unusable battle buttons — gray icon, striped dark face, red reason line, but text stays readable. */
+button[aria-disabled="true"] { cursor: not-allowed; color: #9a90a8; background: repeating-linear-gradient(135deg, #1e1828 0 6px, #26202f 6px 12px); border: 1px dashed #5a5068; }
+button[aria-disabled="true"] .icon { filter: grayscale(1) brightness(.55); }
+button[aria-disabled="true"] small { color: #ff8a7a; }
 button.on { background: var(--acc); color: #201428; border-color: var(--acc); }
 button.big { font-size: 16px; padding: 9px 18px; background: linear-gradient(#a8562a, #7c3a1c); border-color: #ffb85a; }
 button.ghost { background: transparent; }
@@ -63,7 +67,13 @@ td { padding: 3px 8px; border-bottom: 1px solid #ffffff10; }
 .fn { width: 70px; color: var(--dim); font-weight: 700; }
 .node { display: inline-block; min-width: 92px; text-align: center; padding: 4px 8px; border: 1px solid #ffffff22; border-radius: 4px; font-size: 13px; }
 button.node { font-size: 14px; padding: 8px 12px; }
-.node.faded { opacity: .3; } .node.chosen { outline: 2px solid var(--acc); }
+.node.faded { opacity: .35; filter: grayscale(.8); }
+.node.chosen { outline: 2px solid var(--acc); background: #4a3a1e; color: #ffe8b0; opacity: 1; }
+.node .ni { display: block; font-size: 26px; line-height: 1.1; text-shadow: 0 0 3px #000, 0 0 6px #000; }
+.node .tick { display: block; font-style: normal; font-size: 11px; color: var(--acc); }
+.node { background: #2a2038; border-color: #ffffff55; color: #fff; }
+button.node .ni { font-size: 30px; }
+.iwgain { display: inline-block; margin-right: 8px; } .iwgain b { color: #8aff9a; }
 .n-elite { color: #ff9a6a; } .n-boss { color: #ff5a5a; font-weight: 700; } .n-chest { color: #ffe070; } .n-merchant { color: #9adfff; } .n-rest { color: #8aff9a; } .n-shrine { color: #e0a8ff; }
 .hud { position: absolute; top: 40px; left: 10px; right: 10px; display: grid; grid-template-columns: 1fr 330px; gap: 10px; pointer-events: none; }
 .hudl { background: #0009; padding: 4px 8px; border-radius: 6px; }
@@ -102,4 +112,4 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 /* CP3-fix 7: procedural icons */
 .icon { image-rendering: pixelated; vertical-align: middle; margin-right: 6px; flex: none; }
 .iname { display: flex; align-items: center; }
-button.spell .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }
+.cmdbar button .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }

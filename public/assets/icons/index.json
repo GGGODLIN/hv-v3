@@ -36,5 +36,15 @@
  "sp-shock": "sp-shock.png",
  "sp-gale": "sp-gale.png",
  "sp-smite": "sp-smite.png",
- "sp-corruption": "sp-corruption.png"
+ "sp-corruption": "sp-corruption.png",
+ "c-attack": "c-attack.png",
+ "c-defend": "c-defend.png",
+ "c-focus": "c-focus.png",
+ "c-spirit": "c-spirit.png",
+ "k-shieldBash": "k-shieldBash.png",
+ "k-vitalStrike": "k-vitalStrike.png",
+ "k-mercifulBlow": "k-mercifulBlow.png",
+ "p-health": "p-health.png",
+ "p-mana": "p-mana.png",
+ "p-spirit": "p-spirit.png"
 }

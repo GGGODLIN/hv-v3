@@ -6,7 +6,7 @@ import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_Z
 import type { Monster, MonsterPool } from '../core/monsters';
 import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, resetAttrs, unequip, unspentExp, type Player } from '../core/player';
 import { Rng, randomSeed } from '../core/rng';
-import { has, prog, tip, TIPS } from '../core/progress';
+import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { advance, applyLoot, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
@@ -159,8 +159,14 @@ export class App {
     } else if (this.townTab === 'iw') {
       const g = prog(p);
       const cost = (e: Equip) => (g.iwUses === 0 ? 0 : IW_COST * (e.iw + 1));
-      const rows = SLOTS.map((sl) => p.equipped[sl]).filter((e): e is Equip => !!e).map((e) => `<tr><td>${esc(equipName(e))}</td><td>+${e.iw}</td><td><button data-iw="${e.slot}" ${p.credits < cost(e) ? 'disabled' : ''}>強化 ${cost(e) ? cost(e) + 'C' : '（免費）'}</button></td></tr>`).join('');
-      body = `<h3>道具界</h3><div class="hint">進入裝備的道具界強化 +1。第一次免費。</div><table>${rows}</table>`;
+      // CP3-fix 12: show exactly which stats the next +1 changes.
+      const gain = (e: Equip) => {
+        const a = effectiveStats(e), b = effectiveStats({ ...e, iw: e.iw + 1 });
+        const ch = (Object.keys(b) as (keyof typeof b)[]).filter((k) => b[k] !== a[k]).map((k) => `<span class="iwgain">${STAT_ZH[k] ?? k} ${fmtStat(k, a[k]!)} → <b>${fmtStat(k, b[k]!)}</b></span>`);
+        return ch.join(' ') || '<span class="hint">此裝備沒有會隨強化成長的數值</span>';
+      };
+      const rows = SLOTS.map((sl) => p.equipped[sl]).filter((e): e is Equip => !!e).map((e) => `<tr data-iwrow="${e.slot}"><td>${esc(equipName(e))}</td><td>+${e.iw} → +${e.iw + 1}</td><td class="iwprev">${gain(e)}</td><td><button data-iw="${e.slot}" ${p.credits < cost(e) ? 'disabled' : ''}>強化 ${cost(e) ? cost(e) + 'C' : '（免費）'}</button></td></tr>`).join('');
+      body = `<h3>道具界</h3><div class="hint">進入裝備的道具界強化 +1：會隨等級成長的數值每級 +4%（下表列出這次會變多少）。第一次免費。</div><table>${rows}</table>`;
     } else if (this.townTab === 'char') {
       const free = Math.floor(unspentExp(p));
       const attrs = ATTRS.map((a) => {
@@ -199,14 +205,15 @@ export class App {
       const past = f.n < r.floor;
       const opts = f.options.map((t, i) => {
         const chosen = past && r.path[f.n - 1] === i;
-        return cur ? `<button class="node n-${t}" data-node="${i}">${NODE_ICON[t]} ${NODE_ZH[t]}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}">${NODE_ICON[t]} ${NODE_ZH[t]}</span>`;
+        const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
+        return cur ? `<button class="node n-${t}" data-node="${i}">${ic}${NODE_ZH[t]}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small></span>${opts}</div>`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && r.trip <= 2 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${r.trip === 1 ? 3 : 2}</div>` : ''}
+      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && r.trip <= 2 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
   }
@@ -216,10 +223,10 @@ export class App {
     const sk = (Object.keys(SKILLS) as SkillId[]).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
-      return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}>${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
+      return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${id === 'health' && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}>${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${id === 'health' && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
@@ -231,7 +238,7 @@ export class App {
         <div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
-        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
+        <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
