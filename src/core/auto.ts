@@ -186,6 +186,8 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
   return a;
 }
 export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
+  /** rc4 diagnostics (sim-only, read by scripts/rc4-noclear.ts): why the run stopped early. */
+  end?: { why: 'dead' | 'retreat'; floor: number; type: string; foes: { name: string; rank: string; affixes?: string[]; sig?: string }[] };
   /** CP4 (buff strategies only) */
   cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number; offers: number; contests: number } }
 
@@ -233,6 +235,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   let turns = 0;
   const bosses: BossFight[] = [];
   const elites: { floor: number; won: boolean; hpPct: number }[] = [];
+  let end: RunReport['end'];
   let battles = 0, spiritBattles = 0;
   while (!run.done) {
     if (run.abyss && depthOf(run) > (cp5?.cap ?? 60)) { run.done = 'retreat'; break; }
@@ -265,11 +268,11 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
-      if (!loot) break;
+      if (!loot) { end = { why: 'dead', floor: run.floor, type, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
       const used = autoEquip(p, run.bag);
       run.bag = run.bag.filter((e) => !used.includes(e));
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
-      if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; break; }
+      if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run));
       const used = autoEquip(p, run.bag);
@@ -304,7 +307,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
+  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
 export function starterKit(p: Player, seed = 7): void {
