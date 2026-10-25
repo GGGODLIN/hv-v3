@@ -13,7 +13,7 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
-Version 0.8.1 is a source-only numerical clock-correction candidate. All 515 tests, four runtime syntax checks and the full 100-seed balance run pass; its source backup/readback is pending. The earlier v0.8 public-file verification is blocked pending a user decision, and no further website writes or HTTP retries are being attempted. Public v0.7 remains the accepted playable version; do not treat either candidate as an accepted release.
+Version 0.8.1 is a source-only numerical clock-correction candidate. All 515 tests, four runtime syntax checks and the full 100-seed balance run pass; complete source backup/readback is verified at d725a41047bbc77f53113db4b8ae8983877e8b4f, including a successful test run from the remotely reconstructed package. The earlier v0.8 public-file verification is blocked pending a user decision, and no further website writes or HTTP retries are being attempted. Public v0.7 remains the accepted playable version; do not treat either candidate as an accepted release.
 
 Version 0.8 is the next development candidate: historical-model axe Bleeding Wound. Its 469 source tests and full 100-seed balance measurement pass; browser and release gates remain pending; public v0.7 remains accepted. Do not treat a candidate as the latest verified playable checkpoint.
 
