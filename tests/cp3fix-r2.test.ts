@@ -33,7 +33,7 @@ describe('CP3-bugfix r3 #1: whitelist monster names', () => {
   const rows = JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[];
   const esc = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const tok = `(?:${[...NAME_VOCAB].sort((x, y) => y.length - x.length).map(esc).join('|')})`;
-  const WHITE = new RegExp(`^(?:${tok}${esc(BOSS_SEP)})?${tok}+$`);
+  const WHITE = new RegExp(`^(?:${tok}${esc(BOSS_SEP)})?${tok}+[A-Z]?$`);
   it('all 44,382 display names (normal and boss form) use only generator words; raw names never appear', () => {
     expect(rows.length).toBe(44382);
     for (const r of rows) {
@@ -50,7 +50,7 @@ describe('CP3-bugfix r3 #1: whitelist monster names', () => {
     expect(buildMonster(c, 5, 'boss').name).toContain(BOSS_SEP);
     expect(buildMonster(c, 5, 'normal').name).toBe(c[2]);
     const pool = makePool(rows);
-    expect(pool.rows.every((x) => /^[\u4e00-\u9fff·]+$/.test(x[2]))).toBe(true);
+    expect(pool.rows.every((x) => /^[\u4e00-\u9fff]+$/.test(x[2]))).toBe(true);
   });
 });
 
@@ -67,5 +67,19 @@ describe('CP3-bugfix 7: upgrade preview shows the real change', () => {
     const s = effectiveStats({ ...e, iw: 1 });
     expect(s.attackDamage).toBeCloseTo(24.3, 1);
     expect(s.burden).toBe(11.38);
+  });
+});
+
+describe('CP3 polish: names', () => {
+  it('marks same-name monsters A/B/C and keeps unique names untouched', async () => {
+    const { markDuplicates } = await import('../src/core/names');
+    expect(markDuplicates(['霜羽鷹', '霜羽鷹', '炎牙狼'])).toEqual(['霜羽鷹A', '霜羽鷹B', '炎牙狼']);
+    expect(markDuplicates(['塔主・古霜羽鷹', '炎牙狼'])).toEqual(['塔主・古霜羽鷹', '炎牙狼']);
+  });
+  it('every trait+noun (with or without a mark) still maps to its own body', async () => {
+    const { TRAIT_WORD, BODY_NOUN, nounBody } = await import('../src/core/names');
+    for (const [b, ns] of Object.entries(BODY_NOUN)) for (const n of ns) for (const t of TRAIT_WORD) {
+      expect(nounBody(`古霜${t}${n}`)).toBe(b); expect(nounBody(`古霜${t}${n}B`)).toBe(b);
+    }
   });
 });

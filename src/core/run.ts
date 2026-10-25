@@ -1,3 +1,4 @@
+import { markDuplicates } from './names';
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
@@ -219,6 +220,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       return m;
     });
     if (type === 'elite') run.weakNext = false;
+    markDuplicates(out.map((m) => m.name)).forEach((n, i) => { out[i]!.name = n; });
     return out;
   });
 }

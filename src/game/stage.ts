@@ -115,7 +115,7 @@ export class Stage extends Phaser.Scene {
       if (m.rank === 'boss') sprite.setTint(0xff8080);
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () => { if (m.hp > 0) this.onTarget(i); });
       const top = y - (kind === 'beast' ? 95 : 148) * scale;
-      const label = this.add.text(x, top - 26, `${m.rank === 'boss' ? '♛ ' : m.rank === 'elite' ? '☠ ' : ''}${m.name} Lv${m.level}`, { fontFamily: 'monospace', fontSize: '13px', color: m.rank === 'normal' ? '#ffffff' : '#ffb060', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+      const label = this.add.text(x, top - 26, `${m.rank === 'elite' ? '☠' : ''}${m.name} Lv${m.level}`, { fontFamily: 'monospace', fontSize: '13px', color: m.rank === 'normal' ? '#ffffff' : '#ffb060', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
       const bar = this.add.graphics().setDepth(20);
       const v: MonView = { m, sprite, kind, x, y, scale, bar, label, ring };
       this.mons.push(v);
