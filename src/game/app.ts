@@ -585,7 +585,7 @@ export class App {
 
   endRun() {
     const r = this.run;
-    const floor = r.done === 'clear' ? TOWER.floors : r.floor;
+    const floor = r.done === 'clear' ? r.tower.floors.length : r.floor;
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
     if (r.done === 'clear') this.data.stats.clears++;
     this.lastSettlement = settle(this.p, r);

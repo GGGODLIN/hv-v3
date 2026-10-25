@@ -1,4 +1,5 @@
-import { markDuplicates } from './names';
+import { BOSS_SEP, markDuplicates } from './names';
+import { BOSS_BY_FLOOR } from './cp5';
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
@@ -35,6 +36,8 @@ export const RULES = {
   cp4RunBuffs: false,
   /** CP4 decision 5 (暫定): boss max HP × (1 + k × buffs held). Gameplay layer, monsters.json untouched. */
   cp4BossHpPerBuff: 0.06,
+  /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. `?cp5` in the URL turns it on. */
+  cp5Bosses: false,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -86,6 +89,11 @@ export interface RunState {
   curse?: number;
   ocZeroNext?: boolean;
   buffStock?: { id: string; price: number }[];
+  /** CP5 (flag): this run uses the 20-floor tower and CP5 mechanics; f10 = the floor-10 boss was beaten this run. */
+  cp5?: boolean;
+  f10?: boolean;
+  /** CP5: player bleed / burn carried between battles (cleared by rest, health potion, defend). */
+  pdot?: import('./cp5').PDot;
 }
 
 export function startRun(p: Player, seed: number): RunState {
@@ -100,12 +108,13 @@ export function startRun(p: Player, seed: number): RunState {
   const locked: NodeType[] = [];
   if (!has(p, 'shrine')) locked.push('shrine');
   if (!has(p, 'merchant')) locked.push('merchant');
-  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0 });
+  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}) });
   const d = derive(p);
   return {
     seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip, tutorial, notes,
     ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}),
+    ...(RULES.cp5Bosses ? { cp5: true } : {}),
   };
 }
 
@@ -216,6 +225,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
         const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
         m.maxHp = m.hp = Math.round(m.maxHp * g);
       }
+      if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       return m;
     });
@@ -285,7 +295,9 @@ export function applyLoot(p: Player, run: RunState, loot: Loot): void {
 export function finishBattle(p: Player, run: RunState, b: BattleState, monsters: Monster[], type: NodeType): Loot | null {
   run.hp = b.hp; run.mp = b.mp; run.sp = b.sp;
   p.potions = { ...b.potions };
+  if (run.cp5) run.pdot = b.cp5?.pdot;
   if (b.over !== 'win') { run.done = 'dead'; return null; }
+  if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
   const loot = battleLoot(run, monsters, type);
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
@@ -311,6 +323,7 @@ export function merchantStock(run: RunState): MerchantStock {
 export function rest(p: Player, run: RunState, choice: 'heal' | 'upgrade', equipSlot?: string): string {
   const d = runDerived(p, run);
   if (choice === 'heal') {
+    if (run.cp5) run.pdot = undefined;
     run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * RULES.restHeal));
     run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * RULES.restHeal));
     run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * RULES.restHeal));
@@ -336,7 +349,7 @@ export function advance(run: RunState, option: number): void {
   run.path.push(option);
   run.current = null;
   run.merchant = null;
-  if (run.floor >= TOWER.floors) run.done = 'clear';
+  if (run.floor >= run.tower.floors.length) run.done = 'clear';
   else run.floor++;
 }
 
@@ -371,7 +384,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const unlocks: string[] = [];
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
-  if (outcome === 'clear') { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
+  if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
   return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.floor };
 }
 

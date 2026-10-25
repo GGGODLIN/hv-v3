@@ -2,6 +2,7 @@ import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
+import type { PDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
 
@@ -104,6 +105,8 @@ export interface BattleState {
   /** Usage counters for proficiency gain. */
   used: Partial<Record<Prof, number>>;
   bossTurns: number;
+  /** CP5 (flag only): player bleed / burn. Undefined = CP4 behavior. */
+  cp5?: { pdot: PDot };
 }
 
 export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {

@@ -204,7 +204,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     }
     advance(run, opt);
   }
-  const floorReached = run.done === 'clear' ? 11 : run.floor;
+  const floorReached = run.done === 'clear' ? run.tower.floors.length + 1 : run.floor;
   const s = settle(p, run);
   // Sell the junk in town.
   const keep = new Set(Object.values(p.equipped).map((e) => e!.id));

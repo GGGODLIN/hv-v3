@@ -24,6 +24,8 @@ export const TOWER = {
   weights: [['battle', 45], ['elite', 12], ['chest', 10], ['merchant', 10], ['rest', 13], ['shrine', 10]] as [NodeType, number][],
 };
 
+/** CP5 decision 1 (暫定, flag RULES.cp5Bosses only): 20-floor tower. Boss every 5 floors, rest / combat pattern repeated. */
+export const CP5_TOWER = { floors: 20, bossFloors: [5, 10, 15, 20], restFloors: [4, 8, 14, 18], combatFloors: [1, 3, 7, 9, 11, 13, 17, 19] };
 export interface Floor { n: number; options: NodeType[] }
 export interface Tower { floors: Floor[] }
 
@@ -38,6 +40,8 @@ export interface TowerOpts {
   locked?: NodeType[];
   /** Guarantee at least one shrine (CP3-9: trip 2 onwards). */
   shrine?: boolean;
+  /** CP5: 20 floors (flag on). */
+  long?: boolean;
 }
 const COMBAT: NodeType[] = ['battle', 'elite'];
 export const isCombat = (t: NodeType) => t === 'battle' || t === 'elite' || t === 'boss';
@@ -51,28 +55,29 @@ export function generateTower(rng: Rng, opts: TowerOpts = {}): Tower {
   const floors: Floor[] = [];
   const has = (n: number, t: NodeType) => (floors[n - 1]?.options ?? []).includes(t);
   const locked = new Set(opts.locked ?? []);
-  for (let n = 1; n <= TOWER.floors; n++) {
-    if (TOWER.bossFloors.includes(n)) { floors.push({ n, options: ['boss'] }); continue; }
+  const T = opts.long ? { ...TOWER, ...CP5_TOWER } : TOWER;
+  for (let n = 1; n <= T.floors; n++) {
+    if (T.bossFloors.includes(n)) { floors.push({ n, options: ['boss'] }); continue; }
     if (opts.tutorial && n === 2) { floors.push({ n, options: ['battle'] }); continue; }
     if (opts.tutorial && n === 3) { floors.push({ n, options: ['merchant'] }); continue; }
     if (opts.tutorial && n === 4) { floors.push({ n, options: ['elite'] }); continue; }
-    const combatOnly = TOWER.combatFloors.includes(n);
+    const combatOnly = T.combatFloors.includes(n);
     const count = rng.chance(0.5) ? 3 : 2;
     if (n === 1) { floors.push({ n, options: Array<NodeType>(count).fill('battle') }); continue; }
     const banned = (t: NodeType) => locked.has(t) || (has(n - 1, t) && has(n - 2, t));
     const options: NodeType[] = [];
-    if (TOWER.restFloors.includes(n)) options.push('rest');
+    if (T.restFloors.includes(n)) options.push('rest');
     while (options.length < count) {
       const pool = TOWER.weights.filter(([t]) => !banned(t) && !options.includes(t) && (combatOnly ? COMBAT.includes(t) : !COMBAT.includes(t)));
       if (!pool.length) break;
       options.push(rng.weighted(pool));
     }
     if (!options.length) options.push(COMBAT.find((t) => !banned(t)) ?? 'battle');
-    if (options[0] === 'rest' && TOWER.restFloors.includes(n)) { const i = rng.int(0, options.length - 1); [options[0], options[i]] = [options[i]!, options[0]!]; }
+    if (options[0] === 'rest' && T.restFloors.includes(n)) { const i = rng.int(0, options.length - 1); [options[0], options[i]] = [options[i]!, options[0]!]; }
     floors.push({ n, options });
   }
   if (opts.shrine && !floors.some((f) => f.options.includes('shrine'))) {
-    const f = floors.find((x) => x.n >= 6 && !TOWER.combatFloors.includes(x.n) && !TOWER.bossFloors.includes(x.n))!;
+    const f = floors.find((x) => x.n >= 6 && !T.combatFloors.includes(x.n) && !T.bossFloors.includes(x.n))!;
     const i = f.options.findIndex((t) => t !== 'rest' && !isCombat(t));
     if (i >= 0) f.options[i] = 'shrine'; else f.options.push('shrine');
   }
