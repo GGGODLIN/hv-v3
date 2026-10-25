@@ -138,3 +138,29 @@ describe('CP4 step 3: acquisition', () => {
     takeBuff(p, r, id); expect(r.buffs).toEqual([id]); expect(r.offer).toBeNull();
   }));
 });
+
+import { openShrine, takeRisk } from '../src/core/buffoffer';
+describe('CP4 step 4: shrine risks', () => {
+  const p = newPlayer(); starterKit(p);
+  const mk = () => { const r = startRun(p, 21); r.buffs = []; return r; };
+  it('shrine opens a 3-choice plus one risk', () => on(() => { const r = mk(); const s = openShrine(p, r); expect(s.ids.length).toBe(3); expect(r.risk).toBe(s.risk); }));
+  it('blood: -30% HP, rare-only offer', () => on(() => { const r = mk(); r.hp = 100; takeRisk(p, r, 'blood'); expect(r.hp).toBe(70); expect(r.offer!.ids.every((id) => BUFF[id]!.rarity === 'rare')).toBe(true); }));
+  it('tithe: pays 40% credits', () => on(() => { const r = mk(); r.credits = 100; takeRisk(p, r, 'tithe'); expect(r.credits).toBe(60); expect(r.offer!.ids.length).toBe(3); }));
+  it('curse: random legend, mitigation -5%', () => on(() => {
+    const r = mk(); takeRisk(p, r, 'curse'); expect(BUFF[r.buffs![0]!]!.rarity).toBe('legend');
+    const d = runDerived(p, r), r2 = mk(); r2.buffs = [...r.buffs!]; const d2 = runDerived(p, r2);
+    expect(d.physMit).toBeCloseTo(Math.max(0, d2.physMit - 0.05));
+  }));
+  it('discard: removes and offers same rarity', () => on(() => { const r = mk(); r.buffs = ['B2']; takeRisk(p, r, 'discard', 'B2'); expect(r.buffs).toEqual([]); expect(r.offer!.ids.every((id) => BUFF[id]!.rarity === 'common')).toBe(true); }));
+  it('gamble: either a common buff or OC 0 next battle (ignores O3)', () => on(() => {
+    let lost = 0, won = 0;
+    for (let s = 1; s < 40; s++) {
+      const r = startRun(p, s); r.buffs = ['O3']; takeRisk(p, r, 'gamble');
+      if (r.ocZeroNext) {
+        lost++; expect(openingOc(p, 'battle', r)).toBe(0);
+        const b = startBattle(derive(p), { hp: 1, mp: 1, sp: 1 }, [], p.potions); b.oc = 30; armBattle(b, r); expect(b.oc).toBe(0); expect(r.ocZeroNext).toBe(false);
+      } else { won++; expect(r.buffs!.length).toBe(2); }
+    }
+    expect(lost).toBeGreaterThan(5); expect(won).toBeGreaterThan(5);
+  }));
+});

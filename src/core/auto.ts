@@ -126,8 +126,9 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
       b.locked = battleLocks(p);
+      const oc0 = openingOc(p, type, run);
       armBattle(b, run);
-      b.oc += openingOc(p, type, run);
+      b.oc += oc0;
       const profs = profsOf(p);
       const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
       while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }

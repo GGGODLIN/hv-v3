@@ -74,6 +74,10 @@ export interface RunState {
   offer?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
   offerN?: number;
   offersLeft?: number;
+  /** CP4 step 4: shrine risk shown, curse mitigation penalty, next battle opens at OC 0. */
+  risk?: import('./buffoffer').RiskId | null;
+  curse?: number;
+  ocZeroNext?: boolean;
 }
 
 export function startRun(p: Player, seed: number): RunState {
@@ -122,6 +126,7 @@ export function battleLocks(p: Player): { skill: boolean; spell: boolean; spirit
 /** CP3-fix 10: run buff "首領戰意" — opening OC for a battle of this node type. */
 export function openingOc(p: Player, type: NodeType, run?: RunState): number {
   const base = type === 'boss' && has(p, 'spirit') ? RULES.bossOpenOc : 0;
+  if (RULES.cp4RunBuffs && run?.ocZeroNext) return 0;
   if (!cp4On(run)) return base;
   const b = sumMods(run!.buffs!).b;
   return base + (type === 'boss' ? (b.bossOc ?? 0) : (b.ocOpen ?? 0));
@@ -132,6 +137,8 @@ export const cp4On = (run?: RunState): boolean => RULES.cp4RunBuffs && !!run?.bu
 
 /** CP4: attach run-buff battle mods (combo triggers included). No-op with the flag off. */
 export function armBattle(b: BattleState, run: RunState): void {
+  if (!RULES.cp4RunBuffs) return;
+  if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }
   if (!cp4On(run)) return;
   const ids = run.buffs!;
   b.mods = { ...sumMods(ids).b, combo: combos(ids) };
@@ -164,6 +171,7 @@ export function runDerived(p: Player, run: RunState) {
   if (m.edb || m.edbAll) out.edb = Object.fromEntries(Object.entries(out.edb).map(([k, v]) => [k, v + (m.edbAll ?? 0) + ((m.edb as Record<string, number> | undefined)?.[k] ?? 0)])) as typeof out.edb;
   out.manaCons = Math.min(0.5, out.manaCons + (m.manaCons ?? 0));
   out.counterResist += m.counterResist ?? 0;
+  if (run.curse) { out.physMit = Math.max(0, out.physMit - run.curse); out.magMit = Math.max(0, out.magMit - run.curse); }
   return out;
 }
 

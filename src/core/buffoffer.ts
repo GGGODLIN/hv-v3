@@ -26,7 +26,7 @@ export function eligible(p: Player, b: BuffDef): boolean {
   if (b.needs === 'skill') return has(p, 'ocSkill');
   return true;
 }
-export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant', n: number): string[] {
+export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant', n: number, weights?: [number, number, number]): string[] {
   const rng = offerRng(run);
   const held = run.buffs ?? [];
   const cnt = schoolCounts(held);
@@ -34,9 +34,9 @@ export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant
   // Core guarantee: 2 of a school and no core yet -> the core is in the offer.
   for (const s of SCHOOLS) {
     const core = BUFFS.find((b) => b.school === s && b.core)!;
-    if (cnt[s] >= 2 && !held.includes(core.id) && eligible(p, core) && out.length < n && src !== 'merchant') out.push(core.id);
+    if (cnt[s] >= 2 && !held.includes(core.id) && eligible(p, core) && out.length < n && src !== 'merchant' && !weights) out.push(core.id);
   }
-  const [c, r, l] = OFFER_RARITY[src];
+  const [c, r, l] = weights ?? OFFER_RARITY[src];
   let needRare = src === 'boss';
   while (out.length < n) {
     const rar: Rarity = needRare ? (rng.chance(l / (r + l)) ? 'legend' : 'rare') : rng.weighted<Rarity>([['common', c], ['rare', r], ['legend', l]].filter((x) => (x[1] as number) > 0) as [Rarity, number][]);
@@ -66,4 +66,55 @@ export const winOffers = (type: NodeType): number => (type === 'boss' ? 2 : type
 export function merchantBuffs(p: Player, run: RunState): { id: string; price: number }[] {
   const pm = 1 + ((run.buffs ?? []).filter((x) => x === 'N2').length * -0.15);
   return rollBuffs(p, run, 'merchant', MERCHANT_BUFFS).map((id) => ({ id, price: Math.round(BUFF_PRICE[BUFF[id]!.rarity as 'common'] * RULES.merchantMarkup * pm) }));
+}
+
+// ---- CP4 step 4: shrine risk events (doc §5). All 暫定.
+export type RiskId = 'blood' | 'tithe' | 'curse' | 'discard' | 'gamble';
+export const RISKS: Record<RiskId, { zh: string; cost: string; reward: string }> = {
+  blood: { zh: '血祭', cost: '失去 30% 目前 HP', reward: '稀有 buff 三選一' },
+  tithe: { zh: '獻金', cost: '支付本趟 Credits 的 40%', reward: '傳說機率 ×3 的三選一' },
+  curse: { zh: '詛咒契約', cost: '本趟物理／魔法減傷 −5%', reward: '隨機一個傳說 buff' },
+  discard: { zh: '捨棄', cost: '移除一個已持有的 buff', reward: '同稀有度三選一' },
+  gamble: { zh: '賭運', cost: '50%：下一場開場 OC 歸 0（不受 O3 影響）', reward: '50%：一個普通 buff' },
+};
+export const CURSE_MIT = 0.05;
+/** Shrine (flag on): a normal 3-choice plus one random risk. */
+export function openShrine(p: Player, run: RunState): { ids: string[]; risk: RiskId } {
+  const ids = openOffer(p, run, 'shrine');
+  const rng = offerRng(run);
+  const pool: RiskId[] = ['blood', 'tithe', 'curse', 'gamble', ...((run.buffs ?? []).length ? ['discard' as RiskId] : [])];
+  const risk = pool[rng.int(0, pool.length - 1)]!;
+  run.risk = risk;
+  return { ids, risk };
+}
+export function takeRisk(p: Player, run: RunState, risk: RiskId, discard?: string): string {
+  run.risk = null; run.offer = null;
+  const set = (ids: string[], src: OfferSource = 'shrine') => { run.offer = ids.length ? { src, ids } : null; };
+  switch (risk) {
+    case 'blood':
+      run.hp = Math.max(1, Math.round(run.hp * 0.7));
+      set(rollBuffs(p, run, 'shrine', OFFER_SIZE, [0, 1, 0])); return '血祭：失去 30% HP';
+    case 'tithe': {
+      const pay = Math.round(run.credits * 0.4); run.credits -= pay;
+      const [c, r, l] = OFFER_RARITY.shrine; set(rollBuffs(p, run, 'shrine', OFFER_SIZE, [c, r, l * 3])); return `獻金：支付 ${pay} Credits`;
+    }
+    case 'curse': {
+      run.curse = (run.curse ?? 0) + CURSE_MIT;
+      const [id] = rollBuffs(p, run, 'shrine', 1, [0, 0, 1]);
+      return id ? `詛咒契約：減傷 −5%。${takeBuff(p, run, id)}` : '詛咒契約：減傷 −5%（沒有可用的傳說）';
+    }
+    case 'discard': {
+      const held = run.buffs ?? []; const id = discard && held.includes(discard) ? discard : held[0];
+      if (!id) return '沒有可捨棄的 buff';
+      held.splice(held.indexOf(id), 1);
+      const rar = BUFF[id]!.rarity;
+      set(rollBuffs(p, run, 'shrine', OFFER_SIZE, [rar === 'common' ? 1 : 0, rar === 'rare' ? 1 : 0, rar === 'legend' ? 1 : 0]));
+      return `捨棄【${BUFF[id]!.zh}】`;
+    }
+    case 'gamble': {
+      const rng = offerRng(run);
+      if (rng.chance(0.5)) { const [id] = rollBuffs(p, run, 'shrine', 1, [1, 0, 0]); return id ? `賭運成功。${takeBuff(p, run, id)}` : '賭運成功，但沒有可用的 buff'; }
+      run.ocZeroNext = true; return '賭運失敗：下一場戰鬥開場 OC 歸 0';
+    }
+  }
 }
