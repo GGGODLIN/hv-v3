@@ -108,3 +108,33 @@ describe('CP4 step 2: buffs apply as run-layer mods', () => {
     expect(b1.maxHp).toBe(Math.round(b0.maxHp * (1 + 5 * RULES.cp4BossHpPerBuff)));
   }));
 });
+
+import { eligible, merchantBuffs, openOffer, rollBuffs, takeBuff } from '../src/core/buffoffer';
+import { BUFF } from '../src/core/buffs';
+import { prog } from '../src/core/progress';
+describe('CP4 step 3: acquisition', () => {
+  const p = newPlayer(); starterKit(p);
+  it('offers do not touch the run RNG stream', () => on(() => {
+    const r = startRun(p, 11); const rng0 = r.rng;
+    openOffer(p, r, 'elite'); expect(r.rng).toBe(rng0); expect(r.offer!.ids.length).toBe(3);
+  }));
+  it('boss offers always include a rare or legend; merchant never legend (decision 7)', () => on(() => {
+    for (let s = 1; s < 200; s++) {
+      const r = startRun(p, s);
+      expect(rollBuffs(p, r, 'boss', 3).some((id) => BUFF[id]!.rarity !== 'common')).toBe(true);
+      for (const x of merchantBuffs(p, r)) expect(BUFF[x.id]!.rarity).not.toBe('legend');
+    }
+  }));
+  it('core guaranteed after 2 of a school', () => on(() => {
+    const r = startRun(p, 2); r.buffs = ['B2', 'B3'];
+    expect(rollBuffs(p, r, 'shrine', 3)).toContain('B1');
+  }));
+  it('locked systems gate buffs', () => {
+    const q = newPlayer(); prog(q).unlocked = ['defend', 'potion'];
+    expect(eligible(q, BUFF['A2']!)).toBe(false); expect(eligible(q, BUFF['B2']!)).toBe(true);
+  });
+  it('takeBuff stores and clears the offer', () => on(() => {
+    const r = startRun(p, 2); openOffer(p, r, 'shrine'); const id = r.offer!.ids[0]!;
+    takeBuff(p, r, id); expect(r.buffs).toEqual([id]); expect(r.offer).toBeNull();
+  }));
+});

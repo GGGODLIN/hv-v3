@@ -70,6 +70,10 @@ export interface RunState {
   notes?: string[];
   /** CP4 (flag): buff ids held this run. Cleared every run, never written to Player. */
   buffs?: string[];
+  /** CP4: open pick-one offer, offer stream counter, pending extra offers (boss gives 2). */
+  offer?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
+  offerN?: number;
+  offersLeft?: number;
 }
 
 export function startRun(p: Player, seed: number): RunState {
@@ -89,6 +93,7 @@ export function startRun(p: Player, seed: number): RunState {
   return {
     seed, rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip, tutorial, notes,
+    ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}),
   };
 }
 
@@ -213,14 +218,14 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
       loot.exp += Math.round(monsterExp(m.level, m.pl, RULES.expMult) * RULES.rankExp[m.rank]);
       const drop = LR.baseDrop + Math.min(LR.plBonus.cap, Math.max(0, (m.pl - LR.plBonus.offset) / LR.plBonus.divisor));
       if (rng.chance(drop)) {
-        if (rng.chance(Math.min(1, LR.equipmentRoll * RULES.dropAccel))) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
+        if (rng.chance(Math.min(1, LR.equipmentRoll * RULES.dropAccel * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.dropAccelMult ?? 0) : 1)))) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
         else {
           const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]);
           loot.potions[k] = (loot.potions[k] ?? 0) + 1;
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: run.floor > 5 ? 1 : 0 }));
+    if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
       const n = run.floor >= 10 ? 3 : 2;
       for (let i = 0; i < n; i++) loot.equips.push(generateEquip(rng, L, { minQuality: C['F-003-clear-bonus'].value.minQuality as Quality, qualityBump: i === 0 ? 1 : 0 }));
@@ -238,7 +243,7 @@ export function chestLoot(run: RunState): Loot {
   const L = floorLevel(run.floor);
   // design §5: chests drop 2-3 items (暫定 single-player acceleration).
   return withRng(run, (rng) => ({
-    equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: rng.chance(0.25) ? 1 : 0 })),
+    equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
     credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
   }));
 }
@@ -271,7 +276,7 @@ export function merchantStock(run: RunState): MerchantStock {
   return withRng(run, (rng) => ({
     equips: [0, 1, 2].map((i) => {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
-      return { e, price: Math.round(sellPrice(e) * RULES.merchantMarkup) };
+      return { e, price: Math.round(sellPrice(e) * RULES.merchantMarkup * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.priceMult ?? 0) : 1)) };
     }),
   }));
 }
