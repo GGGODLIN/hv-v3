@@ -1,4 +1,4 @@
-# Independent combat and progression: v0.5 candidate
+# Independent combat and progression: v0.6 candidate
 
 This implementation was authored from scratch. No existing game implementation, constants export, monster dataset, artwork, or another author's single-player design was used. The source map is `ORIGINAL-HV.md`; public research is evidence, not access to HV server code. This document distinguishes rules implemented from evidence from explicitly chosen adaptations.
 
@@ -167,9 +167,39 @@ Constant-die tests isolate the mechanisms: a stage-3 armored normal has 24.9% mi
 
 Six seed journeys (1, 2, 3, 42, 123, 999) clear stage 1, equip only the genuinely earned first weapon, replay stage 1, then clear stages 2–5 while retaining that same weapon. No enemy replacement, stat grant, direct unlock, manual potion or later auto-equip is used; complete replay states match. This is bounded engine acceptance, not a promise for every seed/build or a substitute for browser play acceptance. Wider paired comparisons and browser evidence are recorded separately.
 
+## v0.6 conservative loot handling: explicit opt-in, not a stronger-item score
+
+This slice changes inventory handling, not combat, item generation, reward rates, or original-HV fidelity claims. The eligibility policy and existing price `max(1, round(level × 3 + power))` are this independent game's choices. Credits retain their existing uses; this feature does not implement an equipment-forging or wider credit-sink economy.
+
+### A retained same-base witness, never a scalar comparison
+
+Only an **unlocked inventory item of Crude, Fair or Average quality** can be a manual sale candidate. Its complete generated name and supported metadata must identify the same recognized base as an item currently equipped or explicitly locked in inventory. Armor and accessories use their actual individual bases, not just their slot. Weapons also require matching implemented family identity; an axe's attack score cannot establish that a rapier or club is redundant.
+
+Across the six implemented stats—attack, defense, HP, critical chance, evade and block—the protected keeper must be no worse in every component and strictly better in at least one. Missing supported stats mean zero. Equal items and any tradeoff remain; quality rank, level, mean roll and aggregate `power` are **not** dominance evidence. Superior+ items, unknown identities/metadata and equipped/locked items cannot be candidates. The policy only reasons about supported current-schema semantics, not unimplemented proc utility or future fields.
+
+An unlocked stronger inventory item cannot witness another sale: both might otherwise leave together. Pending loot is neither a sale candidate nor a keeper. Every actual witness survives a safe batch because witnesses are equipped or locked. The legacy broad `sellCommon` engine command remains for compatibility, but is distinct from this safe policy and is no longer the ordinary bulk-sale UI entry.
+
+### Pure preview and atomic camp-only commit
+
+`previewSafeSale(state)` returns a fresh `{items, total}` snapshot. Each entry contains `{id, name, slot, quality, keeperId, keeperName, value, strictlyBetterKeys}`. No original item/stat array is returned. The helper neither mutates state nor consumes random draws, and duplicate live IDs fail closed. Unsupported item accessors are inspected as descriptors, never evaluated while reading IDs or selecting protected keepers. It is a read-only view; opening or canceling a preview cannot sell anything.
+
+`act(state, 'sellSafe', {ids})` accepts a nonempty set of unique, exact string identifiers only at camp, not during battle or defeat. Immediately before mutation it recomputes eligibility and current price for **every** requested ID against current protected keepers. Any malformed, missing or newly ineligible entry rejects the entire batch with a clear cancellation log; no partial item removal or credit occurs. Successful commits remove only the requested inventory IDs, credit their current exact price once, then refill existing pending loot normally. Newly refilled items are not swept. Repeating the old request cannot award gold again. The UI additionally owns showing and confirming the specific preview; the engine never trusts client-supplied witness names or prices.
+
+### Future-drop auto-sale, default OFF
+
+`act(state, 'setAutoSell', boolean)` is camp-only and accepts a real boolean, not truthy strings/numbers. A fresh game has **no** `autoSell` property. Enabling adds `autoSell: true`; disabling removes it. Import only preserves literal `true`. This keeps the default state shape, default logs, seeded full-state baselines and RNG stream unchanged.
+
+With that explicit opt-in, each future drop follows the old `generateItem` call and existing unique-ID allocation first. Only then, before insertion, the same conservative witness rule may convert that one newly generated item into the existing sale price. No extra random draw, regenerated roll, altered drop probability, retroactive inventory/pending sweep or audit/holding array is added. IDs advance even for sold drops. Sales log the actual item name and credited value; a sold guaranteed drop is never described as retained in the backpack.
+
+The 120-item cap, five-slot entry reserve, pending-loot retention and near-cap forced return remain unchanged. Auto-sale cannot start an expedition with insufficient reserved space and is not a promise of endless unattended play: equal items, tradeoffs, high-quality drops and unsupported identities still accumulate safely.
+
+### Bounded engine evidence
+
+`tests/safe-loot-actions.test.mjs` covers detached/frozen preview inputs, equipped-versus-locked witnesses, stale whole-batch cancellation, malformed/duplicate IDs, repeat-click credit prevention, exact subset sales, pending refill, camp-only controls, strict default-OFF persistence and unsupported-import refusal. Three hundred paired seeded controlled drop paths cover first guaranteed weapons, later guaranteed drops and probabilistic ordinary drops across all three slots. Each pair keeps the same RNG state and ID counter, preserves every unsold item byte-for-byte, and differs in gold only by the eligible new item's existing price. Separate overflow/start-guard cases verify retention and safe stop. These are synthetic engine fixtures, not browser acceptance or a claim that every natural expedition has the same sale rate.
+
 ## Persistence and safety
 
-Only JSON-shaped state is used. `validateSave` reconstructs known fields, bounds numbers/strings, rejects invalid item slots/quality/rates, rejects duplicate item identifiers and unsafe numeric identifiers, preserves the generated affix metadata via a whitelist, and ignores arbitrary unknown properties. This is validation for a local single-player save, not tamper-proof competitive security.
+Only JSON-shaped state is used. `validateSave` reconstructs known fields, bounds numbers/strings, rejects invalid item slots/quality/rates, rejects duplicate item identifiers and unsafe numeric identifiers, and preserves the generated affix metadata via a whitelist. Unknown non-item fields and volatile encounter state are ignored. Since v0.6, unsupported item/stat/roll fields or formats are instead rejected before sanitation, as described below. This is validation for a local single-player save, not tamper-proof competitive security.
 
 Import/load returns to camp with preserved progress and equipment but fresh HP/MP. It does not replay unfinished combat or calculate wall-clock gains. User data export/import is owned by the UI. Battle state is deliberately not restored.
 
@@ -177,7 +207,13 @@ v0.4 reuses the compatible v3 storage namespace and the existing save schema ver
 
 v0.5 retains that same v3 namespace, schema version and unchanged validator. Role identity and defense treatment are reconstructed from stage/archetype when a new encounter starts; they are never trusted from an imported enemy or equipment field. The existing raw live-state export can contain enemy role/status bytes, but validated loading discards the entire encounter and returns safely to camp. This is encounter-only state, not a claim that raw export JSON omits it. No save migration or live-battle restoration is added.
 
-Equipment changes, sale, and stage selection require camp/defeat; retreat is safe. Locked items cannot be sold. At 120 inventory items the game refuses another expedition rather than discarding valuables. Space is reserved before entry; overflow is held in pending loot and forces a safe camp stop. IDs increment and safely wrap while checking every equipped/inventory/pending ID, so imported counters cannot cause collisions. Events/logs retain at most 30 entries.
+v0.6 retains v3 and adds only optional `autoSell: true` as durable state. An older validator drops this unknown opt-in field, reverting auto-sale to OFF; existing gold, items and explicit locks use the old schema. Older open tabs still run their old rules until refreshed, and single-writer ownership remains required. This is compatible supported-schema progress, not a guarantee that a future unknown equipment extension can be safely downgraded.
+
+Before the old item whitelist can discard information, `hasUnknownSaleMetadata(raw)` checks every equipped, inventory and pending item. Unknown item/stat/roll keys, non-record stat/roll shapes, malformed supplied stat/roll values, slot-inapplicable weapon-family fields, nonboolean supplied locks, nonfinite/nonnumeric supplied level/power/roll, and non-string supplied names/descriptions/colors/affixes reject the **entire** load/import with `不支援的裝備欄位或格式，未載入；請保留原存檔。` Existing load/import failure guards retain the original save/current progress rather than writing a sanitized replacement. Nothing is silently auto-locked and then reused as a trusted keeper. Optional absent legacy diagnostic fields remain supported; unfamiliar names and explicit unsupported weapon identities with otherwise supported fields still load, but remain ineligible for safe sale. The established finite numeric/string normalization for supported fields otherwise remains in effect.
+
+This stricter forward-schema boundary is deliberate. It avoids turning a future effect into a seemingly ordinary item through unknown-field stripping. It cannot recover metadata already discarded by a historical old version; keep original exports if such data may exist. No negative protection marker, repurposed description, durable sale ledger or hidden holding collection is introduced.
+
+Legacy equipment changes, individual/broad sale, and stage selection require camp/defeat; the new safe batch sale and auto-sale setting require **camp** specifically. Retreat is safe. Locked items cannot be sold. At 120 inventory items the game refuses another expedition rather than discarding valuables. Space is reserved before entry; overflow is held in pending loot and forces a safe camp stop. IDs increment and safely wrap while checking every equipped/inventory/pending ID, so imported counters cannot cause collisions. Events/logs retain at most 30 entries.
 
 ## Verified slice and future work
 

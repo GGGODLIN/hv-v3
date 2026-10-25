@@ -1,5 +1,9 @@
 # Current status
 
+## v0.6 candidate — 2026-10-25 18:00 UTC
+
+Public release remains v0.5. Candidate work adds default-OFF conservative future-drop sales and exact-ID manual cleanup preview, addressing observed near-full inventory interruptions without inventing a credit sink. Only low-quality strict same-base stat downgrades against equipped/locked keepers qualify; upgrades and uncertain items remain. Unknown item schema now fails before silent stripping, preserving current/original data through existing error guards. 361 Node tests and four JS syntax checks pass. A final 100-seed actual-engine rerun confirms all 300 policy runs eventually stop safely: additional-win medians OFF59 / equipped witnesses64 / locked alternatives74, with identical generated drop/RNG common prefixes and original items retained. This is bounded benefit, not unlimited idle or a solved credit economy. See LOOT-MANAGEMENT.md and ACCEPTANCE-V06.md. Source backup and actual-browser acceptance remain pending. Quiet hours suppress routine user messages.
+
 ## v0.5 published — 2026-10-25 17:33 UTC
 
 Accepted runtime source: `3cc1a3d4e25205ebb4a969dcf0f8c0cd91de1d76`; website: `25b8f474b42de1a68535fe176dc0cb0548a26ed8`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 46 source files / 490515 bytes were read back before promotion; 45 manifest payload hashes verified. Exact Pages run `40216688254` succeeded, and all six live runtime HTTP200 bodies match source SHA-256. Only four root blobs changed (index, engine, UI, style); candidates and other works were preserved. This receipt is documentation-only.

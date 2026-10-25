@@ -208,15 +208,20 @@ test('v0.5 independent: role metadata itself never changes damage, proc eligibil
   assert.deepEqual(CLUB_STUN_RULES,{chance:.25,durationTicks:4});
 });
 
-test('v0.5 independent: previous proc resolver, action scheduler, reward/drop rules, loot and save sanitizer are byte-frozen',()=>{
-  // Digests were independently captured from accepted source 48376ae7876e51e5868f82a5d856db3b690cb65a.
-  // These source contracts complement behavioral checks, not replace them.
-  const region=(start,end)=>source.slice(source.indexOf(start),end?source.indexOf(end,source.indexOf(start)):undefined);
-  assert.equal(sha256(region('export function resolveAttack','// Independently authored')),'47c80cf3738e1aa7bbb83b386a7fca519e87028fba5a9043aad6d2d67927c09a');
-  assert.equal(sha256(region('function addLoot','function playerTurn')),'23afa3b885c6eb3128b54d868d3fc1cf4595e32d7037e0f678daaa2f4371fd34');
-  assert.equal(sha256(region('function playerTurn','function sanitizeItem')),'095a7bf8aed4c6d8b6fc7f7276b7e2e454bd3b41568d8d31dfe4636ee596f174');
-  assert.equal(sha256(region('function sanitizeItem')),'158ebd12a17bd231a586667d5cb4333bb1d46ad9e25b0b7f17221049a9199064');
-  assert.equal(sha256(readFileSync(new URL('../src/loot.js',import.meta.url))),'af7eac11cc264b21f013a9d7cbb70fbee3eaabcdecae46d20e9aa2502d30d8f8');
+test('v0.5 independent: unchanged resolver, scheduler, XP/drop eligibility and generator stay byte-frozen',()=>{
+  // Frozen from accepted v0.5 engine 2afaaf2c… (loot af7eac11…). v0.6 intentionally
+  // adds opt-in sale routing and strict import validation, not new combat/rolls.
+  // Narrow unchanged regions replace the old whole-module/action/sanitizer freezes;
+  // full-state OFF trajectories below and v06 acceptance guard behavior separately.
+  const region=(code,start,end)=>{const a=code.indexOf(start),b=end?code.indexOf(end,a):code.length;assert.ok(a>=0&&b>a);return code.slice(a,b);};
+  const loot=readFileSync(new URL('../src/loot.js',import.meta.url),'utf8');
+  for(const [start,end,digest] of [
+    ['export function resolveAttack','// Independently authored','47c80cf3738e1aa7bbb83b386a7fca519e87028fba5a9043aad6d2d67927c09a'],
+    ['function playerTurn','export function act','644f6c53fd215f98dd4627990cb3ae088ac0c6dcaaff1f7e55cd9cf1875ad29f'],
+    ['function gainXp','function win','b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4'],
+  ])assert.equal(sha256(region(source,start,end)),digest,start);
+  assert.equal(sha256(region(loot,'export const SLOTS','// Exact names emitted')),'1a06fc514137468d7d795aacd22514bafa0e56b54a1e02bf28aaf5cfdf117bb7');
+  assert.equal(sha256(region(loot,'function rollQuality')),'e2bf4ed8f49556584c9bbcea8cb2a1e0cfe0bba1d45672b65d34c93e5b8c6df1');
   assert.equal(sha256(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a');
 });
 
@@ -255,7 +260,9 @@ test('v0.5 independent: save v3 retains durable identity/progress and strips onl
     const durable=validateSave(clone(s));
     for(const e of s.enemies)Object.assign(e,{roleId:'untrusted-role',roleLabel:'<script>bad</script>',penetratedArmor:{stacks:3,expiresAtTick:7},stun:{expiresAtTick:4},stunRecoveryPending:true,stunRecoveryTurn:7});
     s.roleId='untrusted-root';s.routePreview=previewStage(30);s.equipment.weapon.roleId='untrusted-item';s.hero.roleId='untrusted-hero';
-    const bytes=JSON.stringify(s),loaded=validateSave(JSON.parse(bytes));
+    const rejectedBytes=JSON.stringify(s);assert.throws(()=>validateSave(JSON.parse(rejectedBytes)));
+    assert.equal(JSON.stringify(s),rejectedBytes,'rejecting unsupported item metadata must not rewrite source save');
+    delete s.equipment.weapon.roleId;const bytes=JSON.stringify(s),loaded=validateSave(JSON.parse(bytes));
     assert.deepEqual(loaded,durable);assert.equal(JSON.stringify(s),bytes,'validation must not rewrite source save');
     assert.equal(loaded.mode,'town');assert.deepEqual(loaded.enemies,[]);assert.deepEqual(loaded.timing,{turns:0,ticks:0,tu:0});
     assert.equal(loaded.equipment.weapon.weaponFamily,family);assert.equal(loaded.hero.gold,123);assert.equal(loaded.hero.xp,42);

@@ -39,3 +39,6 @@ Club stun shipped in v0.4: interruption, avoidance suppression and a clearly sig
 
 ## v0.5 shipped slice
 Make existing build choices readable: stage-3+ armored/agile encounters, faithful camp previews and live defenses after PA/stun. Preserve the first two stages and reward/item systems. Use actual progression seed checks and separate equal-stat proc comparisons from real generated-item comparisons; do not manufacture a universal best weapon. After this slice, evaluate whether the revealed economy/progression needs an equipment-investment sink or clearer loot management, rather than adding arbitrary complexity.
+
+## v0.6 chosen slice
+Observed idle runs stop near inventory capacity. Add conservative default-OFF future-drop sales and manually confirmed exact-ID cleanup, with explicit keeper witnesses and strict upgrade/unknown protection. Preserve all generation/RNG and near-full safeguards. Measure actual time/wins until stop; do not claim unlimited idle or a solved economy. Credits still need a separately researched, useful sink later. Safety and understandable review take priority over aggressive disposal rate.

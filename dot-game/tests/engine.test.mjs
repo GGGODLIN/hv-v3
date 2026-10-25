@@ -104,8 +104,10 @@ test('malformed and huge save fields fail safely',()=>{
  for(const bad of [null,[],{}, {version:2}, {...createGame(),inventory:Array(121).fill({})}])assert.throws(()=>validateSave(bad));
  for(const mutate of [s=>s.hero.level=-1,s=>s.hero.gold=Infinity,s=>s.equipment.weapon.stats.attack=NaN,s=>s.equipment.weapon.id='loot-9999999999999999999999',s=>s.equipment.weapon.slot='armor',s=>s.inventory.push(clone(s.equipment.weapon))]){const s=createGame();mutate(s);assert.throws(()=>validateSave(s));}
 });
-test('unknown save properties are not propagated',()=>{
- const s=createGame();s.evil='<script>';s.hero.attributes.str=1e99;s.equipment.weapon.evil=true;const restored=validateSave(s);assert.equal(restored.evil,undefined);assert.equal(restored.equipment.weapon.evil,undefined);assert.equal(restored.hero.attributes.str,8);
+test('unknown root fields are ignored, but unsupported item metadata rejects without mutation',()=>{
+ const s=createGame();s.evil='<script>';s.hero.attributes.str=1e99;s.equipment.weapon.evil=true;
+ const before=clone(s);assert.throws(()=>validateSave(s));assert.deepEqual(s,before);
+ delete s.equipment.weapon.evil;const restored=validateSave(s);assert.equal(restored.evil,undefined);assert.equal(restored.equipment.weapon.evil,undefined);assert.equal(restored.hero.attributes.str,8);
 });
 test('event and log buffers stay bounded across many runs',()=>{
  const s=createGame(1);act(s,'start');for(let i=0;i<6000;i++)advance(s,.1);assert.ok(s.events.length<=30);assert.ok(s.logs.length<=30);assert.ok(Number.isFinite(s.hero.hp));

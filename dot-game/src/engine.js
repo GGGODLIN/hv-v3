@@ -1,4 +1,4 @@
-import { generateItem, resolveWeaponFamily } from './loot.js';
+import { generateItem, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice } from './loot.js';
 
 export const VERSION = 1;
 export const MAX_STAGE = 30;
@@ -193,10 +193,44 @@ function start(s) {
   s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
   recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
 }
+function protectedLootKeepers(s) {
+  // Reject unsupported item descriptors before reading lock/name/ID fields.
+  return [...SLOTS.map(slot=>s.equipment?.[slot]).filter(item=>!hasUnknownSaleMetadata(item)),...s.inventory.filter(item=>!hasUnknownSaleMetadata(item)&&item.locked===true)];
+}
+function safeSaleEntry(item, keepers) {
+  const witness=dominanceWitness(item,keepers);if(!witness)return null;
+  const keeper=keepers.find(kept=>Object.getOwnPropertyDescriptor(kept,'id')?.value===witness.keeperId),value=itemSalePrice(item);
+  if(!keeper||!Number.isSafeInteger(value)||value<1)return null;
+  return {id:item.id,name:item.name,slot:item.slot,quality:item.quality,keeperId:keeper.id,keeperName:keeper.name,value,strictlyBetterKeys:[...witness.strictlyBetterKeys]};
+}
+/** Pure, detached exact-ID preview. Only equipped or locked inventory items can
+ * witness a sale; pending loot and other sale candidates are never keepers.
+ */
+export function previewSafeSale(s) {
+  const empty={items:[],total:0};
+  try {
+    if(!s||!Array.isArray(s.inventory)||!s.equipment||!Array.isArray(s.pendingLoot))return empty;
+    const live=[...Object.values(s.equipment),...s.inventory,...s.pendingLoot];
+    const ids=live.map(item=>item&&typeof item==='object'?Object.getOwnPropertyDescriptor(item,'id')?.value:undefined);
+    if(ids.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(ids).size!==ids.length)return empty;
+    const keepers=protectedLootKeepers(s),items=[];
+    for(const item of s.inventory){const entry=safeSaleEntry(item,keepers);if(entry)items.push(entry);}
+    return {items,total:items.reduce((sum,item)=>sum+item.value,0)};
+  } catch { return empty; }
+}
 function addLoot(s, slot) {
   const item=generateItem(()=>random(s),Math.max(1,s.stage+2),slot);
   const used=new Set([...Object.values(s.equipment),...s.inventory,...s.pendingLoot].map(i=>i.id));
   do{s._itemId=(s._itemId%999999999)+1;item.id=`loot-${s._itemId}`;}while(used.has(item.id));
+  // Opt-in affects only this newly generated drop, after the unchanged RNG/ID
+  // path. It never sweeps inventory/pending items or bypasses the start guard.
+  const sale=s.autoSell===true?safeSaleEntry(item,protectedLootKeepers(s)):null;
+  if(sale){
+    s.hero.gold+=sale.value;
+    event(s,'loot',`自動出售 ${item.name} · +${sale.value} 金幣`,sale.value,item.id);
+    log(s,`自動出售：${item.name} · +${sale.value} 金幣；保留同型 ${sale.keeperName}。`);
+    return sale;
+  }
   if(s.inventory.length<INVENTORY_LIMIT)s.inventory.push(item);else s.pendingLoot.push(item);
   event(s,'loot',`獲得 ${item.name}`,undefined,item.id);log(s,`戰利品：${item.name}`);
 }
@@ -216,10 +250,10 @@ function defeatEnemy(s, e) {
 function win(s) {
   s.wins++;s.battle.cleared++;s.unlocked=Math.min(MAX_STAGE,Math.max(s.unlocked,s.stage+1));
   const previous=s.battle.bestTimes[s.stage];if(!previous||s.battle.elapsed<previous)s.battle.bestTimes[s.stage]=round(s.battle.elapsed);
-  addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
-  event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
+  const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
+  event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
   recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
-  if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,'背包接近滿額，已安全回營，所有戰利品均保留。');}
+  if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 function playerTurn(s) {
   const p=stats(s), target=s.enemies.find(e=>e.hp>0);if(!target)return;
@@ -313,6 +347,32 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(action==='setAutoSell'){
+    if(s.mode!=='town'){log(s,'請先回營，再調整自動出售。');return s;}
+    if(typeof payload!=='boolean'){log(s,'自動出售設定無效，未變更。');return s;}
+    if(payload)s.autoSell=true;else delete s.autoSell;
+    log(s,payload?'已開啟安全自動出售：只檢查之後新掉落的低品質裝備；既有背包不變。':'已關閉自動出售；之後掉落保留。');
+    return s;
+  }
+  if(action==='sellSafe'){
+    if(s.mode!=='town'){log(s,'安全出售取消：請先回營；未出售任何裝備。');return s;}
+    let ids;
+    try {
+      const record=payload&&typeof payload==='object'&&!Array.isArray(payload)&&(Object.getPrototypeOf(payload)===Object.prototype||Object.getPrototypeOf(payload)===null);
+      const descriptor=record?Object.getOwnPropertyDescriptor(payload,'ids'):null;
+      ids=descriptor&&Object.hasOwn(descriptor,'value')&&Reflect.ownKeys(payload).length===1?descriptor.value:null;
+      if(!Array.isArray(ids)||!ids.length||ids.length>INVENTORY_LIMIT||ids.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(ids).size!==ids.length)ids=null;
+    } catch { ids=null; }
+    if(!ids){log(s,'安全出售取消：清單無效、空白或含重複識別碼；未出售任何裝備。');return s;}
+    const eligible=new Map(previewSafeSale(s).items.map(item=>[item.id,item]));
+    if(ids.some(id=>!eligible.has(id))){log(s,'安全出售取消：清單已變更或裝備不再符合條件；未出售任何裝備，請重新預覽。');return s;}
+    // Validate the whole exact set before any gold/item mutation. Requested
+    // keepers cannot be candidates, so every witness survives this transaction.
+    const requested=new Set(ids),total=ids.reduce((sum,id)=>sum+eligible.get(id).value,0);
+    s.hero.gold+=total;s.inventory=s.inventory.filter(item=>!requested.has(item.id));refillPending(s);
+    log(s,`安全出售 ${ids.length} 件低品質裝備 · +${total} 金幣；同型保留裝備與鎖定裝備均保留。`);
+    return s;
+  }
   if(action==='setStrategy'){
     if(s.mode==='town'&&validStrategy(payload))s.strategy=payload;
     return s;
@@ -345,13 +405,20 @@ export function validateSave(input) {
   const s=createGame(input.seed);s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
   // Rebuild allocated growth rather than trusting imported attribute multipliers.
   for(const k of Object.keys(s.hero.attributes))s.hero.attributes[k]=8+(h.level-1)*2;
-  s.equipment=Object.fromEntries(SLOTS.map(slot=>[slot,sanitizeItem(input.equipment[slot],slot)]));
-  s.inventory=input.inventory.map(i=>sanitizeItem(i));
+  const sanitizeForLoad=(raw,slot)=>{
+    // Refuse unknown item/stat/roll fields before the historical whitelist can
+    // erase them. No auto-lock can silently become a trusted keeper witness.
+    if(hasUnknownSaleMetadata(raw))throw new Error('不支援的裝備欄位或格式，未載入；請保留原存檔。');
+    return sanitizeItem(raw,slot);
+  };
+  s.equipment=Object.fromEntries(SLOTS.map(slot=>[slot,sanitizeForLoad(input.equipment[slot],slot)]));
+  s.inventory=input.inventory.map(i=>sanitizeForLoad(i));
   if(input.pendingLoot!==undefined&&(!Array.isArray(input.pendingLoot)||input.pendingLoot.length>8))throw new Error('待領戰利品資料無效');
-  s.pendingLoot=(input.pendingLoot||[]).map(i=>sanitizeItem(i));
+  s.pendingLoot=(input.pendingLoot||[]).map(i=>sanitizeForLoad(i));
   const items=[...Object.values(s.equipment),...s.inventory,...s.pendingLoot];if(new Set(items.map(i=>i.id)).size!==items.length)throw new Error('重複裝備識別碼');
   s._itemId=Math.max(integer(input._itemId,0,1e9),...items.map(i=>/^loot-\d+$/.test(i.id)?Number(i.id.slice(5)):0));
   s.unlocked=integer(input.unlocked,1,MAX_STAGE);s.stage=integer(input.stage,1,s.unlocked);s.kills=integer(input.kills,0,1e9);s.wins=integer(input.wins,0,1e9);s.autoAdvance=input.autoAdvance===true;s.strategy=validStrategy(input.strategy)?input.strategy:'balanced';s.battle.cleared=s.wins;
+  if(input.autoSell===true)s.autoSell=true;
   for(let n=1;n<=MAX_STAGE;n++){const t=input.battle?.bestTimes?.[n];if(typeof t==='number'&&Number.isFinite(t)&&t>0&&t<1e6)s.battle.bestTimes[n]=t;}
   recover(s);log(s,'存檔已讀取，安全回營；不計離線戰鬥收益。');return s;
 }

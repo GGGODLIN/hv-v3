@@ -60,3 +60,28 @@
 .route-advice summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .route-advice p { margin-top: 6px; line-height: 1.75; }
 @media(max-width:680px) { .route-defense { font-size: 10px; } .route-wave { grid-template-columns: 42px minmax(0, 1fr); } .route-enemy { align-items: start; } }
+
+/* Consent remains tied to one visible batch; safety explanations are ordinary text. */
+.safe-loot-controls { min-width: 0; border-top: 1px solid var(--line); margin-top: 10px; padding-top: 12px; }
+.safe-loot-toggle { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11px; }
+.safe-loot-toggle strong { margin-left: auto; color: var(--teal); font-size: 10px; font-weight: 500; }
+.safe-loot-controls>p, .safe-loot-rules { color: var(--muted); font-size: 10px; line-height: 1.8; }
+.safe-loot-controls>p { margin-top: 7px; }
+.safe-loot-controls>button { width: 100%; margin-top: 9px; }
+.safe-loot-rules { margin-top: 8px; }
+.safe-loot-rules summary { color: #bfd1c5; cursor: pointer; padding: 3px 0; }
+.safe-loot-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.safe-loot-rules p { margin-top: 8px; }
+.safe-sale-dialog { max-width: 640px; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.safe-sale-summary { color: var(--gold); font-weight: 600; }
+.safe-sale-list { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 9px; }
+.safe-sale-item { padding: 11px 12px; border: 1px solid #38514e; border-radius: 7px; background: #102027; overflow-wrap: anywhere; }
+.safe-sale-item>strong, .safe-sale-meta, .safe-sale-id { display: block; }
+.safe-sale-item>strong { font-size: 12px; font-weight: 600; }
+.safe-sale-meta { color: var(--gold); font-size: 11px; margin: 4px 0; }
+.safe-sale-id { color: var(--muted); font-size: 10px; }
+.safe-sale-item p { margin: 8px 0 0; font-size: 11px; color: #b6cfc3; }
+.safe-sale-actions { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 8px; }
+.safe-sale-actions>button { flex: 1 1 200px; font-size: 12px; }
+@media(min-width:681px) and (max-width:1150px) { .loot-panel>.safe-loot-controls { grid-column: 1; } .loot-panel>.item-detail { grid-row: 1 / 7; } }
+@media(max-width:680px) { .safe-sale-dialog { padding: 18px; } .safe-loot-controls>p, .safe-loot-rules { font-size: 11px; } }

@@ -87,6 +87,23 @@ export function resolveWeaponFamily(item) {
   }
   return typeof item.name === 'string' ? LEGACY_WEAPON_NAMES.get(item.name) ?? null : null;
 }
+// Safe-sale identity is stricter than combat family identity: only our entire
+// generated name grammar counts, including distinct armor/accessory bases.
+// This table adds no persistent fields and consumes no RNG.
+const GENERATED_ITEM_IDENTITIES = new Map();
+for (const [rank, tier] of QUALITY_TIERS.entries()) {
+  const prefixes = rank === 0 ? [''] : rank >= 6 ? PREFIXES.map(p => p.name) : ['', ...PREFIXES.map(p => p.name)];
+  for (const slot of SLOTS) for (const base of BASES[slot]) {
+    const eligibleSuffixes = slot === 'weapon'
+      ? ['屠戮', ...(base.balance ? ['平衡'] : [])]
+      : (slot === 'armor' ? SUFFIXES.slice(1) : SUFFIXES).map(suffix => suffix.name);
+    const suffixes = rank === 0 ? [''] : rank >= 3 ? eligibleSuffixes : ['', ...eligibleSuffixes];
+    for (const prefix of prefixes) for (const suffix of suffixes) {
+      GENERATED_ITEM_IDENTITIES.set(`${tier.label}・${prefix}${base.name}${suffix ? '・' + suffix : ''}`,
+        Object.freeze({ slot, base: base.name, weaponFamily: base.family ?? null, quality: tier.name, prefix, suffix }));
+    }
+  }
+}
 const WEAPON_TRAITS = Object.freeze({
   rapier: '刺劍特性：普攻造成傷害時有機會施加穿透護甲，暴擊必定觸發。新層數在該次傷害後生效，降低敵人的一般物理減傷；後續物理技能也受益，但技能不會觸發。',
   axe: '戰斧：本版尚未實作武器特效。',
@@ -114,6 +131,129 @@ export function describeItemFlavor(item) {
 }
 const STAT_KEYS = Object.freeze(['attack', 'defense', 'hp', 'crit', 'evade', 'block']);
 const RATES = new Set(['crit', 'evade', 'block']);
+const SAFE_LOOT_QUALITIES = new Set(['Crude', 'Fair', 'Average']);
+const ITEM_KEYS = new Set(['id', 'name', 'slot', 'weaponFamily', 'quality', 'rarityColor',
+  'level', 'roll', 'rolls', 'power', 'stats', 'locked', 'description', 'prefix', 'suffix']);
+const STAT_KEY_SET = new Set(STAT_KEYS);
+const REQUIRED_ITEM_KEYS = ['id', 'name', 'slot', 'quality', 'level', 'power', 'stats', 'locked'];
+const OBJECT_PROTOTYPE_KEYS = new Set(Reflect.ownKeys(Object.prototype));
+const NATIVE_OBJECT_SOURCE = Function.prototype.toString.call(Object);
+function plainRecordPrototype(prototype) {
+  if (prototype === null || prototype === Object.prototype) return true;
+  // JSON parsed by another window/realm is still ordinary data. Require its
+  // genuine native Object prototype, not an arbitrary inherited metadata bag.
+  if (Object.getPrototypeOf(prototype) !== null) return false;
+  const constructor = Object.getOwnPropertyDescriptor(prototype, 'constructor')?.value;
+  const keys = Reflect.ownKeys(prototype);
+  return typeof constructor === 'function' && Function.prototype.toString.call(constructor) === NATIVE_OBJECT_SOURCE
+    && keys.length === OBJECT_PROTOTYPE_KEYS.size && keys.every(key => OBJECT_PROTOTYPE_KEYS.has(key));
+}
+// Inspect descriptors rather than invoking imported accessors. Unknown future
+// item/stat/roll keys must not disappear into a permissive comparison.
+function knownDataRecord(value, allowedKeys) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  if (!plainRecordPrototype(prototype)) return false;
+  return Reflect.ownKeys(value).every(key => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return typeof key === 'string' && allowedKeys.has(key) && descriptor.enumerable && Object.hasOwn(descriptor, 'value');
+  });
+}
+/** Detect metadata a legacy sanitizer would otherwise silently discard. This is
+ * independent of quality/lock/name eligibility, for conservative import handling.
+ */
+export function hasUnknownSaleMetadata(item) {
+  try {
+    if (!knownDataRecord(item, ITEM_KEYS)
+      || (item.slot !== 'weapon' && Object.hasOwn(item, 'weaponFamily'))
+      || (Object.hasOwn(item, 'locked') && typeof item.locked !== 'boolean')
+      || ['name', 'description', 'rarityColor', 'prefix', 'suffix'].some(key => Object.hasOwn(item, key) && typeof item[key] !== 'string')
+      || ['level', 'power', 'roll'].some(key => Object.hasOwn(item, key)
+        && (typeof item[key] !== 'number' || !Number.isFinite(item[key])))) return true;
+    if (Object.hasOwn(item, 'stats')) {
+      if (!knownDataRecord(item.stats, STAT_KEY_SET)) return true;
+      for (const [key, value] of Object.entries(item.stats)) {
+        if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > (RATES.has(key) ? 1 : 1000000)) return true;
+      }
+    }
+    if (Object.hasOwn(item, 'rolls')) {
+      if (!knownDataRecord(item.rolls, STAT_KEY_SET)) return true;
+      for (const [key, value] of Object.entries(item.rolls)) {
+        if (!item.stats || !Object.hasOwn(item.stats, key) || !Number.isInteger(value) || value < 0 || value > 200) return true;
+      }
+    }
+    return false;
+  } catch { return true; }
+}
+/** Pure fail-closed classification for safe-sale rules, not a combat identity override.
+ * Optional historical diagnostic fields may be absent; supplied metadata must be
+ * recognized, well-formed, and consistent with the complete generated name.
+ */
+export function classifySafeLootItem(item) {
+  try {
+    if (!knownDataRecord(item, ITEM_KEYS) || !REQUIRED_ITEM_KEYS.every(key => Object.hasOwn(item, key)) || typeof item.id !== 'string' || !item.id || item.id.length > 100
+      || typeof item.name !== 'string' || typeof item.locked !== 'boolean'
+      || !Number.isInteger(item.level) || item.level < 1 || item.level > 1000
+      || typeof item.power !== 'number' || !Number.isFinite(item.power) || item.power < 0 || item.power > 1000000) return null;
+    const identity = GENERATED_ITEM_IDENTITIES.get(item.name);
+    if (!identity || item.slot !== identity.slot || item.quality !== identity.quality) return null;
+    if (identity.slot === 'weapon') {
+      if (resolveWeaponFamily(item) !== identity.weaponFamily) return null;
+    } else if (Object.hasOwn(item, 'weaponFamily')) return null;
+    for (const key of ['prefix', 'suffix']) {
+      if (Object.hasOwn(item, key) && item[key] !== identity[key]) return null;
+    }
+    if (Object.hasOwn(item, 'rarityColor') && (typeof item.rarityColor !== 'string' || !/^#[\da-f]{3,8}$/i.test(item.rarityColor))) return null;
+    if (Object.hasOwn(item, 'description') && (typeof item.description !== 'string' || item.description.length > 240)) return null;
+    if (Object.hasOwn(item, 'roll') && (!Number.isInteger(item.roll) || item.roll < 0 || item.roll > 200)) return null;
+    if (!knownDataRecord(item.stats, STAT_KEY_SET) || !Object.keys(item.stats).length) return null;
+    for (const [key, value] of Object.entries(item.stats)) {
+      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > (RATES.has(key) ? 1 : 1000000)) return null;
+    }
+    if (Object.hasOwn(item, 'rolls')) {
+      if (!knownDataRecord(item.rolls, STAT_KEY_SET)) return null;
+      for (const [key, value] of Object.entries(item.rolls)) {
+        if (!Object.hasOwn(item.stats, key) || !Number.isInteger(value) || value < 0 || value > 200) return null;
+      }
+    }
+    return identity;
+  } catch { return null; }
+}
+/** Returns evidence, never sells. Caller must supply only currently equipped or
+ * explicitly locked inventory keepers and must exclude equipped candidates.
+ * Missing implemented stats mean zero; equality and every tradeoff are retained.
+ */
+export function dominanceWitness(candidate, keepers) {
+  try {
+    const identity = classifySafeLootItem(candidate);
+    if (!identity || candidate.locked !== false || !SAFE_LOOT_QUALITIES.has(candidate.quality) || !Array.isArray(keepers)) return null;
+    // Reject self-comparison even if another supplied keeper could dominate it.
+    if (keepers.some(keeper => keeper === candidate || (keeper && typeof keeper === 'object'
+      && Object.getOwnPropertyDescriptor(keeper, 'id')?.value === candidate.id))) return null;
+    for (const keeper of keepers) {
+      const keptIdentity = classifySafeLootItem(keeper);
+      if (!keptIdentity || keptIdentity.slot !== identity.slot || keptIdentity.base !== identity.base
+        || keptIdentity.weaponFamily !== identity.weaponFamily) continue;
+      const strictlyBetterKeys = [];
+      let dominates = true;
+      for (const key of STAT_KEYS) {
+        const keptValue = Object.hasOwn(keeper.stats, key) ? keeper.stats[key] : 0;
+        const candidateValue = Object.hasOwn(candidate.stats, key) ? candidate.stats[key] : 0;
+        if (candidateValue > keptValue) { dominates = false; break; }
+        if (candidateValue < keptValue) strictlyBetterKeys.push(key);
+      }
+      if (dominates && strictlyBetterKeys.length) return { keeperId: keeper.id, strictlyBetterKeys };
+    }
+    return null;
+  } catch { return null; }
+}
+/** Existing individual-sale formula, not an eligibility or dominance score. */
+export function itemSalePrice(item) {
+  const level = item?.level, power = item?.power;
+  if (typeof level !== 'number' || !Number.isFinite(level) || typeof power !== 'number' || !Number.isFinite(power)) return 0;
+  const price = Math.max(1, Math.round(level * 3 + power));
+  return Number.isFinite(price) ? price : 0;
+}
 function rollQuality(rng) {
   let choice = draw(rng) * 100;
   for (const tier of QUALITY_TIERS) {
