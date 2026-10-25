@@ -1,0 +1,120 @@
+
+== strategy buff:blade == seeds=16 maxRuns=8
+run-1 floor reached: mean 8.75  [9,7,9,7,7,10,9,10,5,11,11,10,10,7,11,7] (11 = clear)
+first clear run: median 2  [2,2,6,2,2,2,4,2,2,1,1,2,4,2,1,2]  cleared 16/16
+unlock rate after trip 3 : mean 98%  min 90%
+deaths by floor: F5:1 F7:5 F9:9 F10:7
+trip-1 F5 boss win: 15/16
+level after trip 1/2/3 (mean): 5.4 / 8.4 / 10.4  trip1 [4,4,4,4,4,5,4,5,2,10,7,5,5,4,15,4]
+spirit stance used (trips 1-3): 117/399 battles (29%)
+boss F5 (all trips 1-3): fights 48, won 47 (98%), mean turns 12.5, spirit used 48
+boss F5: fights 37, won 36, mean turns 15.9, spirit used 37, mean potions 1.1
+boss F10 (all trips 1-3): fights 36, won 29 (81%), mean turns 11.0, spirit used 36
+boss F10: fights 23, won 16, mean turns 13.3, spirit used 23, mean potions 1.3
+[cp4] runs 81, mean buffs/run 5.53, sources {"elite":146,"boss":198,"shrine":103,"merchant":1}
+[cp4] formed rate: all runs 93%, before first clear 86% (37 runs), mean buffs before first clear 3.57, buffs held at first clear [3,8,7,3,7,4,7,4,3,6,4,5,5,7,7,3]
+[cp4] runs ending with <2 buffs (cannot form): all 1%, before first clear 3%
+[cp4] first-clear rate (≤8 runs) 100%, F10 win (trips 1-3) 81% of 36
+[cp4] boss F5 with ≥5 buffs: fights 0, won 0, mean turns 0.0
+[cp4] boss F10 with ≥5 buffs: fights 2, won 2, mean turns 8.0
+[cp4] offers 447, core vs other own-school in the same offer 29 (6%) — only these can differ under -nocore
+[cp4] pick rate (picked/offered): A1:13%(5/38) A2:0%(0/29) A3:16%(3/19) A4:5%(1/20) A5:0%(0/12) A6:4%(1/25) A7:5%(2/42) A8:5%(2/44) A9:9%(1/11) B1:100%(67/67) B2:80%(44/55) B3:76%(38/50) B4:85%(40/47) B5:70%(35/50) B6:53%(40/76) B7:67%(44/66) B8:57%(26/46) N1:50%(7/14) N2:35%(8/23) N3:32%(12/37) N4:38%(5/13) O1:14%(7/49) O2:9%(2/23) O3:11%(3/27) O4:9%(2/23) O5:5%(1/22) O6:9%(4/44) O7:0%(0/49) O8:0%(0/17) O9:6%(1/17) S-might:33%(6/18) S-vigor:33%(5/15) W1:16%(9/58) W2:26%(5/19) W3:20%(6/30) W4:16%(3/19) W5:10%(4/40) W6:10%(2/21) W7:8%(2/26) W8:12%(5/41)
+[cp4] clear sets 59; buffs in >60% of clear sets: B6:64% B2:64% B1:90% B4:63% B7:69%
+boss F5 turns by trip 1-5: T1 20.6(n=16,won 15)  T2 8.0(n=16,won 16)  T3 9.0(n=16,won 16)  T4 11.5(n=16,won 16)  T5 9.9(n=16,won 16)
+boss F10 turns by trip 1-5: T1 9.1(n=7,won 3)  T2 11.5(n=15,won 13)  T3 11.4(n=14,won 13)  T4 11.6(n=14,won 14)  T5 10.3(n=15,won 15)
+
+== strategy buff:oc == seeds=16 maxRuns=8
+run-1 floor reached: mean 8.81  [9,7,7,9,7,10,9,10,5,11,10,11,10,9,10,7] (11 = clear)
+first clear run: median 2  [2,2,3,2,2,3,4,2,2,1,2,1,4,2,2,2]  cleared 16/16
+unlock rate after trip 3 : mean 99%  min 90%
+deaths by floor: F5:1 F7:4 F9:7 F10:11
+trip-1 F5 boss win: 15/16
+level after trip 1/2/3 (mean): 4.4 / 6.8 / 8.8  trip1 [4,4,3,4,4,5,4,5,2,6,5,6,5,4,5,4]
+spirit stance used (trips 1-3): 100/359 battles (28%)
+boss F5 (all trips 1-3): fights 48, won 47 (98%), mean turns 13.3, spirit used 48
+boss F5: fights 36, won 35, mean turns 15.4, spirit used 36, mean potions 1.1
+boss F10 (all trips 1-3): fights 38, won 27 (71%), mean turns 11.3, spirit used 38
+boss F10: fights 26, won 16, mean turns 12.2, spirit used 26, mean potions 1.2
+[cp4] runs 80, mean buffs/run 4.94, sources {"elite":129,"boss":169,"shrine":92,"merchant":5}
+[cp4] formed rate: all runs 93%, before first clear 89% (36 runs), mean buffs before first clear 3.44, buffs held at first clear [3,5,4,3,5,8,7,4,3,4,7,3,6,7,4,5]
+[cp4] runs ending with <2 buffs (cannot form): all 1%, before first clear 3%
+[cp4] first-clear rate (≤8 runs) 100%, F10 win (trips 1-3) 71% of 38
+[cp4] boss F5 with ≥5 buffs: fights 0, won 0, mean turns 0.0
+[cp4] boss F10 with ≥5 buffs: fights 3, won 3, mean turns 10.3
+[cp4] offers 390, core vs other own-school in the same offer 38 (10%) — only these can differ under -nocore
+[cp4] pick rate (picked/offered): A1:20%(8/40) A2:15%(4/26) A3:20%(5/25) A4:10%(2/21) A5:21%(3/14) A6:25%(5/20) A7:14%(4/28) A8:5%(2/40) A9:0%(0/8) B1:11%(4/35) B2:18%(3/17) B3:5%(1/20) B4:0%(0/18) B5:20%(3/15) B6:3%(1/38) B7:14%(4/28) B8:0%(0/16) N1:27%(4/15) N2:50%(8/16) N3:13%(4/31) N4:7%(1/14) O1:100%(72/72) O2:75%(36/48) O3:69%(31/45) O4:75%(36/48) O5:49%(23/47) O6:58%(38/65) O7:55%(41/75) O8:47%(15/32) O9:45%(15/33) S-might:23%(3/13) S-vigor:35%(7/20) W1:10%(3/30) W2:9%(2/22) W3:4%(1/27) W4:0%(0/15) W5:7%(2/28) W6:6%(1/16) W7:13%(2/15) W8:3%(1/39)
+[cp4] clear sets 55; buffs in >60% of clear sets: O1:91% O7:65% O6:64%
+boss F5 turns by trip 1-5: T1 21.8(n=16,won 15)  T2 9.1(n=16,won 16)  T3 8.9(n=16,won 16)  T4 11.4(n=16,won 16)  T5 12.3(n=16,won 16)
+boss F10 turns by trip 1-5: T1 9.0(n=7,won 2)  T2 12.1(n=16,won 11)  T3 11.5(n=15,won 14)  T4 13.0(n=14,won 14)  T5 8.5(n=15,won 14)
+
+== strategy buff:arcane == seeds=16 maxRuns=8
+run-1 floor reached: mean 9.75  [9,7,11,11,11,10,10,9,11,11,10,10,10,7,10,9] (11 = clear)
+first clear run: median 2  [2,2,1,1,1,3,2,3,1,1,2,2,5,2,2,2]  cleared 16/16
+unlock rate after trip 3 : mean 99%  min 90%
+deaths by floor: F7:2 F9:5 F10:10
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 5.4 / 8.7 / 10.9  trip1 [4,4,7,6,7,5,5,4,7,9,5,5,5,4,5,4]
+spirit stance used (trips 1-3): 123/423 battles (29%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 11.5, spirit used 48
+boss F5: fights 32, won 32, mean turns 14.9, spirit used 32, mean potions 1.2
+boss F10 (all trips 1-3): fights 41, won 32 (78%), mean turns 8.3, spirit used 41
+boss F10: fights 25, won 16, mean turns 10.1, spirit used 25, mean potions 1.0
+[cp4] runs 80, mean buffs/run 5.83, sources {"elite":153,"boss":204,"shrine":96,"merchant":13}
+[cp4] formed rate: all runs 95%, before first clear 91% (32 runs), mean buffs before first clear 4.09, buffs held at first clear [3,5,5,3,4,9,4,4,6,5,8,6,4,7,6,7]
+[cp4] runs ending with <2 buffs (cannot form): all 0%, before first clear 0%
+[cp4] first-clear rate (≤8 runs) 100%, F10 win (trips 1-3) 78% of 41
+[cp4] boss F5 with ≥5 buffs: fights 0, won 0, mean turns 0.0
+[cp4] boss F10 with ≥5 buffs: fights 4, won 4, mean turns 11.8
+[cp4] offers 453, core vs other own-school in the same offer 45 (10%) — only these can differ under -nocore
+[cp4] pick rate (picked/offered): A1:100%(67/67) A2:71%(48/68) A3:71%(42/59) A4:80%(40/50) A5:72%(39/54) A6:71%(41/58) A7:52%(48/92) A8:52%(48/92) A9:29%(12/41) B1:10%(5/49) B2:11%(2/18) B3:8%(2/25) B4:5%(1/20) B5:24%(5/21) B6:3%(1/37) B7:5%(2/40) B8:10%(2/21) N1:29%(4/14) N2:35%(6/17) N3:22%(8/36) N4:31%(5/16) O1:6%(3/47) O2:7%(1/15) O3:14%(2/14) O4:0%(0/16) O5:8%(2/26) O6:2%(1/41) O7:3%(1/39) O8:6%(1/18) O9:19%(3/16) S-might:26%(5/19) S-vigor:28%(5/18) W1:21%(6/29) W2:10%(2/21) W3:4%(1/23) W4:0%(0/17) W5:3%(1/40) W6:13%(2/16) W7:0%(0/18) W8:5%(2/44)
+[cp4] clear sets 63; buffs in >60% of clear sets: A8:67% A1:89% A2:71% A6:62% A3:60% A7:71%
+boss F5 turns by trip 1-5: T1 19.6(n=16,won 16)  T2 6.6(n=16,won 16)  T3 8.4(n=16,won 16)  T4 8.7(n=16,won 16)  T5 8.4(n=16,won 16)
+boss F10 turns by trip 1-5: T1 9.5(n=11,won 5)  T2 7.0(n=15,won 13)  T3 8.6(n=15,won 14)  T4 9.6(n=16,won 15)  T5 9.9(n=16,won 16)
+
+== strategy buff:bulwark == seeds=16 maxRuns=8
+run-1 floor reached: mean 9.31  [9,7,9,11,9,10,9,10,5,11,11,10,11,9,11,7] (11 = clear)
+first clear run: median 2  [2,2,4,1,2,2,4,2,2,1,1,2,1,2,1,2]  cleared 16/16
+unlock rate after trip 3 : mean 99%  min 90%
+deaths by floor: F5:1 F7:2 F9:7 F10:6
+trip-1 F5 boss win: 15/16
+level after trip 1/2/3 (mean): 5.3 / 9.1 / 11.4  trip1 [4,4,4,6,4,5,4,5,2,14,6,5,7,4,7,4]
+spirit stance used (trips 1-3): 124/428 battles (29%)
+boss F5 (all trips 1-3): fights 48, won 47 (98%), mean turns 12.5, spirit used 48
+boss F5: fights 31, won 30, mean turns 15.9, spirit used 31, mean potions 1.1
+boss F10 (all trips 1-3): fights 38, won 33 (87%), mean turns 10.3, spirit used 38
+boss F10: fights 21, won 16, mean turns 12.1, spirit used 21, mean potions 1.0
+[cp4] runs 80, mean buffs/run 5.97, sources {"elite":148,"boss":210,"shrine":116,"merchant":4}
+[cp4] formed rate: all runs 91%, before first clear 77% (31 runs), mean buffs before first clear 3.84, buffs held at first clear [5,8,5,3,7,5,7,7,3,6,4,5,4,7,4,5]
+[cp4] runs ending with <2 buffs (cannot form): all 1%, before first clear 3%
+[cp4] first-clear rate (≤8 runs) 100%, F10 win (trips 1-3) 87% of 38
+[cp4] boss F5 with ≥5 buffs: fights 0, won 0, mean turns 0.0
+[cp4] boss F10 with ≥5 buffs: fights 3, won 2, mean turns 14.3
+[cp4] offers 474, core vs other own-school in the same offer 35 (7%) — only these can differ under -nocore
+[cp4] pick rate (picked/offered): A1:18%(8/45) A2:14%(3/21) A3:14%(4/28) A4:4%(1/23) A5:4%(1/26) A6:9%(2/22) A7:4%(2/48) A8:12%(7/57) A9:0%(0/14) B1:20%(8/41) B2:13%(3/23) B3:24%(5/21) B4:10%(2/21) B5:10%(3/29) B6:8%(3/37) B7:4%(2/51) B8:4%(1/23) N1:31%(4/13) N2:36%(8/22) N3:29%(11/38) N4:36%(5/14) O1:20%(9/44) O2:10%(2/21) O3:11%(2/19) O4:15%(4/26) O5:13%(4/31) O6:5%(2/41) O7:6%(3/49) O8:0%(0/25) O9:7%(1/15) S-might:24%(4/17) S-vigor:17%(3/18) W1:100%(66/66) W2:79%(42/53) W3:77%(46/60) W4:68%(39/57) W5:63%(49/78) W6:57%(27/47) W7:73%(43/59) W8:59%(49/83)
+[cp4] clear sets 64; buffs in >60% of clear sets: W2:63% W1:88% W5:72% W3:67% W7:63% W8:77%
+boss F5 turns by trip 1-5: T1 21.3(n=16,won 15)  T2 7.9(n=16,won 16)  T3 8.3(n=16,won 16)  T4 10.7(n=16,won 16)  T5 9.1(n=16,won 16)
+boss F10 turns by trip 1-5: T1 9.5(n=8,won 5)  T2 12.1(n=15,won 14)  T3 8.9(n=15,won 14)  T4 11.3(n=16,won 15)  T5 10.4(n=16,won 16)
+
+== strategy buff:random == seeds=16 maxRuns=8
+run-1 floor reached: mean 9.56  [11,7,11,9,7,10,9,10,7,11,11,10,11,9,11,9] (11 = clear)
+first clear run: median 2  [1,2,1,2,2,2,2,2,2,1,1,2,1,2,1,2]  cleared 16/16
+unlock rate after trip 3 : mean 100%  min 100%
+deaths by floor: F7:3 F9:4 F10:4
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 5.6 / 9.4 / 11.3  trip1 [6,4,6,4,4,5,4,5,4,15,7,5,6,4,7,4]
+spirit stance used (trips 1-3): 129/435 battles (30%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 11.9, spirit used 48
+boss F5: fights 26, won 26, mean turns 15.3, spirit used 26, mean potions 1.2
+boss F10 (all trips 1-3): fights 41, won 37 (90%), mean turns 12.0, spirit used 41
+boss F10: fights 19, won 16, mean turns 13.8, spirit used 19, mean potions 1.4
+[cp4] runs 80, mean buffs/run 6.24, sources {"merchant":16,"elite":154,"boss":216,"shrine":113}
+[cp4] formed rate: all runs 78%, before first clear 58% (26 runs), mean buffs before first clear 4.54, buffs held at first clear [5,8,5,7,7,4,4,7,5,9,5,5,4,5,5,6]
+[cp4] runs ending with <2 buffs (cannot form): all 0%, before first clear 0%
+[cp4] first-clear rate (≤8 runs) 100%, F10 win (trips 1-3) 90% of 41
+[cp4] boss F5 with ≥5 buffs: fights 0, won 0, mean turns 0.0
+[cp4] boss F10 with ≥5 buffs: fights 3, won 3, mean turns 15.0
+[cp4] offers 483, core vs other own-school in the same offer 0 (0%) — only these can differ under -nocore
+[cp4] pick rate (picked/offered): A1:34%(31/91) A2:44%(15/34) A3:33%(12/36) A4:28%(11/40) A5:24%(11/45) A6:36%(10/28) A7:40%(23/57) A8:34%(27/80) A9:23%(6/26) B1:23%(21/93) B2:39%(11/28) B3:30%(8/27) B4:32%(11/34) B5:24%(8/33) B6:42%(21/50) B7:43%(19/44) B8:35%(9/26) N1:36%(4/11) N2:24%(5/21) N3:43%(12/28) N4:10%(1/10) O1:26%(19/74) O2:53%(10/19) O3:35%(7/20) O4:29%(8/28) O5:39%(7/18) O6:37%(11/30) O7:30%(12/40) O8:38%(8/21) O9:25%(5/20) S-might:33%(4/12) S-vigor:53%(9/17) W1:27%(22/82) W2:39%(11/28) W3:38%(11/29) W4:33%(9/27) W5:35%(18/51) W6:56%(15/27) W7:48%(15/31) W8:45%(22/49)
+[cp4] clear sets 69; buffs in >60% of clear sets: none
+boss F5 turns by trip 1-5: T1 20.8(n=16,won 16)  T2 6.6(n=16,won 16)  T3 8.3(n=16,won 16)  T4 8.9(n=16,won 16)  T5 7.9(n=16,won 16)
+boss F10 turns by trip 1-5: T1 12.4(n=9,won 6)  T2 13.7(n=16,won 16)  T3 10.1(n=16,won 15)  T4 10.2(n=16,won 16)  T5 9.4(n=16,won 16)
