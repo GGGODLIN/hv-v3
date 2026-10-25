@@ -1,5 +1,5 @@
 import { iconKey } from './icons';
-import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, type BEvent, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -14,6 +14,7 @@ import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as cor
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
 import type { Stage } from './stage';
+import { AFFIXES, BOSS_BY_FLOOR, ELEM_ZH, SIG_TEXT, themeOf, themeRaces, type AffixId, type Cp5Mon } from '../core/cp5';
 import { ATTR_HINT, ATTR_ZH, esc, fmtChange, fmtStat, STAT_ZH } from './text';
 
 /** CP3-fix 12 / CP3-bugfix 7: exactly which stats the next +1 changes (town Item World and campfire forge). */
@@ -213,12 +214,14 @@ export class App {
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         return cur ? `<button class="node n-${t}" data-node="${i}">${ic}${NODE_ZH[t]}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
-      return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small></span>${opts}</div>`;
+      const th = r.cp5 && f.n % 5 === 1 ? `<div class="theme-sep" data-themesep="${f.n}">▲ 第 ${f.n}–${f.n + 4} 層：${themeOf(f.n).zh}</div>` : '';
+      const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${SIG_TEXT[BOSS_BY_FLOOR[f.n]!.sig].icon}${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
+      return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
+      ${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
   }
@@ -235,12 +238,12 @@ export class App {
     const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
-    const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}：${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</div>`).join('');
+    const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</div>`).join('');
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.battleBuffRow()}</div>
-        <div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
+        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
+        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
         <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
@@ -248,6 +251,51 @@ export class App {
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
 
+  /** CP5: floor theme title (map). */
+  themeHtml(): string {
+    const r = this.run;
+    if (!r?.cp5) return '';
+    const t = themeOf(r.floor);
+    return `<div class="theme" data-theme="${esc(t.zh)}"><b>${esc(t.zh)}</b>（第 ${Math.floor((r.floor - 1) / 5) * 5 + 1}–${Math.floor((r.floor - 1) / 5) * 5 + 5} 層）· 常見：${themeRaces(t).join('、')} · 多抗：${t.elems.map((e) => ELEM_ZH[e]).join('、')}${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5] ? ` · 首領：${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5]!.title}` : ''}</div>`;
+  }
+  /** CP5: player bleed / burn with how to clear it. */
+  dotHtml(p?: { burn: number; burnTurns: number; bleed: number; bleedTurns: number }): string {
+    if (!this.run?.cp5 || !p || (!p.burnTurns && !p.bleedTurns)) return '';
+    const parts = [p.bleedTurns ? `<b class="dot-bleed" data-pdot="bleed">🩸流血 ${p.bleed}/回合 ×${p.bleedTurns}</b>` : '', p.burnTurns ? `<b class="dot-burn" data-pdot="burn">🔥燃燒 ${p.burn}/回合 ×${p.burnTurns}</b>` : ''].filter(Boolean).join(' ');
+    return `<div class="pdot" data-pdotbox>${parts} <span class="hint">解除：Z·生命藥水 或 D·防禦</span></div>`;
+  }
+  /** CP5: affix nameplate + boss signature state for one monster (weak panel). */
+  plateHtml(m: Monster): string {
+    if (!this.run?.cp5) return '';
+    const x = m as Monster & Cp5Mon;
+    const aff = (x.affixes ?? []).map((a: AffixId) => `<span class="affix" data-affix="${a}" title="${esc(AFFIXES[a].desc)}">${AFFIXES[a].zh}<small>${esc(AFFIXES[a].desc)}</small></span>`).join('');
+    let sig = '';
+    if (x.sig) {
+      const ic = SIG_TEXT[x.sig].icon;
+      if (x.sig === 'shield' && x.shieldEl) sig = `${ic} ${ELEM_ZH[x.shieldEl]}之盾 · 破綻 <b>${ELEM_ZH[x.breachEl!]}</b>`;
+      else if (x.thornTurns) sig = `${ic} 尖刺盾 ${x.thornTurns} 回合（別用物理）`;
+      else if (x.sigPending || x.drainNext) sig = `<b class="warn">${ic} ${esc(SIG_TEXT[x.sig].tele)}</b>`;
+      else sig = `<span class="hint">${ic}</span>`;
+      sig = `<span class="tele" data-tele="${x.sig}${x.sigPending || x.drainNext || x.thornTurns ? '-on' : ''}">${sig}</span>`;
+    }
+    return aff || sig ? ` <span class="plate">${aff}${sig}</span>` : '';
+  }
+  /** CP5: log lines for signature / player DoT events, plus first-encounter tips. */
+  cp5Log(ev: BEvent[]): void {
+    for (const e of ev) {
+      if (e.t === 'sig') this.log.push(`<span class="warn" data-sig="${e.sig}">${SIG_TEXT[e.sig].icon} ${esc(e.text)}</span>`);
+      if (e.t === 'pdot') this.log.push(`<span class="dot-${e.kind}" data-pdotlog>${e.kind === 'burn' ? '🔥燃燒' : '🩸流血'} -${e.dmg}（Z·生命藥水 或 D·防禦 可解除）</span>`);
+      if (e.t === 'status' && e.to === 'player') this.log.push(`<span class="statusfx" data-status>${esc(e.text)}</span>`);
+    }
+  }
+  /** CP5 first-encounter tips stay on screen for the whole battle. */
+  cp5TipBox: string[] = [];
+  cp5Tips(b: BattleState): void {
+    for (const m of b.monsters as (Monster & Cp5Mon)[]) {
+      if (m.sig) { const t = tip(this.p, `cp5sig:${m.sig}`, SIG_TEXT[m.sig].tip); if (t) this.cp5TipBox.push(`<div class="unlock" data-cp5tip="${m.sig}">💡 ${esc(t)}</div>`); }
+      for (const a of m.affixes ?? []) { const t = tip(this.p, `cp5aff:${a}`, `精英詞綴【${AFFIXES[a].zh}】：${AFFIXES[a].desc}${a === 'flame' || a === 'leech' ? '。中了可用生命藥水或防禦解除' : a === 'antimagic' || a === 'warded' ? '。改用普攻或技能比較划算' : a === 'spikes' || a === 'hard' ? '。改用法術比較划算' : ''}`); if (t) this.cp5TipBox.push(`<div class="unlock" data-cp5tip="${a}">💡 ${esc(t)}</div>`); }
+    }
+  }
   /** CP4: held buffs strip (map / battle). */
   buffStrip(): string {
     const ids = this.run?.buffs;
@@ -499,6 +547,7 @@ export class App {
     this.battle.oc += oc0;
     this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`];
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
+    if (r.cp5) { this.cp5TipBox = []; const ev0 = armCp5(this.battle, r.pdot); this.cp5Tips(this.battle); this.cp5Log(ev0); }
     this.target = 0;
     this.go('battle');
     this.stage.setMonsters(this.battle.monsters);
@@ -540,12 +589,14 @@ export class App {
       if (e.t === 'death') this.log.push(`擊倒 ${esc(b.monsters[e.to]!.name)}`);
       if (e.t === 'charge') this.log.push(`<span class="warn">${esc(b.monsters[e.from]!.name)} 正在蓄力！</span>`);
       if (e.t === 'msg') this.log.push(esc(e.text));
+      if (b.cp5) this.cp5Log([e]);
       if (e.t === 'heal' && e.label !== '自然回復') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
     }
     if (b.oc >= 50 && has(this.p, 'spirit') && !b.spirit) { const t = tip(this.p, 'spirit', TIPS.spirit); if (t) this.log.push(`<span class="unlock" data-unlock data-tip="spirit">${esc(t)}</span>`); }
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
     await this.stage.play(ev, b);
+    if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
     const q = this.queued; this.queued = null;
     if (q && !b.over) { this.render(); return this.command(q); }
