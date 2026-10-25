@@ -293,3 +293,7 @@
 | vitest | 全過 | 221/221 | |
 
 OC 退步原因（已驗證，診斷跑 rc4-noclear 32×12 只改 OC 選裝）：1H 無盾 78%；1H 可帶盾 25%；rc5 的自由選裝 13%（docs/logs/rc6-noclear-oc-diag-*.txt）。也就是項目 3「OC 雙持→本遊戲無雙持改單手、不帶盾」這條規則本身造成；未調任何數值，需製作人決定 OC 是否可帶盾或改其他武器。
+
+## rc7 項目 2：OC 可帶盾（暫定）
+
+製作人決定（暫定）：OC 用單手武器，可帶盾也可不帶，由 AI 依主手＋副手組合的戰力分數擇優（`gearStyle('buff:oc') = { main: 'oneHand', shield: 'free' }`，src/core/auto.ts）。取代 rc6 的「單手、不帶盾」。

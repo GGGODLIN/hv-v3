@@ -29,7 +29,7 @@ describe('rc6 item 2: battle panel and UI-only AI', () => {
   });
   it('rc6 item 3 weapon rules: blade 2H, oc 1H (no dual wield in game), arcane staff, bulwark 1H + shield', () => {
     expect(gearStyle('buff:blade')).toEqual({ main: 'twoHand', shield: 'no' });
-    expect(gearStyle('buff:oc')).toEqual({ main: 'oneHand', shield: 'no' });
+    expect(gearStyle('buff:oc')).toEqual({ main: 'oneHand', shield: 'free' });
     expect(gearStyle('buff:arcane')).toEqual({ main: 'staff', shield: 'no' });
     expect(gearStyle('buff:bulwark')).toEqual({ main: 'oneHand', shield: 'yes' });
   });

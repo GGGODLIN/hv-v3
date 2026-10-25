@@ -39,7 +39,7 @@ export function gearStyle(strategy: string): GearStyle {
   // rc6 item 3 (school→style mapping: producer decision, 暫定，無來源; style definitions: parsed_wiki/Fighting_Styles.md).
   if (strategy.startsWith('buff:blade')) return { main: 'twoHand', shield: 'no' };
   // OC = dual wield per producer; the game has no dual wield (offHand = shield group only, constants.ts F-003-base-groups) → 1H, no shield (暫定).
-  if (strategy.startsWith('buff:oc')) return { main: 'oneHand', shield: 'no' };
+  if (strategy.startsWith('buff:oc')) return { main: 'oneHand', shield: 'free' }; // rc7 item 2 (暫定): shield optional, joint pick decides
   return null;
 }
 /** Pick main hand + off hand together (can go back from a two-hander to one-hand + shield). Off-style weapons are only used when no
