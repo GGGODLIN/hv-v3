@@ -222,3 +222,19 @@ CP3 前的舊存檔沒有進度欄位，視為老玩家：除道具界外全部�
 ## CP4 Run Buffs（暫定，旗標 RULES.cp4RunBuffs，預設關）
 
 詳見 docs/cp4-run-buffs.md §10–§12。Step 6 調參值：Boss 勝利 1 次三選一、elite 每 2 次勝利 1 次、同流派權重 4、Boss HP 每個 buff +6%。全部暫定。
+
+### CP4 磐石修正（暫定，決策 2026-10-25 #1）
+| 值 | 暫定 | 位置 |
+|---|---|---|
+| 磐石組合「防禦後下一擊」倍率 | ×1.5（原 ×1.3） | battle.ts `BULWARK_COUNTER_MULT` |
+| 磐石組合「格擋、閃避或招架後反擊」 | 普攻公式（physHit）×0.8 | battle.ts `BULWARK_RIPOSTE_MULT` |
+| nocore-nofloor 對照組 | 只在 sim 使用，關掉兩項核心保底 | buffoffer.ts `coreFloor` |
+
+32 種子 sim 的結果見 docs/logs/cp4-r3-sim32-bulwark-riposte-nofloor.txt。cp3-pass3 之後重跑，輸出逐位元相同。持有 ≥5 個 buff 時的 F10 首領：
+
+| 流派 | 勝率 | 平均回合 |
+|---|---|---|
+| 磐石 | 97% | 14.3 |
+| 劍 | 91% | 13.3 |
+| OC | 91% | 13.8 |
+| 奧術 | 95% | 13.1 |
