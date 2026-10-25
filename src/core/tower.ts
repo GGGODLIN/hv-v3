@@ -14,8 +14,9 @@ export const TOWER = {
   levelPerFloor: 3,
   /** Monster PL window centre on floor f. */
   plBase: 40,
-  plPerFloor: 0.25,
-  weights: [['battle', 40], ['elite', 14], ['chest', 12], ['merchant', 9], ['rest', 10], ['shrine', 15]] as [NodeType, number][],
+  /** design §2: PL = base × (1 + 0.08 × floor). base 40 is this branch's existing value; not in findings/design. */
+  plPerFloor: 0.08,
+  weights: [['battle', 45], ['elite', 12], ['chest', 10], ['merchant', 10], ['rest', 13], ['shrine', 10]] as [NodeType, number][],
 };
 
 export interface Floor { n: number; options: NodeType[] }
@@ -23,13 +24,14 @@ export interface Tower { floors: Floor[] }
 
 export const floorLevel = (f: number) => TOWER.baseLevel + TOWER.levelPerFloor * (f - 1);
 export function floorPl(f: number): [number, number] {
-  const c = TOWER.plBase * (1 + TOWER.plPerFloor * (f - 1));
+  const c = TOWER.plBase * (1 + TOWER.plPerFloor * f);
   return [Math.max(25, Math.round(c * 0.6)), Math.round(c * 1.4)];
 }
 
 /**
  * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 always offers a battle and never an elite or rest.
- * No lane may show the same node type on three floors in a row.
+ * Path rule: if a type was offered on both previous floors, this floor must offer some other type,
+ * so no route is ever forced into the same node type three floors in a row (rest included).
  */
 export function generateTower(rng: Rng): Tower {
   const floors: Floor[] = [];
@@ -45,8 +47,7 @@ export function generateTower(rng: Rng): Tower {
         guard++;
       } while (guard < 50 && (
         (n === 1 && (t === 'elite' || t === 'rest')) ||
-        options.includes(t) ||
-        (n >= 3 && floors[n - 2]!.options[lane] === t && floors[n - 3]!.options[lane] === t)
+        options.includes(t)
       ));
       options.push(t);
     }
@@ -55,4 +56,15 @@ export function generateTower(rng: Rng): Tower {
     floors.push({ n, options });
   }
   return { floors };
+}
+
+/** True if some route can be forced into the same type on three consecutive floors. */
+export function forcedTriple(t: Tower): boolean {
+  const f = t.floors;
+  for (let n = 2; n < f.length; n++) {
+    const a = f[n]!.options;
+    if (new Set(a).size !== 1) continue;
+    if (f[n - 1]!.options.includes(a[0]!) && f[n - 2]!.options.includes(a[0]!)) return true;
+  }
+  return false;
 }

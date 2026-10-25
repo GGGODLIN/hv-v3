@@ -14,7 +14,7 @@ export const RULES = {
   expMult: 6,
   death: { exp: 0.5, credits: 0.5, keepBestItems: 1, loseConsumables: true },
   potionPrice: { health: 50, mana: 100, spirit: 100 } as Record<PotionId, number>,
-  restHeal: 0.6,
+  restHeal: 0.5,
   floorCredits: 15,
 };
 
@@ -169,8 +169,9 @@ export function rest(p: Player, run: RunState, choice: 'heal' | 'upgrade', equip
   const d = runDerived(p, run);
   if (choice === 'heal') {
     run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * RULES.restHeal));
-    run.mp = d.mp; run.sp = d.sp;
-    return `回復 ${Math.round(RULES.restHeal * 100)}% HP，MP/SP 全滿`;
+    run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * RULES.restHeal));
+    run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * RULES.restHeal));
+    return `回復 ${Math.round(RULES.restHeal * 100)}% HP／MP／SP`;
   }
   const e = p.equipped[equipSlot as keyof Player['equipped']];
   if (!e) return '沒有裝備可強化';
