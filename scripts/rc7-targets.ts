@@ -24,6 +24,8 @@ if (process.env.SP === 'off') STYLE_PASSIVES.on = false;
 if (process.env.ML) MON_ADB.levelTerm = Number(process.env.ML);
 if (process.env.TH === 'off') CP5_FORCE.themeOff = true; // diagnostic only
 if (process.env.PR) ABYSS.physResScale = Number(process.env.PR);
+if (process.env.DPD) ABYSS.dmgPerDepth = Number(process.env.DPD);
+if (process.env.TR) ABYSS.tierRamp = Number(process.env.TR);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 24), F = Number(process.argv[3] ?? 4), T = 10;
 const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
@@ -36,7 +38,7 @@ function one(p0: Player, strat: Strategy, depth: number, type: 'boss' | 'battle'
   fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter'); return b.over === 'win';
 }
 const pct = (w: number, n: number) => (n ? `${Math.round((100 * w) / n)}% (${w}/${n})` : 'n/a');
-console.log(`# rc7 targets  AI=${SIM_AI.omni ? 'omni(reference)' : 'UI-only'}  levelBase=${ABYSS.levelBase} LPD=${ABYSS.playerLevelPerDepth} hpScale=${ABYSS.hpScale} dmgScale=${ABYSS.dmgScale} lvFollowK=${ABYSS.lvFollowK}  physResScale=${ABYSS.physResScale}  N=${N} F=${F}`);
+console.log(`# rc7 targets  AI=${SIM_AI.omni ? 'omni(reference)' : 'UI-only'}  levelBase=${ABYSS.levelBase} DPD=${ABYSS.dmgPerDepth} TR=${ABYSS.tierRamp} LPD=${ABYSS.playerLevelPerDepth} hpScale=${ABYSS.hpScale} dmgScale=${ABYSS.dmgScale} lvFollowK=${ABYSS.lvFollowK}  physResScale=${ABYSS.physResScale}  N=${N} F=${F}`);
 console.log('school | d5 boss | d13 battle | d16 battle | d18 battle | d20 boss | chars@best≥15');
 for (const sc of (process.env.SC ?? 'blade,oc,arcane,bulwark').split(',')) {
   const strat = `buff:${sc}` as Strategy; const c = { d5: { w: 0, n: 0 }, d13: { w: 0, n: 0 }, d18: { w: 0, n: 0 }, d16: { w: 0, n: 0 }, d20: { w: 0, n: 0 } }; let deep = 0;

@@ -355,3 +355,22 @@ Pre-tag suite results (logs in docs/logs/rc7-*.txt):
 - CP4/CP5: the main-tower baseline changed (style passives and the adb term are shared). It is saved as the new file docs/cp5-on-baseline-sim-rc7.txt; the rc6 file is kept. First clear median went from 2 to 1, and the F10 boss win rate over trips 1-3 went from 84% to 98%.
 - CP6 A/B: both FAIL on "trip1 median 5-12" (trip-1 depth is now median 25) and on "d16 ≤ 1.5 × d13". rc6 also failed CP6 A/B, on other checks. Early depths are now too easy; this is a known open item and was not retuned (outside the producer's scope).
 - vitest: 221/221 passed when run alone. Under the parallel load of the suite, one cp3 acceptance test hit its 5 s timeout.
+
+## rc8 item 2: CP4/CP5 acceptance on rc7 (the easier main tower is accepted)
+The baseline is now `docs/cp5-on-baseline-sim-rc7.txt` (`scripts/cp4-on-check.sh`); the rc6 file is kept for history.
+Reason: rc7 fixed sourced original-game formulas: the fighting-style passives (Fighting_Styles.md:59-98) and monster base damage without a level term (Monster_Stats.md:56). The user also wants a fast early game.
+Key items in cp5-sim (counter AI, N=32 M=12), rc6 → rc7. Thresholds are in cp5-bosses-floors.md §4.2: counter ≥90%, ignore ≤ counter − 25pp and ≤70%.
+
+| item | rc6 | rc7 | change |
+|---|---|---|---|
+| auto F5 boss gap (counter/ignore) | 100/67.9 (32pp, pass) | 100/83.6 (16pp) | **pass → fail** |
+| blade F5 boss gap | 99.3/62.0 (37pp, pass) | 100/75.4 (25pp) | **pass → fail** (by 0.4pp) |
+| bulwark F15 boss gap | 94.4/66.7 (28pp, pass) | 96.5/77.2 (19pp) | **pass → fail** |
+| arcane F5 boss gap | 100/47.9 pass | 100/63.5 pass | still pass |
+| oc counter win F10/F15/F20 | 81/58/33 | 99/87/54 | better (below 90 → F10 now ≥90) |
+| blade counter win F15/F20 | 88/77 | 89/82 | better |
+| first clear median (auto/blade/oc/arcane/bulwark) | 1/2/3/2/2 | 1/2/2/2/2 | oc faster |
+| full clear median (auto/blade/oc/arcane/bulwark) | 3/4/—/4/3 | 2/4/6/4/3 | oc now clears |
+| death-combo 必死 | some (rc6 log) | 0 | pass |
+
+Every other gap item already failed at rc6 and is unchanged in kind. The three items that flipped from pass to fail do so because counter-play matters less once players hit harder (sourced passives). This follows from the accepted easier main tower and is not retuned.
