@@ -431,3 +431,20 @@ Round 6 (around r5D):
 | r6D | 0 / 1.1 / 6 / -0.01 / 5 | 98/95/97/86 | 77/88/88/64 | 94/86/95/95 | 27/12/9/12/20 | 1.05/0.26/1.54/0.81/0.53 |
 
 Round 6 does not improve on r5D. At N=32 the results move by about ±5 depths and ±10pp (for example, r5D vs r6D). Next step: confirm r5D at a larger N.
+
+Confirmation round (rc7-targets 48x4; abyss-sim on new seeds 33-64, SEED0=32):
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| c5D | 0 / 1.25 / 6 / -0.01 / 5 | 91/84/94/87 | 48/81/85/58 | 97/78/92/96 | 12/5/7/12/12 | 1.68/0.52/0.98/1.09/1.12 |
+| c6D | 0 / 1.1 / 6 / -0.01 / 5 | 94/92/96/89 | 61/86/86/66 | 94/83/96/96 | 20/7/7/12/20 | 0.89/0.56/1.80/0.53/— |
+
+Decision (暫定), reached at the tuning limit as the instructions allow:
+- The two goals cannot both be met. With trip-1 medians ≤12 for every school (c5D), blade's d16 normal battle falls to 48% and bulwark's to 58%. That breaks rc7 targets that rc7 already met.
+- Keeping what rc7 meets comes first, so rc8 adopts **c6D: LPD 0, HS 1.1, DS 6, DPD −0.01, TR 5**.
+- In c6D, every kept rc7 target holds.
+- Trip-1 medians:
+  - blade 7, oc 7, arcane 12 (pass).
+  - auto 20 and bulwark 20 (fail; rc7 auto was 25).
+- d16/d13 ratios: blade .56, arcane .53, auto .89 (pass). oc 1.80 (fail; at N=32 oc was 1.54 and 1.21 in earlier rounds, so this is noisy). Bulwark has no d13 deaths.
+- DPD −0.01 deviates from the sourced +2%/wave (Battles.md:261). It is a 暫定 game-feel value.
