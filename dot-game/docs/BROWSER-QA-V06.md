@@ -31,4 +31,11 @@ Therefore schema-specific browser rejection remains **unverified**. Strict unsup
 Getter/adversarial schema, stale batch variants and repeated confirm races are automated evidence; browser directly covered cancellation, exact batches and ownership loss. Physical mobile, OS suspension and inherited visibility behavior remain unverified. No offline rewards. The stricter import policy cannot recover metadata an older version already discarded. Old validators drop the opt-in safely to OFF; users should refresh before using current mechanics.
 
 ## Release state
-Independent QA gives bounded desktop promotion GO. Accepted-source backup, root promotion, old-v0.5/shared-v3 takeover and root default-OFF smoke remain pending at this checkpoint. The 19:00 UTC automation joins this still-active acceptance/release work rather than creating parallel changes.
+Independent QA gave bounded desktop promotion GO with the schema-browser gap explicitly retained. Accepted source `2346d7d3a2e2ec2f610180c6d59b68ddde53b071` was verified by exact readback of all56 files /666816 bytes and55 payload hashes before promotion. Website `4e9be8514d82de3b7c383ab919003d3b82750304` passed exact Pages run `40224227625`; six public runtime HTTP200 hashes match. Five root blobs changed; session, candidates, fixtures and other works were preserved.
+
+Final root smoke at19:06–19:08 UTC:
+- New v0.6 root started read-only with auto-sale OFF, retaining Lv19, XP470/1192, gold8764, wins76,99 inventory items and equipped club/armor/accessory from v0.5. Candidate's118-item profile did not mix.
+- Explicit shared-v3 takeover made old v0.5 read-only and enabled the new tab. The root preview quoted only the same two exact IDs123/127 for152 credits. Cancel and reload kept99 items/gold8764 and OFF; no sale was performed on the stable profile.
+- Started a normal expedition with autoOFF; auto/sale controls were disabled during combat. No app-origin errors appeared in the inspected root log. Returned safely to camp, closed old/candidate tabs, and retained the public v0.6 tab.
+
+Bounded desktop publication acceptance passes. The 19:00 automation joined and completed the existing v0.6 gate without parallel source changes. No routine user message was sent in quiet hours. This publication receipt changes documentation and manifest, not runtime. The explicit schema-specific browser gap above remains unresolved, not silently upgraded to PASS.
