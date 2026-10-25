@@ -548,7 +548,7 @@ export class App {
     await new Promise((res) => setTimeout(res, this.data.settings.skipAnim ? 30 : 500 / this.stage.speed));
     this.busy = false;
     this.pending = { loot };
-    if (RULES.cp4RunBuffs) { r.offersLeft = winOffers(this.battleType); if (r.offersLeft) { r.offersLeft--; openOffer(this.p, r, this.battleType as 'elite'); } this.save(); }
+    if (RULES.cp4RunBuffs) { r.offersLeft = winOffers(this.battleType, r); if (r.offersLeft) { r.offersLeft--; openOffer(this.p, r, this.battleType as 'elite'); } this.save(); }
     this.battle = null;
     this.go('node');
   }

@@ -20,6 +20,10 @@ const lv: number[][] = [[], [], []];
 const bossF: { floor: number; turns: number; potions: number; won: boolean; spirit: boolean }[] = [];
 let nb = 0, ns = 0;
 const bossAll: typeof bossF = [];
+// CP4 (buff strategies only)
+const C = { runs: 0, formedRuns: 0, preRuns: 0, preFormed: 0, buffSum: 0, preBuffSum: 0, f10: 0, f10won: 0, risks: 0 };
+const src: Record<string, number> = {}, offered: Record<string, number> = {}, picked: Record<string, number> = {};
+const clearSets: string[][] = []; const boss5: { floor: number; turns: number; won: boolean }[] = []; const atClear: number[] = [];
 for (let s = 1; s <= N; s++) {
   const p = newPlayer();
   starterKit(p, s);
@@ -27,6 +31,17 @@ for (let s = 1; s <= N; s++) {
   let ur = 0;
   for (let i = 1; i <= M; i++) {
     const r = autoRun(p, pool, s * 1000 + i, strat);
+    if (r.cp4) {
+      const c = r.cp4; C.runs++; if (c.formed.length) C.formedRuns++; C.buffSum += c.buffs.length; C.risks += c.risks;
+      if (fc === Infinity) { C.preRuns++; C.preBuffSum += c.buffs.length; if (c.formed.length) C.preFormed++; }
+      for (const [k, v] of Object.entries(c.sources)) src[k] = (src[k] ?? 0) + v;
+      for (const [k, v] of Object.entries(c.offered)) offered[k] = (offered[k] ?? 0) + v;
+      for (const [k, v] of Object.entries(c.picked)) picked[k] = (picked[k] ?? 0) + v;
+      if (r.floorReached > 10) clearSets.push(c.buffs);
+      if (r.floorReached > 10 && fc === Infinity) atClear.push(c.buffs.length);
+      for (const b of r.bosses) if ((b.buffs ?? 0) >= 5) boss5.push(b);
+      if (i <= 3) { const f = r.bosses.filter((b) => b.floor === 10); C.f10 += f.length; C.f10won += f.filter((b) => b.won).length; }
+    }
     if (i <= 3) bossAll.push(...r.bosses);
     if (i <= 3) { nb += r.battles; ns += r.spiritBattles; }
     if (i <= 3) { ur = r.unlockRate; lv[i - 1]!.push(r.settlement.levelAfter); }
@@ -58,5 +73,18 @@ for (const f of [5, 10]) {
   const ys = bossAll.filter((b) => b.floor === f);
   console.log(`boss F${f} (all trips 1-3): fights ${ys.length}, won ${ys.filter((b) => b.won).length} (${(100 * ys.filter((b) => b.won).length / Math.max(1, ys.length)).toFixed(0)}%), mean turns ${(ys.reduce((a, b) => a + b.turns, 0) / Math.max(1, ys.length)).toFixed(1)}, spirit used ${ys.filter((b) => b.spirit).length}`);
   console.log(`boss F${f}: fights ${xs.length}, won ${xs.filter((b) => b.won).length}, mean turns ${avg('turns')}, spirit used ${xs.filter((b) => b.spirit).length}, mean potions ${avg('potions')}`);
+}
+if (C.runs) {
+  const pc = (a: number, b: number) => `${(100 * a / Math.max(1, b)).toFixed(0)}%`;
+  console.log(`[cp4] runs ${C.runs}, mean buffs/run ${(C.buffSum / C.runs).toFixed(2)}, sources ${JSON.stringify(src)}`);
+  console.log(`[cp4] formed rate: all runs ${pc(C.formedRuns, C.runs)}, before first clear ${pc(C.preFormed, C.preRuns)} (${C.preRuns} runs), mean buffs before first clear ${(C.preBuffSum / Math.max(1, C.preRuns)).toFixed(2)}, buffs held at first clear [${atClear.join(',')}]`);
+  console.log(`[cp4] first-clear rate (≤${M} runs) ${pc(first.filter((x) => x !== Infinity).length, N)}, F10 win (trips 1-3) ${pc(C.f10won, C.f10)} of ${C.f10}`);
+  const avgT = (xs: { turns: number }[]) => (xs.reduce((a, b) => a + b.turns, 0) / Math.max(1, xs.length)).toFixed(1);
+  for (const f of [5, 10]) { const xs = boss5.filter((b) => b.floor === f); console.log(`[cp4] boss F${f} with ≥5 buffs: fights ${xs.length}, won ${xs.filter((b) => b.won).length}, mean turns ${avgT(xs)}`); }
+  const rows = Object.keys(offered).sort().map((k) => `${k}:${pc(picked[k] ?? 0, offered[k]!)}(${picked[k] ?? 0}/${offered[k]})`);
+  console.log(`[cp4] pick rate (picked/offered): ${rows.join(' ')}`);
+  const freq: Record<string, number> = {}; for (const set of clearSets) for (const k of new Set(set)) freq[k] = (freq[k] ?? 0) + 1;
+  const hot = Object.entries(freq).filter(([, v]) => v / clearSets.length > 0.6).map(([k, v]) => `${k}:${pc(v, clearSets.length)}`);
+  console.log(`[cp4] clear sets ${clearSets.length}; buffs in >60% of clear sets: ${hot.join(' ') || 'none'}`);
 }
 }

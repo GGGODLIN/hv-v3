@@ -13,7 +13,7 @@ export const OFFER_RARITY: Record<OfferSource | 'merchant', [number, number, num
 export const OFFER_SIZE = 3;
 export const MERCHANT_BUFFS = 2;
 export const BUFF_PRICE: Record<Exclude<Rarity, 'legend'>, number> = { common: 120, rare: 300 };
-export const SAME_SCHOOL_WEIGHT = 2;
+export const SAME_SCHOOL_WEIGHT = 4; // step 6 tuning (was 2), 暫定
 /** Buff offers come from their own stream so tower / loot RNG never shifts (seed derived from run.seed + counter). */
 function offerRng(run: RunState): Rng {
   run.offerN = (run.offerN ?? 0) + 1;
@@ -61,8 +61,14 @@ export function takeBuff(p: Player, run: RunState, id: string): string {
   return `獲得【${b.zh}】：${b.desc}`;
 }
 export const skipOffer = (run: RunState) => { run.offer = null; };
-/** Offers after a won fight: elite 1, boss 2 (the second opens after the first is taken). */
-export const winOffers = (type: NodeType): number => (type === 'boss' ? 2 : type === 'elite' ? 1 : 0);
+/** Offers after a won fight (step 6 tuning, 暫定): boss 1; elite 1 on every ELITE_OFFER_EVERY-th elite win of the trip (1st, 3rd, ...). Mutates run.eliteWins. */
+export const ELITE_OFFER_EVERY = 2;
+export function winOffers(type: NodeType, run: RunState): number {
+  if (type === 'boss') return 1;
+  if (type !== 'elite') return 0;
+  run.eliteWins = (run.eliteWins ?? 0) + 1;
+  return (run.eliteWins - 1) % ELITE_OFFER_EVERY === 0 ? 1 : 0;
+}
 export function merchantBuffs(p: Player, run: RunState): { id: string; price: number }[] {
   const pm = 1 + ((run.buffs ?? []).filter((x) => x === 'N2').length * -0.15);
   return rollBuffs(p, run, 'merchant', MERCHANT_BUFFS).map((id) => ({ id, price: Math.round(BUFF_PRICE[BUFF[id]!.rarity as 'common'] * RULES.merchantMarkup * pm) }));

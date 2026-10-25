@@ -204,3 +204,11 @@
 - tag `cp3-pass`（annotated）= 771f9b3。main 只能接受它與之後訊息開頭為 `CP3-bugfix` 的純修 bug commit。
 - CP4 全部以 `RULES.cp4RunBuffs` 包住，預設 false；網址加 `?cp4` 可開啟試玩。
 - 每一步都驗證關閉時：舊測試、e2e 通過；`npx tsx scripts/difficulty.ts 16 8` 輸出與 `docs/cp4-baseline-sim.txt`（771f9b3 輸出）逐字相同（`scripts/cp4-off-check.sh`）。
+
+## 12. Step 6 調參結果（2026-10-25，全部暫定）
+
+- Boss 勝利：2 次三選一 → **1 次**（暫定）。Elite 勝利：每趟第 1、3、5… 次 elite 勝利給 1 次三選一（`ELITE_OFFER_EVERY = 2`，暫定）。原因：原設定首通前平均 5.7–6.3 個 buff，超出決定 8 的 2–4。
+- 同流派權重 `SAME_SCHOOL_WEIGHT` 2 → **4**（暫定），補回 buff 變少後的成形率。
+- `cp4BossHpPerBuff` 0.04 → **0.06**（暫定），讓持有 ≥5 buff 的 F10 Boss 落在 10–15 回合附近。
+- 調後 16 種子 × 8 趟：首通前平均 3.3–3.9 個 buff；成形率 65–86%（未達 §7 的 90% 目標，與決定 8 的 2–4 個互相牽制，留給製作人決定）。
+- Sim 策略 `buff:<流派>` / `buff:random` 只在該趟把旗標打開，結束後還原；flag-off 輸出與 `docs/cp4-baseline-sim.txt` 逐位元組相同。

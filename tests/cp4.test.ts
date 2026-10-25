@@ -164,3 +164,35 @@ describe('CP4 step 4: shrine risks', () => {
     expect(lost).toBeGreaterThan(5); expect(won).toBeGreaterThan(5);
   }));
 });
+
+import { OFFER_RARITY, winOffers } from '../src/core/buffoffer';
+import { autoRun } from '../src/core/auto';
+describe('CP4 step 6: tuning + sim strategies', () => {
+  const p = newPlayer(); starterKit(p);
+  it('first-slot rarity matches OFFER_RARITY within ±1pp over 100k draws', () => on(() => {
+    const r = startRun(p, 5);
+    for (const src of ['shrine', 'elite'] as const) {
+      const n = 100000; const c = { common: 0, rare: 0, legend: 0 };
+      for (let i = 0; i < n; i++) c[BUFF[rollBuffs(p, r, src, 1)[0]!]!.rarity]++;
+      const w = OFFER_RARITY[src]; const tot = w[0] + w[1] + w[2];
+      expect(Math.abs(c.common / n - w[0] / tot)).toBeLessThan(0.01);
+      expect(Math.abs(c.rare / n - w[1] / tot)).toBeLessThan(0.01);
+      expect(Math.abs(c.legend / n - w[2] / tot)).toBeLessThan(0.01);
+    }
+  }));
+  it('win offers: boss 1, elite on 1st/3rd elite win', () => {
+    const r = startRun(p, 1);
+    expect(winOffers('boss', r)).toBe(1); expect(winOffers('battle', r)).toBe(0);
+    expect([1, 2, 3, 4].map(() => winOffers('elite', r))).toEqual([1, 0, 1, 0]);
+  });
+  it('buff strategies turn the flag on only inside the run and record buffs', () => {
+    const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
+    const q = newPlayer(); starterKit(q, 3);
+    expect(RULES.cp4RunBuffs).toBe(false);
+    const rep = autoRun(q, pool, 3001, 'buff:blade');
+    expect(RULES.cp4RunBuffs).toBe(false);
+    expect(rep.cp4).toBeDefined();
+    const q2 = newPlayer(); starterKit(q2, 3);
+    expect(autoRun(q2, pool, 3001, 'human').cp4).toBeUndefined();
+  });
+});

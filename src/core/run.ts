@@ -31,7 +31,7 @@ export const RULES = {
   /** CP4 feature flag (docs/cp4-run-buffs.md §11). Off = identical to tag cp3-pass. `?cp4` in the URL turns it on. */
   cp4RunBuffs: false,
   /** CP4 decision 5 (暫定): boss max HP × (1 + k × buffs held). Gameplay layer, monsters.json untouched. */
-  cp4BossHpPerBuff: 0.04,
+  cp4BossHpPerBuff: 0.06,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -74,6 +74,8 @@ export interface RunState {
   offer?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
   offerN?: number;
   offersLeft?: number;
+  /** CP4: elite wins this trip (for winOffers) */
+  eliteWins?: number;
   /** CP4 step 4: shrine risk shown, curse mitigation penalty, next battle opens at OC 0. */
   risk?: import('./buffoffer').RiskId | null;
   curse?: number;

@@ -5,6 +5,8 @@ import { type Equip, SLOTS, blocksOffHand, sellPrice } from './items';
 import { has, unlockRate } from './progress';
 import type { MonsterPool } from './monsters';
 import { type Player, allocate, derive, equip, powerScore, profValue, unspentExp, type Prof } from './player';
+import { BUFF, formed } from './buffs';
+import { merchantBuffs, openOffer, openShrine, takeBuff, winOffers } from './buffoffer';
 import { Rng } from './rng';
 import {
   type RunState, advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, runDerived, settle, shrine, startRun, withRng,
@@ -63,7 +65,17 @@ export function chooseAction(b: BattleState): Action {
 
 /** 'human' (CP3 playtest model, 暫定): no Spirit Stance, no OC skills; casts the spell matching the target's worst
  * resistance when that resistance is negative, otherwise attacks; defends or drinks on a boss charge; drinks below 40% HP. */
-export type Strategy = 'auto' | 'human' | 'avoid' | 'noweak';
+export type Strategy = 'auto' | 'human' | 'avoid' | 'noweak' | BuffStrategy;
+/** CP4 §8: 'buff:<school>' plays like 'human' with CP4 on and picks buffs core → own school → neutral → other; 'buff:random' picks at random. */
+export type BuffStrategy = `buff:${'blade' | 'oc' | 'arcane' | 'bulwark' | 'random'}`;
+export const isBuffStrat = (s: Strategy): s is BuffStrategy => s.startsWith('buff:');
+export function prefBuff(ids: string[], strat: BuffStrategy, rng: Rng): string | undefined {
+  if (!ids.length) return undefined;
+  const school = strat.slice(5);
+  if (school === 'random') return ids[rng.int(0, ids.length - 1)];
+  const score = (id: string) => { const b = BUFF[id]!; return b.school === school ? (b.core ? 0 : 1) : b.school === 'none' ? 2 : 3; };
+  return [...ids].sort((a, b) => score(a) - score(b) || ids.indexOf(a) - ids.indexOf(b))[0];
+}
 /** 暫定 (CP2b): chance the human model takes a battle when one is offered and HP is at least 55%. */
 export const HUMAN_COMBAT_SHARE = 0.5;
 /** CP3-fix 8 'noweak': plays like 'human' but never aims at weaknesses (spells picked without looking at resistances: always the first offensive spell). */
@@ -102,8 +114,10 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   return 0;
 }
 
-export interface BossFight { floor: number; turns: number; potions: number; won: boolean; spirit: boolean }
-export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number }
+export interface BossFight { floor: number; turns: number; potions: number; won: boolean; spirit: boolean; buffs?: number }
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number;
+  /** CP4 (buff strategies only) */
+  cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number } }
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto'): RunReport {
   // Town prep.
@@ -112,8 +126,24 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   while (has(p, 'shop') && p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
   const level = derive(p).level;
   const power = powerScore(derive(p));
+  const bs = isBuffStrat(strategy);
+  const flag0 = RULES.cp4RunBuffs;
+  if (bs) RULES.cp4RunBuffs = true;
+  try { return autoRunInner(p, pool, seed, strategy, level, power, bs); } finally { RULES.cp4RunBuffs = flag0; }
+}
+function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Strategy, level: number, power: number, bs: boolean): RunReport {
   const run = startRun(p, seed);
   const rng = new Rng(seed ^ 0x5bd1e995);
+  const prng = new Rng((seed ^ 0x27d4eb2d) >>> 0 || 1);
+  const cp4 = { buffs: [] as string[], formed: [] as string[], sources: {} as Record<string, number>, offered: {} as Record<string, number>, picked: {} as Record<string, number>, risks: 0 };
+  /** Resolve the open offer with the strategy's preference. */
+  const resolve = (src: string) => {
+    if (!run.offer) return;
+    for (const id of run.offer.ids) cp4.offered[id] = (cp4.offered[id] ?? 0) + 1;
+    const id = prefBuff(run.offer.ids, strategy as BuffStrategy, prng);
+    if (id) { takeBuff(p, run, id); cp4.picked[id] = (cp4.picked[id] ?? 0) + 1; cp4.sources[src] = (cp4.sources[src] ?? 0) + 1; }
+    run.offer = null;
+  };
   let turns = 0;
   const bosses: BossFight[] = [];
   let battles = 0, spiritBattles = 0;
@@ -135,11 +165,12 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
       turns += b.turn;
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
-      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win', spirit: !!b.spiritUsed });
+      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) break;
       const used = autoEquip(p, run.bag);
       run.bag = run.bag.filter((e) => !used.includes(e));
+      if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run));
       const used = autoEquip(p, run.bag);
@@ -148,12 +179,20 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
       const st = merchantStock(run);
       while (p.potions.health < 4 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
       void st;
+      if (bs) for (const x of merchantBuffs(p, run)) {
+        const ok = strategy === 'buff:random' ? prng.chance(0.5) : BUFF[x.id]!.school === strategy.slice(5);
+        if (!ok || run.credits + p.credits < x.price) continue;
+        const fromRun = Math.min(run.credits, x.price); run.credits -= fromRun; p.credits -= x.price - fromRun;
+        for (const k of ['offered', 'picked'] as const) cp4[k][x.id] = (cp4[k][x.id] ?? 0) + 1;
+        takeBuff(p, run, x.id); cp4.sources.merchant = (cp4.sources.merchant ?? 0) + 1;
+      }
     } else if (type === 'rest') {
       const d = runDerived(p, run);
       if (run.hp < d.hp * 0.8 || !p.equipped.mainHand) rest(p, run, 'heal');
       else rest(p, run, 'upgrade', 'mainHand');
     } else if (type === 'shrine') {
-      shrine(p, run, run.hp > runDerived(p, run).hp * 0.7 ? 'might' : 'vigor');
+      if (bs) { openShrine(p, run); run.risk = null; resolve('shrine'); }
+      else shrine(p, run, run.hp > runDerived(p, run).hp * 0.7 ? 'might' : 'vigor');
     }
     advance(run, opt);
   }
@@ -165,7 +204,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles };
+  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
 export function starterKit(p: Player, seed = 7): void {
