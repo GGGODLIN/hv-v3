@@ -306,7 +306,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   else if (ab) ids = pickAffixes(rng, affixCount(rng, ab));
   else {
     ids = [rng.weighted(AFFIX_IDS.map((a) => [a, affixWeight(a)] as [AffixId, number]))];
-    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.weighted(AFFIX_IDS.filter((b) => compatible(ids[0]!, b)).map((a) => [a, affixWeight(a)] as [AffixId, number])));
+    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.weighted(AFFIX_IDS.filter((b) => compatible(ids[0]!, b, f)).map((a) => [a, affixWeight(a)] as [AffixId, number])));
   }
   if (ids.length > 1 && CP5.doubleHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.doubleHp));
   if (ab && ids.length > 2) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * ABYSS.tripleHp));

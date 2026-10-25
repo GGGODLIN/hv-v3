@@ -34,3 +34,11 @@ describe('rc6 item 2: battle panel and UI-only AI', () => {
     expect(gearStyle('buff:bulwark')).toEqual({ main: 'oneHand', shield: 'yes' });
   });
 });
+import { affixCombos, compatible } from '../src/core/cp5';
+describe('rc6 item 4: warded exclusion on F8/F18', () => {
+  it('drops warded + flame/split/leech/swift/spikes/keen on F8 and F18 only', () => {
+    for (const f of [8, 18]) for (const y of ['flame', 'split', 'leech', 'swift', 'spikes', 'keen'] as const) { expect(compatible('warded', y, f)).toBe(false); expect(compatible(y, 'warded', f)).toBe(false); }
+    expect(compatible('warded', 'flame', 13)).toBe(true); expect(compatible('warded', 'frost', 18)).toBe(true);
+    expect(affixCombos(18).length).toBe(affixCombos(13).length - 6);
+  });
+});

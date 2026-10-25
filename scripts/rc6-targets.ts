@@ -29,17 +29,17 @@ const pct = (w: number, n: number) => (n ? `${Math.round((100 * w) / n)}% (${w}/
 console.log(`# rc6 targets  AI=${SIM_AI.omni ? 'omni(reference)' : 'UI-only'}  lvFollowK=${ABYSS.lvFollowK}  physResScale=${ABYSS.physResScale}  N=${N} F=${F}`);
 console.log('school | d5 boss | d16 battle | d20 boss | chars@best≥15');
 for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
-  const strat = `buff:${sc}` as Strategy; const c = { d5: [0, 0], d16: [0, 0], d20: [0, 0] }; let deep = 0;
+  const strat = `buff:${sc}` as Strategy; const c = { d5: { w: 0, n: 0 }, d16: { w: 0, n: 0 }, d20: { w: 0, n: 0 } }; let deep = 0;
   for (let s = 1; s <= N; s++) {
     const p = newPlayer(); starterKit(p, s); let ok = false;
     for (let i = 1; i <= 60; i++) if (autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }).settlement.outcome === 'clear') { ok = true; break; }
     if (!ok || !abyssOpen(p)) continue;
-    for (let f = 1; f <= F; f++) { c.d5[1]++; if (one(p, strat, 5, 'boss', s * 100 + f)) c.d5[0]++; }
+    for (let f = 1; f <= F; f++) { c.d5.n++; if (one(p, strat, 5, 'boss', s * 100 + f)) c.d5.w++; }
     const rec = emptyRecord();
     for (let t = 1; t <= T && rec.best < 15; t++) { const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: checkpointStart(rec.best), cap: 60, ms: rec.ms });
       recordTitles(rec, r.abyss!.ms, r.abyss!.titles); recordTrip(rec, r.abyss!.cleared, r.abyss!.school as AbyssSchool); }
     if (rec.best < 15) continue; deep++;
-    for (let f = 1; f <= F; f++) { c.d16[1]++; if (one(p, strat, 16, 'battle', s * 100 + f)) c.d16[0]++; c.d20[1]++; if (one(p, strat, 20, 'boss', s * 100 + f)) c.d20[0]++; }
+    for (let f = 1; f <= F; f++) { c.d16.n++; if (one(p, strat, 16, 'battle', s * 100 + f)) c.d16.w++; c.d20.n++; if (one(p, strat, 20, 'boss', s * 100 + f)) c.d20.w++; }
   }
-  console.log(`${sc} | ${pct(c.d5[0], c.d5[1])} | ${pct(c.d16[0], c.d16[1])} | ${pct(c.d20[0], c.d20[1])} | ${deep}/${N}`);
+  console.log(`${sc} | ${pct(c.d5.w, c.d5.n)} | ${pct(c.d16.w, c.d16.n)} | ${pct(c.d20.w, c.d20.n)} | ${deep}/${N}`);
 }

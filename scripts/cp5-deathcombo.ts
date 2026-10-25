@@ -16,7 +16,7 @@ const N = Number(process.argv[2] ?? 32), M = Number(process.argv[3] ?? 12);
 const STRATS = ['auto', 'buff:blade', 'buff:oc', 'buff:arcane', 'buff:bulwark'] as Strategy[];
 const FLOORS = [3, 8, 13, 18];
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
-const combos = affixCombos();
+const combos = affixCombos(); // header count (no floor rule); per floor: affixCombos(fl)
 type Snap = { p: Player; run: RunState };
 let dead = 0, warn = 0, rel = 0; const lines: string[] = [];
 console.log(`# CP5 death-combo sweep  N=${N} seeds, snapshots from counter runs (≤${M} trips), ${combos.length} combos × F${FLOORS.join('/F')} × ${STRATS.length} schools`);
@@ -33,7 +33,7 @@ for (const strat of STRATS) {
   for (const fl of FLOORS) {
     const ss = snaps[fl] ?? []; let worst = 1, worstC = '';
     let ctrl = NaN;
-    for (const c of [[], ...combos]) {
+    for (const c of [[], ...affixCombos(fl)]) {
       let w = 0;
       const flag = RULES.cp5Bosses, b4 = RULES.cp4RunBuffs; RULES.cp5Bosses = true; RULES.cp4RunBuffs = strat.startsWith('buff:');
       try {
