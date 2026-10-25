@@ -43,6 +43,7 @@ export const BOSS_CHARGE_MULT = 2;
 /** CP3-fix 8 (暫定, gameplay layer): a boss with phases left rises at this fraction of max HP, enraged (charges every BOSS_ENRAGED_EVERY turns). */
 export const BOSS_PHASE_HP = 0.3;
 export const BOSS_ENRAGED_EVERY = 3;
+export const BOSS_PHASE_TEXT = '復活！第二階段・狂暴';
 function phaseShift(s: BattleState, ev: BEvent[]): void {
   s.monsters.forEach((m, i) => {
     if (m.hp > 0 || !m.phases) return;
@@ -51,7 +52,7 @@ function phaseShift(s: BattleState, ev: BEvent[]): void {
     m.hp = Math.round(m.maxHp * BOSS_PHASE_HP);
     m.status = { stun: 0, bleed: 0, bleedTurns: 0 };
     for (let k = ev.length - 1; k >= 0; k--) { const e = ev[k]!; if (e.t === 'death' && e.to === i) ev.splice(k, 1); }
-    ev.push({ t: 'status', to: i, text: '第二階段！狂暴' });
+    ev.push({ t: 'status', to: i, text: BOSS_PHASE_TEXT, phase: true });
   });
 }
 
@@ -67,7 +68,7 @@ export type Action =
 export type BEvent =
   | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean }
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
-  | { t: 'status'; to: 'player' | number; text: string }
+  | { t: 'status'; to: 'player' | number; text: string; phase?: boolean }
   | { t: 'death'; to: number }
   | { t: 'charge'; from: number }
   | { t: 'spirit'; on: boolean }

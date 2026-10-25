@@ -22,7 +22,8 @@ export interface Progress { trips: number; unlocked: SystemId[]; tips: string[];
 
 /** 暫定 (CP3-8, CP3-fix 3): EXP and credits carried home are x5 on trip 1, x3 on trip 2, x2 from trip 3 (was 3/2/1). */
 export const CARRY_MULT = [5, 3, 2] as const;
-export const carryMult = (trip: number) => CARRY_MULT[Math.min(trip, CARRY_MULT.length) - 1]!;
+/** CP3-bugfix: trips past the table carry ×1 (was clamped to the last entry, so trip 4+ kept ×2). */
+export const carryMult = (trip: number): number => (trip >= 1 && trip <= CARRY_MULT.length ? CARRY_MULT[trip - 1]! : 1);
 /** 暫定 (CP3-7): one-time credits gift at the first F3 shop. */
 export const F3_GIFT = 300;
 

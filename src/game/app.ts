@@ -1,5 +1,5 @@
 import { iconKey } from './icons';
-import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -215,7 +215,7 @@ export class App {
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && r.trip <= 2 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}</div>` : ''}
+      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && carryMult(r.trip) > 1 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
   }
@@ -514,6 +514,7 @@ export class App {
         const how = e.avoided === 'evade' ? '（閃避）' : e.avoided === 'parry' ? '（招架）' : e.avoided === 'block' ? '（格擋）' : e.avoided ? '（未命中）' : '';
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }
+      if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，蓄力變快）</span>`);
       if (e.t === 'death') this.log.push(`擊倒 ${esc(b.monsters[e.to]!.name)}`);
       if (e.t === 'charge') this.log.push(`<span class="warn">${esc(b.monsters[e.from]!.name)} 正在蓄力！</span>`);
       if (e.t === 'msg') this.log.push(esc(e.text));

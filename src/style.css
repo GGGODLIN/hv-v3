@@ -123,3 +123,4 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .buffcard { border: 1px solid #ffffff44; border-radius: 6px; padding: 8px; background: #241a30; display: flex; flex-direction: column; gap: 6px; }
 .buffcard .bh { display: flex; justify-content: space-between; gap: 6px; } .buffcard .bh small { color: #b8a8c8; }
 .buffcard .bd { font-size: 13px; flex: 1; }
+.log .phase{color:#ff6060;font-weight:bold}
