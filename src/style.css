@@ -9,7 +9,7 @@ html, body { margin: 0; background: radial-gradient(circle at 50% 0, #2a1b38, va
 button { font: inherit; color: var(--text); background: #33264a; border: 1px solid #6a5590; border-radius: 4px; padding: 5px 10px; cursor: pointer; transition: transform .05s, background .1s; }
 button:hover:not(:disabled) { background: #4a3768; border-color: var(--acc); }
 button:active:not(:disabled) { transform: translateY(1px); }
-button:disabled { opacity: .38; cursor: default; }
+button:disabled, button[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
 button.on { background: var(--acc); color: #201428; border-color: var(--acc); }
 button.big { font-size: 16px; padding: 9px 18px; background: linear-gradient(#a8562a, #7c3a1c); border-color: #ffb85a; }
 button.ghost { background: transparent; }
@@ -81,3 +81,8 @@ button.node { font-size: 14px; padding: 8px 12px; }
 .panel.node, .panel.result { left: 180px; right: 180px; overflow: auto; }
 .gain { font-size: 16px; color: #ffe070; margin: 8px 0; }
 .result.dead h2 { color: #ff5a5a; } .result.clear h2 { color: #ffe060; }
+.modal-back { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal { max-width: 860px; width: 92%; max-height: 90vh; overflow: auto; }
+.cmp2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.log .regen { color: #6cb8ff; }
+.inv.lost { opacity: .6; }

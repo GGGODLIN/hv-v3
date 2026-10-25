@@ -61,12 +61,16 @@ export class Stage extends Phaser.Scene {
     s.setOrigin(act.anchor / act.w, 1);
   }
 
-  private d(ms: number) { return this.skip ? 0 : ms / this.speed; }
+  /** design §3: at 1x every action animation is <= 0.3 s. The authored timings (longest ~460 ms) are scaled by this. */
+  static readonly ANIM_SCALE = 0.55;
+  /** Per-event awaited time of the last play() call, in ms (for the headless timing check). */
+  timings: { t: string; ms: number }[] = [];
+  private d(ms: number) { return this.skip ? 0 : (ms * Stage.ANIM_SCALE) / this.speed; }
   private wait(ms: number) { const t = this.d(ms); return t <= 0 ? Promise.resolve() : new Promise<void>((r) => this.time.delayedCall(t, r)); }
   private tween(cfg: Phaser.Types.Tweens.TweenBuilderConfig) {
     return new Promise<void>((r) => {
       if (this.skip) { this.tweens.add({ ...cfg, duration: 1, delay: 0, yoyo: false, onComplete: () => r() } as Phaser.Types.Tweens.TweenBuilderConfig); return; }
-      this.tweens.add({ ...cfg, duration: ((cfg.duration as number) ?? 200) / this.speed, onComplete: () => r() } as Phaser.Types.Tweens.TweenBuilderConfig);
+      this.tweens.add({ ...cfg, duration: this.d((cfg.duration as number) ?? 200), onComplete: () => r() } as Phaser.Types.Tweens.TweenBuilderConfig);
     });
   }
 
@@ -148,7 +152,18 @@ export class Stage extends Phaser.Scene {
   private monTop(v: MonView) { return v.y - (v.kind === 'beast' ? 95 : 148) * v.scale; }
 
   async play(events: BEvent[], s: BattleState) {
+    this.timings = [];
     for (const e of events) {
+      const t0 = performance.now();
+      await this.one(e);
+      this.timings.push({ t: e.t, ms: Math.round(performance.now() - t0) });
+    }
+    void s;
+    this.refresh();
+  }
+
+  private async one(e: BEvent) {
+    {
       if (e.t === 'hit') await this.hit(e);
       else if (e.t === 'heal') {
         this.popup(this.hero.x, this.hero.y - 230, `+${e.amount} ${e.res.toUpperCase()}`, e.res === 'hp' ? '#6cff6c' : e.res === 'mp' ? '#6cb8ff' : '#ffd060', 20);
@@ -183,8 +198,6 @@ export class Stage extends Phaser.Scene {
       }
       this.mons.forEach((v) => this.drawBar(v));
     }
-    void s;
-    this.refresh();
   }
 
   private async hit(e: Extract<BEvent, { t: 'hit' }>) {

@@ -17,6 +17,13 @@ const hex = (n: number) => `#${n.toString(16).padStart(6, '0')}`;
 const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;
 const POTION_ZH: Record<PotionId, string> = { health: '生命藥水', mana: '法力藥水', spirit: '靈力藥水' };
 
+/** Unusable battle buttons stay hoverable (no `disabled`) so the tooltip can show why; clicking logs the reason. */
+function gate(b: BattleState, a: Action, desc = ''): string {
+  if (canUse(b, a)) return desc ? `title="${esc(desc)}"` : '';
+  const why = whyNot(b, a);
+  return `aria-disabled="true" data-why="${esc(why)}" title="${esc(why + (desc ? `\n${desc}` : ''))}"`;
+}
+
 export class App {
   data: SaveData;
   screen: Screen = 'town';
@@ -70,7 +77,7 @@ export class App {
       this.screen === 'map' ? this.mapHtml() :
       this.screen === 'battle' ? this.battleHtml() :
       this.screen === 'node' ? this.nodeHtml() : this.resultHtml();
-    this.root.innerHTML = this.topBar() + html;
+    this.root.innerHTML = this.topBar() + html + this.modalHtml();
     this.root.className = `screen-${this.screen}`;
     this.bind();
   }
@@ -156,7 +163,7 @@ export class App {
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
       <span class="spacer"></span><span class="hint">出擊 ${st.runs} 次 · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
       <div class="tabs">${tabs}</div><div class="body">${body}</div>
-      <div class="foot"><button data-newgame class="ghost">重新開始存檔</button><span class="spacer"></span><button data-start class="big">進入試煉之塔 ▶</button></div></div>`;
+      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><button data-start class="big">進入試煉之塔 ▶</button></div></div>`;
   }
 
   mapHtml(): string {
@@ -184,16 +191,16 @@ export class App {
     const sk = (Object.keys(SKILLS) as SkillId[]).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
-      return `<button data-act="skill:${id}" title="${esc(s.desc)}" ${canUse(b, { kind: 'skill', id, target: this.target }) ? '' : 'disabled'}>${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
+      return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}>${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
-    const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${canUse(b, { kind: 'spell', id, target: this.target }) ? '' : 'disabled'}>${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${canUse(b, { kind: 'item', id }) ? '' : 'disabled'}>${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
+    const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}>${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${gate(b, { kind: 'item', id })}>${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
     const charging = b.monsters.some((m) => m.hp > 0 && m.charge > 0);
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div></div>
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
-        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${canUse(b, { kind: 'spirit' }) ? '' : 'disabled'}>S·${b.spirit ? '解除架勢' : '靈動架勢'}</button></div>
+        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' })}>S·${b.spirit ? '解除架勢' : '靈動架勢'}</button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
@@ -232,8 +239,10 @@ export class App {
     const rule = s.outcome === 'dead' ? '死亡：EXP、熟練度與 Credits 保留 50%，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。' : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
     return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>到達第 ${s.floor} 層。${rule}</p>
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>
-      ${s.lost ? `<p class="warn">遺失 ${s.lost} 件背包裝備</p>` : ''}
-      <div class="inv">${s.kept.map((e) => this.itemCard(e)).join('')}</div>
+      <h3 class="kept-h">保留（${s.kept.length} 件，已放入倉庫）</h3>
+      <div class="inv kept">${s.kept.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>
+      ${s.outcome === 'dead' ? `<h3 class="lost-h warn">遺失（${s.lostItems.length} 件${Object.values(s.lostPotions).some((n) => n) ? `，藥水 ${(Object.entries(s.lostPotions) as [PotionId, number][]).filter(([, n]) => n).map(([k, n]) => `${POTION_ZH[k]}×${n}`).join('、')}` : ''}）</h3>
+      <div class="inv lost">${s.lostItems.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>` : ''}
       <div class="foot"><span class="spacer"></span><button class="big" data-town>回到城鎮</button></div></div>`;
   }
 
@@ -251,7 +260,9 @@ export class App {
     on('[data-sell]', (el) => { const i = this.p.inventory.findIndex((x) => x.id === el.dataset.sell); if (i >= 0) { this.p.credits += sellPrice(this.p.inventory[i]!); this.p.inventory.splice(i, 1); } this.go('town'); });
     on('[data-sellall]', () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); });
     on('[data-buy]', (el) => { const k = el.dataset.buy as PotionId; if (this.p.credits >= RULES.potionPrice[k]) { this.p.credits -= RULES.potionPrice[k]; this.p.potions[k]++; } this.go('town'); });
-    on('[data-newgame]', () => { if (confirm('確定要刪除存檔並重新開始？')) { this.data = App.fresh(); this.go('town'); } });
+    on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>`, '清空並建立新角色', () => { this.data = App.fresh(); this.save(); this.go('town'); }));
+    on('[data-modal-cancel]', () => { this.modal = null; this.render(); });
+    on('[data-modal-ok]', () => { const m = this.modal; this.modal = null; m?.onOk(); if (!this.modal) this.render(); });
     on('[data-start]', () => this.startRun());
     on('[data-node]', (el) => this.enterNode(Number(el.dataset.node)));
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
@@ -304,7 +315,17 @@ export class App {
     this.save(); this.render();
   }
 
-  bagEquip(id: string) {
+  /** In-game confirmation dialog (replaces window.confirm). */
+  modal: { title: string; body: string; ok: string; onOk: () => void } | null = null;
+  ask(title: string, body: string, ok: string, onOk: () => void) { this.modal = { title, body, ok, onOk }; this.render(); }
+  modalHtml(): string {
+    const m = this.modal;
+    if (!m) return '';
+    return `<div class="modal-back"><div class="modal panel" role="dialog"><h2>${m.title}</h2>${m.body}
+      <div class="foot"><button data-modal-cancel>取消</button><span class="spacer"></span><button class="big" data-modal-ok>${m.ok}</button></div></div></div>`;
+  }
+
+  bagEquip(id: string, confirmed = false) {
     const r = this.run;
     const i = r.bag.findIndex((x) => x.id === id);
     if (i < 0) return;
@@ -312,7 +333,11 @@ export class App {
     const before = runDerived(this.p, r);
     const trial: Player = JSON.parse(JSON.stringify(this.p));
     equip(trial, JSON.parse(JSON.stringify(e)));
-    if (powerScore(runDerived(trial, r)) < powerScore(before) && !confirm(`${equipName(e)} 的戰力比目前裝備低，確定要換上？`)) return;
+    const cur = this.p.equipped[e.slot];
+    if (!confirmed && powerScore(runDerived(trial, r)) < powerScore(before)) {
+      return this.ask('這件比較弱，確定要換上？', `<div class="cmp2"><div><h3>目前</h3>${cur ? this.itemCard(cur) : '<div class="empty">—</div>'}</div><div><h3>新裝備</h3>${this.itemCard(e)}</div></div>
+        <div class="diff"><h3>換上後的數值變化</h3>${this.compare(e)}</div>`, '仍然換上', () => this.bagEquip(id, true));
+    }
     const inv = this.p.inventory.length;
     equip(this.p, e);
     r.bag.splice(i, 1);
@@ -379,6 +404,8 @@ export class App {
       if (e.t === 'msg') this.log.push(esc(e.text));
       if (e.t === 'heal' && e.label !== '自然回復') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
     }
+    const regen = ev.filter((e) => e.t === 'heal' && e.label === '自然回復').map((e) => (e.t === 'heal' ? `+${e.amount} ${e.res.toUpperCase()}` : ''));
+    if (regen.length) this.log.push(`<span class="regen">自然回復 ${regen.join(' ')}</span>`);
     await this.stage.play(ev, b);
     this.busy = false;
     const q = this.queued; this.queued = null;

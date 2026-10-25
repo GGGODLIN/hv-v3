@@ -121,3 +121,10 @@
 - 前 4 層保底 1 件裝備（`RULES.earlyEquipByFloor`）。
 - 寶箱掉 2–3 件裝備。
 - 自動換裝門檻：戰力需提高 5% 以上（`AUTO_EQUIP_MARGIN`），只用於模擬器。
+
+## 第 6 輪暫定值（bot/grok）
+
+- Spirit Stance 開啟條件：OC ≥ 25 且 SP ≥ 1（`P-spirit-min-oc`；findings 的 50 仍保留在 `F-002-spirit-stance`，此處覆寫）。
+- 生命藥水冷卻：10 回合（`P-health-potion-cd`）；法力／靈力藥水維持 findings 的 40 回合。
+- 第 10 層 Boss 戰的隨從最多 1 隻（原本 2 隻）。
+- 動畫時間縮放 `Stage.ANIM_SCALE = 0.55`，讓 1x 時每個動作 ≤ 0.3 秒（§3）；另有 2x、4x 與「跳過動畫」。

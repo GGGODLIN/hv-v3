@@ -29,6 +29,10 @@ const DEF = C['002-07'].value;
 const FOC = C['F-002-4.2-focus'].value;
 const ITEMS = C['F-002-items'].value;
 const ITEM_CD = C['F-002-4.1A-item-cooldown'].value.turns;
+/** 暫定 (round 6). */
+export const HEALTH_POTION_CD = C['P-health-potion-cd'].value.turns;
+/** 暫定 (round 6): Spirit Stance entry OC (sourced value is SS.minOcToEnter = 50). */
+export const SPIRIT_MIN_OC = C['P-spirit-min-oc'].value.minOc;
 const MCRIT = C['F-002-5.1B-monster-crit'].value;
 const BLEED = C['F-002-5.2-bleed'].value;
 const VSB = C['P-vital-strike-bleed'].value;
@@ -101,7 +105,7 @@ export function canUse(s: BattleState, a: Action): boolean {
     case 'spell': return s.mp >= spellCost(s, a.id);
     case 'item': return s.potions[a.id] > 0 && s.itemCd[a.id] <= 0;
     case 'defend': case 'focus': return true;
-    case 'spirit': return s.spirit || (s.oc >= SS.minOcToEnter && s.sp >= SS.spPerTurn);
+    case 'spirit': return s.spirit || (s.oc >= SPIRIT_MIN_OC && s.sp >= SS.spPerTurn);
   }
 }
 
@@ -111,7 +115,7 @@ export function whyNot(s: BattleState, a: Action): string {
     case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < SKILLS[a.id].oc ? `OC 不足（需 ${SKILLS[a.id].oc}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
     case 'spell': return `MP 不足（需 ${spellCost(s, a.id)}）`;
     case 'item': return s.potions[a.id] <= 0 ? '藥水用完了' : `藥水冷卻中（${s.itemCd[a.id]} 回合）`;
-    case 'spirit': return s.oc < SS.minOcToEnter ? `OC 不足（需 ${SS.minOcToEnter}，現有 ${Math.floor(s.oc)}）` : `SP 不足（需 ${SS.spPerTurn}）`;
+    case 'spirit': return s.oc < SPIRIT_MIN_OC ? `OC 不足（需 ${SPIRIT_MIN_OC}，現有 ${Math.floor(s.oc)}）` : `SP 不足（需 ${SS.spPerTurn}）`;
     default: return '無法行動';
   }
 }
@@ -204,7 +208,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = ITEM_CD + 1;
+      s.itemCd[a.id] = (a.id === 'health' ? HEALTH_POTION_CD : ITEM_CD) + 1;
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];

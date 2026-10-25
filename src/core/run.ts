@@ -80,7 +80,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
   const { lo, hi } = plWindow(pool, floorPl(f));
   return withRng(run, (rng) => {
     const plan: Rank[] =
-      type === 'boss' ? (f >= 10 ? ['normal', 'boss', 'normal'] : ['boss', 'normal']) :
+      type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
       type === 'elite' ? ['elite', 'normal'] :
       f >= 6 ? (rng.chance(0.5) ? ['normal', 'normal', 'normal'] : ['normal', 'normal', 'normal', 'normal']) :
       rng.chance(0.5) ? ['normal', 'normal'] : ['normal', 'normal', 'normal'];
@@ -208,7 +208,7 @@ export function advance(run: RunState, option: number): void {
 
 export interface Settlement {
   outcome: 'clear' | 'dead' | 'retreat';
-  exp: number; credits: number; kept: Equip[]; lost: number; levelBefore: number; levelAfter: number;
+  exp: number; credits: number; kept: Equip[]; lost: number; lostItems: Equip[]; lostPotions: Partial<Record<PotionId, number>>; levelBefore: number; levelAfter: number;
   floor: number;
 }
 
@@ -220,15 +220,16 @@ export function settle(p: Player, run: RunState): Settlement {
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1));
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1));
   let kept = run.bag;
+  let lostPotions: Partial<Record<PotionId, number>> = {};
   if (dead) {
     kept = [...run.bag].sort((a, b) => score(b) - score(a)).slice(0, RULES.death.keepBestItems);
-    if (RULES.death.loseConsumables) p.potions = { health: 0, mana: 0, spirit: 0 };
+    if (RULES.death.loseConsumables) { lostPotions = { ...p.potions }; p.potions = { health: 0, mana: 0, spirit: 0 }; }
   }
   p.exp = Math.round(p.exp + exp);
   p.credits += credits;
   for (const [k, v] of Object.entries(run.profExp)) p.profExp[k as Prof] += Math.round(v! * (dead ? RULES.death.exp : 1));
   p.inventory.push(...kept);
-  return { outcome, exp, credits, kept, lost: run.bag.length - kept.length, levelBefore: before, levelAfter: level(p), floor: run.floor };
+  return { outcome, exp, credits, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.floor };
 }
 
 export function score(e: Equip): number {
