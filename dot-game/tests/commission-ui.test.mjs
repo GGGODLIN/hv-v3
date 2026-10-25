@@ -154,7 +154,12 @@ test('commission UI: ownership loss, import/reload synchronization and return to
   assert.match(js, /changed: owner => \{ tabOwner = owner; pump\.reset\(\); syncSelection\(\)/);
   assert.match(js, /state = validateSave\(JSON\.parse\(raw\)\); lastSavedRaw = raw; syncSelection\(\)/);
   assert.match(js, /state=restored;preventOverwrite=false;selectedId=null;selectedSlot=null;syncSelection\(\)/);
-  assert.match(js, /act\(state, action, payload\); reconcileWeaponCommission\(\); render\(true\)/);
+  const dispatcher = extract('function dispatch(', 'function commissionQuoteSignature(');
+  const actAt = dispatcher.indexOf('act(state, action, payload);');
+  const reconcileAt = dispatcher.indexOf('reconcileWeaponCommission();');
+  const renderAt = dispatcher.indexOf('render(true);');
+  assert.ok(actAt >= 0 && reconcileAt > actAt && renderAt > reconcileAt,
+    'action must revoke stale commission consent before rendering; lifecycle bookkeeping may intervene');
 });
 
 test('commission UI: stale quote, comparison and progress synchronously revoke all consent before dispatch', () => {

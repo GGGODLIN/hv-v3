@@ -51,3 +51,6 @@ Complete the first three weapon identities with the historically documented axe 
 
 ## v0.8.1 selected correctness patch
 An actual 250 ms online pump loses a due player action at 21 processed seconds because the clock stops at 1.0499999999999998. TU ticks and three-second intermissions also miss exact boundaries; cumulative TU addition drifts over long sessions. Fix numerical equality with a bounded comparison, retain signed clock debt, and compensate TU summation without changing damage formulas or the existing event order. This is not a full scheduler redesign or arbitrary-frame invariance claim. Preserve historical measurements with version labels, quantify new outcomes and keep the already-staged v0.8 candidate immutable. Source-only development/backup may continue, but no HTTP retry or publication occurs while the user's verification decision is pending.
+
+## v0.8.1 UI lifecycle follow-up
+Correct manual expedition-start timing independently of the denied public verification gate: a successful Start must not charge preceding camp time to its fight. Rebase only successful manual lifecycle changes, not arbitrary UI interactions, failed/repeated starts or engine-managed next waves. Keep source-only and accepted-release evidence separate. Do not turn repeated idle wakes into needless feature accumulation while publication is blocked.

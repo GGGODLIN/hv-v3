@@ -197,7 +197,14 @@ function syncSelection() {
 }
 function dispatch(action, payload) {
   if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
-  try { act(state, action, payload); reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true; } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+  try {
+    const previousMode = state.mode;
+    act(state, action, payload);
+    // A successful lifecycle change cannot credit time from the previous mode.
+    // Rejected/repeated starts and ordinary combat actions keep their interval.
+    if ((action === 'start' || action === 'retreat') && state.mode !== previousMode) pump.reset();
+    reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
+  } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 function commissionQuoteSignature(preview) {
   return JSON.stringify([preview.family, preview.item, preview.price, preview.goldAfter, preview.quoteBasis, preview.currentWeapon, state.mode, state.stage, state.unlocked, state.wins, state.inventory, state.pendingLoot]);

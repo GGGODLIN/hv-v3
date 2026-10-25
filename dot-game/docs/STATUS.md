@@ -1,5 +1,11 @@
 # Current status
 
+## v0.8.1 UI boundary follow-up — 2026-10-25 22:00 UTC iteration
+
+A separate inherited UI defect was reproduced with the real dispatcher, pump and engine: Start at 249 ms between timer callbacks credited 250 ms to a fight only 1 ms old. The fix rebases the pump only after a successful manual Start/Retreat mode change. Failed starts, repeated clicks and ordinary combat actions do not discard their pending time. Engine/session/loot bytes remain unchanged from the prior source-backed numerical patch. This is source-only correctness work, not a newly published feature. See PUMP-BOUNDARY.md for final test and backup evidence.
+
+The public HTTP verification decision and pause-schedule question remain unanswered. No retry or alternate browser route is attempted; no website modification or new browser acceptance is claimed. Public v0.7 and its accepted recovery receipt e1b576ee2041bd2772f79587e859a80b5ab1f108 remain unchanged.
+
 ## v0.8.1 source-only candidate — 2026-10-25 21:00 UTC iteration
 
 A real numerical defect is fixed in source: the actual 250 ms online pump now pays 20 player actions and 20 TU ticks at 21 processed seconds instead of losing a due action. Exact TU/rest boundaries are repaired with a one-nanosecond comparison window; signed clock debt is retained and TU summation is compensated. A simulated 58 h 20 m stress reaches exactly 200000 player actions/ticks. Only the engine's advance function changes; every engine byte outside it and all loot/session code remain frozen. Existing coarse event grouping and intermission overshoot policy are not redesigned, and full partition invariance is not claimed.
