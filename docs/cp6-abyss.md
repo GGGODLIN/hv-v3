@@ -288,7 +288,7 @@
 | 同上，omni 參考 AI（僅供對照） | — | 0 / 84 / 78 / 0 / 0 % | rc6-noclear-omni-reference.txt |
 | 死亡組合掃描 必死 / 警告 / 相對必死 | 18 / 70 / 48 | **13** / 71 / **30** | rc4-schoolgear-deathcombo.txt → rc6-deathcombo.txt |
 | CP4 使用率檢查 | PASS | PASS | rc6-cp4-buffs.txt |
-| CP6 abyss-sim A / B VERDICT | ALL PASS / ALL PASS | **FAIL / FAIL**（oc：best5、d20、d5；bulwark：d5 首領） | rc6-A.txt、rc6-B.txt |
+| CP6 abyss-sim A / B VERDICT | ALL PASS / ALL PASS | **FAIL / FAIL**（A：oc best5、d20、d5，bulwark d5；B：oc best5/d20/trip1，blade、bulwark d5 等） | rc6-A.txt、rc6-B.txt |
 | CP4+CP5 開、CP6 關 基線 | rc4-schoolgear 檔 | 改變（cp4-balance 的流派列），另存 docs/cp5-on-baseline-sim-rc6.txt；cp4-on-check.sh 指向新檔 | |
 | vitest | 全過 | 221/221 | |
 
