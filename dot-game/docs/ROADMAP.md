@@ -37,5 +37,5 @@ Rapier identity and historical-model Penetrated Armor shipped in v0.3. This is o
 ## v0.4 chosen slice
 Club stun shipped in v0.4: interruption, avoidance suppression and a clearly signaled recovery attack. Preserve existing stages and equipment statistics, show the non-refresh/recovery tradeoff, and validate multi-enemy scheduling independently. Do not equate reduced attack frequency with an unconditional win-rate improvement or claim full original-HV spell/debuff fidelity. After this slice, assess defensive encounter identities and beginner-facing build choices rather than adding effects without readable tradeoffs.
 
-## v0.5 chosen slice
+## v0.5 shipped slice
 Make existing build choices readable: stage-3+ armored/agile encounters, faithful camp previews and live defenses after PA/stun. Preserve the first two stages and reward/item systems. Use actual progression seed checks and separate equal-stat proc comparisons from real generated-item comparisons; do not manufacture a universal best weapon. After this slice, evaluate whether the revealed economy/progression needs an equipment-investment sink or clearer loot management, rather than adding arbitrary complexity.

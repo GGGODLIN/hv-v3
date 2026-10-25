@@ -1,8 +1,16 @@
 # Current status
 
-## v0.5 desktop accepted, publication pending — 2026-10-25 17:26 UTC
+## v0.5 published — 2026-10-25 17:33 UTC
 
-Public release remains v0.4 below. Candidate work adds deterministic armored/agile enemy roles from stage 3, camp route preview and live defense readouts. Stages 1–2 and all HP/attack/reward/proc/item rules are preserved; role values are explicit adaptations. 262 Node tests and four JS syntax checks pass. Independent 120-wave route/spawn checks and actual old-validator compatibility pass. Seeds1–100 naturally clear stages1–5; stages1–2 preserve prior state/RNG, paired stage3–5 median slowdowns are11.7%/0%/10.5%. See BUILD-GUIDE.md for equipment tradeoffs and sampling limits. Candidate source `3e692b4008a93ba45aaffe5d5e62d76378927f30` is exact-readback verified. Candidate site `7d6ae90e71245984034a8048b0443ec1b62bcf9e` / CI `40215716667` and six public hashes pass. Cloud Chrome verified four-wave previews, matching live armored/agile defenses, PA/stun-adjusted readouts, natural equip/progression, narrow layout and reload. See BROWSER-QA-V05.md for limits. Accepted-source backup, root promotion and final takeover smoke remain pending. No new persistent schema is intended. Routine reports are suppressed during Taipei 01:00–08:59 while authorized work continues.
+Accepted runtime source: `3cc1a3d4e25205ebb4a969dcf0f8c0cd91de1d76`; website: `25b8f474b42de1a68535fe176dc0cb0548a26ed8`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 46 source files / 490515 bytes were read back before promotion; 45 manifest payload hashes verified. Exact Pages run `40216688254` succeeded, and all six live runtime HTTP200 bodies match source SHA-256. Only four root blobs changed (index, engine, UI, style); candidates and other works were preserved. This receipt is documentation-only.
+
+262 Node tests and four JS syntax checks pass. New gameplay: deterministic armored/agile roles from stage 3, camp four-wave preview, live defenses after PA/stun and cautious equipment hints. Stages 1–2 preserve previous state/RNG; HP, attack, block, rewards, proc and item rules stay unchanged. Role constants/schedule are explicitly independent adaptations, inspired only by original class differentiation. All 120 waves match preview. Seeds 1–100 naturally clear stages 1–5; paired median slowdowns for stages 3/4/5 are 11.7%/0%/10.5%. Real generated weapon comparisons do not support a universal best weapon; see BUILD-GUIDE.md.
+
+Actual cloud Chrome verified previews and living role/boss values, PA-adjusted mitigation, stun suppression without removing block, natural loot/equip progression, narrow layout and reload. Final public root retained Lv19, XP40/1192, gold8424, kills442, wins73 and 94 inventory items. Shared-v3 takeover made the new v0.5 tab writable and the previous v0.4 tab read-only. Root combat visibly showed a stunned agile enemy with 3.9% mitigation, 0% evade/parry and 1.5% block beside an unaffected baseline enemy. No app-origin errors in inspected logs; final camp retained four preview rows. See BROWSER-QA-V05.md and RELEASES.md.
+
+The v3 save schema remains compatible; older tabs retain old gameplay until refreshed. Exact 120-wave/RNG/cap/expiry assertions are automated evidence, not exhaustive browser play. Armored PA was not directly captured in this browser pass; other actual PA/stun readouts and all combinations pass tests. New file import was not rerun. Narrow zoom is not physical mobile; OS suspension and the prior foreground-only visibility anomaly remain unresolved. No offline earnings. Quiet-hour publication was completed without a routine user notification.
+
+## Retained prior releases
 
 ## v0.4 published — 2026-10-25 16:30 UTC
 
@@ -43,7 +51,7 @@ Bounded desktop acceptance only: inactive-tab progress, follower/takeover and 38
 55 Node tests and JavaScript syntax checks pass. Dedicated cloud Chrome verified combat → loot → equip → faster replay and save export/import/reload. Final public-root smoke at 13:15 UTC passed: independent fresh save, first clear in 31.5 seconds, two loot items, stage 2 unlocked, consistent quality labels, successful return to camp, and no application-origin console errors in inspected entries. This documentation checkpoint does not change runtime files or republish the game. Candidate v0.1 remains separately available, uses separate localStorage keys, and is not the accepted root URL.
 
 ## Next priority
-Rapier and club slices are complete. Next prioritize recognizable enemy defensive roles and beginner-facing equipment decisions, checking current/historical source conflicts and separating original facts/research models/adaptations. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
+Rapier, club and enemy-role slices are complete. Next assess the observed inventory-cap interruption and unused credits: prefer safe loot management or a source-informed equipment-investment loop, with explicit adaptations and no automatic disposal of valuable or locked items. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
 
 ## Work allocation
 - Research: original HV source evidence and explicit uncertainty.
