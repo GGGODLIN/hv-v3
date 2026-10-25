@@ -81,7 +81,7 @@ export interface Combos { blade: boolean; oc: boolean; arcane: boolean; bulwark:
 export const COMBO_AT = 3; // 暫定
 export const CROSS_AT = 2; // 暫定
 export const COMBO_ZH: Record<keyof Combos, string> = {
-  blade: '連斬：暴擊時 OC +5', oc: '滿溢：OC 達上限時，下一個技能不耗 OC', arcane: '共振：連續同元素法術，第二次 EDB +20', bulwark: '反擊架勢：防禦後下一次攻擊 ×1.3',
+  blade: '連斬：暴擊時 OC +5', oc: '滿溢：OC 達上限時，下一個技能不耗 OC', arcane: '共振：連續同元素法術，第二次 EDB +20', bulwark: '反擊架勢：防禦後下一次攻擊 ×1.5（暫定）',
   bladeOc: '刃鋒＋奔流：架勢中物理暴擊率 +5%', arcaneOc: '秘術＋奔流：架勢中法術 MP 再 −10%', bulwarkBlade: '磐石＋刃鋒：要害打擊對暈眩倍率 +0.5', bulwarkArcane: '磐石＋秘術：冰／雷附帶暈眩 +1 回合',
 };
 export function schoolCounts(ids: string[]): Record<School, number> {

@@ -177,6 +177,9 @@ function retarget(s: BattleState, t: number): number {
   return s.monsters.findIndex((m) => m.hp > 0);
 }
 
+/** 暫定 (decision 2026-10-25 #1): bulwark combo 'next hit after defend' multiplier, was 1.3. */
+export const BULWARK_COUNTER_MULT = 1.5;
+
 function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
   const m = s.monsters[ti]!;
   const M = s.mods;
@@ -184,7 +187,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   let critChance = s.d.physCrit;
   if (M) {
     if (M.weakMult && isWeak(m, dtype)) raw *= 1 + M.weakMult;
-    if (M.counterReady) { M.counterReady = false; raw *= 1.3; fire(s); }
+    if (M.counterReady) { M.counterReady = false; raw *= BULWARK_COUNTER_MULT; fire(s); }
     if (M.combo.bladeOc && s.spirit) critChance += 0.05;
   }
   const r = resolveHit(rng, {
