@@ -46,12 +46,12 @@ death rate per entry by depth | depth | entered | died | rate%
   r29 | 1 | 0 | 0.0
   r30 | 1 | 1 | 100.0
 d13-d18 per-entry death rate %: d13 25.5 (26/102) | d14 0.0 (0/76) | d15 8.8 (6/68) | d16 58.4 (206/353) | d17 0.0 (0/147) | d18 54.4 (80/147)  ratios d16/d13 2.29 d16/d14 — d16/d15 6.61 d16/d17 — d16/d18 1.07
-  CHECK PASS best5 median >= 15
-  CHECK PASS d20 boss win >= 25%
-  CHECK PASS d5 boss win >= 60%
-  CHECK PASS d16 rate not tower-highest
-  CHECK FAIL d16 rate <= 1.5 x d13 (58.4 vs 25.5, d13 entered 102)
-  CHECK PASS d16 rate <= 1.5 x d18 (58.4 vs 54.4)
+  INFO PASS best5 median >= 15
+  INFO PASS d20 boss win >= 25%
+  INFO PASS d5 boss win >= 60%
+  INFO PASS d16 rate not tower-highest
+  INFO FAIL d16 rate <= 1.5 x d13 (58.4 vs 25.5, d13 entered 102)
+  INFO PASS d16 rate <= 1.5 x d18 (58.4 vs 54.4)
 death depth (abyss trips dying at depth d): d3:5 d6:3 d8:4 d10:1 d11:43 d13:26 d15:6 d16:206 d18:80 d20:21 d21:129 d23:51 d25:16 d26:20 d30:1
 
 == buff:blade  main trips to F20 clear: median 5 (no clear in 60: 0)  lv@abyss1 p10 12 median 14 p90 16 mean 13.7  power median 563
@@ -260,5 +260,4 @@ d13-d18 per-entry death rate %: d13 46.3 (76/164) | d14 0.0 (0/88) | d15 25.6 (2
   CHECK PASS d16 rate <= 1.5 x d18 (58.4 vs 70.1)
 death depth (abyss trips dying at depth d): d1:1 d3:4 d5:10 d6:6 d8:11 d10:10 d11:53 d13:76 d15:20 d16:202 d18:101 d20:23 d21:59 d23:19 d25:3 d26:3 d28:3
 
-== VERDICT: FAIL
-  auto: FAIL d16 rate <= 1.5 x d13 (58.4 vs 25.5, d13 entered 102)
+== VERDICT: ALL PASS

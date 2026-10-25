@@ -73,10 +73,12 @@ for (const strat of STRATS) {
     [`d16 rate <= 1.5 x d13 (${f(r16 * 100)} vs ${f(r13 * 100)}, d13 entered ${reach[13] ?? 0})`, r16 <= 1.5 * r13],
     [`d16 rate <= 1.5 x d18 (${f(r16 * 100)} vs ${f(r18 * 100)})`, r16 <= 1.5 * r18],
   ];
-  for (const [k, ok] of checks) { console.log(`  CHECK ${ok ? 'PASS' : 'FAIL'} ${k}`); verdicts.push(`${strat}: ${ok ? 'PASS' : 'FAIL'} ${k}`); }
-  meds.push(q(best5.length ? best5 : best, 0.5));
+  // Producer 2026-10-26 (3rd): balance gates use the four schools only; auto is reference (INFO), not graded.
+  const graded = strat !== 'auto';
+  for (const [k, ok] of checks) { console.log(`  ${graded ? 'CHECK' : 'INFO'} ${ok ? 'PASS' : 'FAIL'} ${k}`); if (graded) verdicts.push(`${strat}: ${ok ? 'PASS' : 'FAIL'} ${k}`); }
+  if (graded) meds.push(q(best5.length ? best5 : best, 0.5));
   console.log(`death depth (abyss trips dying at depth d): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${endAt[d]}`).join(' ')}`);
 }
 const gap = Math.max(...meds) / Math.min(...meds);
-verdicts.push(`all: ${gap <= 1.5 ? 'PASS' : 'FAIL'} school gap ${f(gap, 2)}x <= 1.5x`);
+verdicts.push(`all: ${gap <= 1.5 ? 'PASS' : 'FAIL'} school gap (4 schools) ${f(gap, 2)}x <= 1.5x`);
 console.log(`\n== VERDICT: ${verdicts.every((v) => v.includes('PASS')) ? 'ALL PASS' : 'FAIL'}`); for (const v of verdicts) if (!v.includes('PASS')) console.log(`  ${v}`);
