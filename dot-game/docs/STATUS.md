@@ -1,8 +1,8 @@
 # Current status
 
-## v0.4 candidate — 2026-10-25 16:00 UTC
+## v0.4 desktop accepted, publication pending — 2026-10-25 16:24 UTC
 
-Current public release remains v0.3 below. Next slice: club stun, visible control/recovery feedback and equipment-choice descriptions. Original-source timing conflicts and unknown regular/recovery interaction are explicitly documented; fixed proc parameters and scheduler are adaptations. 202 Node tests and four JS syntax checks pass. Browser acceptance and backup are pending; do not treat this candidate as an accepted restore. Existing v3 save schema is retained: the actual prior validator round-trip preserves weapon identity and progression, and encounter state is discarded on load. A timer-partition double-strike defect found in review was fixed with per-enemy player-turn coalescing; seven timing partitions now agree.
+Current public release remains v0.3 below. Next slice: club stun, visible control/recovery feedback and equipment-choice descriptions. Original-source timing conflicts and unknown regular/recovery interaction are explicitly documented; fixed proc parameters and scheduler are adaptations. 202 Node tests and four JS syntax checks pass. Source candidate `3a0bf240eb6216438f278ffe8064f386e74d919e` is fully readback verified. Candidate site `77ab8973d5c29cc36eab96b24fd0d9a85b7d2902` / Pages run `40210714831` and six public hashes pass. Cloud Chrome observed natural loot/equip progression, active stun and recovery notices with reduced motion, stages2–8 cleared, narrow layout and reload. See BROWSER-QA-V04.md for exact scope and limits. Accepted-source backup, live promotion and final shared-v3 takeover are pending. Existing v3 save schema is retained: the actual prior validator round-trip preserves weapon identity and progression, and encounter state is discarded on load. A timer-partition double-strike defect found in review was fixed with per-enemy player-turn coalescing; seven timing partitions now agree.
 
 ## v0.3 published — 2026-10-25 15:28 UTC
 
