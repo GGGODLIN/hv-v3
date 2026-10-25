@@ -229,3 +229,13 @@ describe('CP4 r2 step 3: buff preview', () => {
     } finally { (RULES as { cp4RunBuffs: boolean }).cp4RunBuffs = was; }
   });
 });
+
+describe('CP4 r2 step 4: nocore control strategy', () => {
+  it('buff:blade takes the core first, buff:blade-nocore keeps offer order among own-school buffs', async () => {
+    const { prefBuff } = await import('../src/core/auto');
+    const rng = { int: () => 0 } as never;
+    expect(prefBuff(['B2', 'B1', 'W2'], 'buff:blade', rng)).toBe('B1');
+    expect(prefBuff(['B2', 'B1', 'W2'], 'buff:blade-nocore', rng)).toBe('B2');
+    expect(prefBuff(['W2', 'N1', 'B1'], 'buff:blade-nocore', rng)).toBe('B1');
+  });
+});

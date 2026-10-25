@@ -21,7 +21,7 @@ const bossF: { floor: number; turns: number; potions: number; won: boolean; spir
 let nb = 0, ns = 0;
 const bossAll: typeof bossF = [];
 // CP4 (buff strategies only)
-const C = { runs: 0, formedRuns: 0, preRuns: 0, preFormed: 0, buffSum: 0, preBuffSum: 0, f10: 0, f10won: 0, risks: 0, lt2: 0, preLt2: 0 };
+const C = { runs: 0, formedRuns: 0, preRuns: 0, preFormed: 0, buffSum: 0, preBuffSum: 0, f10: 0, f10won: 0, risks: 0, lt2: 0, preLt2: 0, offers: 0, contests: 0 };
 const src: Record<string, number> = {}, offered: Record<string, number> = {}, picked: Record<string, number> = {};
 const clearSets: string[][] = []; const boss5: { floor: number; turns: number; won: boolean }[] = []; const atClear: number[] = [];
 const perTrip: { floor: number; turns: number; won: boolean }[][] = [[], [], [], [], []];
@@ -33,7 +33,7 @@ for (let s = 1; s <= N; s++) {
   for (let i = 1; i <= M; i++) {
     const r = autoRun(p, pool, s * 1000 + i, strat);
     if (r.cp4) {
-      const c = r.cp4; C.runs++; if (c.buffs.length < 2) C.lt2++; if (c.formed.length) C.formedRuns++; C.buffSum += c.buffs.length; C.risks += c.risks;
+      const c = r.cp4; C.runs++; if (c.buffs.length < 2) C.lt2++; if (c.formed.length) C.formedRuns++; C.buffSum += c.buffs.length; C.risks += c.risks; C.offers += c.offers; C.contests += c.contests;
       if (fc === Infinity) { C.preRuns++; if (c.buffs.length < 2) C.preLt2++; C.preBuffSum += c.buffs.length; if (c.formed.length) C.preFormed++; }
       for (const [k, v] of Object.entries(c.sources)) src[k] = (src[k] ?? 0) + v;
       for (const [k, v] of Object.entries(c.offered)) offered[k] = (offered[k] ?? 0) + v;
@@ -85,6 +85,7 @@ if (C.runs) {
   const avgT = (xs: { turns: number }[]) => (xs.reduce((a, b) => a + b.turns, 0) / Math.max(1, xs.length)).toFixed(1);
   for (const f of [5, 10]) { const xs = boss5.filter((b) => b.floor === f); console.log(`[cp4] boss F${f} with ≥5 buffs: fights ${xs.length}, won ${xs.filter((b) => b.won).length}, mean turns ${avgT(xs)}`); }
   const rows = Object.keys(offered).sort().map((k) => `${k}:${pc(picked[k] ?? 0, offered[k]!)}(${picked[k] ?? 0}/${offered[k]})`);
+  console.log(`[cp4] offers ${C.offers}, core vs other own-school in the same offer ${C.contests} (${pc(C.contests, C.offers)}) — only these can differ under -nocore`);
   console.log(`[cp4] pick rate (picked/offered): ${rows.join(' ')}`);
   const freq: Record<string, number> = {}; for (const set of clearSets) for (const k of new Set(set)) freq[k] = (freq[k] ?? 0) + 1;
   const hot = Object.entries(freq).filter(([, v]) => v / clearSets.length > 0.6).map(([k, v]) => `${k}:${pc(v, clearSets.length)}`);
