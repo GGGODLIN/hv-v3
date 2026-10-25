@@ -65,7 +65,7 @@ export type Action =
   | { kind: 'spirit' };
 
 export type BEvent =
-  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean }
+  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; spirit?: boolean }
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
   | { t: 'status'; to: 'player' | number; text: string; phase?: boolean }
   | { t: 'death'; to: number }
@@ -166,7 +166,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
     m.hp = Math.max(0, m.hp - r.damage);
     s.oc = Math.min(OC.cap, s.oc + rng.int(OC.hitGainMin, OC.hitGainMax));
   }
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype) });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
   return r.avoidMult > 0 ? r.damage : 0;
@@ -210,14 +210,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       s.cooldowns[a.id] = SKILLS[a.id].cd + 1;
       if (a.id === 'shieldBash') {
         physHit(s, rng, t, SK.shieldBash.multiplier, ev, '盾擊', 'crushing');
-        if (m.hp > 0) { m.status.stun = SK.shieldBash.stunTicks; ev.push({ t: 'status', to: t, text: '暈眩' }); }
+        if (m.hp > 0) { m.status.stun = SK.shieldBash.stunTicks; ev.push({ t: 'status', to: t, text: `暈眩 ${SK.shieldBash.stunTicks} 回合（無法行動、無法迴避）` }); }
       } else if (a.id === 'vitalStrike') {
         const stunned = m.status.stun > 0;
         const dmg = physHit(s, rng, t, stunned ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier, ev, stunned ? '要害！' : '要害打擊');
         if (m.hp > 0 && dmg > 0) {
           m.status.bleed = Math.max(m.status.bleed, Math.ceil((dmg * BLEED.damageFactor) / VSB.ticks));
           m.status.bleedTurns = VSB.ticks;
-          ev.push({ t: 'status', to: t, text: '流血' });
+          ev.push({ t: 'status', to: t, text: `流血：每回合 ${m.status.bleed}，持續 ${VSB.ticks} 回合` });
         }
       } else {
         physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');

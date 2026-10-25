@@ -114,3 +114,4 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .iname { display: flex; align-items: center; }
 .cmdbar button .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }
 .log .phase{color:#ff6060;font-weight:bold}
+.log .statusfx{color:#ffcc66}.log .skillhit{color:#9fd3ff}.log .spirit{color:#c9a0ff}
