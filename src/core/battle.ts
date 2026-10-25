@@ -120,8 +120,6 @@ export interface BattleMods extends BMods {
   combo: Combos;
   /** combo state */
   freeSkill?: boolean; lastElem?: string; counterReady?: boolean;
-  /** CP5 (暫定): consecutive defends with the bulwark combo */
-  defStreak?: number;
   /** stats for the sim */
   comboFires?: number;
 }
@@ -149,6 +147,8 @@ export interface BattleState {
   bossTurns: number;
   /** CP5 (flag only): player bleed / burn. Undefined = CP4 behavior. */
   cp5?: { pdot: PDot };
+  /** CP5 rc2: consecutive defend count (heal decay). */
+  defStreak?: number;
 }
 
 export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {
@@ -293,9 +293,11 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   let free = false;
   let noRegen = false;
   s.focusTurn = false;
-  // CP5 r4 (暫定): bulwark 3-set — each consecutive defend heals less (×CP5.bulwarkDefDecay per streak).
+  // CP5 r4 (暫定): bulwark 3-set rule (no riposte while defending) keys on the formed combo.
   const bulCp5 = !!(s.cp5 && s.mods?.combo.bulwark);
-  if (bulCp5 && a.kind !== 'defend') s.mods!.defStreak = 0;
+  // CP5 rc2 fix 1: consecutive-defend heal decay (×CP5.bulwarkDefDecay^n) applies to every CP5 battle, not only once the
+  // 3-set is formed — the r4 code gated it on combo.bulwark, so 2-piece bulwark builds (堅守 etc.) healed in full every press.
+  if (s.cp5 && a.kind !== 'defend') s.defStreak = 0;
   switch (a.kind) {
     case 'attack': {
       const t = retarget(s, a.target);
@@ -352,14 +354,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       if (s.oc >= DEF.ocCost) {
         s.oc -= DEF.ocCost;
         const before = s.hp;
-        const decay = bulCp5 ? CP5.bulwarkDefDecay ** (s.mods!.defStreak ?? 0) : 1;
+        const decay = s.cp5 ? CP5.bulwarkDefDecay ** (s.defStreak ?? 0) : 1;
         s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0)) * decay));
         ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
       } else ev.push({ t: 'status', to: 'player', text: '防禦' });
       s.defendTurns = DEF.turns;
       if (s.cp5) cleanse(s, ev, '防禦');
       if (s.mods?.combo.bulwark) s.mods.counterReady = true;
-      if (bulCp5) s.mods!.defStreak = (s.mods!.defStreak ?? 0) + 1;
+      if (s.cp5) s.defStreak = (s.defStreak ?? 0) + 1;
       break;
     }
     case 'focus': {

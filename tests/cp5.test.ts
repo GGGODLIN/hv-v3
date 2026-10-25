@@ -12,15 +12,15 @@ import { CP5 } from '../src/core/cp5';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 const cp5 = <T,>(f: () => T): T => { RULES.cp5Bosses = true; try { return f(); } finally { RULES.cp5Bosses = false; } };
 const p = newPlayer(); starterKit(p);
-function bulwarkBattle(withCp5: boolean) {
-  const r = startRun(p, 3); r.buffs = BUFFS.filter((b) => b.school === 'bulwark').slice(0, 4).map((b) => b.id);
+function bulwarkBattle(withCp5: boolean, ids?: string[]) {
+  const r = startRun(p, 3); r.buffs = ids ?? BUFFS.filter((b) => b.school === 'bulwark').slice(0, 4).map((b) => b.id);
   const m = buildMonster(pool.rows[0]!, 5, 'normal'); m.hp = m.maxHp = 1e9; m.evade = m.parry = 0;
   const b = startBattle(runDerived(p, r), { hp: 999, mp: 999, sp: 99 }, [m], p.potions); armBattle(b, r);
   if (withCp5) armCp5(b);
   return b;
 }
-const defHeals = (withCp5: boolean) => {
-  const b = bulwarkBattle(withCp5); const out: number[] = [];
+const defHeals = (withCp5: boolean, ids?: string[]) => {
+  const b = bulwarkBattle(withCp5, ids); const out: number[] = [];
   for (let i = 0; i < 3; i++) { b.hp = 1; b.oc = 999; const ev = act(b, { kind: 'defend' }, new Rng(9 + i)); { const h = ev.find((e) => e.t === 'heal' && e.label === '防禦'); out.push(h && h.t === 'heal' ? h.amount : NaN); }; b.hp = 1; }
   return out;
 };
@@ -32,10 +32,15 @@ describe('CP5 r4: bulwark 3-set anti-turtle (暫定)', () => {
     expect(on[1]).toBeLessThanOrEqual(Math.round(off[0]! * CP5.bulwarkDefDecay) + 1);
     expect(on[2]).toBeLessThan(on[1]!);
   });
+  it('rc2 fix 1: 2-piece bulwark (不動之盾+撕裂, no 3-set) also decays ×0.5^n', () => {
+    const h = defHeals(true, ['W1', 'W5']);
+    expect(h[1]).toBeCloseTo(h[0]! * 0.5, -0.5); expect(h[2]).toBeCloseTo(h[0]! * 0.25, -0.5);
+    const off = defHeals(false, ['W1', 'W5']); expect(off[1]).toBe(off[0]);
+  });
   it('an attack resets the streak', () => {
     const b = bulwarkBattle(true); b.oc = 999;
     act(b, { kind: 'defend' }, new Rng(1)); act(b, { kind: 'attack', target: 0 }, new Rng(2));
-    expect(b.mods!.defStreak).toBe(0);
+    expect(b.defStreak).toBe(0);
   });
   it('no riposte on a defend turn with cp5; still ripostes on an attack turn', () => {
     const b = bulwarkBattle(true); b.d = { ...b.d, evade: 1 }; b.oc = 999;
