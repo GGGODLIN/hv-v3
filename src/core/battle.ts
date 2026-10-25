@@ -179,6 +179,8 @@ function retarget(s: BattleState, t: number): number {
 
 /** 暫定 (decision 2026-10-25 #1): bulwark combo 'next hit after defend' multiplier, was 1.3. */
 export const BULWARK_COUNTER_MULT = 1.5;
+/** 暫定 (decision 2026-10-25 #1): bulwark combo riposte after block/evade/parry, × normal attack (physHit, ADB). */
+export const BULWARK_RIPOSTE_MULT = 0.8;
 
 function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
   const m = s.monsters[ti]!;
@@ -327,6 +329,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   endOfPlayerTurn(s, ev, noRegen);
   monstersAct(s, rng, ev);
   if (s.hp <= 0) s.over = 'lose';
+  else if (alive(s).length === 0) { phaseShift(s, ev); if (alive(s).length === 0) s.over = 'win'; } // a riposte can end the fight
   return ev;
 }
 
@@ -385,6 +388,12 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     const dmg = r.avoidMult > 0 ? r.damage : 0;
     s.hp = Math.max(0, s.hp - dmg);
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label });
+    // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
+    if (s.mods?.combo.bulwark && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0) {
+      const keep = s.mods.counterReady; s.mods.counterReady = false;
+      physHit(s, rng, i, BULWARK_RIPOSTE_MULT, ev, '反擊');
+      s.mods.counterReady = keep;
+    }
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
   });
   if (s.defendTurns > 0) s.defendTurns--;
