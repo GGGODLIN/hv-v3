@@ -31,8 +31,8 @@ const ITEMS = C['F-002-items'].value;
 const ITEM_CD = C['F-002-4.1A-item-cooldown'].value.turns;
 /** 暫定 (round 6). */
 export const HEALTH_POTION_CD = C['P-health-potion-cd'].value.turns;
-/** 暫定 (round 6): Spirit Stance entry OC (sourced value is SS.minOcToEnter = 50). */
-export const SPIRIT_MIN_OC = C['P-spirit-min-oc'].value.minOc;
+/** Spirit Stance entry OC: sourced 50 (F-002-spirit-stance, Spirit_Stance.md:25). CP3: back to the original. */
+export const SPIRIT_MIN_OC = SS.minOcToEnter;
 const MCRIT = C['F-002-5.1B-monster-crit'].value;
 const BLEED = C['F-002-5.2-bleed'].value;
 const VSB = C['P-vital-strike-bleed'].value;
@@ -64,6 +64,8 @@ export interface BattleState {
   monsters: Monster[];
   turn: number;
   spirit: boolean;
+  /** CP3: systems not yet unlocked (early-unlock layer). */
+  locked?: { skill: boolean; spell: boolean; spirit: boolean };
   defendTurns: number;
   focusTurn: boolean;
   cooldowns: Record<SkillId, number>;
@@ -97,6 +99,7 @@ export function canUse(s: BattleState, a: Action): boolean {
   switch (a.kind) {
     case 'attack': return true;
     case 'skill': {
+      if (s.locked?.skill) return false;
       if (s.cooldowns[a.id] > 0 || s.oc < SKILLS[a.id].oc) return false;
       if (a.id === 'mercifulBlow') {
         const m = s.monsters[a.target];
@@ -104,15 +107,16 @@ export function canUse(s: BattleState, a: Action): boolean {
       }
       return true;
     }
-    case 'spell': return s.mp >= spellCost(s, a.id);
+    case 'spell': return !s.locked?.spell && s.mp >= spellCost(s, a.id);
     case 'item': return s.potions[a.id] > 0 && s.itemCd[a.id] <= 0;
     case 'defend': case 'focus': return true;
-    case 'spirit': return s.spirit || (s.oc >= SPIRIT_MIN_OC && s.sp >= SS.spPerTurn);
+    case 'spirit': return s.spirit || (!s.locked?.spirit && s.oc >= SPIRIT_MIN_OC && s.sp >= SS.spPerTurn);
   }
 }
 
 /** Player-facing reason an action is unavailable (shown in the battle log). */
 export function whyNot(s: BattleState, a: Action): string {
+  if ((a.kind === 'skill' && s.locked?.skill) || (a.kind === 'spell' && s.locked?.spell) || (a.kind === 'spirit' && s.locked?.spirit && !s.spirit)) return '尚未解鎖';
   switch (a.kind) {
     case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < SKILLS[a.id].oc ? `OC 不足（需 ${SKILLS[a.id].oc}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
     case 'spell': return `MP 不足（需 ${spellCost(s, a.id)}）`;

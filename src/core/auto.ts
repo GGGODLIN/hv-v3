@@ -1,13 +1,14 @@
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
 import { type Action, type BattleState, act, alive, canUse, startBattle, SPELLS, type SpellId } from './battle';
 import { ATTRS, attrCost } from './formulas';
-import { type Equip, SLOTS, blocksOffHand } from './items';
+import { type Equip, SLOTS, blocksOffHand, sellPrice } from './items';
+import { has, unlockRate } from './progress';
 import type { MonsterPool } from './monsters';
 import { type Player, allocate, derive, equip, powerScore, profValue, unspentExp, type Prof } from './player';
 import { Rng } from './rng';
 import {
   type RunState, advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, runDerived, settle, shrine, startRun, withRng,
-  RULES, type Settlement,
+  RULES, type Settlement, battleLocks, enterNode,
 } from './run';
 import { generateEquip } from './items';
 import type { NodeType } from './tower';
@@ -94,13 +95,13 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
 }
 
 export interface BossFight { floor: number; turns: number; potions: number; won: boolean }
-export interface RunReport { settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[] }
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[] }
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto'): RunReport {
   // Town prep.
-  autoAllocate(p);
+  if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p);
-  while (p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
+  while (has(p, 'shop') && p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
   const level = derive(p).level;
   const power = powerScore(derive(p));
   const run = startRun(p, seed);
@@ -110,10 +111,12 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   while (!run.done) {
     const opt = pickOption(p, run, strategy);
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
+    enterNode(p, run, type);
     if (type === 'battle' || type === 'elite' || type === 'boss') {
       const ms = encounter(run, pool, type);
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
+      b.locked = battleLocks(p);
       const profs = profsOf(p);
       const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
       while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b) : chooseAction(b), rng, profs); }
@@ -145,9 +148,11 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   const s = settle(p, run);
   // Sell the junk in town.
   const keep = new Set(Object.values(p.equipped).map((e) => e!.id));
-  for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += Math.round((8 + e.level * 3));
-  p.inventory = [];
-  return { settlement: s, floorReached, kills: run.kills, turns, level, power, bosses };
+  if (has(p, 'shop')) {
+    for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
+    p.inventory = p.inventory.filter((x) => keep.has(x.id));
+  }
+  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses };
 }
 
 export function starterKit(p: Player, seed = 7): void {

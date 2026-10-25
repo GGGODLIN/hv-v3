@@ -29,12 +29,12 @@ describe('round 5', () => {
     expect(regen && regen.t === 'heal' ? regen.amount : 0).toBeGreaterThan(0);
     expect(b.mp).toBeCloseTo(500 - cost + (regen as { amount: number }).amount, 1);
   });
-  it('2. new character: skill usable at once, spirit within 5 attacks of battle 1', () => {
+  it('2. (CP3) battle starts at OC 0; spirit opens once attacks build OC to 50', () => {
     const { b } = fresh();
-    expect(canUse(b, { kind: 'skill', id: 'shieldBash', target: 0 })).toBe(true);
+    expect(b.oc).toBe(0);
     let n = 0;
-    while (!canUse(b, { kind: 'spirit' }) && n < 20) { act(b, { kind: 'attack', target: 0 }, new Rng(n), {}); n++; }
-    expect(n).toBeLessThanOrEqual(8);
+    while (!canUse(b, { kind: 'spirit' }) && n < 40) { act(b, { kind: 'attack', target: 0 }, new Rng(n), {}); n++; }
+    expect(b.oc).toBeGreaterThanOrEqual(50);
     expect(canUse(b, { kind: 'spirit' })).toBe(true);
     b.oc = 0;
     expect(whyNot(b, { kind: 'spirit' })).toContain('OC 不足');
@@ -45,7 +45,7 @@ describe('round 5', () => {
       const t = generateTower(new Rng(s));
       expect(new Set(t.floors[0]!.options)).toEqual(new Set(['battle']));
       expect(t.floors[3]!.options).toContain('rest');
-      expect(t.floors[8]!.options).toContain('rest');
+      expect(t.floors[7]!.options).toContain('rest');
       v += tripleViolations(t);
     }
     expect(v).toBe(0);

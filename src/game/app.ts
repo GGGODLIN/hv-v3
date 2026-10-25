@@ -5,7 +5,8 @@ import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_Z
 import type { Monster, MonsterPool } from '../core/monsters';
 import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, resetAttrs, unequip, unspentExp, type Player } from '../core/player';
 import { Rng, randomSeed } from '../core/rng';
-import { advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
+import { has, prog, tip, TIPS } from '../core/progress';
+import { advance, applyLoot, battleLocks, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
 import type { Stage } from './stage';
@@ -18,6 +19,8 @@ const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;
 const POTION_ZH: Record<PotionId, string> = { health: '生命藥水', mana: '法力藥水', spirit: '靈力藥水' };
 
 /** Unusable battle buttons stay hoverable (no `disabled`) so the tooltip can show why; clicking logs the reason. */
+/** 暫定 (CP3-9): town Item World costs this x (current +level + 1) credits after the free first use. */
+const IW_COST = 200;
 function gate(b: BattleState, a: Action, desc = ''): string {
   if (canUse(b, a)) return desc ? `title="${esc(desc)}"` : '';
   const why = whyNot(b, a);
@@ -27,7 +30,10 @@ function gate(b: BattleState, a: Action, desc = ''): string {
 export class App {
   data: SaveData;
   screen: Screen = 'town';
-  townTab: 'char' | 'gear' | 'shop' = 'char';
+  townTab: 'char' | 'gear' | 'shop' | 'iw' = 'char';
+  /** CP3 unlock / tutorial notices shown on the current screen. */
+  notice: string[] = [];
+  noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
   battle: BattleState | null = null;
   battleType: NodeType = 'battle';
   monsters: Monster[] = [];
@@ -134,9 +140,19 @@ export class App {
     const p = this.p;
     const lv = level(p);
     const st = this.data.stats;
-    const tabs = (['char', 'gear', 'shop'] as const).map((t) => `<button data-tab="${t}" class="${this.townTab === t ? 'on' : ''}">${{ char: '角色與配點', gear: '裝備', shop: '商店' }[t]}</button>`).join('');
+    const open = { char: true, gear: true, shop: has(p, 'shop'), iw: has(p, 'iw') };
+    if (!open[this.townTab]) this.townTab = 'char';
+    const tabs = (['char', 'gear', 'shop', 'iw'] as const).filter((t) => open[t]).map((t) => `<button data-tab="${t}" class="${this.townTab === t ? 'on' : ''}">${{ char: has(p, 'alloc') ? '角色與配點' : '角色', gear: '裝備', shop: '商店', iw: '道具界' }[t]}</button>`).join('');
+    const lockedHint = ['alloc', 'shop', 'iw'].filter((k) => !has(p, k as 'alloc')).map((k) => ({ alloc: '屬性配點：第 1 趟回城後解鎖', shop: '城鎮商店：第 2 趟回城後解鎖', iw: '道具界：首次打倒 F10 首領後解鎖' }[k])).join('　');
     let body = '';
-    if (this.townTab === 'char') {
+    if (this.townTab === 'char' && !has(p, 'alloc')) {
+      body = `<div class="cols"><div><h3>屬性</h3><div class="hint" data-locked="alloc">🔒 屬性配點在第 1 趟回城後解鎖。</div></div><div><h3>能力值</h3>${this.statsPanel()}</div></div>`;
+    } else if (this.townTab === 'iw') {
+      const g = prog(p);
+      const cost = (e: Equip) => (g.iwUses === 0 ? 0 : IW_COST * (e.iw + 1));
+      const rows = SLOTS.map((sl) => p.equipped[sl]).filter((e): e is Equip => !!e).map((e) => `<tr><td>${esc(equipName(e))}</td><td>+${e.iw}</td><td><button data-iw="${e.slot}" ${p.credits < cost(e) ? 'disabled' : ''}>強化 ${cost(e) ? cost(e) + 'C' : '（免費）'}</button></td></tr>`).join('');
+      body = `<h3>道具界</h3><div class="hint">進入裝備的道具界強化 +1。第一次免費。</div><table>${rows}</table>`;
+    } else if (this.townTab === 'char') {
       const free = Math.floor(unspentExp(p));
       const attrs = ATTRS.map((a) => {
         const next = Math.ceil(attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a]));
@@ -152,7 +168,7 @@ export class App {
         const e = p.equipped[s];
         return `<div class="slot"><div class="slotname">${SLOT_ZH[s]}</div>${e ? this.itemCard(e, `<button data-unequip="${s}">卸下</button>`) : '<div class="empty">—</div>'}</div>`;
       }).join('');
-      const inv = [...p.inventory].sort((a, b) => a.slot.localeCompare(b.slot)).map((e) => this.itemCard(e, `<button data-equip="${e.id}">裝備</button> <button data-sell="${e.id}">賣 ${sellPrice(e)}C</button>`) + this.compare(e)).join('');
+      const inv = [...p.inventory].sort((a, b) => a.slot.localeCompare(b.slot)).map((e) => this.itemCard(e, `<button data-equip="${e.id}">裝備</button>${has(p, 'shop') ? ` <button data-sell="${e.id}">賣 ${sellPrice(e)}C</button>` : ''}`) + this.compare(e)).join('');
       body = `<div class="cols"><div><h3>穿戴中</h3><div class="slots">${eq}</div></div><div><h3>倉庫（${p.inventory.length}）</h3><div class="inv">${inv || '<div class="empty">空</div>'}</div></div></div>`;
     } else {
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<tr><td>${POTION_ZH[k]}</td><td>持有 ${p.potions[k]}</td><td><button data-buy="${k}" ${p.credits < RULES.potionPrice[k] ? 'disabled' : ''}>買 ${RULES.potionPrice[k]}C</button></td></tr>`).join('');
@@ -162,7 +178,7 @@ export class App {
     }
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
       <span class="spacer"></span><span class="hint">出擊 ${st.runs} 次 · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
-      <div class="tabs">${tabs}</div><div class="body">${body}</div>
+      ${this.noticeHtml()}<div class="tabs">${tabs}</div>${lockedHint ? `<div class="hint locks">🔒 ${lockedHint}</div>` : ''}<div class="body">${body}</div>
       <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><button data-start class="big">進入試煉之塔 ▶</button></div></div>`;
   }
 
@@ -181,7 +197,7 @@ export class App {
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}
+      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && r.trip <= 2 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${r.trip === 1 ? 3 : 2}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
   }
@@ -234,7 +250,7 @@ export class App {
       body = `<h2>✦ 神龕</h2><p>選擇一項祝福（僅限本趟）：</p><div class="row">${SHRINES.map((s) => `<button class="big" data-shrine="${s.id}">${s.zh}<small>${s.desc}</small></button>`).join('')}</div>`;
     }
     const done = !!this.pending.loot || !!this.pending.text;
-    return `<div class="panel node">${body}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
+    return `<div class="panel node">${this.noticeHtml()}${body}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
       <div class="foot"><span class="spacer"></span><button class="big" data-continue>${done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
   }
 
@@ -244,6 +260,7 @@ export class App {
     const title = s.outcome === 'clear' ? '♛ 通關試煉之塔！' : s.outcome === 'dead' ? '☠ 倒下了……' : '撤退回城';
     const rule = s.outcome === 'dead' ? '死亡：EXP、熟練度與 Credits 保留 50%，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。' : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
     return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>到達第 ${s.floor} 層。${rule}</p>
+      ${s.mult > 1 ? `<div class="hint" data-carry="${s.mult}">新手帶回加成 ×${s.mult}</div>` : ''}${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>
       <h3 class="kept-h">保留（${s.kept.length} 件，已放入倉庫）</h3>
       <div class="inv kept">${s.kept.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>
@@ -268,6 +285,15 @@ export class App {
     });
     on('[data-unequip]', (el) => { unequip(this.p, el.dataset.unequip as Equip['slot']); this.go('town'); });
     on('[data-sell]', (el) => { const i = this.p.inventory.findIndex((x) => x.id === el.dataset.sell); if (i >= 0) { this.p.credits += sellPrice(this.p.inventory[i]!); this.p.inventory.splice(i, 1); } this.go('town'); });
+    on('[data-iw]', (el) => {
+      const g = prog(this.p); const e = this.p.equipped[el.dataset.iw as keyof Player['equipped']];
+      if (!e) return;
+      const c = g.iwUses === 0 ? 0 : IW_COST * (e.iw + 1);
+      if (this.p.credits < c) return;
+      this.p.credits -= c; e.iw++; g.iwUses++;
+      this.notice = [`${equipName(e)} 強化至 +${e.iw}${c ? `（-${c}C）` : '（免費）'}`];
+      this.save(); this.go('town');
+    });
     on('[data-sellall]', () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); });
     on('[data-buy]', (el) => { const k = el.dataset.buy as PotionId; if (this.p.credits >= RULES.potionPrice[k]) { this.p.credits -= RULES.potionPrice[k]; this.p.potions[k]++; } this.go('town'); });
     on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>`, '清空並建立新角色', () => { this.data = App.fresh(); this.save(); this.go('town'); }));
@@ -371,6 +397,7 @@ export class App {
 
   startRun() {
     this.data.run = startRun(this.p, randomSeed());
+    this.notice = [...(this.data.run.notes ?? [])];
     this.data.stats.runs++;
     this.go('map');
   }
@@ -380,6 +407,7 @@ export class App {
     const t = r.tower.floors[r.floor - 1]!.options[i]!;
     r.current = { type: t, option: i };
     this.pending = {};
+    this.notice = coreEnterNode(this.p, r, t);
     if (t === 'battle' || t === 'elite' || t === 'boss') return this.startBattle(t);
     if (t === 'chest') { this.pending.loot = chestLoot(r); applyLoot(this.p, r, this.pending.loot); }
     if (t === 'merchant') r.merchant = merchantStock(r);
@@ -391,7 +419,8 @@ export class App {
     this.battleType = t;
     this.monsters = encounter(r, this.pool, t);
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp }, this.monsters, this.p.potions);
-    this.log = [`遭遇 ${this.monsters.map((m) => m.name).join('、')}`];
+    this.battle.locked = battleLocks(this.p);
+    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${this.monsters.map((m) => m.name).join('、')}`];
     this.target = 0;
     this.go('battle');
     this.stage.setMonsters(this.battle.monsters);
@@ -419,11 +448,17 @@ export class App {
     for (const e of ev) {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
       if (e.t === 'hit' && e.from === 'player' && e.weak && e.dmg > 0) this.log.push(`<span class="weakhit">弱點！${esc(b.monsters[e.to as number]!.name)} 受到 ${e.dmg}</span>`);
+      if (e.t === 'hit' && e.to === 'player' && typeof e.from === 'number') {
+        const who = esc(b.monsters[e.from]!.name);
+        const how = e.avoided === 'evade' ? '（閃避）' : e.avoided === 'parry' ? '（招架）' : e.avoided === 'block' ? '（格擋）' : e.avoided ? '（未命中）' : '';
+        this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
+      }
       if (e.t === 'death') this.log.push(`擊倒 ${esc(b.monsters[e.to]!.name)}`);
       if (e.t === 'charge') this.log.push(`<span class="warn">${esc(b.monsters[e.from]!.name)} 正在蓄力！</span>`);
       if (e.t === 'msg') this.log.push(esc(e.text));
       if (e.t === 'heal' && e.label !== '自然回復') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
     }
+    if (b.oc >= 50 && has(this.p, 'spirit') && !b.spirit) { const t = tip(this.p, 'spirit', TIPS.spirit); if (t) this.log.push(`<span class="unlock" data-unlock data-tip="spirit">${esc(t)}</span>`); }
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
     await this.stage.play(ev, b);
@@ -470,6 +505,7 @@ export class App {
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
     if (r.done === 'clear') this.data.stats.clears++;
     this.lastSettlement = settle(this.p, r);
+    this.notice = [];
     this.data.run = null;
     this.battle = null;
     this.go('result');

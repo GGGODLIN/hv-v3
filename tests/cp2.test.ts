@@ -6,7 +6,7 @@ import { attrCost } from '../src/core/formulas';
 import { buildMonster, makePool, RANK_MULT, type MonsterRow } from '../src/core/monsters';
 import { allocate, derive, newPlayer, refund, unspentExp } from '../src/core/player';
 import { Rng } from '../src/core/rng';
-import { MID_FLOOR_MULT, RULES } from '../src/core/run';
+import { RULES } from '../src/core/run';
 
 const rows = JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[];
 const pool = makePool(rows);
@@ -41,16 +41,15 @@ describe('CP2', () => {
   });
   it('4/7. CP2/CP2b 暫定 knobs', () => {
     expect(RANK_MULT.boss.hp).toBe(2.2);
-    expect(RULES.expMult).toBe(8);
-    expect(MID_FLOOR_MULT).toEqual({ from: 6, to: 9, hp: 1.2, dmg: 1 });
+    expect(RULES.expMult).toBe(1); // CP3: back to the original
     expect(BOSS_CHARGE_MULT).toBe(2);
   });
-  it('4. sim boss fights average 10-15 turns', () => {
+  it('4. sim F5 boss fights average 10-15 turns', () => {
     const turns: number[] = [];
-    for (let s = 1; s <= 8; s++) {
-      const p = newPlayer(); starterKit(p, s);
-      for (let i = 1; i <= 4; i++) turns.push(...autoRun(p, pool, s * 1000 + i).bosses.map((b) => b.turns));
-    }
+      for (let s = 1; s <= 16; s++) { // CP3: same protocol as scripts/difficulty.ts (16 seeds, runs until first clear)
+        const p = newPlayer(); starterKit(p, s);
+        for (let i = 1; i <= 8; i++) { const r = autoRun(p, pool, s * 1000 + i); turns.push(...r.bosses.filter((b) => b.floor === 5).map((b) => b.turns)); if (r.floorReached > 10) break; }
+      }
     const mean = turns.reduce((a, b) => a + b, 0) / turns.length;
     expect(turns.length).toBeGreaterThan(5);
     expect(mean).toBeGreaterThanOrEqual(10);

@@ -56,6 +56,7 @@ describe('run + save', () => {
     run.exp = 1000; run.credits = 400;
     run.bag = [generateEquip(rng, 5, { quality: 'crude' }), generateEquip(rng, 5, { quality: 'superior' }), generateEquip(rng, 5, { quality: 'fair' })];
     run.done = 'dead';
+    run.trip = 3; // CP3 carry-back multiplier x1 from trip 3
     const s = settle(p, run);
     expect(s.exp).toBe(500);
     expect(s.credits).toBe(200);
@@ -69,6 +70,7 @@ describe('run + save', () => {
     const run = startRun(p, 6);
     run.exp = 300; run.credits = 50; run.done = 'clear';
     run.bag = [generateEquip(new Rng(2), 3), generateEquip(new Rng(3), 3)];
+    run.trip = 3; // CP3 carry-back multiplier x1 from trip 3
     const s = settle(p, run);
     expect(s.exp).toBe(300);
     expect(p.inventory).toHaveLength(2);

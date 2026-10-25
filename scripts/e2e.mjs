@@ -17,6 +17,18 @@ R.newCharModal=await pg.$eval('.modal',m=>m.textContent.replace(/\s+/g,' ').trim
 await pg.screenshot({path:S+'r6-08-newchar-confirm.png'});
 await pg.click('[data-modal-cancel]');await w(100);R.cancelClosed=!(await pg.$('.modal'));
 await pg.click('[data-newgame]');await w(100);await pg.click('[data-modal-ok]');await w(200);R.okClosed=!(await pg.$('.modal'));
+// ---- CP3: fresh character — town locks, trip-1 tutorial, locked battle actions
+R.cp3town=await pg.evaluate(()=>({alloc:!!document.querySelector('[data-locked="alloc"]'),shopTab:!!document.querySelector('[data-tab="shop"]'),iwTab:!!document.querySelector('[data-tab="iw"]'),locks:document.querySelector('.locks')?.textContent||''}));
+await pg.screenshot({path:S+'cp3-01-town-locked.png'});
+await pg.click('[data-start]');await w(300);
+R.cp3trip=await pg.$eval('[data-trip]',x=>x.textContent).catch(()=>null);
+R.cp3floors=await pg.evaluate(()=>hv.run.tower.floors.slice(1,4).map(f=>f.options.join('/')));
+await pg.click('[data-node]');await w(1200);
+R.cp3unlockLog=await pg.$$eval('.log [data-unlock]',xs=>xs.map(x=>x.textContent));
+R.cp3spiritTitle=await pg.evaluate(()=>{hv.battle.oc=60;hv.render();return document.querySelector('[data-act="spirit"]').title});
+await pg.screenshot({path:S+'cp3-02-trip1-battle.png'});
+// back to a pre-CP3 (veteran) profile for the older checks below
+await pg.evaluate(()=>{hv.data.run=null;hv.battle=null;hv.p.prog=undefined;hv.save();hv.go('town')});await w(200);
 // ---- CP2 item 6: batch allocation (+1/+10/+最大, refunds)
 await pg.evaluate(()=>{hv.p.exp+=300000;hv.go('town')});await w(200);
 const A=()=>pg.evaluate(()=>({str:hv.p.attrs.str,dex:hv.p.attrs.dex}));R.cp2alloc={start:await A()};
@@ -43,6 +55,7 @@ await pg.evaluate(()=>{const i=window.hv.run.nodes?.[window.hv.run.floor-1];});
 await pg.click('[data-node]');await w(1500);
 // item 2: disabled tooltip
 R.disabled=await pg.$$eval('[aria-disabled="true"]',xs=>xs.map(x=>x.textContent.trim().slice(0,8)+' → '+x.title));
+await pg.evaluate(()=>{hv.battle.oc=Math.max(hv.battle.oc,60);for(const m of hv.battle.monsters){m.maxHp*=50;m.hp=m.maxHp}hv.render()});await w(100); // CP3: OC starts at 0, Spirit needs 50
 const sbtn=await pg.$('[data-act="spirit"]');const box=await sbtn.boundingBox();
 await pg.mouse.move(box.x+box.width/2,box.y+box.height/2);
 R.spiritBefore=await pg.evaluate(()=>({oc:hv.battle.oc,sp:hv.battle.sp,title:document.querySelector('[data-act="spirit"]').title,dis:document.querySelector('[data-act="spirit"]').getAttribute('aria-disabled')}));
@@ -66,6 +79,7 @@ await pg.waitForFunction(()=>!hv.busy,{timeout:5000});R.skipMs=Date.now()-t0;R.t
 await pg.evaluate(()=>{hv.stage.skip=false;hv.stage.speed=1});
 // ---- CP2 item 2: regen line lists HP/MP/SP
 R.cp2regen=await pg.$$eval('.regen',xs=>xs.map(x=>x.textContent));
+R.cp2cEnemyHits=await pg.$$eval('.enemyhit',xs=>xs.map(x=>x.textContent));
 // ---- CP2 item 5: weakness HUD, 弱點 popup, charge decision
 await pg.evaluate(()=>{const b=hv.battle;const m=b.monsters[hv.target]&&b.monsters[hv.target].hp>0?b.monsters[hv.target]:b.monsters.find(x=>x.hp>0);m.spec[b.d.damageType]=-25;m.evade=0;m.parry=0;m.hp=m.maxHp;hv.target=b.monsters.indexOf(m);hv.render()});await w(200);
 R.cp2weakHud=await pg.$$eval('[data-weak]',xs=>xs.map(x=>x.textContent.trim()));
@@ -123,7 +137,10 @@ while(guard++<600){
 R.loops=guard;
 R.result=await pg.evaluate(()=>document.querySelector('.panel')?.innerText.slice(0,600));
 await pg.screenshot({path:S+'r6-11-settlement.png',fullPage:true});
+R.cp3resultUnlock=await pg.$$eval('.result [data-unlock]',xs=>xs.map(x=>x.textContent));
 await pg.click('[data-town]');await w(300);
+R.cp3iw=await pg.evaluate(()=>{const t=document.querySelector('[data-tab="iw"]');if(!t)return null;t.click();return true});await w(200);
+if(R.cp3iw){R.cp3iwBtn=await pg.$eval('[data-iw]',x=>x.textContent).catch(()=>null);const c0=await pg.evaluate(()=>hv.p.credits);await pg.click('[data-iw]').catch(()=>{});await w(200);R.cp3iwFree=(await pg.evaluate(()=>hv.p.credits))===c0;R.cp3iwNext=await pg.$eval('[data-iw]',x=>x.textContent).catch(()=>null);await pg.screenshot({path:S+'cp3-03-iw.png'});}
 R.allHome=await pg.evaluate(ids=>ids.filter(id=>!hv.p.inventory.some(e=>e.id===id)&&!Object.values(hv.p.equipped).some(e=>e&&e.id===id)),bagSnap);
 R.bagCount=bagSnap.length;R.stats=await pg.evaluate(()=>hv.data.stats);
 await pg.evaluate(()=>{document.querySelector('[data-tab="gear"]')?.click()});await w(200);
@@ -140,9 +157,16 @@ if(consoleErrors.length)fails.push('console errors');if(httpErrors.length)fails.
 const a=R.cp2alloc;if(a.p1.str!==a.start.str+1||a.p10.str!==a.p1.str+10||a.m10.str!==a.p10.str-10||!(a.max.dex>a.start.dex)||!a.maxDisabled||a.refundAll.dex!==0)fails.push('CP2 batch alloc');
 if(!R.cp2townModal||!R.cp2townModal.includes('比較弱')||!R.cp2townKept)fails.push('CP2 town weaker modal');
 if(!R.cp2lootModal||!R.cp2lootModal.includes('比較弱'))fails.push('CP2 loot weaker modal');
+if(!R.cp2cEnemyHits.length||!R.cp2cEnemyHits.every(t=>/對你造成 \d+ 傷害/.test(t)))fails.push('CP2c enemy hit log');
 if(!R.cp2regen.length||!R.cp2regen.every(t=>/HP \+\d+ · MP \+\d+ · SP \+\d+/.test(t)))fails.push('CP2 regen line');
 if(!R.cp2weakHud.some(t=>t.includes('25%'))||!R.cp2weakLog.length)fails.push('CP2 weakness');
 if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
 {const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻'));if(cd.length!==10||cd[0]!=='冷卻10'||cd[9]!=='冷卻1')fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
 if(!R.cp2decide||!R.cp2suggest.some(t=>t.includes('防禦')))fails.push('CP2 charge decision');
+{const t=R.cp3town;if(!t.alloc||t.shopTab||t.iwTab)fails.push('CP3 town locks');}
+if(!R.cp3trip||!R.cp3trip.includes('×3'))fails.push('CP3 trip-1 carry multiplier');
+if(R.cp3floors.join(',')!=='battle,merchant,elite')fails.push('CP3 tutorial floors '+R.cp3floors);
+if(!R.cp3unlockLog.some(t=>t.includes('防禦'))||!R.cp3unlockLog.some(t=>t.includes('教學')))fails.push('CP3 unlock notice');
+if(!R.cp3spiritTitle.includes('尚未解鎖'))fails.push('CP3 spirit locked');
+if(!R.cp3resultUnlock.some(t=>t.includes('道具界'))||!R.cp3iw||!R.cp3iwFree||!R.cp3iwBtn?.includes('免費'))fails.push('CP3 IW unlock');
 console.log(fails.length?'E2E FAIL: '+fails.join(', '):'E2E PASS');process.exit(fails.length?1:0);

@@ -1,3 +1,4 @@
+import { type Progress, freshProgress } from './progress';
 import { CONSTANTS as C } from './data/constants';
 import {
   ATTRS, type Attrs, zeroAttrs, adbFromAttrs, mdbFromAttrs, baseHp, baseMp, baseSp, attrCrit, attrMitigation,
@@ -21,13 +22,15 @@ export interface Player {
   inventory: Equip[];
   credits: number;
   potions: { health: number; mana: number; spirit: number };
+  /** CP3 early-unlock progress (missing on pre-CP3 saves = veteran, see progress.prog). */
+  prog?: Progress;
 }
 
 export function newPlayer(name = '冒險者'): Player {
   return {
     name, exp: 0, attrs: zeroAttrs(),
     profExp: Object.fromEntries(PROFS.map((p) => [p, 0])) as Record<Prof, number>,
-    equipped: {}, inventory: [], credits: 200, potions: { health: 3, mana: 2, spirit: 1 },
+    equipped: {}, inventory: [], credits: 200, potions: { health: 3, mana: 2, spirit: 1 }, prog: freshProgress(),
   };
 }
 

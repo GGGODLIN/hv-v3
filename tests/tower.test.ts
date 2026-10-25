@@ -3,14 +3,14 @@ import { forcedTriple, generateTower, TOWER, floorPl } from '../src/core/tower';
 import { Rng } from '../src/core/rng';
 
 describe('tower', () => {
-  it('10 floors, bosses on 5/10, rest on 4/9, no route forced into the same type 3x', () => {
+  it('10 floors, bosses on 5/10, rest on 4/8, no route forced into the same type 3x', () => {
     for (let s = 1; s < 300; s++) {
       const t = generateTower(new Rng(s));
       expect(t.floors).toHaveLength(TOWER.floors);
       expect(t.floors[4]!.options).toEqual(['boss']);
       expect(t.floors[9]!.options).toEqual(['boss']);
       expect(t.floors[3]!.options).toContain('rest');
-      expect(t.floors[8]!.options).toContain('rest');
+      expect(t.floors[7]!.options).toContain('rest');
       expect(t.floors[0]!.options).not.toContain('elite');
       for (const f of t.floors.slice(1)) expect(new Set(f.options).size).toBe(f.options.length);
       expect(forcedTriple(t)).toBe(false);

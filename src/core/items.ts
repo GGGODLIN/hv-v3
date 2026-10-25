@@ -190,10 +190,12 @@ export function effectiveStats(e: Equip): Partial<Record<StatKey, number>> {
   return out;
 }
 
-const Q_VALUE: Record<Quality, number> = { crude: 1, fair: 2, average: 4, superior: 10, exquisite: 30, magnificent: 120, legendary: 600, peerless: 3000 };
-/** Sell price in credits (provisional). */
+const SELL = C['F-005-003-04e-sell'].value;
+/** Sell price in credits: findings/005 003-04e (F-005-003-04e-sell). */
 export function sellPrice(e: Equip): number {
-  return Math.round((8 + e.level * 3) * Q_VALUE[e.quality] * (1 + e.iw * 0.25));
+  if (e.quality === 'crude' || e.quality === 'fair' || e.quality === 'average') return Math.min(SELL.cap, Math.round(SELL.belowSuperior[e.quality] * (1 + e.level / SELL.levelDivisor)));
+  const s = SELL.salvage[e.quality];
+  return Math.round(SELL.materialPrice[s.grade as 'low' | 'mid' | 'high'] * s.count * SELL.salvageShare);
 }
 
 export function blocksOffHand(e: Equip | undefined): boolean {

@@ -16,13 +16,14 @@ const fresh = () => {
 };
 
 describe('round 6', () => {
-  it('1. spirit stance opens at OC >= 25 and SP >= 1 (暫定), so a new character can at battle start', () => {
+  it('1. (CP3) spirit stance opens at the sourced OC >= 50 and SP >= 1; battles start at OC 0', () => {
     const { b } = fresh();
-    expect(b.oc).toBe(25);
-    expect(canUse(b, { kind: 'spirit' })).toBe(true);
-    b.oc = 24; expect(canUse(b, { kind: 'spirit' })).toBe(false);
-    expect(whyNot(b, { kind: 'spirit' })).toBe('OC 不足（需 25，現有 24）');
-    b.oc = 25; b.sp = 0; expect(canUse(b, { kind: 'spirit' })).toBe(false);
+    expect(b.oc).toBe(0);
+    expect(canUse(b, { kind: 'spirit' })).toBe(false);
+    b.oc = 50; expect(canUse(b, { kind: 'spirit' })).toBe(true);
+    b.oc = 49; expect(canUse(b, { kind: 'spirit' })).toBe(false);
+    expect(whyNot(b, { kind: 'spirit' })).toBe('OC 不足（需 50，現有 49）');
+    b.oc = 50; b.sp = 0; expect(canUse(b, { kind: 'spirit' })).toBe(false);
     expect(whyNot(b, { kind: 'spirit' })).toContain('SP 不足');
   });
   it('4. health potion cooldown is 10 turns; floor-10 boss has at most 1 minion', () => {

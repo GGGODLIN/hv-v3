@@ -5,13 +5,18 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
+import { F3_GIFT, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
 
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
   dropAccel: 8,
-  /** Provisional: tower battles pay EXP like an Arena-style mode. */
-  expMult: 8, // 暫定 (CP2): was 6
+  /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
+  expMult: C['P-exp-multiplier'].value.playerMultipliers,
+  /** 暫定 (gameplay layer, CP3-2): boss / elite kill EXP multipliers (no findings source). */
+  rankExp: { boss: 5, elite: 2, normal: 1 },
+  /** 暫定 (CP3-4): in-tower merchant sells equipment at sellPrice x this (no source for an equipment shop price). */
+  merchantMarkup: 3.5,
   death: { exp: 0.5, credits: 0.5, keepBestItems: 1, loseConsumables: true },
   potionPrice: { health: 50, mana: 100, spirit: 100 } as Record<PotionId, number>,
   restHeal: 0.5,
@@ -48,16 +53,52 @@ export interface RunState {
   done: 'clear' | 'dead' | 'retreat' | null;
   /** Some equipment has dropped this run (early-loot guarantee). */
   foundEquip?: boolean;
+  /** CP3: 1-based trip number (carry-back multiplier) and pending unlock / tutorial messages for the UI. */
+  trip?: number;
+  tutorial?: boolean;
+  /** Next elite is picked with an elemental weakness (CP3-7 grimoire lesson). */
+  weakNext?: boolean;
+  notes?: string[];
 }
 
 export function startRun(p: Player, seed: number): RunState {
   const rng = new Rng(seed);
-  const tower = generateTower(rng);
+  const g = prog(p);
+  const trip = g.trips + 1;
+  const notes: string[] = [];
+  if (trip >= 2) { const m = unlock(p, 'shrine'); if (m) notes.push(m + '（本趟保證出現 1 個神龕）'); }
+  const tutorial = !has(p, 'spell');
+  const locked: NodeType[] = [];
+  if (!has(p, 'shrine')) locked.push('shrine');
+  if (!has(p, 'merchant')) locked.push('merchant');
+  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0 });
   const d = derive(p);
   return {
     seed, rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
-    bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null,
+    bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip, tutorial, notes,
   };
+}
+
+/** CP3: called when a node is entered. Unlocks and one-time tutorial tips; returns the messages to show. */
+export function enterNode(p: Player, run: RunState, type: NodeType): string[] {
+  const out: string[] = [];
+  const push = (m: string | null) => { if (m) out.push(m); };
+  const f = run.floor;
+  if (type === 'battle' || type === 'elite' || type === 'boss') { push(unlock(p, 'defend')); push(unlock(p, 'potion')); push(tip(p, 'f1', TIPS.f1)); }
+  if (f >= 2) { push(unlock(p, 'ocSkill')); push(tip(p, 'f2', TIPS.f2)); }
+  if (type === 'merchant' && run.tutorial && f === 3) {
+    push(unlock(p, 'spell')); push(unlock(p, 'merchant'));
+    const t = tip(p, 'f3', TIPS.f3);
+    if (t) { push(t + `（+${F3_GIFT} 金）`); run.credits += F3_GIFT; run.weakNext = true; }
+  }
+  if (f >= 4) push(unlock(p, 'spirit'));
+  run.notes = [...(run.notes ?? []), ...out];
+  return out;
+}
+
+/** Battle-time locks for systems not yet opened (CP3-7). */
+export function battleLocks(p: Player): { skill: boolean; spell: boolean; spirit: boolean } {
+  return { skill: !has(p, 'ocSkill'), spell: !has(p, 'spell'), spirit: !has(p, 'spirit') };
 }
 
 export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
@@ -74,10 +115,14 @@ export function runDerived(p: Player, run: RunState) {
   return { ...d, adb: d.adb * (1 + run.bonus.dmg), mdb: d.mdb * (1 + run.bonus.dmg), hp: Math.round(d.hp * (1 + run.bonus.hp)) };
 }
 
-/** 暫定 (CP2): extra HP / damage multiplier for monsters on floors 6-9 (difficulty knob, scripts/difficulty.ts). */
-export const MID_FLOOR_MULT = { from: 6, to: 9, hp: 1.2, dmg: 1.0 }; // 暫定 (CP2b): dmg back to 1.0, hp 1.0 -> 1.2
-/** 暫定 (CP2b): floors 1-4 slightly harder so a mostly non-combat route arrives at floor 6 worn down. */
-export const EARLY_FLOOR_MULT = { from: 1, to: 4, hp: 1.4, dmg: 1.8 };
+const ELEM_COLS = [9, 10, 11, 12] as const; // cold, wind, elec, fire in monsters.json rows
+/** CP3-7: an elite row with a negative elemental resistance, nearest the window (monster data unchanged). */
+function weakRow(pool: MonsterPool, lo: number, hi: number) {
+  const weak = pool.rows.filter((r) => ELEM_COLS.some((c) => (r[c] as number) < 0));
+  if (!weak.length) return null;
+  const mid = (lo + hi) / 2;
+  return weak.reduce((a, r) => (Math.abs(r[3] - mid) < Math.abs(a[3] - mid) ? r : a));
+}
 
 export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Monster[] {
   const f = run.floor;
@@ -86,16 +131,15 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
   return withRng(run, (rng) => {
     const plan: Rank[] =
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
-      type === 'elite' ? ['elite', 'normal'] :
-      f >= 6 ? ['normal', 'normal'] /* 暫定 (CP2b): floors 6-9 at most 2 per wave */ :
-      rng.chance(0.5) ? ['normal', 'normal'] : ['normal', 'normal', 'normal'];
-    return plan.map((rank) => {
-      const row = rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi);
-      const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
-      if (f >= MID_FLOOR_MULT.from && f <= MID_FLOOR_MULT.to) { m.maxHp = m.hp = Math.round(m.maxHp * MID_FLOOR_MULT.hp); m.adb *= MID_FLOOR_MULT.dmg; }
-      if (f >= EARLY_FLOOR_MULT.from && f <= EARLY_FLOOR_MULT.to) { m.maxHp = m.hp = Math.round(m.maxHp * EARLY_FLOOR_MULT.hp); m.adb *= EARLY_FLOOR_MULT.dmg; }
-      return m;
+      type === 'elite' ? (run.weakNext ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
+      ['normal', 'normal'] /* 暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
+    const out = plan.map((rank) => {
+      const weak = rank === 'elite' && run.weakNext ? weakRow(pool, lo, hi) : null;
+      const row = weak ?? (rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi));
+      return buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
     });
+    if (type === 'elite') run.weakNext = false;
+    return out;
   });
 }
 
@@ -116,7 +160,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
     for (const m of monsters) {
-      loot.exp += Math.round(monsterExp(m.level, m.pl, RULES.expMult) * (m.rank === 'boss' ? 5 : m.rank === 'elite' ? 2 : 1));
+      loot.exp += Math.round(monsterExp(m.level, m.pl, RULES.expMult) * RULES.rankExp[m.rank]);
       const drop = LR.baseDrop + Math.min(LR.plBonus.cap, Math.max(0, (m.pl - LR.plBonus.offset) / LR.plBonus.divisor));
       if (rng.chance(drop)) {
         if (rng.chance(Math.min(1, LR.equipmentRoll * RULES.dropAccel))) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
@@ -177,7 +221,7 @@ export function merchantStock(run: RunState): MerchantStock {
   return withRng(run, (rng) => ({
     equips: [0, 1, 2].map((i) => {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
-      return { e, price: Math.round(sellPrice(e) * 3.5) };
+      return { e, price: Math.round(sellPrice(e) * RULES.merchantMarkup) };
     }),
   }));
 }
@@ -218,6 +262,8 @@ export interface Settlement {
   outcome: 'clear' | 'dead' | 'retreat';
   exp: number; credits: number; kept: Equip[]; lost: number; lostItems: Equip[]; lostPotions: Partial<Record<PotionId, number>>; levelBefore: number; levelAfter: number;
   floor: number;
+  /** CP3: carry-back multiplier applied and systems opened by this return. */
+  mult: number; unlocks: string[];
 }
 
 /** Apply the run result to the persistent character (design §8 death rules). */
@@ -225,8 +271,10 @@ export function settle(p: Player, run: RunState): Settlement {
   const outcome = run.done ?? 'retreat';
   const dead = outcome === 'dead';
   const before = level(p);
-  const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1));
-  const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1));
+  const g = prog(p);
+  const mult = carryMult(run.trip ?? g.trips + 1);
+  const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
+  const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
   let kept = run.bag;
   let lostPotions: Partial<Record<PotionId, number>> = {};
   if (dead) {
@@ -235,9 +283,14 @@ export function settle(p: Player, run: RunState): Settlement {
   }
   p.exp = Math.round(p.exp + exp);
   p.credits += credits;
-  for (const [k, v] of Object.entries(run.profExp)) p.profExp[k as Prof] += Math.round(v! * (dead ? RULES.death.exp : 1));
+  for (const [k, v] of Object.entries(run.profExp)) p.profExp[k as Prof] += Math.round(v! * (dead ? RULES.death.exp : 1) * mult);
   p.inventory.push(...kept);
-  return { outcome, exp, credits, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.floor };
+  g.trips++;
+  const unlocks: string[] = [];
+  if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
+  if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
+  if (outcome === 'clear') { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
+  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.floor };
 }
 
 export function score(e: Equip): number {

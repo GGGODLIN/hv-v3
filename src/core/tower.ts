@@ -8,10 +8,14 @@ export const NODE_ICON: Record<NodeType, string> = { battle: '⚔', elite: '☠'
 export const TOWER = {
   floors: 10,
   bossFloors: [5, 10],
-  restFloors: [4, 9],
+  /** 暫定 (CP3-10): rest moved 9 -> 8 so it sits on an even (non-combat) floor; odd floors are combat-only. */
+  restFloors: [4, 8],
+  /** 暫定 (CP3-10): anti-avoid. These floors offer only battle / elite, so no route has two non-combat nodes in a row. */
+  combatFloors: [1, 3, 7, 9],
   /** Monster level on floor f = base + perFloor * (f - 1). */
   baseLevel: 1,
-  levelPerFloor: 3,
+  /** 暫定 (CP3, gameplay layer): 3 -> 2 so the median first clear lands on trip 3 with original x1 EXP. */
+  levelPerFloor: 2,
   /** Monster PL window centre on floor f. */
   /** 暫定 (provisional): tower base PL; not in findings/design, kept by producer decision. */
   plBase: 40,
@@ -27,28 +31,50 @@ export const floorLevel = (f: number) => TOWER.baseLevel + TOWER.levelPerFloor *
 /** Monster PL centre on floor f (design §2, base 暫定). */
 export const floorPl = (f: number): number => TOWER.plBase * (1 + TOWER.plPerFloor * f);
 
+export interface TowerOpts {
+  /** First trip tutorial (spell still locked): F2 battle only, F3 the fixed shop, F4 a long elite. */
+  tutorial?: boolean;
+  /** Node types that are still locked (never offered). */
+  locked?: NodeType[];
+  /** Guarantee at least one shrine (CP3-9: trip 2 onwards). */
+  shrine?: boolean;
+}
+const COMBAT: NodeType[] = ['battle', 'elite'];
+export const isCombat = (t: NodeType) => t === 'battle' || t === 'elite' || t === 'boss';
+
 /**
- * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 offers battles only.
- * No-triple rule: a type offered on both previous floors may not be offered again, so no route can pass the same
- * node type three floors in a row (rest included). Before a forced rest floor, rest is banned if the floor before had one.
+ * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Odd floors (TOWER.combatFloors) offer only
+ * battle / elite; even floors offer only non-combat nodes. So every route alternates combat / non-combat and can never
+ * take two non-combat nodes in a row (CP3-10, 暫定). No-triple rule: a type offered on both previous floors may not be offered again.
  */
-export function generateTower(rng: Rng): Tower {
+export function generateTower(rng: Rng, opts: TowerOpts = {}): Tower {
   const floors: Floor[] = [];
   const has = (n: number, t: NodeType) => (floors[n - 1]?.options ?? []).includes(t);
+  const locked = new Set(opts.locked ?? []);
   for (let n = 1; n <= TOWER.floors; n++) {
     if (TOWER.bossFloors.includes(n)) { floors.push({ n, options: ['boss'] }); continue; }
+    if (opts.tutorial && n === 2) { floors.push({ n, options: ['battle'] }); continue; }
+    if (opts.tutorial && n === 3) { floors.push({ n, options: ['merchant'] }); continue; }
+    if (opts.tutorial && n === 4) { floors.push({ n, options: ['elite'] }); continue; }
+    const combatOnly = TOWER.combatFloors.includes(n);
     const count = rng.chance(0.5) ? 3 : 2;
     if (n === 1) { floors.push({ n, options: Array<NodeType>(count).fill('battle') }); continue; }
-    const banned = (t: NodeType) =>
-      (has(n - 1, t) && has(n - 2, t)) || (t === 'rest' && TOWER.restFloors.includes(n + 1) && has(n - 1, 'rest'));
+    const banned = (t: NodeType) => locked.has(t) || (has(n - 1, t) && has(n - 2, t));
     const options: NodeType[] = [];
     if (TOWER.restFloors.includes(n)) options.push('rest');
     while (options.length < count) {
-      const pool = TOWER.weights.filter(([t]) => !banned(t) && !options.includes(t));
+      const pool = TOWER.weights.filter(([t]) => !banned(t) && !options.includes(t) && (combatOnly ? COMBAT.includes(t) : !COMBAT.includes(t)));
+      if (!pool.length) break;
       options.push(rng.weighted(pool));
     }
-    if (options[0] === 'rest' && TOWER.restFloors.includes(n)) { const i = rng.int(0, count - 1); [options[0], options[i]] = [options[i]!, options[0]!]; }
+    if (!options.length) options.push(COMBAT.find((t) => !banned(t)) ?? 'battle');
+    if (options[0] === 'rest' && TOWER.restFloors.includes(n)) { const i = rng.int(0, options.length - 1); [options[0], options[i]] = [options[i]!, options[0]!]; }
     floors.push({ n, options });
+  }
+  if (opts.shrine && !floors.some((f) => f.options.includes('shrine'))) {
+    const f = floors.find((x) => x.n >= 6 && !TOWER.combatFloors.includes(x.n) && !TOWER.bossFloors.includes(x.n))!;
+    const i = f.options.findIndex((t) => t !== 'rest' && !isCombat(t));
+    if (i >= 0) f.options[i] = 'shrine'; else f.options.push('shrine');
   }
   return { floors };
 }

@@ -95,3 +95,6 @@ button.node { font-size: 14px; padding: 8px 12px; }
 @keyframes pulse { from { box-shadow: 0 0 0 #ff5040; } to { box-shadow: 0 0 12px #ff5040; } }
 button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .abtn button { padding: 2px 6px; }
+.unlocks { background: #2a2410; border: 1px solid #c9a227; color: #ffe070; padding: 6px 10px; margin: 6px 0; border-radius: 4px; }
+.log .unlock { color: #ffe070; }
+.locks { margin: 4px 0; }
