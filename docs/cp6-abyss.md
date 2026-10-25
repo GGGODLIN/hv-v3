@@ -374,3 +374,38 @@ Key items in cp5-sim (counter AI, N=32 M=12), rc6 → rc7. Thresholds are in cp5
 | death-combo 必死 | some (rc6 log) | 0 | pass |
 
 Every other gap item already failed at rc6 and is unchanged in kind. The three items that flipped from pass to fail do so because counter-play matters less once players hit harder (sourced passives). This follows from the accepted easier main tower and is not retuned.
+
+## rc8 item 1: first-trip pacing (all knobs 暫定，無來源)
+Allowed knobs only: LPD (levels per depth), HS/DS (HP/damage ×), TR (tier ramp), DPD (dmgPerDepth; the source is +2% per wave, Battles.md:261).
+Each round runs `scripts/rc8-round.sh` (rc7-targets 16 4 plus cp6-abyss-sim 32 4) and is summarised by `scripts/rc8-table.py`. Logs are in `docs/logs/rc8/`.
+Columns:
+- battle win % for blade/oc/arcane/bulwark: d5 boss, d16 normal battle, d20 boss.
+- abyss-sim trip-1 median depth for auto/blade/oc/arcane/bulwark (target 5-12).
+- d16/d13 per-entry death-rate ratio, same order (target ≤1.5).
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| rc7 | 0.25 / 1.5 / 1.5 / 0.02 / 3 | 100/100/100/100 | 70/92/83/64 | 100/78/94/89 | 25 (auto) | 3.11 (auto) |
+| r1A | 0 / 2 / 2 / 0 / 3 | 100/100/100/100 | 80/97/86/70 | 100/95/98/97 | 27/27/20/20/39 | —/0.45/0.82/0.29/0.71 |
+| r1B | 0 / 2 / 2 / 0 / 5 | 100/100/100/100 | 94/98/88/73 | 100/100/100/95 | 30/27/22/22/37 | —/0.31/0.33/0.00/0.00 |
+| r1C | 0 / 2.2 / 2.2 / -0.01 / 5 | 100/100/100/98 | 91/95/89/73 | 100/97/100/95 | 30/27/17/24/42 | 3.49/0.00/0.68/0.49/0.50 |
+| r1D | 0.25 / 1.8 / 1.8 / 0 / 5 | 100/100/100/100 | 75/94/88/63 | 100/91/98/89 | 22/22/17/19/29 | —/1.11/1.76/1.08/2.59 |
+| r2A | 0 / 2.5 / 2.5 / 0 / 5 | 100/98/100/94 | 59/83/86/69 | 98/81/95/96 | 20/15/10/14/20 | 1.81/0.73/0.36/0.59/0.35 |
+| r2B | 0 / 3 / 3 / 0 / 5 | 97/91/89/89 | 13/64/77/31 | 96/50/71/90 | 10/5/5/7/7 | 1.50/0.36/0.66/1.27/0.51 |
+| r2C | 0 / 3.5 / 3.5 / 0 / 5 | 83/69/77/78 | 0/40/58/15 | 96/35/40/83 | 5/0/4/4/2 | 0.96/2.14/1.55/1.07/0.78 |
+| r2D | 0 / 3 / 3 / -0.01 / 5 | 97/94/95/91 | 29/69/80/60 | 100/66/86/98 | 10/7/5/7/10 | 1.41/0.21/1.16/1.72/0.47 |
+| r3A | 0 / 2 / 3.5 / -0.01 / 5 | 100/98/97/86 | 61/89/88/75 | 100/83/94/100 | 20/10/9/15/17 | 2.52/0.74/0.66/1.55/2.10 |
+| r3B | 0 / 2.5 / 3.5 / -0.01 / 5 | 95/89/92/88 | 33/68/82/50 | 100/72/83/96 | 12/7/5/7/12 | 1.26/0.91/0.74/0.86/0.25 |
+| r3C | 0 / 2 / 3 / -0.01 / 5 | 100/100/100/92 | 75/94/86/81 | 100/95/97/100 | 25/19/14/12/27 | 6.70/0.00/1.68/0.82/0.46 |
+| r3D | 0 / 2.5 / 3 / -0.01 / 5 | 98/95/97/92 | 39/80/86/69 | 95/83/95/98 | 15/7/9/10/17 | 7.33/0.37/0.96/0.80/0.91 |
+| r4A | 0 / 1.5 / 4 / -0.01 / 5 | 100/98/100/88 | 86/92/86/67 | 100/92/97/93 | 27/17/12/15/22 | 4.74/—/0.54/0.51/0.85 |
+| r4B | 0 / 2 / 4 / -0.01 / 5 | 98/97/95/86 | 42/78/84/50 | 93/70/91/100 | 15/9/7/12/7 | 1.45/0.50/0.63/0.61/0.74 |
+| r4C | 0 / 1.5 / 4.5 / -0.01 / 5 | 100/97/98/88 | 69/89/86/68 | 94/89/97/96 | 22/12/9/15/17 | 3.24/0.30/0.92/1.03/0.30 |
+| r4D | 0 / 1.75 / 3.75 / -0.01 / 5 | 100/97/100/89 | 58/86/86/73 | 100/91/95/95 | 22/12/10/15/17 | 2.86/1.08/0.54/0.81/0.84 |
+
+Findings from rounds 1-4:
+- Abyss deaths occur only at fixed node depths (d1/3/6/8/11/13/16/18/…; elite or boss nodes). Normal battles almost never kill.
+- Monsters follow the player's level, so trip-1 depth is set mainly by the flat HS/DS.
+- A negative DPD moves pressure to shallow depths. It is capped at −0.01: at −0.0167 monster damage reaches 0 at d60.
+- Blade's d16 normal battle is the binding constraint. Every config that puts the trip-1 median ≤12 for all schools (r2B, r2D, r3B, r4B) drops blade d16 to 13-42%. Every config that keeps blade ≥60 (r3A, r3C, r4A, r4C) leaves auto/arcane/bulwark trip-1 at 15-27.
+- HP × hurts blade's d16 more than damage ×.

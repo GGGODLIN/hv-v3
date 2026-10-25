@@ -1,0 +1,6 @@
+# rc7 targets  AI=UI-only  levelBase=player DPD=-0.01 TR=5 LPD=0 hpScale=1.5 dmgScale=4.5 lvFollowK=0.8  physResScale=1  N=16 F=4
+school | d5 boss | d13 battle | d16 battle | d18 battle | d20 boss | chars@best≥15
+blade | 100% (64/64) | 78% (50/64) | 69% (44/64) | 59% (38/64) | 94% (60/64) | 16/16
+oc | 97% (62/64) | 89% (57/64) | 89% (57/64) | 88% (56/64) | 89% (57/64) | 16/16
+arcane | 98% (63/64) | 69% (44/64) | 86% (55/64) | 81% (52/64) | 97% (62/64) | 16/16
+bulwark | 88% (56/64) | 79% (44/56) | 68% (38/56) | 68% (38/56) | 96% (54/56) | 14/16
