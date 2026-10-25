@@ -61,13 +61,22 @@ export function createOwnership({ locks, name, acquired = () => {}, releasing = 
   };
 }
 
-/** Read-only migration: never mutate legacy storage, and never prefer it to v2. */
-export function loadVersionedSave({ read, currentKey, legacyKey, validate, create }) {
-  const raw = read(currentKey);
-  const legacy = raw === null ? read(legacyKey) : null;
-  const source = raw === null ? legacy : raw;
-  if (source === null) return { state: create(), raw: null, migrated: false, error: false };
+/** Read-only migration: the first present version wins, including corrupt data.
+ * Older versions are read only when all newer keys are absent; never written.
+ */
+export function loadVersionedSave({ read, currentKey, legacyKey, legacyKeys, validate, create }) {
+  let raw = null;
   try {
+    raw = read(currentKey);
+    let source = raw;
+    if (source === null) {
+      const keys = Array.isArray(legacyKeys) ? legacyKeys : legacyKey ? [legacyKey] : [];
+      for (const key of keys) {
+        source = read(key);
+        if (source !== null) break;
+      }
+    }
+    if (source === null) return { state: create(), raw: null, migrated: false, error: false };
     return { state: validate(JSON.parse(source)), raw, migrated: raw === null, error: false };
   } catch {
     return { state: create(), raw, migrated: false, error: true };

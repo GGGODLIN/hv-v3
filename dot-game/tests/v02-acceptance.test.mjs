@@ -180,6 +180,6 @@ test('v0.2 integration: actual acquisition refresh adopts raced v2 or protects m
   const denied={storeAvailable:false,preventOverwrite:false,readStorage:()=>null,SAVE_KEY:'save-v2',lastSavedRaw:null,state:createGame(1),validateSave,syncSelection:()=>{},notice:()=>{}};
   runInNewContext(`${refresh}\nrefreshSavedState();`,denied);
   assert.equal(denied.preventOverwrite,true,'failed read must not turn into replacement save');
-  assert.match(ui,/const SAVE_KEY = `hv-v3-dot-\$\{storageScope\}-save-v2`/);
+  assert.match(ui,/const SAVE_KEY = `hv-v3-dot-\$\{storageScope\}-save-v3`/);
   assert.doesNotMatch(ui,/writeStorage\(LEGACY_SAVE_KEY|removeItem\(/);
 });

@@ -1,5 +1,6 @@
 /** Independent equipment implementation. See docs/LOOT-DESIGN.md for provenance. */
 export const SLOTS = Object.freeze(['weapon', 'armor', 'accessory']);
+export const WEAPON_FAMILIES = Object.freeze(['axe', 'rapier', 'club']);
 // Original research ranges overlap. We sample tier first, then each stat's R.
 // Drop weights below are independent expedition pacing, NOT original-HV rates.
 export const QUALITY_TIERS = Object.freeze([
@@ -62,6 +63,39 @@ const SUFFIXES = Object.freeze([
   { name: '壁壘', stats: { defense: 2, block: 0.008 }, note: '防禦與格擋' },
   { name: '追風', stats: { evade: 0.008, crit: 0.004 }, note: '閃避與暴擊' },
 ]);
+// Exact names emitted by our v0.1/v0.2 generator, not substring guesses.
+// Precompute without RNG so adding identity never changes item rolls or IDs.
+const LEGACY_WEAPON_NAMES = new Map();
+for (const [rank, tier] of QUALITY_TIERS.entries()) {
+  const prefixes = rank === 0 ? [''] : rank >= 6 ? PREFIXES.map(p => p.name) : ['', ...PREFIXES.map(p => p.name)];
+  for (const base of BASES.weapon) {
+    const eligibleSuffixes = ['屠戮', ...(base.balance ? ['平衡'] : [])];
+    const suffixes = rank === 0 ? [''] : rank >= 3 ? eligibleSuffixes : ['', ...eligibleSuffixes];
+    for (const prefix of prefixes) for (const suffix of suffixes) {
+      LEGACY_WEAPON_NAMES.set(`${tier.label}・${prefix}${base.name}${suffix ? '・' + suffix : ''}`, base.family);
+    }
+  }
+}
+/** Pure identity lookup for generated items and conservative legacy-save migration.
+ * An explicit unsupported value (including null) disables fallback. Save validation
+ * must retain that null sentinel rather than silently making the field absent.
+ */
+export function resolveWeaponFamily(item) {
+  if (!item || typeof item !== 'object' || Array.isArray(item) || item.slot !== 'weapon') return null;
+  if ('weaponFamily' in item) {
+    return Object.hasOwn(item, 'weaponFamily') && WEAPON_FAMILIES.includes(item.weaponFamily) ? item.weaponFamily : null;
+  }
+  return typeof item.name === 'string' ? LEGACY_WEAPON_NAMES.get(item.name) ?? null : null;
+}
+/** Plain-text mechanism summary; numeric combat rules live in engine.js. */
+export function describeWeaponTrait(item) {
+  switch (resolveWeaponFamily(item)) {
+    case 'rapier': return '刺劍特性：普攻造成傷害時有機會施加穿透護甲，暴擊必定觸發。新層數在該次傷害後生效，降低敵人的一般物理減傷；後續物理技能也受益，但技能不會觸發。';
+    case 'axe': return '戰斧：本版尚未實作武器特效。';
+    case 'club': return '戰棍：本版尚未實作武器特效。';
+    default: return item?.slot === 'weapon' ? '未識別武器類型：不會觸發武器特效。' : '';
+  }
+}
 const STAT_KEYS = Object.freeze(['attack', 'defense', 'hp', 'crit', 'evade', 'block']);
 const RATES = new Set(['crit', 'evade', 'block']);
 function rollQuality(rng) {
@@ -114,15 +148,16 @@ export function generateItem(rng, level = 1, slot) {
   const id = `loot-${lv}-${roll}-${Math.floor(draw(rng) * 0x100000000).toString(36)}`;
   const item = {
     id, name: `${tier.label}・${prefix?.name || ''}${base.name}${suffix ? '・'+suffix.name : ''}`,
-    slot: actualSlot, quality: tier.name, rarityColor: tier.color,
+    slot: actualSlot, ...(actualSlot === 'weapon' ? { weaponFamily: base.family } : {}), quality: tier.name, rarityColor: tier.color,
     level: lv, roll, rolls, power: 0, stats: itemStats, locked: false,
     description: `${base.note}詞綴：${[prefix?.note,suffix?.note].filter(Boolean).join('／') || '無'}。`,
     prefix: prefix?.name || '', suffix: suffix?.name || '',
   };
+  if (actualSlot === 'weapon') item.description += describeWeaponTrait(item);
   item.power = scoreItem(item);
   return item;
 }
-/** Comparison aid only: the engine uses the individual stats, never this scalar. */
+/** Flat-stat comparison aid only; excludes proc utility. Never used by combat. */
 export function scoreItem(item) {
   const s = item && typeof item === 'object' && item.stats && typeof item.stats === 'object' ? item.stats : {};
   return Math.round(clamp(finite(s.attack), 0, 1e7) * 2 + clamp(finite(s.defense), 0, 1e7) * 1.6

@@ -1,8 +1,11 @@
-import { generateItem } from './loot.js';
+import { generateItem, resolveWeaponFamily } from './loot.js';
 
 export const VERSION = 1;
 export const MAX_STAGE = 30;
 export const INVENTORY_LIMIT = 120;
+// The pinned historical PA model; fixed maximum rate/duration and shared refresh
+// are this game's adaptations, not a claim about current original-HV coefficients.
+export const PENETRATED_ARMOR_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:3,mitigationReductionPerStack:.25});
 export const STRATEGIES = Object.freeze([
   Object.freeze({id:'balanced',label:'均衡',description:'每 5 回合破勢斬；HP 低於 38% 時治癒，藥水手動使用。'}),
   Object.freeze({id:'assault',label:'猛攻',description:'每 3 回合破勢斬；HP 低於 22% 才治癒，較快消耗 MP，藥水手動使用。'}),
@@ -45,6 +48,20 @@ export function stats(s) {
 }
 function recover(s) { const p=stats(s); s.hero.hp=p.maxHp;s.hero.mp=p.maxMp; }
 
+const validTick = tick => Number.isSafeInteger(tick)&&tick>=0&&tick<=Number.MAX_SAFE_INTEGER-PENETRATED_ARMOR_RULES.durationTicks;
+const generalMitigation = defender => clamp(finite(defender.mitigation,Math.max(0,finite(defender.defense))/100),0,.95);
+/** Read-only UI/combat view. Invalid, expired, or unbounded status is inactive. */
+export function penetratedArmorStatus(enemy, tick) {
+  const status=enemy?.penetratedArmor;
+  if(!validTick(tick)||!status||!Number.isInteger(status.stacks)||status.stacks<1||status.stacks>PENETRATED_ARMOR_RULES.maxStacks||!Number.isSafeInteger(status.expiresAtTick))return null;
+  const ticksRemaining=status.expiresAtTick-tick;
+  if(ticksRemaining<=0||ticksRemaining>PENETRATED_ARMOR_RULES.durationTicks)return null;
+  return {stacks:status.stacks,ticksRemaining,mitigationMultiplier:1-PENETRATED_ARMOR_RULES.mitigationReductionPerStack*status.stacks};
+}
+function expirePenetratedArmor(enemy, tick) {
+  if(enemy.penetratedArmor&&!penetratedArmorStatus(enemy,tick))delete enemy.penetratedArmor;
+}
+
 /** Ordered research-derived resolution; coefficients/rates are explicit game adaptations.
  * `trace` exposes every reached phase. No second hidden accuracy check.
  */
@@ -71,12 +88,28 @@ export function resolveAttack(attacker, defender, rng = Math.random) {
   if(firstCrit){result.crit=1;while(result.crit<9&&roll()<Math.min(.25,chance(attacker.multiCrit??.1)))result.crit++;}
   const critFactor=1+result.crit*Math.max(0,finite(attacker.critBonus,.5));
   trace.push('Mitigation');
-  const defense=Math.max(0,finite(defender.defense));
-  const mitigation=clamp(finite(defender.mitigation,defense/100),0,.95);
+  const mitigation=generalMitigation(defender);
   const specificMit=attacker.void?0:clamp(finite(defender.specificMit),0,.95);
   trace.push('DamageRoll'); const die=80+Math.floor(roll()*41);
   result.damage=Math.max(0,Math.floor(Math.max(0,finite(attacker.attack))*factor*critFactor*(1-mitigation)*(1-specificMit)*die/100+1e-9));
   result.outcome=result.crit?'crit':factor<1?'glance':'hit';return result;
+}
+/** Resolves damage first, then mutates only the defender's bounded proc status.
+ * Existing PA benefits physical skills too, but this game's skill never procs it.
+ * HP subtraction remains the caller's job; a lethal hit does not leave a status.
+ */
+export function resolveWeaponAttack(attacker, defender, weapon, tick, rng = Math.random) {
+  expirePenetratedArmor(defender,tick);
+  const previous=penetratedArmorStatus(defender,tick);
+  const effectiveDefender=previous&&!attacker.magical?{...defender,mitigation:generalMitigation(defender)*previous.mitigationMultiplier}:defender;
+  const result=resolveAttack(attacker,effectiveDefender,rng);
+  if(Number.isFinite(defender.hp)&&defender.hp<=result.damage){delete defender.penetratedArmor;return result;}
+  if(attacker.magical||attacker.skill||resolveWeaponFamily(weapon)!=='rapier'||result.damage<=0||!Number.isFinite(defender.hp)||!validTick(tick))return result;
+  if(!result.crit&&clamp(finite(rng(),.5),0,.999999999)>=PENETRATED_ARMOR_RULES.chance)return result;
+  const stacks=Math.min(PENETRATED_ARMOR_RULES.maxStacks,(previous?.stacks||0)+1);
+  defender.penetratedArmor={stacks,expiresAtTick:tick+PENETRATED_ARMOR_RULES.durationTicks};
+  result.proc={type:'penetratedArmor',stacks,durationTicks:PENETRATED_ARMOR_RULES.durationTicks};
+  return result;
 }
 function enemiesFor(s) {
   const stage=s.stage, wave=s.wave, boss=wave===s.totalWaves;
@@ -132,9 +165,10 @@ function playerTurn(s) {
   const skill=s._turns%policy.cadence===0&&s.hero.mp>=3+policy.reserve;
   actions.attacks++;
   if(skill){s.hero.mp-=3;actions.skills++;actions.manaSpent+=3;}
-  const attack=resolveAttack({attack:p.attack*(skill?2.3:1),crit:p.crit,skill},target,()=>random(s));
+  const attack=resolveWeaponAttack({attack:p.attack*(skill?2.3:1),crit:p.crit,skill},target,s.equipment.weapon,s.timing.ticks,()=>random(s));
   target.hp=Math.max(0,target.hp-attack.damage);
   event(s,attack.damage?attack.crit?'crit':'hit':attack.outcome==='block'?'block':'miss',`${skill?'破勢斬 · ':''}${attack.damage?attack.crit?'暴擊':'斬擊':'未造成傷害'}`,attack.damage,target.id);
+  if(attack.proc)event(s,'proc',`穿透護甲 ${attack.proc.stacks}/3 層 · ${attack.proc.durationTicks} Tick`,attack.proc.stacks,target.id);
   if(target.hp===0)defeatEnemy(s,target);
   if(s.enemies.every(e=>e.hp<=0)){if(s.wave===s.totalWaves)win(s);else{s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.10);s._enemyClock=0;}}
 }
@@ -154,7 +188,10 @@ export function advance(s, seconds) {
     if(s._phase==='intermission'){
       s._rest-=dt;if(s._rest<=0){if(s.autoAdvance)s.stage=Math.min(s.unlocked,s.stage+1);start(s);}continue;
     }
-    s.battle.elapsed+=dt;s.timing.tu+=dt*100/1.05;s.timing.ticks=Math.floor(s.timing.tu/100);s._clock+=dt;s._enemyClock+=dt;
+    s.battle.elapsed+=dt;s.timing.tu+=dt*100/1.05;
+    const previousTick=s.timing.ticks;s.timing.ticks=Math.floor(s.timing.tu/100);
+    if(s.timing.ticks!==previousTick)for(const enemy of s.enemies)expirePenetratedArmor(enemy,s.timing.ticks);
+    s._clock+=dt;s._enemyClock+=dt;
     if(s._clock>=1.05){s._clock-=1.05;playerTurn(s);}
     if(s.mode==='battle'&&s._phase==='fight'&&s._enemyClock>=1.9){s._enemyClock-=1.9;enemyTurn(s);}
   }
@@ -193,7 +230,8 @@ function sanitizeItem(raw, expectedSlot) {
   if(!QUALITY.includes(raw.quality))throw new Error('裝備品質無效');
   const bonuses={};for(const k of ['attack','defense','hp','crit','evade','block']){if(raw.stats?.[k]!==undefined){if(typeof raw.stats[k]!=='number'||!Number.isFinite(raw.stats[k])||raw.stats[k]<0||raw.stats[k]>(['crit','evade','block'].includes(k)?1:1000000))throw new Error('裝備屬性無效');bonuses[k]=raw.stats[k];}}
   const rolls={};for(const key of Object.keys(bonuses)){if(raw.rolls?.[key]!==undefined)rolls[key]=clamp(finite(raw.rolls[key]),0,200);}
-  return {...(raw.rolls&&typeof raw.rolls==='object'?{rolls}:{}),...(typeof raw.prefix==='string'?{prefix:text(raw.prefix,'',40)}:{}),...(typeof raw.suffix==='string'?{suffix:text(raw.suffix,'',40)}:{}),id:raw.id,name:text(raw.name,'未知裝備'),slot:raw.slot,quality:text(raw.quality,'Average',24),rarityColor:typeof raw.rarityColor==='string'&&/^#[\da-f]{3,8}$/i.test(raw.rarityColor)?raw.rarityColor:'#aab6c8',level:integer(raw.level,1,1000),roll:clamp(finite(raw.roll),0,500),power:clamp(finite(raw.power),0,1000000),stats:bonuses,locked:raw.locked===true,description:text(raw.description,'',240)};
+  const weaponFamily=resolveWeaponFamily(raw);
+  return {...(raw.slot==='weapon'?{weaponFamily}:{}),...(raw.rolls&&typeof raw.rolls==='object'?{rolls}:{}),...(typeof raw.prefix==='string'?{prefix:text(raw.prefix,'',40)}:{}),...(typeof raw.suffix==='string'?{suffix:text(raw.suffix,'',40)}:{}),id:raw.id,name:text(raw.name,'未知裝備'),slot:raw.slot,quality:text(raw.quality,'Average',24),rarityColor:typeof raw.rarityColor==='string'&&/^#[\da-f]{3,8}$/i.test(raw.rarityColor)?raw.rarityColor:'#aab6c8',level:integer(raw.level,1,1000),roll:clamp(finite(raw.roll),0,500),power:clamp(finite(raw.power),0,1000000),stats:bonuses,locked:raw.locked===true,description:text(raw.description,'',240)};
 }
 export function validateSave(input) {
   if(!input||typeof input!=='object'||Array.isArray(input)||input.version!==VERSION||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');

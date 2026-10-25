@@ -1,14 +1,18 @@
 {
-  "checkpoint": "v0.2-publication-receipt",
-  "status": "published-desktop-bounded-acceptance-source-ci-http-browser-verified",
+  "checkpoint": "v0.3-candidate",
+  "status": "source-tests-passed-browser-pending",
   "files": {
     "README.md": {
-      "bytes": 3863,
-      "sha256": "d8db9dbeb4570139278e46b17893f55779f7b226f3163fe7d5325b72174a5e53"
+      "bytes": 5028,
+      "sha256": "7721dc096916a927ee8242dfbffcb93013e96ce3161eb64adca7972f61be7d19"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
       "sha256": "74b8cf9f34d20e5b32ccd510c1309d37f942e9177501d398b919c7582a0aa235"
+    },
+    "docs/ACCEPTANCE-V03.md": {
+      "bytes": 7790,
+      "sha256": "dd70e6ad478e0a78d848e4a5fff5d724cecdc834afb213d0046eecb6ec3d72a5"
     },
     "docs/ACCEPTANCE.md": {
       "bytes": 3468,
@@ -23,64 +27,64 @@
       "sha256": "092fa4fd5ae22fb195798b1b8d0a1b37678b68557367bdfa795e41275fa8fd6e"
     },
     "docs/COMBAT-DESIGN.md": {
-      "bytes": 10896,
-      "sha256": "a8dfbe4ab195aeb58007239679725df024e4543aebee5870a27cda74d015eba6"
+      "bytes": 17808,
+      "sha256": "9dd0fc891a18142c1be2c1807bba2139c6a56770ae5bd6849680ede3528c8c18"
     },
     "docs/INTERFACE.md": {
       "bytes": 2428,
       "sha256": "88506fe46627c24bebb634676b686b8e295bfa6952405b7263f10a377fcf995c"
     },
     "docs/LOOT-DESIGN.md": {
-      "bytes": 6225,
-      "sha256": "40a07b4b2a2634069f22cd2c8819b12b45604cacb0d810cf5a585af24abda8de"
+      "bytes": 10738,
+      "sha256": "ffd8adb8146a8f16c9b451dffcd9fba4ed9e3cf34f9604fe01f072722a2cb527"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 15736,
-      "sha256": "6494f28c6ae50222140f743ee50383f1177173ee4aee448a10ce15b48a664698"
+      "bytes": 16838,
+      "sha256": "d6bfa4680fed3c43a9c0ec70e71493d2834fa4fcaf4027983470ab8faf692b91"
     },
     "docs/RELEASES.md": {
       "bytes": 5732,
       "sha256": "2e42ce2d8bb1390969e7f05fdbd3d049ff8ae178bcecb75be7eebf0a3788a524"
     },
     "docs/ROADMAP.md": {
-      "bytes": 4093,
-      "sha256": "7c0d7297b99e37384178060b0b317d670ffe0ccddce1908df85b2785ab27ccac"
+      "bytes": 4686,
+      "sha256": "967c07b1c01e566f6250f78bcfaf848c612217bde957072bd9d18d91ac41b79e"
     },
     "docs/STATUS.md": {
-      "bytes": 4992,
-      "sha256": "45acbdefb889fed3a87a8e31505ecba9f02ea44a5c96e9426f9a94bb4992f290"
+      "bytes": 5811,
+      "sha256": "b870f0d11020c78e2cbad02086208b8be21e2ab9d54728b8ce55edec56ec9857"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
       "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 9722,
-      "sha256": "09a9532caf8215b5f548613eefdb5b48c75b4ff960e0b3b22f4728de26fc40d8"
+      "bytes": 10217,
+      "sha256": "078d6beee2e74776963c5d06c905ae92689115b0dca3c808c2749b23d74581db"
     },
     "package.json": {
-      "bytes": 170,
-      "sha256": "0f849de358b5e2b7bcc16bf62ea3daf55f3da26c73bcf83622754563c78a12eb"
+      "bytes": 182,
+      "sha256": "f09384dce15abdf1459d8aad576d579f7e02ac8674a569ccff0eca58965252fe"
     },
     "src/engine.js": {
-      "bytes": 17664,
-      "sha256": "e004cb0eca49810723533a7d9103569f663de453d0e62c6d5cbd7bdc54d2a784"
+      "bytes": 20673,
+      "sha256": "b58bc20f192e62877983aa2af2269c32fecd9303f9d79d7b9e878b98d86e8039"
     },
     "src/loot.js": {
-      "bytes": 8337,
-      "sha256": "9ba8bbc7ba315b9e1084f0f877603d5c2b253cbe0fffe6abc7c96812c435132b"
+      "bytes": 10630,
+      "sha256": "a30220e377d870eba4e23a656a371a5d47abadbb821faaa349cad27c38a2c9f8"
     },
     "src/session.js": {
-      "bytes": 2615,
-      "sha256": "d2062500a60223d34b491c232c72cb9d6591d8c7ba60ccd49f0d1aabe3a9a44b"
+      "bytes": 2870,
+      "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 33626,
-      "sha256": "5fe0b7943b4baa7e4a964841a4b353fc135d232431d2129c3cd2237791dcc4da"
+      "bytes": 37815,
+      "sha256": "471c3e709489796b4148c9750cc2d588ddfd90fa7105b702d012cbd38511be71"
     },
     "style.css": {
-      "bytes": 16791,
-      "sha256": "33f235a937b200c7f2cc7ad5b85257f31a56be6bc3fa3b02602ae99cdf03711c"
+      "bytes": 18642,
+      "sha256": "c49bbb5de4e3d53a406d25440275c66f1dec782fe9cfb18d8d3b0b04993381e9"
     },
     "tests/acceptance.test.mjs": {
       "bytes": 5964,
@@ -108,7 +112,27 @@
     },
     "tests/v02-acceptance.test.mjs": {
       "bytes": 12103,
-      "sha256": "75fbaa2ca85df37f514c7a0aca3bfa90992539d5ac31857e469c88323f1c3d00"
+      "sha256": "1b60f96662116a022423ba3d1a109f8b3f6209be3d1a3600da0f82782a18572f"
+    },
+    "tests/v03-acceptance.test.mjs": {
+      "bytes": 18610,
+      "sha256": "cfbe728dbd5ba627135da309eece94076aadb94baaa32a96d0317275bca0a19d"
+    },
+    "tests/version-chain.test.mjs": {
+      "bytes": 1704,
+      "sha256": "7692a913e2ef1fcc228364d0a96cd8b2b505d05ee9196b913050566ac135693c"
+    },
+    "tests/weapon-identity.test.mjs": {
+      "bytes": 7055,
+      "sha256": "3916a4c94c2614282d8257bcd0c4c81a0013c0f6467e37249712b15496734387"
+    },
+    "tests/weapon-procs.test.mjs": {
+      "bytes": 12056,
+      "sha256": "9505e2ecb9df9cfaa6ce249a91b65679ad163a9aeb67dedf02111fb2cc1d57d2"
+    },
+    "tests/weapon-ui.test.mjs": {
+      "bytes": 6491,
+      "sha256": "eaea63d28d796fea6e47166f2ec53a67a28a1f09bf4863bd6337e8422973de89"
     }
   }
 }

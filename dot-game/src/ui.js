@@ -1,20 +1,34 @@
 import { createGame, advance, act, stats, validateSave, STRATEGIES } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
+import { resolveWeaponFamily, describeWeaponTrait } from './loot.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus } from './engine.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
 const storageScope = candidatePath ? `candidate-${candidatePath[1].replace(/[^a-zA-Z0-9._-]/g, '_')}` : 'stable';
-const SAVE_KEY = `hv-v3-dot-${storageScope}-save-v2`;
-const LEGACY_SAVE_KEY = `hv-v3-dot-${storageScope}-save-v1`;
-const PREF_KEY = `hv-v3-dot-${storageScope}-preferences-v2`;
-const LOCK_NAME = `hv-v3-dot-${storageScope}-writer-v2`;
+const SAVE_KEY = `hv-v3-dot-${storageScope}-save-v3`;
+const LEGACY_SAVE_KEYS = [`hv-v3-dot-${storageScope}-save-v2`, `hv-v3-dot-${storageScope}-save-v1`];
+const PREF_KEY = `hv-v3-dot-${storageScope}-preferences-v3`;
+const LOCK_NAME = `hv-v3-dot-${storageScope}-writer-v3`;
 const $ = id => document.getElementById(id);
 const format = value => Math.round(Number(value) || 0).toLocaleString('zh-TW');
 const clock = value => `${Math.floor((value || 0) / 60).toString().padStart(2, '0')}:${Math.floor((value || 0) % 60).toString().padStart(2, '0')}`;
 const qualityNames = Object.fromEntries(QUALITY_TIERS.map(tier => [tier.name, tier.label]));
 const qualityName = quality => qualityNames[quality] || quality;
 const slotNames = { weapon: '武器', armor: '護甲', accessory: '飾品' };
+const weaponFamilyNames = { axe: '戰斧', rapier: '刺劍', club: '戰棍' };
+function itemTypeName(item) { return weaponFamilyNames[resolveWeaponFamily(item)] || slotNames[item.slot] || '裝備'; }
+function weaponRuleText(item) {
+  if (resolveWeaponFamily(item) !== 'rapier') return '';
+  const rules = PENETRATED_ARMOR_RULES;
+  return `普通攻擊造成傷害且目標存活時：非暴擊 ${format(rules.chance * 100)}% 觸發，暴擊必觸發。最多 ${rules.maxStacks} 層 · 持續 ${rules.durationTicks} Tick，重觸發刷新。每層降低原本物理總減傷率的 ${format(rules.mitigationReductionPerStack * 100)}%，不是直接增加同等傷害；從後續攻擊生效。固定機率與時長為本作選定參數。`;
+}
+function powerComparisonText(item, current) {
+  if ((item.power || 0) <= (current?.power || 0)) return '';
+  if (item.slot === 'weapon' && resolveWeaponFamily(item) !== resolveWeaponFamily(current)) return '異路線';
+  return '分數＋';
+}
 const slotIcons = { weapon: '⚔', armor: '◈', accessory: '◇' };
 const statNames = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' };
 const rateStats = new Set(['crit', 'evade', 'block']);
@@ -25,7 +39,7 @@ function readStorage(key) { try { return localStorage.getItem(key); } catch { st
 function writeStorage(key, value) { try { localStorage.setItem(key, value); return true; } catch { storeAvailable = false; return false; } }
 function node(tag, className, text) { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = String(text); return el; }
 function colorOf(item) { return /^#[0-9a-f]{3,8}$/i.test(item?.rarityColor || '') ? item.rarityColor : '#b8c3b0'; }
-const loaded = loadVersionedSave({ read: readStorage, currentKey: SAVE_KEY, legacyKey: LEGACY_SAVE_KEY,
+const loaded = loadVersionedSave({ read: readStorage, currentKey: SAVE_KEY, legacyKeys: LEGACY_SAVE_KEYS,
   validate: validateSave, create: () => createGame(1000 + Math.floor(Math.random() * 1e8)) });
 let loadProblem = loaded.error ? '既有存檔無法讀取，已開啟暫時的新旅程。原始資料尚未覆寫；請先匯出目前進度或匯入有效備份。' : '';
 let state = loaded.state;
@@ -38,9 +52,11 @@ let selectedSlot = null;
 let lastInventorySignature = '';
 let lastEquipmentSignature = '';
 let lastLogSignature = '';
+let lastEnemyStatusSignature = '';
 let lastStageCount = 0;
 let toastTimer;
 let bannerTimer;
+let procTimer;
 let lastSaveAt = 0;
 let lastProcessedEvent = null;
 const seenEvents = new Set((state.events || []).map(event => String(event.id)));
@@ -111,7 +127,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
-  lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastStageCount = 0;
+  lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0;
 }
 function dispatch(action, payload) {
   if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
@@ -146,6 +162,15 @@ function eventEffects() {
     seenEvents.add(key); lastProcessedEvent = key;
     if (seenEvents.size > 200) { const keep = Array.from(seenEvents).slice(-100); seenEvents.clear(); keep.forEach(id => seenEvents.add(id)); }
     const type = event.type;
+    if (type === 'proc' && state.mode === 'battle') {
+      // Text feedback remains visible with reduced motion; never infer a proc from a weapon name.
+      const enemy = state.enemies.find(enemy => enemy.id === event.target && enemy.hp > 0);
+      if (!enemy) continue; // Expired targets remain in the log, not the current battlefield.
+      $('proc-notice').textContent = `${enemy?.name ? `${enemy.name} · ` : ''}${event.text || '穿透護甲觸發'}`;
+      $('proc-notice').hidden = false;
+      clearTimeout(procTimer); procTimer = setTimeout(() => { $('proc-notice').hidden = true; }, 3200);
+      playSound('crit');
+    }
     if (['hit', 'crit', 'miss', 'block', 'heal'].includes(type)) {
       const targetHero = event.target === 'hero' || event.target === 'player';
       if (targetHero) enemyPulse = 1; else attackPulse = 1;
@@ -168,6 +193,23 @@ function eventEffects() {
   }
 }
 function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(100, Number(value) / Math.max(1, Number(max)) * 100))}%`; }
+function renderEnemyStatuses() {
+  const enemies = state.mode === 'battle' ? state.enemies.filter(enemy => enemy.hp > 0) : [];
+  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, state.timing?.ticks || 0) }));
+  const signature = JSON.stringify(rows.map(({ enemy, status }) => [enemy.id, enemy.name, enemy.hp, status]));
+  $('enemy-status-panel').hidden = !rows.length;
+  if (!rows.length) { $('proc-notice').hidden = true; clearTimeout(procTimer); }
+  if (signature === lastEnemyStatusSignature) return;
+  lastEnemyStatusSignature = signature;
+  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status }, index) => {
+    const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}`);
+    const name = node('strong', '', `${index === 0 ? '目標 · ' : ''}${enemy.name}`);
+    const effect = node('span', 'enemy-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
+    card.append(name, effect);
+    if (status) card.title = `物理減傷為原本的 ${format(status.mitigationMultiplier * 100)}%；不是直接增加同等傷害。`;
+    return card;
+  }));
+}
 function render(force = false) {
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
@@ -205,11 +247,12 @@ function render(force = false) {
   if (logSignature !== lastLogSignature) { lastLogSignature = logSignature; const logs = (state.logs || []).slice(0, 6); $('combat-log').replaceChildren(...(logs.length ? logs : ['營火已點亮。準備好後，開始第一場遠征。']).map(text => node('li', '', text))); }
   $('inventory-count').textContent = state.inventory.length;
   $('sell-common').disabled = !tabOwner || state.mode === 'battle' || !state.inventory.some(item => !item.locked && ['Crude', 'Fair', 'Average'].includes(item.quality));
+  renderEnemyStatuses();
   eventEffects();
 }
 function itemContent(item) {
   const icon = node('span', 'item-icon', slotIcons[item.slot] || '◇');
-  const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${slotNames[item.slot] || '裝備'} · Lv.${item.level} · ${qualityName(item.quality)}`));
+  const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${itemTypeName(item)} · Lv.${item.level} · ${qualityName(item.quality)}`));
   return [icon, info];
 }
 function renderEquipment() {
@@ -228,7 +271,14 @@ function renderInventory() {
   $('inventory-list').replaceChildren(...items.map(item => {
     const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
     if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
-    else if ((item.power || 0) > (state.equipment[item.slot]?.power || 0)) button.append(node('span', 'item-upgrade', '↑'));
+    else {
+      const comparison = powerComparisonText(item, state.equipment[item.slot]);
+      if (comparison) {
+        const marker = node('span', 'item-score-marker', comparison);
+        marker.title = comparison === '異路線' ? '武器路線不同；屬性評分不含特效效益，不能視為直接升級。' : '屬性評分較高；不含特效效益，不保證更適合目前配裝。';
+        button.append(marker);
+      }
+    }
     button.setAttribute('aria-label', `${item.name}，${qualityName(item.quality)}，等級 ${item.level}${item.locked ? '，已鎖定' : ''}`);
     button.setAttribute('aria-pressed', String(item.id === selectedId));
     button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); }); return button;
@@ -243,8 +293,14 @@ function renderItemDetail() {
   const current = state.equipment[item.slot];
   const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}`);
   const name = node('h3', 'detail-name', item.name);
-  const subtitle = node('div', 'detail-subtitle', `${slotNames[item.slot]} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 評分 ${format(item.power)}`);
+  const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}`);
   const description = node('p', 'detail-description', item.description || '一件等待發揮力量的裝備。');
+  const trait = node('div', 'weapon-trait');
+  if (item.slot === 'weapon') {
+    trait.append(node('strong', '', `武器路線 · ${weaponFamilyNames[resolveWeaponFamily(item)] || '未辨識'}`), node('p', '', describeWeaponTrait(item)));
+    const ruleText = weaponRuleText(item);
+    if (ruleText) trait.append(node('p', 'muted', ruleText));
+  } else trait.hidden = true;
   const table = node('div', 'compare-table');
   const keys = new Set([...Object.keys(item.stats || {}), ...Object.keys(current?.stats || {})]);
   for (const key of keys) {
@@ -254,14 +310,14 @@ function renderItemDetail() {
     const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : Math.round(diff)}`;
     const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', display), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
   }
-  const explanation = node('p', 'muted', selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。評分只是參考，屬性搭配更重要。');
+  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。'}屬性評分不含穿透護甲等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
   const actions = node('div', 'detail-actions');
   if (!selectedSlot) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
     const lock = node('button', 'secondary-button', item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner; lock.addEventListener('click', () => dispatch('lock', item.id));
     const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || item.locked || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
   }
-  wrap.replaceChildren(quality, name, subtitle, description, table, explanation, actions);
+  wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions);
 }
 
 // Entire scene is independently drawn with canvas primitives; no external assets.
@@ -310,6 +366,11 @@ function drawEnemy(enemy, x, y, index, t) {
   const sy = y - (boss ? 80 : 57);
   rect(x - width/2, sy, width, 3, '#10222a'); rect(x-width/2, sy, width * Math.max(0, enemy.hp) / Math.max(1,enemy.maxHp),3,boss?'#d29a76':'#b4a778');
   ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#d8ded0'; ctx.fillText(enemy.name,x,sy-5,width+25);
+  const status = penetratedArmorStatus(enemy, state.timing?.ticks || 0);
+  if (enemy.hp > 0 && status) {
+    rect(x - width / 2, sy + 5, width, 10, '#132c32e8');
+    ctx.fillStyle = '#abe4d8'; ctx.fillText(`PA ${status.stacks} · ${status.ticksRemaining}T`, x, sy + 12, width);
+  }
 }
 function drawScene(t, dt) {
   const w = sceneWidth, h = sceneHeight;
@@ -408,7 +469,7 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-if (loaded.migrated) notice('已讀取 v0.1 進度，將另存為 v0.2；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在新版繼續遊玩或手動匯出。');
+if (loaded.migrated) notice('v0.3 已讀取舊版進度，將另存至獨立的 v3 存檔；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在 v0.3 繼續遊玩或手動匯出。');
 if (loadProblem) notice(loadProblem);
 if (!ownership.supported) {
   prefs.backgroundIdle = false;

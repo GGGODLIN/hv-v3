@@ -1,4 +1,4 @@
-# Independent combat and progression: v0.2 candidate
+# Independent combat and progression: v0.3 candidate
 
 This implementation was authored from scratch. No existing game implementation, constants export, monster dataset, artwork, or another author's single-player design was used. The source map is `ORIGINAL-HV.md`; public research is evidence, not access to HV server code. This document distinguishes rules implemented from evidence from explicitly chosen adaptations.
 
@@ -56,6 +56,42 @@ Assault's shorter cadence is a deliberate policy pacing adaptation, not a claim 
 - 3,000 enemy HP / 60 attack: balanced loses at 36.1 s; assault loses at 30.4 s; sustain wins at 83.0 s, using 2 bursts, 9 paid heals, and all 3 potions. This shows survival at a resource/offense cost, not a claim that sustain always wins.
 - `battle.actions` tracks attacks, skills, heals, potions and MP spent for the current expedition; it resets on the next departure and on load. It is observational and never feeds combat outcomes. Strategy is preserved in saves; missing/invalid values safely default to balanced.
 
+## v0.3 rapier identity: explicitly selected historical model
+
+This slice adds only rapier **Penetrated Armor / 穿透護甲**. It follows the permitted historical research at `8e1ff32097d50ba8e1c30266653234506b98a5f4`, report 002 §5.2, not a claim that every current original-HV page agrees. That report and the cited Chinese Equipment Procs text describe post-hit PA with a maximum seven-tick duration; the live English page found during this iteration instead describes permanent PA and physical-mitigation bypass on the triggering hit. These are incompatible models. This implementation deliberately retains the pinned historical model; it does not mix permanent status or triggering-hit bypass into it. See `ORIGINAL-HV.md` for the source-conflict record.
+
+### Supported shape versus our numeric and eligibility decisions
+
+- **Research-supported shape:** at most three stacks; each stack reduces the target's **original general physical mitigation rate** by 25% relatively: `effectiveMit = baseMit * (1 - .25 * stacks)`. An 80% rate becomes 60%, 40%, then 20%. This is neither 25 percentage points per stack nor a 25% direct damage bonus. Specific mitigation and magical mitigation are unchanged. Void still respects the reduced general physical mitigation.
+- **Historical ordering:** damage is resolved using the stacks that were active before the attack. Only after that damage is determined may the attack add a stack. The triggering hit gets no newly granted mitigation bypass. The existing Whiff → Absorb → Evade → Parry → Block → Resist → MultiCrit → Mitigation → DamageRoll chain is unchanged.
+- **Chosen rate and duration:** each eligible noncritical basic attack rolls a fixed **25%**, and each successful proc sets a shared **seven-tick** expiry for all active stacks. The report gives these as maximum values, but does not supply the low-level or equipment scaling formula; using those maxima for every rapier is our explicit balance adaptation, not a recovered original coefficient. The shared refresh, including successful procs at the three-stack cap, is also an independent choice because the permitted source does not establish the refresh policy.
+- **Critical guarantee:** an eligible landed critical guarantees one PA proc without a second proc random draw. Nine critical counts still add only one stack, not nine.
+- **Chosen eligibility:** the attack must be a basic physical attack using a resolved rapier identity, deal positive damage, and leave the target alive. Partially avoided positive-damage hits are eligible by our explicit adaptation; full whiff/evade/parry/block, floor-to-zero damage, magic and lethal hits do not proc. The evade-glance rule still suppresses criticals.
+- **Skill boundary:** the game's original `破勢斬` is not an original-HV rapier attack or Rending Blow. Existing PA can improve its physical damage, but the skill never adds or refreshes PA and never consumes a proc RNG roll. No unknown original skill-to-proc relationship is silently assumed.
+
+### Clock, lifecycle, identity and presentation contract
+
+`PENETRATED_ARMOR_RULES` exposes immutable chosen constants. An enemy may hold `penetratedArmor: {stacks, expiresAtTick}`; `penetratedArmorStatus(enemy, timing.ticks)` returns only a validated active view `{stacks, ticksRemaining, mitigationMultiplier}`. Status numbers are bounded, and no imported per-item proc coefficient is accepted.
+
+Expiry uses the simulation's absolute `timing.ticks` counter. Each crossed 100-TU boundary is processed before an attack occurring at that boundary. A proc created at tick 10 is active through tick 16 and absent at tick 17; a new proc at tick 17 is applied after that hit and lasts until tick 24. Rendering frequency, foreground animation, elapsed wall time, and catch-up seconds do not directly decrement status. The existing two-second `advance` bound and the UI's online/suspension rules are unchanged. One tick in the current unaccelerated presentation is approximately 1.05 seconds of actually processed combat time; this is not a wall-clock/offline guarantee.
+
+State belongs to a particular enemy object. A lethal hit removes that enemy's prior PA; the next enemy does not inherit it. New waves create fresh enemies; retreat, new expeditions and safe save load discard encounter status. Expired state is removed on a tick even if no player attack occurs. Events remain bounded to 30 entries, with the damage event before its optional `proc` event. The proc event includes the target ID and stack count; it is feedback, not another attack.
+
+Weapons now persist allowlisted `weaponFamily` metadata. The loot helper recognizes only complete legal names generated by this game's older versions when metadata is absent. It does not guess from an arbitrary substring or rename. Unknown or invalid explicit metadata is canonicalized to `null`, so successive save/load cycles cannot silently reactivate name-based inference. Generic starter equipment remains without a proc, as do current axes and clubs. Nonrapier/no-proc paths consume no additional random draws; their earlier seeded combat behavior is preserved. Save import still ignores enemy status and returns to camp.
+
+The comparison score remains a scalar sum of existing stats, not a PA value estimate; rapier armor utility cannot be judged as a universal upgrade from that number alone. No shipped monster stats, stages, loot probabilities, item stat rolls, or skill multipliers were changed for this slice. Club stun, axe bleed and the distinct current-English PA model are **not implemented**.
+
+### Deterministic same-encounter evidence
+
+`tests/weapon-procs.test.mjs` pairs seed-42 level-one characters with identical starter stats and balanced policy against a controlled final-wave fixture: 1,500 HP, 80% general physical mitigation, no evade/parry/block, and zero attack. The sole treatment change is explicit `weaponFamily: null` versus `weaponFamily: 'rapier'` on the same stat block. This synthetic enemy is not a selectable encounter or an imported monster definition.
+
+| Treatment | Clear time | Attacks | Bursts | MP spent | PA procs |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| No weapon proc | 173.3 s | 165 | 33 | 99 | 0 |
+| Rapier PA | 62.0 s | 59 | 11 | 33 | 11 |
+
+Both complete and exact replays reproduce the same state. The rapier legitimately consumes additional RNG draws for proc checks, so the two treatments share the initial seed but not every subsequent attack die. The test demonstrates repeatable armor-specific utility, not a universal clear-speed multiplier. Separate constant-die tests hold every attack roll fixed and verify the exact damage progression 20 → 40 → 60 → 80 for 100 raw damage against 80% mitigation, proving the relative reduction and post-trigger order without RNG-stream confounding. Against zero general mitigation PA provides no direct damage benefit.
+
 ## Persistence and safety
 
 Only JSON-shaped state is used. `validateSave` reconstructs known fields, bounds numbers/strings, rejects invalid item slots/quality/rates, rejects duplicate item identifiers and unsafe numeric identifiers, preserves the generated affix metadata via a whitelist, and ignores arbitrary unknown properties. This is validation for a local single-player save, not tamper-proof competitive security.
@@ -68,4 +104,4 @@ Equipment changes, sale, and stage selection require camp/defeat; retreat is saf
 
 `node --test tests/*.test.mjs` exercises the resolver's eligible/negative branches, deterministic rolls, progression, first clear, equip/faster replay, safe defeat, repeated auto runs, malformed saves, pending/cap safety, and bounded event queues. Browser integration is an independent acceptance step; unit test success alone is not a playable-game claim.
 
-Original active stat allocation, armor families, full proficiency abilities, overcharge, original Shield Bash/stun lifecycle, spell schools, original status/cooldown inventory, and broader encounter systems remain future self-iteration work. They are not silently claimed implemented. See ROADMAP.md for evolving next slices.
+Original active stat allocation, armor families, full proficiency abilities, overcharge, original Shield Bash/club-stun lifecycle, spell schools, the rest of the original status/cooldown inventory, and broader encounter systems remain future self-iteration work. They are not silently claimed implemented. See ROADMAP.md for evolving next slices.

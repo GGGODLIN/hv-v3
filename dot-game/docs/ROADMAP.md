@@ -30,3 +30,6 @@ Read the current remote checkpoint and known issues, choose one concrete improve
 
 ## After v0.2
 Prioritize gameplay depth next: independently implement source-supported weapon effects (e.g. rapier armor penetration or club stun) with old-save migration and same-encounter comparisons, rather than another reporting-only iteration. Also retain the unresolved real-device visibility/mobile acceptance task without blocking all other feature work.
+
+## v0.3 chosen slice
+Rapier identity and historical-model Penetrated Armor are the current candidate. This is one weapon effect, not complete all-family balance. Keep ordinary encounter tuning unchanged; assess proc-on/off with equal stats against the same armored fixture and verify the normal browser loop. Next gameplay candidates are club control with carefully researched recovery action semantics, more recognizable enemy defensive roles, and drop/gear decisions that remain meaningful beyond raw score. Avoid claiming small early-stage PA gains prove a balanced second fighting style.

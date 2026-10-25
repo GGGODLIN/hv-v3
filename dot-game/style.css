@@ -3,3 +3,22 @@
 
 .strategy-row { display: grid; grid-template-columns: auto minmax(8rem, 1fr); align-items: center; gap: .55rem; margin: .75rem 0; }
 .strategy-row p { grid-column: 1 / -1; margin: 0; line-height: 1.5; font-size: .78rem; }
+
+/* Weapon identity and proc feedback are ordinary text, including with reduced motion. */
+.enemy-status-panel { margin-top: 10px; border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; background: #112229; }
+.enemy-status-panel[hidden], .proc-notice[hidden], .weapon-trait[hidden] { display: none; }
+.enemy-status-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 3px 12px; margin-bottom: 7px; }
+.enemy-status-heading h3 { font-size: 11px; }
+.enemy-status-heading span { color: var(--muted); font-size: 9px; }
+.enemy-status-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr)); gap: 6px; }
+.enemy-status-card { min-width: 0; padding: 7px 8px; border: 1px solid #2b4144; border-radius: 6px; background: #172a30; }
+.enemy-status-card strong { display: block; color: #bfd1c7; font-size: 10px; font-weight: 500; overflow-wrap: anywhere; }
+.enemy-effect { display: block; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.enemy-status-card.has-penetration { border-color: #548f83; background: #193731; }
+.has-penetration .enemy-effect { color: #abe4d8; }
+.proc-notice { border-left: 2px solid var(--teal); margin-top: 8px; padding-left: 8px; color: #bfe8d9; font-size: 11px; overflow-wrap: anywhere; }
+.weapon-trait { margin: 12px 0; padding: 10px; border: 1px solid #36534e; border-radius: 7px; background: #132a2c; overflow-wrap: anywhere; }
+.weapon-trait strong { color: var(--teal); font-size: 11px; }
+.weapon-trait p { margin-top: 6px; font-size: 10px; line-height: 1.75; }
+.item-score-marker { flex: none; border: 1px solid #435853; border-radius: 4px; padding: 2px 4px; font-size: 9px; color: #abc5b9; }
+.gear-info span, .detail-subtitle, .detail-description { overflow-wrap: anywhere; }

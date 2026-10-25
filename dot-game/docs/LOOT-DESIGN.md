@@ -1,4 +1,4 @@
-# Independent equipment system, checkpoint 0.1
+# Independent equipment system, checkpoint 0.3
 
 This module is independently authored for dot. It does not copy or read the excluded `constants.ts`, monster dataset, pixel artwork, existing game implementation, or other authors' single-player designs. Permitted source: original-game research transcribed in [ORIGINAL-HV.md](ORIGINAL-HV.md), particularly original report 003 §1.1, §1.4, §1.5(B), and §1.6 at the linked research commit.
 
@@ -23,19 +23,37 @@ The following are our new game's choices, not original HV rules and not copied f
 3. Four new prefixes (`銳意`, `堅守`, `獵隙`, `流風`) provide small trade-off bonuses. They are not original HV prefixes. Below Legendary, eligible items independently have a 30% prefix chance; Crude remains excluded. New affix improvement is itself scaled by the item's stat-specific R curve.
 4. Weapon suffixes are restricted to Slaughter, or Balance only on the independently transcribed club/rapier bases. Balance only supplies the researched crit-endpoint part in this checkpoint; accuracy is not yet an item stat. Armor permits only our new `長夜`, `壁壘`, `追風`; accessories permit those plus `破陣`. These new labels and bonuses are explicitly not an original-HV suffix catalog. Fair/Average have a 45% suffix chance; Superior+ guarantee one.
 5. **Conditional on an item already being awarded**, quality weights are Crude 2%, Fair 5%, Average 35%, Superior 32%, Exquisite 18%, Magnificent 6%, Legendary 1.9%, Peerless 0.1%. Original quality-drop probabilities are unknown. This table is not a per-kill equipment-drop rate. The engine owns its separately disclosed expedition reward cadence.
-6. Every item receives a tiny comparison score; combat consumes individual stats, never that score. The score is not “true DPS” and cannot prove one item is universally better. Crit, survival, and raw damage create different choices.
+6. Every item receives a tiny flat-stat comparison score; combat consumes individual stats, never that score. The score is not “true DPS” and **does not measure weapon-proc utility**, including Penetrated Armor. It cannot prove one item is universally better, especially across weapon families. Crit, survival, and raw damage create different choices. v0.3 does not add a hidden score bonus for rapier identity.
 7. Individual rate bonuses are capped at 0.16 to keep generated inputs bounded at extreme imported level values. Level is sanitized to integer 1–1000, but this bound does not imply 1000 levels of complete game content.
 
 ## API and safe integration
 
 `generateItem(rng, level, slot?)` is pure for a deterministic RNG. The module makes a bounded number of draws, clamps invalid/throwing RNG results safely, and has no wall-clock/random-global dependency. Output IDs are deterministic but are not collision-proof; the engine **must replace them with its monotonic inventory IDs**. Probability stats are fractions, e.g. 0.025 means 2.5%.
 
-Exports: `generateItem`, `describeItem`, `scoreItem`, `qualityFromRoll`, `qualityFactor`, `QUALITY_TIERS`, `RARITIES`, and `SLOTS`. Item extras `rolls`, `prefix`, `suffix` are optional diagnostic metadata; the core interface stays compatible.
+Exports: `generateItem`, `describeItem`, `scoreItem`, `qualityFromRoll`, `qualityFactor`, `QUALITY_TIERS`, `RARITIES`, `SLOTS`, `WEAPON_FAMILIES`, `resolveWeaponFamily`, and `describeWeaponTrait`. Item extras `rolls`, `prefix`, `suffix` are optional diagnostic metadata; the existing stat interface stays compatible.
 
 `describeItem` returns plain text. Consumers must render it as text, not as HTML from imported saves. The save validator must validate the complete item schema and never trust imported `power` as an authority.
 
+## v0.3 weapon identity and rapier utility
+
+- Every newly generated weapon carries `weaponFamily: 'axe' | 'rapier' | 'club'`. Armor and accessories omit it. Family is explicit identity, not an extra stat, rarity upgrade, or new random roll. Item quality selection, affix selection, per-stat rolls, generated IDs, level scaling, weights, and flat scores remain unchanged.
+- `resolveWeaponFamily(item)` is a pure, non-mutating helper. It returns a supported family only for `slot: 'weapon'`. A supported **own** `weaponFamily` is authoritative even if the display name changes. Any explicit unsupported value, including `null`, disables the family and prevents name-based fallback. Inherited metadata is not trusted.
+- Only when metadata is entirely absent can a legacy weapon migrate from its **exact complete generated name**. The allowlist consists solely of this game's known quality labels, existing fictional base names, known prefixes, and legal family/quality-specific suffix combinations from v0.1/v0.2. Substring matching, translated names, whitespace normalization, arbitrary “rapier” labels, and unknown names do not grant a proc. Starter equipment has no recognized weapon family.
+- The save sanitizer resolves legacy identity before changing the display name and stores the result. For unsupported identity it must preserve `weaponFamily: null` on weapons; merely dropping an invalid explicit field could accidentally enable name fallback on the next load. This sentinel survives JSON roundtrips. Non-weapons never gain a weapon proc from imported metadata.
+- `describeWeaponTrait(item)` supplies plain-text mechanism wording, including for migrated old items whose saved description predates this version. New weapon descriptions append that wording. Unknown weapons explicitly say that no weapon proc is enabled. Numeric combat tuning remains in the engine's `PENETRATED_ARMOR_RULES`, not duplicated as executable loot constants.
+
+### Penetrated Armor scope and provenance
+
+This slice implements **rapier Penetrated Armor only**. Axe and club retain their existing attack/crit differences but have no implemented weapon proc. In particular, the club does not stun. This is an incremental implementation boundary, not a claim that original HV lacked other weapon effects.
+
+The selected historical research model has up to three Penetrated Armor stacks, each reducing the target's **original general physical mitigation** by 25%: an initial 80% mitigation becomes 60%, 40%, then 20%. This is not a flat +25% damage bonus and does not erase every defensive layer. The historical and newer English wiki descriptions disagree about duration and the triggering hit; see [ORIGINAL-HV.md](ORIGINAL-HV.md) for evidence and uncertainty. We do not describe this as a server-exact current-HV implementation.
+
+The independent v0.3 adaptation uses a fixed 25% chance for an ordinary rapier attack that deals positive damage to a surviving target; an eligible critical hit guarantees a proc. A proc adds one stack up to three and refreshes the shared seven-tick duration, including at the cap. A new stack applies **after** the triggering damage; subsequent physical attacks and physical skills benefit, but skills do not trigger it. Fixed chance/duration, the shared refresh rule, and action eligibility are our disclosed tuning choices. The engine owns application, expiration, damage calculation, and combat save validation; see [COMBAT-DESIGN.md](COMBAT-DESIGN.md).
+
+The UI must compare flat stats separately from proc utility. A lower-power rapier may benefit later physical damage in a longer fight; the flat score does not model encounter length, current stacks, hit/critical outcomes, or enemy mitigation. There is no unconditional “rapier is better” conclusion.
+
 ## Verification
 
-Run `node --test tests/loot.test.mjs` from `dot-game/`.
+Run `node --test tests/loot.test.mjs tests/weapon-identity.test.mjs` from `dot-game/`.
 
-Nine tests cover the specified interpolation, original overlapping quality intervals, deterministic generation, all quality tiers, source-backed weapon endpoint scaling, affix guarantee/legality, 3,000 generated examples, malformed and throwing RNG values, and level growth. These module tests do not establish complete game balance, browser behavior, save validation, or source fidelity of unimplemented systems.
+Seventeen focused tests cover the specified interpolation, original overlapping quality intervals, deterministic generation, all quality tiers, source-backed weapon endpoint scaling, affix guarantee/legality, 3,000 generated examples, malformed and throwing RNG values, level growth, explicit identity, 1,800 mixed generated/legacy identities, conservative name matching, unsupported/null metadata, descriptions, and family-independent scoring. Three pre-change SHA-256 fingerprints additionally verify 3,000 v0.2 baseline items after excluding only description and the new identity field: all prior fields, random-draw counts, and final RNG seeds match exactly. These module tests do not establish complete game balance, browser behavior, engine save validation, or source fidelity of unimplemented systems. Run the full suite separately for integration coverage.

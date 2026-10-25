@@ -1,5 +1,9 @@
 # Current status
 
+## v0.3 development candidate — 2026-10-25 15:00 UTC
+
+Accepted public runtime remains v0.2 below. This candidate adds explicit weapon-family identity and historical-model rapier Penetrated Armor, with migration of exact independently generated legacy item names, combat feedback and proc-aware comparison text. 147 Node tests and four JS syntax checks pass. Browser acceptance and source publication are pending; this is not yet a verified restore or playable release. v0.3 uses isolated save-v3/writer-v3 and read-only ordered v2/v1 migration: a pinned old validator was proven to strip new metadata, so mutual exclusion alone is insufficient. Only own dot-game files are changed. Research found conflicting current English and historical Chinese PA semantics; see ORIGINAL-HV.md for the deliberately pinned model.
+
 ## v0.2 published — 2026-10-25 14:22 UTC
 
 Accepted runtime source: `12e151786047612e7254783288cf890507d55b5f`; website: `6a93b851e3ef7b12bf59fcb569cf3ccafda12895`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 28 source files were read back byte-for-byte from the exact source commit; 27 payload manifest hashes verified. Pages run `40201709893` succeeded; all six public runtime files returned HTTP 200 and matching SHA-256. The website update preserved concurrent commit `9d2829d7e1962fa168e2d7f1adc34c07d1f51b24` and all other works. See RELEASES.md.
