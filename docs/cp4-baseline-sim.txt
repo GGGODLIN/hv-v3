@@ -1,0 +1,52 @@
+
+== strategy auto == seeds=16 maxRuns=8
+run-1 floor reached: mean 9.00  [7,9,9,9,11,9,7,9,10,9,7,11,7,10,11,9] (11 = clear)
+first clear run: median 2  [2,2,2,2,1,2,2,2,2,2,2,1,3,2,1,2]  cleared 16/16
+unlock rate after trip 3 : mean 100%  min 100%
+deaths by floor: F7:4 F9:8 F10:2
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 4.8 / 8.4 / 9.9  trip1 [3,4,4,4,9,4,3,4,4,4,3,9,3,5,9,4]
+spirit stance used (trips 1-3): 84/288 battles (29%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 12.3, spirit used 48
+boss F5: fights 30, won 30, mean turns 16.8, spirit used 30, mean potions 0.6
+boss F10 (all trips 1-3): fights 36, won 34 (94%), mean turns 10.8, spirit used 36
+boss F10: fights 18, won 16, mean turns 13.1, spirit used 18, mean potions 1.1
+
+== strategy human == seeds=16 maxRuns=8
+run-1 floor reached: mean 9.56  [9,11,9,9,9,11,9,9,10,9,10,10,7,11,11,9] (11 = clear)
+first clear run: median 2  [2,1,2,2,2,1,2,4,2,2,2,2,2,1,1,2]  cleared 16/16
+unlock rate after trip 3 : mean 99%  min 90%
+deaths by floor: F7:1 F9:8 F10:5
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 4.9 / 7.6 / 9.3  trip1 [4,8,4,4,4,8,4,4,4,4,4,4,3,8,8,4]
+spirit stance used (trips 1-3): 87/294 battles (30%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 12.4, spirit used 48
+boss F5: fights 30, won 30, mean turns 16.4, spirit used 30, mean potions 1.2
+boss F10 (all trips 1-3): fights 39, won 34 (87%), mean turns 11.9, spirit used 39
+boss F10: fights 21, won 16, mean turns 13.6, spirit used 21, mean potions 1.2
+
+== strategy noweak == seeds=16 maxRuns=8
+run-1 floor reached: mean 8.25  [7,7,9,9,9,7,7,9,9,7,9,10,7,10,7,9] (11 = clear)
+first clear run: median 2  [2,5,5,2,2,8,-,2,2,3,2,2,5,2,-,2]  cleared 14/16
+unlock rate after trip 3 : mean 96%  min 90%
+deaths by floor: F7:20 F9:22 F10:4
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 3.6 / 5.8 / 7.3  trip1 [3,3,4,4,4,3,3,4,4,3,4,4,3,4,3,4]
+spirit stance used (trips 1-3): 67/261 battles (26%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 17.3, spirit used 48
+boss F5: fights 60, won 60, mean turns 19.4, spirit used 60, mean potions 0.6
+boss F10 (all trips 1-3): fights 19, won 17 (89%), mean turns 20.1, spirit used 19
+boss F10: fights 18, won 14, mean turns 21.8, spirit used 18, mean potions 1.1
+
+== strategy avoid == seeds=16 maxRuns=8
+run-1 floor reached: mean 9.25  [9,9,9,7,9,11,9,9,9,10,9,10,9,9,11,9] (11 = clear)
+first clear run: median 2  [3,2,4,3,2,1,2,4,2,2,2,2,2,2,1,2]  cleared 16/16
+unlock rate after trip 3 : mean 99%  min 90%
+deaths by floor: F7:1 F9:12 F10:7
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 4.4 / 6.9 / 8.6  trip1 [4,4,4,3,4,8,4,4,4,4,4,4,4,4,8,4]
+spirit stance used (trips 1-3): 83/290 battles (29%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 13.5, spirit used 48
+boss F5: fights 36, won 36, mean turns 16.3, spirit used 36, mean potions 1.2
+boss F10 (all trips 1-3): fights 35, won 28 (80%), mean turns 12.1, spirit used 35
+boss F10: fights 23, won 16, mean turns 13.4, spirit used 23, mean potions 1.2

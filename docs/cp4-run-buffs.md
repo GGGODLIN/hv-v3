@@ -1,6 +1,6 @@
 # CP4 局內成長（Run Buffs）設計文件
 
-> 狀態：設計稿，尚未實作。文件內**所有數值都是「暫定」**，實作後再用 sim 調整並回寫 docs/design.md。
+> 狀態：**製作人已核准（2026-10-25）**，依第 10 節決定實作中。CP4 全部包在 `RULES.cp4RunBuffs`（預設 false）之後；關閉時行為必須與 tag `cp3-pass`（771f9b3）完全相同。文件內**所有數值都是「暫定」**，實作後再用 sim 調整並回寫 docs/design.md。
 > 原則：buff 只在「本趟」生效，用**乘數或加值疊在現有變數上**（套在 `runDerived()` 與 `BattleState` 上）。不改 `src/core/data` 裡任何有出處的常數，也不寫入 `Player`（局外）。
 
 ## 1. 可修改的變數清單（已在 repo 中確認存在）
@@ -49,7 +49,7 @@
 
 「成形」定義：同一流派持有 ≥3 個 buff，或持有核心 buff 加上另外 1 個同流派 buff。
 
-## 3. Buff 池（36 個：普通 18、稀有 12、傳說 6）
+## 3. Buff 池（40 個：普通 21、稀有 13、傳說 6）
 
 數值全部**暫定**。「+x%」表示乘在該變數上，「+x」表示加值。
 
@@ -72,6 +72,9 @@
 | W2 | 厚皮 | 物理減傷提升 | `physMit` | +3（加值） | 磐石 |
 | W3 | 靈巧 | 迴避提升 | `evade` | +3（加值） | 磐石 |
 | W4 | 活力 | 最大 HP 提升 | `hp`（`run.bonus.hp`） | +12% | 磐石 |
+| W7 | 堅守 | 防禦時回復的 HP 增加 | `DEF.hpRecover` | ×1.5 | 磐石 |
+| S-might | 力量祝福（原神龕） | 攻擊與法術傷害 | `adb`、`mdb` | +15% | 無（通用） |
+| S-vigor | 生命祝福（原神龕） | 最大 HP，取得時回滿 | `hp` | +20% | 無（通用） |
 | N1 | 尋寶者 | 裝備掉落提升 | `RULES.dropAccel` | ×1.25 | 無（通用） |
 | N2 | 節儉 | 商人價格降低 | `RULES.merchantMarkup`、`potionPrice` | −15% | 無（通用） |
 
@@ -79,7 +82,7 @@
 | ID | 名稱 | 效果 | 變數 | 數值 | 流派 |
 |---|---|---|---|---|---|
 | B1 | **鋒刃專精**（核心） | 物理傷害與暴擊倍率 | `adb`、`critMod` | +12%、+0.25 | 刃鋒 |
-| B6 | 弱點洞察 | 對弱點屬性加傷 | `edb` 中最高的一項＋物理 `adb` | +10 / +5% | 刃鋒 |
+| B6 | 弱點洞察 | 攻擊或法術命中「目前目標的弱點」（`m.spec[type] < 0`，即 `isWeak()`）時傷害提高 | 物理 `raw`（`adb`）／法術 `raw`（`mdb`） | ×1.15 | 刃鋒 |
 | B7 | 處刑者 | 慈悲一擊冷卻縮短 | `SKILLS.mercifulBlow.cd` | −1 | 刃鋒 |
 | O1 | **戰意湧動**（核心） | OC 增量與上限 | `OC.hitGainMin/Max`、`OC.cap` | +3、+50 | 奔流 |
 | O6 | 魂燃 | 架勢傷害加成提升 | `SS.damageBonus` | +0.15 | 奔流 |
@@ -89,6 +92,7 @@
 | A8 | 冥想 | 專注回復更多 MP | `FOC.mpRecover` | +50% | 秘術 |
 | W1 | **不動之盾**（核心） | 格擋、招架、魔法減傷 | `block`、`parry`、`magMit` | +5、+3、+3 | 磐石 |
 | W5 | 撕裂 | 流血加強 | `m.status.bleed`（`BLEED`、`VSB` 結算） | ×1.5 | 磐石 |
+| W8 | 震盪 | 盾擊暈眩回合 +1 | `SK.shieldBash.stunTicks` | +1 | 磐石 |
 | N3 | 良品嗅覺 | 菁英與寶箱裝備品質 | `generateEquip` 的 `qualityBump` | +1 | 無 |
 
 ### 傳說（6）
@@ -101,7 +105,7 @@
 | W6 | 不滅 | HP 與全種類減傷 | `hp`、`specMit.*` | +25%、+5 | 磐石 |
 | N4 | 迅捷調和 | 藥水冷卻縮短 | `ITEM_CD`、`HEALTH_POTION_CD` | −1 回合 | 無 |
 
-各流派數量：刃鋒 8、奔流 9、秘術 9、磐石 6，通用 4。磐石數量較少，但每個 buff 權重較高（見第 4 節）。實作時用 sim 決定要不要補到 8。
+各流派數量：刃鋒 8、奔流 9、秘術 9、磐石 8、通用 6（含併入的力量祝福、生命祝福）。
 
 ## 4. 取得管道與機率（暫定）
 
@@ -110,7 +114,7 @@
 | 祭壇（`shrine` 節點） | 三選一，或改選第 5 節的風險選項 | 70 / 27 / 3 | ≈1.5 |
 | 精英（`elite` 擊敗後） | 三選一 | 55 / 38 / 7 | ≈1.5 |
 | Boss（F5、F10 擊敗後） | 三選一，保證至少一個稀有以上 | 30 / 55 / 15 | 2（打完整趟） |
-| 商人（`merchant`） | 陳列 2 個，用 Credits 購買 | 75 / 25 / 0 | ≈0.5（看金錢） |
+| 商人（`merchant`） | 陳列 2 個，用 Credits 購買（**不賣傳說**） | 75 / 25 / 0 | ≈0.5（看金錢） |
 
 價格：普通 120 C、稀有 300 C，乘上 `RULES.merchantMarkup`。
 
@@ -146,8 +150,9 @@
 - **Boss 戰開場 OC +50：** `openingOc()` 回傳 `RULES.bossOpenOc` 加上 buff 加值。O3 只作用在一般戰；O9 只作用在 Boss 戰，總計上限為 `OC.cap`（受 O1 影響）。門檻 `SPIRIT_MIN_OC=50` 不變。
 - **帶回倍率：** buff 不改倍率本身，只透過「打得更深、掉更多」間接提高收入。N1 和 N3 影響的是本趟掉落；帶回時照常乘上 carryMult（5/3/2），所以收入受 buff 間接放大。
   - 需要量測：第一趟帶回 EXP 是否膨脹超過 20%。超過的話，N1 只對裝備生效、不影響 Credits。
-- **現有 `run.bonus`：** 力量祝福、生命祝福改成以 buff 形式實作（ID 為 S-might、S-vigor），`run.bonus` 合併進 `applyBuffs`，避免兩套系統。
-- **CP3-fix 8 Boss 第二階段：** 不受 buff 影響。Boss 回合數目標 10–15 要在「有 buff」的情況下重新驗證，平均 buff 數 5 時可能縮短到 9–12，必要時調整 `BOSS_PHASE_HP`。
+- **現有 `run.bonus`：** CP4 開啟時，力量祝福、生命祝福以 buff 形式（S-might、S-vigor）出現在 buff 池。舊存檔的 `run.bonus.dmg/hp` 由 `migrateRun()` 轉成對應數量的 buff（0.15 一個 S-might、0.2 一個 S-vigor），並把 bonus 歸零。CP4 關閉時沿用舊神龕與 `run.bonus`，不轉換。
+- **CP3-fix 8 Boss 第二階段：** 階段機制不變。決定 5：CP4 開啟時，Boss 最大 HP 依持有的 buff 數成長，`maxHp × (1 + RULES.cp4BossHpPerBuff × buff 數)`（暫定，玩法層，不改 monsters.json）。目標是持有 5 個 buff 時 Boss 戰仍在 10–15 回合。
+- **掉寶類（決定 6）：** N1／N3 只影響裝備掉落與品質，不動 Credits、EXP。
 
 ## 7. 驗收指標
 
@@ -181,6 +186,19 @@
 6. **Sim 與調參：** 第 8 節的策略與輸出；依第 7 節調整數值，結果寫回 design.md（全部標暫定）。
 7. **驗證：** typecheck、test、build、e2e、16 種子 sim，附前後數字。
 
-## 10. 待製作人決定
+## 10. 製作人決定（2026-10-25）
 
-見回報訊息，實作前請先確認。
+1. 組合效果與跨流派效果的觸發規則保留。
+2. 磐石補到 8 個（新增 W7 堅守、W8 震盪）。
+3. 弱點洞察 = 對目前目標的弱點加傷。
+4. 力量／生命祝福併入 buff 池，舊存檔移轉並加測試，sim 重跑。
+5. Boss HP 依 buff 數小幅成長（`cp4BossHpPerBuff`，暫定），持有 5 個 buff 時 Boss 戰 10–15 回合。
+6. 掉寶類 buff 只影響裝備掉落，不動金幣與 EXP。
+7. 商人不賣傳說。
+8. 首次通關前維持約 2–4 個。
+
+## 11. 與 main 隔離
+
+- tag `cp3-pass`（annotated）= 771f9b3。main 只能接受它與之後訊息開頭為 `CP3-bugfix` 的純修 bug commit。
+- CP4 全部以 `RULES.cp4RunBuffs` 包住，預設 false；網址加 `?cp4` 可開啟試玩。
+- 每一步都驗證關閉時：舊測試、e2e 通過；`npx tsx scripts/difficulty.ts 16 8` 輸出與 `docs/cp4-baseline-sim.txt`（771f9b3 輸出）逐字相同（`scripts/cp4-off-check.sh`）。
