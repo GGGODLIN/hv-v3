@@ -16,6 +16,8 @@ export const RULES = {
   /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
   /** 暫定 (CP3-fix 8): extra boss phases (see battle.ts BOSS_PHASE_HP). */
   bossPhases: 1,
+  /** 暫定 (CP3-fix 10): boss battles open with this much OC once Spirit Stance is unlocked (sourced start OC 0 and entry 50 unchanged). */
+  bossOpenOc: 50,
   rankExp: { boss: 8, elite: 3, normal: 1 },
   /** 暫定 (CP3-4): in-tower merchant sells equipment at sellPrice x this (no source for an equipment shop price). */
   merchantMarkup: 1.25, // CP3-fix 1: was 3.5 (Average ~8,845 C, about 5 trips of income)
@@ -103,6 +105,11 @@ export function enterNode(p: Player, run: RunState, type: NodeType): string[] {
 /** Battle-time locks for systems not yet opened (CP3-7). */
 export function battleLocks(p: Player): { skill: boolean; spell: boolean; spirit: boolean } {
   return { skill: !has(p, 'ocSkill'), spell: !has(p, 'spell'), spirit: !has(p, 'spirit') };
+}
+
+/** CP3-fix 10: run buff "首領戰意" — opening OC for a battle of this node type. */
+export function openingOc(p: Player, type: NodeType): number {
+  return type === 'boss' && has(p, 'spirit') ? RULES.bossOpenOc : 0;
 }
 
 export function withRng<T>(run: RunState, f: (r: Rng) => T): T {

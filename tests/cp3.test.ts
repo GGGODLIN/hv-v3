@@ -223,3 +223,15 @@ describe('CP3-fix 8/9: boss length and growth (16 seeds, trips 1-3)', () => {
     expect(h.lv).toBeGreaterThanOrEqual(8); expect(h.lv).toBeLessThanOrEqual(10.5);
   }, 60000);
 });
+
+import { openingOc } from '../src/core/run';
+import { unlock as ul10 } from '../src/core/progress';
+describe('CP3-fix 10: boss opening OC', () => {
+  it('boss battles open at the sourced Spirit Stance entry OC once spirit is unlocked; other battles keep the sourced 0', () => {
+    const p = np8();
+    expect(openingOc(p, 'boss')).toBe(0);
+    ul10(p, 'spirit');
+    expect(openingOc(p, 'boss')).toBe(50);
+    expect(openingOc(p, 'battle')).toBe(0);
+  });
+});

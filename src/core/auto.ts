@@ -8,7 +8,7 @@ import { type Player, allocate, derive, equip, powerScore, profValue, unspentExp
 import { Rng } from './rng';
 import {
   type RunState, advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, runDerived, settle, shrine, startRun, withRng,
-  RULES, type Settlement, battleLocks, enterNode,
+  RULES, type Settlement, battleLocks, enterNode, openingOc,
 } from './run';
 import { generateEquip } from './items';
 import type { NodeType } from './tower';
@@ -52,7 +52,8 @@ export function chooseAction(b: BattleState): Action {
   if (tm.status.stun > 0 && canUse(b, { kind: 'skill', id: 'vitalStrike', target })) return { kind: 'skill', id: 'vitalStrike', target };
   const big = b.monsters.indexOf(live.reduce((a, m) => (m.hp > a.hp ? m : a)));
   if (canUse(b, { kind: 'skill', id: 'shieldBash', target: big }) && b.oc >= 75) return { kind: 'skill', id: 'shieldBash', target: big };
-  if (!b.spirit && b.oc >= 120 && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
+  const boss = live.some((m) => m.rank === 'boss');
+  if (!b.spirit && (b.oc >= 120 || boss) && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (b.d.mdb * 4 > b.d.adb * 1.2) {
     const sp = (['fiery', 'freeze', 'shock', 'gale'] as SpellId[]).sort((x, y) => tm.spec[SPELLS[x].element] - tm.spec[SPELLS[y].element])[0]!;
     if (canUse(b, { kind: 'spell', id: sp, target })) return { kind: 'spell', id: sp, target };
@@ -72,6 +73,8 @@ export function chooseHuman(b: BattleState, aimWeak = true): Action {
   const tm = b.monsters[target]!;
   if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
   if (b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
+  // CP3-fix 10: a human enters Spirit Stance in a boss fight when the button lights up (boss battles open with OC).
+  if (!b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (!aimWeak) {
     if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
     return { kind: 'attack', target };
@@ -123,6 +126,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
       b.locked = battleLocks(p);
+      b.oc += openingOc(p, type);
       const profs = profsOf(p);
       const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
       while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }
