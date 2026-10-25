@@ -4,6 +4,7 @@
  * Targets (provisional, producer): d5 boss ≥75%, d16 battle ≥60%, d20 boss ≥35%.
  * Knobs via env: K (ABYSS.lvFollowK), PR (ABYSS.physResScale). SIM_AI=omni = old all-knowing reference.
  * Usage: [K=0.8] [PR=1] npx tsx scripts/rc6-targets.ts [N=24] [F=4] */
+import { MON_ADB } from '../src/core/monsters';
 import { readFileSync } from 'node:fs';
 import { autoRun, fight, profsOf, starterKit, SIM_AI, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
@@ -20,6 +21,7 @@ if (process.env.LPD) ABYSS.playerLevelPerDepth = Number(process.env.LPD);
 if (process.env.HS) ABYSS.hpScale = Number(process.env.HS);
 if (process.env.DS) ABYSS.dmgScale = Number(process.env.DS);
 if (process.env.SP === 'off') STYLE_PASSIVES.on = false;
+if (process.env.ML) MON_ADB.levelTerm = Number(process.env.ML);
 if (process.env.TH === 'off') CP5_FORCE.themeOff = true; // diagnostic only
 if (process.env.PR) ABYSS.physResScale = Number(process.env.PR);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);

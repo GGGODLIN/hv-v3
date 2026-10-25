@@ -14,9 +14,9 @@ export const ABYSS = {
   /** rc7 (a): monster-level base. 'player' = player Lv + playerLevelPerDepth × (d − 1); original HV spawns monsters at the player's level
    * (parsed_wiki/Monster_Stats.md:33 "monster_level = … equal to player's level"; Battles.md:220). The Tower itself uses floor × 10 (The_Tower.md:9) — not used.
    * 'floor' = rc6 curve (floorLevel(20) + levelPerDepth × d + lvFollow). */
-  levelBase: 'floor' as 'player' | 'floor',
+  levelBase: 'player' as 'player' | 'floor',
   /** rc7 (a) (暫定，無來源): extra monster levels per depth on top of the player level. */
-  playerLevelPerDepth: 0,
+  playerLevelPerDepth: 0.25, // 暫定，無來源 (rc7 sweep, docs/cp6-abyss.md)
   /** rc6 item 1 knob A (暫定，無來源): abyss-only monster-level follow k (Lv += k × max(0, player Lv − RULES.monLvFollow.free)); main tower keeps RULES.monLvFollow.k. rc5 = 0.8. */
   lvFollowK: 0.8,
   /** rc6 item 1 knob B (暫定，無來源): abyss-only × on monster physical resistance (physMit and positive piercing/crushing/slashing spec). rc5 = 1. */
@@ -36,9 +36,9 @@ export const ABYSS = {
   /** r2 tuning knob (暫定): flat monster-level offset added to every depth (0 = F20 level + 2/depth). */
   levelOffset: 0,
   /** r2 tuning knob (暫定): abyss monster HP ×. */
-  hpScale: 0.55,
+  hpScale: 1.5, // 暫定，無來源 (rc7 sweep; rc6 0.55 was tuned for the floor curve)
   /** r2 tuning knob (暫定): abyss monster damage ×. */
-  dmgScale: 0.55,
+  dmgScale: 1.5, // 暫定，無來源 (rc7 sweep)
   /** r2b knob (暫定): extra damage × for the abyss boss at a given depth (missing = 1). */
   bossDmgAt: { 15: 0.6, 20: 0.6, 25: 0.6 } as Record<number, number>,
   /** r4 decision (c) (暫定): a tier's DIFF jump (hp/dmg/pl) phases in over its first N depths: 1/N, 2/N, … full. 1 = old step. */

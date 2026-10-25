@@ -297,3 +297,46 @@ OC 退步原因（已驗證，診斷跑 rc4-noclear 32×12 只改 OC 選裝）�
 ## rc7 項目 2：OC 可帶盾（暫定）
 
 製作人決定（暫定）：OC 用單手武器，可帶盾也可不帶，由 AI 依主手＋副手組合的戰力分數擇優（`gearStyle('buff:oc') = { main: 'oneHand', shield: 'free' }`，src/core/auto.ts）。取代 rc6 的「單手、不帶盾」。
+
+## rc7 — d16 fix: (a) monster level, (c) sourced formula deviations
+
+Harness: `scripts/rc7-targets.ts 16 4` (UI-only AI, N=16 chars × F=4 trips per school). Logs are in `docs/logs/rc7-*.txt`.
+Targets: d5 boss ≥75%, d16 normal battle ≥60%, d20 boss ≥35%.
+
+### (a) Monster level = player level
+Source: parsed_wiki/Monster_Stats.md:33 ("monster_level = monster's level when it is spawned, equal to player's level") and Battles.md:220 ("Monster Level: Equal to player's level"). The Tower's floor × 10 (The_Tower.md:9) is not used.
+The rc6 curve gave about Lv74–84 against a player around Lv15.
+Verification: with player level, LPD 0, and scales 0.55, every school wins 100% at every depth. Level was the dominant cause.
+
+Each tuning round below gives d16 battle win % for blade / oc / arcane / bulwark. LPD = 暫定，無來源 extra levels per depth; HS/DS = hpScale/dmgScale, 暫定，無來源.
+
+| round | LPD / HS / DS | blade | oc | arcane | bulwark |
+|---|---|---|---|---|---|
+| rc6 | floor curve, 0.55 | 4 | 44 | 66 | 18 |
+| a1 | 1 / 1 / 1 | 27 | 92 | 84 | 38 |
+| a2 | 1 / 1.5 / 1.5 | 0 | 33 | 41 | 6 |
+| a3 | 0.5 / 2 / 2 | 0 | 32 | 35 | 9 |
+| a4 | 1 / 2 / 1.5 | 0 | 19 | 18 | 3 |
+| a5 | 0.25 / 2 / 2 | 6 | 48 | 63 | 20 |
+| a6 | 0 / 2 / 2 | 31 | 83 | 81 | 38 |
+| a7 | 0 / 2.5 / 2.5 | 8 | 53 | 68 | 20 |
+| a8 | 0.25 / 1.5 / 1.5 | 32 | 92 | 83 | 45 |
+| c1 (+style passives) | 0.25 / 1.5 / 1.5 | 50 | 92 | 83 | 58 |
+| c1 | 0.25 / 2 / 2 | 15 | 50 | 67 | 22 |
+| c1 | 0.5 / 2 / 2 | 0 | 19 | 50 | 11 |
+| **c2 (+monster adb level term removed)** | **0.25 / 1.5 / 1.5** | **70** | **92** | **83** | **64** |
+| c2 | 0.25 / 2 / 2 | 22 | 58 | 68 | 35 |
+| c2 | 0.5 / 2 / 2 | 0 | 16 | 40 | 12 |
+
+After a8, oc and arcane met every target, while blade and bulwark still missed in d16 and d18 normal battles. That triggered (c). The theme-off diagnostic (LPD 1/1/1) gave blade 20% and bulwark 59%, so the theme is not the cause.
+
+### (c) Sourced deviations
+| # | deviation | source | code | action |
+|---|---|---|---|---|
+| 1 | Fighting-style passives not implemented: 2H Domino Strike, 1H Overwhelming Strikes, 1H Counter-Attack | parsed_wiki/Fighting_Styles.md:59-98; findings 002 lines 277-278 | src/core/battle.ts `stylePassive`, `counterAttack`, `STYLE_PASSIVES` | Implemented with the source formulas. The 4 ticks of Overwhelming Strikes are mapped to 4 player turns (暫定). Domino gives +1% OC per hit. Counter-Attack OC is once per turn. Its stun chance and weapon procs are not modelled. The bulwark riposte combo is kept on top. |
+| 2 | Monster base damage had `+ level * 0.5` | Monster_Stats.md:56 (STR*2+DEX only, no level term) | src/core/monsters.ts `MON_ADB.levelTerm` (was in 4a8aefa) | Set to 0 (source). This affects all schools and the main tower; the new baseline files are separate. |
+| 3 | 1H Block / 2H Parry proficiency bonuses (findings 002 (G)) | purchasable abilities in the original | player.ts `PROF_ADB` stand-in | Not changed: these are not innate in the original. |
+| 4 | Block skipped for magic | Battles.md (block covers magic) | damage.ts:55 | Not changed: monster attacks are all physical, so there is no practical effect. |
+
+Final row c2 0.25/1.5/1.5 in full (d5 boss / d13 / d16 / d18 / d20 boss):
+blade 100/97/70/66/100 · oc 100/100/92/88/78 · arcane 100/89/83/88/94 · bulwark 100/83/64/58/89. All schools meet the targets.

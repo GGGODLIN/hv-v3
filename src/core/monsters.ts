@@ -12,6 +12,10 @@ export interface MonsterPool {
 }
 
 const EXCL = new Set<string>(C['F-005-pool-exclusions'].value.trainers as readonly string[]);
+/** rc7 (c): monster base damage has no level term in the source (parsed_wiki/Monster_Stats.md:56, STR*2+DEX only).
+ *  The old `+ level * 0.5` (since 4a8aefa) had no source; 0 = source. Sim A/B switch only. */
+export const MON_ADB = { levelTerm: 0 };
+
 export function makePool(rows: MonsterRow[]): MonsterPool {
   // CP3-bugfix 2: neutral display names for sexual / inappropriate / gibberish names (stats unchanged).
   return { rows: rows.filter((r) => !EXCL.has(r[5])).map((r) => cleanRow(r)).sort((a, b) => a[3] - b[3]) };
@@ -128,7 +132,7 @@ export function buildMonster(row: MonsterRow, level: number, rank: Rank = 'norma
   const attackType = (physTypes.includes(attack) ? attack.toLowerCase() : 'crushing') as DmgType;
   return {
     uid: uid++, name: rank === 'boss' ? bossName(name) : name, race, pl, level, rank, attrs, hp: maxHp, maxHp,
-    adb: (adbFromAttrs(attrs.str, attrs.dex, true) + level * 0.5) * RANK_MULT[rank].dmg,
+    adb: (adbFromAttrs(attrs.str, attrs.dex, true) + level * MON_ADB.levelTerm) * RANK_MULT[rank].dmg,
     attackType,
     acc: (attrs.dex * C['P-monster-accuracy'].value.accuracyPerDexterity) / 100,
     evade: monsterAvoid(attrs.agi, level),
