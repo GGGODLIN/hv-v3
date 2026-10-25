@@ -15,6 +15,9 @@ const AVOID_ZH: Record<string, string> = { evade: '閃避', parry: '招架', blo
 
 interface MonView { m: Monster; sprite: Phaser.GameObjects.Sprite; kind: string; x: number; y: number; scale: number; bar: Phaser.GameObjects.Graphics; label: Phaser.GameObjects.Text; ring: Phaser.GameObjects.Ellipse; charge?: Phaser.Tweens.Tween; chargeFx?: Phaser.GameObjects.Ellipse }
 
+/** CP3-bugfix 8 (暫定): retries per asset. */
+export const ASSET_RETRIES = 3;
+
 export class Stage extends Phaser.Scene {
   manifest!: Manifest;
   hero!: Phaser.GameObjects.Sprite;
@@ -29,7 +32,20 @@ export class Stage extends Phaser.Scene {
 
   constructor() { super('stage'); }
 
+  /** CP3-bugfix 8: how many asset loads were retried (read by e2e). */
+  retries = 0;
+
   preload() {
+    // CP3-bugfix 8: a failed image/json is queued again (cache-busted) up to ASSET_RETRIES times instead of leaving a hole.
+    const tries = new Map<string, number>();
+    this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      const n = (tries.get(file.key) ?? 0) + 1;
+      if (n > ASSET_RETRIES) { console.warn('asset failed', file.key, file.src); return; }
+      tries.set(file.key, n); this.retries++;
+      (window as unknown as { __assetRetries?: number }).__assetRetries = ((window as unknown as { __assetRetries?: number }).__assetRetries ?? 0) + 1;
+      const url = `${String(file.url).split('?')[0]}?retry=${n}`;
+      if (file.type === 'json') this.load.json(file.key, url); else this.load.image(file.key, url);
+    });
     this.load.json('manifest', 'assets/pixel/manifest.json');
     this.load.once('filecomplete-json-manifest', () => {
       const m = this.cache.json.get('manifest') as Manifest;

@@ -114,7 +114,7 @@ export class App {
   /** CP3-fix 7: procedural icon (scripts/gen-icons.py) for an equipment piece. */
   static icon(e: Equip): string {
     const key = iconKey(e);
-    return `<img class="icon" src="assets/icons/${key}.png" alt="" width="32" height="32" onerror="this.style.visibility='hidden'">`;
+    return `<img class="icon" src="assets/icons/${key}.png" alt="" width="32" height="32" onerror="if(!this.dataset.r){this.dataset.r=1;window.__assetRetries=(window.__assetRetries||0)+1;this.src=this.src.split('?')[0]+'?retry=1'}else this.style.visibility='hidden'">`;
   }
 
   itemCard(e: Equip, actions = ''): string {

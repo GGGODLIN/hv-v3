@@ -55,7 +55,7 @@ await pg.evaluate(()=>{const i=window.hv.run.nodes?.[window.hv.run.floor-1];});
 await pg.click('[data-node]');await w(1500);
 // item 2: disabled tooltip
 R.disabled=await pg.$$eval('[aria-disabled="true"]',xs=>xs.map(x=>x.textContent.trim().slice(0,8)+' → '+x.title));
-await pg.evaluate(()=>{hv.battle.oc=Math.max(hv.battle.oc,60);for(const m of hv.battle.monsters){m.maxHp*=50;m.hp=m.maxHp}hv.render()});await w(100); // CP3: OC starts at 0, Spirit needs 50
+await pg.evaluate(()=>{hv.battle.oc=Math.max(hv.battle.oc,60);for(const m of hv.battle.monsters){m.maxHp*=50;m.hp=m.maxHp}hv.battle.d.hp*=100;hv.battle.hp=hv.battle.d.hp;hv.render()});await w(100); // CP3: OC starts at 0, Spirit needs 50. CP3-bugfix 4: monsters now follow player level, so keep the test player alive through the long UI checks
 const sbtn=await pg.$('[data-act="spirit"]');const box=await sbtn.boundingBox();
 await pg.mouse.move(box.x+box.width/2,box.y+box.height/2);
 R.spiritBefore=await pg.evaluate(()=>({oc:hv.battle.oc,sp:hv.battle.sp,title:document.querySelector('[data-act="spirit"]').title,dis:document.querySelector('[data-act="spirit"]').getAttribute('aria-disabled')}));
