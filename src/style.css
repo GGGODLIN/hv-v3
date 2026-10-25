@@ -151,5 +151,5 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .panel.node { overflow-y: auto; }
 .panel.node > * { flex-shrink: 0; }
 /* CP5 rc2 fix 8: docked confirm (weaker-equip) — no blocking backdrop, sits at the top, leaves the page footer free. */
-.modal-back.dock { pointer-events: none; background: transparent; align-items: flex-start; padding-top: 8px; }
+#ui > .modal-back.dock, .modal-back.dock { pointer-events: none !important; background: transparent; align-items: flex-start; padding-top: 8px; }
 .modal-back.dock .modal { pointer-events: auto; max-height: 55vh; box-shadow: 0 6px 24px rgba(0,0,0,.7); }
