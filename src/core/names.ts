@@ -1,64 +1,49 @@
-/** CP3-bugfix 2: player-submitted monster names (monsters.json) that are sexual, otherwise inappropriate or gibberish are
- * shown under a neutral name built from the race; stats are untouched. Rules are this project's own (暫定), not from any source. */
-export const NAME_BLACKLIST = [
-  // sexual
-  'milf', 'pregnant', 'preg', 'sex', 'porn', 'hentai', 'fuck', 'cum', 'boob', 'tits', 'titty', 'penis', 'vagina', 'nude', 'naked',
-  'rape', 'loli', 'shota', 'futanari', 'ahegao', 'slut', 'whore', 'cock', 'dick', 'pussy', 'anal', 'orgasm', 'fetish', 'bdsm', 'nsfw',
-  'erotic', 'lewd', 'horny', 'incest', 'hypno', 'oppai', 'ecchi', 'yaoi', 'netorare', 'ntr', 'bondage', 'nipple', 'breast',
-  'panties', 'panty', 'bikini', 'lingerie', 'stripper', 'masturb', 'semen', 'sperm', 'dildo', 'vibrator', 'tentacle', 'harem',
-  'bukkake', 'gangbang', 'creampie', 'blowjob', 'handjob', 'boobs', 'busty', 'succubus', 'wife', 'waifu', 'virgin', 'kinky', 'bitch',
-  // other inappropriate
-  'nigg', 'fag', 'nazi', 'hitler', 'retard', 'kys', 'suicide', 'cunt', 'shit', 'piss', 'poop', 'fart', 'butt', 'ass',
-];
-const WORD_ONLY = new Set(['shit', 'rape', 'cum', 'sex', 'ntr', 'ass', 'anal', 'tits', 'yuri', 'kys', 'preg', 'butt', 'fag', 'piss', 'dick', 'cock']);
+/** CP3-bugfix r3 #1 (whitelist): every monster's display name is generated from race (body), PL tier and element;
+ * the player-submitted name in monsters.json is never shown. Word lists are this project's own (暫定), not from any source.
+ * Stats are untouched. Same row -> same name (pure function of id / race / PL / resist columns). */
+import { bodyOf, type Body } from './bodies';
 
-export type BadReason = 'blacklist' | 'gibberish';
-
-/** Innocent words that contain a blacklisted substring. */
-const ALLOW = ['breastplate', 'hypnos', 'hypnotoad', 'virginia'];
-
-export function badName(name: string): BadReason | null {
-  let low = name.toLowerCase();
-  for (const a of ALLOW) low = low.split(a).join(' ');
-  const words = low.split(/[^a-z]+/).filter(Boolean);
-  for (const w of NAME_BLACKLIST) {
-    if (WORD_ONLY.has(w) ? words.includes(w) : low.includes(w)) return 'blacklist';
-  }
-  if (gibberish(name)) return 'gibberish';
-  return null;
-}
-
-/** Gibberish: a run-together token of 18+ letters, 4+ repeated characters, no vowels in a 6+ letter word,
- * keyboard mashes, or mostly digits/symbols. */
-export function gibberish(name: string): boolean {
-  const s = name.trim();
-  if (!/[A-Za-z]{2}/.test(s)) return true;
-  if (/([A-Za-z])\1{3,}/.test(s)) return true;
-  if (/(asdf|qwer|zxcv|hjkl|jkl;|sdfg|dfgh)/i.test(s)) return true;
-  const letters = (s.match(/[A-Za-z]/g) ?? []).length;
-  if (letters / s.replace(/\s/g, '').length < 0.5) return true;
-  for (const w of s.split(/[^A-Za-z]+/)) {
-    if (w.length >= 18) return true;
-    if (w.length >= 6 && !/[aeiouyAEIOUY]/.test(w)) return true;
-  }
-  return false;
-}
-
-const PREFIX = ['Wandering', 'Silent', 'Ashen', 'Feral', 'Hollow', 'Grim', 'Pale', 'Iron', 'Shadow', 'Ancient', 'Lost', 'Crimson'];
-const RACE_NOUN: Record<string, string> = {
-  Arthropod: 'Crawler', Giant: 'Colossus', Sprite: 'Wisp', Celestial: 'Seraph', Avion: 'Raptor', Beast: 'Prowler',
-  Undead: 'Revenant', Mechanoid: 'Automaton', Dragonkin: 'Drake', Daimon: 'Fiend', Reptilian: 'Lurker', Humanoid: 'Wanderer', Elemental: 'Shard',
+/** Element word: the monster's highest elemental resistance (cold, wind, elec, fire, dark, holy columns). */
+export const ELEM_WORD = ['霜', '風', '雷', '炎', '闇', '聖'] as const;
+/** PL tier word (thresholds 暫定, PL median 358 / 3rd quartile 1080 / 1600). */
+export const TIER_WORD = ['', '老', '古', '太古'] as const;
+export const TIER_PL = [358, 1080, 1600] as const;
+export const TRAIT_WORD = ['羽', '甲', '牙', '角', '鱗', '影', '岩', '鋼', '骨', '爪', '紋', '翼'] as const;
+export const BODY_NOUN: Record<Body, readonly string[]> = {
+  bird: ['鳳凰', '鷹', '鴉', '隼'], bug: ['甲蟲', '蜘蛛', '蠍', '螳螂'], beast: ['狼', '熊', '豹', '野豬'],
+  undead: ['骷髏', '怨靈', '屍鬼', '亡魂'], mech: ['機兵', '魔像', '鐵偶', '自走甲'], dragon: ['飛龍', '蜥蜴', '蛇龍', '地龍'],
+  humanoid: ['戰士', '巨人', '術士', '遊俠'], spirit: ['精靈', '元素靈', '光靈', '妖精'],
 };
+export const BOSS_TITLE = ['塔主', '深淵之王', '守門者', '災厄'] as const;
+export const BOSS_SEP = '·';
 
-/** Deterministic neutral name from race + monster id, e.g. "Ashen Drake #81535". */
-export function neutralName(race: string, id: number): string {
-  return `${PREFIX[id % PREFIX.length]} ${RACE_NOUN[race] ?? 'Creature'} #${id}`;
+/** Every word a display name may contain (the e2e / test whitelist). */
+export const NAME_VOCAB: string[] = [...ELEM_WORD, ...TIER_WORD.filter(Boolean), ...TRAIT_WORD, ...Object.values(BODY_NOUN).flat(), ...BOSS_TITLE];
+const NOUN_BODY = new Map<string, Body>(Object.entries(BODY_NOUN).flatMap(([b, ns]) => ns.map((n) => [n, b as Body])));
+/** Body of a generated name (its noun suffix), so sprites keep matching the name. */
+export function nounBody(name: string): Body | null {
+  let best: [string, Body] | null = null;
+  for (const [n, b] of NOUN_BODY) if (name.endsWith(n) && (!best || n.length > best[0].length)) best = [n, b];
+  return best?.[1] ?? null;
 }
 
-/** Monster rows with bad names get a neutral name; every stat column is kept. */
-export function cleanRow<T extends [number, string, string, ...unknown[]]>(row: T): T {
-  if (!badName(row[2])) return row;
+type Row = [number, string, string, number, string, string, number, number, number, number, number, number, number, number, number];
+export function genName(row: Row): string {
+  const [id, race, raw, pl] = row;
+  const el = row.slice(9, 15) as number[];
+  const ei = el.indexOf(Math.max(...el));
+  const tier = TIER_WORD[pl < TIER_PL[0] ? 0 : pl < TIER_PL[1] ? 1 : pl < TIER_PL[2] ? 2 : 3];
+  const body = bodyOf(race, raw); // body from race / keywords as in cp3-pass2, so sprites do not change
+  const nouns = BODY_NOUN[body];
+  return `${tier}${ELEM_WORD[ei]}${TRAIT_WORD[id % TRAIT_WORD.length]}${nouns[Math.floor(id / TRAIT_WORD.length) % nouns.length]}`;
+}
+export function bossName(name: string): string {
+  let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return `${BOSS_TITLE[h % BOSS_TITLE.length]}${BOSS_SEP}${name}`;
+}
+/** Every row gets a generated name; every stat column is kept. */
+export function cleanRow<T extends Row>(row: T): T {
   const r = row.slice() as T;
-  r[2] = neutralName(row[1], row[0]);
+  r[2] = genName(row);
   return r;
 }
