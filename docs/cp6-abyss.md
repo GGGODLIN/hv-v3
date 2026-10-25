@@ -420,3 +420,14 @@ Round 5 (low HS / high DS):
 | r5D | 0 / 1.25 / 6 / -0.01 / 5 | 97/92/95/84 | 58/82/88/63 | 97/83/91/94 | 12/9/9/12/12 | 0.99/0.41/0.36/1.03/0.90 |
 
 r5D comes closest: every trip-1 median is ≤12 and every ratio is ≤1.03. Blade's d16 battle is 58% (target 60, N=16x4, likely within noise; to be confirmed).
+
+Round 6 (around r5D):
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| r6A | 0 / 1 / 6 / -0.01 / 5 | 100/97/97/88 | 86/94/88/77 | 95/95/94/93 | 27/14/12/17/22 | 6.13/0.55/1.27/1.13/0.67 |
+| r6B | 0 / 1.25 / 6.5 / -0.01 / 5 | 97/92/94/83 | 45/75/88/50 | 93/73/80/96 | 10/5/5/10/7 | 2.41/0.61/1.16/1.46/1.09 |
+| r6C | 0 / 1 / 6.5 / -0.01 / 5 | 100/92/95/88 | 72/88/88/66 | 94/89/92/93 | 17/12/9/12/17 | 3.25/0.34/1.65/0.53/1.61 |
+| r6D | 0 / 1.1 / 6 / -0.01 / 5 | 98/95/97/86 | 77/88/88/64 | 94/86/95/95 | 27/12/9/12/20 | 1.05/0.26/1.54/0.81/0.53 |
+
+Round 6 does not improve on r5D. At N=32 the results move by about ±5 depths and ±10pp (for example, r5D vs r6D). Next step: confirm r5D at a larger N.
