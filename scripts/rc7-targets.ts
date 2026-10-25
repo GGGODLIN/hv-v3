@@ -11,7 +11,7 @@ import { newPlayer, type Player } from '../src/core/player';
 import { RULES, abyssOpen, armBattle, battleLocks, encounter, openingOc, runDerived, startAbyss } from '../src/core/run';
 import { ABYSS, checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssSchool } from '../src/core/abyss';
 import { CP5_FORCE } from '../src/core/cp5';
-import { armCp5, startBattle } from '../src/core/battle';
+import { armCp5, startBattle, STYLE_PASSIVES } from '../src/core/battle';
 import { Rng } from '../src/core/rng';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true;
 if (process.env.K) ABYSS.lvFollowK = Number(process.env.K);
@@ -19,6 +19,7 @@ if (process.env.LB) ABYSS.levelBase = process.env.LB as 'player' | 'floor';
 if (process.env.LPD) ABYSS.playerLevelPerDepth = Number(process.env.LPD);
 if (process.env.HS) ABYSS.hpScale = Number(process.env.HS);
 if (process.env.DS) ABYSS.dmgScale = Number(process.env.DS);
+if (process.env.SP === 'off') STYLE_PASSIVES.on = false;
 if (process.env.TH === 'off') CP5_FORCE.themeOff = true; // diagnostic only
 if (process.env.PR) ABYSS.physResScale = Number(process.env.PR);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
