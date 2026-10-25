@@ -126,3 +126,10 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .log .phase{color:#ff6060;font-weight:bold}
 .log .statusfx{color:#ffcc66}.log .skillhit{color:#9fd3ff}.log .spirit{color:#c9a0ff}
 .bprev { font-size: 12px; display: flex; flex-direction: column; gap: 2px; color: #cfc2dc; }
+/* CP4 rc #3: held buffs row in battle (icons + hover tooltip). */
+.bbuffs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; pointer-events: auto; }
+.bic, .bprog { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #ffffff55; background: #2a2038; font-size: 13px; cursor: help; }
+.bprog { font-size: 11px; color: #aaa; background: #1a1a22; } .bprog.on { color: #ffd060; border-color: #ffd060; }
+.bic.s-blade { color: #ff8a8a; } .bic.s-oc { color: #ffe066; } .bic.s-arcane { color: #9ad0ff; } .bic.s-bulwark { color: #b8e0a0; }
+.bic.r-rare { border-color: #5aa0ff; } .bic.r-legend { border-color: #ffb040; box-shadow: 0 0 5px #ffb04088; }
+.bic:hover::after, .bprog:hover::after { content: attr(data-tip); position: absolute; left: 0; top: 26px; z-index: 50; white-space: pre-line; width: max-content; max-width: 260px; padding: 5px 8px; background: #111e; border: 1px solid #fff4; border-radius: 4px; font-size: 12px; color: #eee; }

@@ -30,7 +30,15 @@ const r2 = await shot('cp4-buff-choice-shrine', () => {
 await pg.click('[data-buff="S-might"]');
 const held = await pg.evaluate(() => window.hv.run.buffs);
 const r3 = await shot('cp4-map-buffs', () => { const hv = window.hv; hv.run.risk = null; hv.go('map'); });
-console.log(JSON.stringify({ r1, prev, r2, r3, held, errs }, null, 1));
+// CP4 rc #3: held-buff row in battle, hover tooltip.
+await pg.evaluate(async () => { const hv = window.hv; hv.run.buffs = ['W1', 'W2', 'W3', 'B1', 'O8']; hv.run.current = { type: 'battle', option: 0 }; await hv.startBattle('battle'); });
+await new Promise((r) => setTimeout(r, 500));
+const bic = await pg.$('[data-bic]');
+if (bic) await bic.hover();
+await new Promise((r) => setTimeout(r, 300));
+await pg.screenshot({ path: `${out}/cp4-battle-buffs.png` });
+const r4 = await pg.evaluate(() => ({ icons: document.querySelectorAll('[data-bic]').length, tip: document.querySelector('[data-bic]')?.getAttribute('data-tip'), prog: [...document.querySelectorAll('.bprog')].map((x) => x.textContent) }));
+console.log(JSON.stringify({ r1, prev, r2, r3, r4, held, errs }, null, 1));
 await br.close();
 const prevOk = prev.B1?.some((t) => t.includes('ADB') && t.includes('→')) && prev.B1?.some((t) => t.includes('流派成形')) && prev.W2?.some((t) => t.includes('物理減傷'));
-if (!prevOk || errs.length || r1.cards !== 3 || !r2.risk || !held.includes('S-might')) process.exit(1);
+if (!prevOk || errs.length || r1.cards !== 3 || !r2.risk || !held.includes('S-might') || !r4.icons || !r4.tip) process.exit(1);

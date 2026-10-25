@@ -7,7 +7,7 @@ import type { Monster, MonsterPool } from '../core/monsters';
 import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, resetAttrs, unequip, unspentExp, type Player } from '../core/player';
 import { Rng, randomSeed } from '../core/rng';
 import { carryMult, has, prog, tip, TIPS } from '../core/progress';
-import { BUFF, RARITY_ZH, SCHOOL_ZH, COMBO_ZH, combos, formed, type Combos } from '../core/buffs';
+import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
@@ -239,7 +239,7 @@ export class App {
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div></div>
+        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.battleBuffRow()}</div>
         <div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
@@ -256,6 +256,15 @@ export class App {
     const on = (Object.keys(c) as (keyof Combos)[]).filter((k) => c[k]);
     return `<div class="buffs" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
       ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => COMBO_ZH[k]).join('；')}</span>` : ''}</div>`;
+  }
+  /** CP4 rc #3: held buffs in battle — one icon per buff, hover for name/desc; combo progress. */
+  battleBuffRow(): string {
+    const ids = this.run?.buffs;
+    if (!RULES.cp4RunBuffs || !ids?.length) return '';
+    const GLYPH: Record<string, string> = { blade: '⚔', oc: '⚡', arcane: '✦', bulwark: '⛨', none: '◆' };
+    const c = combos(ids), cnt = schoolCounts(ids);
+    const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${COMBO_ZH[s as keyof Combos]}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
+    return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}">${GLYPH[b.school]}</span>`; }).join('')}${prog}</div>`;
   }
   buffCard(id: string, btn: string): string {
     const b = BUFF[id]!;
