@@ -30,6 +30,18 @@ async function boot() {
   if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;
   // CP6 abyss tower is off by default; `?cp6` turns it on (and the CP5 bosses / affixes it reuses).
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
+  // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss15`
+  // overwrites the local save with a sim-exported character (public/data/cp6-presets.json) before the game boots.
+  const qs = new URLSearchParams(location.search), preset = qs.get('preset');
+  if (RULES.cp6Abyss && qs.has('debug') && preset) {
+    const all = (await fetchRetry('data/cp6-presets.json').then((r) => r.json())) as Record<string, { player: unknown; record: unknown }>;
+    const pr = all[preset];
+    if (pr) {
+      localStorage.setItem('hv-v3-save', JSON.stringify({ v: 1, player: pr.player, run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: 0, bestFloor: 20, clears: 1 } }));
+      localStorage.setItem('hv-v3-abyss', JSON.stringify(pr.record));
+      (window as unknown as { hvPreset: string }).hvPreset = preset;
+    } else console.warn(`unknown preset ${preset}; known: ${Object.keys(all).join(', ')}`);
+  }
   buildBadge();
   const stage = new Stage();
   new Phaser.Game({ type: Phaser.AUTO, parent: 'stage', width: W, height: H, pixelArt: true, backgroundColor: '#120c18', scene: stage });
