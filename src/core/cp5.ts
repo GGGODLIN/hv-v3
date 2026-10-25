@@ -34,6 +34,8 @@ export const CP5 = {
   /** CP5 r4 (暫定): 深淵之王 — after each shield rotation (not the opening one) its next action is an elemental pulse
    *  (magic, shield element, ×pulseMult ADB). Defend or stun counters it. 0 = off. drainMult = 吸血重擊 multiplier. */
   pulseMult: 0, drainMult: 2, // r4: pulse off (4 widened the B10 gap but cut counter win <90% and pushed arcane F9 to 79%); sweeps in docs/logs/cp5-r4-sweep.txt
+  /** CP5 rc2 fix 5 (暫定): ADB × for the minion on a boss floor (key = floor; missing = 1). */
+  bossMinionAdb: { 15: 1 } as Record<number, number>,
   bulwarkDefDecay: 0.5, bulwarkNoRiposteDef: 1,
   antimagicFrac: 0.3, wardedResist: 0.3, wardedMit: 0.2, magAffixWeight: 4,
 };

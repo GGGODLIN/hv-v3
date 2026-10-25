@@ -10,7 +10,7 @@ import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
-import { combos, formed, sumMods } from './buffs';
+import { combos, formed, schoolCounts, sumMods } from './buffs';
 import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
@@ -191,7 +191,7 @@ export function armBattle(b: BattleState, run: RunState): void {
   if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }
   if (!cp4On(run)) return;
   const ids = run.buffs!;
-  b.mods = { ...sumMods(ids).b, combo: combos(ids) };
+  b.mods = { ...sumMods(ids).b, combo: combos(ids), ...(schoolCounts(ids).bulwark ? { bulwarkN: schoolCounts(ids).bulwark } : {}) };
 }
 
 export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
@@ -265,6 +265,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w, ab);
+      if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
       if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg; }
       return m;
     });

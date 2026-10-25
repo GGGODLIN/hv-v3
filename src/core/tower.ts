@@ -59,7 +59,7 @@ export function generateTower(rng: Rng, opts: TowerOpts = {}): Tower {
   for (let n = 1; n <= T.floors; n++) {
     if (T.bossFloors.includes(n)) { floors.push({ n, options: ['boss'] }); continue; }
     // CP5 rc2 fix 8 (flag on via long): tutorial floors still offer ≥2 routes (taught node first; no rng draw, 暫定).
-    if (opts.long && opts.tutorial && n >= 2 && n <= 4) { floors.push({ n, options: n === 2 ? ['battle', 'battle'] : n === 3 ? ['merchant', 'rest'] : ['elite', 'battle'] }); continue; }
+    if (opts.long && opts.tutorial && n >= 2 && n <= 4) { floors.push({ n, options: n === 2 ? ['battle', 'battle'] : n === 3 ? ['merchant', 'merchant'] : ['elite', 'elite'] }); continue; }
     if (opts.tutorial && n === 2) { floors.push({ n, options: ['battle'] }); continue; }
     if (opts.tutorial && n === 3) { floors.push({ n, options: ['merchant'] }); continue; }
     if (opts.tutorial && n === 4) { floors.push({ n, options: ['elite'] }); continue; }

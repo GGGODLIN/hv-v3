@@ -6,6 +6,7 @@ import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
 import { CP5 } from '../src/core/cp5';
 for (const kv of process.argv.slice(5)) { const [k, v] = kv.split('='); { const [a, b] = k!.split('.'); const o = CP5 as unknown as Record<string, any>; if (b) o[a!][b] = Number(v); else o[a!] = Number(v); } console.log(`override ${k}=${v}`); }
+const pq = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : '—'; };
 const N = Number(process.argv[2] ?? 32), M = Number(process.argv[3] ?? 12);
 const STRATS = (process.argv[4] ?? 'auto,buff:blade,buff:oc,buff:arcane,buff:bulwark').split(',') as Strategy[];
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
@@ -33,12 +34,12 @@ for (const strat of STRATS) {
   console.log(`\n== ${strat}  N=${N} M=${M}`);
   console.log(`first clear (F10 win) trip: median ${med(fc)} mean ${f(mean(fc.filter(Number.isFinite)))} never ${fc.filter((x) => !Number.isFinite(x)).length}`);
   console.log(`full clear (F20) trip: median ${med(full)} mean ${f(mean(full.filter(Number.isFinite)))} never ${dead20}`);
-  console.log('floor | n | counter win% | ignore win% | gap pp | turns c/i | pots c/i | trip1 turns(n)');
+  console.log('floor | n | counter win% | ignore win% | gap pp | turns c/i | pots c/i | trip1 turns mean/p90/max(n)');
   for (const fl of [5, 10, 15, 20]) {
     const xs = bf[fl] ?? []; const ys = t1[fl] ?? [];
     (all[fl] ??= []).push(...xs); (allT1[fl] ??= []).push(...ys);
     const cw = mean(xs.map((b) => +b.won)) * 100, iw = mean(xs.map((b) => +!!b.alt?.won)) * 100;
     if (fl === 20) console.log(`F20@trip6-10 | ${b20.length} | ${f(mean(b20.map((b) => +b.won)) * 100)} | ${f(mean(b20.map((b) => +!!b.alt?.won)) * 100)} | ${f(mean(b20.map((b) => +b.won - +!!b.alt?.won)) * 100)} | lv mean ${f(mean(lv20))} |`);
-    console.log(`F${fl} | ${xs.length} | ${f(cw)} | ${f(iw)} | ${f(cw - iw)} | ${f(mean(xs.map((b) => b.turns)))}/${f(mean(xs.map((b) => b.alt!.turns)))} | ${f(mean(xs.map((b) => b.potions)), 2)}/${f(mean(xs.map((b) => b.alt!.potions)), 2)} | ${f(mean(ys.map((b) => b.turns)))}(${ys.length})`);
+    console.log(`F${fl} | ${xs.length} | ${f(cw)} | ${f(iw)} | ${f(cw - iw)} | ${f(mean(xs.map((b) => b.turns)))}/${f(mean(xs.map((b) => b.alt!.turns)))} | ${f(mean(xs.map((b) => b.potions)), 2)}/${f(mean(xs.map((b) => b.alt!.potions)), 2)} | ${f(mean(ys.map((b) => b.turns)))}/${pq(ys.map((b) => b.turns), 0.9)}/${ys.length ? Math.max(...ys.map((b) => b.turns)) : '—'}(${ys.length})`);
   }
 }

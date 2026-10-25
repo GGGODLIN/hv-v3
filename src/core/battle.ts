@@ -118,6 +118,8 @@ export type BEvent =
 /** CP4 run-buff battle mods (docs/cp4-run-buffs.md). Undefined = CP3 behavior, byte for byte. Values 暫定. */
 export interface BattleMods extends BMods {
   combo: Combos;
+  /** CP5 rc2: bulwark (磐石) buffs held this run. */
+  bulwarkN?: number;
   /** combo state */
   freeSkill?: boolean; lastElem?: string; counterReady?: boolean;
   /** stats for the sim */
@@ -295,9 +297,10 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   s.focusTurn = false;
   // CP5 r4 (暫定): bulwark 3-set rule (no riposte while defending) keys on the formed combo.
   const bulCp5 = !!(s.cp5 && s.mods?.combo.bulwark);
-  // CP5 rc2 fix 1: consecutive-defend heal decay (×CP5.bulwarkDefDecay^n) applies to every CP5 battle, not only once the
-  // 3-set is formed — the r4 code gated it on combo.bulwark, so 2-piece bulwark builds (堅守 etc.) healed in full every press.
-  if (s.cp5 && a.kind !== 'defend') s.defStreak = 0;
+  // CP5 rc2 fix 1: consecutive-defend heal decay (×CP5.bulwarkDefDecay^n) applies as soon as any 磐石 buff is held — the r4
+  // code gated it on the formed 3-set (combo.bulwark), so 1–2 piece bulwark builds (不動之盾+撕裂) healed in full every press.
+  const bulDecay = !!(s.cp5 && (s.mods?.bulwarkN ?? 0) > 0);
+  if (bulDecay && a.kind !== 'defend') s.defStreak = 0;
   switch (a.kind) {
     case 'attack': {
       const t = retarget(s, a.target);
@@ -354,14 +357,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       if (s.oc >= DEF.ocCost) {
         s.oc -= DEF.ocCost;
         const before = s.hp;
-        const decay = s.cp5 ? CP5.bulwarkDefDecay ** (s.defStreak ?? 0) : 1;
+        const decay = bulDecay ? CP5.bulwarkDefDecay ** (s.defStreak ?? 0) : 1;
         s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0)) * decay));
         ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
       } else ev.push({ t: 'status', to: 'player', text: '防禦' });
       s.defendTurns = DEF.turns;
       if (s.cp5) cleanse(s, ev, '防禦');
       if (s.mods?.combo.bulwark) s.mods.counterReady = true;
-      if (s.cp5) s.defStreak = (s.defStreak ?? 0) + 1;
+      if (bulDecay) s.defStreak = (s.defStreak ?? 0) + 1;
       break;
     }
     case 'focus': {
