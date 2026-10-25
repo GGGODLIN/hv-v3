@@ -10,7 +10,7 @@
     "test": "vitest run --passWithNoTests",
     "assets:build": "python3 -I scripts/gen-pixel-art.py",
     "monsters:check": "python3 -I scripts/build-monsters.py --check",
-    "e2e": "node scripts/e2e.mjs"
+    "e2e": "node scripts/e2e.mjs && node scripts/e2e-cp3fix.mjs"
   },
   "dependencies": {
     "phaser": "4.2.1",
