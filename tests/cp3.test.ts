@@ -129,3 +129,15 @@ describe('CP3-B early unlocks (暫定 gameplay layer)', () => {
     void prog;
   });
 });
+
+describe('CP3-fix 2: potions before the town shop opens (暫定)', () => {
+  it('a trip starts with the starter potions while the shop is locked, and the F3 gift adds health potions', () => {
+    const p = newPlayer();
+    p.potions = { health: 0, mana: 0, spirit: 0 };
+    const run = startRun(p, 5);
+    expect(p.potions).toEqual({ health: 3, mana: 2, spirit: 1 });
+    run.floor = 3;
+    enterNode(p, run, 'merchant');
+    expect(p.potions.health).toBe(5);
+  });
+});

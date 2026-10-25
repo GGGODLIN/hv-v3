@@ -5,7 +5,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
-import { F3_GIFT, TIPS, carryMult, has, prog, tip, unlock } from './progress';
+import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
 
 /** Approved design defaults + provisional tuning. */
@@ -67,6 +67,8 @@ export function startRun(p: Player, seed: number): RunState {
   const trip = g.trips + 1;
   const notes: string[] = [];
   if (trip >= 2) { const m = unlock(p, 'shrine'); if (m) notes.push(m + '（本趟保證出現 1 個神龕）'); }
+  // CP3-fix 2: before the town shop opens there is no way to restock, so top up to the starter stock.
+  if (!has(p, 'shop')) for (const k of Object.keys(STARTER_POTIONS) as PotionId[]) p.potions[k] = Math.max(p.potions[k], STARTER_POTIONS[k]);
   const tutorial = !has(p, 'spell');
   const locked: NodeType[] = [];
   if (!has(p, 'shrine')) locked.push('shrine');
@@ -89,7 +91,7 @@ export function enterNode(p: Player, run: RunState, type: NodeType): string[] {
   if (type === 'merchant' && run.tutorial && f === 3) {
     push(unlock(p, 'spell')); push(unlock(p, 'merchant'));
     const t = tip(p, 'f3', TIPS.f3);
-    if (t) { push(t + `（+${F3_GIFT} 金）`); run.credits += F3_GIFT; run.weakNext = true; }
+    if (t) { push(t + `（+${F3_GIFT} 金、生命藥水 +${F3_GIFT_POTIONS}）`); run.credits += F3_GIFT; p.potions.health += F3_GIFT_POTIONS; run.weakNext = true; }
   }
   if (f >= 4) push(unlock(p, 'spirit'));
   run.notes = [...(run.notes ?? []), ...out];
