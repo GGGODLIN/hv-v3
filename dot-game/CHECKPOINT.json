@@ -1,6 +1,8 @@
 {
-  "checkpoint": "v0.1-desktop-playable",
-  "status": "accepted-desktop-source-awaiting-publish",
+  "checkpoint": "v0.1-published-receipt-003",
+  "status": "published-desktop-accepted-docs-only",
+  "runtime_source_commit": "78316483e93480e6c636c3d1ff5a31bdb729e24d",
+  "website_commit": "0cc3c431e7e161936f0c1c80cf88b4453ab2eb74",
   "files": {
     "README.md": {
       "bytes": 2578,
@@ -30,13 +32,17 @@
       "bytes": 15736,
       "sha256": "6494f28c6ae50222140f743ee50383f1177173ee4aee448a10ce15b48a664698"
     },
+    "docs/RELEASES.md": {
+      "bytes": 3555,
+      "sha256": "60562bcddf7c8cecbf647e55334973e02d7cc24b204811449b1bc8e32386c497"
+    },
     "docs/ROADMAP.md": {
       "bytes": 3729,
       "sha256": "a44bbfe6d828433713e86aa6c9472e3da507cf00ac332551e7b9eda2f1be9d28"
     },
     "docs/STATUS.md": {
-      "bytes": 3114,
-      "sha256": "b30ab18c3fe67aaafc2a271b2de32ec71e6af1f226ce38fa7537a7781945533d"
+      "bytes": 3451,
+      "sha256": "5663ee55698ca4b0572c8a5b8fe12031656dc14849dc3e1db0deb108ea0602e3"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 2126,
