@@ -214,7 +214,9 @@ export class App {
       const opts = f.options.map((t, i) => {
         const chosen = past && r.path[f.n - 1] === i;
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
-        return cur ? `<button class="node n-${t}" data-node="${i}">${ic}${NODE_ZH[t]}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
+        // CP5 rc2 fix 3: the death-combo ⚔ warning sits on the elite node itself (the floor banner stays).
+        const ew = r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
+        return cur ? `<button class="node n-${t}" data-node="${i}">${ic}${NODE_ZH[t]}${ew}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
@@ -284,8 +286,8 @@ export class App {
       if (x.sig === 'shield' && x.shieldEl) sig = `${ic} ${ELEM_ZH[x.shieldEl]}之盾 · 破綻 <b>${ELEM_ZH[x.breachEl!]}</b>${x.pulseNext ? ` <b class="warn">⚡ ${esc(SIG_TEXT.shield.tele)}</b>` : ''}`;
       else if (x.thornTurns) sig = `${ic} 尖刺盾 ${x.thornTurns} 回合（別用物理）`;
       else if (x.sigPending || x.drainNext) sig = `<b class="warn">${ic} ${esc(SIG_TEXT[x.sig].tele)}</b>`;
-      else sig = `<span class="hint">${ic}</span>`;
-      sig = `<span class="tele" data-tele="${x.sig}${x.sigPending || x.drainNext || x.thornTurns || x.pulseNext ? '-on' : ''}">${sig}</span>`;
+      // CP5 rc2 fix 4: no idle signature icon (the resting ⟳ read like a summon warning); only real tells / states show.
+      if (sig) sig = `<span class="tele" data-tele="${x.sig}${x.sigPending || x.drainNext || x.thornTurns || x.pulseNext ? '-on' : ''}">${sig}</span>`;
     }
     return aff || sig ? ` <span class="plate">${aff}${sig}</span>` : '';
   }
