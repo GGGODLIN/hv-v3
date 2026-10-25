@@ -87,7 +87,10 @@ export function winOffers(type: NodeType, run: RunState): number {
 }
 export function merchantBuffs(p: Player, run: RunState): { id: string; price: number }[] {
   const pm = 1 + ((run.buffs ?? []).filter((x) => x === 'N2').length * -0.15);
-  return rollBuffs(p, run, 'merchant', MERCHANT_BUFFS).map((id) => ({ id, price: Math.round(BUFF_PRICE[BUFF[id]!.rarity as 'common'] * RULES.merchantMarkup * pm) }));
+  let ids = rollBuffs(p, run, 'merchant', MERCHANT_BUFFS);
+  // Guarantee (CP4 rc): never an empty buff shelf. Fallback only; the normal roll and its RNG are unchanged.
+  if (!ids.length) { const c = BUFFS.find((b) => b.rarity === 'common' && eligible(p, b) && (b.id.startsWith('S-') || !(run.buffs ?? []).includes(b.id))); if (c) ids = [c.id]; }
+  return ids.map((id) => ({ id, price: Math.round(BUFF_PRICE[BUFF[id]!.rarity as 'common'] * RULES.merchantMarkup * pm) }));
 }
 
 // ---- CP4 step 4: shrine risk events (doc §5). All 暫定.

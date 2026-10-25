@@ -372,6 +372,7 @@ export function advance(run: RunState, option: number): void {
   run.path.push(option);
   run.current = null;
   run.merchant = null;
+  run.buffStock = undefined; // stale stock must not leak to the next node
   if (run.floor >= run.tower.floors.length) run.done = 'clear';
   else run.floor++;
 }

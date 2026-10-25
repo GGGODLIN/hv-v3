@@ -294,7 +294,7 @@ export class App {
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
       body = `<h2>$ 流浪商人</h2><div>可用：${(this.p.credits + r.credits).toLocaleString()} C（先扣本趟所得）</div><div class="row">${pot}</div>
         <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>
-        ${r.buffStock?.length ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${r.buffStock.map((x, i) => this.buffCard(x.id, `${this.previewHtml(x.id)}<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('')}</div>` : ''}`;
+        ${RULES.cp4RunBuffs ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${(r.buffStock ?? []).map((x, i) => this.buffCard(x.id, `${this.previewHtml(x.id)}<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('') || '<div class="empty">Buff 賣完了</div>'}</div>` : ''}`;
     } else if (t === 'rest') {
       const d = runDerived(this.p, r);
       const slots = SLOTS.filter((s) => this.p.equipped[s]).map((s) => `<div class="forge" data-forge="${s}"><button data-up="${s}">強化${SLOT_ZH[s]}（+${this.p.equipped[s]!.iw} → +${this.p.equipped[s]!.iw + 1}）</button> <small>${esc(equipName(this.p.equipped[s]!))}：</small>${iwGain(this.p.equipped[s]!)}</div>`).join('');

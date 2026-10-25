@@ -55,3 +55,22 @@ describe('buff cards match their preview', () => {
     } finally { (RULES as { cp4RunBuffs: boolean }).cp4RunBuffs = was; }
   });
 });
+
+describe('merchant buff shelf (CP4 rc #2)', () => {
+  it('never rolls an empty shelf across 2000 states', async () => {
+    const { merchantBuffs } = await import('../src/core/buffoffer');
+    const { RULES } = await import('../src/core/run');
+    const was = RULES.cp4RunBuffs; RULES.cp4RunBuffs = true;
+    for (let s = 0; s < 2000; s++) {
+      const r = startRun(structuredClone(P0), s); r.floor = 1 + (s % 10);
+      r.buffs = BUFFS.filter((_, i) => (s >> (i % 11)) & 1).map((b) => b.id).slice(0, s % 9);
+      expect(merchantBuffs(P0, r).length).toBeGreaterThanOrEqual(1);
+    }
+    RULES.cp4RunBuffs = was;
+  });
+  it('advance clears the stale buff stock', async () => {
+    const { advance } = await import('../src/core/run');
+    const r = startRun(structuredClone(P0), 3); r.buffStock = [{ id: 'B1', price: 1 }];
+    advance(r, 0); expect(r.buffStock).toBeUndefined();
+  });
+});
