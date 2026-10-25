@@ -1,4 +1,4 @@
-import { act, alive, canUse, whyNot, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, DEF, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -141,7 +141,7 @@ export class App {
       const attrs = ATTRS.map((a) => {
         const next = Math.ceil(attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a]));
         return `<tr><td>${ATTR_ZH[a]}<div class="hint">${ATTR_HINT[a]}</div></td><td class="num">${p.attrs[a]}</td>
-          <td><button data-ref="${a}" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−</button> <button data-add="${a}" ${free < next ? 'disabled' : ''}>+</button> <button data-add5="${a}" ${free < next ? 'disabled' : ''}>+5</button></td><td class="hint">下一點 ${next} EXP</td></tr>`;
+          <td class="abtn"><button data-ref="${a}" data-n="all" ${p.attrs[a] <= 0 ? 'disabled' : ''} title="全部退回">全退</button> <button data-ref="${a}" data-n="10" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−10</button> <button data-ref="${a}" data-n="1" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−1</button> <button data-add="${a}" data-n="1" ${free < next ? 'disabled' : ''}>+1</button> <button data-add="${a}" data-n="10" ${free < next ? 'disabled' : ''}>+10</button> <button data-add="${a}" data-n="max" ${free < next ? 'disabled' : ''} title="用掉所有可用 EXP">+最大</button></td><td class="hint">下一點 ${next} EXP</td></tr>`;
       }).join('');
       const profs = PROFS.map((k) => `<span class="prof">${PROF_ZH[k]} ${profValue(p, k)}</span>`).join('');
       body = `<div class="cols"><div><h3>屬性（可自由重置）</h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>　下一級需 ${Math.ceil(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP</div>
@@ -194,13 +194,19 @@ export class App {
       return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}>${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}>${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${gate(b, { kind: 'item', id })}>${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
-    const charging = b.monsters.some((m) => m.hp > 0 && m.charge > 0);
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${id === 'health' && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}>${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
+    const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
+    const charging = chargers.length > 0;
+    const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
+    const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}：${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</div>`).join('');
+    const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div></div>
+        <div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
-        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' })}>S·${b.spirit ? '解除架勢' : '靈動架勢'}</button></div>
+        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' })}>S·${b.spirit ? '解除架勢' : '靈動架勢'}</button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
@@ -252,10 +258,13 @@ export class App {
     on('[data-speed]', (el) => { this.data.settings.speed = Number(el.dataset.speed) as 1 | 2 | 4; this.stage.speed = this.data.settings.speed; this.save(); this.render(); });
     this.root.querySelector<HTMLInputElement>('[data-skip]')?.addEventListener('change', (e) => { this.data.settings.skipAnim = (e.target as HTMLInputElement).checked; this.stage.skip = this.data.settings.skipAnim; this.save(); });
     on('[data-tab]', (el) => { this.townTab = el.dataset.tab as typeof this.townTab; this.render(); });
-    on('[data-add]', (el) => { allocate(this.p, el.dataset.add as keyof Player['attrs']); this.go('town'); });
-    on('[data-add5]', (el) => { allocate(this.p, el.dataset.add5 as keyof Player['attrs'], 5); this.go('town'); });
-    on('[data-ref]', (el) => { refund(this.p, el.dataset.ref as keyof Player['attrs']); this.go('town'); });
-    on('[data-equip]', (el) => { const e = this.p.inventory.find((x) => x.id === el.dataset.equip); if (e) equip(this.p, e); this.go('town'); });
+    const cnt = (el: HTMLElement) => (el.dataset.n === 'max' || el.dataset.n === 'all' ? 9999 : Number(el.dataset.n ?? 1));
+    on('[data-add]', (el) => { allocate(this.p, el.dataset.add as keyof Player['attrs'], cnt(el)); this.save(); this.go('town'); });
+    on('[data-ref]', (el) => { refund(this.p, el.dataset.ref as keyof Player['attrs'], cnt(el)); this.save(); this.go('town'); });
+    on('[data-equip]', (el) => {
+      const e = this.p.inventory.find((x) => x.id === el.dataset.equip);
+      if (e) this.confirmEquip(e, () => { equip(this.p, e); this.save(); this.go('town'); });
+    });
     on('[data-unequip]', (el) => { unequip(this.p, el.dataset.unequip as Equip['slot']); this.go('town'); });
     on('[data-sell]', (el) => { const i = this.p.inventory.findIndex((x) => x.id === el.dataset.sell); if (i >= 0) { this.p.credits += sellPrice(this.p.inventory[i]!); this.p.inventory.splice(i, 1); } this.go('town'); });
     on('[data-sellall]', () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); });
@@ -325,19 +334,28 @@ export class App {
       <div class="foot"><button data-modal-cancel>取消</button><span class="spacer"></span><button class="big" data-modal-ok>${m.ok}</button></div></div></div>`;
   }
 
+  /** Power change if e were worn (same basis as compare()). */
+  powerDelta(e: Equip): number {
+    const clone: Player = JSON.parse(JSON.stringify(this.p));
+    const a = powerScore(derive(clone));
+    equip(clone, JSON.parse(JSON.stringify(e)));
+    return powerScore(derive(clone)) - a;
+  }
+  /** Every equip entry point (town storage, run bag, battle loot) goes through here: a weaker item asks first. */
+  confirmEquip(e: Equip, doIt: () => void) {
+    if (this.powerDelta(e) >= 0) return doIt();
+    const cur = this.p.equipped[e.slot];
+    this.ask(`這件比較弱（戰力 ▼${-this.powerDelta(e)}），確定要換上？`, `<div class="cmp2"><div><h3>目前</h3>${cur ? this.itemCard(cur) : '<div class="empty">—</div>'}</div><div><h3>新裝備</h3>${this.itemCard(e)}</div></div>
+        <div class="diff"><h3>換上後的數值變化</h3>${this.compare(e)}</div>`, '仍然換上', doIt);
+  }
+
   bagEquip(id: string, confirmed = false) {
     const r = this.run;
     const i = r.bag.findIndex((x) => x.id === id);
     if (i < 0) return;
     const e = r.bag[i]!;
+    if (!confirmed) return this.confirmEquip(e, () => this.bagEquip(id, true));
     const before = runDerived(this.p, r);
-    const trial: Player = JSON.parse(JSON.stringify(this.p));
-    equip(trial, JSON.parse(JSON.stringify(e)));
-    const cur = this.p.equipped[e.slot];
-    if (!confirmed && powerScore(runDerived(trial, r)) < powerScore(before)) {
-      return this.ask('這件比較弱，確定要換上？', `<div class="cmp2"><div><h3>目前</h3>${cur ? this.itemCard(cur) : '<div class="empty">—</div>'}</div><div><h3>新裝備</h3>${this.itemCard(e)}</div></div>
-        <div class="diff"><h3>換上後的數值變化</h3>${this.compare(e)}</div>`, '仍然換上', () => this.bagEquip(id, true));
-    }
     const inv = this.p.inventory.length;
     equip(this.p, e);
     r.bag.splice(i, 1);
@@ -399,13 +417,14 @@ export class App {
     const ev = act(b, a, this.rng, profsOf(this.p));
     for (const e of ev) {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
+      if (e.t === 'hit' && e.from === 'player' && e.weak && e.dmg > 0) this.log.push(`<span class="weakhit">弱點！${esc(b.monsters[e.to as number]!.name)} 受到 ${e.dmg}</span>`);
       if (e.t === 'death') this.log.push(`擊倒 ${esc(b.monsters[e.to]!.name)}`);
       if (e.t === 'charge') this.log.push(`<span class="warn">${esc(b.monsters[e.from]!.name)} 正在蓄力！</span>`);
       if (e.t === 'msg') this.log.push(esc(e.text));
       if (e.t === 'heal' && e.label !== '自然回復') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
     }
-    const regen = ev.filter((e) => e.t === 'heal' && e.label === '自然回復').map((e) => (e.t === 'heal' ? `+${e.amount} ${e.res.toUpperCase()}` : ''));
-    if (regen.length) this.log.push(`<span class="regen">自然回復 ${regen.join(' ')}</span>`);
+    const g = b.regen;
+    this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
     await this.stage.play(ev, b);
     this.busy = false;
     const q = this.queued; this.queued = null;

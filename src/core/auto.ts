@@ -71,7 +71,8 @@ export function pickOption(p: Player, run: RunState): number {
   return 0;
 }
 
-export interface RunReport { settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number }
+export interface BossFight { floor: number; turns: number; potions: number; won: boolean }
+export interface RunReport { settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[] }
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
   // Town prep.
@@ -83,6 +84,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
   const run = startRun(p, seed);
   const rng = new Rng(seed ^ 0x5bd1e995);
   let turns = 0;
+  const bosses: BossFight[] = [];
   while (!run.done) {
     const opt = pickOption(p, run);
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
@@ -91,9 +93,11 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
       const profs = profsOf(p);
+      const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
       while (!b.over && b.turn < 400) { act(b, chooseAction(b), rng, profs); }
       turns += b.turn;
       if (!b.over) b.over = 'lose';
+      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win' });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) break;
       const used = autoEquip(p, run.bag);
@@ -121,7 +125,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
   const keep = new Set(Object.values(p.equipped).map((e) => e!.id));
   for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += Math.round((8 + e.level * 3));
   p.inventory = [];
-  return { settlement: s, floorReached, kills: run.kills, turns, level, power };
+  return { settlement: s, floorReached, kills: run.kills, turns, level, power, bosses };
 }
 
 export function starterKit(p: Player, seed = 7): void {

@@ -11,7 +11,7 @@ import type { BattleState, PotionId } from './battle';
 export const RULES = {
   dropAccel: 8,
   /** Provisional: tower battles pay EXP like an Arena-style mode. */
-  expMult: 6,
+  expMult: 8, // 暫定 (CP2): was 6
   death: { exp: 0.5, credits: 0.5, keepBestItems: 1, loseConsumables: true },
   potionPrice: { health: 50, mana: 100, spirit: 100 } as Record<PotionId, number>,
   restHeal: 0.5,
@@ -74,6 +74,9 @@ export function runDerived(p: Player, run: RunState) {
   return { ...d, adb: d.adb * (1 + run.bonus.dmg), mdb: d.mdb * (1 + run.bonus.dmg), hp: Math.round(d.hp * (1 + run.bonus.hp)) };
 }
 
+/** 暫定 (CP2): extra HP / damage multiplier for monsters on floors 6-9 (difficulty knob, scripts/difficulty.ts). */
+export const MID_FLOOR_MULT = { from: 6, to: 9, hp: 1, dmg: 1.05 };
+
 export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Monster[] {
   const f = run.floor;
   const L = floorLevel(f);
@@ -86,7 +89,9 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       rng.chance(0.5) ? ['normal', 'normal'] : ['normal', 'normal', 'normal'];
     return plan.map((rank) => {
       const row = rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi);
-      return buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
+      const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
+      if (f >= MID_FLOOR_MULT.from && f <= MID_FLOOR_MULT.to) { m.maxHp = m.hp = Math.round(m.maxHp * MID_FLOOR_MULT.hp); m.adb *= MID_FLOOR_MULT.dmg; }
+      return m;
     });
   });
 }

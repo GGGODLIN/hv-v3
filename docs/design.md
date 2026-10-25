@@ -128,3 +128,17 @@
 - 生命藥水冷卻：10 回合（`P-health-potion-cd`）；法力／靈力藥水維持 findings 的 40 回合。
 - 第 10 層 Boss 戰的隨從最多 1 隻（原本 2 隻）。
 - 動畫時間縮放 `Stage.ANIM_SCALE = 0.55`，讓 1x 時每個動作 ≤ 0.3 秒（§3）；另有 2x、4x 與「跳過動畫」。
+
+## CP2 暫定值（好玩與節奏）
+
+全部為 **暫定**，可再調；程式內同樣標註 `暫定 CP2`。
+
+| 項目 | 值 | 原值 | 位置 |
+|---|---|---|---|
+| Boss HP 倍率 `RANK_MULT.boss.hp` | 2.5 | 5 | src/core/monsters.ts |
+| EXP 倍率 `RULES.expMult` | 8 | 6 | src/core/run.ts |
+| 6–9 樓怪物強度 `MID_FLOOR_MULT` | HP ×1.0、傷害 ×1.05 | 無 | src/core/run.ts |
+| 戰鬥中 HP 自然回復 | 0（無資料來源，紀錄仍顯示 HP +0） | — | src/core/battle.ts |
+
+弱點：直接取 monsters.json 各列的負值屬性抗性（傷害公式 `(1 - spec)` 已自然放大），**沒有另加任何弱點加成**。
+缺資料（未發明）：弱點額外倍率規則、Boss 專屬弱點機制、戰鬥中 HP 自然回復來源。

@@ -25,7 +25,7 @@ export const SKILLS: Record<SkillId, { id: SkillId; zh: string; oc: number; cd: 
 };
 const OC = C['F-002-overcharge'].value;
 const SS = C['F-002-spirit-stance'].value;
-const DEF = C['002-07'].value;
+export const DEF = C['002-07'].value;
 const FOC = C['F-002-4.2-focus'].value;
 const ITEMS = C['F-002-items'].value;
 const ITEM_CD = C['F-002-4.1A-item-cooldown'].value.turns;
@@ -50,7 +50,7 @@ export type Action =
   | { kind: 'spirit' };
 
 export type BEvent =
-  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string }
+  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean }
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
   | { t: 'status'; to: 'player' | number; text: string }
   | { t: 'death'; to: number }
@@ -69,6 +69,8 @@ export interface BattleState {
   cooldowns: Record<SkillId, number>;
   itemCd: Record<PotionId, number>;
   potions: Record<PotionId, number>;
+  /** Natural regen applied at the end of the last player turn (HP has no battle regen source, so it is always 0). */
+  regen: { hp: number; mp: number; sp: number };
   over: 'win' | 'lose' | null;
   /** Usage counters for proficiency gain. */
   used: Partial<Record<Prof, number>>;
@@ -80,7 +82,7 @@ export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: nu
     d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: C['P-oc-start'].value.initial,
     monsters, turn: 0, spirit: false, defendTurns: 0, focusTurn: false,
     cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0 },
-    itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0,
+    itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0, regen: { hp: 0, mp: 0, sp: 0 },
   };
 }
 
@@ -120,6 +122,13 @@ export function whyNot(s: BattleState, a: Action): string {
   }
 }
 
+/** A weakness is a negative specific resistance in the monster's monsters.json row (no extra bonus is invented: the
+ * negative value already raises damage through (1 - spec) in damage.ts). */
+export function isWeak(m: Monster, type: keyof Monster['spec']): boolean { return m.spec[type] < 0; }
+export function weaknesses(m: Monster): { type: keyof Monster['spec']; pct: number }[] {
+  return (Object.keys(m.spec) as (keyof Monster['spec'])[]).filter((k) => m.spec[k] < 0).map((k) => ({ type: k, pct: -m.spec[k] })).sort((a, b) => b.pct - a.pct);
+}
+
 function retarget(s: BattleState, t: number): number {
   if (s.monsters[t] && s.monsters[t]!.hp > 0) return t;
   return s.monsters.findIndex((m) => m.hp > 0);
@@ -136,7 +145,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
     m.hp = Math.max(0, m.hp - r.damage);
     s.oc = Math.min(OC.cap, s.oc + rng.int(OC.hitGainMin, OC.hitGainMax));
   }
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype) });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
   return r.avoidMult > 0 ? r.damage : 0;
@@ -152,7 +161,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
     critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: m.magMit, spec: m.spec[def.element] / 100 - specReduce,
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element) });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
     if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15)); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
@@ -260,12 +269,14 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
     if (s.sp >= SS.spPerTurn && s.oc >= SS.ocPerTurn) { s.sp -= SS.spPerTurn; s.oc -= SS.ocPerTurn; }
     else { s.spirit = false; ev.push({ t: 'spirit', on: false }); }
   }
+  s.regen = { hp: 0, mp: 0, sp: 0 };
   if (!noRegen) {
     // findings 002 §(B)4: per-tick battle regen. Reported as events so a spell's MP cost is not silently refilled.
     const mp0 = s.mp, sp0 = s.sp;
     s.mp = Math.min(s.d.mp, s.mp + 5 + s.d.attrs.wis / 25);
     s.sp = Math.min(s.d.sp, s.sp + 1 + Object.values(s.d.attrs).reduce((a, b) => a + b, 0) / 600);
     const r2 = (x: number) => Math.floor(x * 100) / 100;
+    s.regen = { hp: 0, mp: r2(s.mp - mp0), sp: r2(s.sp - sp0) };
     if (r2(s.mp - mp0) > 0) ev.push({ t: 'heal', res: 'mp', amount: r2(s.mp - mp0), label: '自然回復' });
     if (r2(s.sp - sp0) > 0) ev.push({ t: 'heal', res: 'sp', amount: r2(s.sp - sp0), label: '自然回復' });
   }

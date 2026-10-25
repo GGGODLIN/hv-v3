@@ -43,11 +43,11 @@ describe('elite/boss pick (design §4) and PL floor', () => {
       for (let i = 0; i < 50; i++) expect(pickTop(rng, pool, w.lo, w.hi)[3]).toBeGreaterThanOrEqual(cut);
     }
   });
-  it('HP multipliers: elite x2.5, boss x5', () => {
+  it('HP multipliers: elite x2.5, boss x2.5 (CP2 暫定)', () => {
     const r = pool.rows[50]!;
     const n = buildMonster(r, 10, 'normal').maxHp;
     expect(buildMonster(r, 10, 'elite').maxHp / n).toBeCloseTo(2.5, 1);
-    expect(buildMonster(r, 10, 'boss').maxHp / n).toBeCloseTo(5, 1);
+    expect(buildMonster(r, 10, 'boss').maxHp / n).toBeCloseTo(2.5, 1);
   });
   it('PL window never drops below 25', () => {
     expect(MIN_PL).toBe(25);

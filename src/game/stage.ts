@@ -230,6 +230,7 @@ export class Stage extends Phaser.Scene {
         this.tween({ targets: v.sprite, x: v.x + 14, yoyo: true, duration: 60 });
       }
       const top = this.monTop(v);
+      if (e.weak && e.dmg > 0) this.popup(v.x, top - 24, '弱點！', '#40ff90', 30, 80);
       if (e.crits > 0) {
         this.popup(v.x, top + 10, `${e.dmg}!`, '#ffe040', 34 + e.crits * 4, 90);
         this.shake(0.006 + e.crits * 0.003);
