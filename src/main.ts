@@ -23,7 +23,7 @@ async function fetchRetry(url: string, tries = 4): Promise<Response> {
 }
 
 async function boot() {
-  // CP4 run buffs are off by default (docs/cp4-run-buffs.md §11); `?cp4` turns them on for playtesting.
+  // CP4 run buffs are on by default since cp4-pass; `?cp4` is kept as a no-op alias for old links.
   if (new URLSearchParams(location.search).has('cp4')) RULES.cp4RunBuffs = true;
   // CP5 bosses / affixes / themes are off by default; `?cp5` turns them on for playtesting.
   if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;

@@ -33,8 +33,8 @@ export const RULES = {
   floorCredits: 15,
   /** 暫定 (round 5): at least one equipment drop is guaranteed by this floor. */
   earlyEquipByFloor: 4,
-  /** CP4 feature flag (docs/cp4-run-buffs.md §11). Off = identical to tag cp3-pass. `?cp4` in the URL turns it on. */
-  cp4RunBuffs: false,
+  /** CP4 feature flag (docs/cp4-run-buffs.md §11). Off = identical to tag cp3-pass. On by default since cp4-pass (2026-10-25). */
+  cp4RunBuffs: true, // CP4 accepted 2026-10-25 (cp4-pass): run buffs on by default
   /** CP4 decision 5 (暫定): boss max HP × (1 + k × buffs held). Gameplay layer, monsters.json untouched. */
   cp4BossHpPerBuff: 0.06,
   /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. `?cp5` in the URL turns it on. */
