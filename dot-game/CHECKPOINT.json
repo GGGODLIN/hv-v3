@@ -1,10 +1,10 @@
 {
-  "checkpoint": "v0.6-browser-fixtures",
-  "status": "source-tests-passed-browser-in-progress",
+  "checkpoint": "v0.6-desktop-accepted",
+  "status": "bounded-browser-accepted-schema-negative-browser-unverified-root-promotion-pending",
   "files": {
     "README.md": {
-      "bytes": 6669,
-      "sha256": "a662b18fa363467c3f61713546c3dc239490676e60f72fd5e4982457dac916d1"
+      "bytes": 6710,
+      "sha256": "0959ff226f9b0e682065a52e5e51d31ab720fb8ed9c87bd0b0c3b897cf974bbb"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -46,6 +46,10 @@
       "bytes": 5605,
       "sha256": "2f35b8b2df152bb8fd45175ece84dfb82e4007b77c6b0b66c266e220f74631b1"
     },
+    "docs/BROWSER-QA-V06.md": {
+      "bytes": 6280,
+      "sha256": "4de68e6eada88664ea12042d5cbfe7a9a078106b38d2bf299657a07cfe7fa198"
+    },
     "docs/BROWSER-QA.md": {
       "bytes": 2596,
       "sha256": "092fa4fd5ae22fb195798b1b8d0a1b37678b68557367bdfa795e41275fa8fd6e"
@@ -83,8 +87,8 @@
       "sha256": "cfe7e3efa2bc20b895d3af46ec95987e70178e261334ed4739d8128375a920f4"
     },
     "docs/STATUS.md": {
-      "bytes": 13084,
-      "sha256": "febb0f01de00b075e669fae9ec09b0b83e41fdc37f83987d84f8edd145a705e2"
+      "bytes": 13586,
+      "sha256": "7f3758011f9b586d6863c5374d5bfcd5b30c1e53ef75e69ad7bf2cfa1bc6c71f"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
