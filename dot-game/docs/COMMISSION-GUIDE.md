@@ -33,7 +33,7 @@ The initial unchanged catalog and production purchase API were measured with the
 - All 100 eventually had an affordable same-family offer; **40/100** had a strict-stat upgrade at their first such checkpoint. Within twenty clears **60/100** had a strict-stat upgrade, and **61/100** had an explicit same-family tradeoff. These groups overlap; they are not percentages of purchases or a claim that all offers help.
 - First strict-upgrade checkpoints occurred after **6–20 clears**, median **10**, at median **145.6 combat seconds** (104.4–249.3). Their next-fight paired results were **20 faster / 38 equal / 2 slower**. All 60 controls and purchases won. **23/60** improved speed or at least one observed HP margin; 37 showed no such immediate improvement. This is a useful optional growth path, not a universal upgrade or promise that each purchased stat point saves a turn.
 - First explicit-tradeoff pairs were **16 faster / 41 equal / 4 slower**; all 61 controls and purchases won. Only 17 improved speed or an observed HP margin. A mixed-stat offer is not labeled an upgrade merely because its attack or flat score rises.
-- In **26/100** paths an affordable same-family catalog item was strictly beaten in every relevant stat by earned gear at some checkpoint. Strong natural loot remains meaningful.
+- In **26/100** paths an affordable same-family catalog item was matched or beaten in every relevant stat, with at least one strictly better stat by earned gear at some checkpoint. Strong natural loot remains meaningful.
 
 | First applicable purchase | Strict-upgrade pairs (60) | Explicit-tradeoff pairs (61) |
 |---|---:|---:|

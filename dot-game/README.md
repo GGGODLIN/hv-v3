@@ -48,3 +48,6 @@ v0.3 uses its own save/writer/preferences namespace. With no v3 save, read a val
 
 ## Save compatibility in v0.4
 The existing v3 save/lock namespace is retained: v0.4 adds no new persistent weapon fields, and loading always discards encounter-only stun/recovery state. Older v0.3 tabs still run their old combat rules until refreshed; only one tab may own and write progress. Refresh the game to use current mechanics, or use the explicit takeover control. The prior v1/v2 migration remains read-only and does not merge later progress from those old namespaces.
+
+## Save compatibility in v0.7
+The v3 namespace and ordinary item schema remain unchanged. Commissioned weapons are standard locked items; all1500 purchases passed the actual frozen v0.6 validator without item/gold/lock loss. Old tabs show old UI until refreshed; use refresh or explicit takeover for commission. Candidate saves are separate. Source backups do not back up your personal browser save: export it through the game before clearing site data.
