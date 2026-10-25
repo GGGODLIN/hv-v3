@@ -27,8 +27,13 @@ export const CP5 = {
   eliteExtraRoll: 1,
   /** CP5 r3 (暫定, producer decision 2): spell-punishing affixes. 反魔 reflects a share of spell damage;
    *  法抗 resist / magic mitigation; pick weight of 法抗/反魔 vs 1 for the others. */
+  /** CP5 r4 (暫定): bulwark 3-set anti-turtle — consecutive defend heal ×decay^streak; 1 = no riposte while defending. */
+  bulwarkDefDecay: 0.5, bulwarkNoRiposteDef: 1,
   antimagicFrac: 0.3, wardedResist: 0.3, wardedMit: 0.2, magAffixWeight: 4,
 };
+
+/** CP5 r4 (暫定): shown after the bulwark 3-set text. */
+export const BULWARK_CP5_ZH = `［CP5］防禦回合不觸發反擊；連續防禦時回復量每次 ×${CP5.bulwarkDefDecay}`;
 
 export type BossSig = 'summon' | 'shield' | 'thorns' | 'drain';
 /** Decision 2: fixed title per boss floor (no hash). */

@@ -120,6 +120,8 @@ export interface BattleMods extends BMods {
   combo: Combos;
   /** combo state */
   freeSkill?: boolean; lastElem?: string; counterReady?: boolean;
+  /** CP5 (暫定): consecutive defends with the bulwark combo */
+  defStreak?: number;
   /** stats for the sim */
   comboFires?: number;
 }
@@ -291,6 +293,9 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   let free = false;
   let noRegen = false;
   s.focusTurn = false;
+  // CP5 r4 (暫定): bulwark 3-set — each consecutive defend heals less (×CP5.bulwarkDefDecay per streak).
+  const bulCp5 = !!(s.cp5 && s.mods?.combo.bulwark);
+  if (bulCp5 && a.kind !== 'defend') s.mods!.defStreak = 0;
   switch (a.kind) {
     case 'attack': {
       const t = retarget(s, a.target);
@@ -347,12 +352,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       if (s.oc >= DEF.ocCost) {
         s.oc -= DEF.ocCost;
         const before = s.hp;
-        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0))));
+        const decay = bulCp5 ? CP5.bulwarkDefDecay ** (s.mods!.defStreak ?? 0) : 1;
+        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0)) * decay));
         ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
       } else ev.push({ t: 'status', to: 'player', text: '防禦' });
       s.defendTurns = DEF.turns;
       if (s.cp5) cleanse(s, ev, '防禦');
       if (s.mods?.combo.bulwark) s.mods.counterReady = true;
+      if (bulCp5) s.mods!.defStreak = (s.mods!.defStreak ?? 0) + 1;
       break;
     }
     case 'focus': {
@@ -526,7 +533,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
-    if (s.mods?.combo.bulwark && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
+    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
       physHit(s, rng, i, BULWARK_RIPOSTE.mult, ev, '反擊');
       s.mods.counterReady = keep;

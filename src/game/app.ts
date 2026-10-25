@@ -14,7 +14,7 @@ import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as cor
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
 import type { Stage } from './stage';
-import { AFFIXES, BOSS_BY_FLOOR, ELEM_ZH, SIG_TEXT, themeOf, themeRaces, type AffixId, type Cp5Mon } from '../core/cp5';
+import { BULWARK_CP5_ZH, AFFIXES, BOSS_BY_FLOOR, ELEM_ZH, SIG_TEXT, themeOf, themeRaces, type AffixId, type Cp5Mon } from '../core/cp5';
 import { ATTR_HINT, ATTR_ZH, esc, fmtChange, fmtStat, STAT_ZH } from './text';
 
 /** CP3-fix 12 / CP3-bugfix 7: exactly which stats the next +1 changes (town Item World and campfire forge). */
@@ -303,7 +303,7 @@ export class App {
     const f = formed(ids), c = combos(ids);
     const on = (Object.keys(c) as (keyof Combos)[]).filter((k) => c[k]);
     return `<div class="buffs" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
-      ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => COMBO_ZH[k]).join('；')}</span>` : ''}</div>`;
+      ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => comboZh(k)).join('；')}</span>` : ''}</div>`;
   }
   /** CP4 rc #3: held buffs in battle — one icon per buff, hover for name/desc; combo progress.
    *  CP4-rc-fix 4: icon = school glyph + school colour/tint + the buff's first character, so buffs of one school are told apart too. */
@@ -312,7 +312,7 @@ export class App {
     if (!RULES.cp4RunBuffs || !ids?.length) return '';
     const GLYPH: Record<string, string> = { blade: '⚔', oc: '⚡', arcane: '✦', bulwark: '⛨', none: '◆' };
     const c = combos(ids), cnt = schoolCounts(ids);
-    const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${COMBO_ZH[s as keyof Combos]}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
+    const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${comboZh(s as keyof Combos)}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
     return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}"><i>${GLYPH[b.school]}</i>${esc([...b.zh][0] ?? '')}</span>`; }).join('')}${prog}</div>`;
   }
   buffCard(id: string, btn: string): string {
@@ -656,4 +656,5 @@ export class App {
     this.go('result');
   }
 }
-
+/** CP5 r4: the bulwark 3-set text gains the anti-turtle rule when the flag is on. */
+function comboZh(k: keyof Combos): string { return COMBO_ZH[k] + (k === 'bulwark' && RULES.cp5Bosses ? BULWARK_CP5_ZH : ''); }
