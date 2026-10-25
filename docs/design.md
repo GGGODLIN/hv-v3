@@ -169,14 +169,15 @@
 - 靈動架勢門檻 OC 50、每回合 1 SP + 10 OC、不足自動關閉（F-002-spirit-stance）。原「暫定 OC 25」作廢。
 - 戰鬥開始 OC 0（P-oc-start）。
 - EXP 倍率 ×1（P-exp-multiplier）。EARLY_FLOOR_MULT / MID_FLOOR_MULT 已刪除。
-- 賣價依 findings/005 003-04e（F-005-003-04e-sell；findings 內標暫定）。注意：Superior 以上按分解材料價 ×50%，會比 Average 便宜，待製作人確認。
+- 賣價依 findings/005 003-04e（F-005-003-04e-sell；findings 內標暫定）。CP3-fix 1：照 003-04e 原文實作，Superior 只賣 100C（1 Low ×200 ×50%），比 Average 便宜。改為玩法層保底（見下表），材料價與分解數量不變。
 - 藥水店 50/100/100（findings/004）。生命藥水冷卻 10 = assumed（HVP potion 10）；魔力/靈力 40（F-002-4.1A）。
 
 ### B. 玩法層暫定值（無出處）
 | 項目 | 值 |
 |---|---|
 | 首領/精英擊殺 EXP 倍率 RULES.rankExp | ×5 / ×2（自原公式移到玩法層） |
-| 塔內商人裝備價 RULES.merchantMarkup | 賣價 ×3.5 |
+| 塔內商人裝備價 RULES.merchantMarkup | 賣價 ×1.25（CP3-fix 1：原 ×3.5，Average 約 8,845C ≈ 5 趟收入，太貴） |
+| Superior 以上賣價保底 SELL_TIER_STEP | max(分解價, Average 公式（不設 5,000 上限）× 1.2^(品質−Average)) — 品質越高賣價不降 |
 | 帶回倍率 CARRY_MULT | 第 1 趟 ×3、第 2 趟 ×2、第 3 趟起 ×1（EXP、Credits、熟練度） |
 | 每層等級 TOWER.levelPerFloor | 3 → 2（為了首通中位數落在第 3 趟） |
 | 奇數層 1/3/7/9 只有戰鬥/精英；偶數層只有非戰鬥；營火 4/8 | 防避戰：任一路線不會連續 2 個非戰鬥 |

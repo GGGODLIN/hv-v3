@@ -45,9 +45,17 @@ describe('CP3-A lock tests: sourced values (change only with producer approval)'
     expect(at('fair', 0)).toBe(1000);
     expect(at('average', 100)).toBe(2750);
     expect(at('average', 1000)).toBe(5000);
-    expect(at('superior', 50)).toBe(100);
-    expect(at('exquisite', 50)).toBe(500);
-    expect(at('magnificent', 50)).toBe(2500);
+    // CP3-fix 1 (暫定): tiers above Average are floored at Average x 1.2 per tier (003-04e salvage value alone gave Superior 100 C).
+    expect(at('superior', 50)).toBe(Math.round(2625 * 1.2));
+    expect(at('exquisite', 50)).toBe(Math.round(2625 * 1.2 ** 2));
+  });
+  it('higher quality never sells for less (CP3-fix 1)', () => {
+    const rng = new Rng(3);
+    const qs = ['crude', 'fair', 'average', 'superior', 'exquisite', 'magnificent', 'legendary', 'peerless'] as const;
+    for (const level of [1, 5, 20, 100, 500, 1000]) {
+      const prices = qs.map((quality) => { const e = generateEquip(rng, level, { quality }); e.level = level; return sellPrice(e); });
+      for (let i = 1; i < prices.length; i++) expect(prices[i]!, `${qs[i]} L${level}`).toBeGreaterThanOrEqual(prices[i - 1]!);
+    }
   });
 });
 

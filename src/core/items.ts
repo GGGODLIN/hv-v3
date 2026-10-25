@@ -192,10 +192,18 @@ export function effectiveStats(e: Equip): Partial<Record<StatKey, number>> {
 
 const SELL = C['F-005-003-04e-sell'].value;
 /** Sell price in credits: findings/005 003-04e (F-005-003-04e-sell). */
+/** 暫定 (CP3-fix 1): per-tier sell-price step above Average. */
+export const SELL_TIER_STEP = 1.2;
+
 export function sellPrice(e: Equip): number {
   if (e.quality === 'crude' || e.quality === 'fair' || e.quality === 'average') return Math.min(SELL.cap, Math.round(SELL.belowSuperior[e.quality] * (1 + e.level / SELL.levelDivisor)));
   const s = SELL.salvage[e.quality];
-  return Math.round(SELL.materialPrice[s.grade as 'low' | 'mid' | 'high'] * s.count * SELL.salvageShare);
+  const salvage = Math.round(SELL.materialPrice[s.grade as 'low' | 'mid' | 'high'] * s.count * SELL.salvageShare);
+  // 暫定 (CP3-fix 1): 003-04e as written gives Superior 1 Low x 200 x 50% = 100 C, below Average (2,500+).
+  // Floor every tier above Average at the Average price (no 5,000 cap) x SELL_TIER_STEP per tier, so higher quality never sells for less.
+  const tiers = QUALITIES.indexOf(e.quality) - QUALITIES.indexOf('average');
+  const floor = Math.round(SELL.belowSuperior.average * (1 + e.level / SELL.levelDivisor) * SELL_TIER_STEP ** tiers);
+  return Math.max(salvage, floor);
 }
 
 export function blocksOffHand(e: Equip | undefined): boolean {

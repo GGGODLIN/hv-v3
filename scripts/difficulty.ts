@@ -14,6 +14,8 @@ const run1: number[] = [];
 const first: number[] = [];
 const deaths = new Map<number, number>();
 const ur3: number[] = [];
+const t1f5: boolean[] = [];
+const lv: number[][] = [[], [], []];
 const bossF: { floor: number; turns: number; potions: number; won: boolean }[] = [];
 for (let s = 1; s <= N; s++) {
   const p = newPlayer();
@@ -22,11 +24,13 @@ for (let s = 1; s <= N; s++) {
   let ur = 0;
   for (let i = 1; i <= M; i++) {
     const r = autoRun(p, pool, s * 1000 + i, strat);
-    if (i <= 3) ur = r.unlockRate;
+    if (i <= 3) { ur = r.unlockRate; lv[i - 1]!.push(r.settlement.levelAfter); }
+    if (i === 1) t1f5.push(r.bosses.some((b) => b.floor === 5 && b.won));
     if (fc === Infinity) bossF.push(...r.bosses);
     if (i === 1) run1.push(Math.min(r.floorReached, 11));
     if (r.floorReached > 10 && fc === Infinity) fc = i;
     if (fc !== Infinity && i >= 3) break;
+    void 0;
     if (r.floorReached > 10) continue;
     deaths.set(r.floorReached, (deaths.get(r.floorReached) ?? 0) + 1);
   }
@@ -40,6 +44,8 @@ console.log(`run-1 floor reached: mean ${(run1.reduce((a, b) => a + b, 0) / N).t
 console.log(`first clear run: median ${med}  [${first.map((x) => (x === Infinity ? '-' : x)).join(',')}]  cleared ${first.filter((x) => x !== Infinity).length}/${N}`);
 console.log(`unlock rate after trip 3 : mean ${(100 * ur3.reduce((a, b) => a + b, 0) / N).toFixed(0)}%  min ${(100 * Math.min(...ur3)).toFixed(0)}%`);
 console.log(`deaths by floor: ${[...deaths].sort((a, b) => a[0] - b[0]).map(([f, n]) => `F${f}:${n}`).join(' ')}`);
+console.log(`trip-1 F5 boss win: ${t1f5.filter(Boolean).length}/${N}`);
+console.log(`level after trip 1/2/3 (mean): ${lv.map((xs) => (xs.reduce((a, b) => a + b, 0) / Math.max(1, xs.length)).toFixed(1)).join(' / ')}  trip1 [${lv[0]!.join(',')}]`);
 for (const f of [5, 10]) {
   const xs = bossF.filter((b) => b.floor === f);
   const avg = (k: 'turns' | 'potions') => (xs.reduce((a, b) => a + b[k], 0) / Math.max(1, xs.length)).toFixed(1);
