@@ -1,3 +1,3 @@
 #!/bin/sh
-# Retired at cp4-pass: compared defaults with the cp3-pass3 baseline while the CP4 flag was off. Live gate: cp4-on-check.sh.
-cd "$(dirname "$0")/.." && npx tsx scripts/difficulty.ts 16 8 > /tmp/cp4-off.txt 2>&1 && cmp /tmp/cp4-off.txt docs/cp4-baseline-sim.txt && echo "CP4-OFF SIM IDENTICAL"
+# Retired at cp4-pass (compared with cp3-pass3) and fully superseded at cp5-pass (CP5 now on by default). Live gate: cp4-on-check.sh.
+echo "cp4-off-check retired since cp5-pass; run scripts/cp4-on-check.sh" ; exit 0
