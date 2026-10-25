@@ -6,7 +6,10 @@ npx tsc --noEmit -p .
 npx vitest run 2>&1 | grep -E "Tests|FAIL"
 ./scripts/cp4-off-check.sh
 npm run build >/tmp/build.log 2>&1
-pkill -f "vite preview --port 5199" || true; sleep 1
-setsid nohup npx vite preview --port 5199 --host 127.0.0.1 --strictPort >/tmp/prev.log 2>&1 < /dev/null &
+# self-test preview on 5198 (5199 stays on cp3-pass2 for playtesting); stopped at the end
+pkill -f "vite preview --port 5198" || true; sleep 1
+setsid nohup npx vite preview --port 5198 --host 127.0.0.1 --strictPort >/tmp/prev.log 2>&1 < /dev/null &
 sleep 3
-E2E_URL=http://127.0.0.1:5199/ npm run e2e 2>&1 | tail -4
+E2E_URL=http://127.0.0.1:5198/ npm run e2e 2>&1 | tail -4
+node scripts/cp4-shot.mjs http://127.0.0.1:5198/ ${CP4_SHOTS:-/workspace/hv-v3-shots} | tail -3
+pkill -f "vite preview --port 5198" || true

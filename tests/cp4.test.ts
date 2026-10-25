@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { BUFFS, combos, formed, migrateBonus, schoolCounts, SCHOOLS, sumMods } from '../src/core/buffs';
-import { RULES } from '../src/core/run';
+import { RULES, startRun as startRunP } from '../src/core/run';
+import { buffPreview } from '../src/game/buffpreview';
+import { newPlayer as newPlayerP } from '../src/core/player';
 
 describe('CP4 step 1: buff data', () => {
   it('flag defaults off', () => expect(RULES.cp4RunBuffs).toBe(false));
@@ -211,4 +213,19 @@ describe('CP4 decision 2026-10-25 #1: formation', () => {
       expect(rollBuffs(p, r, 'elite', 3).some((id) => BUFF[id]!.school === 'bulwark')).toBe(true);
     }
   }));
+});
+
+describe('CP4 r2 step 3: buff preview', () => {
+  it('shows before -> after for derived, battle and formed rows', () => {
+    const was = RULES.cp4RunBuffs; (RULES as { cp4RunBuffs: boolean }).cp4RunBuffs = true;
+    try {
+      const p = newPlayerP(); const run = startRunP(p, 7); run.buffs = ['B2'];
+      const b1 = buffPreview(p, run, 'B1');
+      const adb = b1.find((r) => r.k === 'adb')!; expect(Number(adb.after)).toBeGreaterThan(Number(adb.before));
+      expect(b1.find((r) => r.k === 'critMod')).toBeTruthy();
+      expect(b1.find((r) => r.k === 'formed')?.after).toBe('刃鋒');
+      expect(buffPreview(p, run, 'O2').find((r) => r.k === 'b.ocGain')).toMatchObject({ before: '+0', after: '+2' });
+      expect(buffPreview(p, run, 'B7').find((r) => r.k === 'cd.mercifulBlow')?.after).toBeDefined();
+    } finally { (RULES as { cp4RunBuffs: boolean }).cp4RunBuffs = was; }
+  });
 });

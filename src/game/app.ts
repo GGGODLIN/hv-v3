@@ -8,6 +8,7 @@ import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, 
 import { Rng, randomSeed } from '../core/rng';
 import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, COMBO_ZH, combos, formed, type Combos } from '../core/buffs';
+import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
@@ -260,11 +261,16 @@ export class App {
     const b = BUFF[id]!;
     return `<div class="buffcard r-${b.rarity}"><div class="bh"><b>${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small></div><div class="bd">${esc(b.desc)}</div>${btn}</div>`;
   }
+  /** CP4 r2 step 3: before -> after rows for a buff choice. */
+  previewHtml(id: string): string {
+    const rows = buffPreview(this.p, this.run, id);
+    return `<div class="bprev" data-bprev="${id}">${rows.length ? rows.map((x) => `<div class="iwgain" data-bprow="${x.k}">${esc(x.zh)} ${esc(x.before)} → <b>${esc(x.after)}</b></div>`).join('') : '<div class="hint">目前裝備／技能用不到，數值不變</div>'}</div>`;
+  }
   offerHtml(): string {
     const r = this.run;
     if (!RULES.cp4RunBuffs) return '';
     let out = '';
-    if (r.offer) out += `<div class="offer" data-offer="${r.offer.src}"><h3>選擇一個 buff（本趟有效）${r.offersLeft ? `　還有 ${r.offersLeft} 次` : ''}</h3><div class="buffrow">${r.offer.ids.map((id) => this.buffCard(id, `<button class="big" data-buff="${id}">選這個</button>`)).join('')}</div>
+    if (r.offer) out += `<div class="offer" data-offer="${r.offer.src}"><h3>選擇一個 buff（本趟有效）${r.offersLeft ? `　還有 ${r.offersLeft} 次` : ''}</h3><div class="buffrow">${r.offer.ids.map((id) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-buff="${id}">選這個</button>`)).join('')}</div>
       <div class="row"><button class="ghost" data-buffskip>不拿</button></div></div>`;
     if (r.risk) {
       const k = r.risk, x = RISKS[k];
@@ -288,7 +294,7 @@ export class App {
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
       body = `<h2>$ 流浪商人</h2><div>可用：${(this.p.credits + r.credits).toLocaleString()} C（先扣本趟所得）</div><div class="row">${pot}</div>
         <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>
-        ${r.buffStock?.length ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${r.buffStock.map((x, i) => this.buffCard(x.id, `<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('')}</div>` : ''}`;
+        ${r.buffStock?.length ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${r.buffStock.map((x, i) => this.buffCard(x.id, `${this.previewHtml(x.id)}<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('')}</div>` : ''}`;
     } else if (t === 'rest') {
       const d = runDerived(this.p, r);
       const slots = SLOTS.filter((s) => this.p.equipped[s]).map((s) => `<div class="forge" data-forge="${s}"><button data-up="${s}">強化${SLOT_ZH[s]}（+${this.p.equipped[s]!.iw} → +${this.p.equipped[s]!.iw + 1}）</button> <small>${esc(equipName(this.p.equipped[s]!))}：</small>${iwGain(this.p.equipped[s]!)}</div>`).join('');

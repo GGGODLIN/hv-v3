@@ -21,6 +21,7 @@ const r1 = await shot('cp4-buff-choice-elite', () => {
   const r = hv.run; r.buffs = ['B2', 'B3']; r.current = { type: 'elite', option: 0 };
   r.offer = { src: 'elite', ids: ['B1', 'B6', 'W2'] }; r.offersLeft = 0; hv.pending = {}; hv.go('node');
 });
+const prev = await pg.evaluate(() => Object.fromEntries([...document.querySelectorAll('[data-bprev]')].map((x) => [x.dataset.bprev, [...x.querySelectorAll('[data-bprow]')].map((r) => r.textContent)])));
 const r2 = await shot('cp4-buff-choice-shrine', () => {
   const hv = window.hv; const r = hv.run; r.current = { type: 'shrine', option: 0 };
   r.offer = { src: 'shrine', ids: ['O2', 'S-might', 'N1'] }; r.risk = 'curse'; hv.pending = {}; hv.go('node');
@@ -29,6 +30,7 @@ const r2 = await shot('cp4-buff-choice-shrine', () => {
 await pg.click('[data-buff="S-might"]');
 const held = await pg.evaluate(() => window.hv.run.buffs);
 const r3 = await shot('cp4-map-buffs', () => { const hv = window.hv; hv.run.risk = null; hv.go('map'); });
-console.log(JSON.stringify({ r1, r2, r3, held, errs }, null, 1));
+console.log(JSON.stringify({ r1, prev, r2, r3, held, errs }, null, 1));
 await br.close();
-if (errs.length || r1.cards !== 3 || !r2.risk || !held.includes('S-might')) process.exit(1);
+const prevOk = prev.B1?.some((t) => t.includes('ADB') && t.includes('→')) && prev.B1?.some((t) => t.includes('流派成形')) && prev.W2?.some((t) => t.includes('物理減傷'));
+if (!prevOk || errs.length || r1.cards !== 3 || !r2.risk || !held.includes('S-might')) process.exit(1);
