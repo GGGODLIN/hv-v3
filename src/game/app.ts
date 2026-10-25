@@ -10,6 +10,8 @@ import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
+import { abyssOpen, abyssCleared, abyssSchool, depthOf, startAbyss } from '../core/run';
+import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, guaranteeQuality } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
@@ -200,7 +202,7 @@ export class App {
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
       <span class="spacer"></span><span class="hint">出擊 ${st.runs} 次 · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
       ${this.noticeHtml()}<div class="tabs">${tabs}</div>${lockedHint ? `<div class="hint locks">🔒 ${lockedHint}</div>` : ''}<div class="body">${body}</div>
-      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span><button data-start class="big">進入試煉之塔 ▶</button></div></div>`;
+      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span><button data-start class="big">進入試煉之塔 ▶</button>${this.abyssBtn()}</div>${this.abyssRecordHtml()}</div>`;
   }
 
   mapHtml(): string {
@@ -214,12 +216,18 @@ export class App {
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         return cur ? `<button class="node n-${t}" data-node="${i}">${ic}${NODE_ZH[t]}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
+      if (r.abyss) {
+        const dn = r.abyss.start + f.n - 1;
+        const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
+        const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${SIG_TEXT[bt.sig].icon}${bt.title}</small>` : '';
+        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small>Lv${abyssBaseLevel(dn)}</small>${bh}</span>${opts}</div>`;
+      }
       const th = r.cp5 && f.n % 5 === 1 ? `<div class="theme-sep" data-themesep="${f.n}">▲ 第 ${f.n}–${f.n + 4} 層：${themeOf(f.n).zh}</div>` : '';
       const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${SIG_TEXT[BOSS_BY_FLOOR[f.n]!.sig].icon}${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
-    return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
+    return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.trip ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
@@ -255,6 +263,7 @@ export class App {
   themeHtml(): string {
     const r = this.run;
     if (!r?.cp5) return '';
+    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${DIFF[abyssTier(dn)]!.zh}</b> · 怪物 HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%</div>`; }
     const t = themeOf(r.floor);
     return `<div class="theme" data-theme="${esc(t.zh)}"><b>${esc(t.zh)}</b>（第 ${Math.floor((r.floor - 1) / 5) * 5 + 1}–${Math.floor((r.floor - 1) / 5) * 5 + 5} 層）· 常見：${themeRaces(t).join('、')} · 多抗：${t.elems.map((e) => ELEM_ZH[e]).join('、')}${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5] ? ` · 首領：${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5]!.title}` : ''}</div>`;
   }
@@ -415,6 +424,7 @@ export class App {
     on('[data-modal-cancel]', () => { this.modal = null; this.render(); });
     on('[data-modal-ok]', () => { const m = this.modal; this.modal = null; m?.onOk(); if (!this.modal) this.render(); });
     on('[data-start]', () => this.startRun());
+    on('[data-abyss]', () => this.startAbyss());
     on('[data-node]', (el) => this.enterNode(Number(el.dataset.node)));
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
@@ -522,6 +532,26 @@ export class App {
     this.data.run = startRun(this.p, randomSeed());
     this.notice = [...(this.data.run.notes ?? [])];
     this.data.stats.runs++;
+    this.go('map');
+  }
+
+  /** CP6: abyss entrance (flag on + first 20-floor clear). */
+  abyssBtn(): string {
+    if (!RULES.cp6Abyss || !abyssOpen(this.p)) return '';
+    const st = checkpointStart(loadRecord(localStorage.getItem(ABYSS_KEY)).best);
+    return `<button data-abyss class="big">進入深淵塔（第 ${st} 層起）▶</button>`;
+  }
+  abyssRecordHtml(): string {
+    if (!RULES.cp6Abyss || !abyssOpen(this.p)) return '';
+    const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
+    const zh: Record<string, string> = { blade: '刃鋒', oc: '奔流', arcane: '秘術', bulwark: '磐石', none: '無流派' };
+    const rows = Object.entries(rec.bySchool).map(([k, v]) => `${zh[k] ?? k} ${v!.best} 層（第 ${v!.trip} 趟）`).join('、');
+    return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}</div>`;
+  }
+  startAbyss() {
+    const st = checkpointStart(loadRecord(localStorage.getItem(ABYSS_KEY)).best);
+    this.data.run = startAbyss(this.p, randomSeed(), st);
+    this.notice = [`深淵塔第 ${st} 層：戰死帶回 50%，撤退保留全部。每 5 層一個檢查點。`];
     this.go('map');
   }
 
@@ -647,9 +677,15 @@ export class App {
 
   endRun() {
     const r = this.run;
+    if (r.abyss) {
+      const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
+      if (recordTrip(rec, abyssCleared(r), abyssSchool(r))) this.notice = [`深淵新紀錄：${abyssCleared(r)} 層`];
+      localStorage.setItem(ABYSS_KEY, JSON.stringify(rec));
+    } else {
     const floor = r.done === 'clear' ? r.tower.floors.length : r.floor;
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
     if (r.done === 'clear') this.data.stats.clears++;
+    }
     this.lastSettlement = settle(this.p, r);
     this.notice = [];
     this.data.run = null;
