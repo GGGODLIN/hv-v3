@@ -6,7 +6,7 @@ const br = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', ar
 const w = (ms) => new Promise((r) => setTimeout(r, ms)); const fail = []; const errs = []; const res = {};
 for (const [k, type] of [['abyss15', 'battle'], ['abyss15', 'elite'], ['postF20-blade', 'boss']]) {
   const pg = await br.newPage(); await pg.setViewport({ width: 1280, height: 900 }); pg.on('pageerror', (e) => errs.push(k + ' ' + e));
-  await pg.goto(BASE + `?cp6&preset=${k}`, { waitUntil: 'networkidle0' }); await pg.waitForFunction(() => window.hv);
+  await pg.goto(BASE + `?cp6&debug&preset=${k}`, { waitUntil: 'networkidle0' }); await pg.waitForFunction(() => window.hv);
   await pg.click('[data-abyss]'); await w(400);
   await pg.evaluate((t) => window.hv.startBattle(t), type); await w(600);
   const r = await pg.evaluate(() => {
