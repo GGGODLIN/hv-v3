@@ -250,3 +250,14 @@
 - **四流派 buff 使用率規則：** 見 docs/cp4-run-buffs.md §7-4（核心 B1/O1/A1/W1 不設上限、其他 ≤80% 通關組合、本流派被選率 ≥5%），四流派一律適用。
 - **併回 main 時（尚未執行）：** `tests/buffcards.test.ts` 的 O4 韌魂門檻要改成 <1.25。原因：c7f60ec 的武器修正後實測值為 1.2308（=16/13），main 上舊的容差會失敗；bot/grok 已用 `tol = Math.max(0.02, 0.5 / a)`。現在不動 main。
 - **sim 依流派選裝（7fb8014）：** 秘術用法杖、磐石用單手＋盾（W1 格擋／招架）；刃鋒用單手、副手自由（推定：B7 強化的 Merciful Blow 屬單手技能線）；奔流不限主手、盾自由，取主副手最佳組合（推定：文件沒有指定武器；強制雙手版 sim 未通關 97%，見 docs/logs/rc4-noclear-schoolgear-oc2h.txt）。主副手一起評估。`auto`、`human`、`buff:random` 維持原本逐格邏輯。
+
+## rc6 項目 3：流派武器規則（sim 依流派選裝）
+
+| 流派 | 主手 | 副手 | 來源 |
+|---|---|---|---|
+| 刃鋒 blade | 雙手（twoHand） | 不帶盾 | 風格定義：parsed_wiki/Fighting_Styles.md L86–88（Two-Handed）；流派↔風格對應為製作人決定，「暫定，無來源」 |
+| OC | 單手（oneHand） | 不帶盾 | 製作人要求雙持；雙持定義見 Fighting_Styles.md L106–108（"two one-handed weapons"）。本遊戲無雙持：副手只收盾牌群組（src/core/constants.ts L255–264，F-003-base-groups）→ 改為單手無盾，「暫定，無來源」 |
+| 秘術 arcane | 法杖（staff） | 不帶盾 | Fighting_Styles.md L146（Staff）；findings/001:64 引用同頁；對應「暫定，無來源」 |
+| 磐石 bulwark | 單手（oneHand） | 盾 | Fighting_Styles.md L57–59（"single one-handed weapon (possibly in combination with a shield)"）；對應「暫定，無來源」 |
+
+實作：`gearStyle()`（src/core/auto.ts），測試 tests/rc6-ai.test.ts。若持有物中沒有該群組武器，sim 才退用其他主手（既有行為）。
