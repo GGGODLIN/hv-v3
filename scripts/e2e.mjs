@@ -172,7 +172,7 @@ if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
 {const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻'));if(cd.length!==10||cd[0]!=='冷卻10'||cd[9]!=='冷卻1')fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
 if(!R.cp2decide||!R.cp2suggest.some(t=>t.includes('防禦')))fails.push('CP2 charge decision');
 {const t=R.cp3town;if(!t.alloc||t.shopTab||t.iwTab)fails.push('CP3 town locks');}
-if(!R.cp3trip||!R.cp3trip.includes('×3'))fails.push('CP3 trip-1 carry multiplier');
+if(!R.cp3trip||!R.cp3trip.includes('×5'))fails.push('CP3 trip-1 carry multiplier (CARRY_MULT 5)');
 if(R.cp3floors.join(',')!=='battle,merchant,elite')fails.push('CP3 tutorial floors '+R.cp3floors);
 if(!R.cp3unlockLog.some(t=>t.includes('防禦'))||!R.cp3unlockLog.some(t=>t.includes('教學')))fails.push('CP3 unlock notice');
 if(!R.cp3spiritTitle.includes('尚未解鎖'))fails.push('CP3 spirit locked');
