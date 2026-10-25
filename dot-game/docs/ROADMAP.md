@@ -33,3 +33,6 @@ Prioritize gameplay depth next: independently implement source-supported weapon 
 
 ## v0.3 chosen slice
 Rapier identity and historical-model Penetrated Armor shipped in v0.3. This is one weapon effect, not complete all-family balance. Keep ordinary encounter tuning unchanged; assess proc-on/off with equal stats against the same armored fixture and verify the normal browser loop. Next gameplay candidates are club control with carefully researched recovery action semantics, more recognizable enemy defensive roles, and drop/gear decisions that remain meaningful beyond raw score. Avoid claiming small early-stage PA gains prove a balanced second fighting style.
+
+## v0.4 chosen slice
+Club stun is the next bounded gameplay candidate: interruption, avoidance suppression and a clearly signaled recovery attack. Preserve existing stages and equipment statistics, show the non-refresh/recovery tradeoff, and validate multi-enemy scheduling independently. Do not equate reduced attack frequency with an unconditional win-rate improvement or claim full original-HV spell/debuff fidelity. After this slice, assess defensive encounter identities and beginner-facing build choices rather than adding effects without readable tradeoffs.

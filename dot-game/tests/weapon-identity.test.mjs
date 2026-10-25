@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { generateItem, resolveWeaponFamily, describeWeaponTrait, scoreItem, WEAPON_FAMILIES } from '../src/loot.js';
+import { generateItem, resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, scoreItem, WEAPON_FAMILIES } from '../src/loot.js';
 
 function seeded(seed) {
   return () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 2 ** 32; };
@@ -74,21 +74,59 @@ test('malformed identity inputs stay inert and lookup does not mutate items', ()
   assert.equal(Object.hasOwn(item, 'weaponFamily'), false);
 });
 
-test('trait text explains after-hit rapier utility without promising axe or club procs', () => {
+test('trait text explains after-hit rapier utility without promising axe procs', () => {
   const rapier = describeWeaponTrait({ slot: 'weapon', weaponFamily: 'rapier' });
   for (const expected of ['普攻造成傷害', '穿透護甲', '暴擊必定觸發', '該次傷害後', '一般物理減傷', '技能不會觸發']) {
     assert.ok(rapier.includes(expected), expected);
   }
-  for (const weaponFamily of ['axe', 'club']) {
-    assert.match(describeWeaponTrait({ slot: 'weapon', weaponFamily }), /尚未實作武器特效/);
-  }
+  assert.match(describeWeaponTrait({ slot: 'weapon', weaponFamily: 'axe' }), /尚未實作武器特效/);
   assert.match(describeWeaponTrait({ slot: 'weapon', name: '陌生刺劍' }), /不會觸發武器特效/);
   assert.equal(describeWeaponTrait({ slot: 'armor', weaponFamily: 'rapier' }), '');
+});
+
+test('club trait explains eligible nonrefreshing stun, remaining block, and recovery action', () => {
+  const club = describeWeaponTrait({ slot: 'weapon', weaponFamily: 'club' });
+  for (const expected of ['普攻命中且造成傷害', '目標仍存活', '擊暈', '符合條件的暴擊必定觸發',
+    '不能攻擊、閃避或招架', '格擋仍有效', '不能疊加或刷新', '下個玩家回合', '恢復行動', '技能不會觸發']) {
+    assert.ok(club.includes(expected), expected);
+  }
+  assert.doesNotMatch(club, /尚未實作|永久|永遠|無限/);
+  assert.equal(describeWeaponTrait({ slot: 'weapon', name: '粗製・裂岩戰棍' }), club);
+});
+
+test('fresh weapon descriptions keep flavor and affixes separate from live traits', () => {
   const rng = seeded(1);
+  const seen = new Set();
   for (let i = 0; i < 60; i++) {
     const item = generateItem(rng, 5, 'weapon');
-    assert.ok(item.description.includes(describeWeaponTrait(item)));
+    seen.add(item.weaponFamily);
+    assert.ok(item.description.includes('詞綴：'));
+    assert.equal(item.description.includes(describeWeaponTrait(item)), false);
+    assert.equal(describeItemFlavor(item), item.description);
     assert.ok(item.description.length <= 240, 'full generated description fits save sanitizer');
+  }
+  assert.deepEqual([...seen].sort(), [...WEAPON_FAMILIES].sort());
+});
+
+test('flavor display removes only one exact known trait suffix without rewriting old saves', () => {
+  const flavor = '穩定的中量武器。詞綴：無。';
+  const previousClubTrait = '戰棍：本版尚未實作武器特效。';
+  const traits = [...WEAPON_FAMILIES.map(weaponFamily => describeWeaponTrait({ slot: 'weapon', weaponFamily })),
+    previousClubTrait, describeWeaponTrait({ slot: 'weapon' })];
+  for (const trait of traits) {
+    const item = Object.freeze({ slot: 'weapon', name: '粗製・裂岩戰棍', description: flavor + trait });
+    const before = JSON.stringify(item);
+    assert.equal(describeItemFlavor(item), flavor);
+    assert.equal(JSON.stringify(item), before, 'display cleanup must not mutate saved descriptions');
+    assert.equal(describeItemFlavor({ ...item, slot: 'armor' }), item.description);
+    assert.equal(describeItemFlavor({ ...item, description: trait + flavor }), trait + flavor, 'not a substring replacement');
+    assert.equal(describeItemFlavor({ ...item, description: flavor + trait + trait }), flavor + trait, 'at most one suffix');
+  }
+  for (const description of [flavor, '玩家自訂備註。', flavor + previousClubTrait + '這是舊紀錄。']) {
+    assert.equal(describeItemFlavor({ slot: 'weapon', description }), description, 'unrecognized prose is untouched');
+  }
+  for (const item of [null, undefined, {}, { description: 4 }, { description: ['文字'] }]) {
+    assert.equal(describeItemFlavor(item), '');
   }
 });
 
@@ -100,7 +138,7 @@ test('flat comparison score is family-independent and excludes proc utility', ()
   }
 });
 
-test('v0.3 metadata preserves all 3000 baseline numeric rolls, RNG draws, names, and IDs', () => {
+test('v0.4 trait prose preserves all 3000 baseline numeric rolls, RNG draws, names, and IDs', () => {
   // Fingerprints captured from v0.2 baseline loot.js before this metadata change.
   // Only the new identity field and explanatory prose are excluded.
   const baselines = [

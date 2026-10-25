@@ -1,5 +1,9 @@
 # Current status
 
+## v0.4 candidate — 2026-10-25 16:00 UTC
+
+Current public release remains v0.3 below. Next slice: club stun, visible control/recovery feedback and equipment-choice descriptions. Original-source timing conflicts and unknown regular/recovery interaction are explicitly documented; fixed proc parameters and scheduler are adaptations. 202 Node tests and four JS syntax checks pass. Browser acceptance and backup are pending; do not treat this candidate as an accepted restore. Existing v3 save schema is retained: the actual prior validator round-trip preserves weapon identity and progression, and encounter state is discarded on load. A timer-partition double-strike defect found in review was fixed with per-enemy player-turn coalescing; seven timing partitions now agree.
+
 ## v0.3 published — 2026-10-25 15:28 UTC
 
 Accepted runtime source: `fee2d2ade97b959cb3d396b5f863279ed84edd53`; website: `45666f8ea1d0612d1e4b294ded7fb98340c73428`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 35 source files / 299045 bytes were read back exactly before promotion;34 payload hashes verified. Pages run `40206772110` succeeded; all six public runtime HTTP200 bodies match source SHA-256. This receipt updates documentation only, not runtime.

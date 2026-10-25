@@ -13,6 +13,8 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
+Version 0.4 is currently a development candidate; the accepted public release remains v0.3 until the next verified publication. The candidate adds club stun with visible duration/recovery feedback. Fixed 25% chance and four simulation ticks are game adaptations using researched maximum values, not original low-level scaling. Stun cannot refresh; recovery guarantees an enemy action on the next player turn under the documented independent scheduling rule. See docs/COMBAT-DESIGN.md for precise eligibility and ordering.
+
 Version 0.3 is published at https://gggodlin.github.io/play/hv-v3-dot/ . See docs/STATUS.md, docs/RELEASES.md and docs/BROWSER-QA-V03.md for source/deployment evidence and limits. It adds rapier Penetrated Armor, weapon-family persistence and visible stack/timer feedback. The deliberately historical post-hit model uses a fixed 25% chance and seven simulation ticks; these rates and timing choices are this game’s adaptations, not a claim of exact current HV. Each stack reduces existing general physical mitigation by 25%, up to three. It is not +25% direct damage. Basic critical hits guarantee one stack; 破勢斬 benefits from existing stacks but cannot trigger them. Weapon scores compare stats only, not this effect.
 
 This version retains v0.2’s online background processing where browser timers permit; long pauses and closed-page time give no offline earnings. Web Locks serialize writes, with a safe foreground/export-only fallback if unavailable. Development continues beyond this first loop.
@@ -37,3 +39,6 @@ Browser QA limits: inactive-tab progress and safe takeover were observed in clou
 
 ## Save migration in v0.3
 v0.3 uses its own save/writer/preferences namespace. With no v3 save, read a valid v2 save first, or v1 only if v2 is absent. Corrupt newer data blocks automatic replacement rather than silently rolling back. Older save bytes remain untouched; progress made later in an old tab is not merged. An exact legacy name created by this independent game can recover its weapon family; unknown/explicitly invalid identities receive no proc. Importing an old save returns safely to camp without retaining combat statuses.
+
+## Save compatibility in v0.4
+The existing v3 save/lock namespace is retained: v0.4 adds no new persistent weapon fields, and loading always discards encounter-only stun/recovery state. Older v0.3 tabs still run their old combat rules until refreshed; only one tab may own and write progress. Refresh the game to use current mechanics, or use the explicit takeover control. The prior v1/v2 migration remains read-only and does not merge later progress from those old namespaces.

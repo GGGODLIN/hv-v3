@@ -6,6 +6,8 @@ export const INVENTORY_LIMIT = 120;
 // The pinned historical PA model; fixed maximum rate/duration and shared refresh
 // are this game's adaptations, not a claim about current original-HV coefficients.
 export const PENETRATED_ARMOR_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:3,mitigationReductionPerStack:.25});
+// Historical weapon maxima applied uniformly: deliberate balance adaptations.
+export const CLUB_STUN_RULES = Object.freeze({chance:.25,durationTicks:4});
 export const STRATEGIES = Object.freeze([
   Object.freeze({id:'balanced',label:'均衡',description:'每 5 回合破勢斬；HP 低於 38% 時治癒，藥水手動使用。'}),
   Object.freeze({id:'assault',label:'猛攻',description:'每 3 回合破勢斬；HP 低於 22% 才治癒，較快消耗 MP，藥水手動使用。'}),
@@ -25,9 +27,9 @@ const round = n => Math.round(n * 100) / 100;
 export const cumulativeXp = level => level <= 1 ? 0 : Math.round((level+3) ** (2.850263212287058 ** (1+level/1000)));
 const nextXp = level => cumulativeXp(level+1)-cumulativeXp(level);
 function random(s) { s.seed = (Math.imul(s.seed, 1664525) + 1013904223) >>> 0; return s.seed / 4294967296; }
-function event(s, type, message, value, target) {
+function event(s, type, message, value, target, effect) {
   s._eventId += 1;
-  s.events.push({id:s._eventId, type, text:message, ...(value === undefined ? {} : {value}), ...(target ? {target} : {})});
+  s.events.push({id:s._eventId, type, text:message, ...(value === undefined ? {} : {value}), ...(target ? {target} : {}), ...(effect ? {effect} : {})});
   if (s.events.length > 30) s.events.splice(0, s.events.length - 30);
 }
 function log(s, message) { s.logs.unshift(message); s.logs.length = Math.min(30, s.logs.length); }
@@ -61,6 +63,23 @@ export function penetratedArmorStatus(enemy, tick) {
 function expirePenetratedArmor(enemy, tick) {
   if(enemy.penetratedArmor&&!penetratedArmorStatus(enemy,tick))delete enemy.penetratedArmor;
 }
+/** Per-enemy, read-only UI view: an owed recovery action is NOT an active stun. */
+export function stunStatus(enemy, tick) {
+  if(!validTick(tick)||!Number.isFinite(enemy?.hp)||enemy.hp<=0)return null;
+  const status=enemy.stun;
+  if(status&&!Array.isArray(status)&&Number.isSafeInteger(status.expiresAtTick)){
+    const ticksRemaining=status.expiresAtTick-tick;
+    if(ticksRemaining>0&&ticksRemaining<=CLUB_STUN_RULES.durationTicks)return {ticksRemaining,recoveryPending:false};
+  }
+  return enemy.stunRecoveryPending===true?{ticksRemaining:0,recoveryPending:true}:null;
+}
+function expireStun(enemy, tick) {
+  if(enemy.stun!==undefined&&!(stunStatus(enemy,tick)?.ticksRemaining>0))delete enemy.stun;
+  if(enemy.hp<=0)delete enemy.stunRecoveryPending;
+}
+function clearEnemyStatuses(enemy) {
+  delete enemy.penetratedArmor;delete enemy.stun;delete enemy.stunRecoveryPending;delete enemy.stunRecoveryTurn;
+}
 
 /** Ordered research-derived resolution; coefficients/rates are explicit game adaptations.
  * `trace` exposes every reached phase. No second hidden accuracy check.
@@ -76,7 +95,7 @@ export function resolveAttack(attacker, defender, rng = Math.random) {
   let factor=1, glancing=false;
   for(const [label,key] of [['Evade','evade'],['Parry','parry'],['Block','block']]) {
     trace.push(label);
-    if((attacker.skill&&(key==='evade'||key==='parry'))||(key==='parry'&&(attacker.magical||defender.stunned)))continue;
+    if(((attacker.skill||defender.stunned)&&(key==='evade'||key==='parry'))||(key==='parry'&&attacker.magical))continue;
     const successes=Number(roll()<chance(defender[key]))+Number(roll()<chance(defender[key]));
     if(successes===2) return stop(key);
     if(successes===1){factor*=.5;if(key==='evade')glancing=true;}
@@ -95,16 +114,28 @@ export function resolveAttack(attacker, defender, rng = Math.random) {
   result.outcome=result.crit?'crit':factor<1?'glance':'hit';return result;
 }
 /** Resolves damage first, then mutates only the defender's bounded proc status.
- * Existing PA benefits physical skills too, but this game's skill never procs it.
+ * Existing PA/stun benefit physical skills too, but this game's skill procs neither.
  * HP subtraction remains the caller's job; a lethal hit does not leave a status.
+ * Only live advance owns next-player-turn recovery; this helper is not a scheduler.
  */
 export function resolveWeaponAttack(attacker, defender, weapon, tick, rng = Math.random) {
-  expirePenetratedArmor(defender,tick);
+  expirePenetratedArmor(defender,tick);expireStun(defender,tick);
   const previous=penetratedArmorStatus(defender,tick);
-  const effectiveDefender=previous&&!attacker.magical?{...defender,mitigation:generalMitigation(defender)*previous.mitigationMultiplier}:defender;
+  const stun=stunStatus(defender,tick);
+  let effectiveDefender=previous&&!attacker.magical?{...defender,mitigation:generalMitigation(defender)*previous.mitigationMultiplier}:defender;
+  if(stun?.ticksRemaining>0)effectiveDefender={...effectiveDefender,stunned:true};
   const result=resolveAttack(attacker,effectiveDefender,rng);
-  if(Number.isFinite(defender.hp)&&defender.hp<=result.damage){delete defender.penetratedArmor;return result;}
-  if(attacker.magical||attacker.skill||resolveWeaponFamily(weapon)!=='rapier'||result.damage<=0||!Number.isFinite(defender.hp)||!validTick(tick))return result;
+  if(Number.isFinite(defender.hp)&&defender.hp<=result.damage){clearEnemyStatuses(defender);return result;}
+  if(attacker.magical||attacker.skill||result.damage<=0||!Number.isFinite(defender.hp)||!validTick(tick))return result;
+  const family=resolveWeaponFamily(weapon);
+  if(family==='club'){
+    if(stun)return result; // Active/pending recovery cannot refresh or spend proc RNG.
+    if(!result.crit&&clamp(finite(rng(),.5),0,.999999999)>=CLUB_STUN_RULES.chance)return result;
+    defender.stun={expiresAtTick:tick+CLUB_STUN_RULES.durationTicks};
+    result.proc={type:'stun',durationTicks:CLUB_STUN_RULES.durationTicks};
+    return result;
+  }
+  if(family!=='rapier')return result;
   if(!result.crit&&clamp(finite(rng(),.5),0,.999999999)>=PENETRATED_ARMOR_RULES.chance)return result;
   const stacks=Math.min(PENETRATED_ARMOR_RULES.maxStacks,(previous?.stacks||0)+1);
   defender.penetratedArmor={stacks,expiresAtTick:tick+PENETRATED_ARMOR_RULES.durationTicks};
@@ -168,16 +199,48 @@ function playerTurn(s) {
   const attack=resolveWeaponAttack({attack:p.attack*(skill?2.3:1),crit:p.crit,skill},target,s.equipment.weapon,s.timing.ticks,()=>random(s));
   target.hp=Math.max(0,target.hp-attack.damage);
   event(s,attack.damage?attack.crit?'crit':'hit':attack.outcome==='block'?'block':'miss',`${skill?'破勢斬 · ':''}${attack.damage?attack.crit?'暴擊':'斬擊':'未造成傷害'}`,attack.damage,target.id);
-  if(attack.proc)event(s,'proc',`穿透護甲 ${attack.proc.stacks}/3 層 · ${attack.proc.durationTicks} Tick`,attack.proc.stacks,target.id);
+  if(attack.proc?.type==='penetratedArmor')event(s,'proc',`穿透護甲 ${attack.proc.stacks}/3 層 · ${attack.proc.durationTicks} Tick`,attack.proc.stacks,target.id);
+  if(attack.proc?.type==='stun')event(s,'proc',`暈眩 · ${attack.proc.durationTicks} Tick`,attack.proc.durationTicks,target.id,'stun');
   if(target.hp===0)defeatEnemy(s,target);
   if(s.enemies.every(e=>e.hp<=0)){if(s.wave===s.totalWaves)win(s);else{s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.10);s._enemyClock=0;}}
 }
-function enemyTurn(s) {
+function enemyAttack(s, e) {
+  if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
   const p=stats(s);
-  for(const e of s.enemies.filter(e=>e.hp>0)) {
-    const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2},{...p,parry:.035},()=>random(s));
-    s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');
-    if(s.hero.hp<=0){s.mode='defeat';s._phase='idle';event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');break;}
+  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2},{...p,parry:.035},()=>random(s));
+  s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');
+  if(s.hero.hp<=0){
+    s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
+    event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');
+  }
+}
+function enemyTurn(s) {
+  for(const e of s.enemies){
+    if(e.stunRecoveryTurn!==s.timing.turns)delete e.stunRecoveryTurn;
+    if(e.hp>0&&!stunStatus(e,s.timing.ticks)&&e.stunRecoveryTurn!==s.timing.turns)enemyAttack(s,e);
+    if(s.mode!=='battle')break;
+  }
+}
+function tickEnemyStatuses(s, previousTick) {
+  for(const enemy of s.enemies){
+    const wasStunned=stunStatus(enemy,previousTick)?.ticksRemaining>0;
+    expirePenetratedArmor(enemy,s.timing.ticks);expireStun(enemy,s.timing.ticks);
+    if(wasStunned&&!enemy.stun&&enemy.hp>0)enemy.stunRecoveryPending=true;
+  }
+}
+function recoverStunnedEnemies(s) {
+  // Selected action-economy adaptation: deliver before the next player action,
+  // then replace only this enemy's ordinary strike in that player-turn interval.
+  // Do not reset the shared enemy clock or bank skipped ordinary attacks.
+  for(const enemy of s.enemies){
+    if(enemy.stunRecoveryPending!==true)continue;
+    delete enemy.stunRecoveryPending;
+    if(enemy.hp<=0){clearEnemyStatuses(enemy);continue;}
+    enemy.stunRecoveryTurn=s.timing.turns+1;
+    event(s,'recovery','暈眩結束 · 甦醒反擊',undefined,enemy.id,'stun');
+    log(s,`${enemy.name||'敵人'} 暈眩結束，先行甦醒反擊。`);
+    enemyAttack(s,enemy);
+    if(s.mode!=='battle')break;
   }
 }
 export function advance(s, seconds) {
@@ -190,9 +253,12 @@ export function advance(s, seconds) {
     }
     s.battle.elapsed+=dt;s.timing.tu+=dt*100/1.05;
     const previousTick=s.timing.ticks;s.timing.ticks=Math.floor(s.timing.tu/100);
-    if(s.timing.ticks!==previousTick)for(const enemy of s.enemies)expirePenetratedArmor(enemy,s.timing.ticks);
+    if(s.timing.ticks!==previousTick)tickEnemyStatuses(s,previousTick);
     s._clock+=dt;s._enemyClock+=dt;
-    if(s._clock>=1.05){s._clock-=1.05;playerTurn(s);}
+    if(s._clock>=1.05){
+      s._clock-=1.05;recoverStunnedEnemies(s);
+      if(s.mode==='battle'&&s._phase==='fight')playerTurn(s);
+    }
     if(s.mode==='battle'&&s._phase==='fight'&&s._enemyClock>=1.9){s._enemyClock-=1.9;enemyTurn(s);}
   }
   return s;

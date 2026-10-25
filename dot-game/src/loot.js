@@ -87,14 +87,30 @@ export function resolveWeaponFamily(item) {
   }
   return typeof item.name === 'string' ? LEGACY_WEAPON_NAMES.get(item.name) ?? null : null;
 }
+const WEAPON_TRAITS = Object.freeze({
+  rapier: '刺劍特性：普攻造成傷害時有機會施加穿透護甲，暴擊必定觸發。新層數在該次傷害後生效，降低敵人的一般物理減傷；後續物理技能也受益，但技能不會觸發。',
+  axe: '戰斧：本版尚未實作武器特效。',
+  club: '戰棍特性：普攻命中且造成傷害、目標仍存活時有機會擊暈，符合條件的暴擊必定觸發。暈眩期間敵人不能攻擊、閃避或招架，格擋仍有效；已有暈眩不能疊加或刷新。暈眩結束後，敵人在下個玩家回合先獲得一次恢復行動；技能不會觸發。',
+});
+const UNKNOWN_WEAPON_TRAIT = '未識別武器類型：不會觸發武器特效。';
+// Previous generators persisted these summaries after the flavor/affix description.
+// Keep the old club wording only for exact display cleanup, never as current rules.
+const APPENDED_WEAPON_TRAITS = Object.freeze([
+  ...Object.values(WEAPON_TRAITS), UNKNOWN_WEAPON_TRAIT,
+  '戰棍：本版尚未實作武器特效。',
+]);
 /** Plain-text mechanism summary; numeric combat rules live in engine.js. */
 export function describeWeaponTrait(item) {
-  switch (resolveWeaponFamily(item)) {
-    case 'rapier': return '刺劍特性：普攻造成傷害時有機會施加穿透護甲，暴擊必定觸發。新層數在該次傷害後生效，降低敵人的一般物理減傷；後續物理技能也受益，但技能不會觸發。';
-    case 'axe': return '戰斧：本版尚未實作武器特效。';
-    case 'club': return '戰棍：本版尚未實作武器特效。';
-    default: return item?.slot === 'weapon' ? '未識別武器類型：不會觸發武器特效。' : '';
+  return WEAPON_TRAITS[resolveWeaponFamily(item)] ?? (item?.slot === 'weapon' ? UNKNOWN_WEAPON_TRAIT : '');
+}
+/** Display-only cleanup: preserve saved prose, render the live family trait separately. */
+export function describeItemFlavor(item) {
+  const description = typeof item?.description === 'string' ? item.description : '';
+  if (item?.slot !== 'weapon') return description;
+  for (const trait of APPENDED_WEAPON_TRAITS) {
+    if (description.endsWith(trait)) return description.slice(0, -trait.length);
   }
+  return description;
 }
 const STAT_KEYS = Object.freeze(['attack', 'defense', 'hp', 'crit', 'evade', 'block']);
 const RATES = new Set(['crit', 'evade', 'block']);
@@ -153,7 +169,7 @@ export function generateItem(rng, level = 1, slot) {
     description: `${base.note}詞綴：${[prefix?.note,suffix?.note].filter(Boolean).join('／') || '無'}。`,
     prefix: prefix?.name || '', suffix: suffix?.name || '',
   };
-  if (actualSlot === 'weapon') item.description += describeWeaponTrait(item);
+  // Mechanism prose is derived at display time so saved descriptions cannot go stale.
   item.power = scoreItem(item);
   return item;
 }

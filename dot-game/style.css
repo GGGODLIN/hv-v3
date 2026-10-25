@@ -15,8 +15,15 @@
 .enemy-status-card strong { display: block; color: #bfd1c7; font-size: 10px; font-weight: 500; overflow-wrap: anywhere; }
 .enemy-effect { display: block; color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .enemy-status-card.has-penetration { border-color: #548f83; background: #193731; }
-.has-penetration .enemy-effect { color: #abe4d8; }
+.has-penetration .penetration-effect { color: #abe4d8; }
+.enemy-status-card.is-stunned { border-color: #8b78b1; }
+.is-stunned .stun-effect { color: #ddd0ff; }
+.enemy-status-card.recovery-ready { border-color: #c58a63; }
+.recovery-ready .stun-effect { color: #f3bd91; }
+.enemy-status-hint { margin-top: 7px; color: var(--muted); font-size: 9px; }
 .proc-notice { border-left: 2px solid var(--teal); margin-top: 8px; padding-left: 8px; color: #bfe8d9; font-size: 11px; overflow-wrap: anywhere; }
+.proc-notice.stun-proc { border-color: #b29acc; color: #ddd0ff; }
+.proc-notice.recovery-notice { border-color: #c58a63; color: #f3bd91; }
 .weapon-trait { margin: 12px 0; padding: 10px; border: 1px solid #36534e; border-radius: 7px; background: #132a2c; overflow-wrap: anywhere; }
 .weapon-trait strong { color: var(--teal); font-size: 11px; }
 .weapon-trait p { margin-top: 6px; font-size: 10px; line-height: 1.75; }

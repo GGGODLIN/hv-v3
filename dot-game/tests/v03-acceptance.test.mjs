@@ -94,14 +94,14 @@ test('v0.3 independent: all 41 damage dice and avoidance/crit order survive exis
     const draws=[.9,.9,.1,.9,.1,.9,.1,.9,(n+.1)/41];
     const attacker={attack:100,crit:1,multiCrit:0};
     enemy.parry=.5;enemy.block=.5;
-    const actual=resolveWeaponAttack(attacker,enemy,{slot:'weapon',weaponFamily:'club'},10,counted(draws).rng);
+    const actual=resolveWeaponAttack(attacker,enemy,{slot:'weapon',weaponFamily:'axe'},10,counted(draws).rng);
     const expected=resolveAttack(attacker,{...enemy,mitigation:.25},counted(draws).rng);
     assert.deepEqual(actual,expected);assert.equal(actual.crit,1);assert.deepEqual(actual.trace,fullTrace);
   }
 });
-test('v0.3 independent: nonrapier families and unresolved identity preserve the full RNG stream',()=>{
+test('v0.3 independent: unimplemented families and unresolved identity preserve the full RNG stream',()=>{
   for(const weapon of [null,{}, {slot:'weapon'}, {slot:'weapon',weaponFamily:'axe'},
-    {slot:'weapon',weaponFamily:'club'}, {slot:'armor',weaponFamily:'rapier'},
+    {slot:'armor',weaponFamily:'rapier'},
     {slot:'weapon',weaponFamily:'unknown',name:'普通・逐風刺劍'}]) {
     for(const attacker of [basic,{...basic,crit:1,multiCrit:0}]) {
       const a=counted([],0),b=counted([],0),enemy=target();
@@ -148,8 +148,8 @@ test('v0.3 independent: same-stat controlled encounter proves stack advantage, n
     }
     return turns;
   }
-  assert.equal(duel(rapier,.8),7);assert.equal(duel({slot:'weapon',weaponFamily:'club'},.8),20);
-  assert.equal(duel(rapier,0),4);assert.equal(duel({slot:'weapon',weaponFamily:'club'},0),4);
+  assert.equal(duel(rapier,.8),7);assert.equal(duel({slot:'weapon',weaponFamily:'axe'},.8),20);
+  assert.equal(duel(rapier,0),4);assert.equal(duel({slot:'weapon',weaponFamily:'axe'},0),4);
 });
 test('v0.3 independent: weapon identity changes neither sheet stats nor scalar score',()=>{
   const s=createGame(42),sheet=stats(s),resource=clone(s.hero),score=scoreItem(s.equipment.weapon);

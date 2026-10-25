@@ -1,8 +1,8 @@
 import { createGame, advance, act, stats, validateSave, STRATEGIES } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
-import { resolveWeaponFamily, describeWeaponTrait } from './loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus } from './engine.js';
+import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from './loot.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus } from './engine.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
@@ -20,9 +20,16 @@ const slotNames = { weapon: '武器', armor: '護甲', accessory: '飾品' };
 const weaponFamilyNames = { axe: '戰斧', rapier: '刺劍', club: '戰棍' };
 function itemTypeName(item) { return weaponFamilyNames[resolveWeaponFamily(item)] || slotNames[item.slot] || '裝備'; }
 function weaponRuleText(item) {
-  if (resolveWeaponFamily(item) !== 'rapier') return '';
-  const rules = PENETRATED_ARMOR_RULES;
-  return `普通攻擊造成傷害且目標存活時：非暴擊 ${format(rules.chance * 100)}% 觸發，暴擊必觸發。最多 ${rules.maxStacks} 層 · 持續 ${rules.durationTicks} Tick，重觸發刷新。每層降低原本物理總減傷率的 ${format(rules.mitigationReductionPerStack * 100)}%，不是直接增加同等傷害；從後續攻擊生效。固定機率與時長為本作選定參數。`;
+  const family = resolveWeaponFamily(item);
+  if (family === 'rapier') {
+    const rules = PENETRATED_ARMOR_RULES;
+    return `普通攻擊造成傷害且目標存活時：非暴擊 ${format(rules.chance * 100)}% 觸發，暴擊必觸發。最多 ${rules.maxStacks} 層 · 持續 ${rules.durationTicks} Tick，重觸發刷新。每層降低原本物理總減傷率的 ${format(rules.mitigationReductionPerStack * 100)}%，不是直接增加同等傷害；從後續攻擊生效。固定機率與時長為本作選定參數。`;
+  }
+  if (family === 'club') {
+    const rules = CLUB_STUN_RULES;
+    return `目標未暈眩、未待恢復行動時，普通攻擊造成傷害且目標存活：非暴擊 ${format(rules.chance * 100)}% 觸發，符合條件的暴擊必觸發。持續 ${rules.durationTicks} Tick，不疊層、不刷新。到期後敵人恢復閃避與招架，並在下次我方行動前先行動；可能反擊致敗，不能視為永久控制。固定機率、時長與自動戰鬥時序為本作改編參數，不是原版當前數值。`;
+  }
+  return '';
 }
 function powerComparisonText(item, current) {
   if ((item.power || 0) <= (current?.power || 0)) return '';
@@ -57,6 +64,9 @@ let lastStageCount = 0;
 let toastTimer;
 let bannerTimer;
 let procTimer;
+let procTargetId = null;
+let recoveryTimer;
+let recoveryTargetId = null;
 let lastSaveAt = 0;
 let lastProcessedEvent = null;
 const seenEvents = new Set((state.events || []).map(event => String(event.id)));
@@ -162,13 +172,24 @@ function eventEffects() {
     seenEvents.add(key); lastProcessedEvent = key;
     if (seenEvents.size > 200) { const keep = Array.from(seenEvents).slice(-100); seenEvents.clear(); keep.forEach(id => seenEvents.add(id)); }
     const type = event.type;
-    if (type === 'proc' && state.mode === 'battle') {
+    if ((type === 'proc' || type === 'recovery') && state.mode === 'battle') {
       // Text feedback remains visible with reduced motion; never infer a proc from a weapon name.
       const enemy = state.enemies.find(enemy => enemy.id === event.target && enemy.hp > 0);
       if (!enemy) continue; // Expired targets remain in the log, not the current battlefield.
-      $('proc-notice').textContent = `${enemy?.name ? `${enemy.name} · ` : ''}${event.text || '穿透護甲觸發'}`;
-      $('proc-notice').hidden = false;
-      clearTimeout(procTimer); procTimer = setTimeout(() => { $('proc-notice').hidden = true; }, 3200);
+      const recovering = type === 'recovery';
+      const stunning = event.effect === 'stun';
+      const effectNotice = $(recovering ? 'recovery-notice' : 'proc-notice');
+      effectNotice.className = `proc-notice${recovering ? ' recovery-notice' : stunning ? ' stun-proc' : ''}`;
+      effectNotice.textContent = `${enemy.name} · ${event.text || (recovering ? '暈眩解除，敵人恢復行動' : stunning ? '暈眩觸發' : '武器特效觸發')}`;
+      effectNotice.hidden = false;
+      // A recovery and a new proc can occur in one update; neither notice erases the other.
+      if (recovering) {
+        recoveryTargetId = enemy.id;
+        clearTimeout(recoveryTimer); recoveryTimer = setTimeout(() => { effectNotice.hidden = true; }, 3200);
+      } else {
+        procTargetId = enemy.id;
+        clearTimeout(procTimer); procTimer = setTimeout(() => { effectNotice.hidden = true; }, 3200);
+      }
       playSound('crit');
     }
     if (['hit', 'crit', 'miss', 'block', 'heal'].includes(type)) {
@@ -195,18 +216,29 @@ function eventEffects() {
 function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(100, Number(value) / Math.max(1, Number(max)) * 100))}%`; }
 function renderEnemyStatuses() {
   const enemies = state.mode === 'battle' ? state.enemies.filter(enemy => enemy.hp > 0) : [];
-  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, state.timing?.ticks || 0) }));
-  const signature = JSON.stringify(rows.map(({ enemy, status }) => [enemy.id, enemy.name, enemy.hp, status]));
+  const tick = state.timing?.ticks || 0;
+  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick) }));
+  const signature = JSON.stringify(rows.map(({ enemy, status, stun }) => [enemy.id, enemy.name, enemy.hp, status, stun]));
   $('enemy-status-panel').hidden = !rows.length;
-  if (!rows.length) { $('proc-notice').hidden = true; clearTimeout(procTimer); }
+  if (!rows.length || (procTargetId && !enemies.some(enemy => enemy.id === procTargetId))) {
+    $('proc-notice').hidden = true; clearTimeout(procTimer); procTargetId = null;
+  }
+  if (!rows.length || (recoveryTargetId && !enemies.some(enemy => enemy.id === recoveryTargetId))) {
+    $('recovery-notice').hidden = true; clearTimeout(recoveryTimer); recoveryTargetId = null;
+  }
   if (signature === lastEnemyStatusSignature) return;
   lastEnemyStatusSignature = signature;
-  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status }, index) => {
-    const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}`);
+  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun }, index) => {
+    const pending = stun?.recoveryPending;
+    const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}${stun ? pending ? ' recovery-ready' : ' is-stunned' : ''}`);
     const name = node('strong', '', `${index === 0 ? '目標 · ' : ''}${enemy.name}`);
-    const effect = node('span', 'enemy-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
-    card.append(name, effect);
-    if (status) card.title = `物理減傷為原本的 ${format(status.mitigationMultiplier * 100)}%；不是直接增加同等傷害。`;
+    const effect = node('span', 'enemy-effect penetration-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
+    const control = node('span', 'enemy-effect stun-effect', pending ? '甦醒待行動 · 下次我方行動前可反擊' : stun ? `暈眩 · 剩 ${stun.ticksRemaining} Tick` : '暈眩：無');
+    card.append(name, effect, control);
+    const details = [];
+    if (status) details.push(`物理減傷為原本的 ${format(status.mitigationMultiplier * 100)}%；不是直接增加同等傷害。`);
+    if (stun) details.push(pending ? '暈眩已結束，閃避與招架恢復；下一次我方行動前，敵人先行動。' : '暫停敵方行動，期間不能閃避或招架；到期後會恢復行動。');
+    if (details.length) card.title = details.join(' ');
     return card;
   }));
 }
@@ -294,7 +326,7 @@ function renderItemDetail() {
   const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}`);
   const name = node('h3', 'detail-name', item.name);
   const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}`);
-  const description = node('p', 'detail-description', item.description || '一件等待發揮力量的裝備。');
+  const description = node('p', 'detail-description', describeItemFlavor(item) || '一件等待發揮力量的裝備。');
   const trait = node('div', 'weapon-trait');
   if (item.slot === 'weapon') {
     trait.append(node('strong', '', `武器路線 · ${weaponFamilyNames[resolveWeaponFamily(item)] || '未辨識'}`), node('p', '', describeWeaponTrait(item)));
@@ -310,7 +342,7 @@ function renderItemDetail() {
     const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : Math.round(diff)}`;
     const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', display), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
   }
-  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。'}屬性評分不含穿透護甲等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
+  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。'}屬性評分不含穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
   const actions = node('div', 'detail-actions');
   if (!selectedSlot) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
@@ -370,6 +402,13 @@ function drawEnemy(enemy, x, y, index, t) {
   if (enemy.hp > 0 && status) {
     rect(x - width / 2, sy + 5, width, 10, '#132c32e8');
     ctx.fillStyle = '#abe4d8'; ctx.fillText(`PA ${status.stacks} · ${status.ticksRemaining}T`, x, sy + 12, width);
+  }
+  const stun = stunStatus(enemy, state.timing?.ticks || 0);
+  if (enemy.hp > 0 && stun) {
+    const top = sy + (status ? 16 : 5);
+    rect(x - width / 2, top, width, 10, '#30273ae8');
+    ctx.fillStyle = stun.recoveryPending ? '#f3bd91' : '#ddd0ff';
+    ctx.fillText(stun.recoveryPending ? 'READY' : `STUN ${stun.ticksRemaining}T`, x, top + 7, width);
   }
 }
 function drawScene(t, dt) {
@@ -469,7 +508,7 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-if (loaded.migrated) notice('v0.3 已讀取舊版進度，將另存至獨立的 v3 存檔；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在 v0.3 繼續遊玩或手動匯出。');
+if (loaded.migrated) notice('已讀取舊版 v1／v2 進度，將另存至目前的 v3 存檔格式；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在目前版本繼續遊玩或手動匯出。');
 if (loadProblem) notice(loadProblem);
 if (!ownership.supported) {
   prefs.backgroundIdle = false;
