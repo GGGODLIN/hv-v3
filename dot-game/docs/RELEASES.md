@@ -119,3 +119,9 @@ Source-only correction: successful manual Start/Retreat resets the online timer,
 
 ## v0.8.1 repaired-save takeover follow-up — 2026-10-25 23:00 UTC
 Source-only persistence correction: protected followers re-read/validate durable bytes under acquired ownership after another tab repairs a corrupt save. Valid repairs resume saving; corrupt/unknown/missing/unreadable data remains protected. 551 tests and four syntax checks pass; independent source-only acceptance in SAVE-RECOVERY.md. Only refreshSavedState changes in runtime. Complete backup receipt follows; no public/browser acceptance or promotion. Accepted v0.7 recovery remains e1b576ee2041bd2772f79587e859a80b5ab1f108.
+
+### Repaired-save takeover verified source receipt — 2026-10-25 23:12 UTC
+- Candidate runtime/source commit: `ff6bb071240deef5d86c34e80a1d514daeb9762d` on bot/dot, parent `50b3462ca7bd5d4c90991adc6a22f0939cef9f30`.
+- Exact readback: 83 files, 1146291 bytes, 82 manifest payloads; every content, byte count, SHA256 and Git blob SHA matches the frozen candidate. All 432 outside-dot-game entries are unchanged, with no removals and an expected-head non-force update.
+- The remote-only reconstructed package passes 551/551 tests, zero skips/failures, and four runtime syntax checks.
+- This receipt changes documentation/manifest only; candidate runtime/tests are unchanged. No website, CI, public HTTP or browser action occurred. Accepted v0.7 recovery remains `e1b576ee2041bd2772f79587e859a80b5ab1f108`; source recoverability does not establish browser acceptance or authorize the blocked HTTP retry.
