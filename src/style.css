@@ -130,7 +130,8 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .bbuffs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; pointer-events: auto; }
 .bic, .bprog { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #ffffff55; background: #2a2038; font-size: 13px; cursor: help; }
 .bprog { font-size: 11px; color: #aaa; background: #1a1a22; } .bprog.on { color: #ffd060; border-color: #ffd060; }
-.bic.s-blade { color: #ff8a8a; } .bic.s-oc { color: #ffe066; } .bic.s-arcane { color: #9ad0ff; } .bic.s-bulwark { color: #b8e0a0; }
+.bic.s-blade { color: #ff8a8a; background: #3a1c22; } .bic.s-oc { color: #ffe066; background: #3a3218; } .bic.s-arcane { color: #9ad0ff; background: #18283c; } .bic.s-bulwark { color: #b8e0a0; background: #1c3020; } .bic.s-none { color: #ddd; }
+.bic i { font-style: normal; font-size: 10px; margin-right: 1px; opacity: .85; } /* CP4-rc-fix 4 */
 .bic.r-rare { border-color: #5aa0ff; } .bic.r-legend { border-color: #ffb040; box-shadow: 0 0 5px #ffb04088; }
 .bic:hover::after, .bprog:hover::after { content: attr(data-tip); position: absolute; left: 0; top: 26px; z-index: 50; white-space: pre-line; width: max-content; max-width: 260px; padding: 5px 8px; background: #111e; border: 1px solid #fff4; border-radius: 4px; font-size: 12px; color: #eee; }
 /* CP5 (flag-only elements) */

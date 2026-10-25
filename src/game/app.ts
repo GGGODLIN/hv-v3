@@ -305,14 +305,15 @@ export class App {
     return `<div class="buffs" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
       ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => COMBO_ZH[k]).join('；')}</span>` : ''}</div>`;
   }
-  /** CP4 rc #3: held buffs in battle — one icon per buff, hover for name/desc; combo progress. */
+  /** CP4 rc #3: held buffs in battle — one icon per buff, hover for name/desc; combo progress.
+   *  CP4-rc-fix 4: icon = school glyph + school colour/tint + the buff's first character, so buffs of one school are told apart too. */
   battleBuffRow(): string {
     const ids = this.run?.buffs;
     if (!RULES.cp4RunBuffs || !ids?.length) return '';
     const GLYPH: Record<string, string> = { blade: '⚔', oc: '⚡', arcane: '✦', bulwark: '⛨', none: '◆' };
     const c = combos(ids), cnt = schoolCounts(ids);
     const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${COMBO_ZH[s as keyof Combos]}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
-    return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}">${GLYPH[b.school]}</span>`; }).join('')}${prog}</div>`;
+    return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}"><i>${GLYPH[b.school]}</i>${esc([...b.zh][0] ?? '')}</span>`; }).join('')}${prog}</div>`;
   }
   buffCard(id: string, btn: string): string {
     const b = BUFF[id]!;
