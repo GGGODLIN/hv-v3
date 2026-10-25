@@ -94,10 +94,11 @@ export function combos(ids: string[]): Combos {
   const x = (a: School, b: School) => c[a] >= CROSS_AT && c[b] >= CROSS_AT;
   return { blade: c.blade >= COMBO_AT, oc: c.oc >= COMBO_AT, arcane: c.arcane >= COMBO_AT, bulwark: c.bulwark >= COMBO_AT, bladeOc: x('blade', 'oc'), arcaneOc: x('arcane', 'oc'), bulwarkBlade: x('bulwark', 'blade'), bulwarkArcane: x('bulwark', 'arcane') };
 }
-/** A school is "formed" with ≥3 of its buffs, or its core plus one more (doc §2). */
+/** CP4 decision 2026-10-25 #1 (暫定): a school is "formed" when it holds ≥2 of its buffs and one of them is its core
+ * (i.e. core + 1 more). The old "any 3 without core" path is dropped. */
 export function formed(ids: string[]): Exclude<School, 'none'>[] {
   const c = schoolCounts(ids);
-  return SCHOOLS.filter((s) => c[s] >= 3 || (c[s] >= 2 && ids.some((id) => BUFF[id]?.core && BUFF[id]!.school === s)));
+  return SCHOOLS.filter((s) => c[s] >= 2 && ids.some((id) => BUFF[id]?.core && BUFF[id]!.school === s));
 }
 
 /** Sum the mods of all held buffs. */

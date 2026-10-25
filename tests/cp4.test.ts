@@ -196,3 +196,19 @@ describe('CP4 step 6: tuning + sim strategies', () => {
     expect(autoRun(q2, pool, 3001, 'human').cp4).toBeUndefined();
   });
 });
+
+describe('CP4 decision 2026-10-25 #1: formation', () => {
+  const p = newPlayer(); starterKit(p);
+  it('formed = core + 1 of the same school; 3 without core is not formed', () => {
+    expect(formed(['B1', 'B2'])).toEqual(['blade']);
+    expect(formed(['B2', 'B3', 'B4'])).toEqual([]);
+  });
+  it('holding 1 of a school guarantees a same-school option (its core while unheld)', () => on(() => {
+    for (let s = 1; s < 300; s++) {
+      const r = startRun(p, s); r.buffs = ['W2'];
+      expect(rollBuffs(p, r, 'shrine', 3)).toContain('W1');
+      r.buffs = ['W1'];
+      expect(rollBuffs(p, r, 'elite', 3).some((id) => BUFF[id]!.school === 'bulwark')).toBe(true);
+    }
+  }));
+});

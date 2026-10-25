@@ -13,6 +13,9 @@ export const OFFER_RARITY: Record<OfferSource | 'merchant', [number, number, num
 export const OFFER_SIZE = 3;
 export const MERCHANT_BUFFS = 2;
 export const BUFF_PRICE: Record<Exclude<Rarity, 'legend'>, number> = { common: 120, rare: 300 };
+export const SCHOOL_GUARANTEE = true; // decision 2026-10-25 #1, 暫定
+/** The guaranteed same-school option is the school's core while it is not held (暫定). */
+export const CORE_FIRST = true;
 export const SAME_SCHOOL_WEIGHT = 4; // step 6 tuning (was 2), 暫定
 /** Buff offers come from their own stream so tower / loot RNG never shifts (seed derived from run.seed + counter). */
 function offerRng(run: RunState): Rng {
@@ -35,6 +38,17 @@ export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant
   for (const s of SCHOOLS) {
     const core = BUFFS.find((b) => b.school === s && b.core)!;
     if (cnt[s] >= 2 && !held.includes(core.id) && eligible(p, core) && out.length < n && src !== 'merchant' && !weights) out.push(core.id);
+  }
+  // Decision 2026-10-25 #1 (暫定): once a school has ≥1 buff, the next pick-one offer has ≥1 option of it
+  // (the most-held school; ties → the one held first). Merchant and weighted test rolls are exempt.
+  if (SCHOOL_GUARANTEE && src !== 'merchant' && !weights && out.length < n) {
+    const top = SCHOOLS.filter((s) => cnt[s] > 0).sort((a, b) => cnt[b] - cnt[a] || held.findIndex((id) => BUFF[id]!.school === a) - held.findIndex((id) => BUFF[id]!.school === b))[0];
+    if (top && !out.some((id) => BUFF[id]!.school === top)) {
+      const pool = BUFFS.filter((b) => b.school === top && eligible(p, b) && !held.includes(b.id) && (src === 'boss' || b.rarity !== 'legend'));
+      const core = pool.find((b) => b.core);
+      if (core && CORE_FIRST) out.push(core.id);
+      else if (pool.length) out.push(rng.weighted(pool.map((b) => [b.id, OFFER_RARITY[src][b.rarity === 'common' ? 0 : b.rarity === 'rare' ? 1 : 2] || 1] as [string, number])));
+    }
   }
   const [c, r, l] = weights ?? OFFER_RARITY[src];
   let needRare = src === 'boss';
