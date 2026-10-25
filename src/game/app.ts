@@ -272,11 +272,11 @@ export class App {
     let sig = '';
     if (x.sig) {
       const ic = SIG_TEXT[x.sig].icon;
-      if (x.sig === 'shield' && x.shieldEl) sig = `${ic} ${ELEM_ZH[x.shieldEl]}之盾 · 破綻 <b>${ELEM_ZH[x.breachEl!]}</b>`;
+      if (x.sig === 'shield' && x.shieldEl) sig = `${ic} ${ELEM_ZH[x.shieldEl]}之盾 · 破綻 <b>${ELEM_ZH[x.breachEl!]}</b>${x.pulseNext ? ` <b class="warn">⚡ ${esc(SIG_TEXT.shield.tele)}</b>` : ''}`;
       else if (x.thornTurns) sig = `${ic} 尖刺盾 ${x.thornTurns} 回合（別用物理）`;
       else if (x.sigPending || x.drainNext) sig = `<b class="warn">${ic} ${esc(SIG_TEXT[x.sig].tele)}</b>`;
       else sig = `<span class="hint">${ic}</span>`;
-      sig = `<span class="tele" data-tele="${x.sig}${x.sigPending || x.drainNext || x.thornTurns ? '-on' : ''}">${sig}</span>`;
+      sig = `<span class="tele" data-tele="${x.sig}${x.sigPending || x.drainNext || x.thornTurns || x.pulseNext ? '-on' : ''}">${sig}</span>`;
     }
     return aff || sig ? ` <span class="plate">${aff}${sig}</span>` : '';
   }

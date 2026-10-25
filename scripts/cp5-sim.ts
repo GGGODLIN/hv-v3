@@ -5,7 +5,7 @@ import { autoRun, starterKit, type Strategy, type BossFight } from '../src/core/
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
 import { CP5 } from '../src/core/cp5';
-for (const kv of process.argv.slice(5)) { const [k, v] = kv.split('='); (CP5 as unknown as Record<string, number>)[k!] = Number(v); console.log(`override ${k}=${v}`); }
+for (const kv of process.argv.slice(5)) { const [k, v] = kv.split('='); { const [a, b] = k!.split('.'); const o = CP5 as unknown as Record<string, any>; if (b) o[a!][b] = Number(v); else o[a!] = Number(v); } console.log(`override ${k}=${v}`); }
 const N = Number(process.argv[2] ?? 32), M = Number(process.argv[3] ?? 12);
 const STRATS = (process.argv[4] ?? 'auto,buff:blade,buff:oc,buff:arcane,buff:bulwark').split(',') as Strategy[];
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);

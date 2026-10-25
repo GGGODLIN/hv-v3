@@ -28,6 +28,11 @@ export const CP5 = {
   /** CP5 r3 (暫定, producer decision 2): spell-punishing affixes. 反魔 reflects a share of spell damage;
    *  法抗 resist / magic mitigation; pick weight of 法抗/反魔 vs 1 for the others. */
   /** CP5 r4 (暫定): bulwark 3-set anti-turtle — consecutive defend heal ×decay^streak; 1 = no riposte while defending. */
+  /** CP5 r4 (暫定): per-boss HP / ADB multipliers (key = floor; missing = 1). */
+  bossHp: { 5: 1, 10: 1, 15: 1, 20: 1 } as Record<number, number>, bossAdb: { 5: 1, 10: 1, 15: 1, 20: 1 } as Record<number, number>,
+  /** CP5 r4 (暫定): 深淵之王 — after each shield rotation (not the opening one) its next action is an elemental pulse
+   *  (magic, shield element, ×pulseMult ADB). Defend or stun counters it. 0 = off. drainMult = 吸血重擊 multiplier. */
+  pulseMult: 0, drainMult: 2,
   bulwarkDefDecay: 0.5, bulwarkNoRiposteDef: 1,
   antimagicFrac: 0.3, wardedResist: 0.3, wardedMit: 0.2, magAffixWeight: 4,
 };
@@ -45,7 +50,7 @@ export const BOSS_BY_FLOOR: Record<number, { sig: BossSig; title: string }> = {
 };
 export const SIG_TEXT: Record<BossSig, { tele: string; icon: string; tip: string }> = {
   summon: { tele: '塔主正在呼喚援軍（暈眩可打斷）', icon: '⟳', tip: '塔主每隔幾回合會呼喚援軍（最多 2 隻）。看到 ⟳ 預告時用盾擊暈眩它就能打斷；範圍法術可以一次清掉援軍。' },
-  shield: { tele: '', icon: '◇', tip: '深淵之王會輪流展開元素之盾：盾的元素抗性大增，下一個元素變成破綻。看弱點面板換用破綻元素，或改用物理攻擊。' },
+  shield: { tele: '深淵之王凝聚元素脈衝（下回合魔法重擊：防禦可減傷，暈眩可打斷）', icon: '◇', tip: '深淵之王會輪流展開元素之盾：盾的元素抗性大增，下一個元素變成破綻。看弱點面板換用破綻元素，或改用物理攻擊。' },
   thorns: { tele: '守門者舉起尖刺盾（物理攻擊會被反彈）', icon: '◈', tip: `守門者看到 ◈ 預告後會舉起尖刺盾 ${CP5.thornsTurns} 回合，期間物理攻擊會反彈傷害。改用法術，或先防禦等它放下。` },
   drain: { tele: '災厄張開血口（下回合吸血重擊：防禦可減傷，暈眩可打斷）', icon: '♥', tip: `災厄${CP5.drainEvery === 1 ? '每次蓄力都是' : `每第 ${CP5.drainEvery} 次蓄力會變成`}吸血重擊（×2 並回血）。看到紅色 ♥ 預告就防禦，或用盾擊暈眩打斷。` },
 };
@@ -78,7 +83,7 @@ export function affixCombos(): AffixId[][] {
 
 /** CP5 extra monster state (all optional, so a flag-off Monster is unchanged). */
 export interface Cp5Mon {
-  sig?: BossSig; sigTurns?: number; sigPending?: boolean; thornTurns?: number; charges?: number; drainNext?: boolean;
+  sig?: BossSig; sigTurns?: number; sigPending?: boolean; thornTurns?: number; charges?: number; drainNext?: boolean; pulseNext?: boolean;
   shieldEl?: Element; breachEl?: Element; specBase?: Monster['spec']; reserve?: Monster[]; summoned?: boolean;
   affixes?: AffixId[]; ironTurns?: number; splitInto?: Monster[]; splitDone?: boolean; ownTurns?: number;
   elemAttack?: Element; critBonus?: number;

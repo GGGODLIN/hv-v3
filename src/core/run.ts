@@ -246,6 +246,9 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   const x = m as Monster & Cp5Mon;
   if (m.rank === 'boss' && BOSS_BY_FLOOR[f]) {
     x.sig = BOSS_BY_FLOOR[f]!.sig; x.sigTurns = 0;
+    const hk = CP5.bossHp[f] ?? 1, ak = CP5.bossAdb[f] ?? 1;
+    if (hk !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * hk));
+    if (ak !== 1) m.adb *= ak;
     if (x.sig === 'summon') x.reserve = pickRows(rng, pool, lo, hi, CP5.summonMax, w).map((r) => Object.assign(buildMonster(r, L, 'normal'), { summoned: true }));
   }
   if (m.rank !== 'elite') return;

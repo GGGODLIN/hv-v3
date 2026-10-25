@@ -150,6 +150,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
     if (low) return heal;
     if (boss.sig === 'summon') return boss.charge > 0 ? { kind: 'defend' } : { kind: 'attack', target: bi };
     if (boss.sig === 'drain' && boss.drainNext) return { kind: 'attack', target: bi };
+    if (boss.pulseNext) return { kind: 'attack', target: bi };
     if (boss.sig === 'shield') { const a = base(); return a.kind === 'spell' ? (canUse(b, { kind: 'spell', id: 'fiery', target: a.target }) ? { kind: 'spell', id: 'fiery', target: a.target } : { kind: 'attack', target: a.target }) : a; }
     return base();
   }
@@ -160,6 +161,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
     }
     if (boss.sig === 'drain' && boss.drainNext) return canUse(b, bash) ? bash : b.hp < b.d.hp * 0.6 && canUse(b, heal) ? heal : { kind: 'defend' };
     if (boss.sig === 'thorns' && boss.thornTurns && !low) return bestSpell(b, bi) ?? (boss.charge > 0 ? base() : { kind: 'defend' });
+    if (boss.pulseNext && boss.charge === 0) return canUse(b, bash) ? bash : { kind: 'defend' };
     if (boss.sig === 'shield' && boss.breachEl && !low && boss.charge === 0) {
       const id = ELEMS.find((x) => SPELLS[x].element === boss.breachEl)!;
       if (b.d.mdb * 4 > b.d.adb * 0.8 && canUse(b, { kind: 'spell', id, target: bi })) return { kind: 'spell', id, target: bi };
@@ -173,7 +175,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
     const m = b.monsters[a.target] as CM | undefined;
     if (m?.affixes?.some((x) => x === 'spikes' || x === 'hard')) { const s2 = bestSpell(b, a.target); if (s2) return s2; }
   }
-  if (a.kind === 'spell' && (b.monsters[a.target] as CM | undefined)?.affixes?.includes('antimagic')) return { kind: 'attack', target: a.target };
+  if (a.kind === 'spell' && b.hp < b.d.hp * 0.5 && (b.monsters[a.target] as CM | undefined)?.affixes?.includes('antimagic')) return { kind: 'attack', target: a.target };
   return a;
 }
 export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];

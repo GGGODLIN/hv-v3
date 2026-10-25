@@ -450,7 +450,10 @@ function sigTurn(s: BattleState, m: CM, i: number, ev: BEvent[]): boolean {
     return false;
   }
   m.sigTurns = (m.sigTurns ?? 0) + 1;
-  if (m.sigTurns % per(CP5.shieldEvery) === 0) rotateShield(m, i, ev);
+  if (m.sigTurns % per(CP5.shieldEvery) === 0) {
+    rotateShield(m, i, ev);
+    if (CP5.pulseMult > 0) { m.pulseNext = true; ev.push({ t: 'sig', from: i, sig: 'shield', text: SIG_TEXT.shield.tele }); }
+  }
   return false;
 }
 /** 深淵之王: rotate fire → cold → elec → wind. Shield element spec +75, breach (next) -50, others back to base. */
@@ -500,13 +503,16 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       m.status.stun--;
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
+      if (m.pulseNext) { m.pulseNext = false; ev.push({ t: 'status', to: i, text: '元素脈衝被打斷！' }); }
       return;
     }
     let mult = 1;
     let label: string | undefined;
     let drain = false;
-    if (m.rank === 'boss') {
-      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; label = '吸血重擊！'; } }
+    let el = m.elemAttack;
+    if (m.rank === 'boss' && m.pulseNext && m.charge === 0) { m.pulseNext = false; mult = CP5.pulseMult; el = m.shieldEl; label = '元素脈衝！'; }
+    else if (m.rank === 'boss') {
+      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; mult = CP5.drainMult; label = '吸血重擊！'; } }
       else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) {
         m.charge = 1;
         if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; CP5_STAT.drainTele++; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
@@ -521,9 +527,8 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       }
     }
     const zero = s.focusTurn;
-    const el = m.elemAttack;
     const r = resolveHit(rng, {
-      raw: m.adb * mult * (el ? CP5.frostMult : 1), magic: false, acc: m.acc,
+      raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
       evade: zero ? 0 : s.d.evade, parry: zero ? 0 : s.d.parry, block: zero ? 0 : s.d.block, resist: 0,
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],

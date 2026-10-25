@@ -11,7 +11,7 @@ import { RULES, armBattle, battleLocks, encounter, openingOc, runDerived, type R
 import { armCp5 } from '../src/core/battle';
 import { Rng } from '../src/core/rng';
 import { profsOf } from '../src/core/auto';
-for (const kv of process.argv.slice(4)) { const [k, v] = kv.split('='); (CP5 as unknown as Record<string, number>)[k!] = Number(v); console.log(`# override ${k}=${v}`); }
+for (const kv of process.argv.slice(4)) { const [k, v] = kv.split('='); { const [a, b] = k!.split('.'); const o = CP5 as unknown as Record<string, any>; if (b) o[a!][b] = Number(v); else o[a!] = Number(v); } console.log(`# override ${k}=${v}`); }
 const N = Number(process.argv[2] ?? 32), M = Number(process.argv[3] ?? 12);
 const STRATS = ['auto', 'buff:blade', 'buff:oc', 'buff:arcane', 'buff:bulwark'] as Strategy[];
 const FLOORS = [3, 8, 13, 18];
