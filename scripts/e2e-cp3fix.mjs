@@ -31,7 +31,7 @@ for(const t of [2,3]){await pg.evaluate(t=>{hv.p.prog.trips=t;hv.data.run=null;h
   R['trip'+(t+1)]=await pg.$eval('[data-trip]',x=>x.textContent).catch(()=>null);
   if(t===2)await pg.screenshot({path:S+'cp3fix-03-trip3-carry.png'});}
 if(!R.trip3?.includes('×2'))fails.push('3 trip-3 hint '+R.trip3);
-if(R.trip4!==null)fails.push('3 trip-4 should have no carry hint '+R.trip4);
+if(!R.trip4?.includes('×1'))fails.push('3 trip-4 carry hint should show ×1 '+R.trip4);
 // ---- r3 #1 whitelist names (normal battle + F5 boss) and r3 #2 death rule hint
 R.deathRule=await pg.evaluate(()=>{hv.data.run=null;hv.go('town');return document.querySelector('[data-deathrule]')?.textContent??null});
 if(!R.deathRule?.includes('死亡會把帶回折半'))fails.push('r3-2 death rule hint missing');
