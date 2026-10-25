@@ -1,7 +1,7 @@
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
-import { buildMonster, pickRows, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
+import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -81,7 +81,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       f >= 6 ? (rng.chance(0.5) ? ['normal', 'normal', 'normal'] : ['normal', 'normal', 'normal', 'normal']) :
       rng.chance(0.5) ? ['normal', 'normal'] : ['normal', 'normal', 'normal'];
     return plan.map((rank) => {
-      const [row] = pickRows(rng, pool, rank === 'normal' ? lo : hi, rank === 'normal' ? hi : Math.round(hi * 1.6), 1);
+      const row = rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi);
       return buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
     });
   });

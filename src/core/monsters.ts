@@ -24,10 +24,12 @@ export function pickRows(rng: Rng, pool: MonsterPool, plMin: number, plMax: numb
 }
 /** design §4: PL centre ±15%; if empty, widen to ±25% then ±40%. */
 export const PL_WINDOWS = [0.15, 0.25, 0.4] as const;
+/** Safety floor: a monster needs PL 25 to join battles (constants F-005-pl-window.minParticipationPl). */
+export const MIN_PL: number = C['F-005-pl-window'].value.minParticipationPl;
 export const widenLog: { center: number; width: number }[] = [];
 export function plWindow(pool: MonsterPool, center: number): { lo: number; hi: number; width: number } {
   for (const w of PL_WINDOWS) {
-    const lo = Math.round(center * (1 - w)), hi = Math.round(center * (1 + w));
+    const lo = Math.max(MIN_PL, Math.round(center * (1 - w))), hi = Math.max(MIN_PL, Math.round(center * (1 + w)));
     if (lowerBound(pool.rows, hi + 1) > lowerBound(pool.rows, lo)) {
       if (w !== PL_WINDOWS[0]) widenLog.push({ center, width: w });
       return { lo, hi, width: w };
@@ -35,7 +37,14 @@ export function plWindow(pool: MonsterPool, center: number): { lo: number; hi: n
   }
   const w = PL_WINDOWS[PL_WINDOWS.length - 1]!;
   widenLog.push({ center, width: -1 });
-  return { lo: Math.round(center * (1 - w)), hi: Math.round(center * (1 + w)), width: -1 };
+  return { lo: Math.max(MIN_PL, Math.round(center * (1 - w))), hi: Math.max(MIN_PL, Math.round(center * (1 + w))), width: -1 };
+}
+/** design §4: elites/bosses come from the top 10% PL of the window (at least one row). */
+export function pickTop(rng: Rng, pool: MonsterPool, plMin: number, plMax: number): MonsterRow {
+  const a = lowerBound(pool.rows, plMin);
+  const b = Math.max(a + 1, lowerBound(pool.rows, plMax + 1));
+  const start = Math.max(a, b - Math.max(1, Math.ceil((b - a) * 0.1)));
+  return pool.rows[Math.min(pool.rows.length - 1, rng.int(start, b - 1))]!;
 }
 function lowerBound(rows: MonsterRow[], pl: number): number {
   let a = 0, b = rows.length;
