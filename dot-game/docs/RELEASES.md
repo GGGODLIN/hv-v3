@@ -53,3 +53,10 @@ Do not overwrite the accepted site with an unaccepted candidate. Continue develo
 | style.css | 16791 | 33f235a937b200c7f2cc7ad5b85257f31a56be6bc3fa3b02602ae99cdf03711c |
 
 This later receipt is documentation-only; the six runtime files are unchanged and require no redeploy. Restore the full accepted source directory and verify its manifest; do not substitute runtime-only files for complete source. This receipt does not claim GPT Library sync, credential restoration or schedule restoration.
+
+## v0.3 — 2026-10-25 15:28 UTC
+- Accepted runtime source: `fee2d2ade97b959cb3d396b5f863279ed84edd53` on `GGGODLIN/hv-v3` branch `bot/dot`. 35 files / 299045 bytes read back exactly; 34 manifest payload hashes pass.
+- Source candidate: `a930d560d970f0352d78a3329062ce36974aa079`; staged site `6cf12ecddffef17f7c15959fa3589957bd40dd19`, Pages run `40205960885` successful. Candidate retained at `/play/hv-v3-dot/candidates/v0.3/`.
+- Accepted site: `45666f8ea1d0612d1e4b294ded7fb98340c73428` on personal-site `main`; Pages run `40206772110` success for exact SHA. All six live HTTP200 runtime files match accepted source SHA-256. Only authorized demo runtime paths changed; all candidates/other works preserved.
+- 147 tests + four JS syntax checks pass. Actual cloud browser verified loot/equip loop, natural rapier proc, reduced-motion feedback, save/reload, takeover, legacy migration and retained-old-tab write isolation. Exact limits and observations: BROWSER-QA-V03.md.
+- This publication receipt changes documentation and regenerated manifest only. Runtime remains byte-identical to accepted source/candidate. It is the latest recovery documentation when its commit is verified; do not confuse an earlier convenient link with latest verified restore evidence.

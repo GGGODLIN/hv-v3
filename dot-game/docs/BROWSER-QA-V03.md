@@ -17,7 +17,7 @@ Actual UI operations used dot's cloud Chrome via CUA, not the user's computer, r
 - Inspected console entries contained no app-origin errors. Browser-extension errors were excluded only when their URL explicitly began `chrome-extension://`.
 
 ## Automated vs browser evidence
-147 Node tests and four JS syntax checks pass, including independent proc ordering, strict25% boundaries, max3 stacks, exact seventh crossed-tick expiry, invalid identity, no extra RNG for nonrapiers, v3 namespace isolation and ordered v2/v1 read-only migration. All 3,000 seeded loot baselines retain numeric values and RNG consumption.
+147 Node tests and four JS syntax checks pass, including independent proc ordering, strict25% boundaries, max three stacks, exact seventh crossed-tick expiry, invalid identity, no extra RNG for nonrapiers, v3 namespace isolation and ordered v2/v1 read-only migration. All 3,000 seeded loot baselines retain numeric values and RNG consumption.
 
 The same-stat armored fixture (seed42, 1500HP, 80% general mitigation, no attack/avoidance) clears in173.3s without proc and62.0s with rapier. This is a synthetic test, not a shipped encounter or universal speed claim; proc RNG changes subsequent rolls. Constant-die tests separately prove relative mitigation arithmetic.
 
@@ -26,4 +26,14 @@ Exact natural expiry and three-stack cap were **not visually observed** because 
 ## Inherited limits and release state
 Physical mobile, OS suspension and long-duration stress remain untested. The previous cloud visibility anomaly (foreground-only pause not occurring while document.hidden stayed false) is unresolved; no universal background/pause guarantee. No offline earnings. Historical-model PA differs from the current English wiki; see ORIGINAL-HV.md.
 
-Candidate desktop acceptance is complete within the above boundaries. Public root promotion, exact deployment verification and final migration smoke are pending at this checkpoint. A later publication receipt must record their actual outcome, not assume success.
+Candidate desktop acceptance is complete within the above boundaries. The following publication receipt records the subsequent verified outcome.
+
+## Verified public-root receipt — 15:26–15:28 UTC
+
+Accepted runtime source `fee2d2ade97b959cb3d396b5f863279ed84edd53` was backed up and all 35 files / 299045 bytes read back before promotion. Website commit `45666f8ea1d0612d1e4b294ded7fb98340c73428`, Pages run `40206772110` succeeded; all six live HTTP200 runtime bodies matched accepted source SHA-256. Only the six authorized root runtime files changed; candidates and other works were preserved.
+
+Opened the new public root while the older v0.2 root tab stayed open. Migration notice appeared; visible Lv17, XP171/970, gold4432, kills352, wins58, inventory117 and all three equipped starter items matched the old tab. Candidate Lv7 / gold706 did not mix. An old independently generated rapier name correctly resolved to the rapier family and showed PA explanations. Locked/equipped it, changed strategy to balanced, and reloaded: rapier and balanced persisted; migration notice did not repeat.
+
+Then actively changed strategy in the still-open v0.2 tab to sustain and saw its saved indicator. Reloading v0.3 still retained balanced and the equipped rapier. This is an actual cross-version overwrite-resistance test through the UI. Exact untouched legacy bytes are established by source/unit tests, not by hidden browser-storage inspection; no such inspection was performed.
+
+The synthetic cloud test character's unlocked low-quality loot was sold through the ordinary game confirmation, freeing 117→65 inventory slots and increasing gold 4432→6944; equipped/locked rapier remained. Started stage 2 on the public root and observed the living boss with PA 1/3 and seven ticks remaining. No app-origin console errors in the inspected final entries. Root browser smoke passed.

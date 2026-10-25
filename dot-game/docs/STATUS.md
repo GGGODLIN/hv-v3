@@ -1,8 +1,16 @@
 # Current status
 
-## v0.3 desktop accepted, publication pending — 2026-10-25 15:22 UTC
+## v0.3 published — 2026-10-25 15:28 UTC
 
-Accepted public runtime remains v0.2 until promotion verifies. v0.3 adds explicit weapon-family identity and historical-model rapier Penetrated Armor, with migration of exact independently generated legacy item names, combat feedback and proc-aware comparison text. 147 Node tests and four JS syntax checks pass. Candidate source `a930d560d970f0352d78a3329062ce36974aa079` is exact-readback verified. Candidate Pages commit `6cf12ecddffef17f7c15959fa3589957bd40dd19` / run `40205960885` and six public runtime hashes pass. Cloud Chrome verified the normal loot/equip/replay loop, naturally dropped rapier effect, reduced-motion text, reload and v3 takeover. See BROWSER-QA-V03.md for bounded acceptance and remaining limits. Root promotion and migration smoke remain pending. v0.3 uses isolated save-v3/writer-v3 and read-only ordered v2/v1 migration: a pinned old validator was proven to strip new metadata, so mutual exclusion alone is insufficient. Only own dot-game files are changed. Research found conflicting current English and historical Chinese PA semantics; see ORIGINAL-HV.md for the deliberately pinned model.
+Accepted runtime source: `fee2d2ade97b959cb3d396b5f863279ed84edd53`; website: `45666f8ea1d0612d1e4b294ded7fb98340c73428`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 35 source files / 299045 bytes were read back exactly before promotion;34 payload hashes verified. Pages run `40206772110` succeeded; all six public runtime HTTP200 bodies match source SHA-256. This receipt updates documentation only, not runtime.
+
+147 Node tests and four JS syntax checks pass. New gameplay: rapier Penetrated Armor (historical post-hit model), explicit weapon identities/legacy migration, visible enemy stacks/ticks, reduced-motion proc notice, and stat-only score disclosure. Fixed 25% / seven ticks / shared refresh are explicit adaptations; current English wiki semantics differ. No stage stats, item rolls or drop rates changed.
+
+Cloud Chrome verified normal clear→loot→equip→faster replay, natural rapier drop/equip and stage 2 clear, real PA text/countdown, reload, v3 two-tab takeover, and isolated v2→v3 migration on the public root. An actively saving old v0.2 tab could not replace v3 strategy/equipment. Final root boss visibly had PA 1/3 and seven ticks. Browser tests did not read hidden localStorage bytes; legacy-byte preservation is source/unit evidence. See BROWSER-QA-V03.md and RELEASES.md.
+
+Limits: exact seven-tick expiry/max three visually unobserved (automated coverage); new filechooser import not rerun; narrow layout checked via browser zoom at 393 CSS pixels, not physical mobile. OS suspension and cloud foreground-only pause anomaly remain unresolved; no offline earnings or universal background guarantee.
+
+## Retained prior releases
 
 ## v0.2 published — 2026-10-25 14:22 UTC
 
@@ -19,7 +27,7 @@ Bounded desktop acceptance only: inactive-tab progress, follower/takeover and 38
 55 Node tests and JavaScript syntax checks pass. Dedicated cloud Chrome verified combat → loot → equip → faster replay and save export/import/reload. Final public-root smoke at 13:15 UTC passed: independent fresh save, first clear in 31.5 seconds, two loot items, stage 2 unlocked, consistent quality labels, successful return to camp, and no application-origin console errors in inspected entries. This documentation checkpoint does not change runtime files or republish the game. Candidate v0.1 remains separately available, uses separate localStorage keys, and is not the accepted root URL.
 
 ## Next priority
-Add original-HV-informed weapon procs and meaningful build variety, with explicit original facts/research models/adaptations. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
+Rapier proc slice is complete. Next add meaningful club control or enemy defensive roles, checking current/historical source conflicts and separating original facts/research models/adaptations. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
 
 ## Work allocation
 - Research: original HV source evidence and explicit uncertainty.
