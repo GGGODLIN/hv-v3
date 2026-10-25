@@ -62,15 +62,20 @@ export function chooseAction(b: BattleState): Action {
 
 /** 'human' (CP3 playtest model, 暫定): no Spirit Stance, no OC skills; casts the spell matching the target's worst
  * resistance when that resistance is negative, otherwise attacks; defends or drinks on a boss charge; drinks below 40% HP. */
-export type Strategy = 'auto' | 'human' | 'avoid';
+export type Strategy = 'auto' | 'human' | 'avoid' | 'noweak';
 /** 暫定 (CP2b): chance the human model takes a battle when one is offered and HP is at least 55%. */
 export const HUMAN_COMBAT_SHARE = 0.5;
-export function chooseHuman(b: BattleState): Action {
+/** CP3-fix 8 'noweak': plays like 'human' but never aims at weaknesses (spells picked without looking at resistances: always the first offensive spell). */
+export function chooseHuman(b: BattleState, aimWeak = true): Action {
   const live = alive(b);
   const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
   const tm = b.monsters[target]!;
   if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
   if (b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
+  if (!aimWeak) {
+    if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
+    return { kind: 'attack', target };
+  }
   const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => tm.spec[SPELLS[id].element as keyof typeof tm.spec] < 0)
     .sort((x, y) => tm.spec[SPELLS[x].element as keyof typeof tm.spec] - tm.spec[SPELLS[y].element as keyof typeof tm.spec]);
   for (const id of sp) if (canUse(b, { kind: 'spell', id, target })) return { kind: 'spell', id, target };
@@ -89,13 +94,13 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   // taking a normal battle and taking a non-combat node. A pure "never fight" route is printed separately as 'avoid'.
   const coin = new Rng(run.floor * 7919 + run.kills * 131 + Math.round(run.hp)).chance(HUMAN_COMBAT_SHARE);
   const calm: NodeType[] = ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'];
-  const pref: NodeType[] = strategy === 'avoid' ? calm : strategy === 'human' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < 0.55 ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
+  const pref: NodeType[] = strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < 0.55 ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
   for (const t of pref) { const i = opts.indexOf(t); if (i >= 0) return i; }
   return 0;
 }
 
-export interface BossFight { floor: number; turns: number; potions: number; won: boolean }
-export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[] }
+export interface BossFight { floor: number; turns: number; potions: number; won: boolean; spirit: boolean }
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number }
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto'): RunReport {
   // Town prep.
@@ -108,6 +113,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   const rng = new Rng(seed ^ 0x5bd1e995);
   let turns = 0;
   const bosses: BossFight[] = [];
+  let battles = 0, spiritBattles = 0;
   while (!run.done) {
     const opt = pickOption(p, run, strategy);
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
@@ -119,10 +125,11 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
       b.locked = battleLocks(p);
       const profs = profsOf(p);
       const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
-      while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b) : chooseAction(b), rng, profs); }
+      while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }
       turns += b.turn;
+      battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
-      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win' });
+      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win', spirit: !!b.spiritUsed });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) break;
       const used = autoEquip(p, run.bag);
@@ -152,7 +159,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses };
+  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles };
 }
 
 export function starterKit(p: Player, seed = 7): void {

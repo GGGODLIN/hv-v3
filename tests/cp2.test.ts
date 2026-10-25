@@ -53,7 +53,7 @@ describe('CP2', () => {
     const mean = turns.reduce((a, b) => a + b, 0) / turns.length;
     expect(turns.length).toBeGreaterThan(5);
     expect(mean).toBeGreaterThanOrEqual(10);
-    expect(mean).toBeLessThanOrEqual(15);
+    expect(mean).toBeLessThanOrEqual(20); // CP3-fix 8: boss phase 2 lengthens pre-first-clear fights; the 10-15 target now applies to weakness play over trips 1-3 (cp3.test)
   });
   it('6. batch allocation +1 / +10 / +max and refunds', () => {
     const p = newPlayer(); p.exp = 200000;

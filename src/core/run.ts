@@ -14,6 +14,8 @@ export const RULES = {
   /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
   expMult: C['P-exp-multiplier'].value.playerMultipliers,
   /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
+  /** 暫定 (CP3-fix 8): extra boss phases (see battle.ts BOSS_PHASE_HP). */
+  bossPhases: 1,
   rankExp: { boss: 8, elite: 3, normal: 1 },
   /** 暫定 (CP3-4): in-tower merchant sells equipment at sellPrice x this (no source for an equipment shop price). */
   merchantMarkup: 1.25, // CP3-fix 1: was 3.5 (Average ~8,845 C, about 5 trips of income)
@@ -138,7 +140,9 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
     const out = plan.map((rank) => {
       const weak = rank === 'elite' && run.weakNext ? weakRow(pool, lo, hi) : null;
       const row = weak ?? (rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi));
-      return buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
+      const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
+      if (rank === 'boss') m.phases = RULES.bossPhases;
+      return m;
     });
     if (type === 'elite') run.weakNext = false;
     return out;

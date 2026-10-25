@@ -39,6 +39,20 @@ const VSB = C['P-vital-strike-bleed'].value;
 /** Boss telegraph (暫定): charge every 4th boss turn, release next turn at x2 damage (round 5: was x3). */
 export const BOSS_CHARGE_EVERY = 4;
 export const BOSS_CHARGE_MULT = 2;
+/** CP3-fix 8 (暫定, gameplay layer): a boss with phases left rises at this fraction of max HP, enraged (charges every BOSS_ENRAGED_EVERY turns). */
+export const BOSS_PHASE_HP = 0.3;
+export const BOSS_ENRAGED_EVERY = 3;
+function phaseShift(s: BattleState, ev: BEvent[]): void {
+  s.monsters.forEach((m, i) => {
+    if (m.hp > 0 || !m.phases) return;
+    m.phases--;
+    m.enraged = true;
+    m.hp = Math.round(m.maxHp * BOSS_PHASE_HP);
+    m.status = { stun: 0, bleed: 0, bleedTurns: 0 };
+    for (let k = ev.length - 1; k >= 0; k--) { const e = ev[k]!; if (e.t === 'death' && e.to === i) ev.splice(k, 1); }
+    ev.push({ t: 'status', to: i, text: '第二階段！狂暴' });
+  });
+}
 
 export type Action =
   | { kind: 'attack'; target: number }
@@ -64,6 +78,8 @@ export interface BattleState {
   monsters: Monster[];
   turn: number;
   spirit: boolean;
+  /** CP3-fix 10: set once Spirit Stance was entered in this battle (sim usage rate). */
+  spiritUsed?: boolean;
   /** CP3: systems not yet unlocked (early-unlock layer). */
   locked?: { skill: boolean; spell: boolean; spirit: boolean };
   defendTurns: number;
@@ -251,12 +267,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     }
     case 'spirit': {
       s.spirit = !s.spirit;
+      if (s.spirit) s.spiritUsed = true;
       ev.push({ t: 'spirit', on: s.spirit });
       free = true;
       noRegen = true;
       break;
     }
   }
+  phaseShift(s, ev);
   if (alive(s).length === 0) { s.over = 'win'; return ev; }
   if (free) return ev;
   endOfPlayerTurn(s, ev, noRegen);
@@ -294,6 +312,7 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
       if (m.hp <= 0) ev.push({ t: 'death', to: i });
     }
   });
+  phaseShift(s, ev);
   if (alive(s).length === 0) s.over = 'win';
 }
 
@@ -307,7 +326,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     let label: string | undefined;
     if (m.rank === 'boss') {
       if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
-      else if (++s.bossTurns % BOSS_CHARGE_EVERY === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
+      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
     }
     const zero = s.focusTurn;
     const r = resolveHit(rng, {

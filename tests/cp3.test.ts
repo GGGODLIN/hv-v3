@@ -122,7 +122,7 @@ describe('CP3-B early unlocks (暫定 gameplay layer)', () => {
       firstMean[strat] = first.reduce((a, b) => a + b, 0) / 16;
       expect(f5.filter((b) => b.won).length / f5.length).toBeGreaterThanOrEqual(0.8);
       const t = f5.reduce((a, b) => a + b.turns, 0) / f5.length;
-      expect(t).toBeGreaterThanOrEqual(10); expect(t).toBeLessThanOrEqual(15);
+      expect(t).toBeGreaterThanOrEqual(10); expect(t).toBeLessThanOrEqual(20);
     }
     expect(firstMean.avoid!).toBeGreaterThanOrEqual(Math.min(firstMean.auto!, firstMean.human!));
     expect(SYSTEMS).toHaveLength(10);
@@ -179,4 +179,47 @@ describe('CP3-fix 7: icons', () => {
     for (let i = 0; i < 4000; i++) { const e = generateEquip(rng, 1 + (i % 80), {}); expect(idx[iconKey(e)], iconKey(e)).toBeTruthy(); }
     for (const id of Object.keys(SPELLS)) expect(idx[`sp-${id}`]).toBeTruthy();
   });
+});
+
+import { act as actB, startBattle as startB } from '../src/core/battle';
+import { buildMonster as bm } from '../src/core/monsters';
+import { Rng as R8 } from '../src/core/rng';
+import { derive as dv, newPlayer as np8 } from '../src/core/player';
+describe('CP3-fix 8: boss phase 2', () => {
+  it('a boss with a phase left rises at half HP instead of dying', () => {
+    const row = [1, 'Beast', 'X', 100, 'Crushing', 't', 0, 0, 0, 0, 0, 0, 0, 0, 0] as const;
+    const m = bm([...row] as never, 1, 'boss');
+    m.phases = 1; m.hp = 1;
+    const b = startB(dv(np8()), { hp: 9999, mp: 999, sp: 999 }, [m], { health: 0, mana: 0, spirit: 0 });
+    b.hp = 99999; b.d = { ...b.d, physAcc: 99 } as never;
+    const rng = new R8(1);
+    for (let i = 0; i < 20 && m.hp === 1; i++) actB(b, { kind: 'attack', target: 0 }, rng);
+    expect(m.phases).toBe(0);
+    expect(m.enraged).toBe(true);
+    expect(b.over).not.toBe('win');
+  });
+});
+
+import { autoRun as ar8, starterKit as sk8 } from '../src/core/auto';
+import { makePool as mp8 } from '../src/core/monsters';
+import { readFileSync as rf8 } from 'node:fs';
+describe('CP3-fix 8/9: boss length and growth (16 seeds, trips 1-3)', () => {
+  const pool = mp8(JSON.parse(rf8('public/data/monsters.json', 'utf8')));
+  const run = (strat: 'human' | 'noweak') => {
+    const bosses: { floor: number; turns: number; won: boolean }[] = []; const lv: number[] = [];
+    for (let s = 1; s <= 16; s++) { const p = np8(); sk8(p, s); for (let i = 1; i <= 3; i++) { const r = ar8(p, pool, s * 1000 + i, strat); bosses.push(...r.bosses); if (i === 3) lv.push(r.settlement.levelAfter); } }
+    return { bosses, lv: lv.reduce((a, b) => a + b, 0) / lv.length };
+  };
+  it('weakness play: F5 and F10 bosses average 10-15 turns; without weakness still >=60% win; level ~8-10 after trip 3', () => {
+    const h = run('human'), n = run('noweak');
+    for (const f of [5, 10]) {
+      const xs = h.bosses.filter((b) => b.floor === f);
+      const t = xs.reduce((a, b) => a + b.turns, 0) / xs.length;
+      expect(t).toBeGreaterThanOrEqual(10); expect(t).toBeLessThanOrEqual(15);
+      const ys = n.bosses.filter((b) => b.floor === f);
+      expect(ys.filter((b) => b.won).length / ys.length).toBeGreaterThanOrEqual(0.6);
+      expect(ys.reduce((a, b) => a + b.turns, 0) / ys.length).toBeGreaterThan(t);
+    }
+    expect(h.lv).toBeGreaterThanOrEqual(8); expect(h.lv).toBeLessThanOrEqual(10.5);
+  }, 60000);
 });

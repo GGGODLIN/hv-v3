@@ -70,6 +70,9 @@ export interface Monster {
   spec: Record<DmgType | Element, number>;
   status: { stun: number; bleed: number; bleedTurns: number };
   charge: number;
+  /** CP3-fix 8 (暫定): extra boss phases left; at 0 HP the boss rises again instead of dying. */
+  phases?: number;
+  enraged?: boolean;
 }
 
 const CLASSES = C['F-005-monster-classes'].value as unknown as Record<string, { start: Attrs; resist: Record<string, number>; attack: string }>;
