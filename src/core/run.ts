@@ -374,7 +374,7 @@ export function applyLoot(p: Player, run: RunState, loot: Loot): void {
 export function finishBattle(p: Player, run: RunState, b: BattleState, monsters: Monster[], type: NodeType): Loot | null {
   run.hp = b.hp; run.mp = b.mp; run.sp = b.sp;
   p.potions = { ...b.potions };
-  if (run.cp5) run.pdot = b.cp5?.pdot;
+  if (run.cp5) run.pdot = undefined; // CP5 rc2 fix 2: all DoTs end with the battle (was carried into the next fight)
   if (b.over !== 'win') { run.done = 'dead'; return null; }
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;

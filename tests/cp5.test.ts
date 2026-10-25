@@ -5,7 +5,7 @@ import { act, armCp5, startBattle } from '../src/core/battle';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
 import { Rng } from '../src/core/rng';
-import { armBattle, RULES, runDerived, startRun } from '../src/core/run';
+import { armBattle, finishBattle, RULES, runDerived, startRun } from '../src/core/run';
 import { starterKit } from '../src/core/auto';
 import { eligible, rollBuffs } from '../src/core/buffoffer';
 import { CP5 } from '../src/core/cp5';
@@ -74,4 +74,16 @@ it('CP5 r5: every sim death combo (current + r4 list) has a visible counter hint
   const r4 = ['warded', 'swift+warded', 'flame+warded', 'split+warded', 'leech+warded', 'berserk+warded', 'guard+warded', 'warded+spikes', 'warded+iron', 'antimagic', 'split+antimagic', 'warded+keen'];
   for (const c of [...cur, ...r4]) { const h = _dh(c.split('+') as _A[]); expect(h, c).toBeTruthy(); expect(h!).toContain('撤退'); }
   expect(_dh(['leech'])).toBeNull();
+});
+describe('CP5 rc2 fix 2: DoTs end with the battle', () => {
+  it('burn / bleed on the player are not carried into the next fight', () => cp5(() => {
+    const r = startRun(p, 4); r.cp5 = true;
+    const m = buildMonster(pool.rows[0]!, 5, 'normal'); m.hp = 0;
+    const b = startBattle(runDerived(p, r), { hp: 999, mp: 999, sp: 99 }, [m], p.potions); armBattle(b, r); armCp5(b);
+    b.cp5!.pdot = { ...b.cp5!.pdot, burn: 7, burnTurns: 3, bleed: 5, bleedTurns: 2 }; b.over = 'win';
+    finishBattle(p, r, b, [m], 'battle');
+    expect(r.pdot).toBeUndefined();
+    const b2 = startBattle(runDerived(p, r), { hp: 999, mp: 999, sp: 99 }, [m], p.potions); armCp5(b2, r.pdot);
+    expect(b2.cp5!.pdot.burnTurns).toBe(0); expect(b2.cp5!.pdot.bleedTurns).toBe(0);
+  }));
 });
