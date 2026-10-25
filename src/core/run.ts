@@ -333,7 +333,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
     }
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
-      const n = run.floor >= 10 ? 3 : 2;
+      const n = ab || run.floor >= 10 ? 3 : 2; // CP6: abyss bosses drop like the F10+ bosses (暫定)
       for (let i = 0; i < n; i++) loot.equips.push(generateEquip(rng, L, { minQuality: C['F-003-clear-bonus'].value.minQuality as Quality, qualityBump: i === 0 ? 1 : 0 }));
       loot.credits += 40 * run.floor;
       // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
