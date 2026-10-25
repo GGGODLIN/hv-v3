@@ -53,7 +53,9 @@ export class App {
     stage.speed = this.data.settings.speed;
     stage.skip = this.data.settings.skipAnim;
     stage.onTarget = (i) => { this.target = i; stage.setTarget(i); };
-    window.addEventListener('keydown', (e) => this.key(e));
+    // CP3-fix 6: capture on document so a focused button/canvas cannot swallow the key, and refocus the page on pointer use.
+    document.addEventListener('keydown', (e) => this.key(e), { capture: true });
+    window.addEventListener('pointerdown', () => { if (document.activeElement instanceof HTMLElement && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) document.activeElement.blur(); window.focus(); });
     if (this.data.run && !this.data.run.done) this.go('map');
     else { this.data.run = null; this.go('town'); }
   }
@@ -317,7 +319,11 @@ export class App {
 
   key(e: KeyboardEvent) {
     if (this.screen !== 'battle' || !this.battle) return;
-    const k = e.key.toLowerCase();
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const tg = e.target as HTMLElement | null;
+    if (tg && /^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName)) return;
+    // CP3-fix 6: use the physical key (e.code) so a Chinese IME (e.key = 'Process') or Caps Lock does not break hotkeys.
+    const k = /^Key[A-Z]$/.test(e.code) ? e.code.slice(3).toLowerCase() : /^(Digit|Numpad)[0-9]$/.test(e.code) ? e.code.slice(-1) : e.key.toLowerCase();
     const map: Record<string, string> = { a: 'attack', d: 'defend', f: 'focus', s: 'spirit', q: 'skill:shieldBash', w: 'skill:vitalStrike', e: 'skill:mercifulBlow', z: 'item:health', x: 'item:mana', c: 'item:spirit' };
     (Object.keys(SPELLS) as SpellId[]).forEach((id, i) => (map[String(i + 1)] = `spell:${id}`));
     if (k === 'tab') {

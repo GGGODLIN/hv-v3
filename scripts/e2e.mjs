@@ -68,6 +68,14 @@ const dis=await pg.$('[aria-disabled="true"]');if(dis){const bb=await dis.boundi
 // item 5: timings at 1x
 await pg.keyboard.press('a');await w(2500);
 R.timings1x=await pg.evaluate(()=>hv.stage.timings);
+// CP3-fix 6: hotkeys with focus on a button / canvas, and with a Chinese IME (key='Process', code='KeyA')
+await pg.waitForFunction(()=>!hv.busy,{timeout:8000}).catch(()=>{});
+R.fix6=await pg.evaluate(async()=>{const out={};const t0=hv.battle.turn;document.querySelector('canvas')?.setAttribute('tabindex','0');document.querySelector('canvas')?.focus();
+document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'Process',code:'KeyA',bubbles:true,cancelable:true}));
+await new Promise(r=>{const i=setInterval(()=>{if(!hv.busy){clearInterval(i);r();}},50);});out.imeTurnAdvanced=hv.battle.turn>t0||!!hv.battle.over;
+const t1=hv.battle.turn;const btn=document.querySelector('[data-act="defend"]');btn?.focus();btn?.dispatchEvent(new KeyboardEvent('keydown',{key:'a',code:'KeyA',bubbles:true,cancelable:true}));
+await new Promise(r=>{const i=setInterval(()=>{if(!hv.busy){clearInterval(i);r();}},50);});out.buttonFocusTurnAdvanced=hv.battle.turn>t1||!!hv.battle.over;return out;});
+if(!R.fix6.imeTurnAdvanced||!R.fix6.buttonFocusTurnAdvanced)errs.push("CP3-fix 6 hotkey check failed "+JSON.stringify(R.fix6));
 // item 3: regen in log
 R.regenLines=await pg.$$eval('.regen',xs=>xs.map(x=>x.textContent).slice(0,3));
 await pg.screenshot({path:S+'r6-03-regen-log.png'});
