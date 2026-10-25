@@ -10,7 +10,10 @@ cd dot-game
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop and mobile browsers are intended. Game stays local in the browser; no server account, network gameplay, or offline progress.
+Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
+
+## Current milestone
+Version 0.1 is a desktop-first playable prototype. See docs/STATUS.md and docs/BROWSER-QA.md for release evidence and limits. Current background tabs pause; no offline earnings. Development continues beyond this first loop.
 
 ## Play
 Choose a stage and start an expedition. Combat and skills resolve automatically. Return to camp to compare, equip, lock, and sell loot, then replay or challenge a higher stage. Failed expeditions can recover; no real-money purchases. Export saves periodically; clearing browser storage can lose progress. The UI documents exact controls as implemented.

@@ -1,14 +1,18 @@
 {
-  "checkpoint": "v0.1-candidate-001",
-  "status": "node-tested-browser-pending",
+  "checkpoint": "v0.1-desktop-playable",
+  "status": "accepted-desktop-source-awaiting-publish",
   "files": {
     "README.md": {
-      "bytes": 2284,
-      "sha256": "57b5a866ff1b52103ed94e0318bc6b8023f3c23fac2a0924c988a87649c01309"
+      "bytes": 2578,
+      "sha256": "0bb058bb384b1cab1db37b8c630cff6aebf387092f787a9d94f827b2866f1987"
     },
     "docs/ACCEPTANCE.md": {
       "bytes": 3468,
       "sha256": "f7c5cd76c6b3d088dbf71cf55ca411e04151fe8a2ec30dbe6f8d9aa1c8f6cacd"
+    },
+    "docs/BROWSER-QA.md": {
+      "bytes": 2596,
+      "sha256": "092fa4fd5ae22fb195798b1b8d0a1b37678b68557367bdfa795e41275fa8fd6e"
     },
     "docs/COMBAT-DESIGN.md": {
       "bytes": 7692,
@@ -31,8 +35,8 @@
       "sha256": "a44bbfe6d828433713e86aa6c9472e3da507cf00ac332551e7b9eda2f1be9d28"
     },
     "docs/STATUS.md": {
-      "bytes": 2532,
-      "sha256": "a4e0d40838f1189b5f6256470d4daf341aa60e4612b5346f8562635b7673cc45"
+      "bytes": 3114,
+      "sha256": "b30ab18c3fe67aaafc2a271b2de32ec71e6af1f226ce38fa7537a7781945533d"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 2126,
@@ -55,8 +59,8 @@
       "sha256": "9ba8bbc7ba315b9e1084f0f877603d5c2b253cbe0fffe6abc7c96812c435132b"
     },
     "src/ui.js": {
-      "bytes": 30180,
-      "sha256": "6918db7350167ed6d1d81dd6df580aad16cbad0934ea450e2d9f9dc2c9ee5ec6"
+      "bytes": 30134,
+      "sha256": "e4e764870aecd68758c8c1942c7c86e68e5f0fcf55e3c5c123970ebf436f061e"
     },
     "style.css": {
       "bytes": 16569,
@@ -75,8 +79,8 @@
       "sha256": "65301b18ff1c467fc4ba4d8ef85bd2c8623e4926ad499b36f9419a98f6f3902c"
     },
     "tests/ui.test.mjs": {
-      "bytes": 1719,
-      "sha256": "d034ed6c58b41e65ae6b36204457221ff53af6bcaaff541e8c2f783a8ad7b7bc"
+      "bytes": 2534,
+      "sha256": "3a370f4dd41c57a9a9b21abd836897fc971e1ed245fda5d5ad1d27175d152429"
     }
   }
 }

@@ -1,8 +1,11 @@
 # Current status
 
-2026-10-25 12:27 UTC: v0.1 candidate source complete. 54 Node tests pass (combat, loot, independent acceptance, UI static) and all three JavaScript modules pass syntax checks. Browser gameplay/visual/persistence acceptance is pending. Live root still serves the infrastructure probe.
+2026-10-25 13:09 UTC: v0.1 desktop-first playable candidate accepted for publication. 55 Node tests pass and JavaScript syntax checks pass. Dedicated cloud Chrome verified the combat→loot→equip→faster replay loop and save export/import/reload. See BROWSER-QA.md for exact observations and untested boundaries. Public root promotion remains pending until publication receipt/HTTP verification confirms it; no success is assumed from this file alone.
 
-The backed-up runtime will first be staged at /play/hv-v3-dot/candidates/v0.1/ for cloud-browser QA because executor localhost is not reachable by the cloud browser. Candidate storage is namespaced separately from the accepted root. Public candidate existence is not acceptance; only after QA passes will root be promoted. No old game is overwritten.
+Prior source checkpoint 82aaec41a926de697e953d3151153f6894866502 is fully readback-verified; candidate site commit 5c6301c0a8e72cdad96fcca64b2922d7a9c317a4 passed CI/HTTP. This snapshot adds the quality-label fix and browser evidence. Source must be saved and read back before promotion of /play/hv-v3-dot/. Candidate subdirectory remains separately named and uses separate localStorage keys.
+
+## Next priority
+Do not stop at this baseline. Improve online background-idle behavior (distinct from offline earnings), verify mobile layout, and add meaningful original-HV-informed skill/gear choices. Protect saves and keep accepted release stable while extending a candidate. Choose the next bounded increment autonomously from ROADMAP.md and observed play issues.
 
 ## Work allocation
 - Research: original HV source evidence and explicit uncertainty.

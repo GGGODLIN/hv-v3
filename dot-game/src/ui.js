@@ -1,4 +1,5 @@
 import { createGame, advance, act, stats, validateSave } from './engine.js';
+import { QUALITY_TIERS } from './loot.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
@@ -9,7 +10,7 @@ const LEASE_KEY = `hv-v3-dot-${storageScope}-tab-lease-v1`;
 const $ = id => document.getElementById(id);
 const format = value => Math.round(Number(value) || 0).toLocaleString('zh-TW');
 const clock = value => `${Math.floor((value || 0) / 60).toString().padStart(2, '0')}:${Math.floor((value || 0) % 60).toString().padStart(2, '0')}`;
-const qualityNames = { Crude: '粗製', Fair: '普通', Average: '良好', Superior: '優良', Exquisite: '精緻', Magnificent: '華麗', Legendary: '傳奇', Peerless: '無雙' };
+const qualityNames = Object.fromEntries(QUALITY_TIERS.map(tier => [tier.name, tier.label]));
 const qualityName = quality => qualityNames[quality] || quality;
 const slotNames = { weapon: '武器', armor: '護甲', accessory: '飾品' };
 const slotIcons = { weapon: '⚔', armor: '◈', accessory: '◇' };

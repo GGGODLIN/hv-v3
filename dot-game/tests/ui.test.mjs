@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
+import { QUALITY_TIERS } from '../src/loot.js';
 const base = new URL('../', import.meta.url);
 const html = readFileSync(new URL('index.html', base), 'utf8');
 const css = readFileSync(new URL('style.css', base), 'utf8');
@@ -29,4 +30,20 @@ test('UI has export/import, keyboard-native buttons, help and actionable equipme
   for (const id of ['export-save','import-save','help-dialog','item-detail','equipment','start-button','retreat-button']) assert.ok(html.includes(`id="${id}"`));
   assert.match(js, /equip\.disabled = state\.mode === 'battle'/);
   assert.match(js, /aria-pressed/);
+});
+
+test('all eight quality labels come from the loot tiers without falling back', () => {
+  const declaration = js.match(/const qualityNames = [^;]+;/)?.[0];
+  assert.ok(declaration, 'qualityNames declaration exists');
+  assert.match(js, /import \{ QUALITY_TIERS \} from '\.\/loot\.js'/);
+  const labels = runInNewContext(`${declaration} qualityNames`, { QUALITY_TIERS });
+  assert.equal(QUALITY_TIERS.length, 8);
+  assert.equal(Object.keys(labels).length, 8);
+  for (const tier of QUALITY_TIERS) {
+    assert.ok(Object.hasOwn(labels, tier.name), `${tier.name} must not use fallback`);
+    assert.equal(labels[tier.name], tier.label);
+  }
+  assert.equal(labels.Fair, '尚可');
+  assert.equal(labels.Average, '普通');
+  assert.equal(labels.Exquisite, '精良');
 });
