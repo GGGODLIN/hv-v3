@@ -1,8 +1,8 @@
 # Current status
 
-## v0.3 development candidate — 2026-10-25 15:00 UTC
+## v0.3 desktop accepted, publication pending — 2026-10-25 15:22 UTC
 
-Accepted public runtime remains v0.2 below. This candidate adds explicit weapon-family identity and historical-model rapier Penetrated Armor, with migration of exact independently generated legacy item names, combat feedback and proc-aware comparison text. 147 Node tests and four JS syntax checks pass. Browser acceptance and source publication are pending; this is not yet a verified restore or playable release. v0.3 uses isolated save-v3/writer-v3 and read-only ordered v2/v1 migration: a pinned old validator was proven to strip new metadata, so mutual exclusion alone is insufficient. Only own dot-game files are changed. Research found conflicting current English and historical Chinese PA semantics; see ORIGINAL-HV.md for the deliberately pinned model.
+Accepted public runtime remains v0.2 until promotion verifies. v0.3 adds explicit weapon-family identity and historical-model rapier Penetrated Armor, with migration of exact independently generated legacy item names, combat feedback and proc-aware comparison text. 147 Node tests and four JS syntax checks pass. Candidate source `a930d560d970f0352d78a3329062ce36974aa079` is exact-readback verified. Candidate Pages commit `6cf12ecddffef17f7c15959fa3589957bd40dd19` / run `40205960885` and six public runtime hashes pass. Cloud Chrome verified the normal loot/equip/replay loop, naturally dropped rapier effect, reduced-motion text, reload and v3 takeover. See BROWSER-QA-V03.md for bounded acceptance and remaining limits. Root promotion and migration smoke remain pending. v0.3 uses isolated save-v3/writer-v3 and read-only ordered v2/v1 migration: a pinned old validator was proven to strip new metadata, so mutual exclusion alone is insufficient. Only own dot-game files are changed. Research found conflicting current English and historical Chinese PA semantics; see ORIGINAL-HV.md for the deliberately pinned model.
 
 ## v0.2 published — 2026-10-25 14:22 UTC
 
