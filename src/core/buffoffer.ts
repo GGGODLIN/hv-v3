@@ -31,7 +31,7 @@ export function eligible(p: Player, b: BuffDef): boolean {
   if (b.needs === 'skill') return has(p, 'ocSkill');
   return true;
 }
-export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant', n: number, weights?: [number, number, number]): string[] {
+export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant', n: number, weights?: [number, number, number], exclude: string[] = []): string[] {
   const rng = offerRng(run);
   const held = run.buffs ?? [];
   const cnt = schoolCounts(held);
@@ -56,7 +56,7 @@ export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant
   let needRare = src === 'boss';
   while (out.length < n) {
     const rar: Rarity = needRare ? (rng.chance(l / (r + l)) ? 'legend' : 'rare') : rng.weighted<Rarity>([['common', c], ['rare', r], ['legend', l]].filter((x) => (x[1] as number) > 0) as [Rarity, number][]);
-    const pool = BUFFS.filter((b) => b.rarity === rar && eligible(p, b) && !out.includes(b.id) && (b.id.startsWith('S-') || !held.includes(b.id)));
+    const pool = BUFFS.filter((b) => b.rarity === rar && eligible(p, b) && !out.includes(b.id) && (b.id.startsWith('S-') || (!held.includes(b.id) && !exclude.includes(b.id))));
     if (!pool.length) { if (rar === 'common') break; needRare = false; continue; }
     out.push(rng.weighted(pool.map((b) => [b.id, b.school !== 'none' && cnt[b.school] > 0 ? SAME_SCHOOL_WEIGHT : 1] as [string, number])));
     if (BUFF[out[out.length - 1]!]!.rarity !== 'common') needRare = false;
@@ -89,9 +89,13 @@ export function winOffers(type: NodeType, run: RunState): number {
 }
 export function merchantBuffs(p: Player, run: RunState): { id: string; price: number }[] {
   const pm = 1 + ((run.buffs ?? []).filter((x) => x === 'N2').length * -0.15);
-  let ids = rollBuffs(p, run, 'merchant', MERCHANT_BUFFS);
+  // CP4-rc-fix 3: within one trip a merchant never lists a non-stackable buff another merchant already listed, nor one held.
+  // S- (generic stat) buffs stack by design and may repeat.
+  const seen = run.merchantSeen ?? [];
+  let ids = rollBuffs(p, run, 'merchant', MERCHANT_BUFFS, undefined, seen);
   // Guarantee (CP4 rc): never an empty buff shelf. Fallback only; the normal roll and its RNG are unchanged.
-  if (!ids.length) { const c = BUFFS.find((b) => b.rarity === 'common' && eligible(p, b) && (b.id.startsWith('S-') || !(run.buffs ?? []).includes(b.id))); if (c) ids = [c.id]; }
+  if (!ids.length) { const c = BUFFS.find((b) => b.rarity === 'common' && eligible(p, b) && (b.id.startsWith('S-') || (!(run.buffs ?? []).includes(b.id) && !seen.includes(b.id)))); if (c) ids = [c.id]; }
+  run.merchantSeen = [...seen, ...ids.filter((id) => !id.startsWith('S-'))];
   return ids.map((id) => ({ id, price: Math.round(BUFF_PRICE[BUFF[id]!.rarity as 'common'] * RULES.merchantMarkup * pm) }));
 }
 

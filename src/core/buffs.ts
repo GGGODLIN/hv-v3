@@ -34,7 +34,7 @@ export const BUFFS: BuffDef[] = [
   B('B2', '磨利', 'common', 'blade', '物理傷害 +15%', { d: { adbPct: 0.15 } }),
   B('B3', '精準', 'common', 'blade', '物理命中 ×1.08（乘在目前命中上）', { d: { physAccPct: 0.08 } }),
   B('B4', '銳眼', 'common', 'blade', '物理暴擊率 +4%', { d: { physCrit: 0.04 } }),
-  B('B5', '破甲直覺', 'common', 'blade', '抵抗反制 +0.1', { d: { counterResist: 0.1 } }),
+  B('B5', '破甲直覺', 'common', 'blade', '抵抗反制 +10%', { d: { counterResist: 0.1 } }),
   B('O2', '熱血', 'common', 'oc', '每次命中 OC +2', { b: { ocGain: 2 } }),
   B('O3', '先手氣勢', 'common', 'oc', '一般戰開場 OC +20', { b: { ocOpen: 20 } }),
   B('O4', '韌魂', 'common', 'oc', '最大 SP +20%', { d: { spPct: 0.2 }, needs: 'spirit' }),

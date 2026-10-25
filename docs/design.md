@@ -338,3 +338,24 @@ Measured with `scripts/first-screen.mjs` (puppeteer, 1280×800). The timer stops
 | Local build with loading indicator | Slow 4G + CPU ×4 | 9612 ms, **indicator at 369 ms** | 404 ms |
 
 The JS bundle is ~1.5 MB. On a slow connection the panel was black for more than 2 s, so `index.html` now has an inline-styled 「試煉之塔 載入中…」 indicator inside `#ui`. The first render replaces it.
+
+## CP5 r4 (2026-10-25，全部 暫定，僅 RULES.cp5Bosses)：狀態表
+
+基準：bot/grok，cp4RunBuffs 開（新預設）。旗標關時 `cp4-on-check.sh` 與 docs/cp4-on-baseline-sim.txt 逐位元相同（已驗證）。
+
+| 項目 | 狀態 | 證據 |
+|---|---|---|
+| 1a 精英單獨＋多擲一次，掉寶價值不低於舊版 | 已驗證：F1-20 2790.4 vs 舊 2786.6；F6-9 3026.6 vs 3009.8 | docs/logs/cp5-eliteloot.txt |
+| 1b 奧術 F9 精英 ≤75%、流派差 ≤20pp | **未通過**：反魔 AI 改成「HP<50% 才改普攻」後奧術 78%、差 26pp；舊 AI（一律改普攻）是 71%/19pp | docs/logs/cp5-school.txt、cp5-school-r4pre.txt |
+| 1b 其他三流派 ≥50%、刃鋒 ≥50%、8 趟通關差 ≤20pp | 已驗證：56/53/52%；97/96/100/96% | docs/logs/cp5-school.txt |
+| 2 磐石三件組 | 已驗證（單元測試）：防禦回合不反擊；連續防禦回復 ×0.5^連續次數；攻擊後重置。sim 對 F9 影響 <1pp | tests/cp5.test.ts |
+| 3 Boss 三選一保底主流派 | 已驗證：現有 SCHOOL_GUARANTEE 在 cp5 開時 2000 組隨機持有都成立（該流派還有可拿的 buff 時） | tests/cp5.test.ts |
+| 4 UI | 已驗證（r3 截圖）；新增 B10 元素脈衝預告 ⚡（脈衝預設關） | scripts/cp5-shot.mjs |
+| 5 B5 應對差距 | 已驗證：30–45pp，應對 100% | docs/logs/cp5-sim.txt |
+| 5 B10/B15/B20 應對差距 | **未通過**：B10 3–16pp、B15 −1–5pp、B20 0–17pp；B20 應對勝率 40–67%（門檻 90%） | docs/logs/cp5-sim.txt、cp5-r4-sweep.txt |
+| 5 B10 元素脈衝（pulseMult） | 已驗證：pulseMult 4 讓 B10 差距到 21–39pp，但 3 個流派應對勝率掉到 87–89%，奧術 F9 升到 79%，所以預設關 | docs/logs/cp5-sim-r4-pulse4.txt |
+| 5 必死組合 = 0 | **未通過**：18（舊 65）；主要是 F18 法抗、反魔 × 奔流 | docs/logs/cp5-deathcombo.txt |
+| 5 第 1 趟 F5 回合 ≤18 | **未通過**：26.7–28.7。B5 HP ×0.6–0.7 可降到 17–22，但不應對勝率升到 75–84%（差距不夠） | cp5-r4-sweep.txt B/C/D |
+| 5 Boss 戰 10–15 回合 | 大致符合（應對 8.5–18.8，刃鋒／奔流 F5 約 19） | docs/logs/cp5-sim.txt |
+| 5 首通第 2–3 趟、全通第 6–10 趟 | 已驗證首通中位 2；全通中位 4–8（auto 4、磐石 4 低於 6） | docs/logs/cp5-sim.txt |
+| 推測 | B15/B20 差距小的原因：近戰本來就會吃反傷但輸出夠，忽略也能贏；B20 sim 角色等級偏低使應對勝率上限低。需要製作人決定：B20 用等級門檻或降 HP；反魔 AI 與奧術 F9 二選一 | — |

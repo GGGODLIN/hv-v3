@@ -1,0 +1,42 @@
+CP6 abyss sim N=24 T=5 (main trips 1-10 then abyss)
+
+== auto  lv@abyss1 mean 19.5  schools {"none":120}
+trip1 cleared depth: p10 0 p25 2 median 4 p75 7 p90 10 mean 4.3
+best after 5 trips: p10 7 median 10 p90 12 max 12
+boss fights by abyss depth | n | win% | turns
+  d5 | 34 | 64.7 | 11.1
+  d10 | 21 | 57.1 | 10.8
+
+== buff:blade  lv@abyss1 mean 16.7  schools {"none":80,"arcane":1,"blade":35,"bulwark":3,"oc":1}
+trip1 cleared depth: p10 0 p25 2 median 2 p75 4 p90 7 mean 3.1
+best after 5 trips: p10 2 median 4 p90 10 max 14
+boss fights by abyss depth | n | win% | turns
+  d5 | 29 | 31.0 | 10.4
+  d10 | 9 | 33.3 | 6.3
+  d15 | 2 | 0.0 | 5.0
+
+== buff:oc  lv@abyss1 mean 15.1  schools {"none":86,"oc":30,"bulwark":3,"blade":1}
+trip1 cleared depth: p10 0 p25 0 median 2 p75 4 p90 5 mean 2.4
+best after 5 trips: p10 2 median 4 p90 12 max 14
+boss fights by abyss depth | n | win% | turns
+  d5 | 31 | 29.0 | 10.1
+  d10 | 8 | 62.5 | 9.6
+  d15 | 1 | 0.0 | 2.0
+
+== buff:arcane  lv@abyss1 mean 17.4  schools {"none":81,"arcane":32,"bulwark":4,"blade":2,"oc":1}
+trip1 cleared depth: p10 0 p25 2 median 4 p75 5 p90 9 mean 3.8
+best after 5 trips: p10 2 median 9 p90 12 max 17
+boss fights by abyss depth | n | win% | turns
+  d5 | 33 | 51.5 | 11.7
+  d10 | 16 | 25.0 | 8.7
+  d15 | 3 | 33.3 | 16.0
+
+== buff:bulwark  lv@abyss1 mean 18.3  schools {"none":84,"bulwark":28,"blade":3,"oc":2,"arcane":3}
+trip1 cleared depth: p10 2 p25 2 median 4 p75 7 p90 7 mean 3.9
+best after 5 trips: p10 4 median 4 p90 12 max 19
+boss fights by abyss depth | n | win% | turns
+  d5 | 34 | 32.4 | 11.5
+  d10 | 16 | 37.5 | 9.4
+  d15 | 2 | 50.0 | 17.5
+  d20 | 1 | 0.0 | 5.0
+

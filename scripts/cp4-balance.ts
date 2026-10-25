@@ -3,7 +3,7 @@
  * Columns: 首次F10勝率 = share of characters that win their FIRST F10 boss fight; T1通關 = trip-1 clear;
  * F9菁英 = F9 elite fights won / fought (trips up to first clear); 首通buff中位 = buffs held when the first clear ends. */
 import { readFileSync } from 'node:fs';
-import { applyKnobs } from './cp4-knobs';
+import { applyKnobs, KN } from './cp4-knobs';
 import { autoRun, starterKit, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
@@ -21,7 +21,7 @@ for (const school of ['blade', 'oc', 'arcane', 'bulwark']) {
   for (let s = 1; s <= N; s++) {
     const p = newPlayer(); starterKit(p, s); let first = true, cleared = false;
     for (let i = 1; i <= M && !cleared; i++) {
-      const r = autoRun(p, pool, s * 1000 + i, `buff:${school}` as Strategy);
+      const r = autoRun(p, pool, s * 1000 + i, `buff:${school}` as Strategy, KN.cp5);
       for (const e of r.elites ?? []) if (e.floor === 9) { e9n++; if (e.won) { e9w++; hp9.push(e.hpPct); } }
       const b10 = r.bosses.find((b) => b.floor === 10);
       if (b10 && first) { first = false; f10firstN++; if (b10.won) f10first++; t10.push(b10.turns); const k = p.equipped.offHand?.group === 'shield' ? p.equipped.offHand.base : 'none'; const x = (sh[k] ??= [0, 0]); x[1]++; if (b10.won) x[0]++; }

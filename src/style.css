@@ -130,6 +130,26 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .bbuffs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; pointer-events: auto; }
 .bic, .bprog { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #ffffff55; background: #2a2038; font-size: 13px; cursor: help; }
 .bprog { font-size: 11px; color: #aaa; background: #1a1a22; } .bprog.on { color: #ffd060; border-color: #ffd060; }
-.bic.s-blade { color: #ff8a8a; } .bic.s-oc { color: #ffe066; } .bic.s-arcane { color: #9ad0ff; } .bic.s-bulwark { color: #b8e0a0; }
+.bic.s-blade { color: #ff8a8a; background: #3a1c22; } .bic.s-oc { color: #ffe066; background: #3a3218; } .bic.s-arcane { color: #9ad0ff; background: #18283c; } .bic.s-bulwark { color: #b8e0a0; background: #1c3020; } .bic.s-none { color: #ddd; }
+.bic i { font-style: normal; font-size: 10px; margin-right: 1px; opacity: .85; } /* CP4-rc-fix 4 */
 .bic.r-rare { border-color: #5aa0ff; } .bic.r-legend { border-color: #ffb040; box-shadow: 0 0 5px #ffb04088; }
 .bic:hover::after, .bprog:hover::after { content: attr(data-tip); position: absolute; left: 0; top: 26px; z-index: 50; white-space: pre-line; width: max-content; max-width: 260px; padding: 5px 8px; background: #111e; border: 1px solid #fff4; border-radius: 4px; font-size: 12px; color: #eee; }
+/* CP5 (flag-only elements) */
+.theme { font-size: 13px; padding: 4px 8px; margin: 4px 0; border-left: 3px solid #c89cff; background: #2a1f38; }
+.theme b { color: #e0c8ff; }
+.theme-sep { font-size: 11px; color: #c89cff; text-align: center; border-top: 1px dashed #5a4a70; margin: 2px 0; }
+.bosst { color: #ff9060; margin-left: 4px; }
+.pdot { font-size: 13px; margin: 2px 0; }
+.dot-bleed { color: #ff5050; } .dot-burn { color: #ff9a30; }
+.plate .affix { display: inline-block; font-size: 11px; padding: 0 4px; margin-left: 3px; border-radius: 3px; background: #4a2030; color: #ffc0c0; }
+.plate .affix small { display: none; }
+.weakbox .wk.tgt .plate .affix small { display: inline; margin-left: 3px; color: #ffd8d8; }
+.plate .tele { margin-left: 4px; font-size: 12px; }
+.cp5tips { font-size: 12px; max-width: 520px; }
+/* CP4-rc-fix 6: a 3-item chest (+ buff strip / notices) is taller than the node panel; it was overflow:hidden, so the last
+   立刻換上 / 繼續前進 were clipped under the panel edge. The node panel now scrolls and its children never shrink. */
+.panel.node { overflow-y: auto; }
+.panel.node > * { flex-shrink: 0; }
+/* CP5 rc2 fix 8: docked confirm (weaker-equip) — no blocking backdrop, sits at the top, leaves the page footer free. */
+#ui > .modal-back.dock, .modal-back.dock { pointer-events: none !important; background: transparent; align-items: flex-start; padding-top: 8px; }
+.modal-back.dock .modal { pointer-events: auto; max-height: 55vh; box-shadow: 0 6px 24px rgba(0,0,0,.7); }

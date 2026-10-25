@@ -79,6 +79,14 @@ function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
   ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });
 }
+/** CP5 反魔 (暫定): reflect a share of spell damage (through player defend only). */
+function antimagic(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
+  if (!(s.monsters[ti] as CM).affixes?.includes('antimagic') || dmg <= 0) return;
+  const out = Math.round(dmg * CP5.antimagicFrac * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
+  if (out <= 0) return;
+  s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
+  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反魔 -${out}` });
+}
 /** Clear player bleed / burn (health potion, defend). */
 function cleanse(s: BattleState, ev: BEvent[], by: string): void {
   const p = s.cp5?.pdot;
@@ -110,6 +118,8 @@ export type BEvent =
 /** CP4 run-buff battle mods (docs/cp4-run-buffs.md). Undefined = CP3 behavior, byte for byte. Values 暫定. */
 export interface BattleMods extends BMods {
   combo: Combos;
+  /** CP5 rc2: bulwark (磐石) buffs held this run. */
+  bulwarkN?: number;
   /** combo state */
   freeSkill?: boolean; lastElem?: string; counterReady?: boolean;
   /** stats for the sim */
@@ -139,6 +149,8 @@ export interface BattleState {
   bossTurns: number;
   /** CP5 (flag only): player bleed / burn. Undefined = CP4 behavior. */
   cp5?: { pdot: PDot };
+  /** CP5 rc2: consecutive defend count (heal decay). */
+  defStreak?: number;
 }
 
 export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {
@@ -273,6 +285,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
   }
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+  if (s.cp5 && r.avoidMult > 0) antimagic(s, ti, r.damage, ev);
 }
 
 /** Apply one player action, then let every live monster act. Returns the events for the renderer. */
@@ -282,6 +295,12 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   let free = false;
   let noRegen = false;
   s.focusTurn = false;
+  // CP5 r4 (暫定): bulwark 3-set rule (no riposte while defending) keys on the formed combo.
+  const bulCp5 = !!(s.cp5 && s.mods?.combo.bulwark);
+  // CP5 rc2 fix 1: consecutive-defend heal decay (×CP5.bulwarkDefDecay^n) applies as soon as any 磐石 buff is held — the r4
+  // code gated it on the formed 3-set (combo.bulwark), so 1–2 piece bulwark builds (不動之盾+撕裂) healed in full every press.
+  const bulDecay = !!(s.cp5 && (s.mods?.bulwarkN ?? 0) > 0);
+  if (bulDecay && a.kind !== 'defend') s.defStreak = 0;
   switch (a.kind) {
     case 'attack': {
       const t = retarget(s, a.target);
@@ -338,12 +357,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       if (s.oc >= DEF.ocCost) {
         s.oc -= DEF.ocCost;
         const before = s.hp;
-        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0))));
+        const decay = bulDecay ? CP5.bulwarkDefDecay ** (s.defStreak ?? 0) : 1;
+        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0)) * decay));
         ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
       } else ev.push({ t: 'status', to: 'player', text: '防禦' });
       s.defendTurns = DEF.turns;
       if (s.cp5) cleanse(s, ev, '防禦');
       if (s.mods?.combo.bulwark) s.mods.counterReady = true;
+      if (bulDecay) s.defStreak = (s.defStreak ?? 0) + 1;
       break;
     }
     case 'focus': {
@@ -434,7 +455,10 @@ function sigTurn(s: BattleState, m: CM, i: number, ev: BEvent[]): boolean {
     return false;
   }
   m.sigTurns = (m.sigTurns ?? 0) + 1;
-  if (m.sigTurns % per(CP5.shieldEvery) === 0) rotateShield(m, i, ev);
+  if (m.sigTurns % per(CP5.shieldEvery) === 0) {
+    rotateShield(m, i, ev);
+    if (CP5.pulseMult > 0) { m.pulseNext = true; ev.push({ t: 'sig', from: i, sig: 'shield', text: SIG_TEXT.shield.tele }); }
+  }
   return false;
 }
 /** 深淵之王: rotate fire → cold → elec → wind. Shield element spec +75, breach (next) -50, others back to base. */
@@ -484,13 +508,16 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       m.status.stun--;
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
+      if (m.pulseNext) { m.pulseNext = false; ev.push({ t: 'status', to: i, text: '元素脈衝被打斷！' }); }
       return;
     }
     let mult = 1;
     let label: string | undefined;
     let drain = false;
-    if (m.rank === 'boss') {
-      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; label = '吸血重擊！'; } }
+    let el = m.elemAttack;
+    if (m.rank === 'boss' && m.pulseNext && m.charge === 0) { m.pulseNext = false; mult = CP5.pulseMult; el = m.shieldEl; label = '元素脈衝！'; }
+    else if (m.rank === 'boss') {
+      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; mult = CP5.drainMult; label = '吸血重擊！'; } }
       else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) {
         m.charge = 1;
         if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; CP5_STAT.drainTele++; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
@@ -505,9 +532,8 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       }
     }
     const zero = s.focusTurn;
-    const el = m.elemAttack;
     const r = resolveHit(rng, {
-      raw: m.adb * mult * (el ? CP5.frostMult : 1), magic: false, acc: m.acc,
+      raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
       evade: zero ? 0 : s.d.evade, parry: zero ? 0 : s.d.parry, block: zero ? 0 : s.d.block, resist: 0,
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],
@@ -517,7 +543,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
-    if (s.mods?.combo.bulwark && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
+    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
       physHit(s, rng, i, BULWARK_RIPOSTE.mult, ev, '反擊');
       s.mods.counterReady = keep;

@@ -8,7 +8,7 @@ import { H, Stage, W } from './game/stage';
 function buildBadge() {
   const el = document.createElement('div');
   el.id = 'build';
-  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}`;
+  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}`;
   el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#8a7f99;opacity:.8;pointer-events:none;z-index:9999';
   document.body.appendChild(el);
 }
@@ -25,6 +25,11 @@ async function fetchRetry(url: string, tries = 4): Promise<Response> {
 async function boot() {
   // CP4 run buffs are on by default since cp4-pass; `?cp4` is kept as a no-op alias for old links.
   if (new URLSearchParams(location.search).has('cp4')) RULES.cp4RunBuffs = true;
+  // CP5 bosses / affixes / themes are off by default; `?cp5` turns them on for playtesting.
+  // CP5 is on by default since cp5-pass; `?cp5` is kept as a no-op alias for old links.
+  if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;
+  // CP6 abyss tower is off by default; `?cp6` turns it on (and the CP5 bosses / affixes it reuses).
+  if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
   buildBadge();
   const stage = new Stage();
   new Phaser.Game({ type: Phaser.AUTO, parent: 'stage', width: W, height: H, pixelArt: true, backgroundColor: '#120c18', scene: stage });

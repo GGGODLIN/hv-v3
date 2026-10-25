@@ -1,5 +1,5 @@
 import { BOSS_SEP, markDuplicates } from './names';
-import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
+import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, affixWeight, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
@@ -10,7 +10,8 @@ import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
-import { combos, sumMods } from './buffs';
+import { combos, formed, schoolCounts, sumMods } from './buffs';
+import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
@@ -37,8 +38,10 @@ export const RULES = {
   cp4RunBuffs: true, // CP4 accepted 2026-10-25 (cp4-pass): run buffs on by default
   /** CP4 decision 5 (暫定): boss max HP × (1 + k × buffs held). Gameplay layer, monsters.json untouched. */
   cp4BossHpPerBuff: 0.06,
-  /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. `?cp5` in the URL turns it on. */
-  cp5Bosses: false,
+  /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. On by default since cp5-pass (2026-10-26). */
+  cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
+  /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
+  cp6Abyss: false,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -90,11 +93,15 @@ export interface RunState {
   curse?: number;
   ocZeroNext?: boolean;
   buffStock?: { id: string; price: number }[];
+  /** CP4-rc-fix 3: non-stackable buffs already shown by a merchant this trip (never listed again). */
+  merchantSeen?: string[];
   /** CP5 (flag): this run uses the 20-floor tower and CP5 mechanics; f10 = the floor-10 boss was beaten this run. */
   cp5?: boolean;
   f10?: boolean;
   /** CP5: player bleed / burn carried between battles (cleared by rest, health potion, defend). */
   pdot?: import('./cp5').PDot;
+  /** CP6 (flag): abyss trip; start = depth of floor 1. Depth of the current floor = start + floor − 1. */
+  abyss?: { start: number; /** highest milestone depth already claimed (record) */ ms?: number; /** titles earned this trip */ titles?: string[] };
 }
 
 export function startRun(p: Player, seed: number): RunState {
@@ -118,6 +125,31 @@ export function startRun(p: Player, seed: number): RunState {
     ...(RULES.cp5Bosses ? { cp5: true } : {}),
   };
 }
+
+/** CP6: abyss depth of the current floor (0 = not an abyss run). */
+export const depthOf = (run: RunState): number => (run.abyss ? run.abyss.start + run.floor - 1 : 0);
+/** CP6: unlocked by the first full 20-floor clear (doc §4; Arena 'clear the previous stage' rule, findings 003 §3.2(2)). */
+export const abyssOpen = (p: Player): boolean => !!(prog(p) as { abyssOpen?: boolean }).abyssOpen;
+/** CP6: start an abyss trip at depth `start` (a checkpoint). Uses CP5 mechanics; does not count as a main-tower trip. */
+export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState {
+  const rng = new Rng(seed);
+  const d = derive(p);
+  const tower: Tower = { floors: [abyssFloor(rng, start, 1)] };
+  return {
+    seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
+    bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip: 99, notes: [],
+    ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}), cp5: true, abyss: { start, ms, titles: [] },
+  };
+}
+/** CP6: monster / item / merchant / chest level at the current depth (r2 decision 7: one formula). */
+export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + Math.round(RULES.monLvFollow.k * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
+/** CP6: deepest depth cleared by a finished abyss run. */
+export function abyssCleared(run: RunState): number {
+  if (!run.abyss) return 0;
+  return depthOf(run) - 1;
+}
+/** CP6: record key = first formed CP4 school, else none. */
+export const abyssSchool = (run: RunState): AbyssSchool => (formed(run.buffs ?? [])[0] as AbyssSchool | undefined) ?? 'none';
 
 /** CP3: called when a node is entered. Unlocks and one-time tutorial tips; returns the messages to show. */
 export function enterNode(p: Player, run: RunState, type: NodeType): string[] {
@@ -159,7 +191,7 @@ export function armBattle(b: BattleState, run: RunState): void {
   if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }
   if (!cp4On(run)) return;
   const ids = run.buffs!;
-  b.mods = { ...sumMods(ids).b, combo: combos(ids) };
+  b.mods = { ...sumMods(ids).b, combo: combos(ids), ...(schoolCounts(ids).bulwark ? { bulwarkN: schoolCounts(ids).bulwark } : {}) };
 }
 
 export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
@@ -208,13 +240,15 @@ export function monsterLevel(run: RunState): number {
   return floorLevel(run.floor) + Math.round(k * Math.max(0, (run.plv ?? 0) - free));
 }
 export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Monster[] {
-  const f = run.floor;
-  const L = monsterLevel(run);
-  const { lo, hi } = plWindow(pool, floorPl(f));
+  const ab = depthOf(run);
+  /** CP6: CP5 key floor (boss signature / theme) for this depth. */
+  const f = ab ? (type === 'boss' ? bossKey(ab) : themeKey(ab)) : run.floor;
+  const L = ab ? abyssLevel(run) : monsterLevel(run);
+  const { lo, hi } = plWindow(pool, ab ? abyssPl(ab) : floorPl(f));
   return withRng(run, (rng) => {
     const plan: Rank[] =
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
-      type === 'elite' ? (run.weakNext ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
+      type === 'elite' ? (run.weakNext || (run.cp5 && CP5.eliteSolo) ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
       ['normal', 'normal'] /* 暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
     const th = run.cp5 && !CP5_FORCE.themeOff ? themeOf(f) : null;
     const w = th ? (r: MonsterRow) => themeWeight(th, r) : undefined;
@@ -225,12 +259,14 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (rank === 'boss') {
         m.phases = RULES.bossPhases;
         // CP3-bugfix 4 (暫定): boss HP grows with player level over the free level so trips 2+ last 10-15 turns.
-        const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
+        const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(ab ? 20 : run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
         m.maxHp = m.hp = Math.round(m.maxHp * g);
       }
       if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
-      if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w);
+      if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w, ab);
+      if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
+      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg; }
       return m;
     });
     if (type === 'elite') run.weakNext = false;
@@ -240,20 +276,29 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
 }
 
 /** CP5: boss signature + summon reserve, elite affixes + split children. Only called with the flag on. */
-function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: number, f: number, m: Monster, w?: (r: MonsterRow) => number): void {
+function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: number, f: number, m: Monster, w?: (r: MonsterRow) => number, ab = 0): void {
   const x = m as Monster & Cp5Mon;
   if (m.rank === 'boss' && BOSS_BY_FLOOR[f]) {
     x.sig = BOSS_BY_FLOOR[f]!.sig; x.sigTurns = 0;
+    const hk = CP5.bossHp[f] ?? 1, ak = CP5.bossAdb[f] ?? 1;
+    if (hk !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * hk));
+    if (ak !== 1) m.adb *= ak;
     if (x.sig === 'summon') x.reserve = pickRows(rng, pool, lo, hi, CP5.summonMax, w).map((r) => Object.assign(buildMonster(r, L, 'normal'), { summoned: true }));
+    // CP6 (暫定): bosses gain affixes from the 2nd rotation, never 法抗/反魔.
+    if (ab && bossAffixCount(ab)) applyAffixes(m, pickAffixes(rng, bossAffixCount(ab), [...TRIPLE_BANNED, 'split']));
   }
   if (m.rank !== 'elite') return;
+  if (CP5.eliteHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.eliteHp));
+  if (CP5.eliteAdb !== 1) m.adb *= CP5.eliteAdb;
   let ids: AffixId[];
   if (CP5_FORCE.affixes) ids = [...CP5_FORCE.affixes];
+  else if (ab) ids = pickAffixes(rng, affixCount(rng, ab));
   else {
-    ids = [rng.pick(AFFIX_IDS)];
-    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.pick(AFFIX_IDS.filter((b) => compatible(ids[0]!, b))));
+    ids = [rng.weighted(AFFIX_IDS.map((a) => [a, affixWeight(a)] as [AffixId, number]))];
+    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.weighted(AFFIX_IDS.filter((b) => compatible(ids[0]!, b)).map((a) => [a, affixWeight(a)] as [AffixId, number])));
   }
   if (ids.length > 1 && CP5.doubleHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.doubleHp));
+  if (ab && ids.length > 2) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * ABYSS.tripleHp));
   if (ids.includes('split')) x.splitInto = pickRows(rng, pool, lo, hi, 2, w).map((r) => { const c = buildMonster(r, L, 'normal'); c.maxHp = c.hp = Math.max(1, Math.round(m.maxHp * CP5.splitHp)); return c; });
   applyAffixes(m, ids);
 }
@@ -271,10 +316,14 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
 export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): Loot {
-  const L = floorLevel(run.floor);
+  const ab = depthOf(run);
+  const L = ab ? abyssLevel(run) : floorLevel(run.floor);
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
-    for (const m of monsters) {
+    // CP5 r3 (暫定): a solo elite rolls the drop table once more for the missing normal add (producer decision 1).
+    const extra = run.cp5 && type === 'elite' && CP5.eliteSolo && CP5.eliteExtraRoll && !monsters.some((m) => m.rank === 'normal')
+      ? monsters.filter((m) => m.rank === 'elite').slice(0, 1).map((m) => ({ ...m, rank: 'normal' as Rank })) : [];
+    for (const m of [...monsters, ...extra]) {
       loot.exp += Math.round(monsterExp(m.level, m.pl, RULES.expMult) * RULES.rankExp[m.rank]);
       const drop = LR.baseDrop + Math.min(LR.plBonus.cap, Math.max(0, (m.pl - LR.plBonus.offset) / LR.plBonus.divisor));
       if (rng.chance(drop)) {
@@ -287,9 +336,17 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
     }
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
-      const n = run.floor >= 10 ? 3 : 2;
+      const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
       for (let i = 0; i < n; i++) loot.equips.push(generateEquip(rng, L, { minQuality: C['F-003-clear-bonus'].value.minQuality as Quality, qualityBump: i === 0 ? 1 : 0 }));
       loot.credits += 40 * run.floor;
+      // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
+      if (ab) loot.equips.push(generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }));
+      // CP6 r2 decision 9 (暫定): first clear of every 10th depth → 1 more guaranteed piece + a title.
+      if (ab && ab % ABYSS.milestoneEvery === 0 && ab > (run.abyss!.ms ?? 0)) {
+        loot.equips.push(generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }));
+        run.abyss!.ms = ab; (run.abyss!.titles ??= []).push(titleFor(ab));
+        (run.notes ??= []).push(`里程碑：深淵 ${ab} 層，獲得稱號「${titleFor(ab)}」與 1 件保底裝備`);
+      }
     }
     loot.credits += RULES.floorCredits * run.floor;
     // 暫定 early-loot guarantee (round 5): the first won battle on floors 1-4 with no equipment found yet this run drops one.
@@ -300,7 +357,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
 }
 
 export function chestLoot(run: RunState): Loot {
-  const L = floorLevel(run.floor);
+  const L = run.abyss ? abyssLevel(run) : floorLevel(run.floor); // CP6 r2 decision 7
   // design §5: chests drop 2-3 items (暫定 single-player acceleration).
   return withRng(run, (rng) => ({
     equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
@@ -318,7 +375,7 @@ export function applyLoot(p: Player, run: RunState, loot: Loot): void {
 export function finishBattle(p: Player, run: RunState, b: BattleState, monsters: Monster[], type: NodeType): Loot | null {
   run.hp = b.hp; run.mp = b.mp; run.sp = b.sp;
   p.potions = { ...b.potions };
-  if (run.cp5) run.pdot = b.cp5?.pdot;
+  if (run.cp5) run.pdot = undefined; // CP5 rc2 fix 2: all DoTs end with the battle (was carried into the next fight)
   if (b.over !== 'win') { run.done = 'dead'; return null; }
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
@@ -334,7 +391,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
 }
 
 export function merchantStock(run: RunState): MerchantStock {
-  const L = floorLevel(run.floor);
+  const L = run.abyss ? abyssLevel(run) : floorLevel(run.floor); // CP6 r2 decision 7
   return withRng(run, (rng) => ({
     equips: [0, 1, 2].map((i) => {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
@@ -373,6 +430,7 @@ export function advance(run: RunState, option: number): void {
   run.current = null;
   run.merchant = null;
   run.buffStock = undefined; // stale stock must not leak to the next node
+  if (run.abyss) { const d = depthOf(run) + 1; withRng(run, (r) => run.tower.floors.push(abyssFloor(r, d, run.floor + 1))); run.floor++; return; }
   if (run.floor >= run.tower.floors.length) run.done = 'clear';
   else run.floor++;
 }
@@ -391,7 +449,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const dead = outcome === 'dead';
   const before = level(p);
   const g = prog(p);
-  const mult = carryMult(run.trip ?? g.trips + 1);
+  const mult = run.abyss ? abyssCarry(depthOf(run)) : carryMult(run.trip ?? g.trips + 1);
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
   let kept = run.bag;
@@ -404,8 +462,9 @@ export function settle(p: Player, run: RunState): Settlement {
   p.credits += credits;
   for (const [k, v] of Object.entries(run.profExp)) p.profExp[k as Prof] += Math.round(v! * (dead ? RULES.death.exp : 1) * mult);
   p.inventory.push(...kept);
-  g.trips++;
+  if (!run.abyss) g.trips++;
   const unlocks: string[] = [];
+  if (RULES.cp6Abyss && run.cp5 && !run.abyss && outcome === 'clear' && !abyssOpen(p)) { (g as { abyssOpen?: boolean }).abyssOpen = true; unlocks.push('深淵塔開放：城鎮可以進入無限層的深淵塔'); }
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
   if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }

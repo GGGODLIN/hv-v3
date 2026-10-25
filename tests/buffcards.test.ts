@@ -18,7 +18,7 @@ const D: Record<string, [string, Kind, boolean]> = {
   physAccPct: ['physAcc', 'rel', true], magAccPct: ['magAcc', 'rel', true],
   physCrit: ['physCrit', 'pp', true], magCrit: ['magCrit', 'pp', true], evade: ['evade', 'pp', true], parry: ['parry', 'pp', true], block: ['block', 'pp', true],
   physMit: ['physMit', 'pp', true], magMit: ['magMit', 'pp', true], specMitAll: ['specMit', 'pp', true], manaCons: ['manaCons', 'pp', true],
-  critMod: ['critMod', 'add', false], spellCritMod: ['spellCritMod', 'add', false], counterResist: ['counterResist', 'add', false], edbAll: ['edb.fire', 'add', false],
+  critMod: ['critMod', 'add', false], spellCritMod: ['spellCritMod', 'add', false], counterResist: ['counterResist', 'pp', true], edbAll: ['edb.fire', 'add', false],
 };
 const num = (s: string) => Number(s.replace(/[%+回合]/g, '').trim());
 const fmt = (x: number) => String(Math.round(x * 1000) / 1000);
@@ -37,6 +37,10 @@ describe('buff cards match their preview', () => {
         const [rk, kind, isPct] = D[k]!; const x = v as number; const r = row(rk);
         expect(r, `${k} row`).toBeTruthy();
         const a = num(r!.before), b = num(r!.after);
+        // CP4-rc-fix 1: unit consistency — before/after share a unit, and probability stats show % on both the card and the preview.
+        expect(r!.before.endsWith('%'), `${k} unit before/after`).toBe(r!.after.endsWith('%'));
+        if (isPct) { expect(r!.after, `${k} preview unit`).toMatch(/%$/); expect(bf.desc, `${k} card unit`).toMatch(/[%×]/); }
+        if (!isPct && kind !== 'rel') expect(r!.after, `${k} preview unit`).not.toMatch(/%$/);
         if (kind === 'rel') {
           expect(b / a).toBeGreaterThan(1 + x - 0.02); expect(b / a).toBeLessThan(1 + x + 0.02);
           if (isPct) expect(r!.after).toMatch(/%$/);
@@ -72,5 +76,33 @@ describe('merchant buff shelf (CP4 rc #2)', () => {
     const { advance } = await import('../src/core/run');
     const r = startRun(structuredClone(P0), 3); r.buffStock = [{ id: 'B1', price: 1 }];
     advance(r, 0); expect(r.buffStock).toBeUndefined();
+  });
+});
+
+describe('CP4-rc-fix 2: 韌魂 preview never says "用不到" just because of rounding', () => {
+  it('O4 always shows a 最大 SP row, whatever the base SP', () => {
+    for (const lv of [1, 3, 8]) {
+      const p = newPlayer(); starterKit(p, lv);
+      const r = startRun(p, 9);
+      const rows = buffPreview(p, r, 'O4');
+      expect(rows.some((x) => x.k === 'sp')).toBe(true);
+    }
+  });
+});
+
+describe('CP4-rc-fix 3: merchants in one trip never repeat a non-stackable buff', () => {
+  it('many merchants in one trip: each non-S buff listed at most once, none held', async () => {
+    const { merchantBuffs } = await import('../src/core/buffoffer');
+    const was = RULES.cp4RunBuffs; RULES.cp4RunBuffs = true;
+    try {
+      for (let seed = 1; seed <= 30; seed++) {
+        const p = newPlayer(); starterKit(p, 5);
+        const r = startRun(p, seed); r.buffs = ['B2'];
+        const listed: string[] = [];
+        for (let m = 0; m < 4; m++) for (const x of merchantBuffs(p, r)) if (!x.id.startsWith('S-')) listed.push(x.id);
+        expect(new Set(listed).size).toBe(listed.length);
+        expect(listed).not.toContain('B2');
+      }
+    } finally { RULES.cp4RunBuffs = was; }
   });
 });

@@ -1,10 +1,10 @@
 #!/bin/sh
-# Per-step CP4 gate: typecheck, tests, flag-off sim identity, build, preview restart, e2e.
+# Per-step CP4 gate: typecheck, tests, defaults (cp4 on, cp5 off) sim == main, build, preview restart, e2e.
 set -e
 cd "$(dirname "$0")/.."
 npx tsc --noEmit -p .
 npx vitest run 2>&1 | grep -E "Tests|FAIL"
-./scripts/cp4-off-check.sh
+./scripts/cp4-on-check.sh
 npm run build >/tmp/build.log 2>&1
 # self-test preview on 5198 (5199 stays on cp3-pass2 for playtesting); stopped at the end
 pkill -f "vite preview --port 5198" || true; sleep 1

@@ -1,0 +1,18 @@
+import puppeteer from 'puppeteer-core';
+const url = process.argv[2], out = process.argv[3];
+const b = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+const pg = await b.newPage(); await pg.setViewport({ width: 1100, height: 760 });
+const cdp = await pg.target().createCDPSession();
+await cdp.send('Network.enable'); await cdp.send('Network.setCacheDisabled', { cacheDisabled: true });
+await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 400, downloadThroughput: 60000, uploadThroughput: 60000 });
+pg.goto(url + '?t=' + Date.now()).catch(() => {});
+await pg.waitForSelector('#hvload', { timeout: 30000 });
+const loadTxt = await pg.$eval('#hvload', (e) => e.textContent);
+await pg.screenshot({ path: out + '/live-loading.png' });
+await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+await pg.waitForFunction(() => !document.querySelector('#hvload') && /build/.test(document.body.innerText), { timeout: 90000 });
+await new Promise((r) => setTimeout(r, 1500));
+const badge = await pg.evaluate(() => [...document.querySelectorAll('*')].find((e) => e.children.length === 0 && /^build /.test(e.textContent))?.textContent);
+await pg.screenshot({ path: out + '/live-town-badge.png' });
+console.log(JSON.stringify({ loadTxt, badge }));
+await b.close();
