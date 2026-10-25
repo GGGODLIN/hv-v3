@@ -325,3 +325,16 @@ Known limit: attack-only play vs the F9 elite is a base-game issue.
 - In losing fights the elite (~1000 HP) is still at full HP when the player dies around turn 8.
 - Even +100% physical damage lifts 刃鋒 only to 42%.
 - Fixing this needs elite/base values, which would change the flag-off baseline, so they were not touched in CP4.
+
+## First-screen timing (2026-10-25)
+
+Measured with `scripts/first-screen.mjs` (puppeteer, 1280×800). The timer stops when `#ui` shows text.
+
+| Target | Condition | Main panel shows content | FCP |
+|---|---|---|---|
+| Live gggodlin.github.io/play/hv-v3/ | box network, cold / warm | 1717 / 511 / 431 ms | 536 / 228 / 164 ms |
+| Live | Slow 4G (1.6 Mbps, 150 ms) + CPU ×4 | 9829 / 9733 ms (black until JS runs) | 2668 ms |
+| Local build (5199 / preview) | box network | 403–532 ms | 28–192 ms |
+| Local build with loading indicator | Slow 4G + CPU ×4 | 9612 ms, **indicator at 369 ms** | 404 ms |
+
+The JS bundle is ~1.5 MB. On a slow connection the panel was black for more than 2 s, so `index.html` now has an inline-styled 「試煉之塔 載入中…」 indicator inside `#ui`. The first render replaces it.
