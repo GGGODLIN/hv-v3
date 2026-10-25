@@ -1,0 +1,288 @@
+import { CONSTANTS as C } from './data/constants';
+import { resolveHit, type Avoid } from './damage';
+import type { Monster } from './monsters';
+import type { Derived, Element, Prof } from './player';
+import type { Rng } from './rng';
+
+export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow';
+export type SpellId = 'fiery' | 'freeze' | 'shock' | 'gale' | 'smite' | 'corruption';
+export type PotionId = 'health' | 'mana' | 'spirit';
+
+export interface SpellDef { id: SpellId; zh: string; element: Element; baseCost: number; mod: number; targets: number; school: Prof; statusChance: number }
+export const SPELLS: Record<SpellId, SpellDef> = {
+  fiery: { id: 'fiery', zh: '烈焰爆破', element: 'fire', baseCost: 6, mod: 4, targets: 3, school: 'elemental', statusChance: 0.25 },
+  freeze: { id: 'freeze', zh: '冰封', element: 'cold', baseCost: 6, mod: 4, targets: 3, school: 'elemental', statusChance: 0.25 },
+  shock: { id: 'shock', zh: '雷擊', element: 'elec', baseCost: 6, mod: 4, targets: 3, school: 'elemental', statusChance: 0.25 },
+  gale: { id: 'gale', zh: '狂風', element: 'wind', baseCost: 6, mod: 4, targets: 3, school: 'elemental', statusChance: 0.25 },
+  smite: { id: 'smite', zh: '聖擊', element: 'holy', baseCost: 14, mod: 4.5, targets: 1, school: 'divine', statusChance: 0 },
+  corruption: { id: 'corruption', zh: '腐化', element: 'dark', baseCost: 14, mod: 4.5, targets: 1, school: 'forbidden', statusChance: 0 },
+};
+const SK = C['F-002-4.2-skills'].value;
+export const SKILLS: Record<SkillId, { id: SkillId; zh: string; oc: number; cd: number; desc: string }> = {
+  shieldBash: { id: 'shieldBash', zh: '盾擊', oc: SK.shieldBash.ocCost, cd: SK.shieldBash.cooldown, desc: `x${SK.shieldBash.multiplier} 打擊並暈眩 ${SK.shieldBash.stunTicks} 回合` },
+  vitalStrike: { id: 'vitalStrike', zh: '要害打擊', oc: SK.vitalStrike.ocCost, cd: SK.vitalStrike.cooldown, desc: `x${SK.vitalStrike.multiplier}（對暈眩 x${SK.vitalStrike.multiplierVsStunned}）並流血` },
+  mercifulBlow: { id: 'mercifulBlow', zh: '慈悲一擊', oc: SK.mercifulBlow.ocCost, cd: SK.mercifulBlow.cooldown, desc: `目標 HP<${SK.mercifulBlow.executeBelowHpFraction * 100}% 時 x${SK.mercifulBlow.multiplier}` },
+};
+const OC = C['F-002-overcharge'].value;
+const SS = C['F-002-spirit-stance'].value;
+const DEF = C['002-07'].value;
+const FOC = C['F-002-4.2-focus'].value;
+const ITEMS = C['F-002-items'].value;
+const ITEM_CD = C['F-002-4.1A-item-cooldown'].value.turns;
+const MCRIT = C['F-002-5.1B-monster-crit'].value;
+const BLEED = C['F-002-5.2-bleed'].value;
+const VSB = C['P-vital-strike-bleed'].value;
+/** Boss telegraph (provisional): charge every 4th boss turn, release next turn at x3 damage. */
+export const BOSS_CHARGE_EVERY = 4;
+export const BOSS_CHARGE_MULT = 3;
+
+export type Action =
+  | { kind: 'attack'; target: number }
+  | { kind: 'skill'; id: SkillId; target: number }
+  | { kind: 'spell'; id: SpellId; target: number }
+  | { kind: 'item'; id: PotionId }
+  | { kind: 'defend' }
+  | { kind: 'focus' }
+  | { kind: 'spirit' };
+
+export type BEvent =
+  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string }
+  | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
+  | { t: 'status'; to: 'player' | number; text: string }
+  | { t: 'death'; to: number }
+  | { t: 'charge'; from: number }
+  | { t: 'spirit'; on: boolean }
+  | { t: 'msg'; text: string };
+
+export interface BattleState {
+  d: Derived;
+  hp: number; mp: number; sp: number; oc: number;
+  monsters: Monster[];
+  turn: number;
+  spirit: boolean;
+  defendTurns: number;
+  focusTurn: boolean;
+  cooldowns: Record<SkillId, number>;
+  itemCd: Record<PotionId, number>;
+  potions: Record<PotionId, number>;
+  over: 'win' | 'lose' | null;
+  /** Usage counters for proficiency gain. */
+  used: Partial<Record<Prof, number>>;
+  bossTurns: number;
+}
+
+export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {
+  return {
+    d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: C['P-oc-start'].value.initial,
+    monsters, turn: 0, spirit: false, defendTurns: 0, focusTurn: false,
+    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0 },
+    itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0,
+  };
+}
+
+export const alive = (s: BattleState) => s.monsters.filter((m) => m.hp > 0);
+export function spellCost(s: BattleState, id: SpellId): number {
+  const sp = SPELLS[id];
+  return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1)));
+}
+
+export function canUse(s: BattleState, a: Action): boolean {
+  if (s.over) return false;
+  switch (a.kind) {
+    case 'attack': return true;
+    case 'skill': {
+      if (s.cooldowns[a.id] > 0 || s.oc < SKILLS[a.id].oc) return false;
+      if (a.id === 'mercifulBlow') {
+        const m = s.monsters[a.target];
+        return !!m && m.hp > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction;
+      }
+      return true;
+    }
+    case 'spell': return s.mp >= spellCost(s, a.id);
+    case 'item': return s.potions[a.id] > 0 && s.itemCd[a.id] <= 0;
+    case 'defend': case 'focus': return true;
+    case 'spirit': return s.spirit || (s.oc >= SS.minOcToEnter && s.sp >= SS.spPerTurn);
+  }
+}
+
+function retarget(s: BattleState, t: number): number {
+  if (s.monsters[t] && s.monsters[t]!.hp > 0) return t;
+  return s.monsters.findIndex((m) => m.hp > 0);
+}
+
+function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
+  const m = s.monsters[ti]!;
+  const r = resolveHit(rng, {
+    raw: s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus : 1), magic: false, acc: s.d.physAcc,
+    evade: m.status.stun > 0 ? 0 : m.evade, parry: m.status.stun > 0 ? 0 : m.parry, block: 0, resist: 0,
+    critChance: s.d.physCrit, critMod: s.d.critMod, mit: m.physMit, spec: m.spec[dtype] / 100,
+  });
+  if (r.avoidMult > 0) {
+    m.hp = Math.max(0, m.hp - r.damage);
+    s.oc = Math.min(OC.cap, s.oc + rng.int(OC.hitGainMin, OC.hitGainMax));
+  }
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label });
+  if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
+  if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+  return r.avoidMult > 0 ? r.damage : 0;
+}
+
+function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: number, ev: BEvent[]): void {
+  const m = s.monsters[ti]!;
+  const pf = Math.max(0, Math.min(1, (profVal - m.level) / Math.max(1, m.level)));
+  const specReduce = Math.pow(pf, 1.5) * 0.5;
+  const r = resolveHit(rng, {
+    raw: s.d.mdb * (1 + s.d.edb[def.element] / 100) * def.mod, magic: true, acc: s.d.magAcc,
+    evade: m.status.stun > 0 ? 0 : m.evade, parry: 0, block: 0, resist: m.resist, counterResist: 0.5 * pf + s.d.counterResist,
+    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: m.magMit, spec: m.spec[def.element] / 100 - specReduce,
+  });
+  if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element });
+  if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
+    if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
+    else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15)); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
+  }
+  if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+}
+
+/** Apply one player action, then let every live monster act. Returns the events for the renderer. */
+export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<Prof, number>> = {}): BEvent[] {
+  const ev: BEvent[] = [];
+  if (!canUse(s, a)) return [{ t: 'msg', text: '無法使用' }];
+  let free = false;
+  let noRegen = false;
+  s.focusTurn = false;
+  switch (a.kind) {
+    case 'attack': {
+      const t = retarget(s, a.target);
+      physHit(s, rng, t, 1, ev);
+      break;
+    }
+    case 'skill': {
+      const t = retarget(s, a.target);
+      const m = s.monsters[t]!;
+      s.oc -= SKILLS[a.id].oc;
+      s.cooldowns[a.id] = SKILLS[a.id].cd + 1;
+      if (a.id === 'shieldBash') {
+        physHit(s, rng, t, SK.shieldBash.multiplier, ev, '盾擊', 'crushing');
+        if (m.hp > 0) { m.status.stun = SK.shieldBash.stunTicks; ev.push({ t: 'status', to: t, text: '暈眩' }); }
+      } else if (a.id === 'vitalStrike') {
+        const stunned = m.status.stun > 0;
+        const dmg = physHit(s, rng, t, stunned ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier, ev, stunned ? '要害！' : '要害打擊');
+        if (m.hp > 0 && dmg > 0) {
+          m.status.bleed = Math.max(m.status.bleed, Math.ceil((dmg * BLEED.damageFactor) / VSB.ticks));
+          m.status.bleedTurns = VSB.ticks;
+          ev.push({ t: 'status', to: t, text: '流血' });
+        }
+      } else {
+        physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');
+      }
+      break;
+    }
+    case 'spell': {
+      const def = SPELLS[a.id];
+      s.mp -= spellCost(s, a.id);
+      const t0 = retarget(s, a.target);
+      const order = [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)];
+      for (const ti of order.slice(0, def.targets)) spellHit(s, rng, ti, def, profs[def.school] ?? 0, ev);
+      s.used[def.school] = (s.used[def.school] ?? 0) + 1;
+      break;
+    }
+    case 'item': {
+      const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
+      s.potions[a.id]--;
+      s.itemCd[a.id] = ITEM_CD + 1;
+      const res = f.resource as 'hp' | 'mp' | 'sp';
+      const max = s.d[res];
+      const before = s[res];
+      s[res] = Math.min(max, s[res] + Math.round(max * f.fraction));
+      ev.push({ t: 'heal', res, amount: s[res] - before, label: a.id === 'health' ? '生命藥水' : a.id === 'mana' ? '法力藥水' : '靈力藥水' });
+      break;
+    }
+    case 'defend': {
+      if (s.oc >= DEF.ocCost) {
+        s.oc -= DEF.ocCost;
+        const before = s.hp;
+        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover));
+        ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
+      } else ev.push({ t: 'status', to: 'player', text: '防禦' });
+      s.defendTurns = DEF.turns;
+      break;
+    }
+    case 'focus': {
+      if (s.oc >= FOC.ocCost) {
+        s.oc -= FOC.ocCost;
+        const before = s.mp;
+        s.mp = Math.min(s.d.mp, s.mp + Math.round(s.d.mp * FOC.mpRecover));
+        ev.push({ t: 'heal', res: 'mp', amount: s.mp - before, label: '專注' });
+      } else ev.push({ t: 'status', to: 'player', text: '專注' });
+      s.focusTurn = true;
+      break;
+    }
+    case 'spirit': {
+      s.spirit = !s.spirit;
+      ev.push({ t: 'spirit', on: s.spirit });
+      free = true;
+      noRegen = true;
+      break;
+    }
+  }
+  if (alive(s).length === 0) { s.over = 'win'; return ev; }
+  if (free) return ev;
+  endOfPlayerTurn(s, ev, noRegen);
+  monstersAct(s, rng, ev);
+  if (s.hp <= 0) s.over = 'lose';
+  return ev;
+}
+
+function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
+  s.turn++;
+  for (const k of Object.keys(s.cooldowns) as SkillId[]) if (s.cooldowns[k] > 0) s.cooldowns[k]--;
+  for (const k of Object.keys(s.itemCd) as PotionId[]) if (s.itemCd[k] > 0) s.itemCd[k]--;
+  if (s.spirit) {
+    if (s.sp >= SS.spPerTurn && s.oc >= SS.ocPerTurn) { s.sp -= SS.spPerTurn; s.oc -= SS.ocPerTurn; }
+    else { s.spirit = false; ev.push({ t: 'spirit', on: false }); }
+  }
+  if (!noRegen) {
+    s.mp = Math.min(s.d.mp, s.mp + 5 + s.d.attrs.wis / 25);
+    s.sp = Math.min(s.d.sp, s.sp + 1 + Object.values(s.d.attrs).reduce((a, b) => a + b, 0) / 600);
+  }
+  s.mp = Math.floor(s.mp * 100) / 100;
+  s.sp = Math.floor(s.sp * 100) / 100;
+  s.monsters.forEach((m, i) => {
+    if (m.hp > 0 && m.status.bleedTurns > 0) {
+      m.hp = Math.max(0, m.hp - m.status.bleed);
+      m.status.bleedTurns--;
+      ev.push({ t: 'hit', from: 'player', to: i, dmg: m.status.bleed, crits: 0, avoided: null, label: '持續' });
+      if (m.hp <= 0) ev.push({ t: 'death', to: i });
+    }
+  });
+  if (alive(s).length === 0) s.over = 'win';
+}
+
+function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
+  if (s.over) return;
+  const defending = s.defendTurns > 0;
+  s.monsters.forEach((m, i) => {
+    if (m.hp <= 0 || s.hp <= 0) return;
+    if (m.status.stun > 0) { m.status.stun--; return; }
+    let mult = 1;
+    let label: string | undefined;
+    if (m.rank === 'boss') {
+      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
+      else if (++s.bossTurns % BOSS_CHARGE_EVERY === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
+    }
+    const zero = s.focusTurn;
+    const r = resolveHit(rng, {
+      raw: m.adb * mult, magic: false, acc: m.acc,
+      evade: zero ? 0 : s.d.evade, parry: zero ? 0 : s.d.parry, block: zero ? 0 : s.d.block, resist: 0,
+      critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance, bonus: MCRIT.critDamageBonus },
+      mit: 1 - (1 - s.d.physMit) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[m.attackType],
+    });
+    const dmg = r.avoidMult > 0 ? r.damage : 0;
+    s.hp = Math.max(0, s.hp - dmg);
+    ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label });
+    for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
+  });
+  if (s.defendTurns > 0) s.defendTurns--;
+}
