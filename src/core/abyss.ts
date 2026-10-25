@@ -30,7 +30,7 @@ export const ABYSS = {
   /** r2 tuning knob (暫定): abyss monster damage ×. */
   dmgScale: 0.55,
   /** r2b knob (暫定): extra damage × for the abyss boss at a given depth (missing = 1). */
-  bossDmgAt: { 15: 0.6 } as Record<number, number>,
+  bossDmgAt: { 15: 0.6, 20: 0.6, 25: 0.6 } as Record<number, number>,
   /** r2 decision 8 (暫定): carry-back multiplier = 1 + this × tier index (Normal 0 … PFUDOR 6) of the deepest depth reached. */
   carryPerTier: 0.05,
   /** r2 decision 9 (暫定): milestone every N depths cleared (first time only). */

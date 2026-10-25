@@ -11,7 +11,7 @@ import { ABYSS, checkpointStart, emptyRecord, recordTitles, recordTrip, type Aby
 import { QUALITIES } from '../src/core/items';
 import { powerScore } from '../src/core/player';
 RULES.cp6Abyss = true;
-const N = Number(process.argv[2] ?? 24), T = Number(process.argv[3] ?? 5);
+const N = Number(process.argv[2] ?? 64), T = Number(process.argv[3] ?? 10);
 const STRATS = (process.argv[4] ?? 'auto,buff:blade,buff:oc,buff:arcane,buff:bulwark').split(',') as Strategy[];
 for (const kv of process.argv.slice(5)) { const [k, v] = kv.split("="); const [a, b] = k!.split('.'); const o = ABYSS as unknown as Record<string, any>; if (b) o[a!][b] = Number(v); else o[a!] = Number(v); console.log(`override ${k}=${v}`); }
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
@@ -20,7 +20,7 @@ const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.lengt
 const f = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : '—');
 console.log(`CP6 abyss sim N=${N} T=${T} (main tower until first F20 clear, then abyss)`);
 for (const strat of STRATS) {
-  const first: number[] = [], best: number[] = [], lv: number[] = [], pw: number[] = [], mt: number[] = [], kept: number[] = [], died: number[] = [], qmix: Record<string, number> = {}, schools: Record<string, number> = {};
+  const first: number[] = [], best: number[] = [], best5: number[] = [], lv: number[] = [], pw: number[] = [], mt: number[] = [], kept: number[] = [], died: number[] = [], qmix: Record<string, number> = {}, schools: Record<string, number> = {};
   let noClear = 0, titles = 0;
   const boss: Record<number, BossFight[]> = {}; const endAt: Record<number, number> = {};
   for (let s = 1; s <= N; s++) {
@@ -38,6 +38,7 @@ for (const strat of STRATS) {
       recordTrip(rec, r.abyss!.cleared, r.abyss!.school as AbyssSchool);
       schools[r.abyss!.school] = (schools[r.abyss!.school] ?? 0) + 1;
       for (const b of r.bosses) (boss[b.floor] ??= []).push(b);
+      if (t === Math.min(5, T)) best5.push(rec.best);
     }
     best.push(rec.best);
   }
@@ -47,7 +48,8 @@ for (const strat of STRATS) {
   console.log(`abyss trips ending in death ${f(mean(died) * 100)}% | equipment kept per abyss trip: mean ${f(mean(kept))} median ${q(kept, 0.5)} p90 ${q(kept, 0.9)} | quality ${QUALITIES.filter((k) => qmix[k]).map((k) => `${k} ${f((qmix[k]! / tq) * 100)}%`).join(' ')}`);
   console.log(`trip1 cleared depth: p10 ${q(first, 0.1)} p25 ${q(first, 0.25)} median ${q(first, 0.5)} p75 ${q(first, 0.75)} p90 ${q(first, 0.9)} mean ${f(mean(first))}`);
   console.log(`best after ${T} trips: p10 ${q(best, 0.1)} median ${q(best, 0.5)} p90 ${q(best, 0.9)} max ${Math.max(...best)}`);
-  console.log('boss fights by abyss depth | n | win% | turns');
+  if (T > 5) console.log(`best after 5 trips: p10 ${q(best5, 0.1)} median ${q(best5, 0.5)} p90 ${q(best5, 0.9)} max ${Math.max(...best5)}`);
+  console.log(`boss fights by abyss depth over all ${T} trips | n | win% | turns`);
   for (const k of [...new Set([5, 10, 15, 20, 25, ...Object.keys(boss).map(Number)])].sort((a, b) => a - b)) { const xs0 = boss[k] ?? []; if (!xs0.length) { console.log(`  d${k} | 0 | — | —`); continue; } const xs = boss[k]!; console.log(`  d${k} | ${xs.length} | ${f(mean(xs.map((b) => +b.won)) * 100)} | ${f(mean(xs.map((b) => b.turns)))}`); }
   console.log(`death depth (abyss trips dying at depth d): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${endAt[d]}`).join(' ')}`);
 }

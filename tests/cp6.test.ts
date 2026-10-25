@@ -15,8 +15,8 @@ describe('CP6 abyss scaling', () => {
     expect([1, 9, 10, 14, 15, 20, 25, 30, 35, 39, 40, 80].map(abyssTier)).toEqual([0, 0, 1, 1, 2, 3, 4, 5, 6, 6, 6, 6]);
   });
   it('level +2 per depth (decision 1, not ×10)', () => { expect(abyssBaseLevel(6) - abyssBaseLevel(5)).toBe(2); });
-  it('r2b knob: only the d15 abyss boss deals ×0.6 damage (暫定)', () => {
-    expect(ABYSS.bossDmgAt[15]).toBe(0.6); expect(ABYSS.bossDmgAt[10] ?? 1).toBe(1); expect(ABYSS.bossDmgAt[20] ?? 1).toBe(1);
+  it('r2b knob: d15/d20/d25 abyss bosses deal ×0.6 damage, d5/d10 untouched (暫定)', () => {
+    expect(ABYSS.bossDmgAt[15]).toBe(0.6); expect(ABYSS.bossDmgAt[10] ?? 1).toBe(1); expect(ABYSS.bossDmgAt[20]).toBe(0.6); expect(ABYSS.bossDmgAt[25]).toBe(0.6); expect(ABYSS.bossDmgAt[5] ?? 1).toBe(1);
   });
   it('r2 knob: hpScale/dmgScale multiply every depth (暫定 0.55)', () => {
     expect(ABYSS.hpScale).toBe(0.55); expect(ABYSS.dmgScale).toBe(0.55);
