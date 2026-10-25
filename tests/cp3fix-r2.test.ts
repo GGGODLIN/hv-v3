@@ -15,24 +15,42 @@ describe('CP3-bugfix 4: monster level follows player level (暫定)', () => {
 });
 
 import { readFileSync } from 'node:fs';
-import { badName, cleanRow, neutralName } from '../src/core/names';
-import { makePool, type MonsterRow } from '../src/core/monsters';
-describe('CP3-bugfix 2: monster name filter', () => {
-  it('flags the reported names and gibberish, keeps normal ones', () => {
-    for (const n of ['Hypnotizedneiborpregnantmilf', 'New Wife New Life', 'Big Milf', 'Bqwbqw', '123123423412344234']) expect(badName(n)).not.toBeNull();
-    for (const n of ['Touyama Nao', 'Iron Breastplate', 'Hypnos', 'Fire Drake', 'Peacock']) expect(badName(n)).toBeNull();
+import { bossName, cleanRow, genName, NAME_VOCAB, BOSS_SEP } from '../src/core/names';
+import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
+import { generateEquip, equipName } from '../src/core/items';
+import { Rng } from '../src/core/rng';
+describe('CP3-bugfix r3 #1b: equipment names', () => {
+  it('Crude never rolls a suffix (Loot_Drop_Rolls.md: suffix from Fair), names use lower-case "of", no doubled words', () => {
+    const rng = new Rng(11);
+    for (let i = 0; i < 5000; i++) {
+      const e = generateEquip(rng, 1 + (i % 60)); const n = equipName(e);
+      if (e.quality === 'crude') expect(e.suffix).toBeNull();
+      expect(n).not.toMatch(/\bOf\b/); expect(n.split(' ').some((w, j, a) => j > 0 && w === a[j - 1])).toBe(false);
+    }
   });
-  it('neutral name from race, stats kept', () => {
-    const row = [7, 'Dragonkin', 'Big Milf', 100, 'Slashing', 'x', 0, 1, 2, 3, 4, 5, 6, 7, 8] as unknown as MonsterRow;
-    const c = cleanRow(row);
-    expect(c[2]).toBe(neutralName('Dragonkin', 7));
-    expect(c[2]).toMatch(/Drake/);
-    expect(c.slice(3)).toEqual(row.slice(3));
+});
+describe('CP3-bugfix r3 #1: whitelist monster names', () => {
+  const rows = JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[];
+  const esc = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const tok = `(?:${[...NAME_VOCAB].sort((x, y) => y.length - x.length).map(esc).join('|')})`;
+  const WHITE = new RegExp(`^(?:${tok}${esc(BOSS_SEP)})?${tok}+$`);
+  it('all 44,382 display names (normal and boss form) use only generator words; raw names never appear', () => {
+    expect(rows.length).toBe(44382);
+    for (const r of rows) {
+      const n = cleanRow(r)[2];
+      expect(WHITE.test(n), n).toBe(true);
+      expect(WHITE.test(bossName(n)), bossName(n)).toBe(true);
+      expect(n).not.toContain(r[2]);
+    }
   });
-  it('no flagged name survives in the real pool', () => {
-    const rows = JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[];
+  it('same row -> same name, stats kept, boss gets a title', () => {
+    const r = rows.find((x) => x[2] === 'Touyama Nao')!;
+    expect(genName(r)).toBe(genName([...r] as MonsterRow));
+    const c = cleanRow(r); expect(c.slice(3)).toEqual(r.slice(3)); expect(c[0]).toBe(r[0]);
+    expect(buildMonster(c, 5, 'boss').name).toContain(BOSS_SEP);
+    expect(buildMonster(c, 5, 'normal').name).toBe(c[2]);
     const pool = makePool(rows);
-    expect(pool.rows.filter((r) => badName(r[2])).length).toBe(0);
+    expect(pool.rows.every((x) => /^[\u4e00-\u9fff·]+$/.test(x[2]))).toBe(true);
   });
 });
 

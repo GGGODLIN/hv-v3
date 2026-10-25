@@ -1,4 +1,4 @@
-import { cleanRow } from './names';
+import { bossName, cleanRow } from './names';
 import { CONSTANTS as C } from './data/constants';
 import { type Attrs, ATTRS, adbFromAttrs, attrMitigation, monsterAvoid } from './formulas';
 import type { DmgType, Element } from './player';
@@ -116,7 +116,7 @@ export function buildMonster(row: MonsterRow, level: number, rank: Rank = 'norma
   const physTypes = ['Piercing', 'Crushing', 'Slashing'];
   const attackType = (physTypes.includes(attack) ? attack.toLowerCase() : 'crushing') as DmgType;
   return {
-    uid: uid++, name, race, pl, level, rank, attrs, hp: maxHp, maxHp,
+    uid: uid++, name: rank === 'boss' ? bossName(name) : name, race, pl, level, rank, attrs, hp: maxHp, maxHp,
     adb: (adbFromAttrs(attrs.str, attrs.dex, true) + level * 0.5) * RANK_MULT[rank].dmg,
     attackType,
     acc: (attrs.dex * C['P-monster-accuracy'].value.accuracyPerDexterity) / 100,

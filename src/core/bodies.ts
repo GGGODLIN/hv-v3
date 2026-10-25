@@ -18,7 +18,9 @@ const KEYWORDS: [RegExp, Body][] = [
   [/\b(wolf|dog|cat|bear|tiger|lion|fox|boar|horse|rat|hound|kitten|puppy|bunny|rabbit)\b/i, 'beast'],
 ];
 
+import { nounBody } from './names';
 export function bodyOf(race: string, name = ''): Body {
+  const nb = nounBody(name); if (nb) return nb; // generated (CP3-bugfix r3) names
   for (const [re, b] of KEYWORDS) if (re.test(name)) return b;
   return RACE_BODY[race] ?? 'beast';
 }
