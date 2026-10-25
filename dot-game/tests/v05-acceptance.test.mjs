@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
+import { generateItem } from '../src/loot.js';
 import {
   createGame, act, advance, validateSave, previewStage, enemyDefenseView,
   resolveWeaponAttack, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES,
@@ -208,20 +209,30 @@ test('v0.5 independent: role metadata itself never changes damage, proc eligibil
   assert.deepEqual(CLUB_STUN_RULES,{chance:.25,durationTicks:4});
 });
 
-test('v0.5 independent: unchanged resolver, scheduler, XP/drop eligibility and generator stay byte-frozen',()=>{
+test('v0.5 independent: unchanged combat stays byte-frozen; generator preserves accepted full outputs and RNG',()=>{
   // Frozen from accepted v0.5 engine 2afaaf2c… (loot af7eac11…). v0.6 intentionally
   // adds opt-in sale routing and strict import validation, not new combat/rolls.
   // Narrow unchanged regions replace the old whole-module/action/sanitizer freezes;
   // full-state OFF trajectories below and v06 acceptance guard behavior separately.
   const region=(code,start,end)=>{const a=code.indexOf(start),b=end?code.indexOf(end,a):code.length;assert.ok(a>=0&&b>a);return code.slice(a,b);};
-  const loot=readFileSync(new URL('../src/loot.js',import.meta.url),'utf8');
   for(const [start,end,digest] of [
     ['export function resolveAttack','// Independently authored','47c80cf3738e1aa7bbb83b386a7fca519e87028fba5a9043aad6d2d67927c09a'],
     ['function playerTurn','export function act','644f6c53fd215f98dd4627990cb3ae088ac0c6dcaaff1f7e55cd9cf1875ad29f'],
     ['function gainXp','function win','b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4'],
   ])assert.equal(sha256(region(source,start,end)),digest,start);
-  assert.equal(sha256(region(loot,'export const SLOTS','// Exact names emitted')),'1a06fc514137468d7d795aacd22514bafa0e56b54a1e02bf28aaf5cfdf117bb7');
-  assert.equal(sha256(region(loot,'function rollQuality')),'e2bf4ed8f49556584c9bbcea8cb2a1e0cfe0bba1d45672b65d34c93e5b8c6df1');
+  // v0.7 shares arithmetic between random drops and the fixed commission.
+  // These complete-output/RNG baselines were independently rerun against the
+  // accepted v0.6 loot.js (5d3d97d8…); not new hashes of candidate source.
+  for(const [initialSeed,callsExpected,finalSeed,digest] of [
+    [1,8492,2999494445,'f5730fe72dc281e973aa97bde1e2301dffb1bd6d9b40ebb949a1e0be6e90d0bf'],
+    [71,8540,4023059395,'083d70876765ccb7da8fb553630cc349153e9f72da2bec1f839a1ca5660b131f'],
+    [1337,8437,2853276008,'66b53959c9195d1459e722143ff3b4547963ea08a17d8abbd49292f2c1bc8246'],
+  ]) {
+    let seed=initialSeed,calls=0;const rng=()=>{calls++;seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2**32;};
+    const hash=createHash('sha256');
+    for(let i=0;i<1000;i++)hash.update(JSON.stringify(generateItem(rng,1+i%80,[undefined,'weapon','armor','accessory'][i%4]))+'\n');
+    assert.equal(calls,callsExpected);assert.equal(seed,finalSeed);assert.equal(hash.digest('hex'),digest);
+  }
   assert.equal(sha256(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a');
 });
 

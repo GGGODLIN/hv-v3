@@ -1,4 +1,4 @@
-import { generateItem, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice } from './loot.js';
+import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice } from './loot.js';
 
 export const VERSION = 1;
 export const MAX_STAGE = 30;
@@ -218,6 +218,39 @@ export function previewSafeSale(s) {
     return {items,total:items.reduce((sum,item)=>sum+item.value,0)};
   } catch { return empty; }
 }
+/** A fixed catalog is this game's adaptation, not original Bazaar stock/forging.
+ * Pure exact-item preview: predicted ID is not allocated until an accepted buy.
+ * Retain the original five-slot expedition reserve after immediate delivery.
+ */
+export function previewWeaponCommission(s, family) {
+  const unavailable=reason=>({family:typeof family==='string'?family:null,item:null,price:null,goldAfter:null,available:false,reason,quoteBasis:null,currentWeapon:null});
+  try {
+    const item=createCommissionWeapon(family,s?.hero?.level);
+    if(!item)return unavailable('委託資料無效；請選擇支援的武器與角色等級。');
+    if(!Array.isArray(s.inventory)||!Array.isArray(s.pendingLoot)||!s.equipment
+      ||!Number.isFinite(s.hero.gold)||s.hero.gold<0||s.hero.gold>1e12
+      ||!Number.isSafeInteger(s._itemId)||s._itemId<0||s._itemId>1e9
+      ||!Number.isSafeInteger(s.wins)||s.wins<0
+      ||hasUnknownSaleMetadata(s.equipment.weapon)||s.equipment.weapon.slot!=='weapon')return unavailable('裝備或交易資料無效；未建立委託。');
+    const live=[...Object.values(s.equipment),...s.inventory,...s.pendingLoot];
+    const ids=live.map(held=>held&&typeof held==='object'?Object.getOwnPropertyDescriptor(held,'id')?.value:undefined);
+    if(ids.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(ids).size!==ids.length)return unavailable('裝備識別資料無效；未建立委託。');
+    const used=new Set(ids);let nextCounter=s._itemId;
+    // Mirror addLoot's established wrap/collision rule without touching it or RNG.
+    do{nextCounter=(nextCounter%999999999)+1;item.id=`loot-${nextCounter}`;}while(used.has(item.id));
+    const price=Math.max(250,4*itemSalePrice(item)),goldAfter=s.hero.gold-price;
+    const currentWeapon=JSON.parse(JSON.stringify(s.equipment.weapon));
+    // No durable receipt: the existing counter/balance and exact comparison make
+    // a successful buy or relevant state change invalidate the previous consent.
+    const quoteBasis=JSON.stringify([family,s.hero.level,s.hero.gold,s._itemId,item.id,price,currentWeapon]);
+    const reason=s.mode!=='town'?'請先回營，再委託武器。'
+      :s.wins<1?'完成首次遠征後開放武器委託。'
+      :s.pendingLoot.length?'請先領取並整理待領戰利品；委託不會放入待領區。'
+      :s.inventory.length>INVENTORY_LIMIT-6?'背包需至少 6 格空位：武器占 1 格，另保留出戰所需 5 格。'
+      :goldAfter<0?`金幣不足：還差 ${price-s.hero.gold} 金幣。`:'';
+    return {family,item,price,goldAfter,available:!reason,reason,quoteBasis,currentWeapon};
+  } catch { return unavailable('裝備或交易資料無效；未建立委託。'); }
+}
 function addLoot(s, slot) {
   const item=generateItem(()=>random(s),Math.max(1,s.stage+2),slot);
   const used=new Set([...Object.values(s.equipment),...s.inventory,...s.pendingLoot].map(i=>i.id));
@@ -347,6 +380,25 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(action==='commissionWeapon'){
+    let family,quoteBasis;
+    try {
+      const record=payload&&typeof payload==='object'&&!Array.isArray(payload)&&(Object.getPrototypeOf(payload)===Object.prototype||Object.getPrototypeOf(payload)===null);
+      const fields=record?Object.getOwnPropertyDescriptors(payload):{};
+      if(!record||Reflect.ownKeys(payload).length!==2||!['family','quoteBasis'].every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value'))
+        ||typeof fields.family.value!=='string'||typeof fields.quoteBasis.value!=='string'||fields.quoteBasis.value.length>8192)throw Error('invalid quote');
+      family=fields.family.value;quoteBasis=fields.quoteBasis.value;
+    } catch {log(s,'武器委託取消：確認資料無效；未扣款或交付裝備。');return s;}
+    const offer=previewWeaponCommission(s,family);
+    if(!offer.available){log(s,`武器委託取消：${offer.reason}未扣款或交付裝備。`);return s;}
+    if(offer.quoteBasis!==quoteBasis){log(s,'武器委託取消：報價或比較裝備已變更；請重新預覽，未扣款或交付裝備。');return s;}
+    // All validation precedes this synchronous transaction. Never trust submitted
+    // item, price or balance, queue delivery, auto-equip, or invoke auto-sale.
+    s.hero.gold=offer.goldAfter;s._itemId=Number(offer.item.id.slice(5));s.inventory.push(offer.item);
+    event(s,'loot',`委託完成 · 已鎖定 ${offer.item.name}`,undefined,offer.item.id);
+    log(s,`武器委託：${offer.item.name} · -${offer.price} 金幣；已鎖定放入背包，尚未裝備。`);
+    return s;
+  }
   if(action==='setAutoSell'){
     if(s.mode!=='town'){log(s,'請先回營，再調整自動出售。');return s;}
     if(typeof payload!=='boolean'){log(s,'自動出售設定無效，未變更。');return s;}

@@ -1,7 +1,7 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale, previewWeaponCommission } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
-import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from './loot.js';
+import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
 import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, previewStage, enemyDefenseView } from './engine.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
@@ -101,6 +101,8 @@ try { const saved = JSON.parse(readStorage(PREF_KEY) || '{}'); if (typeof saved.
 let selectedId = null;
 let selectedSlot = null;
 let safeSaleBatch = null;
+let commissionConsent = null;
+let lastCommissionSignature = '';
 let lastSafeLootSignature = '';
 let lastInventorySignature = '';
 let lastEquipmentSignature = '';
@@ -183,12 +185,107 @@ if (channel) channel.onmessage = event => {
 };
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
+  closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
 function dispatch(action, payload) {
   if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
-  try { act(state, action, payload); render(true); save(true); return true; } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+  try { act(state, action, payload); reconcileWeaponCommission(); render(true); save(true); return true; } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+}
+function commissionQuoteSignature(preview) {
+  return JSON.stringify([preview.family, preview.item, preview.price, preview.goldAfter, preview.quoteBasis, preview.currentWeapon, state.mode, state.stage, state.unlocked, state.wins, state.inventory, state.pendingLoot]);
+}
+function commissionStat(value, rate = false) {
+  const number = (Number(value) || 0) * (rate ? 100 : 1);
+  return Number(number.toFixed(rate ? 2 : 4)).toLocaleString('zh-TW', { maximumFractionDigits: rate ? 2 : 4 });
+}
+function abortWeaponCommission(message) {
+  commissionConsent = null;
+  $('commission-confirm').disabled = true;
+  $('commission-feedback').textContent = `委託已取消，未扣款、未交付。${message}`;
+}
+function closeWeaponCommission() {
+  commissionConsent = null;
+  $('commission-confirm').disabled = true;
+  if ($('commission-dialog').open) $('commission-dialog').close();
+}
+function reconcileWeaponCommission() {
+  if (!commissionConsent) return;
+  if (!claimLease()) { abortWeaponCommission('此分頁已失去進度控制權，請接手後重新預覽。'); return; }
+  const fresh = previewWeaponCommission(state, commissionConsent.family);
+  if (!fresh.available) { abortWeaponCommission(fresh.reason || '請回營後重新預覽。'); return; }
+  if (commissionConsent.signature !== commissionQuoteSignature(fresh)) abortWeaponCommission('報價、進度或目前裝備已改變，請關閉後重新預覽。');
+}
+function openWeaponCommission(family) {
+  if (!claimLease()) { showToast('此分頁為唯讀；接手後才能進行武器委託。'); return; }
+  if (state.mode !== 'town') { showToast('請先回營，再查看武器委託。'); return; }
+  if (!(state.wins >= 1)) { showToast('完成首次遠征後解鎖武器委託；目前未扣款。'); return; }
+  // One visible offer is one consent scope; another selection cannot silently replace it.
+  if ($('commission-dialog').open) return;
+  const preview = previewWeaponCommission(state, family);
+  if (!preview.item) { showToast(preview.reason || '無法取得委託報價，未扣款。'); return; }
+  const { item, currentWeapon } = preview;
+  commissionConsent = preview.available ? { ...preview, signature: commissionQuoteSignature(preview) } : null;
+  $('commission-item-name').textContent = item.name;
+  $('commission-item-meta').textContent = `${qualityName(item.quality)}（${item.quality}） · Lv.${item.level} · 品質骰 R${commissionStat(item.roll)} · 屠戮（Slaughter） · 無前綴`;
+  $('commission-current').textContent = `比較現用：${currentWeapon?.name || '無武器'}（${qualityName(currentWeapon?.quality || '')} · Lv.${currentWeapon?.level || 0}）`;
+  const heading = node('div', 'commission-stat-row commission-stat-heading');
+  heading.append(...['屬性', '委託值', '現用值', '差值'].map(text => node('span', '', text)));
+  $('commission-comparison').replaceChildren(heading, ...Object.entries(statNames).map(([key, label]) => {
+    const value = Number(item.stats?.[key]) || 0, old = Number(currentWeapon?.stats?.[key]) || 0;
+    const diff = Number((value - old).toFixed(4)), rate = rateStats.has(key);
+    const delta = diff === 0 ? '—' : `${diff > 0 ? '+' : ''}${commissionStat(diff, rate)}${rate ? ' 百分點' : ''}`;
+    const row = node('div', 'commission-stat-row');
+    row.append(node('span', '', label), node('strong', '', `${commissionStat(value, rate)}${rate ? '%' : ''}`), node('span', '', `${commissionStat(old, rate)}${rate ? '%' : ''}`), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta));
+    return row;
+  }));
+  $('commission-trait').replaceChildren(node('strong', '', `武器路線 · ${itemTypeName(item)}`), node('p', '', describeWeaponTrait(item)));
+  const rules = weaponRuleText(item);
+  if (rules) $('commission-trait').append(node('p', 'muted', rules));
+  $('commission-cost').textContent = `委託費用 ${format(preview.price)} 金幣 · 現有 ${format(state.hero.gold)} · 購買後餘額 ${format(preview.goldAfter)}`;
+  $('commission-feedback').textContent = preview.available ? '尚未購買。確認後只交付這一件；若報價或比較條件變更，本次確認失效。' : `目前不可委託：${preview.reason} 未扣款、未交付。`;
+  $('commission-confirm').textContent = `確認委託 · 支付 ${format(preview.price)} 金幣`;
+  $('commission-confirm').disabled = !preview.available;
+  $('commission-dialog').showModal();
+}
+function confirmWeaponCommission() {
+  if (!commissionConsent || !$('commission-dialog').open) { commissionConsent = null; $('commission-confirm').disabled = true; return; }
+  reconcileWeaponCommission();
+  const consent = commissionConsent;
+  if (!consent) return;
+  const equipmentBefore = JSON.stringify(state.equipment), countBefore = state.inventory.length;
+  // Consume consent synchronously before dispatch, including an engine no-op or stale quote.
+  commissionConsent = null;
+  $('commission-confirm').disabled = true;
+  const completed = dispatch('commissionWeapon', { family: consent.family, quoteBasis: consent.quoteBasis });
+  const delivered = state.inventory.find(item => item.id === consent.item.id);
+  const purchased = completed && state.hero.gold === consent.goldAfter && state.inventory.length === countBefore + 1 && delivered?.locked === true && JSON.stringify(delivered) === JSON.stringify(consent.item) && JSON.stringify(state.equipment) === equipmentBefore;
+  if (!purchased) { abortWeaponCommission('操作未確認完成，請核對金幣與背包後重新預覽。'); return; }
+  closeWeaponCommission();
+  selectedId = delivered.id; selectedSlot = null;
+  $('slot-filter').value = 'weapon'; $('sort-select').value = 'new';
+  render(true);
+  showToast(`已委託「${delivered.name}」· 支付 ${format(consent.price)} 金幣；已鎖定送入背包，未自動裝備。`);
+}
+function renderWeaponCommission() {
+  reconcileWeaponCommission();
+  const offers = COMMISSION_WEAPON_FAMILIES.map(choice => ({ ...choice, preview: previewWeaponCommission(state, choice.family) }));
+  const signature = JSON.stringify([tabOwner, state.mode, state.wins, offers]);
+  if (signature === lastCommissionSignature) return;
+  lastCommissionSignature = signature;
+  const canPreview = tabOwner && state.mode === 'town' && state.wins >= 1;
+  $('commission-status').textContent = !tabOwner ? '唯讀分頁：接手後才能委託。' : state.mode !== 'town' ? '僅營地可委託；請先回營整備。' : !(state.wins >= 1) ? '完成首次遠征後解鎖。' : offers.every(offer => !offer.preview.available) && new Set(offers.map(offer => offer.preview.reason)).size === 1 ? offers[0].preview.reason : '選擇路線查看精確報價與比較；確認前不會扣款。';
+  $('commission-choices').replaceChildren(...offers.map(({ family, label, preview }) => {
+    const button = node('button', 'commission-choice');
+    const routes = { axe: '直接攻擊', rapier: '穿透護甲', club: '暈眩控制' };
+    button.append(node('strong', '', label), node('span', '', routes[family] || ''), node('span', 'commission-price', preview.item ? `${format(preview.price)} 金幣 · 查看` : '暫無報價'));
+    button.disabled = !canPreview || !preview.item;
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.setAttribute('aria-label', `查看${label}武器委託${preview.item ? `，${format(preview.price)} 金幣` : ''}，尚未購買`);
+    button.addEventListener('click', () => openWeaponCommission(family));
+    return button;
+  }));
 }
 function safeSaleSignature(entry) {
   const item = state.inventory.find(item => item.id === entry.id);
@@ -410,6 +507,7 @@ function render(force = false) {
   if (logSignature !== lastLogSignature) { lastLogSignature = logSignature; const logs = (state.logs || []).slice(0, 6); $('combat-log').replaceChildren(...(logs.length ? logs : ['營火已點亮。準備好後，開始第一場遠征。']).map(text => node('li', '', text))); }
   $('inventory-count').textContent = state.inventory.length;
   renderSafeLoot();
+  renderWeaponCommission();
   renderEnemyStatuses();
   renderRoutePreview();
   eventEffects();
@@ -615,6 +713,10 @@ $('takeover-button').addEventListener('click', () => {
   handoff = false; channel.postMessage({ type: 'takeover', id: tabId }); ownership.resume();
   showToast('已請求安全接手；上一分頁先保存，再從營地接續。');
 });
+$('commission-confirm').addEventListener('click', confirmWeaponCommission);
+$('commission-dialog').addEventListener('close', closeWeaponCommission);
+$('commission-dialog').addEventListener('cancel', closeWeaponCommission);
+$('import-save').addEventListener('click', closeWeaponCommission);
 $('motion-toggle').addEventListener('change',event=>{prefs.reducedMotion=event.target.checked;updatePreferences();});
 $('help-toggle').addEventListener('click',()=>$('help-dialog').showModal());$('settings-toggle').addEventListener('click',()=>$('settings-dialog').showModal());
 document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>$(button.dataset.close).close()));
@@ -637,8 +739,9 @@ $('save-file').addEventListener('change',async event=>{
   }catch(error){console.warn('Invalid save rejected',error);showToast(error?.message === '不支援的裝備欄位或格式，未載入；請保留原存檔。' ? '不支援的裝備欄位或格式，已取消匯入以避免遺失或誤售。請保留原存檔；目前進度沒有改變。' : '存檔格式不符或已損壞，目前進度沒有改變。');}
 });
 window.addEventListener('popstate', closeSafeSalePreview);
-window.addEventListener('pagehide', () => { closeSafeSalePreview(); pageActive = false; releaseLease(); pump.reset(); });
+window.addEventListener('pagehide', () => { closeSafeSalePreview(); closeWeaponCommission(); pageActive = false; releaseLease(); pump.reset(); });
 window.addEventListener('pageshow', () => { pageActive = true; pump.reset(); if (!handoff) ownership.resume(); });
+window.addEventListener('popstate', closeWeaponCommission);
 document.addEventListener('visibilitychange', () => {
   lastFrame = performance.now(); pump.reset();
   if (document.hidden) { save(true); if (!prefs.backgroundIdle) releaseLease(); }
@@ -653,7 +756,7 @@ window.addEventListener('storage', event => {
 setInterval(() => {
   if (!pageActive) return;
   if (ownership.supported && !handoff && (!document.hidden || prefs.backgroundIdle)) ownership.request();
-  pump.tick();
+  pump.tick(); reconcileWeaponCommission();
   if (tabOwner) save();
 }, 250);
 function frame(now) {

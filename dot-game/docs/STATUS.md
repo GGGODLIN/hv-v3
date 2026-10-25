@@ -1,5 +1,9 @@
 # Current status
 
+## v0.7 candidate — 2026-10-25 19:00 UTC continuation
+
+After completing the active v0.6 release/backup, this independent slice adds a transparent fixed-spec weapon commission as an explicit solo adaptation. It uses existing item/quality formulas, exact preview, optional credit spend and locked delivery; no auto-equip or new durable schema. Original Bazaar/Training/Forge distinctions and cost uncertainties remain documented. 416 tests and four JS syntax checks pass; final100-seed natural purchase measurements pass.60/100 seeds found strict same-family offers within20 natural clears; first strict pairs were20 faster/38 equal/2 slower, all wins. Seed12 improves11.6→9.5 seconds after earned-credit purchase; median first-use spend97.89% and zero balances are explicitly disclosed. Source backup and actual browser acceptance remain pending. Public accepted version remains v0.6; routine notifications remain suppressed during quiet hours.
+
 ## v0.6 published — 2026-10-25 19:08 UTC
 
 Accepted runtime source: `2346d7d3a2e2ec2f610180c6d59b68ddde53b071`; website: `4e9be8514d82de3b7c383ab919003d3b82750304`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 56 source files / 666816 bytes and 55 manifest payloads were read back before promotion. Exact Pages run `40224227625` passed; six public runtime HTTP200 bodies match source SHA-256. Five runtime blobs changed; session, candidates, test fixtures and other works were preserved. This receipt updates documentation only.

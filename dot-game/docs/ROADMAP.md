@@ -42,3 +42,6 @@ Make existing build choices readable: stage-3+ armored/agile encounters, faithfu
 
 ## v0.6 shipped slice
 Observed idle runs stop near inventory capacity. Add conservative default-OFF future-drop sales and manually confirmed exact-ID cleanup, with explicit keeper witnesses and strict upgrade/unknown protection. Preserve all generation/RNG and near-full safeguards. Measure actual time/wins until stop; do not claim unlimited idle or a solved economy. Credits still need a separately researched, useful sink later. Safety and understandable review take priority over aggressive disposal rate.
+
+## v0.7 chosen slice
+Use earned credits for transparent fixed-spec weapon-family access, with ordinary existing-schema items and exact purchase consent. Preserve stronger random drops, zero-RNG previews, atomic quote/ID/balance checks, safe capacity and optional use. Keep the predeclared natural 100-seed measurement, including slower/equal outcomes and near-empty budgets; do not tune enemies or silently upgrade the catalog to manufacture success. Original AP/mastery, training waits and IW-gated forging remain distinct future systems, not labels for this commission.

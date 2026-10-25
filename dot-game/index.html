@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.6 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.7 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -44,6 +44,13 @@
       </section>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
       <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <section class="weapon-commission panel" aria-labelledby="commission-heading">
+        <div class="section-heading"><h3 id="commission-heading">武器委託</h3><span class="badge">本作獨立機制</span></div>
+        <p>首次通關後，以金幣取得目前等級的固定規格武器，試試不同路線；不會自動換裝。</p>
+        <div id="commission-choices" class="commission-choices"></div>
+        <p id="commission-status" role="status" aria-live="polite">完成首次遠征後解鎖。</p>
+        <details class="commission-rules"><summary>固定規格，不是最佳裝備保證</summary><p>優良（Superior）、品質骰 R110、屠戮（Slaughter）、無前綴。價格取 250 金幣與出售價四倍中的較高值；交付為已鎖定背包裝備。須無待領戰利品，且交付後仍保留 5 格出戰空間。</p><p>這是本作獨立單人金幣出口，不是原版商店庫存、訓練或鍛造。屬性評分不代表特效效益，不會據此推薦購買；刷寶仍可能取得更適合或更強的裝備。</p></details>
+      </section>
       <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
     </section>
     <aside class="loot-panel panel">
@@ -65,6 +72,16 @@
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
 <dialog id="safe-sale-dialog" class="safe-sale-dialog" aria-labelledby="safe-sale-title" aria-describedby="safe-sale-summary"><div class="dialog-heading"><h2 id="safe-sale-title">確認安全整理</h2><button data-close="safe-sale-dialog" aria-label="關閉整理預覽">✕</button></div><p id="safe-sale-summary" class="safe-sale-summary"></p><ol id="safe-sale-list" class="safe-sale-list"></ol><p id="safe-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="safe-sale-dialog" class="secondary-button" autofocus>取消，返回背包</button><button id="safe-sale-confirm" class="primary-button" disabled>確認出售</button></div></dialog>
+<dialog id="commission-dialog" class="commission-dialog" aria-labelledby="commission-title" aria-describedby="commission-delivery">
+  <div class="dialog-heading"><h2 id="commission-title">確認武器委託</h2><button data-close="commission-dialog" aria-label="關閉委託預覽">✕</button></div>
+  <p id="commission-item-meta" class="commission-item-meta"></p><h3 id="commission-item-name" class="commission-item-name"></h3>
+  <p id="commission-current" class="muted"></p><div id="commission-comparison" class="commission-comparison" aria-label="與現用武器的六項屬性比較"></div>
+  <div id="commission-trait" class="weapon-trait"></div>
+  <p class="muted">差值只比較武器本身，不是角色總值或 DPS；百分點是機率的相減。穿透護甲與暈眩另看特效，不能只依評分或單項數值決定。更強或更適合的戰利品仍可能值得保留。</p>
+  <p id="commission-cost" class="commission-cost"></p><p class="muted">遠征不收金幣；委託可能用盡餘額，請依上方購買後餘額自行決定，不必購買才能繼續。</p><p id="commission-delivery">交付方式：已鎖定送入背包，不自動裝備、不自動出售。若想使用，購買後自行選擇「換上裝備」。</p>
+  <p id="commission-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+  <div class="commission-actions"><button data-close="commission-dialog" class="secondary-button" autofocus>取消，返回營地</button><button id="commission-confirm" class="primary-button" disabled>確認委託</button></div>
+</dialog>
 <dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景掛機預設開啟；瀏覽器可能節流，關閉後無離線收益。停頓超過 5 秒整段不補算。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
 <dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
 <script type="module" src="./src/ui.js"></script>

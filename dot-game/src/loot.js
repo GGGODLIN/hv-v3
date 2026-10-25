@@ -1,6 +1,12 @@
 /** Independent equipment implementation. See docs/LOOT-DESIGN.md for provenance. */
 export const SLOTS = Object.freeze(['weapon', 'armor', 'accessory']);
 export const WEAPON_FAMILIES = Object.freeze(['axe', 'rapier', 'club']);
+// Independent fixed-spec commission choices, not an original-HV shop catalog.
+export const COMMISSION_WEAPON_FAMILIES = Object.freeze([
+  { family: 'axe', label: '戰斧' },
+  { family: 'rapier', label: '刺劍' },
+  { family: 'club', label: '戰棍' },
+].map(Object.freeze));
 // Original research ranges overlap. We sample tier first, then each stat's R.
 // Drop weights below are independent expedition pacing, NOT original-HV rates.
 export const QUALITY_TIERS = Object.freeze([
@@ -63,6 +69,7 @@ const SUFFIXES = Object.freeze([
   { name: '壁壘', stats: { defense: 2, block: 0.008 }, note: '防禦與格擋' },
   { name: '追風', stats: { evade: 0.008, crit: 0.004 }, note: '閃避與暴擊' },
 ]);
+const SLAUGHTER_SUFFIX = Object.freeze({ name: '屠戮', code: 'slaughter', stats: Object.freeze({}), note: '屠戮基底攻擊區間' });
 // Exact names emitted by our v0.1/v0.2 generator, not substring guesses.
 // Precompute without RNG so adding identity never changes item rolls or IDs.
 const LEGACY_WEAPON_NAMES = new Map();
@@ -274,7 +281,7 @@ export function generateItem(rng, level = 1, slot) {
   if (rank > 0 && (rank >= 3 || draw(rng) < .45)) {
     if (actualSlot === 'weapon') {
       // Slaughter changes ADB endpoints; Balance changes crit endpoints where documented.
-      const available = [{ name: '屠戮', code: 'slaughter', stats: {}, note: '屠戮基底攻擊區間' }];
+      const available = [SLAUGHTER_SUFFIX];
       if (base.balance) available.push({ name: '平衡', code: 'balance', stats: {}, note: '平衡暴擊區間' });
       suffix = pick(rng, available);
     } else {
@@ -283,6 +290,13 @@ export function generateItem(rng, level = 1, slot) {
       suffix = pick(rng, available);
     }
   }
+  return buildItem({ level: lv, slot: actualSlot, base, tier, prefix, suffix,
+    rollStat: () => tier.min + Math.floor(draw(rng) * (tier.max - tier.min + 1)),
+    makeId: roll => `loot-${lv}-${roll}-${Math.floor(draw(rng) * 0x100000000).toString(36)}` });
+}
+// One arithmetic/schema path for random drops and deterministic commissions.
+// The caller controls only stat rolls, ID construction, and initial lock state.
+function buildItem({ level: lv, slot: actualSlot, base, tier, prefix, suffix, rollStat, makeId, locked = false }) {
   const itemStats = {}, rolls = {};
   for (const key of STAT_KEYS) {
     let endpoints = base[key];
@@ -290,7 +304,7 @@ export function generateItem(rng, level = 1, slot) {
     if (key === 'crit' && suffix?.code === 'balance') endpoints = base.balance;
     const affix = (prefix?.stats[key] || 0) + (suffix?.stats[key] || 0);
     if (!endpoints && !affix) continue;
-    const r = tier.min + Math.floor(draw(rng) * (tier.max - tier.min + 1));
+    const r = rollStat(key);
     rolls[key] = r;
     const q = qualityFactor(r);
     const [lo, hi] = endpoints || [0,0];
@@ -301,17 +315,28 @@ export function generateItem(rng, level = 1, slot) {
   }
   const values = Object.values(rolls);
   const roll = Math.round(values.reduce((a,b)=>a+b,0)/Math.max(1,values.length));
-  const id = `loot-${lv}-${roll}-${Math.floor(draw(rng) * 0x100000000).toString(36)}`;
+  const id = makeId(roll);
   const item = {
     id, name: `${tier.label}・${prefix?.name || ''}${base.name}${suffix ? '・'+suffix.name : ''}`,
     slot: actualSlot, ...(actualSlot === 'weapon' ? { weaponFamily: base.family } : {}), quality: tier.name, rarityColor: tier.color,
-    level: lv, roll, rolls, power: 0, stats: itemStats, locked: false,
+    level: lv, roll, rolls, power: 0, stats: itemStats, locked,
     description: `${base.note}詞綴：${[prefix?.note,suffix?.note].filter(Boolean).join('／') || '無'}。`,
     prefix: prefix?.name || '', suffix: suffix?.name || '',
   };
   // Mechanism prose is derived at display time so saved descriptions cannot go stale.
   item.power = scoreItem(item);
   return item;
+}
+/** Detached fixed-spec ordinary weapon, or null for an unsupported request.
+ * This independent commission consumes no RNG or state: Superior, each stat
+ * R110, Slaughter, no prefix. The engine must replace the preview ID on purchase.
+ * Hero levels are deliberately stricter than generateItem's import-safe clamp.
+ */
+export function createCommissionWeapon(family, level) {
+  if (!WEAPON_FAMILIES.includes(family) || !Number.isInteger(level) || level < 1 || level > 500) return null;
+  return buildItem({ level, slot: 'weapon', base: BASES.weapon.find(base => base.family === family),
+    tier: QUALITY_TIERS.find(tier => tier.name === 'Superior'), prefix: null, suffix: SLAUGHTER_SUFFIX,
+    rollStat: () => 110, makeId: () => `commission-${family}-${level}`, locked: true });
 }
 /** Flat-stat comparison aid only; excludes proc utility. Never used by combat. */
 export function scoreItem(item) {

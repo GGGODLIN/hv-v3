@@ -1,4 +1,4 @@
-# Independent equipment system, checkpoint 0.6
+# Independent equipment system, checkpoint 0.7
 
 This module is independently authored for dot. It does not copy or read the excluded `constants.ts`, monster dataset, pixel artwork, existing game implementation, or other authors' single-player designs. Permitted source: original-game research transcribed in [ORIGINAL-HV.md](ORIGINAL-HV.md), particularly original report 003 §1.1, §1.4, §1.5(B), and §1.6 at the linked research commit.
 
@@ -30,7 +30,7 @@ The following are our new game's choices, not original HV rules and not copied f
 
 `generateItem(rng, level, slot?)` is pure for a deterministic RNG. The module makes a bounded number of draws, clamps invalid/throwing RNG results safely, and has no wall-clock/random-global dependency. Output IDs are deterministic but are not collision-proof; the engine **must replace them with its monotonic inventory IDs**. Probability stats are fractions, e.g. 0.025 means 2.5%.
 
-Exports: `generateItem`, `describeItem`, `describeItemFlavor`, `scoreItem`, `qualityFromRoll`, `qualityFactor`, `QUALITY_TIERS`, `RARITIES`, `SLOTS`, `WEAPON_FAMILIES`, `resolveWeaponFamily`, `describeWeaponTrait`, `classifySafeLootItem`, `hasUnknownSaleMetadata`, `dominanceWitness`, and `itemSalePrice`. Item extras `rolls`, `prefix`, `suffix` are optional diagnostic metadata; the existing stat interface stays compatible.
+Exports: `generateItem`, `createCommissionWeapon`, `COMMISSION_WEAPON_FAMILIES`, `describeItem`, `describeItemFlavor`, `scoreItem`, `qualityFromRoll`, `qualityFactor`, `QUALITY_TIERS`, `RARITIES`, `SLOTS`, `WEAPON_FAMILIES`, `resolveWeaponFamily`, `describeWeaponTrait`, `classifySafeLootItem`, `hasUnknownSaleMetadata`, `dominanceWitness`, and `itemSalePrice`. Item extras `rolls`, `prefix`, `suffix` are optional diagnostic metadata; the existing stat interface stays compatible.
 
 `describeItem` returns plain text. Consumers must render it as text, not as HTML from imported saves. The save validator must validate the complete item schema and never trust imported `power` as an authority.
 
@@ -87,10 +87,37 @@ A witness requires **all** of these conditions:
 
 `itemSalePrice(item)` centralizes the existing `max(1, round(level * 3 + power))` formula for valid data. It is a price only, never a dominance criterion; malformed/nonfinite price inputs return zero. The engine owns all actual sale mutations, protected-keeper selection, manual preview/confirmation/revalidation, default-OFF future-drop auto-sale, and inventory/pending-loot lifecycle. Manual and automatic disposal must reuse the same witness predicate rather than inventing a score shortcut. This module adds no save fields, archive/quarantine arrays, durable telemetry, or new equipment rolls.
 
+## v0.7 independent fixed-spec weapon commissions
+
+This is an **independently designed solo-game commission service**, not a reproduction of original HV's Bazaar replenishment, player-supplied shop stock, Training, or Forge. Its purpose is a predictable credit sink and access to the three implemented weapon families, not a random reroll, an equipment upgrade service, or a promise of a universally stronger build. No stock timers, rotating inventory, commissions ledger, forging progression, or original-server prices are implied.
+
+`COMMISSION_WEAPON_FAMILIES` is a frozen array of frozen `{ family, label }` descriptors in axe / rapier / club order. `createCommissionWeapon(family, level)` returns a new ordinary item for a supported family and an **integer hero level 1–500**; all other inputs return `null` without coercion or clamping. This stricter supported hero-level boundary is separate from the historical random generator's import-safe level clamp.
+
+Every commission has exactly these fixed properties:
+
+- Current supplied hero level, Superior quality, **R110 for every applicable stat**, Slaughter suffix (`屠戮`), and no prefix. Axe has attack; rapier and club have attack plus their ordinary crit endpoint range. Slaughter changes only the existing researched attack endpoints; it does not grant Balance crit endpoints.
+- The same existing quality interpolation, endpoint selection, level scales, flat/rate rounding, probability cap, and `scoreItem` calculation as random loot. A private shared assembler constructs both paths. No second damage formula, extra weapon-proc bonus, or commission-specific combat stat exists.
+- `locked: true` for safe delivery. There are **no new item fields**: no provenance, receipt, forging, stock, purchase-price, or commission marker is persisted. The ordinary generated name, explicit family, affix metadata, and schema remain recognizable by strict safe-loot classification. Unknown-field/import guards are unchanged.
+- A stable preview-only ID `commission-${family}-${level}`. The engine must overwrite it with its standard collision-safe inventory ID at commit; two purchases must never reuse the preview ID. The helper allocates fresh item, stats, and rolls objects on every call and never reads game state, RNG, or the clock. The same family/level always has the same complete preview and stats, and mutating one result does not affect later results.
+
+The engine owns purchase eligibility, live revalidation, atomic payment/delivery, inventory capacity, standard ID allocation, and explicit user confirmation. The commission's disclosed independent price is `max(250, 4 * itemSalePrice(canonicalItem))`; the existing ordinary resale formula is unchanged. Price is not a persisted stat or a claim about original HV economics. The helper does not spend gold, equip the weapon, award random drops, or change safe-sale settings. Even after unlocking, a Superior commission remains outside the low-quality conservative safe-sale rule.
+
+At level 7 the exact fixed outputs are:
+
+| Family | Attack | Item crit bonus | Flat score | Ordinary resale | Commission price |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Axe | 77 | — | 154 | 175 | 700 |
+| Rapier | 46 | 2.95% | 100 | 121 | 484 |
+| Club | 64 | 2.95% | 136 | 157 | 628 |
+
+These are comparison numbers, not equivalent combat utility: rapier PA and club Stunned still use their existing engine rules, while axe still has no implemented proc. A fixed commission can be worse than already owned loot; no reroll or guaranteed-upgrade claim is appropriate.
+
 ## Verification
 
-Run `node --test tests/loot.test.mjs tests/weapon-identity.test.mjs tests/safe-loot.test.mjs` from `dot-game/`.
+Run `node --test tests/loot.test.mjs tests/weapon-identity.test.mjs tests/safe-loot.test.mjs tests/commission-catalog.test.mjs` from `dot-game/`.
 
 The existing twenty focused tests cover the specified interpolation, original overlapping quality intervals, deterministic generation, all quality tiers, source-backed weapon endpoint scaling, affix guarantee/legality, 3,000 generated examples, malformed and throwing RNG values, level growth, explicit identity, 1,800 mixed generated/legacy identities, conservative name matching, unsupported/null metadata, current rapier/club descriptions, exact display-only legacy suffix cleanup, and family-independent scoring. Three pre-change SHA-256 fingerprints additionally verify 3,000 v0.2 baseline items after excluding only description and the new identity field: all prior fields, random-draw counts, and final RNG seeds still match exactly.
 
 Seventeen safe-loot tests add all six componentwise stat directions, ties/tradeoffs, low-quality/unlocked boundaries, protected-ID rejection, all nine distinct bases, 6,000 generated and legacy-shape classifications, exact affix/name/family consistency, unknown fields on either side, pre-sanitization ambiguity protection, nonfinite/malformed data, accessors/custom prototypes, ordinary cross-realm JSON compatibility, detached immutable-input evidence, and unchanged sale pricing. These module tests do not establish complete game balance, browser behavior, engine save validation, manual action atomicity, default-OFF state integration, or source fidelity of unimplemented systems. Run the full suite separately for integration coverage.
+
+Eight commission catalog tests add immutable family descriptors; exact level-7 stats, scores, and resale values; all 1,500 family/level combinations matching ordinary same-roll generated items; strict classification and `validateSave` preservation of all 1,500 items after standard ID allocation; malformed input rejection without coercion; detached deterministic results with global RNG/time unavailable; unchanged unknown-field guards and Superior safe-sale protection; and **3,000 complete accepted-v0.6 item fingerprints**, including description and family metadata, with exact RNG draw counts and final seeds. These new fingerprints were captured before the shared-assembler refactor. They supplement, rather than replace, the older 3,000-item baseline fingerprints. Catalog tests do not establish purchase atomicity or browser confirmation behavior; engine/UI integration tests cover those boundaries.
