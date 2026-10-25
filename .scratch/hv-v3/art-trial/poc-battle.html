@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>PROTOTYPE — hv-v3 美術 POC：側面舞台戰鬥（賽璐璐／像素）</title>
+<!--
+  PROTOTYPE：美術 POC。素材由 Codex image_gen 生成，poc_build.py 切格、統一比例尺、像素風另做真像素化。
+  動作用四格圖（ticket 013 定案），刀光、火球、震動、頓幀、閃白由程式補；特效分級照技能包 game-feel。
+  數值只為了能打完一場，不是正式平衡。
+-->
+<style>
+  body { background:#14110d; color:#e9dfcc; font:14px/1.5 -apple-system,"Noto Sans TC",sans-serif; margin:0; padding:16px; }
+  h1 { font-size:16px; color:#ffcf6e; margin:0 0 4px; } p { color:#9c8f78; margin:0 0 10px; font-size:13px; }
+  #wrap { max-width:1100px; will-change:transform; }
+  canvas { display:block; width:100%; border:1px solid #4a3f30; background:#1a140e; }
+  .bar { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+  button { background:#2c2419; color:#e9dfcc; border:1px solid #5a4b37; padding:6px 12px; cursor:pointer; border-radius:3px; font:inherit; }
+  button:hover, button.on { border-color:#ffcf6e; } button.on { color:#ffcf6e; } button:disabled { opacity:.4; cursor:default; }
+  label { color:#9c8f78; font-size:13px; }
+  #log { color:#9c8f78; font-size:13px; min-height:20px; margin-top:6px; }
+  #err { color:#ff7a7a; }
+</style>
+</head>
+<body>
+<h1>美術 POC：側面舞台戰鬥</h1>
+<p>點怪物選目標（或按 1、2 切換），按「攻擊」或「施法」；怪物會輪流反擊。上方切換賽璐璐／像素，同一場戰鬥直接比較。</p>
+<div class="bar">
+  <button data-style="cel">日系賽璐璐</button><button data-style="pixel">像素風</button>
+  <label><input type="checkbox" id="slow"> 慢動作（1/4 速）</label>
+</div>
+<div id="wrap" style="margin-top:8px"><canvas id="cv" width="2200" height="840"></canvas></div>
+<div class="bar">
+  <button id="bAtk">攻擊（A）</button><button id="bCast">施法（S）</button><button id="bReset">重來（R）</button>
+</div>
+<div id="log"></div><div id="err"></div>
+<script>
+const STYLE = new URLSearchParams(location.search).get('style') ?? 'cel';
+document.querySelectorAll('[data-style]').forEach(b => {
+  b.classList.toggle('on', b.dataset.style === STYLE);
+  b.onclick = () => { location.search = '?style=' + b.dataset.style; };
+});
+const cv = document.getElementById('cv'), gMain = cv.getContext('2d');
+// 像素風：戰鬥場景（背景、角色、特效、傷害數字）先畫在低解析度畫布，再以最近鄰放大，
+// 特效才會落在和角色同一個像素格上；名字與血條仍畫在高解析度層，保持好讀
+const lo = document.createElement('canvas'), gLo = lo.getContext('2d');
+let g = gMain;
+const R = 2, W = 1100, H = 420, GROUND = 372;
+const slow = () => document.getElementById('slow').checked ? 4 : 1;
+const wait = ms => new Promise(r => setTimeout(r, ms * slow()));
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+let A = null, bg = null;
+const imgs = {};
+const loadImg = src => imgs[src] ?? (imgs[src] = Object.assign(new Image(), { src }));
+
+function loadStyle() {
+  return new Promise(res => {
+    const s = document.createElement('script'); s.src = `poc/${STYLE}/assets.js`;
+    s.onload = () => { A = window.POC_ASSETS?.[STYLE]; res(); };
+    s.onerror = () => { document.getElementById('err').textContent = `poc/${STYLE}/assets.js 還沒產生`; res(); };
+    document.head.appendChild(s);
+  });
+}
+
+// ---- 戰鬥狀態 ----
+let units = [], target = 1, busy = false, trauma = 0, fx = [], frozenUntil = 0;
+function reset() {
+  units = [
+    { id:'hero', name:'主角', x:230, hp:1000, max:1000, face:1 },
+    { id:'undead', name:'骷髏戰士', x:690, hp:620, max:620, face:-1 },
+    { id:'beast', name:'恐狼', x:910, hp:520, max:520, face:-1 },
+  ].map(u => ({ ...u, home:u.x, act:'idle', frame:0, flash:0, alpha:1, alive:true, phase:Math.random() * 6 }));
+  target = 1; busy = false; fx = []; setLog('選一個目標，然後攻擊或施法。'); syncButtons();
+}
+const hero = () => units[0];
+const foes = () => units.slice(1).filter(u => u.alive);
+const setLog = t => { document.getElementById('log').textContent = t; };
+function syncButtons() {
+  const over = !hero().alive || !foes().length;
+  document.getElementById('bAtk').disabled = document.getElementById('bCast').disabled = busy || over;
+}
+
+function sheet(u, act) {
+  const c = A?.chars[u.id]; if (!c) return null;
+  return c.actions[act] ?? c.actions.attack ?? Object.values(c.actions)[0];
+}
+
+// ---- 繪製 ----
+function drawUnit(u, now) {
+  const c = A?.chars[u.id]; if (!c || u.alpha <= 0) return;
+  let act = u.act, frame = u.frame;
+  // 待機：主角有 idle 四格就來回播；怪物沒有 idle 圖，用攻擊第 0 格加呼吸起伏
+  let breathe = 0;
+  if (act === 'idle') {
+    if (c.actions.idle) { const seq = [0, 1, 2, 3, 2, 1]; frame = seq[Math.floor((now / 170 / slow() + u.phase) % seq.length)]; }
+    else { act = 'attack'; frame = 0; breathe = Math.sin(now / 420 / slow() + u.phase) * .018; }
+  }
+  const s = sheet(u, act); if (!s) return;
+  const im = loadImg(`poc/${STYLE}/${s.files[frame]}`); if (!im.complete || !im.naturalWidth) return;
+  const k = c.scale;
+  let dw = s.w * k, dh = s.h * k * (1 + breathe), dx = u.x - s.anchor * k, dy = GROUND - dh;
+  if (A.pixel) { dx = Math.round(dx / k) * k; dy = Math.round(dy / k) * k; }
+  g.save(); g.globalAlpha = u.alpha;
+  g.filter = u.flash > 0 ? `brightness(${1 + u.flash * 2.2})` : 'none';
+  g.drawImage(im, dx, dy, dw, dh); g.restore();
+}
+
+// 選中目標的標記與血條
+function drawUI(u) {
+  if (u.alive) {
+    const top = GROUND - 250, bw = 90;
+    g.fillStyle = '#0009'; g.fillRect(u.x - bw / 2, top - 14, bw, 8);
+    g.fillStyle = u.id === 'hero' ? '#7ad35b' : '#d35b5b'; g.fillRect(u.x - bw / 2, top - 14, bw * Math.max(0, u.hp) / u.max, 8);
+    g.fillStyle = '#e9dfcc'; g.font = '13px sans-serif'; g.textAlign = 'center'; g.fillText(u.name, u.x, top - 20);
+    if (units[target] === u && !busy) { g.fillStyle = '#ffcf6e'; g.beginPath(); g.moveTo(u.x - 8, top - 44); g.lineTo(u.x + 8, top - 44); g.lineTo(u.x, top - 34); g.fill(); }
+  }
+}
+
+function draw(now) {
+  trauma = Math.max(0, trauma - .02 / slow());
+  const q = trauma * trauma;
+  document.getElementById('wrap').style.transform = q > .001 ? `translate(${14 * q * Math.sin(now / 21)}px,${9 * q * Math.sin(now / 16 + 1)}px)` : '';
+  const zoom = A?.pixel ? A.chars.hero.scale : 0;
+  if (zoom) {
+    if (lo.width !== W / zoom) { lo.width = W / zoom; lo.height = H / zoom; }
+    g = gLo; g.setTransform(1 / zoom, 0, 0, 1 / zoom, 0, 0); g.imageSmoothingEnabled = false;
+  } else { g = gMain; g.setTransform(R, 0, 0, R, 0, 0); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; }
+  g.clearRect(0, 0, W, H);
+  if (bg?.complete && bg.naturalWidth) {
+    const s = Math.max(W / bg.width, H / bg.height);
+    g.drawImage(bg, (W - bg.width * s) / 2, H - bg.height * s, bg.width * s, bg.height * s);
+  } else { g.fillStyle = '#2a2230'; g.fillRect(0, 0, W, H); }
+  for (const u of [...units].sort((a, b) => (a.id === 'hero') - (b.id === 'hero'))) drawUnit(u, now);
+  fx = fx.filter(f => f(now));
+  g = gMain;
+  if (zoom) { g.setTransform(1, 0, 0, 1, 0, 0); g.imageSmoothingEnabled = false; g.drawImage(lo, 0, 0, cv.width, cv.height); }
+  g.setTransform(R, 0, 0, R, 0, 0);
+  units.forEach(drawUI);
+  for (const u of units) u.flash = Math.max(0, u.flash - .07 / slow());
+}
+(function loop(now) { requestAnimationFrame(loop); draw(now); })(0);
+
+// ---- 特效（game-feel 三級：小＝數字＋閃白，中＝再加震動與 45ms 頓幀，大＝大震動與 110ms 頓幀） ----
+function popNumber(u, text, color, size) {
+  const born = performance.now(), x = u.x + rnd(-20, 20);
+  fx.push(now => {
+    const t = (now - born) / (900 * slow()); if (t > 1) return false;
+    g.save(); g.globalAlpha = 1 - Math.max(0, t - .6) / .4; g.font = `800 ${size * (t < .15 ? 1.6 - t * 4 : 1)}px sans-serif`;
+    g.textAlign = 'center'; g.lineWidth = 5; g.strokeStyle = '#000'; const y = GROUND - 200 - t * 60;
+    g.strokeText(text, x, y); g.fillStyle = color; g.fillText(text, x, y); g.restore();
+    return true;
+  });
+}
+function slashArc(u, big) {
+  const born = performance.now();
+  fx.push(now => {
+    const t = (now - born) / (260 * slow()); if (t > 1) return false;
+    g.save(); g.globalAlpha = 1 - t; g.strokeStyle = '#e6fbff'; g.shadowColor = '#9fe8ff'; g.shadowBlur = 16;
+    g.lineWidth = (big ? 20 : 12) * (1 - t * .5); g.lineCap = 'round';
+    g.beginPath(); g.arc(u.x - 10, GROUND - 120, 95, -2 + t * .7, -.3 + t * 1.3); g.stroke(); g.restore();
+    return true;
+  });
+}
+function sparks(x, y, n, color) {
+  const born = performance.now(), ps = Array.from({ length:n }, () => ({ a:rnd(0, Math.PI * 2), d:rnd(30, 110), r:rnd(2, 4) }));
+  fx.push(now => {
+    const t = (now - born) / (420 * slow()); if (t > 1) return false;
+    g.save(); g.fillStyle = color; g.globalAlpha = 1 - t;
+    for (const p of ps) { g.beginPath(); g.arc(x + Math.cos(p.a) * p.d * t, y + Math.sin(p.a) * p.d * t, p.r, 0, 7); g.fill(); }
+    g.restore(); return true;
+  });
+}
+async function fireball(from, to) {
+  const born = performance.now(), dur = 320 * slow(), sx = from.x + 60, sy = GROUND - 150, ex = to.x, ey = GROUND - 110;
+  let done;
+  const p = new Promise(r => { done = r; });
+  fx.push(now => {
+    const t = (now - born) / dur; if (t > 1) { done(); return false; }
+    const x = sx + (ex - sx) * t, y = sy + (ey - sy) * t - Math.sin(t * Math.PI) * 40;
+    g.save(); const gr = g.createRadialGradient(x, y, 0, x, y, 26);
+    gr.addColorStop(0, '#fff7c2'); gr.addColorStop(.4, '#ffa23a'); gr.addColorStop(1, '#ff3a0000');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, 26, 0, 7); g.fill(); g.restore(); return true;
+  });
+  return p;
+}
+const juice = async tier => {
+  trauma = Math.min(1, trauma + [0, .25, .7][tier]);
+  if (tier) await wait([0, 45, 110][tier]);
+};
+
+// ---- 動作序列 ----
+async function play(u, act, frames, ms) { u.act = act; for (const f of frames) { u.frame = f; await wait(ms); } }
+async function dash(u, toX, ms) {
+  const from = u.x, start = performance.now(), dur = ms * slow();
+  while (true) { const t = Math.min(1, (performance.now() - start) / dur); u.x = from + (toX - from) * (1 - (1 - t) ** 3); if (t >= 1) break; await new Promise(requestAnimationFrame); }
+}
+async function hurt(u, dmg, crit, kind) {
+  u.hp -= dmg; u.flash = 1;
+  popNumber(u, (crit ? dmg.toLocaleString() + '!' : dmg.toLocaleString()), crit ? '#ffcf6e' : kind === 'fire' ? '#ffb070' : '#fff', crit ? 40 : 28);
+  sparks(u.x, GROUND - 120, crit ? 18 : 9, kind === 'fire' ? '#ffb347' : '#fff1b0');
+  await juice(crit ? 2 : 1);
+  if (u.hp <= 0) {
+    u.alive = false; u.act = 'hurt'; u.frame = 2;
+    for (let i = 0; i <= 12; i++) { u.alpha = 1 - i / 12; await wait(40); }
+    return;
+  }
+  const back = u.x;
+  await play(u, 'hurt', [1, 2], 110); await dash(u, back - u.face * 18, 90);
+  u.frame = 3; await wait(130); await dash(u, back, 120); u.act = 'idle';
+}
+async function heroAttack(t) {
+  const h = hero(), crit = Math.random() < .2, dmg = Math.round(rnd(180, 260) * (crit ? 1.5 : 1));
+  await play(h, 'attack', [0], 60); h.frame = 1; await wait(crit ? 260 : 130);
+  await dash(h, t.x - 185, 110);
+  h.frame = 2; slashArc(t, crit);
+  await hurt(t, dmg, crit, 'slash');
+  h.frame = 3; await wait(140); h.frame = 0; await dash(h, h.home, 260); h.act = 'idle';
+}
+async function heroCast(t) {
+  const h = hero(), dmg = Math.round(rnd(220, 300));
+  await play(h, 'cast', [0, 1], 120); h.frame = 2; await wait(160);
+  await fireball(h, t); await hurt(t, dmg, false, 'fire');
+  h.frame = 3; await wait(160); h.act = 'idle';
+}
+async function foeAttack(u) {
+  const h = hero(), dmg = Math.round(rnd(60, 120) * (u.id === 'beast' ? 1.1 : 1));
+  await play(u, 'attack', [0], 80); u.frame = 1; await wait(170);
+  await dash(u, h.x + (u.id === 'beast' ? 150 : 140), u.id === 'beast' ? 130 : 160);
+  u.frame = 2; await wait(60);
+  await hurt(h, dmg, false, 'slash');
+  u.frame = 3; await wait(130); u.frame = 0; await dash(u, u.home, 280); u.act = 'idle';
+}
+async function turn(action) {
+  if (busy || !hero().alive) return;
+  const t = units[target]; if (!t?.alive) return;
+  busy = true; syncButtons();
+  await (action === 'cast' ? heroCast(t) : heroAttack(t));
+  for (const u of foes()) { if (!hero().alive) break; await wait(200); await foeAttack(u); }
+  if (!units[target]?.alive) target = units.indexOf(foes()[0]);
+  busy = false; syncButtons();
+  setLog(!hero().alive ? '主角倒下了。按「重來」再打一次。' : !foes().length ? '勝利！按「重來」再打一次。' : '輪到你了。');
+}
+
+// ---- 輸入 ----
+document.getElementById('bAtk').onclick = () => turn('attack');
+document.getElementById('bCast').onclick = () => turn('cast');
+document.getElementById('bReset').onclick = () => { if (!busy) reset(); };
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'a') turn('attack'); if (k === 's') turn('cast'); if (k === 'r' && !busy) reset();
+  if ((k === '1' || k === '2') && units[+k]?.alive) target = +k;
+});
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * W / r.width;
+  const hit = units.slice(1).filter(u => u.alive).sort((a, b) => Math.abs(a.x - x) - Math.abs(b.x - x))[0];
+  if (hit && Math.abs(hit.x - x) < 120) target = units.indexOf(hit);
+});
+
+loadStyle().then(() => { if (A) bg = loadImg(`poc/${STYLE}/${A.bg}`); reset(); });
+</script>
+</body>
+</html>

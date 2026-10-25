@@ -1,0 +1,2104 @@
+{
+  "HentaiVerse": {
+    "canon": "HentaiVerse",
+    "title": "HentaiVerse",
+    "redirected": false,
+    "lastmod": "15 June 2026, at 21:00.",
+    "bytes": 38063,
+    "tables": 5,
+    "headings": [
+      "Update 91 Notice",
+      "Navigating the Hentaiverse",
+      "Game Mechanics",
+      "Other Information",
+      "HentaiVerse Isekai",
+      "See also"
+    ]
+  },
+  "Character_Menu": {
+    "canon": "Character_Menu",
+    "title": "Character Menu",
+    "redirected": false,
+    "lastmod": "17 August 2026, at 09:50.",
+    "bytes": 41035,
+    "tables": 4,
+    "headings": [
+      "Character",
+      "Item Inventory",
+      "Fonts"
+    ]
+  },
+  "Character_Stats": {
+    "canon": "Character_Stats",
+    "title": "Character Stats",
+    "redirected": false,
+    "lastmod": "22 September 2026, at 21:03.",
+    "bytes": 55484,
+    "tables": 4,
+    "headings": [
+      "Primary Attributes",
+      "Limits",
+      "Experience Point Allocation",
+      "Derived Attributes",
+      "Base Damage",
+      "Accuracy",
+      "Attack Speed",
+      "Cast Speed",
+      "Evade",
+      "Parry",
+      "Resist",
+      "Block",
+      "Vitals",
+      "Battle Regen",
+      "Other Stats",
+      "Elemental Resistance",
+      "Compromise Stats",
+      "Mana Conservation",
+      "See also"
+    ]
+  },
+  "Persona": {
+    "canon": "Persona",
+    "title": "Persona",
+    "redirected": false,
+    "lastmod": "30 September 2026, at 11:01.",
+    "bytes": 21923,
+    "tables": 1,
+    "headings": [
+      "Slots",
+      "Separations"
+    ]
+  },
+  "Abilities": {
+    "canon": "Abilities",
+    "title": "Abilities",
+    "redirected": false,
+    "lastmod": "4 August 2026, at 20:42.",
+    "bytes": 147561,
+    "tables": 21,
+    "headings": [
+      "Ability Points",
+      "Ability Sources",
+      "Investing",
+      "Breakdown",
+      "The Ability Tree",
+      "General",
+      "One-Handed",
+      "Two-Handed",
+      "Dual-Wielding",
+      "Niten Ichiryuu",
+      "Staff",
+      "Cloth Armor",
+      "Light Armor",
+      "Heavy Armor",
+      "Deprecating",
+      "Supportive",
+      "Elemental",
+      "Forbidden",
+      "Divine",
+      "Mastery Points",
+      "Mastery Sources",
+      "Uses",
+      "Reset",
+      "Reset costs",
+      "Ability and Persona",
+      "See also"
+    ]
+  },
+  "Training": {
+    "canon": "Training",
+    "title": "Training",
+    "redirected": false,
+    "lastmod": "21 January 2023, at 12:08.",
+    "bytes": 28533,
+    "tables": 3,
+    "headings": [
+      "Overview",
+      "Costs",
+      "Values",
+      "See also"
+    ]
+  },
+  "HentaiVerse_Settings": {
+    "canon": "HentaiVerse_Settings",
+    "title": "HentaiVerse Settings",
+    "redirected": false,
+    "lastmod": "14 June 2026, at 15:28.",
+    "bytes": 47027,
+    "tables": 6,
+    "headings": [
+      "Challenge Level",
+      "Display Title",
+      "Font Engine",
+      "Equipment Sets",
+      "Vital Bar Style",
+      "Shrine Trophy Upgrades",
+      "Quickbar Slots",
+      "Auto-cast Slots",
+      "Costs",
+      "Auto-Sell / Auto-Salvage",
+      "See also"
+    ]
+  },
+  "Skills": {
+    "canon": "Skills",
+    "title": "Skills",
+    "redirected": false,
+    "lastmod": "29 September 2026, at 15:03.",
+    "bytes": 39563,
+    "tables": 5,
+    "headings": [
+      "Innate Skills",
+      "Weapon Skills",
+      "Special Skills",
+      "Damage",
+      "See also"
+    ]
+  },
+  "Spells": {
+    "canon": "Spells",
+    "title": "Spells",
+    "redirected": false,
+    "lastmod": "15 October 2026, at 15:37.",
+    "bytes": 64903,
+    "tables": 8,
+    "headings": [
+      "Learning Spells",
+      "Spell Costs",
+      "Spell Durations",
+      "Table Legend",
+      "Offensive Spells",
+      "Elemental",
+      "Divine",
+      "Forbidden",
+      "Deprecating Spells",
+      "Supportive Spells",
+      "Curative",
+      "Supportive",
+      "Status Effects",
+      "Chance on Hit",
+      "Theft Effects",
+      "Spike Shields",
+      "Procs",
+      "Stacking",
+      "See also"
+    ]
+  },
+  "Spell_Damage": {
+    "canon": "Spell_Damage",
+    "title": "Spell Damage",
+    "redirected": false,
+    "lastmod": "29 September 2026, at 13:42.",
+    "cdx_ts": "20261012153933",
+    "bytes": 24035,
+    "tables": 3,
+    "headings": [
+      "See also",
+      "References"
+    ]
+  },
+  "Spirit_Stance": {
+    "canon": "Spirit_Stance",
+    "title": "Spirit Stance",
+    "redirected": false,
+    "lastmod": "8 September 2014, at 00:39.",
+    "cdx_ts": "20260828145132",
+    "bytes": 24107,
+    "tables": 1,
+    "headings": [
+      "Toggling",
+      "Effects",
+      "Costs",
+      "See also"
+    ]
+  },
+  "Overcharge": {
+    "canon": "Overcharge",
+    "title": "Overcharge",
+    "redirected": false,
+    "lastmod": "28 September 2026, at 18:26.",
+    "cdx_ts": "20261016073233",
+    "bytes": 21664,
+    "tables": 1,
+    "headings": [
+      "Uses",
+      "Gaining Overcharge",
+      "See also"
+    ]
+  },
+  "Spirit_%26_Overcharge": {
+    "canon": "Spirit_\\u0026_Overcharge",
+    "title": "Spirit &amp; Overcharge",
+    "redirected": false,
+    "lastmod": "16 December 2019, at 07:45.",
+    "cdx_ts": "20260629000738",
+    "bytes": 25886,
+    "tables": 1,
+    "headings": [
+      "Spirit",
+      "Spirit Points",
+      "Spirit Stance",
+      "Overcharge"
+    ]
+  },
+  "Experience_Points": {
+    "canon": "Experience_Points",
+    "title": "Experience Points",
+    "redirected": false,
+    "lastmod": "18 August 2026, at 11:30.",
+    "cdx_ts": "20260828150231",
+    "bytes": 27467,
+    "tables": 2,
+    "headings": [
+      "Sources",
+      "Player Multipliers",
+      "Monster Exp Formula",
+      "Ways to Affect EXP Gains",
+      "Avoiding EXP",
+      "See also"
+    ]
+  },
+  "Leveling_Up": {
+    "canon": "Leveling_Up",
+    "title": "Leveling Up",
+    "redirected": false,
+    "lastmod": "26 September 2026, at 20:14.",
+    "cdx_ts": "20261016082852",
+    "bytes": 53298,
+    "tables": 4,
+    "headings": [
+      "Effects",
+      "Every Level",
+      "Certain Levels",
+      "Formula",
+      "See also"
+    ]
+  },
+  "Ranks": {
+    "canon": "HentaiVerse_Settings",
+    "title": "HentaiVerse Settings",
+    "redirected": true,
+    "lastmod": "14 June 2026, at 15:28.",
+    "cdx_ts": "20260828145643",
+    "bytes": 47426,
+    "tables": 6,
+    "headings": [
+      "Challenge Level",
+      "Display Title",
+      "Font Engine",
+      "Equipment Sets",
+      "Vital Bar Style",
+      "Shrine Trophy Upgrades",
+      "Quickbar Slots",
+      "Auto-cast Slots",
+      "Costs",
+      "Auto-Sell / Auto-Salvage",
+      "See also"
+    ]
+  },
+  "Level_and_Rank_Table": {
+    "canon": "Level_Table",
+    "title": "Level Table",
+    "redirected": true,
+    "lastmod": "10 September 2021, at 16:07.",
+    "cdx_ts": "20250330001540",
+    "bytes": 53934,
+    "tables": 2,
+    "headings": [
+      "Table",
+      "See also"
+    ]
+  },
+  "Level_Table": {
+    "canon": "Level_Table",
+    "title": "Level Table",
+    "redirected": false,
+    "lastmod": "10 September 2021, at 16:07.",
+    "cdx_ts": "20260224222937",
+    "bytes": 53548,
+    "tables": 2,
+    "headings": [
+      "Table",
+      "See also"
+    ]
+  },
+  "Peerless_PXP_Table": {
+    "canon": "Peerless_PXP_Table",
+    "title": "Peerless PXP Table",
+    "redirected": false,
+    "lastmod": "10 January 2020, at 10:04.",
+    "cdx_ts": "20260304174421",
+    "bytes": 20964,
+    "tables": 2,
+    "headings": [
+      "See Also"
+    ]
+  },
+  "Learning_Curves": {
+    "canon": "Learning_Curves",
+    "title": "Learning Curves",
+    "redirected": false,
+    "lastmod": "6 September 2021, at 16:38.",
+    "cdx_ts": "20260516181300",
+    "bytes": 22265,
+    "tables": 2,
+    "headings": [
+      "See also"
+    ]
+  },
+  "Action_Speed": {
+    "canon": "Action_Speed",
+    "title": "Action Speed",
+    "redirected": false,
+    "lastmod": "6 August 2026, at 17:50.",
+    "cdx_ts": "20261009023117",
+    "bytes": 47794,
+    "tables": 4,
+    "headings": [
+      "Effects",
+      "Turns",
+      "Action Speed",
+      "Base Action Speeds",
+      "Increasing Action Speed",
+      "Monster Action Speed",
+      "Time Units",
+      "Ticks",
+      "External Links"
+    ]
+  },
+  "Proficiencies": {
+    "canon": "Proficiencies",
+    "title": "Proficiencies",
+    "redirected": false,
+    "lastmod": "17 January 2023, at 14:12.",
+    "cdx_ts": "20260925104800",
+    "bytes": 33915,
+    "tables": 2,
+    "headings": [
+      "One-Handed",
+      "Two-Handed",
+      "Dual-Wielding",
+      "Niten Ichiryuu",
+      "Staff",
+      "Cloth",
+      "Light",
+      "Heavy",
+      "Effects",
+      "Gaining Magic Proficiencies",
+      "Gains",
+      "Effective Proficiency",
+      "See also"
+    ]
+  },
+  "Stamina": {
+    "canon": "Stamina",
+    "title": "Stamina",
+    "redirected": false,
+    "lastmod": "18 June 2026, at 05:20.",
+    "cdx_ts": "20260618053833",
+    "bytes": 37397,
+    "tables": 5,
+    "headings": [
+      "Effect",
+      "Stamina Usage",
+      "RiddleMaster",
+      "Recovering Stamina",
+      "See also"
+    ]
+  },
+  "Fighting_Styles": {
+    "canon": "Fighting_Styles",
+    "title": "Fighting Styles",
+    "redirected": false,
+    "lastmod": "13 September 2026, at 16:59.",
+    "cdx_ts": "20260925104912",
+    "bytes": 33499,
+    "tables": 1,
+    "headings": [
+      "Any",
+      "Unarmed",
+      "One-Handed",
+      "Two-Handed",
+      "Dual-Wielding",
+      "Staff",
+      "See also"
+    ]
+  },
+  "Bazaar": {
+    "canon": "Bazaar",
+    "title": "Bazaar",
+    "redirected": false,
+    "lastmod": "10 October 2026, at 17:08.",
+    "cdx_ts": "20261016074328",
+    "bytes": 46927,
+    "tables": 4,
+    "headings": [
+      "Item Shop"
+    ]
+  },
+  "Equipment_Shop": {
+    "canon": "Bazaar",
+    "title": "Bazaar",
+    "redirected": true,
+    "lastmod": "11 August 2026, at 17:21.",
+    "cdx_ts": "20260909232941",
+    "bytes": 47464,
+    "tables": 4,
+    "headings": [
+      "Item Shop"
+    ]
+  },
+  "Item_Shop": {
+    "canon": "Bazaar",
+    "title": "Bazaar",
+    "redirected": true,
+    "lastmod": "10 October 2026, at 17:08.",
+    "cdx_ts": "20261016074322",
+    "bytes": 47298,
+    "tables": 4,
+    "headings": [
+      "Item Shop"
+    ]
+  },
+  "Monster_Lab": {
+    "canon": "Monster_Lab",
+    "title": "Monster Lab",
+    "redirected": false,
+    "lastmod": "7 May 2025, at 10:53.",
+    "cdx_ts": "20260828145118",
+    "bytes": 73353,
+    "tables": 12,
+    "headings": [
+      "Monster Creation",
+      "Naming",
+      "Costs &amp; Deleting",
+      "Monster Stats &amp; Power Level",
+      "Upgrading",
+      "Monster PL vs. Player Level",
+      "Important Power Levels",
+      "Skill Editor",
+      "Chaos Upgrades",
+      "Gift Factor",
+      "Crystal List",
+      "Monster Classes",
+      "Colored Charts",
+      "Morale",
+      "Morale Drain Rate",
+      "Food",
+      "Hunger Rate",
+      "Starving",
+      "Gifts",
+      "Chances",
+      "Distribution Ratio",
+      "See also"
+    ]
+  },
+  "Monster_Stats": {
+    "canon": "Monster_Stats",
+    "title": "Monster Stats",
+    "redirected": false,
+    "lastmod": "13 November 2025, at 03:37.",
+    "cdx_ts": "20261016074031",
+    "bytes": 28536,
+    "tables": 2,
+    "headings": [
+      "Primary Attributes",
+      "Derived Attributes",
+      "Bases",
+      "Critical Chance",
+      "Evade",
+      "Parry",
+      "Resist",
+      "Points",
+      "Battle Regen",
+      "See also"
+    ]
+  },
+  "Shrine": {
+    "canon": "Shrine",
+    "title": "Shrine",
+    "redirected": false,
+    "lastmod": "6 August 2026, at 20:15.",
+    "cdx_ts": "20261011051203",
+    "bytes": 42227,
+    "tables": 6,
+    "headings": [
+      "Artifacts",
+      "Sources",
+      "Artifact Rewards",
+      "Distribution",
+      "Upgrading Trophies",
+      "See also"
+    ]
+  },
+  "The_Shrine": {
+    "canon": "Shrine",
+    "title": "Shrine",
+    "redirected": true,
+    "lastmod": "3 April 2023, at 13:14.",
+    "cdx_ts": "20260608213840",
+    "bytes": 30881,
+    "tables": 4,
+    "headings": [
+      "Artifacts",
+      "Sources",
+      "Artifact Rewards",
+      "Distribution",
+      "Upgrading Trophies",
+      "See also"
+    ]
+  },
+  "MoogleMail": {
+    "canon": "MoogleMail",
+    "title": "MoogleMail",
+    "redirected": false,
+    "lastmod": "18 June 2021, at 22:15.",
+    "cdx_ts": "20251125000939",
+    "bytes": 29097,
+    "tables": 1,
+    "headings": [
+      "Opening MoogleMail:",
+      "Reading Unread Mail:",
+      "Tracking/Recalling Messages:",
+      "Pruning"
+    ]
+  },
+  "Lottery": {
+    "canon": "The_Lottery",
+    "title": "The Lottery",
+    "redirected": true,
+    "lastmod": "12 February 2022, at 19:52.",
+    "cdx_ts": "20260608213840",
+    "bytes": 26682,
+    "tables": 3,
+    "headings": [
+      "Mechanics",
+      "Prizes",
+      "Betting",
+      "Golden Lottery Ticket",
+      "Notification",
+      "See also"
+    ]
+  },
+  "The_Lottery": {
+    "canon": "The_Lottery",
+    "title": "The Lottery",
+    "redirected": false,
+    "lastmod": "12 February 2022, at 19:52.",
+    "cdx_ts": "20261009020858",
+    "bytes": 26324,
+    "tables": 3,
+    "headings": [
+      "Mechanics",
+      "Prizes",
+      "Betting",
+      "Golden Lottery Ticket",
+      "Notification",
+      "See also"
+    ]
+  },
+  "The_Market": {
+    "canon": "The_Market",
+    "title": "The Market",
+    "redirected": false,
+    "lastmod": "26 July 2022, at 16:53.",
+    "cdx_ts": "20221206171522",
+    "bytes": 29711,
+    "tables": 1,
+    "headings": [
+      "Market Balance",
+      "Buying and Selling",
+      "Costs",
+      "Limits",
+      "Warning",
+      "Navigation",
+      "Notes",
+      "See also"
+    ]
+  },
+  "The_Forge": {
+    "canon": "The_Armory",
+    "title": "The Armory",
+    "redirected": true,
+    "lastmod": "6 October 2026, at 09:16.",
+    "cdx_ts": "20261014060214",
+    "bytes": 75648,
+    "tables": 13,
+    "headings": [
+      "Organize",
+      "Modify",
+      "Renaming",
+      "Forging",
+      "Materials",
+      "Basic Materials",
+      "Rare Materials",
+      "Upgrade Costs",
+      "Charm Slots",
+      "Charms",
+      "Pouches",
+      "Stat Fusion",
+      "Ranges",
+      "Bindings",
+      "Repair",
+      "Soulbind",
+      "Purchase",
+      "Sell",
+      "Salvage",
+      "Salvaged Remains",
+      "See also"
+    ]
+  },
+  "Repair": {
+    "canon": "The_Forge",
+    "title": "The Forge",
+    "redirected": true,
+    "lastmod": "29 May 2024, at 20:07.",
+    "cdx_ts": "20250426075407",
+    "bytes": 52331,
+    "tables": 10,
+    "headings": [
+      "Repair",
+      "Repair Costs",
+      "Upgrade",
+      "Materials",
+      "Basic Materials",
+      "Rares",
+      "Bindings",
+      "Material Costs",
+      "Enchant",
+      "Salvage",
+      "Reforge",
+      "Renaming",
+      "SoulFuse",
+      "Forge Level",
+      "Forge Ranks",
+      "See also"
+    ]
+  },
+  "Upgrade": {
+    "canon": "The_Forge",
+    "title": "The Forge",
+    "redirected": true,
+    "lastmod": "29 May 2024, at 20:07.",
+    "cdx_ts": "20251116034103",
+    "bytes": 52347,
+    "tables": 10,
+    "headings": [
+      "Repair",
+      "Repair Costs",
+      "Upgrade",
+      "Materials",
+      "Basic Materials",
+      "Rares",
+      "Bindings",
+      "Material Costs",
+      "Enchant",
+      "Salvage",
+      "Reforge",
+      "Renaming",
+      "SoulFuse",
+      "Forge Level",
+      "Forge Ranks",
+      "See also"
+    ]
+  },
+  "Enchant": {
+    "canon": "The_Forge",
+    "title": "The Forge",
+    "redirected": true,
+    "lastmod": "17 June 2026, at 09:23.",
+    "cdx_ts": "20260828145429",
+    "bytes": 13884,
+    "tables": 0,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "Salvage": {
+    "canon": "The_Armory",
+    "title": "The Armory",
+    "redirected": true,
+    "lastmod": "6 October 2026, at 09:16.",
+    "cdx_ts": "20261009081140",
+    "bytes": 75763,
+    "tables": 13,
+    "headings": [
+      "Organize",
+      "Modify",
+      "Renaming",
+      "Forging",
+      "Materials",
+      "Basic Materials",
+      "Rare Materials",
+      "Upgrade Costs",
+      "Charm Slots",
+      "Charms",
+      "Pouches",
+      "Stat Fusion",
+      "Ranges",
+      "Bindings",
+      "Repair",
+      "Soulbind",
+      "Purchase",
+      "Sell",
+      "Salvage",
+      "Salvaged Remains",
+      "See also"
+    ]
+  },
+  "Reforge": {
+    "canon": "The_Forge",
+    "title": "The Forge",
+    "redirected": true,
+    "lastmod": "17 June 2026, at 09:23.",
+    "cdx_ts": "20260925104753",
+    "bytes": 13864,
+    "tables": 0,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "SoulFuse": {
+    "canon": "The_Forge",
+    "title": "The Forge",
+    "redirected": true,
+    "lastmod": "17 June 2026, at 09:23.",
+    "cdx_ts": "20261014060210",
+    "bytes": 13873,
+    "tables": 0,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "The_Armory": {
+    "canon": "The_Armory",
+    "title": "The Armory",
+    "redirected": false,
+    "lastmod": "17 June 2026, at 10:06.",
+    "cdx_ts": "20260617121212",
+    "bytes": 51783,
+    "tables": 5,
+    "headings": [
+      "Organize",
+      "Modify",
+      "Forging",
+      "Materials",
+      "Basic Materials",
+      "Rares",
+      "Equipping Charms",
+      "Charms",
+      "Pouches",
+      "Stat Fusion",
+      "Bindings",
+      "Repair",
+      "Soulbind",
+      "Purchase",
+      "Sell",
+      "Salvage",
+      "See also"
+    ]
+  },
+  "Items": {
+    "canon": "Items",
+    "title": "Items",
+    "redirected": false,
+    "lastmod": "22 September 2026, at 20:49.",
+    "cdx_ts": "20261013013110",
+    "bytes": 69119,
+    "tables": 12,
+    "headings": [
+      "Battle Powerups",
+      "Restoratives",
+      "Health Restoratives",
+      "Magic/Spirit Restoratives",
+      "Other Restoratives",
+      "Infusions",
+      "Scrolls",
+      "Special Items",
+      "Artifacts",
+      "Trophies",
+      "Coupons",
+      "Tokens",
+      "Soul Fragments",
+      "Collectables",
+      "Crystals",
+      "Food",
+      "World Seeds",
+      "Shards",
+      "Equipment Cores",
+      "See also"
+    ]
+  },
+  "Loot_Drop_Rolls": {
+    "canon": "Loot_Drop_Rolls",
+    "title": "Loot Drop Rolls",
+    "redirected": false,
+    "lastmod": "28 February 2025, at 20:32.",
+    "cdx_ts": "20261013205538",
+    "bytes": 35241,
+    "tables": 2,
+    "headings": [
+      "Loot Rolls",
+      "Occurrences",
+      "Limits",
+      "Increased Drop Chances",
+      "Events",
+      "Trivia",
+      "See also"
+    ]
+  },
+  "Obsolete_Items": {
+    "canon": "Obsolete_Items",
+    "title": "Obsolete Items",
+    "redirected": false,
+    "lastmod": "7 April 2026, at 20:09.",
+    "cdx_ts": "20260828145429",
+    "bytes": 74604,
+    "tables": 7,
+    "headings": [
+      "See also"
+    ]
+  },
+  "Equipment_Basics": {
+    "canon": "Equipment_Basics",
+    "title": "Equipment Basics",
+    "redirected": false,
+    "lastmod": "5 June 2021, at 20:08.",
+    "cdx_ts": "20260618053806",
+    "bytes": 44187,
+    "tables": 5,
+    "headings": [
+      "Equip Inventory",
+      "Equipment Generation",
+      "Characteristics",
+      "Terminology",
+      "Level",
+      "Elemental Strikes",
+      "Upgrades and Enchantments",
+      "Equipment Types",
+      "Melee Weapons",
+      "Staffs",
+      "Armor",
+      "Slot names",
+      "Material types",
+      "See Also"
+    ]
+  },
+  "Detailed_Equip_Characteristics": {
+    "canon": "Detailed_Equip_Characteristics",
+    "title": "Detailed Equip Characteristics",
+    "redirected": false,
+    "lastmod": "9 October 2026, at 13:31.",
+    "cdx_ts": "20261009173954",
+    "bytes": 78479,
+    "tables": 46,
+    "headings": [
+      "Quality",
+      "Prefixes",
+      "Shields",
+      "Armor",
+      "Suffixes",
+      "One-Handed Weapons",
+      "Shortswords",
+      "Daggers",
+      "Axes",
+      "Wakizashis",
+      "Rapiers",
+      "Clubs",
+      "Two-Handed Weapons",
+      "Longsword",
+      "Katana",
+      "Scythe",
+      "Estoc",
+      "Mace / Great Mace",
+      "Swordchucks",
+      "Staffs",
+      "Ebony",
+      "Redwood",
+      "Oak",
+      "Katalox",
+      "Willow",
+      "Shields",
+      "Buckler",
+      "Kite Shield",
+      "Tower Shield",
+      "Force Shield"
+    ]
+  },
+  "Equipment_Procs": {
+    "canon": "Equipment_Procs",
+    "title": "Equipment Procs",
+    "redirected": false,
+    "lastmod": "18 June 2021, at 22:11.",
+    "cdx_ts": "20260104054607",
+    "bytes": 25974,
+    "tables": 3,
+    "headings": [
+      "See also",
+      "References"
+    ]
+  },
+  "Stats": {
+    "canon": "Character_Stats",
+    "title": "Character Stats",
+    "redirected": true,
+    "lastmod": "22 September 2026, at 21:03.",
+    "cdx_ts": "20261009155659",
+    "bytes": 55701,
+    "tables": 4,
+    "headings": [
+      "Primary Attributes",
+      "Limits",
+      "Experience Point Allocation",
+      "Derived Attributes",
+      "Base Damage",
+      "Accuracy",
+      "Attack Speed",
+      "Cast Speed",
+      "Evade",
+      "Parry",
+      "Resist",
+      "Block",
+      "Vitals",
+      "Battle Regen",
+      "Other Stats",
+      "Elemental Resistance",
+      "Compromise Stats",
+      "Mana Conservation",
+      "See also"
+    ]
+  },
+  "Burden": {
+    "canon": "Burden",
+    "title": "Burden",
+    "redirected": true,
+    "lastmod": "18 June 2021, at 22:13.",
+    "cdx_ts": "20260416202858",
+    "bytes": 23759,
+    "tables": 1,
+    "headings": [
+      "Effects of Burden",
+      "Getting Burden",
+      "Reducing Burden",
+      "See also"
+    ]
+  },
+  "Interference": {
+    "canon": "Interference",
+    "title": "Interference",
+    "redirected": false,
+    "lastmod": "11 October 2026, at 08:15.",
+    "cdx_ts": "20261012042751",
+    "bytes": 35311,
+    "tables": 3,
+    "headings": [
+      "Effects of Interference",
+      "Getting Interference",
+      "Reducing Interference",
+      "See also"
+    ]
+  },
+  "Equipment_Ranges": {
+    "canon": "The_Armory",
+    "title": "The Armory",
+    "redirected": true,
+    "lastmod": "6 October 2026, at 09:16.",
+    "cdx_ts": "20261009181659",
+    "bytes": 75795,
+    "tables": 13,
+    "headings": [
+      "Organize",
+      "Modify",
+      "Renaming",
+      "Forging",
+      "Materials",
+      "Basic Materials",
+      "Rare Materials",
+      "Upgrade Costs",
+      "Charm Slots",
+      "Charms",
+      "Pouches",
+      "Stat Fusion",
+      "Ranges",
+      "Bindings",
+      "Repair",
+      "Soulbind",
+      "Purchase",
+      "Sell",
+      "Salvage",
+      "Salvaged Remains",
+      "See also"
+    ]
+  },
+  "Level_Scaling": {
+    "canon": "Level_Scaling",
+    "title": "Level Scaling",
+    "redirected": false,
+    "lastmod": "6 November 2025, at 22:30.",
+    "cdx_ts": "20260828145420",
+    "bytes": 24713,
+    "tables": 2,
+    "headings": [
+      "How It Works",
+      "See also"
+    ]
+  },
+  "Battles": {
+    "canon": "Battles",
+    "title": "Battles",
+    "redirected": true,
+    "lastmod": "6 August 2026, at 20:00.",
+    "cdx_ts": "20260909232941",
+    "bytes": 81487,
+    "tables": 7,
+    "headings": [
+      "Setup",
+      "Terms",
+      "Combat",
+      "Targeting",
+      "Criticals",
+      "Day of the Week",
+      "End of Round",
+      "Victory",
+      "Losing",
+      "Fleeing",
+      "Recovering",
+      "Battle Window",
+      "Player Side",
+      "Battle Log",
+      "Log Colors For Drops",
+      "Monster Side",
+      "Spawning Pattern",
+      "Battle Modes",
+      "See Also"
+    ]
+  },
+  "Battle_Modes": {
+    "canon": "Battles",
+    "title": "Battles",
+    "redirected": true,
+    "lastmod": "6 August 2026, at 20:00.",
+    "cdx_ts": "20261009045157",
+    "bytes": 81443,
+    "tables": 7,
+    "headings": [
+      "Setup",
+      "Terms",
+      "Combat",
+      "Targeting",
+      "Criticals",
+      "Day of the Week",
+      "End of Round",
+      "Victory",
+      "Losing",
+      "Fleeing",
+      "Recovering",
+      "Battle Window",
+      "Player Side",
+      "Battle Log",
+      "Log Colors For Drops",
+      "Monster Side",
+      "Spawning Pattern",
+      "Battle Modes",
+      "See Also"
+    ]
+  },
+  "Arena": {
+    "canon": "Arena",
+    "title": "Arena",
+    "redirected": false,
+    "lastmod": "6 August 2026, at 18:01.",
+    "cdx_ts": "20261010235936",
+    "bytes": 48127,
+    "tables": 4,
+    "headings": [
+      "Details",
+      "Rewards",
+      "Limits",
+      "Arena Challenges",
+      "See also"
+    ]
+  },
+  "The_Arena": {
+    "canon": "Arena",
+    "title": "Arena",
+    "redirected": true,
+    "lastmod": "6 August 2026, at 18:01.",
+    "cdx_ts": "20261010235930",
+    "bytes": 48456,
+    "tables": 4,
+    "headings": [
+      "Details",
+      "Rewards",
+      "Limits",
+      "Arena Challenges",
+      "See also"
+    ]
+  },
+  "Grindfest": {
+    "canon": "Grindfest",
+    "title": "Grindfest",
+    "redirected": false,
+    "lastmod": "18 April 2018, at 15:13.",
+    "cdx_ts": "20251229003320",
+    "bytes": 25122,
+    "tables": 2,
+    "headings": [
+      "Details",
+      "Rewards",
+      "Crystal Drops",
+      "See also"
+    ]
+  },
+  "Item_World": {
+    "canon": "Item_World",
+    "title": "Item World",
+    "redirected": false,
+    "lastmod": "16 June 2026, at 03:18.",
+    "cdx_ts": "20260619091605",
+    "bytes": 23337,
+    "tables": 1,
+    "headings": [
+      "Details",
+      "Renaming",
+      "Rounds | Monster Lvl | Difficulty | Entry Cost",
+      "See also"
+    ]
+  },
+  "Random_Encounter": {
+    "canon": "Random_Encounter",
+    "title": "Random Encounter",
+    "redirected": false,
+    "lastmod": "28 June 2023, at 10:02.",
+    "cdx_ts": "20260415222237",
+    "bytes": 25526,
+    "tables": 1,
+    "headings": [
+      "Details",
+      "Rewards",
+      "Limits",
+      "Occurrence Blockage",
+      "See also"
+    ]
+  },
+  "Ring_of_Blood": {
+    "canon": "Ring_of_Blood",
+    "title": "Ring of Blood",
+    "redirected": false,
+    "lastmod": "20 April 2026, at 17:31.",
+    "cdx_ts": "20260828145643",
+    "bytes": 25562,
+    "tables": 2,
+    "headings": [
+      "Rewards",
+      "Limits",
+      "Ring of Blood Challenges",
+      "See also"
+    ]
+  },
+  "The_Tower": {
+    "canon": "The_Tower",
+    "title": "The Tower",
+    "redirected": false,
+    "lastmod": "9 May 2021, at 00:35.",
+    "cdx_ts": "20210618204614",
+    "bytes": 23089,
+    "tables": 2,
+    "headings": [
+      "Details",
+      "Ranking",
+      "Rewards"
+    ]
+  },
+  "Tower_Battle_Mode": {
+    "canon": "Tower_Battle_Mode",
+    "title": "Tower Battle Mode",
+    "redirected": false,
+    "lastmod": "16 March 2021, at 20:39.",
+    "cdx_ts": "20210417050751",
+    "bytes": 13981,
+    "tables": 0,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "HentaiVerse_Bestiary": {
+    "canon": "System_Monsters",
+    "title": "System Monsters",
+    "redirected": true,
+    "lastmod": "27 September 2026, at 15:30.",
+    "cdx_ts": "20261009221501",
+    "bytes": 79042,
+    "tables": 9,
+    "headings": [
+      "Bosses",
+      "Legendaries",
+      "Gods",
+      "Stats",
+      "See also"
+    ]
+  },
+  "Bestiary": {
+    "canon": "System_Monsters",
+    "title": "System Monsters",
+    "redirected": true,
+    "lastmod": "21 February 2025, at 14:27.",
+    "cdx_ts": "20260416210606",
+    "bytes": 75268,
+    "tables": 9,
+    "headings": [
+      "Bosses",
+      "Legendaries",
+      "Gods",
+      "Stats",
+      "See also"
+    ]
+  },
+  "System_Monsters": {
+    "canon": "System_Monsters",
+    "title": "System Monsters",
+    "redirected": false,
+    "lastmod": "27 September 2026, at 15:30.",
+    "cdx_ts": "20261009221504",
+    "bytes": 78649,
+    "tables": 9,
+    "headings": [
+      "Bosses",
+      "Legendaries",
+      "Gods",
+      "Stats",
+      "See also"
+    ]
+  },
+  "Damage_Types": {
+    "canon": "Damage_Types",
+    "title": "Damage Types",
+    "redirected": false,
+    "lastmod": "18 August 2026, at 09:58.",
+    "cdx_ts": "20261013074437",
+    "bytes": 34415,
+    "tables": 1,
+    "headings": [
+      "Players &amp; Monsters",
+      "Slashing",
+      "Piercing",
+      "Crushing",
+      "Void",
+      "Fire",
+      "Cold",
+      "Wind",
+      "Elec",
+      "Holy",
+      "Dark",
+      "See also"
+    ]
+  },
+  "Damage": {
+    "canon": "Damage",
+    "title": "Damage",
+    "redirected": false,
+    "lastmod": "17 August 2026, at 22:01.",
+    "cdx_ts": "20260828145207",
+    "bytes": 33260,
+    "tables": 6,
+    "headings": [
+      "Damage Reduction",
+      "Monsters",
+      "The Player",
+      "Damage Avoidance",
+      "Resist Mechanics",
+      "Anti-Avoidance",
+      "Countering",
+      "See also"
+    ]
+  },
+  "Physical_Damage": {
+    "canon": "Physical_Damage",
+    "title": "Physical Damage",
+    "redirected": false,
+    "lastmod": "21 July 2021, at 13:37.",
+    "cdx_ts": "20260617122249",
+    "bytes": 22268,
+    "tables": 2,
+    "headings": [
+      "Not Taken Into Account",
+      "See also"
+    ]
+  },
+  "Enemy_Procs": {
+    "canon": "Enemy_Procs",
+    "title": "Enemy Procs",
+    "redirected": false,
+    "lastmod": "22 September 2014, at 12:25.",
+    "cdx_ts": "20260102074349",
+    "bytes": 22862,
+    "tables": 1,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "RiddleMaster": {
+    "canon": "RiddleMaster",
+    "title": "RiddleMaster",
+    "redirected": false,
+    "lastmod": "4 May 2025, at 17:07.",
+    "cdx_ts": "20260415134923",
+    "bytes": 27798,
+    "tables": 1,
+    "headings": [
+      "Mechanics",
+      "Correct or Incorrect",
+      "Penalty",
+      "Puzzles",
+      "See also"
+    ]
+  },
+  "Isekai": {
+    "canon": "Isekai",
+    "title": "Isekai",
+    "redirected": false,
+    "lastmod": "1 June 2021, at 21:59.",
+    "cdx_ts": "20210618210752",
+    "bytes": 29768,
+    "tables": 1,
+    "headings": [
+      "Details",
+      "Isekai Season",
+      "Rewards",
+      "Notable Differences",
+      "Miscellaneous",
+      "Additional Rules"
+    ]
+  },
+  "Isekai_Mode": {
+    "canon": "Isekai_Mode",
+    "title": "Isekai Mode",
+    "redirected": false,
+    "lastmod": "6 March 2021, at 07:05.",
+    "cdx_ts": "20210417053931",
+    "bytes": 13248,
+    "tables": 0,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "Currency": {
+    "canon": "Currency",
+    "title": "Currency",
+    "redirected": false,
+    "lastmod": "16 August 2021, at 10:45.",
+    "cdx_ts": "20260905194454",
+    "bytes": 15649,
+    "tables": 1,
+    "headings": [
+      "Types",
+      "Trading",
+      "See also"
+    ]
+  },
+  "Credits": {
+    "canon": "Credits",
+    "title": "Credits",
+    "redirected": false,
+    "lastmod": "19 September 2026, at 13:03.",
+    "cdx_ts": "20261012084806",
+    "bytes": 42281,
+    "tables": 5,
+    "headings": [
+      "Sources And Uses",
+      "Credit Log",
+      "See also"
+    ]
+  },
+  "Isk": {
+    "canon": "ISK",
+    "title": "ISK",
+    "redirected": false,
+    "lastmod": "16 August 2021, at 10:44.",
+    "cdx_ts": "20211130122516",
+    "bytes": 23689,
+    "tables": 1,
+    "headings": [
+      "Sources",
+      "Uses",
+      "Rules",
+      "See also"
+    ]
+  },
+  "ISK": {
+    "canon": "ISK",
+    "title": "ISK",
+    "redirected": false,
+    "lastmod": "16 August 2021, at 10:44.",
+    "cdx_ts": "20211130122516",
+    "bytes": 23689,
+    "tables": 1,
+    "headings": [
+      "Sources",
+      "Uses",
+      "Rules",
+      "See also"
+    ]
+  },
+  "Hath": {
+    "canon": "Hath",
+    "title": "Hath",
+    "redirected": false,
+    "lastmod": "15 October 2023, at 03:09.",
+    "cdx_ts": "20261012050534",
+    "bytes": 24081,
+    "tables": 2,
+    "headings": [
+      "Sources",
+      "Uses",
+      "See also"
+    ]
+  },
+  "Hath_Perks": {
+    "canon": "Hath_Perks",
+    "title": "Hath Perks",
+    "redirected": false,
+    "lastmod": "13 September 2026, at 17:48.",
+    "cdx_ts": "20261012033043",
+    "bytes": 46522,
+    "tables": 3,
+    "headings": [
+      "List of Perks",
+      "See also"
+    ]
+  },
+  "Gallery_Points": {
+    "canon": "Gallery_Points",
+    "title": "Gallery Points",
+    "redirected": false,
+    "lastmod": "2 September 2025, at 04:14.",
+    "cdx_ts": "20260925052746",
+    "bytes": 27613,
+    "tables": 2,
+    "headings": [
+      "Sources",
+      "Uses",
+      "See also"
+    ]
+  },
+  "Title": {
+    "canon": "HentaiVerse_Settings",
+    "title": "HentaiVerse Settings",
+    "redirected": true,
+    "lastmod": "14 June 2026, at 15:28.",
+    "cdx_ts": "20260618144150",
+    "bytes": 46398,
+    "tables": 7,
+    "headings": [
+      "Challenge Level",
+      "Display Title",
+      "Font Engine",
+      "Equipment Sets",
+      "Vital Bar Style",
+      "Shrine Trophy Upgrades",
+      "Quickbar Slots",
+      "Auto-cast Slots",
+      "Costs",
+      "Auto-Sell / Auto-Salvage",
+      "See also"
+    ]
+  },
+  "Events": {
+    "canon": "Events",
+    "title": "Events",
+    "redirected": false,
+    "lastmod": "10 September 2022, at 09:57.",
+    "cdx_ts": "20221129141132",
+    "bytes": 17509,
+    "tables": 0,
+    "headings": [
+      "Easter",
+      "The Loot &amp; Harvest Festival",
+      "Yuletide"
+    ]
+  },
+  "Dawn_of_a_New_Day": {
+    "canon": "Dawn_of_a_New_Day",
+    "title": "Dawn of a New Day",
+    "redirected": false,
+    "lastmod": "22 August 2023, at 06:24.",
+    "cdx_ts": "20260828145132",
+    "bytes": 25226,
+    "tables": 2,
+    "headings": [
+      "Occurrences",
+      "Amounts",
+      "See also"
+    ]
+  },
+  "Rewards": {
+    "canon": "Rewards",
+    "title": "Rewards",
+    "redirected": false,
+    "lastmod": "21 April 2016, at 23:20.",
+    "cdx_ts": "20260925052912",
+    "bytes": 20575,
+    "tables": 2,
+    "headings": [
+      "Legend",
+      "Table",
+      "Other"
+    ]
+  },
+  "Post_Game_Content": {
+    "canon": "Post_Game_Content",
+    "title": "Post Game Content",
+    "redirected": false,
+    "lastmod": "26 October 2023, at 20:41.",
+    "cdx_ts": "20260415200338",
+    "bytes": 24114,
+    "tables": 2,
+    "headings": [
+      "See also"
+    ]
+  },
+  "HentaiVerse_Advice": {
+    "canon": "HentaiVerse_Advice",
+    "title": "HentaiVerse Advice",
+    "redirected": false,
+    "lastmod": "14 September 2026, at 16:44.",
+    "cdx_ts": "20260925104719",
+    "bytes": 57854,
+    "tables": 2,
+    "headings": [
+      "Important disclaimer",
+      "Pre-Level 100",
+      "Level 101-309",
+      "Fighting Style Summaries",
+      "Leveling Adjustments",
+      "Level 310+",
+      "Regardless of Build",
+      "Potential Charm setups",
+      "Melee",
+      "Mage",
+      "Basics of auction/WTS",
+      "Melee",
+      "Armour",
+      "Weapons",
+      "Shields",
+      "Caster",
+      "Armour",
+      "Weapon",
+      "Shields",
+      "See also"
+    ]
+  },
+  "HentaiVerse_Advice_Advanced": {
+    "canon": "HentaiVerse_Advice_Advanced",
+    "title": "HentaiVerse Advice Advanced",
+    "redirected": false,
+    "lastmod": "29 July 2026, at 19:10.",
+    "cdx_ts": "20260828145132",
+    "bytes": 55852,
+    "tables": 4,
+    "headings": [
+      "Important disclaimer",
+      "Melee Builds",
+      "Melee Weapon",
+      "Melee Armor",
+      "Melee Stats",
+      "Melee Abilities",
+      "Accuracy",
+      "Mage Builds",
+      "Mage Getting Started",
+      "Mage Weapon",
+      "Mage Armor",
+      "Mage Stats",
+      "Mage Abilities",
+      "Stat Perks",
+      "Other Perks",
+      "See also"
+    ]
+  },
+  "HentaiVerse_Bugs_%26_Errors": {
+    "canon": "HentaiVerse_Bugs_\\u0026_Errors",
+    "title": "HentaiVerse Bugs &amp; Errors",
+    "redirected": false,
+    "lastmod": "15 September 2026, at 16:37.",
+    "cdx_ts": "20261011080118",
+    "bytes": 36609,
+    "tables": 1,
+    "headings": [
+      "Other",
+      "See also"
+    ]
+  },
+  "Bugs": {
+    "canon": "Known_Bugs",
+    "title": "Known Bugs",
+    "redirected": true,
+    "lastmod": "19 February 2021, at 13:59.",
+    "cdx_ts": "20260617125449",
+    "bytes": 22577,
+    "tables": 0,
+    "headings": [
+      "E-Hentai",
+      "Wiki",
+      "See also"
+    ]
+  },
+  "HentaiVerse_FAQ": {
+    "canon": "HentaiVerse_FAQ",
+    "title": "HentaiVerse FAQ",
+    "redirected": false,
+    "lastmod": "15 September 2026, at 16:58.",
+    "cdx_ts": "20261014064717",
+    "bytes": 37102,
+    "tables": 1,
+    "headings": [
+      "General",
+      "Luck of the Draw",
+      "See also"
+    ]
+  },
+  "HentaiVerse_Hotkeys": {
+    "canon": "HentaiVerse_Hotkeys",
+    "title": "HentaiVerse Hotkeys",
+    "redirected": false,
+    "lastmod": "18 September 2026, at 14:05.",
+    "cdx_ts": "20261014214742",
+    "bytes": 48370,
+    "tables": 2,
+    "headings": [
+      "Troubleshooting",
+      "See also"
+    ]
+  },
+  "HentaiVerse_Scripts_%26_Tools": {
+    "canon": "Scripts_\\u0026_Tools",
+    "title": "Scripts &amp; Tools",
+    "redirected": true,
+    "lastmod": "10 December 2025, at 13:56.",
+    "cdx_ts": "20260214101301",
+    "bytes": 41472,
+    "tables": 2,
+    "headings": [
+      "Intro",
+      "List",
+      "HentaiVerse",
+      "General Interface",
+      "Combat",
+      "Monster Lab",
+      "MoogleMail",
+      "Comprehensive management tools",
+      "Making Scripts &amp; Tools",
+      "Forbidden Actions",
+      "See also"
+    ]
+  },
+  "Scripts_%26_Tools": {
+    "canon": "Scripts_\\u0026_Tools",
+    "title": "Scripts &amp; Tools",
+    "redirected": false,
+    "lastmod": "27 August 2026, at 15:26.",
+    "cdx_ts": "20260908064543",
+    "bytes": 40857,
+    "tables": 2,
+    "headings": [
+      "Intro",
+      "List",
+      "HentaiVerse",
+      "General Interface",
+      "Combat",
+      "Monster Lab",
+      "MoogleMail",
+      "Comprehensive management tools",
+      "Making Scripts &amp; Tools",
+      "Forbidden Actions",
+      "See also"
+    ]
+  },
+  "Acronyms": {
+    "canon": "Acronyms",
+    "title": "Acronyms",
+    "redirected": false,
+    "lastmod": "20 April 2022, at 15:59.",
+    "cdx_ts": "20260629000715",
+    "bytes": 29243,
+    "tables": 3,
+    "headings": [
+      "E-Hentai Acronyms",
+      "HentaiVerse Acronyms",
+      "General",
+      "Item World Potencies"
+    ]
+  },
+  "Template:HVnav": {
+    "canon": "Template:HVnav",
+    "title": "Template:HVnav",
+    "redirected": false,
+    "lastmod": "29 October 2023, at 15:06.",
+    "cdx_ts": "20260225021233",
+    "bytes": 19625,
+    "tables": 1,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "Missing_Data": {
+    "canon": "Missing_Data",
+    "title": "Missing Data",
+    "redirected": false,
+    "lastmod": "28 March 2018, at 13:59.",
+    "cdx_ts": "20261010014955",
+    "bytes": 20969,
+    "tables": 0,
+    "headings": [
+      "Other",
+      "Other",
+      "See also"
+    ]
+  },
+  "To_Be_Added": {
+    "canon": "To_Be_Added",
+    "title": "To Be Added",
+    "redirected": false,
+    "lastmod": "30 August 2023, at 02:19.",
+    "cdx_ts": "20260308074655",
+    "bytes": 38743,
+    "tables": 1,
+    "headings": [
+      "See also"
+    ]
+  },
+  "Never_To_Be_Added": {
+    "canon": "Never_To_Be_Added",
+    "title": "Never To Be Added",
+    "redirected": false,
+    "lastmod": "17 November 2022, at 22:39.",
+    "cdx_ts": "20260310174127",
+    "bytes": 28924,
+    "tables": 0,
+    "headings": [
+      "See also"
+    ]
+  },
+  "Equipment_Ranges_pre202608": {
+    "canon": "Equipment_Ranges",
+    "title": "Equipment Ranges",
+    "redirected": false,
+    "lastmod": "20 May 2022, at 22:52.",
+    "cdx_ts": "20260616163820",
+    "bytes": 25996,
+    "tables": 1,
+    "headings": [
+      "Equip Range Tables",
+      "How to scale stats",
+      "Quality Bonus",
+      "Forge Coefficient",
+      "Level Scalar",
+      "See Also"
+    ]
+  },
+  "The_Forge_pre202606": {
+    "canon": "The_Forge",
+    "title": "The Forge",
+    "redirected": false,
+    "lastmod": "29 May 2024, at 20:07.",
+    "cdx_ts": "20260530083147",
+    "bytes": 52338,
+    "tables": 10,
+    "headings": [
+      "Repair",
+      "Repair Costs",
+      "Upgrade",
+      "Materials",
+      "Basic Materials",
+      "Rares",
+      "Bindings",
+      "Material Costs",
+      "Enchant",
+      "Salvage",
+      "Reforge",
+      "Renaming",
+      "SoulFuse",
+      "Forge Level",
+      "Forge Ranks",
+      "See also"
+    ]
+  },
+  "Equipment_Ranges_Weapons": {
+    "canon": "Equipment_Ranges_Weapons",
+    "title": "Equipment Ranges Weapons",
+    "redirected": false,
+    "lastmod": "10 January 2020, at 10:24.",
+    "cdx_ts": "20260424080950",
+    "bytes": 144432,
+    "tables": 17,
+    "headings": [
+      "Weapons",
+      "1-Handers",
+      "Axe",
+      "Club",
+      "Rapier",
+      "Shortsword",
+      "Wakizashi",
+      "2-Handers",
+      "Estoc",
+      "Longsword",
+      "Mace",
+      "Katana",
+      "Staff",
+      "Katalox",
+      "Redwood",
+      "Willow",
+      "Oak",
+      "Shields",
+      "Buckler",
+      "Kite Shield",
+      "Force",
+      "See Also"
+    ]
+  },
+  "Equipment_Ranges_Clothes": {
+    "canon": "Equipment_Ranges_Clothes",
+    "title": "Equipment Ranges Clothes",
+    "redirected": false,
+    "lastmod": "10 January 2020, at 07:47.",
+    "cdx_ts": "20251012174832",
+    "bytes": 104599,
+    "tables": 11,
+    "headings": [
+      "Armor",
+      "Cloth",
+      "Cotton",
+      "Cotton Cap",
+      "Cotton Robe",
+      "Cotton Gloves",
+      "Cotton Pants",
+      "Cotton Shoes",
+      "Phase",
+      "Phase Cap",
+      "Phase Robe",
+      "Phase Gloves",
+      "Phase Pants",
+      "Phase Shoes",
+      "See Also"
+    ]
+  },
+  "Equipment_Ranges_Light": {
+    "canon": "Equipment_Ranges_Light",
+    "title": "Equipment Ranges Light",
+    "redirected": false,
+    "lastmod": "10 January 2020, at 07:49.",
+    "cdx_ts": "20260424081003",
+    "bytes": 114332,
+    "tables": 11,
+    "headings": [
+      "Armor",
+      "Light",
+      "Leather",
+      "Leather Helmet",
+      "Leather Breastplate",
+      "Leather Gauntlets",
+      "Leather Leggings",
+      "Leather Boots",
+      "Shade",
+      "Shade Helmet",
+      "Shade Breastplate",
+      "Shade Gauntlets",
+      "Shade Leggings",
+      "Shade Boots",
+      "See Also"
+    ]
+  },
+  "Equipment_Ranges_Heavy": {
+    "canon": "Equipment_Ranges_Heavy",
+    "title": "Equipment Ranges Heavy",
+    "redirected": false,
+    "lastmod": "10 January 2020, at 07:49.",
+    "cdx_ts": "20260228111748",
+    "bytes": 102626,
+    "tables": 11,
+    "headings": [
+      "Armor",
+      "Heavy",
+      "Plate",
+      "Plate Helmet",
+      "Plate Cuirass",
+      "Plate Gauntlets",
+      "Plate Greaves",
+      "Plate Sabatons",
+      "Power",
+      "Power Helmet",
+      "Power Armor",
+      "Power Gauntlets",
+      "Power Leggings",
+      "Power Boots",
+      "See Also"
+    ]
+  },
+  "Play_Styles": {
+    "canon": "Play_Styles",
+    "title": "Play Styles",
+    "redirected": false,
+    "lastmod": "unknown",
+    "cdx_ts": "2026",
+    "bytes": 11856,
+    "tables": 0,
+    "headings": [
+      "Page actions",
+      "Page actions",
+      "Personal tools",
+      "Navigation",
+      "external links",
+      "Tools"
+    ]
+  },
+  "Monster_Lab_Bestiary": {
+    "canon": "Monster Lab Bestiary",
+    "title": "Monster Lab Bestiary",
+    "redirected": false,
+    "lastmod": "23 March 2012, at 19:37.",
+    "cdx_ts": "20120410083505",
+    "bytes": 31715,
+    "tables": 2,
+    "headings": [
+      "Disclaimer",
+      "Chart",
+      " See also "
+    ]
+  },
+  "Monster_Lab_Bestiary_250+": {
+    "canon": "Monster Lab Bestiary 250+",
+    "title": "Monster Lab Bestiary 250+",
+    "redirected": false,
+    "lastmod": "6 February 2012, at 18:09.",
+    "cdx_ts": "20120310035831",
+    "bytes": 85316,
+    "tables": 18,
+    "headings": [
+      "Intro",
+      "Raison d'etre",
+      "Update resources",
+      "The Top 10",
+      "The Kill List",
+      "Anthropod",
+      "Avion",
+      "Beast",
+      "Celestial",
+      "Daimon",
+      "Dragonkin",
+      "Elemental",
+      "Giant",
+      "Humanoid",
+      "Mechanoid",
+      "Reptilian",
+      "Sprite",
+      "Undead",
+      "See also"
+    ]
+  },
+  "Ability_Points": {
+    "canon": "Abilities",
+    "title": "Abilities",
+    "redirected": true,
+    "lastmod": "15 June 2026, at 09:15.",
+    "cdx_ts": "20260617185020",
+    "bytes": 145069,
+    "tables": 22,
+    "headings": [
+      "Ability Points",
+      "Ability Sources",
+      "Investing",
+      "Breakdown",
+      "The Ability Tree",
+      "General",
+      "One-Handed",
+      "Two-Handed",
+      "Dual-Wielding",
+      "Niten Ichiryuu",
+      "Staff",
+      "Cloth Armor",
+      "Light Armor",
+      "Heavy Armor",
+      "Deprecating",
+      "Supportive",
+      "Elemental",
+      "Forbidden",
+      "Divine",
+      "Mastery Points",
+      "Mastery Sources",
+      "Uses",
+      "Reset",
+      "Reset costs",
+      "Ability and Persona",
+      "See also"
+    ]
+  },
+  "Secret_Pony_Level": {
+    "canon": "Secret_Pony_Level",
+    "title": "Secret Pony Level",
+    "redirected": false,
+    "lastmod": "26 October 2023, at 20:41.",
+    "cdx_ts": "2026",
+    "bytes": 24734,
+    "tables": 2,
+    "headings": [
+      "See also"
+    ]
+  },
+  "Bans": {
+    "canon": "Bans",
+    "title": "Bans",
+    "redirected": false,
+    "lastmod": "30 September 2026, at 14:21.",
+    "cdx_ts": "2026",
+    "bytes": 23531,
+    "tables": 1,
+    "headings": [
+      "Types",
+      "See also"
+    ]
+  },
+  "User:CornerCactus/Guide": {
+    "canon": "Wayback Machine",
+    "title": "Wayback Machine",
+    "redirected": false,
+    "lastmod": "unknown",
+    "cdx_ts": "2026",
+    "bytes": 4646,
+    "tables": 0,
+    "headings": []
+  }
+}
