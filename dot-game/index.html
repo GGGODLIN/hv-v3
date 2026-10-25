@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.4 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.5 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -28,22 +28,22 @@
     <section class="expedition-column">
       <div class="expedition-header"><div><span class="eyebrow">THE EXPEDITION</span><h2 id="zone-title">霧松邊境</h2></div><span id="mode-badge" class="status-pill">整備中</span></div>
       <div class="battle-scene" id="battle-scene">
-        <canvas id="battle-canvas" aria-label="像素風遠征戰鬥場景；戰況亦顯示於下方文字紀錄"></canvas>
+        <canvas id="battle-canvas" aria-label="像素風遠征戰鬥場景；現減為目前一般物理減傷，閃招擋為單次判定機率；完整數字與特效見下方敵方狀態"></canvas>
         <div class="scene-top"><span id="stage-label">遠征 01</span><span id="wave-label">準備出發</span></div>
         <div class="scene-bottom"><div><span class="eyebrow">EXPEDITION TIME</span><strong id="run-time">00:00</strong></div><div class="scene-best"><span>同關最佳</span><strong id="best-time">尚無紀錄</strong></div></div>
         <div id="scene-message" class="scene-message"><span class="scene-emblem">✦</span><h3>下一段旅程，準備好了嗎？</h3><p>選好裝備，剩下的交給戰鬥。</p></div>
         <div id="floating-layer" class="floating-layer" aria-hidden="true"></div>
         <div id="reward-banner" class="reward-banner" role="status" hidden></div>
       </div>
-      <section id="enemy-status-panel" class="enemy-status-panel" aria-label="敵方武器特效狀態" hidden>
+      <section id="enemy-status-panel" class="enemy-status-panel" aria-label="敵方角色、目前防線與武器特效狀態" hidden>
         <div class="enemy-status-heading"><h3>敵方狀態</h3><span>1 Tick ≈ 1.05 秒戰鬥時間</span></div>
         <div id="enemy-status-list" class="enemy-status-list"></div>
         <p id="proc-notice" class="proc-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
         <p id="recovery-notice" class="proc-notice recovery-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
-        <p class="enemy-status-hint">暈眩到期後可再行動；控制有空窗，不能永久鎖住敵人。</p>
+        <p class="enemy-status-hint">目前數字已計入穿透護甲／暈眩。閃＝閃避、招＝招架、擋＝格擋，皆為單次判定機率；暈眩不取消格擋，到期後可再行動。</p>
       </section>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
-      <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
       <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
     </section>
     <aside class="loot-panel panel">

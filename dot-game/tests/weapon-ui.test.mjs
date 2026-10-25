@@ -3,12 +3,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from '../src/loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus } from '../src/engine.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, enemyDefenseView } from '../src/engine.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const extract = (name, next) => js.slice(js.indexOf(`function ${name}(`), js.indexOf(`function ${next}(`));
+const roleHelpers = runInNewContext(`${extract('enemyRolePresentation', 'renderRoutePreview')} ({ enemyRolePresentation, defenseRate, defenseLines })`);
 const helpers = {
+  ...roleHelpers, enemyDefenseView,
   resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus,
   format: value => String(Math.round(value)),
 };
@@ -209,7 +211,7 @@ test('gear detail uses flavor-only prose and one authoritative trait section', (
   assert.equal(item.description, '穩定的中量武器。 戰棍：本版尚未實作武器特效。');
 });
 
-test('v0.4 retains the v3 schema and candidate isolation, with version-neutral legacy migration copy', () => {
+test('v0.5 retains the v3 schema and candidate isolation, with version-neutral legacy migration copy', () => {
   for (const key of ['save', 'preferences', 'writer']) assert.ok(js.includes(`${key}-v3`));
   assert.match(js, /const LEGACY_SAVE_KEYS = \[`hv-v3-dot-\$\{storageScope\}-save-v2`, `hv-v3-dot-\$\{storageScope\}-save-v1`\]/);
   assert.match(js, /legacyKeys: LEGACY_SAVE_KEYS/);
@@ -218,5 +220,5 @@ test('v0.4 retains the v3 schema and candidate isolation, with version-neutral l
   assert.doesNotMatch(js, /v0\.3 已讀取|請在 v0\.3 繼續/);
   assert.doesNotMatch(js, /save-v4|writer-v4|preferences-v4/);
   assert.match(js, /candidate-\$\{candidatePath\[1\]/);
-  assert.match(html, /v0\.4 · 持續開發/);
+  assert.match(html, /v0\.5 · 持續開發/);
 });

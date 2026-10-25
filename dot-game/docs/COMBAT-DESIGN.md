@@ -1,4 +1,4 @@
-# Independent combat and progression: v0.4 candidate
+# Independent combat and progression: v0.5 candidate
 
 This implementation was authored from scratch. No existing game implementation, constants export, monster dataset, artwork, or another author's single-player design was used. The source map is `ORIGINAL-HV.md`; public research is evidence, not access to HV server code. This document distinguishes rules implemented from evidence from explicitly chosen adaptations.
 
@@ -129,6 +129,44 @@ Lethal hits clear active stun, queued recovery, the recovery-turn marker and PA 
 
 Neither treatment uses a potion. Clear recovery is excluded from the minimum-HP observation. Both exact replays reproduce their full state. This demonstrates a bounded survival benefit with recovery actions actually paid, not a universal victory or speed guarantee. Club procs and skipped attacks legitimately change RNG consumption after the common initial seed; a paired seed is not a claim that all later dice are identical. Constant-die tests separately isolate proc boundaries, critical guarantees, nonrefresh, avoidance suppression and unchanged damage ordering. The frozen starter/nonproc regression signatures and prior PA/tactics tests remain unchanged. No shipped creature stats, stage layouts, item stat rolls, item scores, loot rates or skill multipliers were adjusted to manufacture this result.
 
+## v0.5 defensive roles: visible choices without new damage gates
+
+This slice differentiates a small part of the existing encounter population, starting at **stage 3**, and makes the route and active defenses inspectable. The permitted report [003 §4.1(B–C)](https://github.com/GGGODLIN/hv-v3/blob/8e1ff32097d50ba8e1c30266653234506b98a5f4/.scratch/hv-v3/wayfinder/findings/003-equipment-armory-and-modes.md), [Monster Lab revision 63173](https://ehwiki.org/index.php?title=Monster_Lab&oldid=63173#Monster_Classes), and [Monster Stats revision 63858](https://ehwiki.org/index.php?title=Monster_Stats&oldid=63858) support the **shape** of differentiated monster defenses: END-heavy classes versus AGI/DEX-heavy classes, with END related to mitigation, AGI to evade and DEX to parry. The older derived formulas retain their documented uncertainty. This is not evidence for our particular names, profiles, rates, or placement. We do not import the excluded monster dataset, copy population statistics, or claim that these three roles implement original monster classes.
+
+### Entirely independent role coefficients and schedule
+
+Let `baseDefense = round(3 + 1.3 × stage + (boss ? 3 : 0), 2)`. This existing game's defense points are interpreted as general mitigation percentage points, not a new original-HV rating conversion.
+
+| Role | Defense points | Evade per check | Parry per check | Block per check |
+| --- | --- | ---: | ---: | ---: |
+| 均衡 / `baseline` | Existing base defense | 2.5% | 2% | Existing normal 1.5% / boss 6% |
+| 厚甲 / `armored` | Existing base + 18 | 1% | 1% | Unchanged |
+| 靈巧 / `agile` | max(0, existing base − 3) | 10% | 7% | Unchanged |
+
+- **Stages 1–2 remain numerically unchanged**, including all encounter stats and RNG behavior. They display the baseline role even when the same name acquires a different role later.
+- From stage 3, the existing 碎晶甲蟲 archetype is armored and 荒野影獸 is agile. 灰霧獵犬 and 赤砂守衛 retain baseline defenses. The shared stable archetype index selects identity; combat does not infer it from a name substring or imported label.
+- From stage 3, odd-stage bosses are armored and even-stage bosses agile. The existing creature names, deterministic placement, four waves, and enemy counts `1 / 2 / 2 / 1` are unchanged. Stage 3 therefore has roles `baseline / armored + agile / agile + baseline / armored`; stage 4 has `armored / agile + baseline / baseline + baseline / agile`.
+- HP, attack, resist, cadence, XP, gold, loot probability, item rolls, item scores, automatic policies, skill multipliers, weapon proc rules and all damage phases are untouched. No weakness multiplier, mandatory counter-weapon, immunity, extra hit gate, new magic capability, or role-specific reward is added. Only the table's defense, evade and parry treatment changes.
+- Each avoidance number is a **single-check probability**, not a net full-miss chance or a percentage damage reduction. The existing two-check resolution still determines full/partial avoidance. The preview does not sum these percentages or present them as DPS.
+
+The intention is to make already implemented choices matter in ordinary encounters, not to guarantee one weapon's superiority. PA can reduce the armored role's existing mitigation; stun temporarily suppresses the agile role's evade/parry and offensive actions, but leaves block and the earned recovery action intact. The existing skill already bypasses evade/parry; it remains unable to trigger either proc. Axes retain their generated stat tradeoff with no invented bleed effect. These are context-dependent benefits, not a universal equipment score or forced build check.
+
+### One encounter descriptor, two read-only views
+
+`previewStage(stage)` returns `{stage, waves: [{wave, boss, enemies: [descriptor]}]}` with exactly four wave entries. Each enemy descriptor contains `{name, boss, roleId, roleLabel, defense, mitigation, evade, parry, block}`. It is a fresh, detached snapshot of base values: no active statuses, HP, attack, reward forecast, seed mutation or random draw. Numeric stage input is floored and bounded to 1–30; nonfinite or nonnumeric input defaults to 1. Changing the returned object cannot affect later previews or spawns.
+
+The real encounter factory uses the **same internal wave descriptor**. Preview mitigation is computed from defense for display only; live enemies do **not** acquire a new `mitigation` property. This preserves the existing resolver contract: explicit finite `mitigation`, if a controlled fixture supplies one, overrides the fallback `defense / 100`; otherwise editing defense still changes damage. No stale duplicate stat shadows it.
+
+`enemyDefenseView(enemy, tick)` returns `{baseMitigation, mitigation, baseEvade, evade, baseParry, parry, baseBlock, block, stunned}`. Rates are fractions in `[0, 1]` (general mitigation retains its existing 95% cap). The unprefixed fields are current values for an ordinary physical attack: active historical PA reduces general mitigation, and active stun sets evade/parry to zero without changing block. The helper shares the existing status validators; expired/invalid PA and active-stun state have no effect, and a pending recovery is **not** active stun. Explicit `stunned` already supported by the low-level resolver is also reflected. Skill-specific bypass and specific mitigation remain separate resolver behavior. Reading this view cannot mutate source stats, expire a status, consume RNG, deal damage, or discharge recovery.
+
+### Bounded engine acceptance
+
+`tests/enemy-roles.test.mjs` checks all 30 stages and all four actual waves against the shared preview, the unchanged HP/attack/resist/block/gold formulas, detached/no-RNG previews, defense override semantics, and PA/stun expiry and pending-recovery views. Eighteen canonical full-state hashes were frozen from **our own verified v0.4** for stages 1–2 × seeds 1/42/999 × plain/rapier/club. Only the two newly added display fields `roleId`/`roleLabel` are excluded; every prior state field, including RNG seed, items, events, timing and proc state, remains compared.
+
+Constant-die tests isolate the mechanisms: a stage-3 armored normal has 24.9% mitigation, so 100 raw physical damage with no avoidance/critical resolves to `75 → 81 → 87 → 93` at zero through three existing PA stacks. Active stun bypasses an agile target's evade/parry but still cannot bypass a guaranteed block. There is no role-specific proc adjustment.
+
+Six seed journeys (1, 2, 3, 42, 123, 999) clear stage 1, equip only the genuinely earned first weapon, replay stage 1, then clear stages 2–5 while retaining that same weapon. No enemy replacement, stat grant, direct unlock, manual potion or later auto-equip is used; complete replay states match. This is bounded engine acceptance, not a promise for every seed/build or a substitute for browser play acceptance. Wider paired comparisons and browser evidence are recorded separately.
+
 ## Persistence and safety
 
 Only JSON-shaped state is used. `validateSave` reconstructs known fields, bounds numbers/strings, rejects invalid item slots/quality/rates, rejects duplicate item identifiers and unsafe numeric identifiers, preserves the generated affix metadata via a whitelist, and ignores arbitrary unknown properties. This is validation for a local single-player save, not tamper-proof competitive security.
@@ -136,6 +174,8 @@ Only JSON-shaped state is used. `validateSave` reconstructs known fields, bounds
 Import/load returns to camp with preserved progress and equipment but fresh HP/MP. It does not replay unfinished combat or calculate wall-clock gains. User data export/import is owned by the UI. Battle state is deliberately not restored.
 
 v0.4 reuses the compatible v3 storage namespace and the existing save schema version. Club identity was already allowlisted in v0.3; the new enemy stun/pending/recovery-turn fields are volatile encounter state and are deliberately discarded by `validateSave`, so no persistent data-schema migration is needed. Invalid unknown imported properties never activate a deferred recovery on load.
+
+v0.5 retains that same v3 namespace, schema version and unchanged validator. Role identity and defense treatment are reconstructed from stage/archetype when a new encounter starts; they are never trusted from an imported enemy or equipment field. The existing raw live-state export can contain enemy role/status bytes, but validated loading discards the entire encounter and returns safely to camp. This is encounter-only state, not a claim that raw export JSON omits it. No save migration or live-battle restoration is added.
 
 Equipment changes, sale, and stage selection require camp/defeat; retreat is safe. Locked items cannot be sold. At 120 inventory items the game refuses another expedition rather than discarding valuables. Space is reserved before entry; overflow is held in pending loot and forces a safe camp stop. IDs increment and safely wrap while checking every equipped/inventory/pending ID, so imported counters cannot cause collisions. Events/logs retain at most 30 entries.
 

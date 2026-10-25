@@ -29,3 +29,34 @@
 .weapon-trait p { margin-top: 6px; font-size: 10px; line-height: 1.75; }
 .item-score-marker { flex: none; border: 1px solid #435853; border-radius: 4px; padding: 2px 4px; font-size: 9px; color: #abc5b9; }
 .gear-info span, .detail-subtitle, .detail-description { overflow-wrap: anywhere; }
+
+/* Read-only role/defense cues: current battle values and an unmodified camp route. */
+.enemy-role { display: inline-block; width: fit-content; border: 1px solid #516c67; border-radius: 4px; padding: 1px 5px; color: #bed1c6; font-size: 10px; white-space: nowrap; }
+.enemy-role.role-armored { border-color: #8a794f; color: #e2c992; background: #68532b25; }
+.enemy-role.role-agile { border-color: #4f8e86; color: #a3d9ce; background: #2e746225; }
+.enemy-status-card { display: flex; flex-direction: column; gap: 3px; }
+.enemy-status-card>strong { order: 0; }
+.enemy-status-card>.enemy-role { order: 1; margin: 2px 0; }
+.enemy-current-defense { order: 2; font-size: 10px; font-variant-numeric: tabular-nums; color: #d2ded3; line-height: 1.65; }
+.enemy-current-defense span { display: block; overflow-wrap: anywhere; }
+.enemy-status-card>.penetration-effect { order: 3; }
+.enemy-status-card>.stun-effect { order: 4; }
+.route-preview { border-block: 1px solid var(--line); margin: 10px 0; padding: 10px 0; }
+.route-preview[hidden] { display: none; }
+.route-preview-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 3px 10px; }
+.route-preview-heading h3 { font-size: 11px; }
+.route-preview-heading>span, .route-preview-intro { color: var(--muted); font-size: 9px; }
+.route-preview-intro { margin-top: 4px; }
+.route-preview-list { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 5px; }
+.route-wave { display: grid; grid-template-columns: 43px minmax(0, 1fr); align-items: start; gap: 5px; }
+.route-wave-number { padding-top: 4px; color: var(--muted); font-size: 9px; white-space: nowrap; }
+.route-lineup { display: grid; gap: 4px; }
+.route-enemy { display: flex; align-items: center; gap: 7px; padding: 4px 6px; background: #102027; border-radius: 5px; min-width: 0; }
+.route-enemy .enemy-role { flex: none; font-size: 9px; }
+.route-defense { display: flex; flex-wrap: wrap; gap: 0 8px; font-size: 9px; color: #b6cbc2; font-variant-numeric: tabular-nums; }
+.route-defense>span { overflow-wrap: anywhere; }
+.route-advice { font-size: 10px; color: var(--muted); }
+.route-advice summary { cursor: pointer; color: #b5c9bd; width: fit-content; padding: 3px 0; }
+.route-advice summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.route-advice p { margin-top: 6px; line-height: 1.75; }
+@media(max-width:680px) { .route-defense { font-size: 10px; } .route-wave { grid-template-columns: 42px minmax(0, 1fr); } .route-enemy { align-items: start; } }

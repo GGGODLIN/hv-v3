@@ -2,7 +2,7 @@ import { createGame, advance, act, stats, validateSave, STRATEGIES } from './eng
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from './loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus } from './engine.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, previewStage, enemyDefenseView } from './engine.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
@@ -36,6 +36,50 @@ function powerComparisonText(item, current) {
   if (item.slot === 'weapon' && resolveWeaponFamily(item) !== resolveWeaponFamily(current)) return '異路線';
   return '分數＋';
 }
+function enemyRolePresentation(enemy) {
+  const roles = { baseline: { id: 'baseline', label: '均衡', mark: '◆' }, armored: { id: 'armored', label: '厚甲', mark: '▣' }, agile: { id: 'agile', label: '靈巧', mark: '➶' } };
+  return Object.hasOwn(roles, enemy?.roleId) ? roles[enemy.roleId] : roles.baseline;
+}
+function defenseRate(value) {
+  const rate = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
+  return `${(rate * 100).toFixed(1).replace(/\.0$/, '')}%`;
+}
+function defenseLines(view, prefix) {
+  return [`${prefix}一般物理減傷 ${defenseRate(view.mitigation)}`, `閃 ${defenseRate(view.evade)} / 招 ${defenseRate(view.parry)} / 擋 ${defenseRate(view.block)}`];
+}
+function renderRoutePreview() {
+  const panel = $('route-preview');
+  panel.hidden = state.mode !== 'town';
+  if (panel.hidden || lastPreviewStage === state.stage) return;
+  lastPreviewStage = state.stage;
+  const route = previewStage(state.stage);
+  $('route-preview-title').textContent = `第 ${route.stage} 層 · 四波路線`;
+  $('route-preview-intro').textContent = route.stage < 3 ? '前 2 層維持原有防線；第 3 層起加入厚甲與靈巧。' : '厚甲重減傷，靈巧重閃避與招架；配裝仍須看實際屬性。';
+  $('route-preview-list').replaceChildren(...route.waves.map(wave => {
+    const row = node('li', 'route-wave');
+    row.append(node('span', 'route-wave-number', wave.boss ? `${wave.wave} · 首領` : `${wave.wave} · 波次`));
+    const groups = new Map();
+    for (const enemy of wave.enemies) {
+      const key = JSON.stringify([enemy.roleId, enemy.defense, enemy.mitigation, enemy.evade, enemy.parry, enemy.block]);
+      if (!groups.has(key)) groups.set(key, { enemy, names: [] });
+      groups.get(key).names.push(enemy.name);
+    }
+    const lineup = node('div', 'route-lineup');
+    for (const { enemy, names } of groups.values()) {
+      const role = enemyRolePresentation(enemy);
+      const group = node('div', 'route-enemy');
+      const badge = node('span', `enemy-role role-${role.id}`, `${role.mark} ${role.label}${names.length > 1 ? ` ×${names.length}` : ''}`);
+      const values = node('span', 'route-defense');
+      const [mitigation, avoidance] = defenseLines(enemy, '基礎');
+      values.append(node('span', '', mitigation), node('span', '', avoidance));
+      group.append(badge, values);
+      group.title = `${names.join('、')}。基礎防禦 ${enemy.defense}；${mitigation}。閃＝閃避、招＝招架、擋＝格擋，各為單次判定機率，不是完全擋下攻擊的總機率。`;
+      lineup.append(group);
+    }
+    row.append(lineup);
+    return row;
+  }));
+}
 const slotIcons = { weapon: '⚔', armor: '◈', accessory: '◇' };
 const statNames = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' };
 const rateStats = new Set(['crit', 'evade', 'block']);
@@ -61,6 +105,7 @@ let lastEquipmentSignature = '';
 let lastLogSignature = '';
 let lastEnemyStatusSignature = '';
 let lastStageCount = 0;
+let lastPreviewStage = null;
 let toastTimer;
 let bannerTimer;
 let procTimer;
@@ -137,7 +182,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
-  lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0;
+  lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
 function dispatch(action, payload) {
   if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
@@ -217,8 +262,8 @@ function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(
 function renderEnemyStatuses() {
   const enemies = state.mode === 'battle' ? state.enemies.filter(enemy => enemy.hp > 0) : [];
   const tick = state.timing?.ticks || 0;
-  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick) }));
-  const signature = JSON.stringify(rows.map(({ enemy, status, stun }) => [enemy.id, enemy.name, enemy.hp, status, stun]));
+  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick), defense: enemyDefenseView(enemy, tick) }));
+  const signature = JSON.stringify(rows.map(({ enemy, status, stun, defense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, defense]));
   $('enemy-status-panel').hidden = !rows.length;
   if (!rows.length || (procTargetId && !enemies.some(enemy => enemy.id === procTargetId))) {
     $('proc-notice').hidden = true; clearTimeout(procTimer); procTargetId = null;
@@ -228,17 +273,22 @@ function renderEnemyStatuses() {
   }
   if (signature === lastEnemyStatusSignature) return;
   lastEnemyStatusSignature = signature;
-  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun }, index) => {
+  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun, defense }, index) => {
     const pending = stun?.recoveryPending;
     const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}${stun ? pending ? ' recovery-ready' : ' is-stunned' : ''}`);
     const name = node('strong', '', `${index === 0 ? '目標 · ' : ''}${enemy.name}`);
     const effect = node('span', 'enemy-effect penetration-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
     const control = node('span', 'enemy-effect stun-effect', pending ? '甦醒待行動 · 下次我方行動前可反擊' : stun ? `暈眩 · 剩 ${stun.ticksRemaining} Tick` : '暈眩：無');
     card.append(name, effect, control);
-    const details = [];
+    const role = enemyRolePresentation(enemy);
+    card.append(node('span', `enemy-role role-${role.id}`, `${role.mark} ${role.label}${enemy.boss ? ' · 首領' : ''}`));
+    const currentDefense = node('div', 'enemy-current-defense');
+    currentDefense.append(...defenseLines(defense, '目前').map(line => node('span', '', line)));
+    card.append(currentDefense);
+    const details = [`基礎一般物理減傷 ${defenseRate(defense.baseMitigation)}；目前數字已計入穿透護甲與暈眩。閃＝閃避、招＝招架、擋＝格擋，各為單次判定機率，不是完全擋下攻擊的總機率。暈眩不取消格擋。`];
     if (status) details.push(`物理減傷為原本的 ${format(status.mitigationMultiplier * 100)}%；不是直接增加同等傷害。`);
     if (stun) details.push(pending ? '暈眩已結束，閃避與招架恢復；下一次我方行動前，敵人先行動。' : '暫停敵方行動，期間不能閃避或招架；到期後會恢復行動。');
-    if (details.length) card.title = details.join(' ');
+    card.title = details.join(' ');
     return card;
   }));
 }
@@ -280,6 +330,7 @@ function render(force = false) {
   $('inventory-count').textContent = state.inventory.length;
   $('sell-common').disabled = !tabOwner || state.mode === 'battle' || !state.inventory.some(item => !item.locked && ['Crude', 'Fair', 'Average'].includes(item.quality));
   renderEnemyStatuses();
+  renderRoutePreview();
   eventEffects();
 }
 function itemContent(item) {
@@ -382,6 +433,7 @@ function drawHero(x, y, t) {
 }
 function drawEnemy(enemy, x, y, index, t) {
   const boss = enemy.boss;
+  const role = enemyRolePresentation(enemy);
   const pulse = prefs.reducedMotion ? 0 : enemyPulse;
   const bob = prefs.reducedMotion ? 0 : Math.sin(t * 2 + index * 2) * 2;
   ctx.save(); ctx.translate(x - pulse * 4, y + bob); const size = boss ? 1.5 : 1; ctx.scale(size,size);
@@ -392,12 +444,29 @@ function drawEnemy(enemy, x, y, index, t) {
   polygon([[-16,-26],[-23,-44],[-9,-34]],palette[0]); polygon([[10,-32],[20,-47],[18,-23]],palette[0]);
   rect(-7,-22,4,3,'#ebd19a'); rect(5,-23,4,3,'#ebd19a'); rect(-5,-13,13,3,palette[0]);
   rect(-15,-4,7,10,palette[0]);rect(9,-3,7,10,palette[0]);
+  // Role silhouettes do not rely on color or motion alone.
+  if (role.id === 'armored') {
+    polygon([[-18,-24],[-7,-27],[-1,-22],[-3,-9],[-10,-4],[-18,-10]], '#a4b6ad');
+    polygon([[-15,-22],[-8,-24],[-4,-20],[-6,-11],[-10,-8],[-15,-12]], '#536e72');
+    rect(-11,-21,2,10,'#d2c99f');
+  } else if (role.id === 'agile') {
+    polygon([[7,-29],[25,-35],[18,-25],[29,-27],[15,-18]], '#89c8c2');
+    rect(-8,-18,22,2,'#a6d7c3');
+  }
   if(boss){rect(-8,-37,20,4,'#b3996f');polygon([[-7,-37],[-5,-45],[0,-39],[5,-48],[9,-39],[14,-45],[12,-37]],'#d9ba78');}
   ctx.restore();
   const width = boss ? 57 : 40;
   const sy = y - (boss ? 80 : 57);
   rect(x - width/2, sy, width, 3, '#10222a'); rect(x-width/2, sy, width * Math.max(0, enemy.hp) / Math.max(1,enemy.maxHp),3,boss?'#d29a76':'#b4a778');
   ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#d8ded0'; ctx.fillText(enemy.name,x,sy-5,width+25);
+  if (enemy.hp > 0) {
+    const defense = enemyDefenseView(enemy, state.timing?.ticks || 0);
+    ctx.fillStyle = role.id === 'armored' ? '#e1cfa3' : role.id === 'agile' ? '#a9e2d8' : '#cedad1';
+    ctx.fillText(`${role.mark} ${role.label}`, x, sy - 29, width + 22);
+    ctx.fillStyle = '#d8ded0';
+    ctx.fillText(`現減 ${defenseRate(defense.mitigation)} · 閃 ${defenseRate(defense.evade)}`, x, sy - 21, width + 26);
+    ctx.fillText(`招 ${defenseRate(defense.parry)} · 擋 ${defenseRate(defense.block)}`, x, sy - 13, width + 26);
+  }
   const status = penetratedArmorStatus(enemy, state.timing?.ticks || 0);
   if (enemy.hp > 0 && status) {
     rect(x - width / 2, sy + 5, width, 10, '#132c32e8');
@@ -431,7 +500,7 @@ function drawScene(t, dt) {
   const ground=h*.79;
   drawHero(w*.28,ground,t);
   const enemies=(state.enemies||[]).slice(0,3);
-  enemies.forEach((enemy,i)=>drawEnemy(enemy,w*(.64+i*.13),ground-i*2,i,t));
+  enemies.forEach((enemy,i)=>drawEnemy(enemy,w*(enemies.length === 1 ? .72 : .6 + i * .26 / Math.max(1, enemies.length - 1)),ground-i*2,i,t));
   if(!enemies.length){
     rect(w*.68,ground-12,19,12,'#6d6043');rect(w*.68-1,ground-14,21,5,'#9d8255');rect(w*.68+8,ground-12,3,12,'#d2ac66');
     if(state.mode!=='battle'){ctx.fillStyle='#e2bf7660';ctx.beginPath();ctx.arc(w*.7,ground-8,20,0,Math.PI*2);ctx.fill();}

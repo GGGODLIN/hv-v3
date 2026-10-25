@@ -1,5 +1,9 @@
 # Current status
 
+## v0.5 candidate — 2026-10-25 17:00 UTC
+
+Public release remains v0.4 below. Candidate work adds deterministic armored/agile enemy roles from stage 3, camp route preview and live defense readouts. Stages 1–2 and all HP/attack/reward/proc/item rules are preserved; role values are explicit adaptations. 262 Node tests and four JS syntax checks pass. Independent 120-wave route/spawn checks and actual old-validator compatibility pass. Seeds1–100 naturally clear stages1–5; stages1–2 preserve prior state/RNG, paired stage3–5 median slowdowns are11.7%/0%/10.5%. See BUILD-GUIDE.md for equipment tradeoffs and sampling limits. Backup and actual-browser acceptance are pending. No new persistent schema is intended. Routine reports are suppressed during Taipei 01:00–08:59 while authorized work continues.
+
 ## v0.4 published — 2026-10-25 16:30 UTC
 
 Accepted runtime source: `b47ecc87f5fa66bbd2dbf85f7581bdc06626f74f`; website: `5aa89cb1771f3b934e26a8085030830f2747c73b`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 39 source files / 389175 bytes were read back before promotion; 38 manifest payload hashes verified. Exact Pages run `40211704287` succeeded; all six live runtime files returned HTTP200 with matching SHA-256. Only five root runtime blobs changed because session.js is unchanged; candidates and concurrent unrelated website work were preserved. This receipt changes documentation only.

@@ -73,6 +73,16 @@ export function stunStatus(enemy, tick) {
   }
   return enemy.stunRecoveryPending===true?{ticksRemaining:0,recoveryPending:true}:null;
 }
+/** Read-only physical defense view; values are per check, not net miss chances.
+ * PA changes general mitigation only; active stun bypasses evade/parry, not block.
+ * An owed recovery action is not active stun. Never rewrites the enemy's defense.
+ */
+export function enemyDefenseView(enemy, tick) {
+  const baseMitigation=generalMitigation(enemy||{}), armor=penetratedArmorStatus(enemy,tick);
+  const baseEvade=chance(enemy?.evade),baseParry=chance(enemy?.parry),baseBlock=chance(enemy?.block);
+  const stunned=Boolean(enemy?.stunned)||stunStatus(enemy,tick)?.ticksRemaining>0;
+  return {baseMitigation,mitigation:baseMitigation*(armor?.mitigationMultiplier??1),baseEvade,evade:stunned?0:baseEvade,baseParry,parry:stunned?0:baseParry,baseBlock,block:baseBlock,stunned};
+}
 function expireStun(enemy, tick) {
   if(enemy.stun!==undefined&&!(stunStatus(enemy,tick)?.ticksRemaining>0))delete enemy.stun;
   if(enemy.hp<=0)delete enemy.stunRecoveryPending;
@@ -142,11 +152,41 @@ export function resolveWeaponAttack(attacker, defender, weapon, tick, rng = Math
   result.proc={type:'penetratedArmor',stacks,durationTicks:PENETRATED_ARMOR_RULES.durationTicks};
   return result;
 }
+// Independently authored defense profiles, not original-HV monster classes/rates.
+// Identity is selected by the same stable archetype index as the original names.
+const ENEMY_ARCHETYPES = Object.freeze([
+  Object.freeze({name:'灰霧獵犬',roleId:'baseline'}),
+  Object.freeze({name:'碎晶甲蟲',roleId:'armored'}),
+  Object.freeze({name:'荒野影獸',roleId:'agile'}),
+  Object.freeze({name:'赤砂守衛',roleId:'baseline'})
+]);
+const ENEMY_ROLES = Object.freeze({
+  baseline:Object.freeze({roleLabel:'均衡',defenseOffset:0,evade:.025,parry:.02}),
+  armored:Object.freeze({roleLabel:'厚甲',defenseOffset:18,evade:.01,parry:.01}),
+  agile:Object.freeze({roleLabel:'靈巧',defenseOffset:-3,evade:.10,parry:.07})
+});
+function waveDescriptor(stage, wave) {
+  const boss=wave===4, count=boss?1:wave===1?1:2;
+  const enemies=Array.from({length:count},(_,i)=>{
+    const archetype=ENEMY_ARCHETYPES[(stage+wave+i)%ENEMY_ARCHETYPES.length];
+    const roleId=stage<3?'baseline':boss?(stage%2?'armored':'agile'):archetype.roleId;
+    const role=ENEMY_ROLES[roleId],defense=Math.max(0,round(3+stage*1.3+(boss?3:0)+role.defenseOffset));
+    return {name:boss?`裂隙守門者 · ${stage}`:archetype.name,boss,roleId,roleLabel:role.roleLabel,defense,mitigation:generalMitigation({defense}),evade:role.evade,parry:role.parry,block:boss?.06:.015};
+  });
+  return {wave,boss,enemies};
+}
+/** Pure four-wave route preview. No state/seed input or random draws. */
+export function previewStage(stage) {
+  stage=integer(stage,1,MAX_STAGE);
+  return {stage,waves:Array.from({length:4},(_,i)=>waveDescriptor(stage,i+1))};
+}
 function enemiesFor(s) {
-  const stage=s.stage, wave=s.wave, boss=wave===s.totalWaves;
-  const names=['灰霧獵犬','碎晶甲蟲','荒野影獸','赤砂守衛'];
-  const count=boss?1:wave===1?1:2;
-  return Array.from({length:count},(_,i)=>{const hp=Math.round((boss?340:114+wave*15)*Math.pow(1.20,stage-1));return {id:`e-${s.wins}-${stage}-${wave}-${i}`,name:boss?`裂隙守門者 · ${stage}`:names[(stage+wave+i)%names.length],hp,maxHp:hp,attack:round((boss?27:16+wave*1.0)*Math.pow(1.16,stage-1)),defense:round(3+stage*1.3+(boss?3:0)),boss,evade:.025,parry:.02,block:boss?.06:.015,resist:.04};});
+  const stage=s.stage,wave=s.wave;
+  return waveDescriptor(stage,wave).enemies.map(({mitigation,...descriptor},i)=>{
+    const hp=Math.round((descriptor.boss?340:114+wave*15)*Math.pow(1.20,stage-1));
+    // Preview-only mitigation must not shadow the established defense fallback.
+    return {id:`e-${s.wins}-${stage}-${wave}-${i}`,...descriptor,hp,maxHp:hp,attack:round((descriptor.boss?27:16+wave*1.0)*Math.pow(1.16,stage-1)),resist:.04};
+  });
 }
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
