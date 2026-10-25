@@ -488,7 +488,7 @@ export class App {
     const oc0 = openingOc(this.p, t, r);
     armBattle(this.battle, r);
     this.battle.oc += oc0;
-    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${this.monsters.map((m) => m.name).join('、')}`];
+    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`];
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
     this.target = 0;
     this.go('battle');
