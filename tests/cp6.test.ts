@@ -3,11 +3,11 @@ import { readFileSync } from 'node:fs';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
 import { Rng } from '../src/core/rng';
-import { RULES, advance, battleLoot, depthOf, encounter, settle, startAbyss, startRun, abyssOpen } from '../src/core/run';
+import { abyssLevel, chestLoot, merchantStock, RULES, advance, battleLoot, depthOf, encounter, settle, startAbyss, startRun, abyssOpen } from '../src/core/run';
 import { starterKit } from '../src/core/auto';
 import { prog } from '../src/core/progress';
 import { type Cp5Mon } from '../src/core/cp5';
-import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, emptyRecord, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
+import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 
 describe('CP6 abyss scaling', () => {
@@ -61,7 +61,8 @@ describe('CP6 run flow', () => {
     run.floor = 5;
     const ms = encounter(run, pool, 'boss');
     const loot = battleLoot(run, ms, 'boss');
-    expect(loot.equips.length).toBe(4); // CP5 boss 3 + CP6 guarantee 1
+    expect(loot.equips.length).toBe(4); // r2: boss 2 + guarantee 1 + depth-10 milestone 1
+    expect(run.abyss!.titles).toEqual(['深淵初探者']); expect(run.abyss!.ms).toBe(10);
   });
   it('death carries back 50% like the main tower and does not count a main trip', () => {
     const p = newPlayer(); starterKit(p);
@@ -84,9 +85,39 @@ describe('CP6 records', () => {
     expect(recordTrip(r, 7, 'blade')).toBe(true);
     expect(recordTrip(r, 3, 'blade')).toBe(false);
     expect(recordTrip(r, 4, 'oc')).toBe(true);
-    expect(r).toEqual({ best: 7, trips: 3, bySchool: { blade: { best: 7, trip: 1 }, oc: { best: 4, trip: 3 } } });
+    expect(r).toEqual({ best: 7, trips: 3, ms: 0, titles: [], bySchool: { blade: { best: 7, trip: 1 }, oc: { best: 4, trip: 3 } } });
     expect(loadRecord(JSON.stringify(r))).toEqual(r);
     expect(loadRecord('garbage')).toEqual(emptyRecord());
     expect(ABYSS_KEY).toBe('hv-v3-abyss');
+  });
+});
+
+describe('CP6 r2 decisions', () => {
+  const at = (start: number, ms = 0) => { const p = newPlayer(); starterKit(p); const run = startAbyss(p, 7, start, ms); return { p, run }; };
+  it('6: boss drops 2 + 1 guaranteed (no milestone at depth 5)', () => {
+    const { run } = at(5); const loot = battleLoot(run, encounter(run, pool, 'boss'), 'boss');
+    expect(loot.equips.length).toBe(3); expect(run.abyss!.titles).toEqual([]);
+  });
+  it('9: milestone only the first time (record ms already 10)', () => {
+    const { run } = at(10, 10); const loot = battleLoot(run, encounter(run, pool, 'boss'), 'boss');
+    expect(loot.equips.length).toBe(3); expect(run.abyss!.titles).toEqual([]);
+    const b = at(20, 10).run; expect(battleLoot(b, encounter(b, pool, 'boss'), 'boss').equips.length).toBe(4); expect(b.abyss!.titles).toEqual([titleFor(20)]);
+  });
+  it('9: titles recorded once, ms only rises', () => {
+    const r = emptyRecord(); recordTitles(r, 20, ['a', 'b']); recordTitles(r, 10, ['a']);
+    expect(r).toMatchObject({ ms: 20, titles: ['a', 'b'] });
+    expect(loadRecord(JSON.stringify({ best: 3, trips: 1, bySchool: {} }))).toMatchObject({ ms: 0, titles: [] }); // old records upgrade
+  });
+  it('7: chest and merchant item level follow depth (monster formula)', () => {
+    const { run } = at(30); const L = abyssLevel(run);
+    expect(L).toBeGreaterThan(abyssBaseLevel(30) - 1);
+    expect(chestLoot(run).equips.every((e) => e.level === L)).toBe(true);
+    expect(merchantStock(run).equips.every((x) => x.e.level === L)).toBe(true);
+  });
+  it('8: carry multiplier 1 + 0.05 × tier, on death too', () => {
+    expect([1, 9, 10, 20, 35, 60].map(abyssCarry)).toEqual([1, 1, 1.05, 1.15, 1.3, 1.3]);
+    const p = newPlayer(); starterKit(p); const c0 = p.credits;
+    const run = startAbyss(p, 5, 20); run.credits = 1000; run.done = 'dead';
+    expect(settle(p, run).credits).toBe(575); expect(p.credits - c0).toBe(575);
   });
 });

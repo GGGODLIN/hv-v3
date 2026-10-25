@@ -21,7 +21,17 @@ export const ABYSS = {
   simCap: 60,
   /** 暫定: 3-affix elite HP = CP5.doubleHp × this. */
   tripleHp: 0.8,
+  /** r2 decision 6 (暫定): abyss boss drops (plus the guaranteed piece). */
+  bossDrops: 2,
+  /** r2 decision 8 (暫定): carry-back multiplier = 1 + this × tier index (Normal 0 … PFUDOR 6) of the deepest depth reached. */
+  carryPerTier: 0.05,
+  /** r2 decision 9 (暫定): milestone every N depths cleared (first time only). */
+  milestoneEvery: 10,
 };
+export const abyssCarry = (d: number): number => 1 + ABYSS.carryPerTier * abyssTier(Math.max(1, d));
+/** r2 decision 9: milestone titles (names 暫定). */
+export const TITLES = ['深淵初探者', '深淵行者', '深淵獵手', '深淵征服者', '深淵之主'];
+export const titleFor = (d: number): string => TITLES[d / ABYSS.milestoneEvery - 1] ?? `深淵 ${d} 層踏破者`;
 
 /** findings 003 §3.1 (sourced): Normal..PFUDOR monster HP / damage multipliers and PL ceiling modifier. */
 export const DIFF = [
@@ -106,9 +116,9 @@ export function abyssFloor(rng: Rng, d: number, n: number): Floor {
 
 /** Decision 8 (暫定): local records. */
 export type AbyssSchool = 'blade' | 'oc' | 'arcane' | 'bulwark' | 'none';
-export interface AbyssRecord { best: number; trips: number; bySchool: Partial<Record<AbyssSchool, { best: number; trip: number }>> }
+export interface AbyssRecord { best: number; trips: number; /** r2 decision 9: highest milestone depth claimed + titles. */ ms: number; titles: string[]; bySchool: Partial<Record<AbyssSchool, { best: number; trip: number }>> }
 export const ABYSS_KEY = 'hv-v3-abyss';
-export const emptyRecord = (): AbyssRecord => ({ best: 0, trips: 0, bySchool: {} });
+export const emptyRecord = (): AbyssRecord => ({ best: 0, trips: 0, ms: 0, titles: [], bySchool: {} });
 /** Record one finished trip. cleared = deepest depth cleared this trip. Returns true when a record was broken. */
 export function recordTrip(rec: AbyssRecord, cleared: number, school: AbyssSchool): boolean {
   rec.trips++;
@@ -117,6 +127,11 @@ export function recordTrip(rec: AbyssRecord, cleared: number, school: AbyssSchoo
   const s = rec.bySchool[school];
   if (!s || cleared > s.best) { rec.bySchool[school] = { best: cleared, trip: rec.trips }; nb = true; }
   return nb;
+}
+/** Store titles earned on a trip. */
+export function recordTitles(rec: AbyssRecord, ms: number, titles: readonly string[]): void {
+  rec.ms = Math.max(rec.ms, ms);
+  for (const t of titles) if (!rec.titles.includes(t)) rec.titles.push(t);
 }
 export function loadRecord(raw: string | null): AbyssRecord {
   try { const r = raw ? JSON.parse(raw) : null; return r && typeof r.best === 'number' ? { ...emptyRecord(), ...r } : emptyRecord(); } catch { return emptyRecord(); }
