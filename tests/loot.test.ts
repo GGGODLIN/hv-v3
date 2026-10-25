@@ -43,7 +43,7 @@ describe('loot', () => {
     for (let i = 0; i < 3000; i++) {
       const e = generateEquip(rng, 20);
       expect(Object.keys(e.stats).length).toBeGreaterThan(0);
-      expect(equipName(e)).toMatch(/\w/);
+      expect(equipName(e)).toMatch(/^[\u4e00-\u9fff]+・[\u4e00-\u9fff]+(\+\d+)?$/); // CP3 polish: Chinese, every key translated
     }
     expect(rangesFor('dagger').length).toBeGreaterThan(0);
   });

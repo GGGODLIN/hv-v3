@@ -17,13 +17,14 @@ describe('CP3-bugfix 4: monster level follows player level (暫定)', () => {
 import { readFileSync } from 'node:fs';
 import { bossName, cleanRow, genName, NAME_VOCAB, BOSS_SEP } from '../src/core/names';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
-import { generateEquip, equipName } from '../src/core/items';
+import { generateEquip, equipName, equipNameEn } from '../src/core/items';
 import { Rng } from '../src/core/rng';
 describe('CP3-bugfix r3 #1b: equipment names', () => {
   it('Crude never rolls a suffix (Loot_Drop_Rolls.md: suffix from Fair), names use lower-case "of", no doubled words', () => {
     const rng = new Rng(11);
     for (let i = 0; i < 5000; i++) {
-      const e = generateEquip(rng, 1 + (i % 60)); const n = equipName(e);
+      const e = generateEquip(rng, 1 + (i % 60)); const n = equipNameEn(e);
+      expect(equipName(e)).not.toMatch(/[A-Za-z]/); expect(equipName(e).includes('之')).toBe(!!e.suffix);
       if (e.quality === 'crude') expect(e.suffix).toBeNull();
       expect(n).not.toMatch(/\bOf\b/); expect(n.split(' ').some((w, j, a) => j > 0 && w === a[j - 1])).toBe(false);
     }
