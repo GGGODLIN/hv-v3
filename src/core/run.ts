@@ -214,7 +214,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
   return withRng(run, (rng) => {
     const plan: Rank[] =
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
-      type === 'elite' ? (run.weakNext ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
+      type === 'elite' ? (run.weakNext || (run.cp5 && CP5.eliteSolo) ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
       ['normal', 'normal'] /* 暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
     const th = run.cp5 && !CP5_FORCE.themeOff ? themeOf(f) : null;
     const w = th ? (r: MonsterRow) => themeWeight(th, r) : undefined;
@@ -247,6 +247,8 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
     if (x.sig === 'summon') x.reserve = pickRows(rng, pool, lo, hi, CP5.summonMax, w).map((r) => Object.assign(buildMonster(r, L, 'normal'), { summoned: true }));
   }
   if (m.rank !== 'elite') return;
+  if (CP5.eliteHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.eliteHp));
+  if (CP5.eliteAdb !== 1) m.adb *= CP5.eliteAdb;
   let ids: AffixId[];
   if (CP5_FORCE.affixes) ids = [...CP5_FORCE.affixes];
   else {

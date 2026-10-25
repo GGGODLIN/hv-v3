@@ -19,6 +19,10 @@ export const CP5 = {
   /** CP5 sim tune r1: frost melee damage multiplier; 2-affix elite HP multiplier. */
   frostMult: 0.75, doubleHp: 0.8,
   mitCap: 0.75,
+  /** CP5 r2 (暫定): elite HP / ADB multipliers (school-gap fix; 1 = unchanged). */
+  eliteHp: 0.8, eliteAdb: 1,
+  /** CP5 r2 (暫定): 1 = elites fight without the normal add. */
+  eliteSolo: 1,
 };
 
 export type BossSig = 'summon' | 'shield' | 'thorns' | 'drain';
