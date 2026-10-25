@@ -1,5 +1,11 @@
 # Current status
 
+## v0.8.1 repaired-save takeover — 2026-10-25 23:00 UTC iteration
+
+Fixed a reproduced progress-loss edge: a follower opened on corrupt shared data adopted another owner’s valid repair but retained preventOverwrite forever. Taking the actual writer lock now reads current durable bytes even when protected, validates before clearing protection, and does not trust a queued storage event alone. Missing/invalid/unknown-schema/unreadable records remain protected. Existing empty first-save and valid migration behavior remain supported. Runtime changes only refreshSavedState in ui.js; engine, loot, session and other UI bytes are unchanged.
+
+551 tests and four syntax checks pass. Twenty new full-UI VM tests exercise production handlers/ownership, including a natural two-expedition loot/equip/save/reload loop; the independent read-only reviewer passed ten additional scenarios. This is source-level acceptance, not browser validation. See SAVE-RECOVERY.md for exact backup receipt and limits. Public v0.7 stays accepted; pending HTTP-retry and pause-schedule questions remain unanswered, and no denied action is retried.
+
 ## v0.8.1 UI boundary follow-up — 2026-10-25 22:00 UTC iteration
 
 A separate inherited UI defect was reproduced with the real dispatcher, pump and engine: Start at 249 ms between timer callbacks credited 250 ms to a fight only 1 ms old. The fix rebases the pump only after a successful manual Start/Retreat mode change. Failed starts, repeated clicks and ordinary combat actions do not discard their pending time. Engine/session/loot bytes remain unchanged from the prior source-backed numerical patch. This is source-only correctness work, not a newly published feature. See PUMP-BOUNDARY.md for final test and backup evidence.

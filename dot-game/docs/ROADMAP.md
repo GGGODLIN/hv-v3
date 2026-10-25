@@ -54,3 +54,6 @@ An actual 250 ms online pump loses a due player action at 21 processed seconds b
 
 ## v0.8.1 UI lifecycle follow-up
 Correct manual expedition-start timing independently of the denied public verification gate: a successful Start must not charge preceding camp time to its fight. Rebase only successful manual lifecycle changes, not arbitrary UI interactions, failed/repeated starts or engine-managed next waves. Keep source-only and accepted-release evidence separate. Do not turn repeated idle wakes into needless feature accumulation while publication is blocked.
+
+## v0.8.1 repaired-save takeover follow-up
+Prioritize a reproduced lost-progress defect over new breadth: a protected follower must revalidate durable bytes when it acquires ownership after another tab repairs the save. Valid recovery may restore persistence; missing, unreadable or unsupported data must not become permission to overwrite. Preserve source-only/public acceptance separation.

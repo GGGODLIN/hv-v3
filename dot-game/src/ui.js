@@ -166,11 +166,25 @@ function ownershipStatus() {
   $('takeover-button').disabled = !channel;
 }
 function refreshSavedState() {
-  if (preventOverwrite) return;
+  // A different owner may have repaired a rejected save. Recheck durable bytes
+  // under the newly acquired lock; a follower's storage event is not authority.
   const raw = readStorage(SAVE_KEY);
   if (!storeAvailable) { preventOverwrite = true; notice('無法核對最新存檔，已停止覆寫；請先匯出進度。'); return; }
-  if (raw !== null && raw !== lastSavedRaw) {
-    try { state = validateSave(JSON.parse(raw)); lastSavedRaw = raw; syncSelection(); }
+  if (raw === null) {
+    // Only an initially empty slot (including validated migration) may be new.
+    // Deletion cannot turn a protected/adopted journey into permission to save.
+    if (preventOverwrite || lastSavedRaw !== null) {
+      preventOverwrite = true; notice('最新存檔已不存在，已停止覆寫；請先匯出進度或匯入有效備份。');
+    }
+    return;
+  }
+  if (preventOverwrite || raw !== lastSavedRaw) {
+    try {
+      const recovering = preventOverwrite;
+      state = validateSave(JSON.parse(raw)); lastSavedRaw = raw; syncSelection();
+      preventOverwrite = false;
+      if (recovering) { loadProblem = ''; notice(''); }
+    }
     catch { preventOverwrite = true; notice('其他分頁的存檔無法讀取；已阻止覆寫，請匯出或匯入有效存檔。'); }
   }
 }
