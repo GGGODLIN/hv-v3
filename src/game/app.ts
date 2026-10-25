@@ -196,7 +196,7 @@ export class App {
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
       <span class="spacer"></span><span class="hint">出擊 ${st.runs} 次 · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
       ${this.noticeHtml()}<div class="tabs">${tabs}</div>${lockedHint ? `<div class="hint locks">🔒 ${lockedHint}</div>` : ''}<div class="body">${body}</div>
-      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><button data-start class="big">進入試煉之塔 ▶</button></div></div>`;
+      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span><button data-start class="big">進入試煉之塔 ▶</button></div></div>`;
   }
 
   mapHtml(): string {
