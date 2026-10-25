@@ -79,6 +79,14 @@ function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
   ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });
 }
+/** CP5 反魔 (暫定): reflect a share of spell damage (through player defend only). */
+function antimagic(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
+  if (!(s.monsters[ti] as CM).affixes?.includes('antimagic') || dmg <= 0) return;
+  const out = Math.round(dmg * CP5.antimagicFrac * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
+  if (out <= 0) return;
+  s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
+  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反魔 -${out}` });
+}
 /** Clear player bleed / burn (health potion, defend). */
 function cleanse(s: BattleState, ev: BEvent[], by: string): void {
   const p = s.cp5?.pdot;
@@ -273,6 +281,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
   }
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+  if (s.cp5 && r.avoidMult > 0) antimagic(s, ti, r.damage, ev);
 }
 
 /** Apply one player action, then let every live monster act. Returns the events for the renderer. */

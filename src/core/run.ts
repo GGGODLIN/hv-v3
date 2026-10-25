@@ -1,5 +1,5 @@
 import { BOSS_SEP, markDuplicates } from './names';
-import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
+import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, affixWeight, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
@@ -252,8 +252,8 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   let ids: AffixId[];
   if (CP5_FORCE.affixes) ids = [...CP5_FORCE.affixes];
   else {
-    ids = [rng.pick(AFFIX_IDS)];
-    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.pick(AFFIX_IDS.filter((b) => compatible(ids[0]!, b))));
+    ids = [rng.weighted(AFFIX_IDS.map((a) => [a, affixWeight(a)] as [AffixId, number]))];
+    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.weighted(AFFIX_IDS.filter((b) => compatible(ids[0]!, b)).map((a) => [a, affixWeight(a)] as [AffixId, number])));
   }
   if (ids.length > 1 && CP5.doubleHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.doubleHp));
   if (ids.includes('split')) x.splitInto = pickRows(rng, pool, lo, hi, 2, w).map((r) => { const c = buildMonster(r, L, 'normal'); c.maxHp = c.hp = Math.max(1, Math.round(m.maxHp * CP5.splitHp)); return c; });

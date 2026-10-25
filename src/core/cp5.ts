@@ -20,11 +20,14 @@ export const CP5 = {
   frostMult: 0.75, doubleHp: 0.8,
   mitCap: 0.75,
   /** CP5 r2 (暫定): elite HP / ADB multipliers (school-gap fix; 1 = unchanged). */
-  eliteHp: 0.8, eliteAdb: 1,
+  eliteHp: 0.7, eliteAdb: 1, // r3 (暫定): 0.8 → 0.7
   /** CP5 r2 (暫定): 1 = elites fight without the normal add. */
   eliteSolo: 1,
   /** CP5 r3 (暫定): 1 = a solo elite gets one extra normal-rank drop roll at its own level (exp included) to replace the missing add. */
   eliteExtraRoll: 1,
+  /** CP5 r3 (暫定, producer decision 2): spell-punishing affixes. 反魔 reflects a share of spell damage;
+   *  法抗 resist / magic mitigation; pick weight of 法抗/反魔 vs 1 for the others. */
+  antimagicFrac: 0.3, wardedResist: 0.3, wardedMit: 0.2, magAffixWeight: 4,
 };
 
 export type BossSig = 'summon' | 'shield' | 'thorns' | 'drain';
@@ -42,7 +45,7 @@ export const SIG_TEXT: Record<BossSig, { tele: string; icon: string; tip: string
   drain: { tele: '災厄張開血口（下回合吸血重擊：防禦可減傷，暈眩可打斷）', icon: '♥', tip: `災厄${CP5.drainEvery === 1 ? '每次蓄力都是' : `每第 ${CP5.drainEvery} 次蓄力會變成`}吸血重擊（×2 並回血）。看到紅色 ♥ 預告就防禦，或用盾擊暈眩打斷。` },
 };
 
-export type AffixId = 'hard' | 'swift' | 'flame' | 'frost' | 'split' | 'leech' | 'berserk' | 'guard' | 'warded' | 'spikes' | 'keen' | 'iron';
+export type AffixId = 'hard' | 'swift' | 'flame' | 'frost' | 'split' | 'leech' | 'berserk' | 'guard' | 'warded' | 'spikes' | 'keen' | 'iron' | 'antimagic';
 export const AFFIXES: Record<AffixId, { zh: string; desc: string }> = {
   hard: { zh: '堅硬', desc: '物理減傷 +15%' },
   swift: { zh: '迅捷', desc: '閃避 +10%' },
@@ -52,13 +55,14 @@ export const AFFIXES: Record<AffixId, { zh: string; desc: string }> = {
   leech: { zh: '嗜血', desc: '命中回血 25% 並使你流血' },
   berserk: { zh: '狂戰', desc: 'HP 低於 50% 狂暴並開始蓄力' },
   guard: { zh: '守護', desc: '格擋 +10%、物理減傷 +5%' },
-  warded: { zh: '法抗', desc: '抵抗 +15%、魔法減傷 +10%' },
+  warded: { zh: '法抗', desc: `抵抗 +${Math.round(CP5.wardedResist * 100)}%、魔法減傷 +${Math.round(CP5.wardedMit * 100)}%` },
   spikes: { zh: '尖刺', desc: '反彈 15% 物理傷害' },
   keen: { zh: '銳眼', desc: '命中 +10%、暴擊 +5%' },
   iron: { zh: '鐵壁', desc: '前 2 回合傷害減半' },
+  antimagic: { zh: '反魔', desc: `反彈 ${Math.round(CP5.antimagicFrac * 100)}% 法術傷害` },
 };
 export const AFFIX_IDS = Object.keys(AFFIXES) as AffixId[];
-export const EXCLUSIVE: [AffixId, AffixId][] = [['hard', 'guard'], ['hard', 'warded'], ['spikes', 'hard'], ['split', 'leech']];
+export const EXCLUSIVE: [AffixId, AffixId][] = [['hard', 'guard'], ['hard', 'warded'], ['spikes', 'hard'], ['split', 'leech'], ['antimagic', 'warded'], ['antimagic', 'spikes']];
 export const compatible = (a: AffixId, b: AffixId) => a !== b && !EXCLUSIVE.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 /** Every legal 1- or 2-affix set (death-combo exhaustion). */
 export function affixCombos(): AffixId[][] {
@@ -84,12 +88,14 @@ export function applyAffixes(m: Monster, ids: AffixId[]): void {
     if (id === 'swift') m.evade += 0.1;
     if (id === 'frost') { m.spec.cold = Math.min(100, m.spec.cold + 50); x.elemAttack = 'cold'; }
     if (id === 'guard') { m.parry += 0.1; m.physMit = cap(m.physMit + 0.05); }
-    if (id === 'warded') { m.resist += 0.15; m.magMit = cap(m.magMit + 0.1); }
+    if (id === 'warded') { m.resist += CP5.wardedResist; m.magMit = cap(m.magMit + CP5.wardedMit); }
     if (id === 'keen') { m.acc += 0.1; x.critBonus = 0.05; }
     if (id === 'iron') x.ironTurns = CP5.ironTurns;
   }
   m.name = `${ids.map((i) => AFFIXES[i].zh).join('')}・${m.name}`;
 }
+/** Affix pick weight (法抗/反魔 weighted by CP5.magAffixWeight). */
+export const affixWeight = (id: AffixId) => (id === 'warded' || id === 'antimagic' ? CP5.magAffixWeight : 1);
 export const hasAffix = (m: Monster, id: AffixId) => !!(m as Monster & Cp5Mon).affixes?.includes(id);
 
 export interface Theme { zh: string; races: Record<string, number>; elems: Element[] }
