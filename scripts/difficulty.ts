@@ -20,6 +20,7 @@ const lv: number[][] = [[], [], []];
 const bossF: { floor: number; turns: number; potions: number; won: boolean; spirit: boolean }[] = [];
 let nb = 0, ns = 0;
 const bossAll: typeof bossF = [];
+const perTrip: { floor: number; turns: number; won: boolean }[][] = [[], [], [], [], []];
 for (let s = 1; s <= N; s++) {
   const p = newPlayer();
   starterKit(p, s);
@@ -27,6 +28,7 @@ for (let s = 1; s <= N; s++) {
   let ur = 0;
   for (let i = 1; i <= M; i++) {
     const r = autoRun(p, pool, s * 1000 + i, strat);
+    if (i <= 5) perTrip[i - 1]!.push(...r.bosses);
     if (i <= 3) bossAll.push(...r.bosses);
     if (i <= 3) { nb += r.battles; ns += r.spiritBattles; }
     if (i <= 3) { ur = r.unlockRate; lv[i - 1]!.push(r.settlement.levelAfter); }
@@ -34,7 +36,7 @@ for (let s = 1; s <= N; s++) {
     if (fc === Infinity) bossF.push(...r.bosses);
     if (i === 1) run1.push(Math.min(r.floorReached, 11));
     if (r.floorReached > 10 && fc === Infinity) fc = i;
-    if (fc !== Infinity && i >= 3) break;
+    if (fc !== Infinity && i >= 5) break; // CP3-bugfix 4: keep playing to trip 5 so per-trip boss turns are reported
     void 0;
     if (r.floorReached > 10) continue;
     deaths.set(r.floorReached, (deaths.get(r.floorReached) ?? 0) + 1);
@@ -59,4 +61,5 @@ for (const f of [5, 10]) {
   console.log(`boss F${f} (all trips 1-3): fights ${ys.length}, won ${ys.filter((b) => b.won).length} (${(100 * ys.filter((b) => b.won).length / Math.max(1, ys.length)).toFixed(0)}%), mean turns ${(ys.reduce((a, b) => a + b.turns, 0) / Math.max(1, ys.length)).toFixed(1)}, spirit used ${ys.filter((b) => b.spirit).length}`);
   console.log(`boss F${f}: fights ${xs.length}, won ${xs.filter((b) => b.won).length}, mean turns ${avg('turns')}, spirit used ${xs.filter((b) => b.spirit).length}, mean potions ${avg('potions')}`);
 }
+for (const f of [5, 10]) console.log(`boss F${f} turns by trip 1-5: ${perTrip.map((xs, k) => { const ys = xs.filter((b) => b.floor === f); return `T${k + 1} ${(ys.reduce((a, b) => a + b.turns, 0) / Math.max(1, ys.length)).toFixed(1)}(n=${ys.length},won ${ys.filter((b) => b.won).length})`; }).join('  ')}`);
 }
