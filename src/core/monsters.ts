@@ -1,3 +1,4 @@
+import { cleanRow } from './names';
 import { CONSTANTS as C } from './data/constants';
 import { type Attrs, ATTRS, adbFromAttrs, attrMitigation, monsterAvoid } from './formulas';
 import type { DmgType, Element } from './player';
@@ -12,7 +13,8 @@ export interface MonsterPool {
 
 const EXCL = new Set<string>(C['F-005-pool-exclusions'].value.trainers as readonly string[]);
 export function makePool(rows: MonsterRow[]): MonsterPool {
-  return { rows: rows.filter((r) => !EXCL.has(r[5])).sort((a, b) => a[3] - b[3]) };
+  // CP3-bugfix 2: neutral display names for sexual / inappropriate / gibberish names (stats unchanged).
+  return { rows: rows.filter((r) => !EXCL.has(r[5])).map((r) => cleanRow(r)).sort((a, b) => a[3] - b[3]) };
 }
 
 export function pickRows(rng: Rng, pool: MonsterPool, plMin: number, plMax: number, n: number): MonsterRow[] {

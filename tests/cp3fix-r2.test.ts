@@ -13,3 +13,25 @@ describe('CP3-bugfix 4: monster level follows player level (暫定)', () => {
     expect(monsterLevel(run(5, 12))).toBeGreaterThan(monsterLevel(run(5, 9)));
   });
 });
+
+import { readFileSync } from 'node:fs';
+import { badName, cleanRow, neutralName } from '../src/core/names';
+import { makePool, type MonsterRow } from '../src/core/monsters';
+describe('CP3-bugfix 2: monster name filter', () => {
+  it('flags the reported names and gibberish, keeps normal ones', () => {
+    for (const n of ['Hypnotizedneiborpregnantmilf', 'New Wife New Life', 'Big Milf', 'Bqwbqw', '123123423412344234']) expect(badName(n)).not.toBeNull();
+    for (const n of ['Touyama Nao', 'Iron Breastplate', 'Hypnos', 'Fire Drake', 'Peacock']) expect(badName(n)).toBeNull();
+  });
+  it('neutral name from race, stats kept', () => {
+    const row = [7, 'Dragonkin', 'Big Milf', 100, 'Slashing', 'x', 0, 1, 2, 3, 4, 5, 6, 7, 8] as unknown as MonsterRow;
+    const c = cleanRow(row);
+    expect(c[2]).toBe(neutralName('Dragonkin', 7));
+    expect(c[2]).toMatch(/Drake/);
+    expect(c.slice(3)).toEqual(row.slice(3));
+  });
+  it('no flagged name survives in the real pool', () => {
+    const rows = JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[];
+    const pool = makePool(rows);
+    expect(pool.rows.filter((r) => badName(r[2])).length).toBe(0);
+  });
+});
