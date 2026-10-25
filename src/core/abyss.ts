@@ -31,6 +31,10 @@ export const ABYSS = {
   dmgScale: 0.55,
   /** r2b knob (暫定): extra damage × for the abyss boss at a given depth (missing = 1). */
   bossDmgAt: { 15: 0.6, 20: 0.6, 25: 0.6 } as Record<number, number>,
+  /** r4 decision (c) (暫定): a tier's DIFF jump (hp/dmg/pl) phases in over its first N depths: 1/N, 2/N, … full. 1 = old step. */
+  tierRamp: 3,
+  /** 暫定 sim knob: shift the ramp start past the tier's first depth (0 = ramp begins on the tier's first depth). */
+  tierRampOffset: 0,
   /** r2 decision 8 (暫定): carry-back multiplier = 1 + this × tier index (Normal 0 … PFUDOR 6) of the deepest depth reached. */
   carryPerTier: 0.05,
   /** r2 decision 9 (暫定): milestone every N depths cleared (first time only). */
@@ -62,11 +66,21 @@ export const guaranteeQuality = (d: number): Quality => TROPHY_MIN[abyssTier(d)]
 /** Monster level at depth d (decision 1, 暫定) before the existing monLvFollow term. */
 export const abyssBaseLevel = (d: number): number => floorLevel(20) + ABYSS.levelOffset + ABYSS.levelPerDepth * d;
 /** PL centre: main-tower F20 centre + sourced PL ceiling modifier of the tier (the sum is 暫定). */
-export const abyssPl = (d: number): number => floorPl(20) + DIFF[abyssTier(d)]!.pl;
+/** First depth of tier t (inverse of abyssTier). */
+const tierStart = (t: number): number => (t === 0 ? 1 : 5 * (t + 1));
+/** r4 (c): DIFF value of key at depth d, with the jump from the previous tier phased in over ABYSS.tierRamp depths. */
+export function diffAt(d: number, key: 'hp' | 'dmg' | 'pl'): number {
+  const t = abyssTier(d), cur = DIFF[t]![key];
+  if (t === 0) return cur;
+  const prev = DIFF[t - 1]![key], i = d - tierStart(t) - ABYSS.tierRampOffset + 1; // 1-based step inside the ramp
+  const frac = Math.max(0, Math.min(1, i / Math.max(1, ABYSS.tierRamp)));
+  return prev + (cur - prev) * frac;
+}
+export const abyssPl = (d: number): number => floorPl(20) + Math.round(diffAt(d, 'pl'));
 
 /** HP and damage multipliers at depth d. */
 export function abyssMult(d: number): { hp: number; dmg: number } {
-  const t = DIFF[abyssTier(d)]!;
+  const t = { hp: diffAt(d, 'hp'), dmg: diffAt(d, 'dmg') };
   const k = d >= 40 ? Math.floor((d - 40) / ABYSS.past40.every) : 0; // d 40–44: base PFUDOR; +5% from 45
   return { hp: ABYSS.hpScale * t.hp * (1 + ABYSS.past40.hp * k), dmg: ABYSS.dmgScale * t.dmg * (1 + ABYSS.past40.dmg * k) * (1 + ABYSS.dmgPerDepth * (d - 1)) };
 }

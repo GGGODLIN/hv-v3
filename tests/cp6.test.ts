@@ -7,7 +7,7 @@ import { abyssLevel, chestLoot, merchantStock, RULES, advance, battleLoot, depth
 import { starterKit } from '../src/core/auto';
 import { prog } from '../src/core/progress';
 import { type Cp5Mon } from '../src/core/cp5';
-import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
+import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, diffAt, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 
 describe('CP6 abyss scaling', () => {
@@ -18,16 +18,23 @@ describe('CP6 abyss scaling', () => {
   it('r2b knob: d15/d20/d25 abyss bosses deal ×0.6 damage, d5/d10 untouched (暫定)', () => {
     expect(ABYSS.bossDmgAt[15]).toBe(0.6); expect(ABYSS.bossDmgAt[10] ?? 1).toBe(1); expect(ABYSS.bossDmgAt[20]).toBe(0.6); expect(ABYSS.bossDmgAt[25]).toBe(0.6); expect(ABYSS.bossDmgAt[5] ?? 1).toBe(1);
   });
+  it('r4 (c): tier jump phases in over its first 3 depths (hp/dmg/pl), 暫定', () => {
+    expect(ABYSS.tierRamp).toBe(3);
+    expect(diffAt(9, 'dmg')).toBeCloseTo(1.0);
+    expect(diffAt(15, 'dmg')).toBeCloseTo(1.2 + 0.2 / 3); expect(diffAt(16, 'dmg')).toBeCloseTo(1.2 + 0.4 / 3); expect(diffAt(17, 'dmg')).toBeCloseTo(1.4); expect(diffAt(19, 'dmg')).toBeCloseTo(1.4);
+    expect(diffAt(15, 'hp')).toBeCloseTo(1.1 + 0.1 / 3); expect(diffAt(16, 'pl')).toBeCloseTo(5 + 10);
+    const o = ABYSS.tierRamp; ABYSS.tierRamp = 1; try { expect(diffAt(15, 'dmg')).toBeCloseTo(1.4); expect(diffAt(14, 'dmg')).toBeCloseTo(1.2); } finally { ABYSS.tierRamp = o; }
+  });
   it('r2 knob: hpScale/dmgScale multiply every depth (暫定 0.55)', () => {
     expect(ABYSS.hpScale).toBe(0.55); expect(ABYSS.dmgScale).toBe(0.55);
-    expect(abyssMult(1).hp).toBeCloseTo(0.55); expect(abyssMult(10).dmg).toBeCloseTo(0.55 * 1.2 * 1.18);
+    expect(abyssMult(1).hp).toBeCloseTo(0.55); expect(abyssMult(12).dmg).toBeCloseTo(0.55 * 1.2 * 1.22);
   });
   it('+2% damage per depth accumulates, past 40 adds +5% HP/dmg every 5', () => {
     const k = [ABYSS.hpScale, ABYSS.dmgScale]; ABYSS.hpScale = 1; ABYSS.dmgScale = 1;
     try {
     expect(abyssMult(1)).toEqual({ hp: 1, dmg: 1 });
     expect(abyssMult(6).dmg).toBeCloseTo(1.1);
-    expect(abyssMult(10).dmg).toBeCloseTo(1.2 * 1.18);
+    expect(abyssMult(12).dmg).toBeCloseTo(1.2 * 1.22);
     expect(abyssMult(44).hp).toBeCloseTo(2);
     expect(abyssMult(45).hp).toBeCloseTo(2.1);
     expect(abyssMult(45).dmg).toBeCloseTo(3 * 1.05 * 1.88);

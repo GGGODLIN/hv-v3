@@ -18,12 +18,13 @@ const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.j
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
 const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);
 const f = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : '—');
-console.log(`CP6 abyss sim N=${N} T=${T} (main tower until first F20 clear, then abyss)`);
+console.log(`CP6 abyss sim N=${N} T=${T} seeds ${Number(process.env.SEED0 ?? 0) + 1}..${Number(process.env.SEED0 ?? 0) + N} (main tower until first F20 clear, then abyss)`);
 for (const strat of STRATS) {
   const first: number[] = [], best: number[] = [], best5: number[] = [], lv: number[] = [], pw: number[] = [], mt: number[] = [], kept: number[] = [], died: number[] = [], qmix: Record<string, number> = {}, schools: Record<string, number> = {};
   let noClear = 0, titles = 0;
-  const boss: Record<number, BossFight[]> = {}; const endAt: Record<number, number> = {};
-  for (let s = 1; s <= N; s++) {
+  const boss: Record<number, BossFight[]> = {}; const endAt: Record<number, number> = {}; const reach: Record<number, number> = {};
+  const S0 = Number(process.env.SEED0 ?? 0);
+  for (let s = S0 + 1; s <= S0 + N; s++) {
     const p = newPlayer(); starterKit(p, s);
     let i = 0;
     for (; i < 60;) { i++; if (autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }).settlement.outcome === 'clear') break; }
@@ -35,6 +36,7 @@ for (const strat of STRATS) {
       if (t === 1) { first.push(r.abyss!.cleared); lv.push(r.level); pw.push(r.power); }
       recordTitles(rec, r.abyss!.ms, r.abyss!.titles); titles += r.abyss!.titles.length;
       died.push(+(r.settlement.outcome === 'dead')); if (r.settlement.outcome === 'dead') endAt[r.abyss!.cleared + 1] = (endAt[r.abyss!.cleared + 1] ?? 0) + 1; kept.push(r.settlement.kept.length); for (const e of r.settlement.kept) qmix[e.quality] = (qmix[e.quality] ?? 0) + 1;
+      { const st = checkpointStart(rec.best); for (let d = st; d <= r.abyss!.cleared + (r.settlement.outcome === 'dead' ? 1 : 0); d++) reach[d] = (reach[d] ?? 0) + 1; }
       recordTrip(rec, r.abyss!.cleared, r.abyss!.school as AbyssSchool);
       schools[r.abyss!.school] = (schools[r.abyss!.school] ?? 0) + 1;
       for (const b of r.bosses) (boss[b.floor] ??= []).push(b);
@@ -51,5 +53,6 @@ for (const strat of STRATS) {
   if (T > 5) console.log(`best after 5 trips: p10 ${q(best5, 0.1)} median ${q(best5, 0.5)} p90 ${q(best5, 0.9)} max ${Math.max(...best5)}`);
   console.log(`boss fights by abyss depth over all ${T} trips | n | win% | turns`);
   for (const k of [...new Set([5, 10, 15, 20, 25, ...Object.keys(boss).map(Number)])].sort((a, b) => a - b)) { const xs0 = boss[k] ?? []; if (!xs0.length) { console.log(`  d${k} | 0 | — | —`); continue; } const xs = boss[k]!; console.log(`  d${k} | ${xs.length} | ${f(mean(xs.map((b) => +b.won)) * 100)} | ${f(mean(xs.map((b) => b.turns)))}`); }
+  console.log(`death rate per depth (deaths/entered, %): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${f((endAt[d]! / (reach[d] ?? 1)) * 100, 0)}/${reach[d] ?? 0}`).join(' ')}`);
   console.log(`death depth (abyss trips dying at depth d): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${endAt[d]}`).join(' ')}`);
 }
