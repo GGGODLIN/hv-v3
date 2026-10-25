@@ -19,7 +19,7 @@ const DROWS: [DKey, string, (x: number, d: number) => string][] = [
   ['adb', '物理傷害（ADB）', r1], ['mdb', '魔法傷害（MDB）', r1], ['physAcc', '物理命中', pct], ['magAcc', '法術命中', pct],
   ['physCrit', '物理暴擊率', pct], ['magCrit', '法術暴擊率', pct], ['critMod', '暴擊倍率加成', (x, d) => sgn(x, r1(x, Math.max(2, d)))], ['spellCritMod', '法術暴擊倍率加成', (x, d) => sgn(x, r1(x, Math.max(2, d)))],
   ['evade', '迴避', pct], ['parry', '招架', pct], ['block', '格擋', pct], ['physMit', '物理減傷', pct], ['magMit', '魔法減傷', pct],
-  ['manaCons', '法術 MP 節省', pct], ['counterResist', '抵抗反制', (x, d) => r1(x, Math.max(2, d))],
+  ['manaCons', '法術 MP 節省', pct], ['counterResist', '抵抗反制', pct],
 ];
 const BROWS: [keyof BMods, string, (x: number) => string][] = [
   ['ocGain', '每次命中額外 OC', (x) => sgn(x, r1(x))], ['ocCap', 'OC 上限加成', (x) => sgn(x, r1(x))], ['ocOpen', '一般戰開場 OC', (x) => sgn(x, r1(x))], ['bossOc', 'Boss 戰開場 OC', (x) => sgn(x, r1(x))],

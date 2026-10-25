@@ -18,7 +18,7 @@ const D: Record<string, [string, Kind, boolean]> = {
   physAccPct: ['physAcc', 'rel', true], magAccPct: ['magAcc', 'rel', true],
   physCrit: ['physCrit', 'pp', true], magCrit: ['magCrit', 'pp', true], evade: ['evade', 'pp', true], parry: ['parry', 'pp', true], block: ['block', 'pp', true],
   physMit: ['physMit', 'pp', true], magMit: ['magMit', 'pp', true], specMitAll: ['specMit', 'pp', true], manaCons: ['manaCons', 'pp', true],
-  critMod: ['critMod', 'add', false], spellCritMod: ['spellCritMod', 'add', false], counterResist: ['counterResist', 'add', false], edbAll: ['edb.fire', 'add', false],
+  critMod: ['critMod', 'add', false], spellCritMod: ['spellCritMod', 'add', false], counterResist: ['counterResist', 'pp', true], edbAll: ['edb.fire', 'add', false],
 };
 const num = (s: string) => Number(s.replace(/[%+回合]/g, '').trim());
 const fmt = (x: number) => String(Math.round(x * 1000) / 1000);
@@ -37,6 +37,10 @@ describe('buff cards match their preview', () => {
         const [rk, kind, isPct] = D[k]!; const x = v as number; const r = row(rk);
         expect(r, `${k} row`).toBeTruthy();
         const a = num(r!.before), b = num(r!.after);
+        // CP4-rc-fix 1: unit consistency — before/after share a unit, and probability stats show % on both the card and the preview.
+        expect(r!.before.endsWith('%'), `${k} unit before/after`).toBe(r!.after.endsWith('%'));
+        if (isPct) { expect(r!.after, `${k} preview unit`).toMatch(/%$/); expect(bf.desc, `${k} card unit`).toMatch(/[%×]/); }
+        if (!isPct && kind !== 'rel') expect(r!.after, `${k} preview unit`).not.toMatch(/%$/);
         if (kind === 'rel') {
           expect(b / a).toBeGreaterThan(1 + x - 0.02); expect(b / a).toBeLessThan(1 + x + 0.02);
           if (isPct) expect(r!.after).toMatch(/%$/);
