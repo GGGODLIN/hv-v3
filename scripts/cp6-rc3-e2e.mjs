@@ -28,7 +28,7 @@ res.result = await pg.evaluate(() => ({ reached: document.querySelector('[data-r
 res.depthNow = depthNow;
 if (res.result.reached !== String(depthNow) || res.result.floor1) fail.push('2 depth');
 if (!/深淵帶回倍率（1＋0.05×難度階） ×1.1/.test(res.result.carry ?? '') || /新手/.test(res.result.carry ?? '')) fail.push('1 carry');
-if (!/深淵新紀錄：\d+ 層/.test(res.result.unlock ?? '')) fail.push('3 record');
+if (!/深淵新紀錄：已通過 \d+ 層/.test(res.result.unlock ?? '')) fail.push('3 record');
 await pg.screenshot({ path: '/tmp/rc3-result.png' }); await pg.close();
 // presets
 res.presets = {};
