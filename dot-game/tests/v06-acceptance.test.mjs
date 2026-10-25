@@ -27,7 +27,7 @@ function freezeDeep(value){if(value&&typeof value==='object'){Object.values(valu
 // Full-state baselines captured from accepted v0.5 engine 2afaaf2ce100607b…,
 // not current candidate. No field is omitted: role labels, logs, seed, clocks,
 // full generated loot, proc statuses, event IDs and absent OFF flag are covered.
-const offRows = [
+const historicalOffRows = [
   [42,1,null,"assault",286,"battle",1,"a9fb1a059762c67b3a5ae7ed0790dcb0c6e1a7e203a7e11c18011eb29e337a40"],
   [42,1,"axe","assault",286,"battle",1,"1c592801b044b5cf90e80b8bf071f23b1e86739f24d5408472571a1f36d8f583"],
   [42,1,"rapier","assault",255,"battle",1,"12d5b3f723c805a61ed576daf6a7b730a6fe0825f55e27228c638cca7c75742e"],
@@ -57,6 +57,11 @@ const offRows = [
   [999,30,"rapier","balanced",21,"defeat",0,"11ac78fe4b07903b592dd79b8d08c9a742503b147fc368430a9dd210edd03990"],
   [999,30,"club","balanced",21,"defeat",0,"a8ae34e952822a5fa43b57875d5e1bec253a50213ebacf6e4168cef3d34de24f"],
 ];
+// Seven pre-bleed axe signatures are historical evidence, not v0.8 promises.
+// Keep their original expected data verbatim and retain every non-axe digest.
+const archivedAxeOffRows=historicalOffRows.filter(row=>row[2]==='axe');
+const offRows=historicalOffRows.filter(row=>row[2]!=='axe');
+assert.equal(archivedAxeOffRows.length,7);assert.equal(offRows.length,21);
 for(const [seed,stage,family,strategy,frames,mode,wins,digest] of offRows) {
   test(`v0.6 independent frozen OFF trajectory: stage ${stage}, ${family??'none'}, ${strategy}`,()=>{
     const s=createGame(seed);s.unlocked=stage;s.stage=stage;s.equipment.weapon.weaponFamily=family;s.strategy=strategy;

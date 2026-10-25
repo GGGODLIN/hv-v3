@@ -113,15 +113,16 @@ for (const [rank, tier] of QUALITY_TIERS.entries()) {
 }
 const WEAPON_TRAITS = Object.freeze({
   rapier: '刺劍特性：普攻造成傷害時有機會施加穿透護甲，暴擊必定觸發。新層數在該次傷害後生效，降低敵人的一般物理減傷；後續物理技能也受益，但技能不會觸發。',
-  axe: '戰斧：本版尚未實作武器特效。',
+  axe: '戰斧特性：普攻造成傷害且目標仍存活時，有機會附加可疊層的流血傷口，暴擊必定觸發。依觸發時面板攻擊快照，在之後的 Tick 造成無類型傷害；不是直擊傷害的比例，穿透護甲不會增幅。再觸發會增加層數並刷新，滿層仍刷新；技能與魔法不會觸發。此為歷史模型改編。',
   club: '戰棍特性：普攻命中且造成傷害、目標仍存活時有機會擊暈，符合條件的暴擊必定觸發。暈眩期間敵人不能攻擊、閃避或招架，格擋仍有效；已有暈眩不能疊加或刷新。暈眩結束後，敵人在下個玩家回合先獲得一次恢復行動；技能不會觸發。',
 });
 const UNKNOWN_WEAPON_TRAIT = '未識別武器類型：不會觸發武器特效。';
 // Previous generators persisted these summaries after the flavor/affix description.
-// Keep the old club wording only for exact display cleanup, never as current rules.
+// Keep old axe/club wording only for exact display cleanup, never as current rules.
 const APPENDED_WEAPON_TRAITS = Object.freeze([
   ...Object.values(WEAPON_TRAITS), UNKNOWN_WEAPON_TRAIT,
   '戰棍：本版尚未實作武器特效。',
+  '戰斧：本版尚未實作武器特效。',
 ]);
 /** Plain-text mechanism summary; numeric combat rules live in engine.js. */
 export function describeWeaponTrait(item) {

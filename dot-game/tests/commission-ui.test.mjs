@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { createGame, act, previewWeaponCommission, previewSafeSale, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES } from '../src/engine.js';
+import { createGame, act, previewWeaponCommission, previewSafeSale, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES, AXE_BLEED_RULES } from '../src/engine.js';
 import { COMMISSION_WEAPON_FAMILIES, QUALITY_TIERS, createCommissionWeapon, resolveWeaponFamily, describeWeaponTrait } from '../src/loot.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
@@ -31,7 +31,7 @@ function harness(state = fixture(), options = {}) {
     format: value => String(Math.round(value)), qualityName: quality => QUALITY_TIERS.find(tier => tier.name === quality)?.label || quality,
     itemTypeName: item => COMMISSION_WEAPON_FAMILIES.find(choice => choice.family === resolveWeaponFamily(item))?.label || '武器',
     statNames: { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' }, rateStats: new Set(['crit','evade','block']),
-    previewWeaponCommission: options.preview || previewWeaponCommission, resolveWeaponFamily, describeWeaponTrait, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES,
+    previewWeaponCommission: options.preview || previewWeaponCommission, resolveWeaponFamily, describeWeaponTrait, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES, AXE_BLEED_RULES,
     claimLease: () => context.tabOwner && context.lease, showToast: message => toasts.push(message),
     render() { runInNewContext('renderWeaponCommission();', context); },
     dispatch(action, payload) {
@@ -58,7 +58,7 @@ test('commission UI: distinct adaptation with first-clear/camp gate and no autom
   h.run("openWeaponCommission('axe'); confirmWeaponCommission();");
   assert.deepEqual(h.state, before); assert.equal(h.calls.length, 0);
   for (const text of ['本作獨立機制', '不是原版商店庫存、訓練或鍛造', '品質骰 R110', '屠戮（Slaughter）', '無前綴', '不會據此推薦購買', '刷寶仍可能取得更適合或更強的裝備', '不自動裝備、不自動出售', '遠征不收金幣', '委託可能用盡餘額', '不必購買才能繼續']) assert.ok(html.includes(text), text);
-  assert.match(html, /v0\.7 · 持續開發/);
+  assert.match(html, /v0\.8 · 持續開發/);
   for (const key of ['save','preferences','writer']) assert.ok(js.includes(`${key}-v3`));
   assert.doesNotMatch(controllers, /\.power|scoreItem|\.innerHTML|insertAdjacentHTML/);
 });

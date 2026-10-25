@@ -45,3 +45,6 @@ Observed idle runs stop near inventory capacity. Add conservative default-OFF fu
 
 ## v0.7 shipped slice
 Use earned credits for transparent fixed-spec weapon-family access, with ordinary existing-schema items and exact purchase consent. Preserve stronger random drops, zero-RNG previews, atomic quote/ID/balance checks, safe capacity and optional use. Keep the predeclared natural 100-seed measurement, including slower/equal outcomes and near-empty budgets; do not tune enemies or silently upgrade the catalog to manufacture success. Original AP/mastery, training waits and IW-gated forging remain distinct future systems, not labels for this commission.
+
+## v0.8 chosen slice
+Complete the first three weapon identities with the historically documented axe Bleeding Wound, not another generic damage bonus. Snapshot sheet attack, untyped periodic damage, bounded stacks/timing and truthful lethal feedback must remain distinct from direct-hit damage. Preserve ordinary loot/commission formulas, PA/stun and non-axe baselines. Validate DoT death/reward/wave ordering independently, and measure real natural axe access and paired benefit/counterexamples. Current English 200-stack decay is a different model; do not mix it into the selected historical five-stack system. Existing scheduler floating cadence differences are not solved or advertised as fixed by this slice.

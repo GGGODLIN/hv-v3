@@ -1,5 +1,9 @@
 # Current status
 
+## v0.8 development candidate — 2026-10-25 20:00 UTC iteration
+
+Selected historical axe Bleeding Wound to complete three weapon identities. Source research and implementation are complete. All 469 tests and four runtime syntax checks pass; independent acceptance adds 35 adversarial checks while preserving non-axe baselines. The final 100-seed natural measurement passes: every paid-axe path and neutral pair survives stages 1–10; stage 10 outcomes are 65 faster, 14 equal and 21 slower, with 42 lower minimum-HP outcomes. A naturally earned axe costs 744 of 760 credits, leaving 16. Historical facts, fixed tuning, weaker refresh and the inherited floating cadence limitation are separated in the source ledger. Browser acceptance, source backup and v0.8 deployment remain pending. Latest verified recovery is `e1b576ee2041bd2772f79587e859a80b5ab1f108`; public accepted runtime remains v0.7 below.
+
 ## v0.7 published — 2026-10-25 19:50 UTC
 
 Accepted runtime source: `03e769c1beff762ff370b7539cc0c8cb8589678d`; website: `bc706c9b87d4117aac6ddcf5436e1817bd1f9233`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . Complete64 files/814222 bytes and63 manifest payloads were read back before promotion. Exact Pages run `40227611219` succeeded; all six public runtime HTTP200 bodies match source SHA256. Other works, previous candidates and fixtures remain untouched. This later publication receipt changes documentation/manifest only.

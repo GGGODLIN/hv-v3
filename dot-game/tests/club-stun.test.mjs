@@ -90,7 +90,7 @@ test('zero damage, lethal, magic, skill and nonclub paths do not spend a stun pr
     [{...attack,attack:0},enemy(),club],[{...attack,attack:1},{...enemy(),mitigation:.95},club],
     [attack,{...enemy(),hp:1},club],[{...attack,magical:true,crit:1},enemy(),club],
     [{...attack,skill:true,crit:1},enemy(),club],[attack,enemy(),plain],
-    [attack,enemy(),{slot:'weapon',weaponFamily:'axe'}],[attack,enemy(),{slot:'armor',weaponFamily:'club'}],
+    [attack,enemy(),{slot:'weapon'}],[attack,enemy(),{slot:'armor',weaponFamily:'club'}],
     [attack,enemy(),{slot:'weapon',weaponFamily:'Club'}],[attack,enemy(),createGame().equipment.weapon]
   ]){
     const tested=sequence([],0),baseline=sequence([],0);const expected=resolveAttack(attacker,clone(target),baseline.rng);

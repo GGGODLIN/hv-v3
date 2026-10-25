@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from '../src/loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, enemyDefenseView } from '../src/engine.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, enemyDefenseView } from '../src/engine.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
@@ -11,7 +11,7 @@ const extract = (name, next) => js.slice(js.indexOf(`function ${name}(`), js.ind
 const roleHelpers = runInNewContext(`${extract('enemyRolePresentation', 'renderRoutePreview')} ({ enemyRolePresentation, defenseRate, defenseLines })`);
 const helpers = {
   ...roleHelpers, enemyDefenseView,
-  resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus,
+  resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus,
   format: value => String(Math.round(value)),
 };
 const weapon = (family, power = 100) => ({ slot: 'weapon', weaponFamily: family, power });
@@ -22,10 +22,11 @@ test('weapon detail uses implemented family rules and marks proc parameters as a
   const clubText = runInNewContext(`${extract('weaponRuleText', 'powerComparisonText')} weaponRuleText(item)`, { ...helpers, item: weapon('club') });
   for (const fragment of ['25%', '4 Tick', '符合條件的暴擊必觸發', '目標存活', '不疊層、不刷新', '反擊致敗', '不能視為永久控制', '本作改編參數', '不是原版當前數值']) assert.ok(clubText.includes(fragment), fragment);
   assert.doesNotMatch(clubText, /每層降低|重觸發刷新/);
-  for (const family of ['axe', 'unknown']) {
+  for (const family of ['unknown']) {
     assert.equal(runInNewContext(`${extract('weaponRuleText', 'powerComparisonText')} weaponRuleText(item)`, { ...helpers, item: weapon(family) }), '');
     assert.doesNotMatch(describeWeaponTrait(weapon(family)), /附加穿透護甲/);
   }
+  assert.doesNotMatch(describeWeaponTrait(weapon('axe')), /附加穿透護甲/);
   assert.doesNotMatch(describeWeaponTrait(weapon('club')), /附加穿透護甲|尚未實作/);
 });
 
@@ -211,7 +212,7 @@ test('gear detail uses flavor-only prose and one authoritative trait section', (
   assert.equal(item.description, '穩定的中量武器。 戰棍：本版尚未實作武器特效。');
 });
 
-test('v0.7 retains the v3 schema and candidate isolation, with version-neutral legacy migration copy', () => {
+test('v0.8 retains the v3 schema and candidate isolation, with version-neutral legacy migration copy', () => {
   for (const key of ['save', 'preferences', 'writer']) assert.ok(js.includes(`${key}-v3`));
   assert.match(js, /const LEGACY_SAVE_KEYS = \[`hv-v3-dot-\$\{storageScope\}-save-v2`, `hv-v3-dot-\$\{storageScope\}-save-v1`\]/);
   assert.match(js, /legacyKeys: LEGACY_SAVE_KEYS/);
@@ -220,5 +221,5 @@ test('v0.7 retains the v3 schema and candidate isolation, with version-neutral l
   assert.doesNotMatch(js, /v0\.3 已讀取|請在 v0\.3 繼續/);
   assert.doesNotMatch(js, /save-v4|writer-v4|preferences-v4/);
   assert.match(js, /candidate-\$\{candidatePath\[1\]/);
-  assert.match(html, /v0\.7 · 持續開發/);
+  assert.match(html, /v0\.8 · 持續開發/);
 });

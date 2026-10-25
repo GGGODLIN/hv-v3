@@ -215,11 +215,19 @@ test('v0.5 independent: unchanged combat stays byte-frozen; generator preserves 
   // Narrow unchanged regions replace the old whole-module/action/sanitizer freezes;
   // full-state OFF trajectories below and v06 acceptance guard behavior separately.
   const region=(code,start,end)=>{const a=code.indexOf(start),b=end?code.indexOf(end,a):code.length;assert.ok(a>=0&&b>a);return code.slice(a,b);};
-  for(const [start,end,digest] of [
-    ['export function resolveAttack','// Independently authored','47c80cf3738e1aa7bbb83b386a7fca519e87028fba5a9043aad6d2d67927c09a'],
-    ['function playerTurn','export function act','644f6c53fd215f98dd4627990cb3ae088ac0c6dcaaff1f7e55cd9cf1875ad29f'],
-    ['function gainXp','function win','b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4'],
-  ])assert.equal(sha256(region(source,start,end)),digest,start);
+  // v0.8 adds the authorized axe wrapper/pulse and shared death transition.
+  // Retain independently extracted EXACT v0.7 function bodies, not hashes of
+  // changed candidate source. Provenance: 022-v07-publication-receipt,
+  // engine b3104eca2e1bb43d67861c27f29c36d0e2c30e66260eba97158d0dfbff44737d.
+  // New wrapper/pulse behavior is independently asserted in v08-acceptance.
+  for(const [name,digest] of [
+    ['resolveAttack','3861f61ecbb362d4b18c5341d7be9b49bcfb19b95d862c2714730e3d92e284cb'],
+    ['enemyAttack','cbc1c928047f576c828a0e0dceb53f6660ec3264d08dca90d5270003806c50a6'],
+    ['enemyTurn','d52ac2e7b95ec9c00691851d3a3716a66e3f05a93e12fcb29d6a882a969a1f0b'],
+    ['recoverStunnedEnemies','3793f627724f1f5063ada2aa8133bb666fa0304b8ec072fbba06800a94eb33c8'],
+    ['usePotion','f206089133516eacdb5c692b555de6909acd22326248522db65ab34c846be842'],
+  ])assert.equal(sha256(region(source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
+  assert.equal(sha256(region(source,'function gainXp','function win')),'b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4','unchanged XP/death rewards');
   // v0.7 shares arithmetic between random drops and the fixed commission.
   // These complete-output/RNG baselines were independently rerun against the
   // accepted v0.6 loot.js (5d3d97d8…); not new hashes of candidate source.
@@ -253,7 +261,12 @@ function canonical(value) {
   if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).filter(key=>!['roleId','roleLabel'].includes(key)).sort().map(key=>[key,canonical(value[key])]));
   return value;
 }
+// The six axe hashes remain archived verbatim: v0.8 intentionally introduces
+// axe bleed. All 18 non-axe digests below remain active and unchanged.
+const archivedAxeV04Rows=baselineRows.map(([stage,seed,hashes])=>[stage,seed,hashes[1]]);
+assert.equal(archivedAxeV04Rows.length,6);
 for(const [stage,seed,hashes] of baselineRows)for(const [index,family] of families.entries()) {
+  if(family==='axe')continue;
   test(`v0.5 frozen v0.4 trajectory: stage ${stage}, seed ${seed}, family ${family??'none'}`,()=>{
     const s=createGame(seed);s.stage=stage;s.unlocked=stage;s.equipment.weapon.weaponFamily=family;
     const hash=createHash('sha256'),record=()=>hash.update(JSON.stringify(canonical(s))+'\n');

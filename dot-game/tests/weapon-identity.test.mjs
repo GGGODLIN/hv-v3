@@ -74,12 +74,14 @@ test('malformed identity inputs stay inert and lookup does not mutate items', ()
   assert.equal(Object.hasOwn(item, 'weaponFamily'), false);
 });
 
-test('trait text explains after-hit rapier utility without promising axe procs', () => {
+test('trait text explains after-hit rapier utility and the implemented historical axe bleed', () => {
   const rapier = describeWeaponTrait({ slot: 'weapon', weaponFamily: 'rapier' });
   for (const expected of ['普攻造成傷害', '穿透護甲', '暴擊必定觸發', '該次傷害後', '一般物理減傷', '技能不會觸發']) {
     assert.ok(rapier.includes(expected), expected);
   }
-  assert.match(describeWeaponTrait({ slot: 'weapon', weaponFamily: 'axe' }), /尚未實作武器特效/);
+  const axe = describeWeaponTrait({ slot: 'weapon', weaponFamily: 'axe' });
+  for (const expected of ['流血傷口', '面板攻擊快照', '無類型傷害', '不是直擊傷害的比例', '滿層仍刷新', '技能與魔法不會觸發', '歷史模型改編']) assert.ok(axe.includes(expected), expected);
+  assert.doesNotMatch(axe, /尚未實作武器特效/);
   assert.match(describeWeaponTrait({ slot: 'weapon', name: '陌生刺劍' }), /不會觸發武器特效/);
   assert.equal(describeWeaponTrait({ slot: 'armor', weaponFamily: 'rapier' }), '');
 });
@@ -111,8 +113,9 @@ test('fresh weapon descriptions keep flavor and affixes separate from live trait
 test('flavor display removes only one exact known trait suffix without rewriting old saves', () => {
   const flavor = '穩定的中量武器。詞綴：無。';
   const previousClubTrait = '戰棍：本版尚未實作武器特效。';
+  const previousAxeTrait = '戰斧：本版尚未實作武器特效。';
   const traits = [...WEAPON_FAMILIES.map(weaponFamily => describeWeaponTrait({ slot: 'weapon', weaponFamily })),
-    previousClubTrait, describeWeaponTrait({ slot: 'weapon' })];
+    previousClubTrait, previousAxeTrait, describeWeaponTrait({ slot: 'weapon' })];
   for (const trait of traits) {
     const item = Object.freeze({ slot: 'weapon', name: '粗製・裂岩戰棍', description: flavor + trait });
     const before = JSON.stringify(item);
@@ -122,7 +125,7 @@ test('flavor display removes only one exact known trait suffix without rewriting
     assert.equal(describeItemFlavor({ ...item, description: trait + flavor }), trait + flavor, 'not a substring replacement');
     assert.equal(describeItemFlavor({ ...item, description: flavor + trait + trait }), flavor + trait, 'at most one suffix');
   }
-  for (const description of [flavor, '玩家自訂備註。', flavor + previousClubTrait + '這是舊紀錄。']) {
+  for (const description of [flavor, '玩家自訂備註。', flavor + previousClubTrait + '這是舊紀錄。', flavor + previousAxeTrait + '這是舊紀錄。']) {
     assert.equal(describeItemFlavor({ slot: 'weapon', description }), description, 'unrecognized prose is untouched');
   }
   for (const item of [null, undefined, {}, { description: 4 }, { description: ['文字'] }]) {

@@ -94,8 +94,8 @@ test('original automated skill benefits from PA but never triggers or refreshes 
   const fresh=enemy();assert.equal(strike(fresh,0,{...attack,skill:true,crit:1}).proc,undefined);
 });
 
-test('magic, starter, axe, malformed family and nonweapon cannot trigger or consume proc RNG',()=>{
-  for(const weapon of [createGame().equipment.weapon,plain,{slot:'weapon',weaponFamily:'axe'},{slot:'weapon',weaponFamily:'Rapier'},{slot:'weapon',weaponFamily:'rapier-extra'},{slot:'armor',weaponFamily:'rapier'},null]){
+test('magic, starter, neutral, malformed family and nonweapon cannot trigger or consume proc RNG',()=>{
+  for(const weapon of [createGame().equipment.weapon,plain,{slot:'weapon'},{slot:'weapon',weaponFamily:'Rapier'},{slot:'weapon',weaponFamily:'rapier-extra'},{slot:'armor',weaponFamily:'rapier'},null]){
     const target=enemy(),tested=sequence([],0),baseline=sequence([],0);
     const expected=resolveAttack({...attack,crit:1},clone(target),baseline.rng);
     assert.deepEqual(resolveWeaponAttack({...attack,crit:1},target,weapon,0,tested.rng),expected);

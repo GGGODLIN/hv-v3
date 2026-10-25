@@ -13,7 +13,9 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
-Version 0.7 is a development candidate; public v0.6 remains accepted. It adds an explicitly adapted weapon commission after the first clear: choose axe, rapier or club, preview exact current-level Superior/R110/Slaughter stats and cost, confirm purchase, then equip separately. Item delivery is locked. Spending can leave zero gold; expeditions remain free. It is not an original Bazaar/Forge/Training implementation or a guaranteed upgrade over good random loot. See docs/COMMISSION-GUIDE.md for measured usefulness and limits.
+Version 0.8 is the next development candidate: historical-model axe Bleeding Wound. Its 469 source tests and full 100-seed balance measurement pass; browser and release gates remain pending; public v0.7 remains accepted. Do not treat a candidate as the latest verified playable checkpoint.
+
+Version 0.7 is published and accepted at https://gggodlin.github.io/play/hv-v3-dot/ . See docs/BROWSER-QA-V07.md and docs/RELEASES.md for verification. It adds an explicitly adapted weapon commission after the first clear: choose axe, rapier or club, preview exact current-level Superior/R110/Slaughter stats and cost, confirm purchase, then equip separately. Item delivery is locked. Spending can leave zero gold; expeditions remain free. It is not an original Bazaar/Forge/Training implementation or a guaranteed upgrade over good random loot. See docs/COMMISSION-GUIDE.md for measured usefulness and limits.
 
 Version 0.6 is published at https://gggodlin.github.io/play/hv-v3-dot/ . See docs/STATUS.md, docs/RELEASES.md and docs/BROWSER-QA-V06.md for exact source evidence, bounded desktop acceptance and the explicit schema-negative browser-test gap. It adds optional conservative future-drop sales and an exact-item cleanup preview. Default OFF, no retroactive sweep, no score-based disposal: only low-quality strict same-base downgrades against equipped/locked keepers qualify. Unknown item-schema imports fail without overwriting the existing save. This is an independent convenience rule, not an original-HV economy claim. See docs/LOOT-MANAGEMENT.md for precise limits.
 
@@ -51,3 +53,6 @@ The existing v3 save/lock namespace is retained: v0.4 adds no new persistent wea
 
 ## Save compatibility in v0.7
 The v3 namespace and ordinary item schema remain unchanged. Commissioned weapons are standard locked items; all1500 purchases passed the actual frozen v0.6 validator without item/gold/lock loss. Old tabs show old UI until refreshed; use refresh or explicit takeover for commission. Candidate saves are separate. Source backups do not back up your personal browser save: export it through the game before clearing site data.
+
+## Save compatibility in v0.8
+Existing v3 saves and weapon identities are retained. Bleeding is encounter-only state, discarded on load just like PA and stun; it is not a persistent weapon upgrade. Refresh old tabs to run the new axe behavior and descriptions. Ordinary item generation, commission prices and supported inventory records are unchanged. See docs/ORIGINAL-HV.md for the historical model and docs/BLEED-GUIDE.md for natural-play outcomes and counterexamples.

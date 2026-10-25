@@ -2,7 +2,7 @@ import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeS
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, previewStage, enemyDefenseView } from './engine.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, previewStage, enemyDefenseView } from './engine.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
@@ -21,6 +21,10 @@ const weaponFamilyNames = { axe: '戰斧', rapier: '刺劍', club: '戰棍' };
 function itemTypeName(item) { return weaponFamilyNames[resolveWeaponFamily(item)] || slotNames[item.slot] || '裝備'; }
 function weaponRuleText(item) {
   const family = resolveWeaponFamily(item);
+  if (family === 'axe') {
+    const rules = AXE_BLEED_RULES;
+    return `普通攻擊造成正傷害且目標存活時：非暴擊 ${format(rules.chance * 100)}% 觸發，暴擊必觸發；技能與魔法不觸發。最多 ${rules.maxStacks} 層，重觸發（含滿層）統一刷新為未來 ${rules.durationTicks} Tick，下一個 Tick 才開始，第 ${rules.durationTicks} 次結算後解除。每層每 Tick 依觸發時面板攻擊（ADB）的 ${format(rules.damageFractionPerStack * 100)}% 計算，合計後向下取整；不是本次直擊傷害的百分比。重新觸發會更新全部層數的攻擊快照，也可能變弱。流血為無類型傷害，不受一般／特定減傷及閃避、招架、格擋影響，不能暴擊；穿透護甲不增幅流血。採歷史模型；固定機率、層數上限、時長、快照與刷新時序為本作改編，不是原版當前數值。`;
+  }
   if (family === 'rapier') {
     const rules = PENETRATED_ARMOR_RULES;
     return `普通攻擊造成傷害且目標存活時：非暴擊 ${format(rules.chance * 100)}% 觸發，暴擊必觸發。最多 ${rules.maxStacks} 層 · 持續 ${rules.durationTicks} Tick，重觸發刷新。每層降低原本物理總減傷率的 ${format(rules.mitigationReductionPerStack * 100)}%，不是直接增加同等傷害；從後續攻擊生效。固定機率與時長為本作選定參數。`;
@@ -113,6 +117,7 @@ let lastPreviewStage = null;
 let toastTimer;
 let bannerTimer;
 let procTimer;
+let bleedTimer;
 let procTargetId = null;
 let recoveryTimer;
 let recoveryTargetId = null;
@@ -185,13 +190,14 @@ if (channel) channel.onmessage = event => {
 };
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
+  $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
 function dispatch(action, payload) {
   if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
-  try { act(state, action, payload); reconcileWeaponCommission(); render(true); save(true); return true; } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+  try { act(state, action, payload); reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true; } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 function commissionQuoteSignature(preview) {
   return JSON.stringify([preview.family, preview.item, preview.price, preview.goldAfter, preview.quoteBasis, preview.currentWeapon, state.mode, state.stage, state.unlocked, state.wins, state.inventory, state.pendingLoot]);
@@ -278,7 +284,7 @@ function renderWeaponCommission() {
   $('commission-status').textContent = !tabOwner ? '唯讀分頁：接手後才能委託。' : state.mode !== 'town' ? '僅營地可委託；請先回營整備。' : !(state.wins >= 1) ? '完成首次遠征後解鎖。' : offers.every(offer => !offer.preview.available) && new Set(offers.map(offer => offer.preview.reason)).size === 1 ? offers[0].preview.reason : '選擇路線查看精確報價與比較；確認前不會扣款。';
   $('commission-choices').replaceChildren(...offers.map(({ family, label, preview }) => {
     const button = node('button', 'commission-choice');
-    const routes = { axe: '直接攻擊', rapier: '穿透護甲', club: '暈眩控制' };
+    const routes = { axe: '流血傷口', rapier: '穿透護甲', club: '暈眩控制' };
     button.append(node('strong', '', label), node('span', '', routes[family] || ''), node('span', 'commission-price', preview.item ? `${format(preview.price)} 金幣 · 查看` : '暫無報價'));
     button.disabled = !canPreview || !preview.item;
     button.setAttribute('aria-haspopup', 'dialog');
@@ -389,6 +395,7 @@ function updatePreferences() {
   writeStorage(PREF_KEY, JSON.stringify({ reducedMotion: prefs.reducedMotion, backgroundIdle: prefs.backgroundIdle }));
 }
 function eventEffects() {
+  const bleedEvents = [];
   for (const event of state.events || []) {
     const key = String(event.id);
     if (seenEvents.has(key)) continue;
@@ -401,9 +408,10 @@ function eventEffects() {
       if (!enemy) continue; // Expired targets remain in the log, not the current battlefield.
       const recovering = type === 'recovery';
       const stunning = event.effect === 'stun';
+      const bleeding = event.effect === 'bleed';
       const effectNotice = $(recovering ? 'recovery-notice' : 'proc-notice');
-      effectNotice.className = `proc-notice${recovering ? ' recovery-notice' : stunning ? ' stun-proc' : ''}`;
-      effectNotice.textContent = `${enemy.name} · ${event.text || (recovering ? '暈眩解除，敵人恢復行動' : stunning ? '暈眩觸發' : '武器特效觸發')}`;
+      effectNotice.className = `proc-notice${recovering ? ' recovery-notice' : stunning ? ' stun-proc' : bleeding ? ' bleed-proc' : ''}`;
+      effectNotice.textContent = `${enemy.name} · ${event.text || (recovering ? '暈眩解除，敵人恢復行動' : stunning ? '暈眩觸發' : bleeding ? '流血傷口觸發' : '武器特效觸發')}`;
       effectNotice.hidden = false;
       // A recovery and a new proc can occur in one update; neither notice erases the other.
       if (recovering) {
@@ -414,6 +422,10 @@ function eventEffects() {
         clearTimeout(procTimer); procTimer = setTimeout(() => { effectNotice.hidden = true; }, 3200);
       }
       playSound('crit');
+    }
+    if (type === 'bleed' && event.effect === 'bleed') {
+      // Damage is an event, not a live-target status: keep lethal/final-wave ticks readable.
+      bleedEvents.push({ text: event.text || `流血傷口造成 ${format(event.value)} 傷害`, value: event.value });
     }
     if (['hit', 'crit', 'miss', 'block', 'heal'].includes(type)) {
       const targetHero = event.target === 'hero' || event.target === 'player';
@@ -435,13 +447,26 @@ function eventEffects() {
       playSound(type);
     }
   }
+  if (bleedEvents.length) {
+    const recent = bleedEvents.slice(-3);
+    const damageNotice = $('bleed-notice');
+    damageNotice.textContent = `流血結算 · ${recent.map(event => event.text).join('；')}${bleedEvents.length > 3 ? `；本次共 ${bleedEvents.length} 筆，這裡顯示最近 3 筆` : ''}`;
+    damageNotice.hidden = false;
+    clearTimeout(bleedTimer); bleedTimer = setTimeout(() => { damageNotice.hidden = true; }, 3200);
+    if (!prefs.reducedMotion) recent.forEach((event, index) => {
+      const number = node('span', 'floating-number bleed', `流血 −${format(event.value)}`);
+      number.style.marginTop = `${index * 24}px`; // Batch catch-up never overlays unbounded floating labels.
+      $('floating-layer').append(number);
+      setTimeout(() => number.remove(), 950);
+    });
+  }
 }
 function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(100, Number(value) / Math.max(1, Number(max)) * 100))}%`; }
 function renderEnemyStatuses() {
   const enemies = state.mode === 'battle' ? state.enemies.filter(enemy => enemy.hp > 0) : [];
   const tick = state.timing?.ticks || 0;
-  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick), defense: enemyDefenseView(enemy, tick) }));
-  const signature = JSON.stringify(rows.map(({ enemy, status, stun, defense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, defense]));
+  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick), bleed: bleedStatus(enemy, tick), defense: enemyDefenseView(enemy, tick) }));
+  const signature = JSON.stringify(rows.map(({ enemy, status, stun, bleed, defense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, bleed, defense]));
   $('enemy-status-panel').hidden = !rows.length;
   if (!rows.length || (procTargetId && !enemies.some(enemy => enemy.id === procTargetId))) {
     $('proc-notice').hidden = true; clearTimeout(procTimer); procTargetId = null;
@@ -451,13 +476,14 @@ function renderEnemyStatuses() {
   }
   if (signature === lastEnemyStatusSignature) return;
   lastEnemyStatusSignature = signature;
-  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun, defense }, index) => {
+  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun, bleed, defense }, index) => {
     const pending = stun?.recoveryPending;
-    const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}${stun ? pending ? ' recovery-ready' : ' is-stunned' : ''}`);
+    const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}${stun ? pending ? ' recovery-ready' : ' is-stunned' : ''}${bleed ? ' is-bleeding' : ''}`);
     const name = node('strong', '', `${index === 0 ? '目標 · ' : ''}${enemy.name}`);
     const effect = node('span', 'enemy-effect penetration-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
     const control = node('span', 'enemy-effect stun-effect', pending ? '甦醒待行動 · 下次我方行動前可反擊' : stun ? `暈眩 · 剩 ${stun.ticksRemaining} Tick` : '暈眩：無');
     card.append(name, effect, control);
+    card.append(node('span', 'enemy-effect bleed-effect', bleed ? `流血傷口 ${bleed.stacks}/${AXE_BLEED_RULES.maxStacks} 層 · 剩 ${bleed.ticksRemaining} Tick · 每 Tick ${format(bleed.damagePerTick)} 傷害` : '流血傷口：無'));
     const role = enemyRolePresentation(enemy);
     card.append(node('span', `enemy-role role-${role.id}`, `${role.mark} ${role.label}${enemy.boss ? ' · 首領' : ''}`));
     const currentDefense = node('div', 'enemy-current-defense');
@@ -466,6 +492,7 @@ function renderEnemyStatuses() {
     const details = [`基礎一般物理減傷 ${defenseRate(defense.baseMitigation)}；目前數字已計入穿透護甲與暈眩。閃＝閃避、招＝招架、擋＝格擋，各為單次判定機率，不是完全擋下攻擊的總機率。暈眩不取消格擋。`];
     if (status) details.push(`物理減傷為原本的 ${format(status.mitigationMultiplier * 100)}%；不是直接增加同等傷害。`);
     if (stun) details.push(pending ? '暈眩已結束，閃避與招架恢復；下一次我方行動前，敵人先行動。' : '暫停敵方行動，期間不能閃避或招架；到期後會恢復行動。');
+    if (bleed) details.push(`流血每 Tick ${format(bleed.damagePerTick)} 點無類型傷害；以觸發時面板攻擊快照計算，不受減傷、閃避、招架與格擋影響；穿透護甲不增幅流血。`);
     card.title = details.join(' ');
     return card;
   }));
@@ -572,7 +599,7 @@ function renderItemDetail() {
     const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : Math.round(diff)}`;
     const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', display), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
   }
-  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。'}屬性評分不含穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
+  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。'}屬性評分不含流血、穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
   const actions = node('div', 'detail-actions');
   if (!selectedSlot) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
@@ -657,6 +684,14 @@ function drawEnemy(enemy, x, y, index, t) {
     rect(x - width / 2, top, width, 10, '#30273ae8');
     ctx.fillStyle = stun.recoveryPending ? '#f3bd91' : '#ddd0ff';
     ctx.fillText(stun.recoveryPending ? 'READY' : `STUN ${stun.ticksRemaining}T`, x, top + 7, width);
+  }
+  const bleed = bleedStatus(enemy, state.timing?.ticks || 0);
+  if (enemy.hp > 0 && bleed) {
+    const top = sy + 5 + (status ? 11 : 0) + (stun ? 11 : 0);
+    rect(x - width / 2, top, width, 10, '#3d222ce8');
+    ctx.fillStyle = '#ffb6bb'; ctx.fillText(`BW ${bleed.stacks} · ${bleed.ticksRemaining}T`, x, top + 7, width);
+    // A fixed droplet silhouette distinguishes bleeding even without animation or color.
+    polygon([[x + width / 2 + 5, top], [x + width / 2 + 2, top + 6], [x + width / 2 + 5, top + 9], [x + width / 2 + 8, top + 6]], '#ffb6bb');
   }
 }
 function drawScene(t, dt) {

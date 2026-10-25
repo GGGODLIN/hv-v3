@@ -10,6 +10,7 @@ import { loadVersionedSave } from '../src/session.js';
 import { runInNewContext } from 'node:vm';
 
 const clone = value => JSON.parse(JSON.stringify(value));
+// Null family is the neutral PA control: axe gains its own bleed in v0.8.
 const rapier = {slot:'weapon',weaponFamily:'rapier'};
 const basic = {attack:100,crit:0};
 const target = extra => ({hp:10000,maxHp:10000,mitigation:.5,...extra});
@@ -84,8 +85,8 @@ test('v0.3 independent: magic does not benefit or proc; Void still respects gene
   const a=counted(),b=counted();
   assert.deepEqual(resolveWeaponAttack(magical,enemy,rapier,10,a.rng),resolveAttack(magical,target({specificMit:.5}),b.rng));
   assert.equal(a.calls,b.calls);
-  const physical=resolveWeaponAttack(basic,enemy,{slot:'weapon',weaponFamily:'axe'},10,()=>.5);
-  const voidHit=resolveWeaponAttack({...basic,void:true},enemy,{slot:'weapon',weaponFamily:'axe'},10,()=>.5);
+  const physical=resolveWeaponAttack(basic,enemy,{slot:'weapon',weaponFamily:null},10,()=>.5);
+  const voidHit=resolveWeaponAttack({...basic,void:true},enemy,{slot:'weapon',weaponFamily:null},10,()=>.5);
   assert.equal(physical.damage,43);assert.equal(voidHit.damage,87);
 });
 test('v0.3 independent: all 41 damage dice and avoidance/crit order survive existing PA',()=>{
@@ -94,13 +95,13 @@ test('v0.3 independent: all 41 damage dice and avoidance/crit order survive exis
     const draws=[.9,.9,.1,.9,.1,.9,.1,.9,(n+.1)/41];
     const attacker={attack:100,crit:1,multiCrit:0};
     enemy.parry=.5;enemy.block=.5;
-    const actual=resolveWeaponAttack(attacker,enemy,{slot:'weapon',weaponFamily:'axe'},10,counted(draws).rng);
+    const actual=resolveWeaponAttack(attacker,enemy,{slot:'weapon',weaponFamily:null},10,counted(draws).rng);
     const expected=resolveAttack(attacker,{...enemy,mitigation:.25},counted(draws).rng);
     assert.deepEqual(actual,expected);assert.equal(actual.crit,1);assert.deepEqual(actual.trace,fullTrace);
   }
 });
-test('v0.3 independent: unimplemented families and unresolved identity preserve the full RNG stream',()=>{
-  for(const weapon of [null,{}, {slot:'weapon'}, {slot:'weapon',weaponFamily:'axe'},
+test('v0.3 independent: neutral and unresolved identity preserve the full RNG stream',()=>{
+  for(const weapon of [null,{}, {slot:'weapon'}, {slot:'weapon',weaponFamily:null},
     {slot:'armor',weaponFamily:'rapier'},
     {slot:'weapon',weaponFamily:'unknown',name:'普通・逐風刺劍'}]) {
     for(const attacker of [basic,{...basic,crit:1,multiCrit:0}]) {
@@ -114,7 +115,7 @@ test('v0.3 independent: seven simulation ticks expire before exact-boundary dama
   const enemy=target();resolveWeaponAttack(basic,enemy,rapier,10,counted(basicDraws(.1)).rng);
   assert.deepEqual(penetratedArmorStatus(enemy,10),{stacks:1,ticksRemaining:7,mitigationMultiplier:.75});
   assert.equal(penetratedArmorStatus(enemy,16).ticksRemaining,1);
-  const result=resolveWeaponAttack(basic,enemy,{slot:'weapon',weaponFamily:'axe'},17,()=>.5);
+  const result=resolveWeaponAttack(basic,enemy,{slot:'weapon',weaponFamily:null},17,()=>.5);
   assert.equal(result.damage,50);assert.equal(penetratedArmorStatus(enemy,17),null);assert.equal(enemy.penetratedArmor,undefined);
 });
 test('v0.3 independent: lethal damage uses existing PA then clears it without another proc roll',()=>{
@@ -135,7 +136,7 @@ test('v0.3 independent: relative reduction has no benefit against zero armor and
   for(const mitigation of [0,.2,.8,.95,2]) {
     const enemy=activeTarget(3,10,{mitigation});
     const expected=Math.floor(100*(1-Math.min(.95,mitigation)*.25)+1e-9);
-    assert.equal(resolveWeaponAttack(basic,enemy,{slot:'weapon',weaponFamily:'axe'},10,()=>.5).damage,expected);
+    assert.equal(resolveWeaponAttack(basic,enemy,{slot:'weapon',weaponFamily:null},10,()=>.5).damage,expected);
   }
   assert.equal(resolveWeaponAttack(basic,activeTarget(2,10,{mitigation:undefined,defense:80}),{},10,()=>.5).damage,60);
 });
@@ -148,8 +149,8 @@ test('v0.3 independent: same-stat controlled encounter proves stack advantage, n
     }
     return turns;
   }
-  assert.equal(duel(rapier,.8),7);assert.equal(duel({slot:'weapon',weaponFamily:'axe'},.8),20);
-  assert.equal(duel(rapier,0),4);assert.equal(duel({slot:'weapon',weaponFamily:'axe'},0),4);
+  assert.equal(duel(rapier,.8),7);assert.equal(duel({slot:'weapon',weaponFamily:null},.8),20);
+  assert.equal(duel(rapier,0),4);assert.equal(duel({slot:'weapon',weaponFamily:null},0),4);
 });
 test('v0.3 independent: weapon identity changes neither sheet stats nor scalar score',()=>{
   const s=createGame(42),sheet=stats(s),resource=clone(s.hero),score=scoreItem(s.equipment.weapon);

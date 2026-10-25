@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { createGame, act, previewStage, enemyDefenseView, PENETRATED_ARMOR_RULES, penetratedArmorStatus, stunStatus } from '../src/engine.js';
+import { createGame, act, previewStage, enemyDefenseView, PENETRATED_ARMOR_RULES, penetratedArmorStatus, stunStatus, AXE_BLEED_RULES, bleedStatus } from '../src/engine.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
@@ -72,7 +72,7 @@ test('battle cards show actual current mitigation and all avoidance gates throug
   const target = state.enemies[0];
   Object.assign(target, { roleId: 'agile', hp: 100, maxHp: 100, mitigation: .4, evade: .1, parry: .07, block: .06,
     penetratedArmor: {stacks: 2, expiresAtTick: 17}, stun: {expiresAtTick: 14} });
-  const dom = elements(statusIds), context = {...helpers, format, state, enemyDefenseView, PENETRATED_ARMOR_RULES, penetratedArmorStatus, stunStatus, node, $: id => dom[id], clearTimeout() {}};
+  const dom = elements(statusIds), context = {...helpers, format, state, enemyDefenseView, PENETRATED_ARMOR_RULES, penetratedArmorStatus, stunStatus, AXE_BLEED_RULES, bleedStatus, node, $: id => dom[id], clearTimeout() {}};
   runInNewContext(`let lastEnemyStatusSignature = ''; let procTimer; let procTargetId = null; let recoveryTimer; let recoveryTargetId = null; ${extract('renderEnemyStatuses', 'render')} renderEnemyStatuses();`, context);
   let card = dom['enemy-status-list'].children[0];
   assert.match(collect(card), /靈巧/);
@@ -102,7 +102,7 @@ test('battle cards show actual current mitigation and all avoidance gates throug
 test('canvas shows role and current rates while retaining PA/stun text with reduced motion', () => {
   const labels = [], polygons = [];
   const ctx = new Proxy({fillText(text) {labels.push(text);}}, {get(target, key) {return target[key] ?? (() => {});}});
-  const context = {...helpers, ctx, rect() {}, polygon(points) {polygons.push(points);}, enemyDefenseView, penetratedArmorStatus, stunStatus, enemyPulse: 1, prefs: {reducedMotion: true}, state: {timing: {ticks: 10}}};
+  const context = {...helpers, ctx, rect() {}, polygon(points) {polygons.push(points);}, enemyDefenseView, penetratedArmorStatus, stunStatus, AXE_BLEED_RULES, bleedStatus, enemyPulse: 1, prefs: {reducedMotion: true}, state: {timing: {ticks: 10}}};
   const target = {name: '可讀的目標', roleId: 'armored', hp: 100, maxHp: 100, mitigation: .4, evade: .1, parry: .07, block: .06, penetratedArmor: {stacks: 2, expiresAtTick: 17}, stun: {expiresAtTick: 14}};
   context.enemy = target;
   runInNewContext(`${extract('drawEnemy', 'drawScene')} drawEnemy(enemy, 230, 140, 0, 0);`, context);
@@ -128,7 +128,7 @@ test('role and defense strings stay text-only, bounded and explicit about tradeo
   for (const text of ['刺劍可能有助於較高的一般物理減傷', '戰棍須先打出傷害', '不能忽略格擋', '戰斧的直接攻擊力仍有價值', '沒有通吃所有敵人的最佳武器', '不是最終完全迴避率', '本作改編']) assert.ok(html.includes(text), text);
   assert.match(html, /<details class="route-advice"><summary>/, 'touch and keyboard users can read hints without hover');
   assert.match(css, /\.route-preview\[hidden\]\s*\{\s*display:\s*none/);
-  assert.match(html, /v0\.7 · 持續開發/);
+  assert.match(html, /v0\.8 · 持續開發/);
   for (const key of ['save', 'writer', 'preferences']) assert.ok(js.includes(`${key}-v3`));
   assert.doesNotMatch(js, /save-v5|writer-v5|preferences-v5|\.innerHTML\s*=/);
 });

@@ -203,8 +203,9 @@ test('v0.5 build evidence: generated stats and same-stat proc treatments remain 
       t.diagnostic(JSON.stringify({kind:'generated-weapon',stage,family,itemStats:weapon.stats,procOn:summary(on),procOff:summary(off)}));
       comparisons[family] = {weapon, on:summary(on), off:summary(off)};
       assert.ok(on.every(run => run.win) && off.every(run => run.win));
-      if (family === 'axe') assert.deepEqual(on, off, 'axe has no implemented proc');
-      else assert.ok(on.some(run => run.procs > 0), 'real encounters exercise the implemented proc');
+      // v0.8 implements axe bleed; the same-stat OFF control still has null
+      // family. Every implemented family must now exercise its real proc.
+      assert.ok(on.some(run => run.procs > 0), 'real encounters exercise the implemented proc');
     }
     const {axe,rapier,club} = comparisons;
     assert.ok(axe.weapon.stats.attack > club.weapon.stats.attack && club.weapon.stats.attack > rapier.weapon.stats.attack,

@@ -112,3 +112,13 @@
 .commission-actions>button { flex: 1 1 220px; font-size: 12px; }
 #commission-feedback { overflow-wrap: anywhere; }
 @media(max-width:680px) { .commission-dialog { padding: 18px; } .commission-stat-row { font-size: 11px; gap: 4px; } .commission-item-name { font-size: 18px; } }
+
+/* Bleeding is distinct from PA/stun and stays legible without motion or a living target. */
+.enemy-status-card.is-bleeding { box-shadow: inset 3px 0 #ce7f89; }
+.enemy-status-card>.bleed-effect { order: 5; line-height: 1.7; }
+.is-bleeding .bleed-effect { color: #ffc1c5; }
+.proc-notice.bleed-proc { border-color: #df8c98; color: #ffc1c5; }
+.bleed-damage-notice { margin-top: 10px; padding: 9px 12px; border: 1px solid #935765; border-left-width: 3px; border-radius: 7px; background: #34232a; color: #ffd0d2; font-size: 11px; line-height: 1.8; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.bleed-damage-notice[hidden] { display: none; }
+.floating-number.bleed { color: #ffc1c5; font-size: 16px; letter-spacing: 0; }
+@media(max-width:680px) { .enemy-status-list { grid-template-columns: minmax(0, 1fr); } .bleed-damage-notice, .enemy-effect { font-size: 11px; } }

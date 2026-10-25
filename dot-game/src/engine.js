@@ -8,6 +8,9 @@ export const INVENTORY_LIMIT = 120;
 export const PENETRATED_ARMOR_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:3,mitigationReductionPerStack:.25});
 // Historical weapon maxima applied uniformly: deliberate balance adaptations.
 export const CLUB_STUN_RULES = Object.freeze({chance:.25,durationTicks:4});
+// Pinned historical shape; fixed maxima, shared refresh and integer snapshots
+// are explicit adaptations, not the current original-HV 200-stack model.
+export const AXE_BLEED_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:5,damageFractionPerStack:.08});
 export const STRATEGIES = Object.freeze([
   Object.freeze({id:'balanced',label:'均衡',description:'每 5 回合破勢斬；HP 低於 38% 時治癒，藥水手動使用。'}),
   Object.freeze({id:'assault',label:'猛攻',description:'每 3 回合破勢斬；HP 低於 22% 才治癒，較快消耗 MP，藥水手動使用。'}),
@@ -63,6 +66,22 @@ export function penetratedArmorStatus(enemy, tick) {
 function expirePenetratedArmor(enemy, tick) {
   if(enemy.penetratedArmor&&!penetratedArmorStatus(enemy,tick))delete enemy.penetratedArmor;
 }
+/** Read-only encounter view. The final owed pulse is paid by advance before
+ * expiry; reading a status never pays damage, rolls RNG, or changes its timer.
+ */
+export function bleedStatus(enemy, tick) {
+  if(!validTick(tick)||!Number.isFinite(enemy?.hp)||enemy.hp<=0)return null;
+  const status=enemy.bleeding;
+  if(!status||typeof status!=='object'||Array.isArray(status)
+    ||!Number.isInteger(status.stacks)||status.stacks<1||status.stacks>AXE_BLEED_RULES.maxStacks
+    ||!Number.isSafeInteger(status.expiresAtTick)||!Number.isSafeInteger(status.damagePerTick)||status.damagePerTick<0)return null;
+  const ticksRemaining=status.expiresAtTick-tick;
+  if(ticksRemaining<=0||ticksRemaining>AXE_BLEED_RULES.durationTicks)return null;
+  return {stacks:status.stacks,ticksRemaining,damagePerTick:status.damagePerTick};
+}
+function expireBleeding(enemy, tick) {
+  if(enemy.bleeding!==undefined&&!bleedStatus(enemy,tick))delete enemy.bleeding;
+}
 /** Per-enemy, read-only UI view: an owed recovery action is NOT an active stun. */
 export function stunStatus(enemy, tick) {
   if(!validTick(tick)||!Number.isFinite(enemy?.hp)||enemy.hp<=0)return null;
@@ -88,7 +107,7 @@ function expireStun(enemy, tick) {
   if(enemy.hp<=0)delete enemy.stunRecoveryPending;
 }
 function clearEnemyStatuses(enemy) {
-  delete enemy.penetratedArmor;delete enemy.stun;delete enemy.stunRecoveryPending;delete enemy.stunRecoveryTurn;
+  delete enemy.penetratedArmor;delete enemy.stun;delete enemy.stunRecoveryPending;delete enemy.stunRecoveryTurn;delete enemy.bleeding;
 }
 
 /** Ordered research-derived resolution; coefficients/rates are explicit game adaptations.
@@ -124,12 +143,12 @@ export function resolveAttack(attacker, defender, rng = Math.random) {
   result.outcome=result.crit?'crit':factor<1?'glance':'hit';return result;
 }
 /** Resolves damage first, then mutates only the defender's bounded proc status.
- * Existing PA/stun benefit physical skills too, but this game's skill procs neither.
+ * Existing PA/stun benefit physical skills too, but this game's skill procs none.
  * HP subtraction remains the caller's job; a lethal hit does not leave a status.
  * Only live advance owns next-player-turn recovery; this helper is not a scheduler.
  */
 export function resolveWeaponAttack(attacker, defender, weapon, tick, rng = Math.random) {
-  expirePenetratedArmor(defender,tick);expireStun(defender,tick);
+  expirePenetratedArmor(defender,tick);expireStun(defender,tick);expireBleeding(defender,tick);
   const previous=penetratedArmorStatus(defender,tick);
   const stun=stunStatus(defender,tick);
   let effectiveDefender=previous&&!attacker.magical?{...defender,mitigation:generalMitigation(defender)*previous.mitigationMultiplier}:defender;
@@ -138,6 +157,17 @@ export function resolveWeaponAttack(attacker, defender, weapon, tick, rng = Math
   if(Number.isFinite(defender.hp)&&defender.hp<=result.damage){clearEnemyStatuses(defender);return result;}
   if(attacker.magical||attacker.skill||result.damage<=0||!Number.isFinite(defender.hp)||!validTick(tick))return result;
   const family=resolveWeaponFamily(weapon);
+  if(family==='axe'){
+    if(!result.crit&&clamp(finite(rng(),.5),0,.999999999)>=AXE_BLEED_RULES.chance)return result;
+    const stacks=Math.min(AXE_BLEED_RULES.maxStacks,(bleedStatus(defender,tick)?.stacks||0)+1);
+    // Basic sheet attack, not hit damage, critical multiplier, or target armor.
+    // Refresh snapshots the whole wound anew, even if its new amount is weaker.
+    const damagePerTick=Math.floor(finite(attacker.attack)*AXE_BLEED_RULES.damageFractionPerStack*stacks);
+    if(!Number.isSafeInteger(damagePerTick)||damagePerTick<0)return result;
+    defender.bleeding={stacks,expiresAtTick:tick+AXE_BLEED_RULES.durationTicks,damagePerTick};
+    result.proc={type:'bleeding',stacks,durationTicks:AXE_BLEED_RULES.durationTicks,damagePerTick};
+    return result;
+  }
   if(family==='club'){
     if(stun)return result; // Active/pending recovery cannot refresh or spend proc RNG.
     if(!result.crit&&clamp(finite(rng(),.5),0,.999999999)>=CLUB_STUN_RULES.chance)return result;
@@ -288,6 +318,18 @@ function win(s) {
   recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
+// Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
+// another pulse, or an already consumed boundary cannot repeat its rewards.
+function settleEnemyDeath(s, enemy, previousHp) {
+  if(!(previousHp>0)||enemy.hp!==0)return false;
+  clearEnemyStatuses(enemy);defeatEnemy(s,enemy);return true;
+}
+function finishWave(s, maxHp) {
+  if(s.mode!=='battle'||s._phase!=='fight'||!s.enemies.length||s.enemies.some(enemy=>enemy.hp>0))return false;
+  if(s.wave===s.totalWaves)win(s);
+  else{s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(maxHp,s.hero.hp+maxHp*.10);s._enemyClock=0;}
+  return true;
+}
 function playerTurn(s) {
   const p=stats(s), target=s.enemies.find(e=>e.hp>0);if(!target)return;
   s._turns++;s.timing.turns++;s.hero.proficiency=round(Math.min(1.2*s.hero.level,s.hero.proficiency+.08));s.hero.mp=Math.min(p.maxMp,s.hero.mp+.6);
@@ -304,12 +346,13 @@ function playerTurn(s) {
   actions.attacks++;
   if(skill){s.hero.mp-=3;actions.skills++;actions.manaSpent+=3;}
   const attack=resolveWeaponAttack({attack:p.attack*(skill?2.3:1),crit:p.crit,skill},target,s.equipment.weapon,s.timing.ticks,()=>random(s));
+  const previousHp=target.hp;
   target.hp=Math.max(0,target.hp-attack.damage);
   event(s,attack.damage?attack.crit?'crit':'hit':attack.outcome==='block'?'block':'miss',`${skill?'破勢斬 · ':''}${attack.damage?attack.crit?'暴擊':'斬擊':'未造成傷害'}`,attack.damage,target.id);
   if(attack.proc?.type==='penetratedArmor')event(s,'proc',`穿透護甲 ${attack.proc.stacks}/3 層 · ${attack.proc.durationTicks} Tick`,attack.proc.stacks,target.id);
   if(attack.proc?.type==='stun')event(s,'proc',`暈眩 · ${attack.proc.durationTicks} Tick`,attack.proc.durationTicks,target.id,'stun');
-  if(target.hp===0)defeatEnemy(s,target);
-  if(s.enemies.every(e=>e.hp<=0)){if(s.wave===s.totalWaves)win(s);else{s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.10);s._enemyClock=0;}}
+  if(attack.proc?.type==='bleeding')event(s,'proc',`流血傷口 ${attack.proc.stacks}/5 層 · ${attack.proc.durationTicks} Tick · 每 Tick ${attack.proc.damagePerTick}`,attack.proc.stacks,target.id,'bleed');
+  settleEnemyDeath(s,target,previousHp);finishWave(s,p.maxHp);
 }
 function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
@@ -329,11 +372,39 @@ function enemyTurn(s) {
   }
 }
 function tickEnemyStatuses(s, previousTick) {
-  for(const enemy of s.enemies){
-    const wasStunned=stunStatus(enemy,previousTick)?.ticksRemaining>0;
-    expirePenetratedArmor(enemy,s.timing.ticks);expireStun(enemy,s.timing.ticks);
-    if(wasStunned&&!enemy.stun&&enemy.hp>0)enemy.stunRecoveryPending=true;
+  const enemies=s.enemies;
+  if(!validTick(previousTick)||!validTick(s.timing.ticks)||s.timing.ticks<=previousTick){
+    for(const enemy of enemies){expirePenetratedArmor(enemy,s.timing.ticks);expireStun(enemy,s.timing.ticks);expireBleeding(enemy,s.timing.ticks);}
+    return false;
   }
+  // Every valid status at the prior observation expires within seven ticks.
+  // Bounded replay also prevents malformed clocks from causing an unbounded loop.
+  for(const enemy of enemies)expireBleeding(enemy,previousTick);
+  const lastTick=Math.min(s.timing.ticks,previousTick+AXE_BLEED_RULES.durationTicks);
+  for(let tick=previousTick+1;tick<=lastTick;tick++){
+    const maxHp=stats(s).maxHp;
+    let killed=false;
+    for(const enemy of enemies){
+      const wasStunned=stunStatus(enemy,tick-1)?.ticksRemaining>0;
+      // View the preceding tick so the seventh future boundary pays its final
+      // pulse before removal. A fresh proc never pays on its application tick.
+      const bleeding=bleedStatus(enemy,tick-1);
+      if(bleeding&&bleeding.damagePerTick>0){
+        const previousHp=enemy.hp,damage=Math.min(previousHp,bleeding.damagePerTick);
+        enemy.hp=Math.max(0,previousHp-damage);
+        event(s,'bleed',`${enemy.name||'敵人'} · 流血 ${damage}`,damage,enemy.id,'bleed');
+        if(settleEnemyDeath(s,enemy,previousHp)){
+          killed=true;log(s,`${enemy.name||'敵人'} 因流血倒下 · ${damage} 傷害；擊殺獎勵已結算。`);
+        }
+      }
+      expirePenetratedArmor(enemy,tick);expireStun(enemy,tick);expireBleeding(enemy,tick);
+      if(wasStunned&&!enemy.stun&&enemy.hp>0)enemy.stunRecoveryPending=true;
+    }
+    // Settle only after the captured old-wave batch. New enemies cannot inherit
+    // an old pulse, and no new-wave action runs on this terminal boundary.
+    if(killed&&finishWave(s,maxHp))return true;
+  }
+  return false;
 }
 function recoverStunnedEnemies(s) {
   // Selected action-economy adaptation: deliver before the next player action,
@@ -360,8 +431,9 @@ export function advance(s, seconds) {
     }
     s.battle.elapsed+=dt;s.timing.tu+=dt*100/1.05;
     const previousTick=s.timing.ticks;s.timing.ticks=Math.floor(s.timing.tu/100);
-    if(s.timing.ticks!==previousTick)tickEnemyStatuses(s,previousTick);
     s._clock+=dt;s._enemyClock+=dt;
+    if(s.timing.ticks!==previousTick&&tickEnemyStatuses(s,previousTick))continue;
+    if(s.mode!=='battle'||s._phase!=='fight')continue;
     if(s._clock>=1.05){
       s._clock-=1.05;recoverStunnedEnemies(s);
       if(s.mode==='battle'&&s._phase==='fight')playerTurn(s);
