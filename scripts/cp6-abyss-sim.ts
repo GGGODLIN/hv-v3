@@ -13,7 +13,7 @@ import { powerScore } from '../src/core/player';
 RULES.cp6Abyss = true;
 const N = Number(process.argv[2] ?? 24), T = Number(process.argv[3] ?? 5);
 const STRATS = (process.argv[4] ?? 'auto,buff:blade,buff:oc,buff:arcane,buff:bulwark').split(',') as Strategy[];
-for (const kv of process.argv.slice(5)) { const [k, v] = kv.split("="); (ABYSS as unknown as Record<string, number>)[k!] = Number(v); console.log(`override ${k}=${v}`); }
+for (const kv of process.argv.slice(5)) { const [k, v] = kv.split("="); const [a, b] = k!.split('.'); const o = ABYSS as unknown as Record<string, any>; if (b) o[a!][b] = Number(v); else o[a!] = Number(v); console.log(`override ${k}=${v}`); }
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
 const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);
@@ -22,7 +22,7 @@ console.log(`CP6 abyss sim N=${N} T=${T} (main tower until first F20 clear, then
 for (const strat of STRATS) {
   const first: number[] = [], best: number[] = [], lv: number[] = [], pw: number[] = [], mt: number[] = [], kept: number[] = [], died: number[] = [], qmix: Record<string, number> = {}, schools: Record<string, number> = {};
   let noClear = 0, titles = 0;
-  const boss: Record<number, BossFight[]> = {};
+  const boss: Record<number, BossFight[]> = {}; const endAt: Record<number, number> = {};
   for (let s = 1; s <= N; s++) {
     const p = newPlayer(); starterKit(p, s);
     let i = 0;
@@ -34,7 +34,7 @@ for (const strat of STRATS) {
       const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: checkpointStart(rec.best), cap: 60, ms: rec.ms });
       if (t === 1) { first.push(r.abyss!.cleared); lv.push(r.level); pw.push(r.power); }
       recordTitles(rec, r.abyss!.ms, r.abyss!.titles); titles += r.abyss!.titles.length;
-      died.push(+(r.settlement.outcome === 'dead')); kept.push(r.settlement.kept.length); for (const e of r.settlement.kept) qmix[e.quality] = (qmix[e.quality] ?? 0) + 1;
+      died.push(+(r.settlement.outcome === 'dead')); if (r.settlement.outcome === 'dead') endAt[r.abyss!.cleared + 1] = (endAt[r.abyss!.cleared + 1] ?? 0) + 1; kept.push(r.settlement.kept.length); for (const e of r.settlement.kept) qmix[e.quality] = (qmix[e.quality] ?? 0) + 1;
       recordTrip(rec, r.abyss!.cleared, r.abyss!.school as AbyssSchool);
       schools[r.abyss!.school] = (schools[r.abyss!.school] ?? 0) + 1;
       for (const b of r.bosses) (boss[b.floor] ??= []).push(b);
@@ -48,5 +48,6 @@ for (const strat of STRATS) {
   console.log(`trip1 cleared depth: p10 ${q(first, 0.1)} p25 ${q(first, 0.25)} median ${q(first, 0.5)} p75 ${q(first, 0.75)} p90 ${q(first, 0.9)} mean ${f(mean(first))}`);
   console.log(`best after ${T} trips: p10 ${q(best, 0.1)} median ${q(best, 0.5)} p90 ${q(best, 0.9)} max ${Math.max(...best)}`);
   console.log('boss fights by abyss depth | n | win% | turns');
-  for (const k of Object.keys(boss).map(Number).sort((a, b) => a - b)) { const xs = boss[k]!; console.log(`  d${k} | ${xs.length} | ${f(mean(xs.map((b) => +b.won)) * 100)} | ${f(mean(xs.map((b) => b.turns)))}`); }
+  for (const k of [...new Set([5, 10, 15, 20, 25, ...Object.keys(boss).map(Number)])].sort((a, b) => a - b)) { const xs0 = boss[k] ?? []; if (!xs0.length) { console.log(`  d${k} | 0 | — | —`); continue; } const xs = boss[k]!; console.log(`  d${k} | ${xs.length} | ${f(mean(xs.map((b) => +b.won)) * 100)} | ${f(mean(xs.map((b) => b.turns)))}`); }
+  console.log(`death depth (abyss trips dying at depth d): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${endAt[d]}`).join(' ')}`);
 }
