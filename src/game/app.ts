@@ -1,4 +1,4 @@
-import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, DEF, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -222,7 +222,7 @@ export class App {
         <div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
-        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' })}>S·${b.spirit ? '解除架勢' : '靈動架勢'}</button></div>
+        <div class="grp"><button class="main" data-act="attack">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}">D·防禦</button><button data-act="focus">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }

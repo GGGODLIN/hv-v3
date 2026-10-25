@@ -141,3 +141,20 @@ describe('CP3-fix 2: potions before the town shop opens (暫定)', () => {
     expect(p.potions.health).toBe(5);
   });
 });
+
+describe('CP3-fix 4: Spirit Stance unlock', () => {
+  it('opens on reaching F4 in trip 1, so trip 2 F5 is unlocked; only the sourced OC 50 gate remains', () => {
+    const p = newPlayer();
+    const run = startRun(p, 11);
+    for (let f = 1; f <= 4; f++) { run.floor = f; enterNode(p, run, f === 3 ? 'merchant' : 'battle'); }
+    expect(has(p, 'spirit')).toBe(true);
+    run.done = 'dead'; settle(p, run);
+    const r2 = startRun(p, 12); r2.floor = 5;
+    expect(battleLocks(p).spirit).toBe(false);
+    const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
+    const b = startBattle(derive(p), { hp: 999, mp: 999, sp: 999 }, encounter(r2, pool, 'boss'), p.potions); b.locked = battleLocks(p);
+    expect(whyNot(b, { kind: 'spirit' })).toContain('OC 不足');
+    b.oc = SPIRIT_MIN_OC;
+    expect(canUse(b, { kind: 'spirit' })).toBe(true);
+  });
+});
