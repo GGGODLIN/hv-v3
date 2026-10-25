@@ -11,7 +11,14 @@ import { advance, applyLoot, battleLocks, openingOc, enterNode as coreEnterNode,
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
 import type { Stage } from './stage';
-import { ATTR_HINT, ATTR_ZH, esc, fmtStat, STAT_ZH } from './text';
+import { ATTR_HINT, ATTR_ZH, esc, fmtChange, fmtStat, STAT_ZH } from './text';
+
+/** CP3-fix 12 / CP3-bugfix 7: exactly which stats the next +1 changes (town Item World and campfire forge). */
+function iwGain(e: Equip): string {
+  const a = effectiveStats(e), b = effectiveStats({ ...e, iw: e.iw + 1 });
+  const ch = (Object.keys(b) as (keyof typeof b)[]).filter((k) => b[k] !== a[k]).map((k) => { const [x, y] = fmtChange(k, a[k]!, b[k]!); return `<span class="iwgain">${STAT_ZH[k] ?? k} ${x} → <b>${y}</b></span>`; });
+  return ch.join(' ') || '<span class="hint">此裝備沒有會隨強化成長的數值</span>';
+}
 
 type Screen = 'town' | 'map' | 'battle' | 'node' | 'result';
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -159,12 +166,7 @@ export class App {
     } else if (this.townTab === 'iw') {
       const g = prog(p);
       const cost = (e: Equip) => (g.iwUses === 0 ? 0 : IW_COST * (e.iw + 1));
-      // CP3-fix 12: show exactly which stats the next +1 changes.
-      const gain = (e: Equip) => {
-        const a = effectiveStats(e), b = effectiveStats({ ...e, iw: e.iw + 1 });
-        const ch = (Object.keys(b) as (keyof typeof b)[]).filter((k) => b[k] !== a[k]).map((k) => `<span class="iwgain">${STAT_ZH[k] ?? k} ${fmtStat(k, a[k]!)} → <b>${fmtStat(k, b[k]!)}</b></span>`);
-        return ch.join(' ') || '<span class="hint">此裝備沒有會隨強化成長的數值</span>';
-      };
+      const gain = (e: Equip) => iwGain(e);
       const rows = SLOTS.map((sl) => p.equipped[sl]).filter((e): e is Equip => !!e).map((e) => `<tr data-iwrow="${e.slot}"><td>${esc(equipName(e))}</td><td>+${e.iw} → +${e.iw + 1}</td><td class="iwprev">${gain(e)}</td><td><button data-iw="${e.slot}" ${p.credits < cost(e) ? 'disabled' : ''}>強化 ${cost(e) ? cost(e) + 'C' : '（免費）'}</button></td></tr>`).join('');
       body = `<h3>道具界</h3><div class="hint">進入裝備的道具界強化 +1：會隨等級成長的數值每級 +4%（下表列出這次會變多少）。第一次免費。</div><table>${rows}</table>`;
     } else if (this.townTab === 'char') {
@@ -259,7 +261,7 @@ export class App {
         <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>`;
     } else if (t === 'rest') {
       const d = runDerived(this.p, r);
-      const slots = SLOTS.filter((s) => this.p.equipped[s]).map((s) => `<button data-up="${s}">強化${SLOT_ZH[s]}（+${this.p.equipped[s]!.iw} → +${this.p.equipped[s]!.iw + 1}）</button>`).join(' ');
+      const slots = SLOTS.filter((s) => this.p.equipped[s]).map((s) => `<div class="forge" data-forge="${s}"><button data-up="${s}">強化${SLOT_ZH[s]}（+${this.p.equipped[s]!.iw} → +${this.p.equipped[s]!.iw + 1}）</button> <small>${esc(equipName(this.p.equipped[s]!))}：</small>${iwGain(this.p.equipped[s]!)}</div>`).join('');
       body = `<h2>♨ 營火</h2>${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}<p>二選一：</p><div class="row"><button class="big" data-heal>休息：回復 60% HP，MP/SP 全滿</button></div>
         <p>或在火邊鍛造（裝備世界 +1，永久保留）：</p><div class="row">${slots || '沒有可強化的裝備'}</div>`;
     } else if (t === 'shrine') {

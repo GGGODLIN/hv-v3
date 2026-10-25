@@ -35,3 +35,19 @@ describe('CP3-bugfix 2: monster name filter', () => {
     expect(pool.rows.filter((r) => badName(r[2])).length).toBe(0);
   });
 });
+
+import { fmtChange } from '../src/game/text';
+import { effectiveStats, type Equip } from '../src/core/items';
+describe('CP3-bugfix 7: upgrade preview shows the real change', () => {
+  it('evade 0.6 -> 0.624 is not shown as 0.6 -> 0.6', () => {
+    const [a, b] = fmtChange('evade', 0.6, 0.624);
+    expect(a).not.toBe(b);
+    expect(b).toBe('+0.62%');
+  });
+  it('rapier attack damage grows +4% per IW level', () => {
+    const e = { stats: { attackDamage: 23.37, burden: 11.38 }, iw: 0 } as unknown as Equip;
+    const s = effectiveStats({ ...e, iw: 1 });
+    expect(s.attackDamage).toBeCloseTo(24.3, 1);
+    expect(s.burden).toBe(11.38);
+  });
+});

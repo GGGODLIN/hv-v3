@@ -11,7 +11,9 @@ export const STAT_ZH: Record<StatKey, string> = {
   str: '力量', dex: '靈巧', agi: '敏捷', end: '體質', int: '智力', wis: '智慧',
 };
 const FLAT = new Set(['attackDamage', 'magicDamage', 'burden', 'interference', 'str', 'dex', 'agi', 'end', 'int', 'wis', 'elementalProf', 'divineProf', 'forbiddenProf', 'deprecatingProf', 'supportiveProf']);
-export const fmtStat = (k: string, v: number) => (FLAT.has(k) ? `${v >= 0 ? '+' : ''}${Math.round(v * 10) / 10}` : `${v >= 0 ? '+' : ''}${Math.round(v * 10) / 10}%`);
+export const fmtStat = (k: string, v: number, digits = 1) => { const m = 10 ** digits; const n = Math.round(v * m) / m; return `${v >= 0 ? '+' : ''}${n}${FLAT.has(k) ? '' : '%'}`; };
+/** CP3-bugfix 7: before -> after with enough decimals that a real change never reads as "0.6% -> 0.6%". */
+export const fmtChange = (k: string, a: number, b: number): [string, string] => { let d = 1; while (d < 3 && fmtStat(k, a, d) === fmtStat(k, b, d)) d++; return [fmtStat(k, a, d), fmtStat(k, b, d)]; };
 export const ATTR_ZH = { str: '力量 STR', dex: '靈巧 DEX', agi: '敏捷 AGI', end: '體質 END', int: '智力 INT', wis: '智慧 WIS' } as const;
 export const ATTR_HINT = { str: '物理傷害、暴擊', dex: '物理傷害、命中、暴擊', agi: '閃避', end: 'HP、物理減傷', int: '魔法傷害、MP', wis: 'MP、魔法減傷、MP 回復' } as const;
 export const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
