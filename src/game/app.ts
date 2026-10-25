@@ -342,7 +342,7 @@ export class App {
       this.notice = [`${equipName(e)} 強化至 +${e.iw}${c ? `（-${c}C）` : '（免費）'}`];
       this.save(); this.go('town');
     });
-    on('[data-sellall]', () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); });
+    on('[data-sellall]', () => { const n = this.p.inventory.length; const sum = this.p.inventory.reduce((t, e) => t + sellPrice(e), 0); this.ask('賣掉倉庫全部？', `<p class="warn">會賣掉倉庫裡全部 ${n} 件裝備，得到 ${sum}C。賣掉後無法買回。</p>`, `確定賣掉 ${n} 件`, () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); }); }); // CP3-bugfix 6: confirm
     on('[data-buy]', (el) => { const k = el.dataset.buy as PotionId; if (this.p.credits >= RULES.potionPrice[k]) { this.p.credits -= RULES.potionPrice[k]; this.p.potions[k]++; } this.go('town'); });
     on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>`, '清空並建立新角色', () => { this.data = App.fresh(); this.save(); this.go('town'); }));
     on('[data-modal-cancel]', () => { this.modal = null; this.render(); });
@@ -515,6 +515,11 @@ export class App {
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }
       if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，蓄力變快）</span>`);
+      // CP3-bugfix 6: skill / stance feedback in the log.
+      if (e.t === 'status' && !e.phase && typeof e.to === 'number') this.log.push(`<span class="statusfx" data-status>${esc(b.monsters[e.to]!.name)} ${esc(e.text)}</span>`);
+      if (e.t === 'hit' && e.from === 'player' && e.label && !e.weak) this.log.push(`<span class="skillhit" data-skillhit>${esc(e.label)} → ${esc(b.monsters[e.to as number]!.name)} ${e.dmg > 0 ? e.dmg : '未命中'}${e.spirit && e.dmg > 0 ? '（架勢 ×2）' : ''}</span>`);
+      if (e.t === 'hit' && e.from === 'player' && !e.label && e.spirit && e.dmg > 0 && !e.weak && !e.crits) this.log.push(`<span class="spirit">架勢攻擊 ${e.dmg}（×2）</span>`);
+      if (e.t === 'spirit') this.log.push(e.on ? `<span class="spirit" data-spiritlog>☯ 靈動架勢開啟：物理傷害 ×2（+100%），每回合消耗 1 SP 與 10 OC；OC 或 SP 不足會自動解除</span>` : `<span class="spirit" data-spiritlog>☯ 靈動架勢解除</span>`);
       if (e.t === 'death') this.log.push(`擊倒 ${esc(b.monsters[e.to]!.name)}`);
       if (e.t === 'charge') this.log.push(`<span class="warn">${esc(b.monsters[e.from]!.name)} 正在蓄力！</span>`);
       if (e.t === 'msg') this.log.push(esc(e.text));
