@@ -1,8 +1,8 @@
 # Current status
 
-## v0.5 candidate — 2026-10-25 17:00 UTC
+## v0.5 desktop accepted, publication pending — 2026-10-25 17:26 UTC
 
-Public release remains v0.4 below. Candidate work adds deterministic armored/agile enemy roles from stage 3, camp route preview and live defense readouts. Stages 1–2 and all HP/attack/reward/proc/item rules are preserved; role values are explicit adaptations. 262 Node tests and four JS syntax checks pass. Independent 120-wave route/spawn checks and actual old-validator compatibility pass. Seeds1–100 naturally clear stages1–5; stages1–2 preserve prior state/RNG, paired stage3–5 median slowdowns are11.7%/0%/10.5%. See BUILD-GUIDE.md for equipment tradeoffs and sampling limits. Backup and actual-browser acceptance are pending. No new persistent schema is intended. Routine reports are suppressed during Taipei 01:00–08:59 while authorized work continues.
+Public release remains v0.4 below. Candidate work adds deterministic armored/agile enemy roles from stage 3, camp route preview and live defense readouts. Stages 1–2 and all HP/attack/reward/proc/item rules are preserved; role values are explicit adaptations. 262 Node tests and four JS syntax checks pass. Independent 120-wave route/spawn checks and actual old-validator compatibility pass. Seeds1–100 naturally clear stages1–5; stages1–2 preserve prior state/RNG, paired stage3–5 median slowdowns are11.7%/0%/10.5%. See BUILD-GUIDE.md for equipment tradeoffs and sampling limits. Candidate source `3e692b4008a93ba45aaffe5d5e62d76378927f30` is exact-readback verified. Candidate site `7d6ae90e71245984034a8048b0443ec1b62bcf9e` / CI `40215716667` and six public hashes pass. Cloud Chrome verified four-wave previews, matching live armored/agile defenses, PA/stun-adjusted readouts, natural equip/progression, narrow layout and reload. See BROWSER-QA-V05.md for limits. Accepted-source backup, root promotion and final takeover smoke remain pending. No new persistent schema is intended. Routine reports are suppressed during Taipei 01:00–08:59 while authorized work continues.
 
 ## v0.4 published — 2026-10-25 16:30 UTC
 

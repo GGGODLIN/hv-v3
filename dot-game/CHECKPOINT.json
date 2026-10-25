@@ -1,10 +1,10 @@
 {
-  "checkpoint": "v0.5-candidate",
-  "status": "source-tests-passed-browser-pending",
+  "checkpoint": "v0.5-desktop-accepted",
+  "status": "candidate-browser-accepted-root-promotion-pending",
   "files": {
     "README.md": {
       "bytes": 6283,
-      "sha256": "0f7b22616ad21455fd720cd1ad4ce74fc5a0cfa0ae24cb94d1064a0c5d2dd503"
+      "sha256": "b0c66b242d55ea3432d1c30c00260e97ce5b623b1cfd441d1d59a334a4f965df"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -37,6 +37,10 @@
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
       "sha256": "963579eb804fe91cfd14f7ee6ba9e4d7aab3809c34ef03438cfb45807b0f1057"
+    },
+    "docs/BROWSER-QA-V05.md": {
+      "bytes": 4084,
+      "sha256": "c358fc33f8a01d0431c5066452e445588746b8e8605e1fbc5f45cad66637f0a2"
     },
     "docs/BROWSER-QA.md": {
       "bytes": 2596,
@@ -71,8 +75,8 @@
       "sha256": "cc184561336f5d56d3651069ab16814ea7ac21e9a3d17de6d2b688b207d4c6cf"
     },
     "docs/STATUS.md": {
-      "bytes": 9832,
-      "sha256": "fbefae7ecbf1ff4a6f16132f6a3b8b2fdfd93edb0cb179e35eda0b5039c2d9c5"
+      "bytes": 10277,
+      "sha256": "47807620a7f21919b6268c55ba1cd2ad18cb947fd24eeb1ed89d0bfbabc3c5fb"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
