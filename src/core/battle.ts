@@ -1,3 +1,4 @@
+import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
@@ -72,7 +73,16 @@ export type BEvent =
   | { t: 'spirit'; on: boolean }
   | { t: 'msg'; text: string };
 
+/** CP4 run-buff battle mods (docs/cp4-run-buffs.md). Undefined = CP3 behavior, byte for byte. Values 暫定. */
+export interface BattleMods extends BMods {
+  combo: Combos;
+  /** combo state */
+  freeSkill?: boolean; lastElem?: string; counterReady?: boolean;
+  /** stats for the sim */
+  comboFires?: number;
+}
 export interface BattleState {
+  mods?: BattleMods;
   d: Derived;
   hp: number; mp: number; sp: number; oc: number;
   monsters: Monster[];
@@ -105,9 +115,21 @@ export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: nu
 }
 
 export const alive = (s: BattleState) => s.monsters.filter((m) => m.hp > 0);
+const ocCap = (s: BattleState) => (s.mods ? OC.cap + (s.mods.ocCap ?? 0) : OC.cap);
+/** OC cost of a skill after CP4 mods (O8, oc combo). */
+export function skillOc(s: BattleState, id: SkillId): number {
+  const M = s.mods;
+  if (!M) return SKILLS[id].oc;
+  if (M.freeSkill) return 0;
+  return Math.round(SKILLS[id].oc * (1 + (M.skillOcPct ?? 0)));
+}
+const skillCd = (s: BattleState, id: SkillId) => (s.mods ? Math.max(0, SKILLS[id].cd + (s.mods.skillCd?.[id] ?? 0)) : SKILLS[id].cd);
+const spPerTurn = (s: BattleState) => (s.mods?.ssSpPct ? Math.max(1, Math.round(SS.spPerTurn * (1 + s.mods.ssSpPct))) : SS.spPerTurn);
+const fire = (s: BattleState) => { if (s.mods) s.mods.comboFires = (s.mods.comboFires ?? 0) + 1; };
 export function spellCost(s: BattleState, id: SpellId): number {
   const sp = SPELLS[id];
-  return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1)));
+  const x = s.mods?.combo.arcaneOc && s.spirit ? 0.9 : 1;
+  return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1) * x));
 }
 
 export function canUse(s: BattleState, a: Action): boolean {
@@ -116,7 +138,7 @@ export function canUse(s: BattleState, a: Action): boolean {
     case 'attack': return true;
     case 'skill': {
       if (s.locked?.skill) return false;
-      if (s.cooldowns[a.id] > 0 || s.oc < SKILLS[a.id].oc) return false;
+      if (s.cooldowns[a.id] > 0 || s.oc < skillOc(s, a.id)) return false;
       if (a.id === 'mercifulBlow') {
         const m = s.monsters[a.target];
         return !!m && m.hp > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction;
@@ -126,7 +148,7 @@ export function canUse(s: BattleState, a: Action): boolean {
     case 'spell': return !s.locked?.spell && s.mp >= spellCost(s, a.id);
     case 'item': return s.potions[a.id] > 0 && s.itemCd[a.id] <= 0;
     case 'defend': case 'focus': return true;
-    case 'spirit': return s.spirit || (!s.locked?.spirit && s.oc >= SPIRIT_MIN_OC && s.sp >= SS.spPerTurn);
+    case 'spirit': return s.spirit || (!s.locked?.spirit && s.oc >= SPIRIT_MIN_OC && s.sp >= spPerTurn(s));
   }
 }
 
@@ -134,7 +156,7 @@ export function canUse(s: BattleState, a: Action): boolean {
 export function whyNot(s: BattleState, a: Action): string {
   if ((a.kind === 'skill' && s.locked?.skill) || (a.kind === 'spell' && s.locked?.spell) || (a.kind === 'spirit' && s.locked?.spirit && !s.spirit)) return '尚未解鎖';
   switch (a.kind) {
-    case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < SKILLS[a.id].oc ? `OC 不足（需 ${SKILLS[a.id].oc}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
+    case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < skillOc(s, a.id) ? `OC 不足（需 ${skillOc(s, a.id)}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
     case 'spell': return `MP 不足（需 ${spellCost(s, a.id)}）`;
     case 'item': return s.potions[a.id] <= 0 ? '藥水用完了' : `藥水冷卻中（${s.itemCd[a.id]} 回合）`;
     case 'spirit': return s.oc < SPIRIT_MIN_OC ? `OC 不足（需 ${SPIRIT_MIN_OC}，現有 ${Math.floor(s.oc)}）` : `SP 不足（需 ${SS.spPerTurn}）`;
@@ -156,14 +178,25 @@ function retarget(s: BattleState, t: number): number {
 
 function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
   const m = s.monsters[ti]!;
+  const M = s.mods;
+  let raw = s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (M?.ssDamage ?? 0) : 1);
+  let critChance = s.d.physCrit;
+  if (M) {
+    if (M.weakMult && isWeak(m, dtype)) raw *= 1 + M.weakMult;
+    if (M.counterReady) { M.counterReady = false; raw *= 1.3; fire(s); }
+    if (M.combo.bladeOc && s.spirit) critChance += 0.05;
+  }
   const r = resolveHit(rng, {
-    raw: s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus : 1), magic: false, acc: s.d.physAcc,
+    raw, magic: false, acc: s.d.physAcc,
     evade: m.status.stun > 0 ? 0 : m.evade, parry: m.status.stun > 0 ? 0 : m.parry, block: 0, resist: 0,
-    critChance: s.d.physCrit, critMod: s.d.critMod, mit: m.physMit, spec: m.spec[dtype] / 100,
+    critChance, critMod: s.d.critMod, mit: m.physMit, spec: m.spec[dtype] / 100,
   });
   if (r.avoidMult > 0) {
     m.hp = Math.max(0, m.hp - r.damage);
-    s.oc = Math.min(OC.cap, s.oc + rng.int(OC.hitGainMin, OC.hitGainMax));
+    const cap = ocCap(s);
+    s.oc = Math.min(cap, s.oc + rng.int(OC.hitGainMin, OC.hitGainMax) + (M?.ocGain ?? 0) + (M?.combo.blade && r.crits > 0 ? 5 : 0));
+    if (M?.combo.blade && r.crits > 0) fire(s);
+    if (M?.combo.oc && s.oc >= cap && !M.freeSkill) { M.freeSkill = true; fire(s); }
   }
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype) });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
@@ -175,16 +208,22 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   const m = s.monsters[ti]!;
   const pf = Math.max(0, Math.min(1, (profVal - m.level) / Math.max(1, m.level)));
   const specReduce = Math.pow(pf, 1.5) * 0.5;
+  const M = s.mods;
+  let raw = s.d.mdb * (1 + s.d.edb[def.element] / 100) * def.mod;
+  if (M) {
+    if (M.combo.arcane && M.lastElem === def.element) { raw = s.d.mdb * (1 + (s.d.edb[def.element] + 20) / 100) * def.mod; fire(s); }
+    if (M.weakMult && isWeak(m, def.element)) raw *= 1 + M.weakMult;
+  }
   const r = resolveHit(rng, {
-    raw: s.d.mdb * (1 + s.d.edb[def.element] / 100) * def.mod, magic: true, acc: s.d.magAcc,
+    raw, magic: true, acc: s.d.magAcc,
     evade: m.status.stun > 0 ? 0 : m.evade, parry: 0, block: 0, resist: m.resist, counterResist: 0.5 * pf + s.d.counterResist,
     critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: m.magMit, spec: m.spec[def.element] / 100 - specReduce,
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element) });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
-    if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
-    else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15)); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
+    if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
+    else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
   }
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
 }
@@ -205,16 +244,17 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'skill': {
       const t = retarget(s, a.target);
       const m = s.monsters[t]!;
-      s.oc -= SKILLS[a.id].oc;
-      s.cooldowns[a.id] = SKILLS[a.id].cd + 1;
+      s.oc -= skillOc(s, a.id);
+      if (s.mods?.freeSkill) s.mods.freeSkill = false;
+      s.cooldowns[a.id] = skillCd(s, a.id) + 1;
       if (a.id === 'shieldBash') {
         physHit(s, rng, t, SK.shieldBash.multiplier, ev, '盾擊', 'crushing');
-        if (m.hp > 0) { m.status.stun = SK.shieldBash.stunTicks; ev.push({ t: 'status', to: t, text: '暈眩' }); }
+        if (m.hp > 0) { m.status.stun = SK.shieldBash.stunTicks + (s.mods?.bashStun ?? 0); ev.push({ t: 'status', to: t, text: '暈眩' }); }
       } else if (a.id === 'vitalStrike') {
         const stunned = m.status.stun > 0;
-        const dmg = physHit(s, rng, t, stunned ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier, ev, stunned ? '要害！' : '要害打擊');
+        const dmg = physHit(s, rng, t, stunned ? SK.vitalStrike.multiplierVsStunned + (s.mods?.combo.bulwarkBlade ? 0.5 : 0) : SK.vitalStrike.multiplier, ev, stunned ? '要害！' : '要害打擊');
         if (m.hp > 0 && dmg > 0) {
-          m.status.bleed = Math.max(m.status.bleed, Math.ceil((dmg * BLEED.damageFactor) / VSB.ticks));
+          m.status.bleed = Math.max(m.status.bleed, Math.ceil((dmg * BLEED.damageFactor * (1 + (s.mods?.bleedMult ?? 0))) / VSB.ticks));
           m.status.bleedTurns = VSB.ticks;
           ev.push({ t: 'status', to: t, text: '流血' });
         }
@@ -231,13 +271,14 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       const t0 = retarget(s, a.target);
       const order = [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)];
       for (const ti of order.slice(0, def.targets)) spellHit(s, rng, ti, def, profs[def.school] ?? 0, ev);
+      if (s.mods) s.mods.lastElem = def.element;
       s.used[def.school] = (s.used[def.school] ?? 0) + 1;
       break;
     }
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = (a.id === 'health' ? HEALTH_POTION_CD : ITEM_CD) + 1;
+      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? HEALTH_POTION_CD : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1;
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];
@@ -249,17 +290,19 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       if (s.oc >= DEF.ocCost) {
         s.oc -= DEF.ocCost;
         const before = s.hp;
-        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover));
+        s.hp = Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0))));
         ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
       } else ev.push({ t: 'status', to: 'player', text: '防禦' });
       s.defendTurns = DEF.turns;
+      if (s.mods?.combo.bulwark) s.mods.counterReady = true;
       break;
     }
     case 'focus': {
-      if (s.oc >= FOC.ocCost) {
-        s.oc -= FOC.ocCost;
+      const focCost = s.mods?.focOcPct ? Math.round(FOC.ocCost * (1 + s.mods.focOcPct)) : FOC.ocCost;
+      if (s.oc >= focCost) {
+        s.oc -= focCost;
         const before = s.mp;
-        s.mp = Math.min(s.d.mp, s.mp + Math.round(s.d.mp * FOC.mpRecover));
+        s.mp = Math.min(s.d.mp, s.mp + Math.round(s.d.mp * FOC.mpRecover * (1 + (s.mods?.focMpPct ?? 0))));
         ev.push({ t: 'heal', res: 'mp', amount: s.mp - before, label: '專注' });
       } else ev.push({ t: 'status', to: 'player', text: '專注' });
       s.focusTurn = true;
@@ -288,7 +331,7 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
   for (const k of Object.keys(s.cooldowns) as SkillId[]) if (s.cooldowns[k] > 0) s.cooldowns[k]--;
   for (const k of Object.keys(s.itemCd) as PotionId[]) if (s.itemCd[k] > 0) s.itemCd[k]--;
   if (s.spirit) {
-    if (s.sp >= SS.spPerTurn && s.oc >= SS.ocPerTurn) { s.sp -= SS.spPerTurn; s.oc -= SS.ocPerTurn; }
+    if (s.sp >= spPerTurn(s) && s.oc >= SS.ocPerTurn) { s.sp -= spPerTurn(s); s.oc -= SS.ocPerTurn; }
     else { s.spirit = false; ev.push({ t: 'spirit', on: false }); }
   }
   s.regen = { hp: 0, mp: 0, sp: 0 };

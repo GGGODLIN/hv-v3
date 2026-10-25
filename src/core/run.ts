@@ -7,6 +7,7 @@ import { Rng } from './rng';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
+import { combos, sumMods } from './buffs';
 
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
@@ -29,6 +30,8 @@ export const RULES = {
   earlyEquipByFloor: 4,
   /** CP4 feature flag (docs/cp4-run-buffs.md §11). Off = identical to tag cp3-pass. `?cp4` in the URL turns it on. */
   cp4RunBuffs: false,
+  /** CP4 decision 5 (暫定): boss max HP × (1 + k × buffs held). Gameplay layer, monsters.json untouched. */
+  cp4BossHpPerBuff: 0.04,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -112,8 +115,21 @@ export function battleLocks(p: Player): { skill: boolean; spell: boolean; spirit
 }
 
 /** CP3-fix 10: run buff "首領戰意" — opening OC for a battle of this node type. */
-export function openingOc(p: Player, type: NodeType): number {
-  return type === 'boss' && has(p, 'spirit') ? RULES.bossOpenOc : 0;
+export function openingOc(p: Player, type: NodeType, run?: RunState): number {
+  const base = type === 'boss' && has(p, 'spirit') ? RULES.bossOpenOc : 0;
+  if (!cp4On(run)) return base;
+  const b = sumMods(run!.buffs!).b;
+  return base + (type === 'boss' ? (b.bossOc ?? 0) : (b.ocOpen ?? 0));
+}
+
+/** CP4: flag on and the run holds buffs. */
+export const cp4On = (run?: RunState): boolean => RULES.cp4RunBuffs && !!run?.buffs?.length;
+
+/** CP4: attach run-buff battle mods (combo triggers included). No-op with the flag off. */
+export function armBattle(b: BattleState, run: RunState): void {
+  if (!cp4On(run)) return;
+  const ids = run.buffs!;
+  b.mods = { ...sumMods(ids).b, combo: combos(ids) };
 }
 
 export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
@@ -127,7 +143,23 @@ export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
 /** Derived stats with run bonuses applied. */
 export function runDerived(p: Player, run: RunState) {
   const d = derive(p);
-  return { ...d, adb: d.adb * (1 + run.bonus.dmg), mdb: d.mdb * (1 + run.bonus.dmg), hp: Math.round(d.hp * (1 + run.bonus.hp)) };
+  const out = { ...d, adb: d.adb * (1 + run.bonus.dmg), mdb: d.mdb * (1 + run.bonus.dmg), hp: Math.round(d.hp * (1 + run.bonus.hp)) };
+  if (!cp4On(run)) return out;
+  // CP4 step 2: run-buff derived mods (doc §1 variables only; all values 暫定).
+  const m = sumMods(run.buffs!).d;
+  const cap = (x: number) => Math.min(1, x);
+  out.adb *= 1 + (m.adbPct ?? 0); out.mdb *= 1 + (m.mdbPct ?? 0);
+  out.hp = Math.round(out.hp * (1 + (m.hpPct ?? 0))); out.mp = Math.round(out.mp * (1 + (m.mpPct ?? 0))); out.sp = Math.round(out.sp * (1 + (m.spPct ?? 0)));
+  out.physAcc *= 1 + (m.physAccPct ?? 0); out.magAcc *= 1 + (m.magAccPct ?? 0);
+  out.physCrit = cap(out.physCrit + (m.physCrit ?? 0)); out.magCrit = cap(out.magCrit + (m.magCrit ?? 0));
+  out.critMod += m.critMod ?? 0; out.spellCritMod += m.spellCritMod ?? 0;
+  out.evade = cap(out.evade + (m.evade ?? 0)); out.parry = cap(out.parry + (m.parry ?? 0)); out.block = cap(out.block + (m.block ?? 0));
+  out.physMit = Math.min(0.9, out.physMit + (m.physMit ?? 0)); out.magMit = Math.min(0.9, out.magMit + (m.magMit ?? 0));
+  if (m.specMitAll) out.specMit = Object.fromEntries(Object.entries(out.specMit).map(([k, v]) => [k, v + m.specMitAll!])) as typeof out.specMit;
+  if (m.edb || m.edbAll) out.edb = Object.fromEntries(Object.entries(out.edb).map(([k, v]) => [k, v + (m.edbAll ?? 0) + ((m.edb as Record<string, number> | undefined)?.[k] ?? 0)])) as typeof out.edb;
+  out.manaCons = Math.min(0.5, out.manaCons + (m.manaCons ?? 0));
+  out.counterResist += m.counterResist ?? 0;
+  return out;
 }
 
 const ELEM_COLS = [9, 10, 11, 12] as const; // cold, wind, elec, fire in monsters.json rows
@@ -153,6 +185,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       const row = weak ?? (rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi));
       const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
       if (rank === 'boss') m.phases = RULES.bossPhases;
+      if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       return m;
     });
     if (type === 'elite') run.weakNext = false;

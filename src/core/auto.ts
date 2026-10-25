@@ -8,7 +8,7 @@ import { type Player, allocate, derive, equip, powerScore, profValue, unspentExp
 import { Rng } from './rng';
 import {
   type RunState, advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, runDerived, settle, shrine, startRun, withRng,
-  RULES, type Settlement, battleLocks, enterNode, openingOc,
+  RULES, type Settlement, battleLocks, enterNode, openingOc, armBattle,
 } from './run';
 import { generateEquip } from './items';
 import type { NodeType } from './tower';
@@ -126,7 +126,8 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
       b.locked = battleLocks(p);
-      b.oc += openingOc(p, type);
+      armBattle(b, run);
+      b.oc += openingOc(p, type, run);
       const profs = profsOf(p);
       const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
       while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }
