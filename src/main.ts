@@ -30,10 +30,11 @@ async function boot() {
   if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;
   // CP6 abyss tower is off by default; `?cp6` turns it on (and the CP5 bosses / affixes it reuses).
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
-  // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss15`
+  // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss10|abyss15` (rc5: `debug` no longer required)
   // overwrites the local save with a sim-exported character (public/data/cp6-presets.json) before the game boots.
   const qs = new URLSearchParams(location.search), preset = qs.get('preset');
-  if (RULES.cp6Abyss && qs.has('debug') && preset) {
+  // rc5 (b): `debug` is no longer required — without it the preset was silently ignored and the previous save (e.g. abyss15) stayed.
+  if (RULES.cp6Abyss && preset) {
     const all = (await fetchRetry('data/cp6-presets.json').then((r) => r.json())) as Record<string, { player: unknown; record: unknown }>;
     const pr = all[preset];
     if (pr) {

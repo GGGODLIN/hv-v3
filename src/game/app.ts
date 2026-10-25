@@ -10,7 +10,8 @@ import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
-import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, startAbyss } from '../core/run';
+import { abyssBestMsg, abyssLvFollow, deathCarryMsg } from '../core/run';
+import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
@@ -222,7 +223,7 @@ export class App {
         const dn = r.abyss.start + f.n - 1;
         const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
         const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${bt.title}</small>` : '';
-        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small>Lv${abyssBaseLevel(dn)}</small>${bh}</span>${opts}</div>`;
+        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small data-mlv>Lv${abyssBaseLevel(dn) + abyssLvFollow(r)}</small>${bh}</span>${opts}</div>`;
       }
       const th = r.cp5 && f.n % 5 === 1 ? `<div class="theme-sep" data-themesep="${f.n}">▲ 第 ${f.n}–${f.n + 4} 層：${themeOf(f.n).zh}</div>` : '';
       const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
@@ -252,7 +253,7 @@ export class App {
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
+        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
@@ -694,8 +695,10 @@ export class App {
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
     if (r.done === 'clear') this.data.stats.clears++;
     }
+    const raw = { exp: r.exp, credits: r.credits };
     this.lastSettlement = settle(this.p, r);
-    if (newBest) this.lastSettlement.unlocks.unshift(`深淵新紀錄：${newBest} 層`);
+    if (r.done === 'dead') this.lastSettlement.unlocks.push(deathCarryMsg(raw.exp, raw.credits));
+    if (newBest) this.lastSettlement.unlocks.unshift(abyssBestMsg(newBest));
     this.notice = [];
     this.data.run = null;
     this.battle = null;

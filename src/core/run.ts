@@ -143,8 +143,16 @@ export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState
 }
 /** CP6: monster / item / merchant / chest level at the current depth (r2 decision 7: one formula). */
 /** CP6: carry-back multiplier an abyss run would get if it ended now (same as settle). */
+/** rc5 (a): floor number shown in titles — absolute abyss depth in the abyss, tower floor otherwise. */
+export const floorLabel = (run: RunState): number => (run.abyss ? depthOf(run) : run.floor);
+/** rc5 (c): new-record notice; the record counts depths cleared. */
+export const abyssBestMsg = (n: number): string => `深淵新紀錄：已通過 ${n} 層`;
+/** rc5 (d): on death, say what the run had so a +0 result (died before any reward) is explained. */
+export const deathCarryMsg = (exp: number, credits: number): string => `戰死：本趟累積 ${exp} EXP、${credits} C，帶回 ${Math.round(RULES.death.exp * 100)}%${exp || credits ? '' : '（本趟尚未獲得任何獎勵）'}`;
 export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
-export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + Math.round(RULES.monLvFollow.k * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
+/** rc5: monster-level follow added on top of the depth base (the map used to show the base only: d16 'Lv71' while the fight is Lv80 for a Lv15 player). */
+export const abyssLvFollow = (run: RunState): number => Math.round(RULES.monLvFollow.k * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
+export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + abyssLvFollow(run);
 /** CP6: deepest depth cleared by a finished abyss run. */
 export function abyssCleared(run: RunState): number {
   if (!run.abyss) return 0;

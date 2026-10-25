@@ -7,7 +7,7 @@
 2. 正規做法：在主塔打通 F20 一次。預期：結算出現「深淵塔開放：城鎮可以進入無限層的深淵塔」，城鎮多出「進入深淵塔（第 1 層起）▶」。
 3. 快速做法（主控台）：`hv.p.prog.abyssOpen = true; hv.save(); hv.render()`。預期：城鎮出現深淵入口與「深淵紀錄」列。
 4. 想直接從較深的 checkpoint 起跳：`localStorage.setItem('hv-v3-abyss', JSON.stringify({best:15,trips:1,ms:10,titles:['深淵初探者'],bySchool:{}})); hv.render()`。預期：入口改為「第 16 層起」。
-5. 預設角色（rc3，直接載入 sim 匯出的角色，會覆蓋本機存檔）：`http://localhost:5199/?cp6&debug&preset=<名稱>`。
+5. 預設角色（rc3；rc5 起不需要 `&debug`，新增 `abyss10`＝從第 11 層起、可打到 15 層；直接載入 sim 匯出的角色，會覆蓋本機存檔）：`http://localhost:5199/?cp6&debug&preset=<名稱>`。
    - `postF20-blade`／`postF20-oc`／`postF20-arcane`／`postF20-bulwark`：該流派 64 個種子中「第一次打通 F20」時戰力居中的角色，深淵已解鎖、紀錄為空。
    - `abyss15`：四流派中紀錄第一次到 15 層時戰力居中的角色，紀錄 best＝15（入口顯示「第 16 層起」）。
    - 資料檔 `public/data/cp6-presets.json` 由 `npx tsx scripts/cp6-export-presets.ts > public/data/cp6-presets.json` 產生，不要手改。網址留著 `preset=` 時每次重新整理都會重新覆蓋存檔；要接著玩請拿掉該參數。沒有 `?cp6` 或 `&debug` 時不生效。
