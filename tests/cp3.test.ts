@@ -235,3 +235,18 @@ describe('CP3-fix 10: boss opening OC', () => {
     expect(openingOc(p, 'battle')).toBe(0);
   });
 });
+
+import { bodyOf, BODIES } from '../src/core/bodies';
+describe('CP3-fix 11: monster bodies', () => {
+  it('every race maps to a body, data yields >= 6 bodies, names with clear keywords win, manifest has every body', () => {
+    const rows = JSON.parse(rf8('public/data/monsters.json', 'utf8')) as [number, string, string][];
+    const seen = new Set(rows.map((r) => bodyOf(r[1], r[2])));
+    expect(seen.size).toBeGreaterThanOrEqual(6);
+    expect(bodyOf('Beast', 'Phoenix Of Doom')).toBe('bird');
+    expect(bodyOf('Avion', 'Xyz')).toBe('bird');
+    expect(bodyOf('Undead', 'Bob')).toBe('undead');
+    expect(bodyOf('Mechanoid', 'Bob')).toBe('mech');
+    const man = JSON.parse(rf8('public/assets/pixel/manifest.json', 'utf8'));
+    for (const b of BODIES) expect(man.chars[`m-${b}`]).toBeTruthy();
+  });
+});

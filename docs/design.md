@@ -204,6 +204,11 @@
 ### CP3-fix 10：首領戰意（暫定）
 OC 起始 0 與靈動架勢門檻 50 是原版值，不改。玩法層加 run buff：解鎖靈動架勢後，首領戰開場 OC +50（RULES.bossOpenOc），一開場就能進架勢。一般戰鬥仍從 0 開始。sim 第 1–3 趟：首領戰使用率 100%，全部戰鬥約 26–30%（改前 0%）。
 
+### CP3-fix 11：怪物外型
+舊版只有 beast/undead 兩組圖＋換色，且 Avion/Elemental 也畫成獸。改為 scripts/gen-monsters.py 程序生成 8 種外型：鳥、蟲、獸、亡靈（骷髏）、機械、龍、人形、精靈（能量球）。
+對應（src/core/bodies.ts，只用 monsters.json）：先看名字裡的明確英文關鍵字（phoenix/hawk→鳥、spider→蟲、dragon→龍、skeleton→亡靈、robot→機械、wolf→獸…），否則用種族：Avion→鳥、Arthropod→蟲、Beast→獸、Undead→亡靈、Mechanoid→機械、Dragonkin/Reptilian→龍、Giant/Humanoid/Daimon→人形、Elemental/Celestial/Sprite→精靈。44,382 隻中 508 隻由名字關鍵字決定。
+sha256 比對：docs/cp3fix11-hash-check.md（與舊專案相同 0）。
+
 ### 系統解鎖清單（10 項）
 防禦、藥水（F1 第一場）→ OC 技能（F2）→ 法術、塔內商人（F3）→ 靈動架勢（F4，OC 到 50 提示）→ 屬性配點（第 1 趟回城）→ 神龕（第 2 趟出發）→ 城鎮商店/出售（第 2 趟回城）→ 道具界（首次 F10 首領）。
 CP3 前的舊存檔沒有進度欄位，視為老玩家：除道具界外全部解鎖。

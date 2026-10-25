@@ -2,6 +2,7 @@ import * as Phaser from 'phaser';
 import type { BEvent, BattleState } from '../core/battle';
 import type { Monster } from '../core/monsters';
 import { QUALITY_COLOR, type Quality } from '../core/items';
+import { bodyOf } from '../core/bodies';
 
 export const W = 1100;
 export const H = 620;
@@ -9,15 +10,10 @@ export const H = 620;
 interface CharAction { w: number; h: number; anchor: number; files: string[] }
 interface Manifest { bg: string; chars: Record<string, { scale: number; actions: Record<string, CharAction> }> }
 
-const BEAST_RACES = new Set(['Arthropod', 'Avion', 'Beast', 'Dragonkin', 'Elemental']);
-const RACE_TINT: Record<string, number> = {
-  Arthropod: 0xd8f0a0, Avion: 0xe0e8ff, Beast: 0xffffff, Celestial: 0xfff2b0, Daimon: 0xffa0a0,
-  Dragonkin: 0xffc080, Elemental: 0x9fe8ff, Giant: 0xe0c8a8, Humanoid: 0xf0d8ff, Mechanoid: 0xb8c8d8, Reptilian: 0xb0f0b0, Sprite: 0xffc8f0, Undead: 0xffffff,
-};
 const ELEMENT_COLOR: Record<string, number> = { fire: 0xff6a2a, cold: 0x7fd8ff, elec: 0xfff04a, wind: 0x8affb0, holy: 0xfff8c8, dark: 0xb060ff };
 const AVOID_ZH: Record<string, string> = { evade: '閃避', parry: '招架', block: '格擋', resist: '抵抗' };
 
-interface MonView { m: Monster; sprite: Phaser.GameObjects.Sprite; kind: 'beast' | 'undead'; x: number; y: number; scale: number; bar: Phaser.GameObjects.Graphics; label: Phaser.GameObjects.Text; ring: Phaser.GameObjects.Ellipse; charge?: Phaser.Tweens.Tween; chargeFx?: Phaser.GameObjects.Ellipse }
+interface MonView { m: Monster; sprite: Phaser.GameObjects.Sprite; kind: string; x: number; y: number; scale: number; bar: Phaser.GameObjects.Graphics; label: Phaser.GameObjects.Text; ring: Phaser.GameObjects.Ellipse; charge?: Phaser.Tweens.Tween; chargeFx?: Phaser.GameObjects.Ellipse }
 
 export class Stage extends Phaser.Scene {
   manifest!: Manifest;
@@ -93,13 +89,12 @@ export class Stage extends Phaser.Scene {
     const xs = n <= 2 ? [720, 940] : n === 3 ? [640, 820, 1000] : [600, 740, 880, 1020];
     const ys = n <= 2 ? [560, 540] : [575, 520, 575, 520];
     ms.forEach((m, i) => {
-      const kind = BEAST_RACES.has(m.race) ? 'beast' : 'undead';
+      const kind = `m-${bodyOf(m.race, m.name)}`; // CP3-fix 11: procedural body per race / name
       const scale = (m.rank === 'boss' ? 1.9 : m.rank === 'elite' ? 1.55 : 1.25) * (n >= 4 ? 0.9 : 1);
       const x = xs[i] ?? 900, y = ys[i] ?? 560;
       const ring = this.add.ellipse(x, y - 4, 110 * scale, 22 * scale, 0xffe060, 0).setStrokeStyle(3, 0xffe060, 0.9).setDepth(3).setVisible(false);
       const sprite = this.add.sprite(x, y, `${kind}-attack-0`).setScale(scale).setDepth(4 + (y > 550 ? 1 : 0));
       this.setOrigin(sprite, kind, 'attack');
-      sprite.setTint(RACE_TINT[m.race] ?? 0xffffff);
       if (m.rank === 'elite') sprite.setTint(0xffb0b0);
       if (m.rank === 'boss') sprite.setTint(0xff8080);
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () => { if (m.hp > 0) this.onTarget(i); });
