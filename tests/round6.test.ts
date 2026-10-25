@@ -38,8 +38,9 @@ describe('round 6', () => {
     }
   });
   it('7. death settlement lists kept and lost items separately', () => {
-    const p = newPlayer(); p.potions = { health: 2, mana: 1, spirit: 0 };
+    const p = newPlayer();
     const run = startRun(p, 5);
+    p.potions = { health: 2, mana: 1, spirit: 0 }; // CP3-fix 2: startRun tops up, so set the stock spent during the run afterwards
     const rng = new Rng(9);
     run.bag = [0, 1, 2].map(() => generateEquip(rng, 5, {}));
     run.done = 'dead';
