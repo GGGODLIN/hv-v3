@@ -276,7 +276,10 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
   const L = floorLevel(run.floor);
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
-    for (const m of monsters) {
+    // CP5 r3 (暫定): a solo elite rolls the drop table once more for the missing normal add (producer decision 1).
+    const extra = run.cp5 && type === 'elite' && CP5.eliteSolo && CP5.eliteExtraRoll && !monsters.some((m) => m.rank === 'normal')
+      ? monsters.filter((m) => m.rank === 'elite').slice(0, 1).map((m) => ({ ...m, rank: 'normal' as Rank })) : [];
+    for (const m of [...monsters, ...extra]) {
       loot.exp += Math.round(monsterExp(m.level, m.pl, RULES.expMult) * RULES.rankExp[m.rank]);
       const drop = LR.baseDrop + Math.min(LR.plBonus.cap, Math.max(0, (m.pl - LR.plBonus.offset) / LR.plBonus.divisor));
       if (rng.chance(drop)) {

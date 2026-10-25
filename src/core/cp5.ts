@@ -23,6 +23,8 @@ export const CP5 = {
   eliteHp: 0.8, eliteAdb: 1,
   /** CP5 r2 (暫定): 1 = elites fight without the normal add. */
   eliteSolo: 1,
+  /** CP5 r3 (暫定): 1 = a solo elite gets one extra normal-rank drop roll at its own level (exp included) to replace the missing add. */
+  eliteExtraRoll: 1,
 };
 
 export type BossSig = 'summon' | 'shield' | 'thorns' | 'drain';
