@@ -7,7 +7,7 @@ import { ATTRS, attrCost } from './formulas';
 import { type Equip, SLOTS, blocksOffHand, sellPrice } from './items';
 import { has, unlockRate } from './progress';
 import type { MonsterPool } from './monsters';
-import { type Player, allocate, derive, equip, powerScore, profValue, unspentExp, type Prof } from './player';
+import { type Player, allocate, derive, equip, unequip, powerScore, profValue, unspentExp, type Prof } from './player';
 import { BUFF, formed } from './buffs';
 import { merchantBuffs, openOffer, openShrine, takeBuff, winOffers } from './buffoffer';
 import { Rng } from './rng';
@@ -29,10 +29,48 @@ export function autoAllocate(p: Player): void {
 /** 暫定 (round 5): auto-equip only swaps when the power score rises by at least this fraction, so IW-upgraded gear is not pushed out by a near-equal drop. */
 export const AUTO_EQUIP_MARGIN = 0.05;
 
-export function autoEquip(p: Player, extra: Equip[] = []): Equip[] {
+/** rc4 (sim only): weapon layout per play school. arcane = staff, bulwark = one-hand + shield (docs/cp4-run-buffs.md §2: W1 不動之盾 block/parry),
+ * blade = one-hand, off-hand free (推定：B7 處刑者 buffs Merciful Blow, a One-Handed skill line in F-002-4.2-skills / Ticket 04),
+ * oc = two-hand (推定：no doc names a weapon; Spirit Stance +100% physical and OC-per-hit favour raw hit damage). null = original slot-by-slot logic. */
+export type GearStyle = { main: Equip['group']; shield: 'yes' | 'free' | 'no' } | null;
+export function gearStyle(strategy: string): GearStyle {
+  if (strategy.startsWith('buff:arcane')) return { main: 'staff', shield: 'no' };
+  if (strategy.startsWith('buff:bulwark')) return { main: 'oneHand', shield: 'yes' };
+  if (strategy.startsWith('buff:blade')) return { main: 'oneHand', shield: 'free' };
+  if (strategy.startsWith('buff:oc')) return { main: 'twoHand', shield: 'no' };
+  return null;
+}
+/** Pick main hand + off hand together (can go back from a two-hander to one-hand + shield). Off-style weapons are only used when no
+ * weapon of the school's group is owned. Returns the items taken from `extra`. */
+function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equip[] {
+  const mains = [p.equipped.mainHand, ...cands.filter((x) => x.slot === 'mainHand')].filter((x): x is Equip => !!x);
+  const offs = [p.equipped.offHand, ...cands.filter((x) => x.slot === 'offHand')].filter((x): x is Equip => !!x);
+  const styled = mains.filter((m) => m.group === st.main);
+  const pool = styled.length ? styled : mains;
+  const score = (m: Equip | undefined, o: Equip | undefined) => powerScore(derive({ ...p, equipped: { ...p.equipped, mainHand: m, offHand: o } as Player['equipped'] }));
+  let best: [Equip | undefined, Equip | undefined] = [p.equipped.mainHand, p.equipped.offHand];
+  const legal = (m: Equip | undefined, o: Equip | undefined) => !(o && blocksOffHand(m)) && !(o && st.shield === 'no') && !(st.shield === 'yes' && offs.length && !o && !blocksOffHand(m));
+  const curOk = (!best[0] || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
+  let bestS = curOk ? score(best[0], best[1]) * (1 + AUTO_EQUIP_MARGIN) : -Infinity;
+  for (const m of pool.length ? pool : [undefined]) for (const o of [undefined, ...offs]) {
+    if (!legal(m, o)) continue;
+    const v = score(m, o); if (v > bestS) { bestS = v; best = [m, o]; }
+  }
+  const used: Equip[] = [];
+  const take = (e: Equip) => { if (!p.inventory.includes(e) && !Object.values(p.equipped).includes(e)) { p.inventory.push(e); used.push(e); } };
+  const [m, o] = best;
+  if (p.equipped.offHand !== o) unequip(p, 'offHand');
+  if (m && p.equipped.mainHand !== m) { take(m); equip(p, m); }
+  if (o && p.equipped.offHand !== o) { take(o); equip(p, o); }
+  return used;
+}
+
+export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = null): Equip[] {
   const used: Equip[] = [];
   const cands = [...p.inventory, ...extra];
+  if (style) used.push(...equipHands(p, cands, style));
   for (const slot of SLOTS) {
+    if (style && (slot === 'mainHand' || slot === 'offHand')) continue;
     for (const e of cands.filter((x) => x.slot === slot)) {
       const cur = powerScore(derive(p));
       const trial: Player = { ...p, equipped: { ...p.equipped, [slot]: e } };
@@ -198,7 +236,7 @@ const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
   // Town prep.
   if (has(p, 'alloc')) autoAllocate(p);
-  autoEquip(p);
+  autoEquip(p, [], gearStyle(strategy));
   while (has(p, 'shop') && p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
   const level = derive(p).level;
   const power = powerScore(derive(p));
@@ -269,13 +307,13 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) { end = { why: 'dead', floor: run.floor, type, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
-      const used = autoEquip(p, run.bag);
+      const used = autoEquip(p, run.bag, gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e));
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
       if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run));
-      const used = autoEquip(p, run.bag);
+      const used = autoEquip(p, run.bag, gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e));
     } else if (type === 'merchant') {
       const st = merchantStock(run);
