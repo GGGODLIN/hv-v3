@@ -1,9 +1,9 @@
 # Current status
 
-## v0.2 candidate — 2026-10-25 14:06 UTC
+## v0.2 accepted desktop candidate — 2026-10-25 14:17 UTC
 Remote base verified at 088c930e3c86fc9cd4a2fce46e863800fabac648. Current work is a separate candidate; public root still runs accepted v0.1 below. 88 Node tests and JS syntax checks pass. v0.2 adds cost-based balanced/assault/sustain auto policies, timer-driven online background processing, Web Locks single-writer controls, explicit takeover, and read-only v1-to-v2 save migration. Prior v1 save keys are never overwritten or deleted. Unsupported locks use export-only foreground memory mode. Browser throttling/OS suspension can stop progress; gaps over 5 seconds are discarded, not offline-rewarded.
 
-Candidate backup and staging must complete before real browser QA. Do not promote root until that gate passes. Current required checks: actual background tab progress; read-only second tab/takeover; strategy selection and costs; old-save migration; no application console errors. Both fixed ownership lifecycle defects and migration races have independent tests, not a claim of browser acceptance.
+Source candidate c9e6d73ad853e048d09de17be5cb1398a4fa224e is fully readback-verified. Candidate site753160bd26f1c7ba2680bd6a6adadfc741bbf25f passed CI and six HTTP/hash checks. Cloud Chrome observed inactive-tab progression, readonly follower and takeover, policy selection, 388CSSpx no-horizontal-overflow layout, and no application console errors. Accepted for bounded desktop promotion with explicit limits in BROWSER-QA-V02.md. Source backup must precede root promotion; public root remains v0.1 until exact publication receipt verifies otherwise. Stable v1→v2 migration will be checked at root after promotion. Foreground-only pause did not occur in this cloud test while document.hidden reported false; cause not established, no universal pause claim. OS suspend/physical mobile untested.
 
 ## Published baseline
 

@@ -43,3 +43,11 @@ A browser that exposes Web Locks but rejects requests currently fails closed (re
 No offline earnings are implemented. More than five seconds without an observed timer tick is deliberately lost, even if caused by aggressive background throttling rather than closing the page. Online-background progress is therefore best-effort, never a promise of full wall-clock yield.
 
 The skill policies, mana rates, support timing and potion rules are this game's adaptations. See ORIGINAL-HV.md and COMBAT-DESIGN.md for the research-supported original rules and separate adaptation ledger.
+
+## Browser observations relayed by release owner (14:16 UTC)
+
+The release owner reports candidate strategy selection, two-v0.2-tab read-only ownership/takeover, inactive native-tab progress with background enabled, and a 388 CSS-pixel zoom layout without horizontal overflow passed. No application-origin console error was observed in the inspected entries. These are scoped observations, not independent duplicate browser runs by this reviewer.
+
+**Foreground-only pause remains unverified and did not pause in this cloud-browser test.** With background disabled, native Chrome switching visibly selected another tab, yet the candidate continued and read-only DOM inspection reported `document.hidden === false`. Root cause is not established; browser/tool visibility behavior is a possibility, not a proven explanation. Source re-review confirms the pump requires visibility when the setting is disabled and the visibility-change handler releases ownership on a reported hidden state. Do not describe this discrepancy as a successful hidden-page pause test, and do not equate an inactive native tab with a verified Page Visibility API transition.
+
+This supports a bounded desktop acceptance of the positively observed behaviors only. Actual OS suspend/resume, mobile hardware/browser, and foreground-only pause are not verified; browser zoom is not a mobile-device test. Legacy stable-to-v2 migration at the published root is a separate release-owner gate, not established by the candidate observations above.

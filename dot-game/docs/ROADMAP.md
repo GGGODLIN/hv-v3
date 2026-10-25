@@ -27,3 +27,6 @@ Acceptance evidence:
 ## Iteration rule
 
 Read the current remote checkpoint and known issues, choose one concrete improvement, implement in a non-overlapping ownership area, run relevant regression and play checks, preserve the source, and publish only a validated checkpoint. Record actual evidence and uncertainty. An iteration that only diagnoses a blocker is not a new gameplay release, and backup maintenance alone is not feature progress.
+
+## After v0.2
+Prioritize gameplay depth next: independently implement source-supported weapon effects (e.g. rapier armor penetration or club stun) with old-save migration and same-encounter comparisons, rather than another reporting-only iteration. Also retain the unresolved real-device visibility/mobile acceptance task without blocking all other feature work.

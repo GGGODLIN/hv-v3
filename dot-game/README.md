@@ -13,7 +13,7 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
-Version 0.2 is currently a candidate building on the accepted v0.1 desktop-first prototype. See docs/STATUS.md and docs/BROWSER-QA.md for release evidence and limits. The v0.2 candidate supports online background processing where browser timers permit; long pauses and closed-page time give no offline earnings. Web Locks serialize writes, with a safe foreground/export-only fallback if unavailable. Development continues beyond this first loop.
+Version 0.2 is a desktop-tested update; consult docs/STATUS.md and RELEASES.md for actual publication evidence. See docs/STATUS.md and docs/BROWSER-QA.md for release evidence and limits. Version 0.2 supports online background processing where browser timers permit; long pauses and closed-page time give no offline earnings. Web Locks serialize writes, with a safe foreground/export-only fallback if unavailable. Development continues beyond this first loop.
 
 ## Play
 Choose 均衡 for the original policy, 猛攻 for more skill use at higher MP cost, or 持久 for earlier healing and finite automatic potions. Change tactics at camp. These are independent auto-decision policies, not an original-HV skill-tree claim.
@@ -30,3 +30,5 @@ Accepted static releases deploy only to https://gggodlin.github.io/play/hv-v3-do
 
 ## Save migration in v0.2
 On first v0.2 load without a v2 save, a validated v0.1 save is copied read-only into the new version. The old save is retained untouched. Progress made later in a still-open old tab is not merged; use the new version going forward or export/import deliberately. Multiple v0.2 tabs have one writer; use the explicit takeover control. Candidate builds keep separate save namespaces.
+
+Browser QA limits: inactive-tab progress and safe takeover were observed in cloud Chrome. Foreground-only pause did not occur in that environment while document.hidden reported false; its cause is unresolved. 388 CSS-pixel layout was checked with browser zoom, not a physical mobile device. Do not equate bounded-clock unit tests with real OS-suspend validation.
