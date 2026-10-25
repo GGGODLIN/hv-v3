@@ -215,6 +215,18 @@ export function whyNot(s: BattleState, a: Action): string {
 /** A weakness is a negative specific resistance in the monster's monsters.json row (no extra bonus is invented: the
  * negative value already raises damage through (1 - spec) in damage.ts). */
 export function isWeak(m: Monster, type: keyof Monster['spec']): boolean { return m.spec[type] < 0; }
+/** rc6 item 2: resistances (spec > 0) shown on the battle panel, highest first. */
+export function resistances(m: Monster): { type: keyof Monster['spec']; pct: number }[] {
+  return (Object.keys(m.spec) as (keyof Monster['spec'])[]).filter((k) => m.spec[k] > 0).map((k) => ({ type: k, pct: m.spec[k] })).sort((a, b) => b.pct - a.pct);
+}
+/** rc6 item 2: what the battle panel shows for one monster (weaknesses as negative, resistances as positive; unshown = 0).
+ * The UI renders exactly this, and the UI-only sim AI reads only this. */
+export function panelSpec(m: Monster): Monster['spec'] {
+  const out = Object.fromEntries(Object.keys(m.spec).map((k) => [k, 0])) as Monster['spec'];
+  for (const w of weaknesses(m)) out[w.type] = -w.pct;
+  for (const r of resistances(m)) out[r.type] = r.pct;
+  return out;
+}
 export function weaknesses(m: Monster): { type: keyof Monster['spec']; pct: number }[] {
   return (Object.keys(m.spec) as (keyof Monster['spec'])[]).filter((k) => m.spec[k] < 0).map((k) => ({ type: k, pct: -m.spec[k] })).sort((a, b) => b.pct - a.pct);
 }

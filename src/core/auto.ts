@@ -1,6 +1,6 @@
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, armCp5, canUse, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, act, alive, armCp5, canUse, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -87,6 +87,17 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
   return used;
 }
 
+/** rc6 item 2: sim AI view. Default (baseline for every threshold) = UI-only: monster resistances / weaknesses are read through
+ * panelSpec(), the same data the battle weak panel renders. Everything else the AI reads is on screen too: HP bars, the charge
+ * warning (decide box), stun bar, affix plates, boss telegraphs, own HP/MP/OC/cooldowns. Physical schools (刃鋒、磐石, producer
+ * decision rc6) play physically: no offensive spells. SIM_AI=omni (env) = the pre-rc6 all-knowing AI (raw spec, every school
+ * aims spells at weaknesses), kept as a reference only. */
+const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+export const SIM_AI = { omni: ENV?.SIM_AI === 'omni' };
+const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
+export const PHYS_SCHOOLS = ['blade', 'bulwark'];
+const physPlay = (s: string) => !SIM_AI.omni && s.startsWith('buff:') && PHYS_SCHOOLS.includes(s.slice(5).replace(/-nocore(-nofloor)?$/, ''));
+
 export function chooseAction(b: BattleState): Action {
   const live = alive(b);
   const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
@@ -101,7 +112,7 @@ export function chooseAction(b: BattleState): Action {
   const boss = live.some((m) => m.rank === 'boss');
   if (!b.spirit && (b.oc >= 120 || boss) && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (b.d.mdb * 4 > b.d.adb * 1.2) {
-    const sp = (['fiery', 'freeze', 'shock', 'gale'] as SpellId[]).sort((x, y) => tm.spec[SPELLS[x].element] - tm.spec[SPELLS[y].element])[0]!;
+    const sp = (['fiery', 'freeze', 'shock', 'gale'] as SpellId[]).sort((x, y) => seen(tm)[SPELLS[x].element] - seen(tm)[SPELLS[y].element])[0]!;
     if (canUse(b, { kind: 'spell', id: sp, target })) return { kind: 'spell', id: sp, target };
   }
   return { kind: 'attack', target };
@@ -138,8 +149,8 @@ export function chooseHuman(b: BattleState, aimWeak = true): Action {
     if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
     return { kind: 'attack', target };
   }
-  const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => tm.spec[SPELLS[id].element as keyof typeof tm.spec] < 0)
-    .sort((x, y) => tm.spec[SPELLS[x].element as keyof typeof tm.spec] - tm.spec[SPELLS[y].element as keyof typeof tm.spec]);
+  const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => seen(tm)[SPELLS[id].element as keyof typeof tm.spec] < 0)
+    .sort((x, y) => seen(tm)[SPELLS[x].element as keyof typeof tm.spec] - seen(tm)[SPELLS[y].element as keyof typeof tm.spec]);
   for (const id of sp) if (canUse(b, { kind: 'spell', id, target })) return { kind: 'spell', id, target };
   if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
   return { kind: 'attack', target };
@@ -175,10 +186,12 @@ export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; r
   snap?: (p: Player, run: RunState) => void }
 type CM = Monster & Cp5Mon;
 const ELEMS: SpellId[] = ['fiery', 'freeze', 'shock', 'gale'];
+let PHYS = false; // set by fight(): the current strategy plays physically (no offensive spells)
 function bestSpell(b: BattleState, t: number, only?: SpellId[]): Action | null {
-  const m = b.monsters[t]!;
-  const ids = (only ?? (Object.keys(SPELLS) as SpellId[])).slice().sort((x, y) => m.spec[SPELLS[x].element] - m.spec[SPELLS[y].element]);
-  for (const id of ids) if (m.spec[SPELLS[id].element] < 50 && canUse(b, { kind: 'spell', id, target: t })) return { kind: 'spell', id, target: t };
+  if (PHYS) return null;
+  const m = b.monsters[t]!, sp = seen(m);
+  const ids = (only ?? (Object.keys(SPELLS) as SpellId[])).slice().sort((x, y) => sp[SPELLS[x].element] - sp[SPELLS[y].element]);
+  for (const id of ids) if (sp[SPELLS[id].element] < 50 && canUse(b, { kind: 'spell', id, target: t })) return { kind: 'spell', id, target: t };
   return null;
 }
 /** CP5 §4 counter / ignore play on top of a base AI. 'ignore' never reacts to a signature telegraph (normal charges still defended). */
@@ -209,7 +222,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
     if (boss.pulseNext && boss.charge === 0) return canUse(b, bash) ? bash : { kind: 'defend' };
     if (boss.sig === 'shield' && boss.breachEl && !low && boss.charge === 0) {
       const id = ELEMS.find((x) => SPELLS[x].element === boss.breachEl)!;
-      if (b.d.mdb * 4 > b.d.adb * 0.8 && canUse(b, { kind: 'spell', id, target: bi })) return { kind: 'spell', id, target: bi };
+      if (!PHYS && b.d.mdb * 4 > b.d.adb * 0.8 && canUse(b, { kind: 'spell', id, target: bi })) return { kind: 'spell', id, target: bi };
       const a = base(); if (a.kind === 'spell' && SPELLS[a.id].element === boss.shieldEl) return { kind: 'attack', target: bi };
       return a;
     }
@@ -248,9 +261,14 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   try { return autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); } finally { RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; }
 }
 /** Play one battle to the end with a strategy (+ CP5 layer). */
+/** One sim decision for a strategy (the same call fight() makes each turn). */
+export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
+  PHYS = physPlay(strategy);
+  const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy) && !PHYS) : chooseAction(b));
+  return mode ? chooseCp5(b, mode, base) : base();
+}
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
-  const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy)) : chooseAction(b));
-  while (!b.over && b.turn < 400) act(b, mode ? chooseCp5(b, mode, base) : base(), rng, profs);
+  while (!b.over && b.turn < 400) act(b, decide(b, strategy, mode), rng, profs);
   if (!b.over) b.over = 'lose';
 }
 const potCount = (b: BattleState) => b.potions.health + b.potions.mana + b.potions.spirit;
@@ -299,7 +317,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
       }
       if (cp5) fight(b, strategy, rng, profs, cp5.mode);
-      else while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy)) : chooseAction(b), rng, profs); }
+      else fight(b, strategy, rng, profs);
       turns += b.turn;
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
