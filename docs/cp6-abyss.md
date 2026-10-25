@@ -473,3 +473,4 @@ Death-combo scan rc8: 必死 0, 警告 34, 相對必死 16 (unchanged vs rc7 log
 Unmet: blade trip1 median (B=2), bulwark trip1 median (A=20), oc d16/d13 (A=1.76), bulwark d16/d13 (A=1.62). No retuning per producer instruction.
 - vitest (single-threaded, --no-file-parallelism): 23 files, 221/221 passed; no test changes. Log: docs/logs/rc8-vitest.txt
 - presets re-exported (scripts/cp6-export-presets.ts): blade katana(2H) · oc wakizashi(1H)+kite · arcane willow(staff) · bulwark shortsword(1H)+tower; abyss10 wakizashi+buckler, abyss15 willow.
+- deploy: worktree /workspace/hv-v3-cp6rc8 @ cp6-rc8 built; rc7 preview on 5199 stopped; vite preview 127.0.0.1:5199 (setsid nohup) serves / 200, /data/cp6-presets.json 200; scripts/cp6-rc6-e2e.mjs ALL PASS.
