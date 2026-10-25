@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "assets:build": "python3 -I scripts/build-assets.py"
+    "assets:build": "python3 -I scripts/gen-pixel-art.py",
+    "monsters:check": "python3 -I scripts/build-monsters.py --check",
+    "e2e": "node scripts/e2e.mjs && node scripts/e2e-cp3fix.mjs"
   },
   "dependencies": {
     "phaser": "4.2.1",
@@ -16,6 +18,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
+    "puppeteer-core": "24.43.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.4"

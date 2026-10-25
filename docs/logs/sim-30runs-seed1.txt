@@ -1,0 +1,32 @@
+run | Lv | power | floor | outcome | kills | turns | +EXP | +C | kept
+1 | 1 | 155 | 4 | dead | 2 | 42 | 50 | 37 | s
+2 | 1 | 176 | 5 | dead | 4 | 32 | 91 | 53 | a
+3 | 2 | 194 | 5 | dead | 4 | 22 | 47 | 77 | f
+4 | 3 | 202 | 5 | dead | 5 | 40 | 98 | 78 | a
+5 | 4 | 212 | 5 | dead | 7 | 41 | 110 | 97 | 
+6 | 5 | 294 | 7 | dead | 11 | 16 | 317 | 248 | s
+7 | 6 | 349 | 10 | dead | 9 | 21 | 316 | 381 | s
+8 | 8 | 388 | 10 | dead | 11 | 26 | 401 | 480 | s
+9 | 9 | 320 | 10 | dead | 9 | 35 | 378 | 436 | s
+10 | 10 | 374 | CLEAR | clear | 16 | 34 | 1424 | 1210 | aaeasaa
+11 | 13 | 411 | 10 | dead | 17 | 34 | 475 | 365 | a
+12 | 14 | 460 | 10 | dead | 10 | 31 | 331 | 356 | e
+13 | 14 | 523 | 10 | dead | 18 | 62 | 499 | 370 | s
+14 | 15 | 533 | 9 | dead | 9 | 43 | 355 | 360 | e
+15 | 15 | 539 | 10 | dead | 12 | 52 | 446 | 553 | s
+16 | 16 | 570 | 10 | dead | 18 | 56 | 543 | 477 | s
+17 | 16 | 576 | 10 | dead | 15 | 50 | 507 | 426 | s
+18 | 17 | 649 | CLEAR | clear | 15 | 58 | 1492 | 1379 | fffsaaasa
+19 | 18 | 689 | CLEAR | clear | 21 | 60 | 1735 | 1502 | sseasaa
+20 | 20 | 755 | CLEAR | clear | 21 | 50 | 1783 | 1440 | ffsasfaaa
+21 | 21 | 770 | CLEAR | clear | 23 | 21 | 1968 | 1482 | fssaesaa
+22 | 22 | 821 | CLEAR | clear | 9 | 13 | 1263 | 1658 | fafsasaaa
+23 | 23 | 724 | CLEAR | clear | 23 | 23 | 2022 | 1576 | ffsaemsaa
+24 | 24 | 768 | CLEAR | clear | 20 | 18 | 1801 | 1626 | aassfasa
+25 | 25 | 801 | CLEAR | clear | 22 | 14 | 1794 | 1553 | ffsasfsaa
+26 | 26 | 809 | CLEAR | clear | 23 | 13 | 1953 | 1526 | fffsaasaa
+27 | 27 | 829 | CLEAR | clear | 27 | 14 | 2034 | 1580 | fasaasas
+28 | 28 | 837 | CLEAR | clear | 24 | 18 | 2020 | 1620 | aaaaasa
+29 | 28 | 858 | CLEAR | clear | 22 | 12 | 1798 | 1730 | saaafsas
+30 | 29 | 872 | CLEAR | clear | 23 | 11 | 1782 | 1556 | fsafsaa
+PL window widened 0 times
