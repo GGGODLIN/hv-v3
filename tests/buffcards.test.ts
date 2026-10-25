@@ -78,3 +78,14 @@ describe('merchant buff shelf (CP4 rc #2)', () => {
     advance(r, 0); expect(r.buffStock).toBeUndefined();
   });
 });
+
+describe('CP4-rc-fix 2: 韌魂 preview never says "用不到" just because of rounding', () => {
+  it('O4 always shows a 最大 SP row, whatever the base SP', () => {
+    for (const lv of [1, 3, 8]) {
+      const p = newPlayer(); starterKit(p, lv);
+      const r = startRun(p, 9);
+      const rows = buffPreview(p, r, 'O4');
+      expect(rows.some((x) => x.k === 'sp')).toBe(true);
+    }
+  });
+});

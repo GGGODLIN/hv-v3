@@ -1,5 +1,5 @@
 /** CP4 r2 step 3: before -> after preview for a buff choice (same idea as the IW / forge preview). Display only, no rule change. */
-import { COMBO_ZH, combos, formed, SCHOOL_ZH, sumMods, type BMods, type Combos, type RMods } from '../core/buffs';
+import { BUFF, COMBO_ZH, combos, formed, SCHOOL_ZH, sumMods, type BMods, type Combos, type RMods } from '../core/buffs';
 import type { Player } from '../core/player';
 import { runDerived, type RunState } from '../core/run';
 import { SKILLS, type SkillId } from '../core/battle';
@@ -37,6 +37,13 @@ export function buffPreview(p: Player, run: RunState, id: string): PreviewRow[] 
   const a = runDerived(p, { ...run, buffs: held }), b = runDerived(p, { ...run, buffs: next });
   const out: PreviewRow[] = [];
   for (const [k, zh, f] of DROWS) if (a[k] !== b[k]) { const [x, y] = pair(a[k], b[k], f); out.push({ k, zh, before: x, after: y }); }
+  // CP4-rc-fix 2: max HP/MP/SP % buffs are rounded to whole points, so on a small pool (e.g. SP 1-2) +20% rounds to +0.
+  // Show the row anyway with the reason, instead of "用不到", so the same buff reads the same at every merchant.
+  const dd = BUFF[id]?.d ?? {};
+  for (const [k, pk, zh] of [['hp', 'hpPct', '最大 HP'], ['mp', 'mpPct', '最大 MP'], ['sp', 'spPct', '最大 SP']] as const) {
+    const v = (dd as Record<string, number | undefined>)[pk];
+    if (v && a[k] === b[k]) out.push({ k, zh, before: String(a[k]), after: `${b[k]}（+${Math.round(v * 100)}% 取整後不足 1 點）` });
+  }
   for (const e of Object.keys(b.edb) as (keyof typeof b.edb)[]) if (a.edb[e] !== b.edb[e]) out.push({ k: `edb.${e}`, zh: `${ELEM_ZH[e] ?? e} EDB`, before: r1(a.edb[e]), after: r1(b.edb[e]) });
   const sk = Object.keys(b.specMit) as (keyof typeof b.specMit)[];
   if (sk.some((k) => a.specMit[k] !== b.specMit[k])) { const k0 = sk[0]!; const [x, y] = pair(a.specMit[k0], b.specMit[k0], pct); out.push({ k: 'specMit', zh: `各類減傷（例：${k0}）`, before: x, after: y }); }
