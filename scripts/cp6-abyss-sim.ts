@@ -18,6 +18,7 @@ const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.j
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
 const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);
 const f = (x: number, d = 1) => (Number.isFinite(x) ? x.toFixed(d) : '—');
+const verdicts: string[] = []; const meds: number[] = [];
 console.log(`CP6 abyss sim N=${N} T=${T} seeds ${Number(process.env.SEED0 ?? 0) + 1}..${Number(process.env.SEED0 ?? 0) + N} (main tower until first F20 clear, then abyss)`);
 for (const strat of STRATS) {
   const first: number[] = [], best: number[] = [], best5: number[] = [], lv: number[] = [], pw: number[] = [], mt: number[] = [], kept: number[] = [], died: number[] = [], qmix: Record<string, number> = {}, schools: Record<string, number> = {};
@@ -54,5 +55,26 @@ for (const strat of STRATS) {
   console.log(`boss fights by abyss depth over all ${T} trips | n | win% | turns`);
   for (const k of [...new Set([5, 10, 15, 20, 25, ...Object.keys(boss).map(Number)])].sort((a, b) => a - b)) { const xs0 = boss[k] ?? []; if (!xs0.length) { console.log(`  d${k} | 0 | — | —`); continue; } const xs = boss[k]!; console.log(`  d${k} | ${xs.length} | ${f(mean(xs.map((b) => +b.won)) * 100)} | ${f(mean(xs.map((b) => b.turns)))}`); }
   console.log(`death rate per depth (deaths/entered, %): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${f((endAt[d]! / (reach[d] ?? 1)) * 100, 0)}/${reach[d] ?? 0}`).join(' ')}`);
+  const rate = (d: number) => (reach[d] ? (endAt[d] ?? 0) / reach[d]! : NaN);
+  const ds = Object.keys(reach).map(Number).sort((a, b) => a - b);
+  console.log('death rate per entry by depth | depth | entered | died | rate%');
+  for (const d of ds) console.log(`  r${d} | ${reach[d]} | ${endAt[d] ?? 0} | ${f(rate(d) * 100)}`);
+  const top = Math.max(...ds.filter((d) => d !== 16).map(rate).filter(Number.isFinite));
+  const r15 = rate(15), r16 = rate(16), r17 = rate(17);
+  const bw = (k: number) => boss[k]?.length ? mean(boss[k]!.map((b) => +b.won)) : NaN;
+  const checks: [string, boolean][] = [
+    ['best5 median >= 15', q(best5.length ? best5 : best, 0.5) >= 15],
+    ['d20 boss win >= 25%', bw(20) >= 0.25],
+    ...(strat === 'auto' ? [] : [['trip1 median 5-10', q(first, 0.5) >= 5 && q(first, 0.5) <= 10] as [string, boolean]]),
+    ['d5 boss win >= 60%', bw(5) >= 0.6],
+    ['d16 rate not tower-highest', r16 < top],
+    [`d16 rate <= 1.5 x d15 (${f(r16 * 100)} vs ${f(r15 * 100)})`, r16 <= 1.5 * r15],
+    [`d16 rate <= 1.5 x d17 (${f(r16 * 100)} vs ${f(r17 * 100)}, d17 entered ${reach[17] ?? 0})`, r16 <= 1.5 * r17],
+  ];
+  for (const [k, ok] of checks) { console.log(`  CHECK ${ok ? 'PASS' : 'FAIL'} ${k}`); verdicts.push(`${strat}: ${ok ? 'PASS' : 'FAIL'} ${k}`); }
+  meds.push(q(best5.length ? best5 : best, 0.5));
   console.log(`death depth (abyss trips dying at depth d): ${Object.keys(endAt).map(Number).sort((a, b) => a - b).map((d) => `d${d}:${endAt[d]}`).join(' ')}`);
 }
+const gap = Math.max(...meds) / Math.min(...meds);
+verdicts.push(`all: ${gap <= 1.5 ? 'PASS' : 'FAIL'} school gap ${f(gap, 2)}x <= 1.5x`);
+console.log(`\n== VERDICT: ${verdicts.every((v) => v.includes('PASS')) ? 'ALL PASS' : 'FAIL'}`); for (const v of verdicts) if (!v.includes('PASS')) console.log(`  ${v}`);

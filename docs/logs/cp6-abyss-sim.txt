@@ -13,6 +13,39 @@ boss fights by abyss depth over all 10 trips | n | win% | turns
   d20 | 52 | 71.2 | 9.6
   d25 | 19 | 47.4 | 7.9
 death rate per depth (deaths/entered, %): d1:3/71 d3:3/69 d5:2/65 d6:12/82 d8:8/72 d11:28/153 d13:31/110 d15:14/72 d16:61/349 d18:62/136 d20:33/45 d21:64/181 d23:71/65 d25:63/16 d26:100/30
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 71 | 2 | 2.8
+  r2 | 69 | 0 | 0.0
+  r3 | 69 | 2 | 2.9
+  r4 | 67 | 0 | 0.0
+  r5 | 65 | 1 | 1.5
+  r6 | 82 | 10 | 12.2
+  r7 | 72 | 0 | 0.0
+  r8 | 72 | 6 | 8.3
+  r9 | 66 | 0 | 0.0
+  r10 | 64 | 0 | 0.0
+  r11 | 153 | 43 | 28.1
+  r12 | 110 | 0 | 0.0
+  r13 | 110 | 34 | 30.9
+  r14 | 76 | 0 | 0.0
+  r15 | 72 | 10 | 13.9
+  r16 | 349 | 213 | 61.0
+  r17 | 136 | 0 | 0.0
+  r18 | 136 | 84 | 61.8
+  r19 | 52 | 0 | 0.0
+  r20 | 45 | 15 | 33.3
+  r21 | 181 | 116 | 64.1
+  r22 | 65 | 0 | 0.0
+  r23 | 65 | 46 | 70.8
+  r24 | 19 | 0 | 0.0
+  r25 | 16 | 10 | 62.5
+  r26 | 30 | 30 | 100.0
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK FAIL d16 rate <= 1.5 x d15 (61.0 vs 13.9)
+  CHECK FAIL d16 rate <= 1.5 x d17 (61.0 vs 0.0, d17 entered 136)
 death depth (abyss trips dying at depth d): d1:2 d3:2 d5:1 d6:10 d8:6 d11:43 d13:34 d15:10 d16:213 d18:84 d20:15 d21:116 d23:46 d25:10 d26:30
 
 == buff:blade  main trips to F20 clear: median 6 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 16 mean 13.3  power median 583
@@ -28,6 +61,42 @@ boss fights by abyss depth over all 10 trips | n | win% | turns
   d20 | 47 | 53.2 | 9.0
   d25 | 7 | 14.3 | 5.4
 death rate per depth (deaths/entered, %): d3:1/72 d5:9/70 d6:4/102 d8:26/98 d10:2/65 d11:29/225 d13:44/159 d15:25/75 d16:51/354 d18:73/175 d20:56/39 d21:67/79 d23:73/26 d25:86/7 d26:50/10 d28:100/5
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 72 | 0 | 0.0
+  r2 | 72 | 0 | 0.0
+  r3 | 72 | 1 | 1.4
+  r4 | 71 | 0 | 0.0
+  r5 | 70 | 6 | 8.6
+  r6 | 102 | 4 | 3.9
+  r7 | 98 | 0 | 0.0
+  r8 | 98 | 25 | 25.5
+  r9 | 73 | 0 | 0.0
+  r10 | 65 | 1 | 1.5
+  r11 | 225 | 66 | 29.3
+  r12 | 159 | 0 | 0.0
+  r13 | 159 | 70 | 44.0
+  r14 | 89 | 0 | 0.0
+  r15 | 75 | 19 | 25.3
+  r16 | 354 | 179 | 50.6
+  r17 | 175 | 0 | 0.0
+  r18 | 175 | 128 | 73.1
+  r19 | 47 | 0 | 0.0
+  r20 | 39 | 22 | 56.4
+  r21 | 79 | 53 | 67.1
+  r22 | 26 | 0 | 0.0
+  r23 | 26 | 19 | 73.1
+  r24 | 7 | 0 | 0.0
+  r25 | 7 | 6 | 85.7
+  r26 | 10 | 5 | 50.0
+  r27 | 5 | 0 | 0.0
+  r28 | 5 | 5 | 100.0
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-10
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK FAIL d16 rate <= 1.5 x d15 (50.6 vs 25.3)
+  CHECK FAIL d16 rate <= 1.5 x d17 (50.6 vs 0.0, d17 entered 175)
 death depth (abyss trips dying at depth d): d3:1 d5:6 d6:4 d8:25 d10:1 d11:66 d13:70 d15:19 d16:179 d18:128 d20:22 d21:53 d23:19 d25:6 d26:5 d28:5
 
 == buff:oc  main trips to F20 clear: median 7 (no clear in 60: 0)  lv@abyss1 p10 12 median 14 p90 15 mean 13.5  power median 545
@@ -43,6 +112,39 @@ boss fights by abyss depth over all 10 trips | n | win% | turns
   d20 | 38 | 55.3 | 8.2
   d25 | 6 | 33.3 | 5.7
 death rate per depth (deaths/entered, %): d1:1/71 d5:4/67 d6:8/100 d8:14/92 d10:14/74 d11:27/243 d13:54/178 d15:25/73 d16:58/336 d18:73/142 d20:49/35 d21:64/91 d23:82/33 d25:100/4
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 71 | 1 | 1.4
+  r2 | 70 | 0 | 0.0
+  r3 | 70 | 0 | 0.0
+  r4 | 70 | 0 | 0.0
+  r5 | 67 | 3 | 4.5
+  r6 | 100 | 8 | 8.0
+  r7 | 92 | 0 | 0.0
+  r8 | 92 | 13 | 14.1
+  r9 | 79 | 0 | 0.0
+  r10 | 74 | 10 | 13.5
+  r11 | 243 | 65 | 26.7
+  r12 | 178 | 0 | 0.0
+  r13 | 178 | 97 | 54.5
+  r14 | 81 | 0 | 0.0
+  r15 | 73 | 18 | 24.7
+  r16 | 336 | 194 | 57.7
+  r17 | 142 | 0 | 0.0
+  r18 | 142 | 104 | 73.2
+  r19 | 38 | 0 | 0.0
+  r20 | 35 | 17 | 48.6
+  r21 | 91 | 58 | 63.7
+  r22 | 33 | 0 | 0.0
+  r23 | 33 | 27 | 81.8
+  r24 | 6 | 0 | 0.0
+  r25 | 4 | 4 | 100.0
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-10
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK FAIL d16 rate <= 1.5 x d15 (57.7 vs 24.7)
+  CHECK FAIL d16 rate <= 1.5 x d17 (57.7 vs 0.0, d17 entered 142)
 death depth (abyss trips dying at depth d): d1:1 d5:3 d6:8 d8:13 d10:10 d11:65 d13:97 d15:18 d16:194 d18:104 d20:17 d21:58 d23:27 d25:4
 
 == buff:arcane  main trips to F20 clear: median 5 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 15 mean 13.2  power median 554
@@ -59,6 +161,43 @@ boss fights by abyss depth over all 10 trips | n | win% | turns
   d25 | 6 | 16.7 | 6.5
   d30 | 1 | 100.0 | 10.0
 death rate per depth (deaths/entered, %): d3:4/79 d5:10/71 d6:11/116 d8:17/103 d10:22/81 d11:30/202 d13:42/141 d15:22/74 d16:57/368 d18:75/159 d20:53/32 d21:62/66 d23:76/25 d25:83/6 d26:30/10 d28:86/7
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 79 | 0 | 0.0
+  r2 | 79 | 0 | 0.0
+  r3 | 79 | 3 | 3.8
+  r4 | 76 | 0 | 0.0
+  r5 | 71 | 7 | 9.9
+  r6 | 116 | 13 | 11.2
+  r7 | 103 | 0 | 0.0
+  r8 | 103 | 18 | 17.5
+  r9 | 85 | 0 | 0.0
+  r10 | 81 | 18 | 22.2
+  r11 | 202 | 61 | 30.2
+  r12 | 141 | 0 | 0.0
+  r13 | 141 | 59 | 41.8
+  r14 | 82 | 0 | 0.0
+  r15 | 74 | 16 | 21.6
+  r16 | 368 | 209 | 56.8
+  r17 | 159 | 0 | 0.0
+  r18 | 159 | 120 | 75.5
+  r19 | 39 | 0 | 0.0
+  r20 | 32 | 17 | 53.1
+  r21 | 66 | 41 | 62.1
+  r22 | 25 | 0 | 0.0
+  r23 | 25 | 19 | 76.0
+  r24 | 6 | 0 | 0.0
+  r25 | 6 | 5 | 83.3
+  r26 | 10 | 3 | 30.0
+  r27 | 7 | 0 | 0.0
+  r28 | 7 | 6 | 85.7
+  r29 | 1 | 0 | 0.0
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-10
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK FAIL d16 rate <= 1.5 x d15 (56.8 vs 21.6)
+  CHECK FAIL d16 rate <= 1.5 x d17 (56.8 vs 0.0, d17 entered 159)
 death depth (abyss trips dying at depth d): d3:3 d5:7 d6:13 d8:18 d10:18 d11:61 d13:59 d15:16 d16:209 d18:120 d20:17 d21:41 d23:19 d25:5 d26:3 d28:6
 
 == buff:bulwark  main trips to F20 clear: median 4 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 14 mean 12.7  power median 535
@@ -74,4 +213,50 @@ boss fights by abyss depth over all 10 trips | n | win% | turns
   d20 | 44 | 56.8 | 8.5
   d25 | 5 | 40.0 | 7.8
 death rate per depth (deaths/entered, %): d1:2/81 d3:5/79 d5:9/70 d6:6/87 d8:7/82 d10:9/70 d11:26/185 d13:41/137 d15:16/73 d16:60/373 d18:71/150 d20:50/38 d21:72/118 d23:85/33 d25:75/4 d26:100/5
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 81 | 2 | 2.5
+  r2 | 79 | 0 | 0.0
+  r3 | 79 | 4 | 5.1
+  r4 | 75 | 0 | 0.0
+  r5 | 70 | 6 | 8.6
+  r6 | 87 | 5 | 5.7
+  r7 | 82 | 0 | 0.0
+  r8 | 82 | 6 | 7.3
+  r9 | 76 | 0 | 0.0
+  r10 | 70 | 6 | 8.6
+  r11 | 185 | 48 | 25.9
+  r12 | 137 | 0 | 0.0
+  r13 | 137 | 56 | 40.9
+  r14 | 81 | 0 | 0.0
+  r15 | 73 | 12 | 16.4
+  r16 | 373 | 223 | 59.8
+  r17 | 150 | 0 | 0.0
+  r18 | 150 | 106 | 70.7
+  r19 | 44 | 0 | 0.0
+  r20 | 38 | 19 | 50.0
+  r21 | 118 | 85 | 72.0
+  r22 | 33 | 0 | 0.0
+  r23 | 33 | 28 | 84.8
+  r24 | 5 | 0 | 0.0
+  r25 | 4 | 3 | 75.0
+  r26 | 5 | 5 | 100.0
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-10
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK FAIL d16 rate <= 1.5 x d15 (59.8 vs 16.4)
+  CHECK FAIL d16 rate <= 1.5 x d17 (59.8 vs 0.0, d17 entered 150)
 death depth (abyss trips dying at depth d): d1:2 d3:4 d5:6 d6:5 d8:6 d10:6 d11:48 d13:56 d15:12 d16:223 d18:106 d20:19 d21:85 d23:28 d25:3 d26:5
+
+== VERDICT: FAIL
+  auto: FAIL d16 rate <= 1.5 x d15 (61.0 vs 13.9)
+  auto: FAIL d16 rate <= 1.5 x d17 (61.0 vs 0.0, d17 entered 136)
+  buff:blade: FAIL d16 rate <= 1.5 x d15 (50.6 vs 25.3)
+  buff:blade: FAIL d16 rate <= 1.5 x d17 (50.6 vs 0.0, d17 entered 175)
+  buff:oc: FAIL d16 rate <= 1.5 x d15 (57.7 vs 24.7)
+  buff:oc: FAIL d16 rate <= 1.5 x d17 (57.7 vs 0.0, d17 entered 142)
+  buff:arcane: FAIL d16 rate <= 1.5 x d15 (56.8 vs 21.6)
+  buff:arcane: FAIL d16 rate <= 1.5 x d17 (56.8 vs 0.0, d17 entered 159)
+  buff:bulwark: FAIL d16 rate <= 1.5 x d15 (59.8 vs 16.4)
+  buff:bulwark: FAIL d16 rate <= 1.5 x d17 (59.8 vs 0.0, d17 entered 150)
