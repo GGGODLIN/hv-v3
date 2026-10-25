@@ -152,7 +152,7 @@ export class Stage extends Phaser.Scene {
       if (e.t === 'hit') await this.hit(e);
       else if (e.t === 'heal') {
         this.popup(this.hero.x, this.hero.y - 230, `+${e.amount} ${e.res.toUpperCase()}`, e.res === 'hp' ? '#6cff6c' : e.res === 'mp' ? '#6cb8ff' : '#ffd060', 20);
-        await this.wait(150);
+        if (e.label !== '自然回復') await this.wait(150);
       } else if (e.t === 'status') {
         const v = typeof e.to === 'number' ? this.mons[e.to] : undefined;
         if (v) this.popup(v.x, this.monTop(v) - 20, e.text, '#c8a8ff', 16, 40);

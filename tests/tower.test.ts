@@ -12,7 +12,7 @@ describe('tower', () => {
       expect(t.floors[3]!.options).toContain('rest');
       expect(t.floors[8]!.options).toContain('rest');
       expect(t.floors[0]!.options).not.toContain('elite');
-      for (const f of t.floors) expect(new Set(f.options).size).toBe(f.options.length);
+      for (const f of t.floors.slice(1)) expect(new Set(f.options).size).toBe(f.options.length);
       expect(forcedTriple(t)).toBe(false);
       // Exhaustive: for every route, any two same-type picks in a row leave a different option next floor (boss floors excepted).
       for (let n = 2; n < t.floors.length; n++) {

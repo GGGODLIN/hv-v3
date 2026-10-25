@@ -1,4 +1,4 @@
-import { act, alive, canUse, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, canUse, whyNot, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -130,14 +130,14 @@ export class App {
     const tabs = (['char', 'gear', 'shop'] as const).map((t) => `<button data-tab="${t}" class="${this.townTab === t ? 'on' : ''}">${{ char: '角色與配點', gear: '裝備', shop: '商店' }[t]}</button>`).join('');
     let body = '';
     if (this.townTab === 'char') {
-      const free = unspentExp(p);
+      const free = Math.floor(unspentExp(p));
       const attrs = ATTRS.map((a) => {
         const next = Math.ceil(attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a]));
         return `<tr><td>${ATTR_ZH[a]}<div class="hint">${ATTR_HINT[a]}</div></td><td class="num">${p.attrs[a]}</td>
           <td><button data-ref="${a}" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−</button> <button data-add="${a}" ${free < next ? 'disabled' : ''}>+</button> <button data-add5="${a}" ${free < next ? 'disabled' : ''}>+5</button></td><td class="hint">下一點 ${next} EXP</td></tr>`;
       }).join('');
       const profs = PROFS.map((k) => `<span class="prof">${PROF_ZH[k]} ${profValue(p, k)}</span>`).join('');
-      body = `<div class="cols"><div><h3>屬性（可自由重置）</h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>　下一級需 ${(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP</div>
+      body = `<div class="cols"><div><h3>屬性（可自由重置）</h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>　下一級需 ${Math.ceil(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP</div>
         <table class="attrs">${attrs}</table><h3>熟練度</h3><div class="profs">${profs}</div></div>
         <div><h3>能力值</h3>${this.statsPanel()}</div></div>`;
     } else if (this.townTab === 'gear') {
@@ -173,7 +173,7 @@ export class App {
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
-      <span>本趟：EXP ${r.exp.toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
+      <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
@@ -266,8 +266,10 @@ export class App {
     on('[data-town]', () => this.go('town'));
   }
 
+  queued: string | null = null;
+
   key(e: KeyboardEvent) {
-    if (this.screen !== 'battle' || !this.battle || this.busy) return;
+    if (this.screen !== 'battle' || !this.battle) return;
     const k = e.key.toLowerCase();
     const map: Record<string, string> = { a: 'attack', d: 'defend', f: 'focus', s: 'spirit', q: 'skill:shieldBash', w: 'skill:vitalStrike', e: 'skill:mercifulBlow', z: 'item:health', x: 'item:mana', c: 'item:spirit' };
     (Object.keys(SPELLS) as SpellId[]).forEach((id, i) => (map[String(i + 1)] = `spell:${id}`));
@@ -278,7 +280,11 @@ export class App {
       this.target = nxt; this.stage.setTarget(nxt);
       return;
     }
-    if (map[k]) this.command(map[k]!);
+    if (!map[k]) return;
+    e.preventDefault();
+    // Keys pressed during an animation are queued (latest wins) instead of being dropped.
+    if (this.busy) { this.queued = map[k]!; return; }
+    this.command(map[k]!);
   }
 
   pay(c: number): boolean {
@@ -304,6 +310,9 @@ export class App {
     if (i < 0) return;
     const e = r.bag[i]!;
     const before = runDerived(this.p, r);
+    const trial: Player = JSON.parse(JSON.stringify(this.p));
+    equip(trial, JSON.parse(JSON.stringify(e)));
+    if (powerScore(runDerived(trial, r)) < powerScore(before) && !confirm(`${equipName(e)} 的戰力比目前裝備低，確定要換上？`)) return;
     const inv = this.p.inventory.length;
     equip(this.p, e);
     r.bag.splice(i, 1);
@@ -345,7 +354,7 @@ export class App {
     this.stage.setTarget(0);
   }
 
-  async command(cmd: string) {
+  async command(cmd: string): Promise<void> {
     const b = this.battle;
     if (!b || this.busy || b.over) return;
     const [kind, id] = cmd.split(':') as [string, string | undefined];
@@ -355,7 +364,11 @@ export class App {
       kind === 'spell' ? { kind: 'spell', id: id as SpellId, target: this.target } :
       kind === 'item' ? { kind: 'item', id: id as PotionId } :
       kind === 'attack' ? { kind: 'attack', target: this.target } : { kind: kind as 'defend' };
-    if (!canUse(b, a)) return;
+    if (!canUse(b, a)) {
+      this.log.push(`<span class="warn">${esc(whyNot(b, a))}</span>`);
+      this.render();
+      return;
+    }
     this.busy = true;
     this.render();
     const ev = act(b, a, this.rng, profsOf(this.p));
@@ -363,10 +376,13 @@ export class App {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
       if (e.t === 'death') this.log.push(`擊倒 ${esc(b.monsters[e.to]!.name)}`);
       if (e.t === 'charge') this.log.push(`<span class="warn">${esc(b.monsters[e.from]!.name)} 正在蓄力！</span>`);
-      if (e.t === 'heal') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
+      if (e.t === 'msg') this.log.push(esc(e.text));
+      if (e.t === 'heal' && e.label !== '自然回復') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
     }
     await this.stage.play(ev, b);
     this.busy = false;
+    const q = this.queued; this.queued = null;
+    if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }
     if (b.over) return this.endBattle();
     this.render();

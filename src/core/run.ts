@@ -16,6 +16,8 @@ export const RULES = {
   potionPrice: { health: 50, mana: 100, spirit: 100 } as Record<PotionId, number>,
   restHeal: 0.5,
   floorCredits: 15,
+  /** 暫定 (round 5): at least one equipment drop is guaranteed by this floor. */
+  earlyEquipByFloor: 4,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -44,6 +46,8 @@ export interface RunState {
   current: { type: NodeType; option: number } | null;
   merchant: MerchantStock | null;
   done: 'clear' | 'dead' | 'retreat' | null;
+  /** Some equipment has dropped this run (early-loot guarantee). */
+  foundEquip?: boolean;
 }
 
 export function startRun(p: Player, seed: number): RunState {
@@ -96,14 +100,15 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 }
 
 /** Quality floor rises every 5 floors (design §5). */
-export const floorMinQuality = (f: number): Quality => (f > 5 ? 'fair' : 'crude');
+// 暫定 (round 5): floors 1-5 raised from crude to fair to speed early progression.
+export const floorMinQuality = (_f: number): Quality => 'fair';
 
 export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): Loot {
   const L = floorLevel(run.floor);
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
     for (const m of monsters) {
-      loot.exp += monsterExp(m.level, m.pl, RULES.expMult) * (m.rank === 'boss' ? 5 : m.rank === 'elite' ? 2 : 1);
+      loot.exp += Math.round(monsterExp(m.level, m.pl, RULES.expMult) * (m.rank === 'boss' ? 5 : m.rank === 'elite' ? 2 : 1));
       const drop = LR.baseDrop + Math.min(LR.plBonus.cap, Math.max(0, (m.pl - LR.plBonus.offset) / LR.plBonus.divisor));
       if (rng.chance(drop)) {
         if (rng.chance(Math.min(1, LR.equipmentRoll * RULES.dropAccel))) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
@@ -120,14 +125,18 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
       loot.credits += 40 * run.floor;
     }
     loot.credits += RULES.floorCredits * run.floor;
+    // 暫定 early-loot guarantee (round 5): the first won battle on floors 1-4 with no equipment found yet this run drops one.
+    if (run.floor <= RULES.earlyEquipByFloor && !run.foundEquip && loot.equips.length === 0) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
+    if (loot.equips.length) run.foundEquip = true;
     return loot;
   });
 }
 
 export function chestLoot(run: RunState): Loot {
   const L = floorLevel(run.floor);
+  // design §5: chests drop 2-3 items (暫定 single-player acceleration).
   return withRng(run, (rng) => ({
-    equips: [generateEquip(rng, L, { minQuality: 'fair', qualityBump: rng.chance(0.25) ? 1 : 0 })],
+    equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: rng.chance(0.25) ? 1 : 0 })),
     credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
   }));
 }
@@ -215,7 +224,7 @@ export function settle(p: Player, run: RunState): Settlement {
     kept = [...run.bag].sort((a, b) => score(b) - score(a)).slice(0, RULES.death.keepBestItems);
     if (RULES.death.loseConsumables) p.potions = { health: 0, mana: 0, spirit: 0 };
   }
-  p.exp += exp;
+  p.exp = Math.round(p.exp + exp);
   p.credits += credits;
   for (const [k, v] of Object.entries(run.profExp)) p.profExp[k as Prof] += Math.round(v! * (dead ? RULES.death.exp : 1));
   p.inventory.push(...kept);
@@ -223,7 +232,7 @@ export function settle(p: Player, run: RunState): Settlement {
 }
 
 export function score(e: Equip): number {
-  return QUALITIES.indexOf(e.quality) * 1000 + e.roll + e.level * 5;
+  return QUALITIES.indexOf(e.quality) * 1000 + e.roll + e.level * 5 + e.iw * 200;
 }
 
 export { powerScore, profValue };

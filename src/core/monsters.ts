@@ -93,7 +93,7 @@ export function scaleStat(base: number, L: number): number {
 export const RANK_MULT: Record<Rank, { hp: number; dmg: number }> = {
   normal: { hp: 1, dmg: 1 },
   elite: { hp: 2.5, dmg: 1.25 },
-  boss: { hp: 5, dmg: 1.3 },
+  boss: { hp: 5, dmg: 0.6 }, // 暫定 (round 5): was 1.3; tuned by scripts/difficulty.ts
 };
 
 let uid = 1;

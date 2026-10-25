@@ -20,6 +20,9 @@ export function autoAllocate(p: Player): void {
   }
 }
 
+/** 暫定 (round 5): auto-equip only swaps when the power score rises by at least this fraction, so IW-upgraded gear is not pushed out by a near-equal drop. */
+export const AUTO_EQUIP_MARGIN = 0.05;
+
 export function autoEquip(p: Player, extra: Equip[] = []): Equip[] {
   const used: Equip[] = [];
   const cands = [...p.inventory, ...extra];
@@ -28,7 +31,7 @@ export function autoEquip(p: Player, extra: Equip[] = []): Equip[] {
       const cur = powerScore(derive(p));
       const trial: Player = { ...p, equipped: { ...p.equipped, [slot]: e } };
       if (blocksOffHand(e)) delete trial.equipped.offHand;
-      if (powerScore(derive(trial)) > cur) {
+      if (powerScore(derive(trial)) > cur * (1 + AUTO_EQUIP_MARGIN)) {
         if (!p.inventory.includes(e)) { p.inventory.push(e); used.push(e); }
         equip(p, e);
       }

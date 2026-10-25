@@ -32,9 +32,9 @@ const ITEM_CD = C['F-002-4.1A-item-cooldown'].value.turns;
 const MCRIT = C['F-002-5.1B-monster-crit'].value;
 const BLEED = C['F-002-5.2-bleed'].value;
 const VSB = C['P-vital-strike-bleed'].value;
-/** Boss telegraph (provisional): charge every 4th boss turn, release next turn at x3 damage. */
+/** Boss telegraph (暫定): charge every 4th boss turn, release next turn at x2 damage (round 5: was x3). */
 export const BOSS_CHARGE_EVERY = 4;
-export const BOSS_CHARGE_MULT = 3;
+export const BOSS_CHARGE_MULT = 2;
 
 export type Action =
   | { kind: 'attack'; target: number }
@@ -102,6 +102,17 @@ export function canUse(s: BattleState, a: Action): boolean {
     case 'item': return s.potions[a.id] > 0 && s.itemCd[a.id] <= 0;
     case 'defend': case 'focus': return true;
     case 'spirit': return s.spirit || (s.oc >= SS.minOcToEnter && s.sp >= SS.spPerTurn);
+  }
+}
+
+/** Player-facing reason an action is unavailable (shown in the battle log). */
+export function whyNot(s: BattleState, a: Action): string {
+  switch (a.kind) {
+    case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < SKILLS[a.id].oc ? `OC 不足（需 ${SKILLS[a.id].oc}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
+    case 'spell': return `MP 不足（需 ${spellCost(s, a.id)}）`;
+    case 'item': return s.potions[a.id] <= 0 ? '藥水用完了' : `藥水冷卻中（${s.itemCd[a.id]} 回合）`;
+    case 'spirit': return s.oc < SS.minOcToEnter ? `OC 不足（需 ${SS.minOcToEnter}，現有 ${Math.floor(s.oc)}）` : `SP 不足（需 ${SS.spPerTurn}）`;
+    default: return '無法行動';
   }
 }
 
@@ -181,7 +192,9 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     }
     case 'spell': {
       const def = SPELLS[a.id];
-      s.mp -= spellCost(s, a.id);
+      const cost = spellCost(s, a.id);
+      s.mp -= cost;
+      ev.push({ t: 'msg', text: `${def.zh}：消耗 ${cost} MP（剩 ${Math.floor(s.mp * 100) / 100}）` });
       const t0 = retarget(s, a.target);
       const order = [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)];
       for (const ti of order.slice(0, def.targets)) spellHit(s, rng, ti, def, profs[def.school] ?? 0, ev);
@@ -244,8 +257,13 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
     else { s.spirit = false; ev.push({ t: 'spirit', on: false }); }
   }
   if (!noRegen) {
+    // findings 002 §(B)4: per-tick battle regen. Reported as events so a spell's MP cost is not silently refilled.
+    const mp0 = s.mp, sp0 = s.sp;
     s.mp = Math.min(s.d.mp, s.mp + 5 + s.d.attrs.wis / 25);
     s.sp = Math.min(s.d.sp, s.sp + 1 + Object.values(s.d.attrs).reduce((a, b) => a + b, 0) / 600);
+    const r2 = (x: number) => Math.floor(x * 100) / 100;
+    if (r2(s.mp - mp0) > 0) ev.push({ t: 'heal', res: 'mp', amount: r2(s.mp - mp0), label: '自然回復' });
+    if (r2(s.sp - sp0) > 0) ev.push({ t: 'heal', res: 'sp', amount: r2(s.sp - sp0), label: '自然回復' });
   }
   s.mp = Math.floor(s.mp * 100) / 100;
   s.sp = Math.floor(s.sp * 100) / 100;

@@ -28,33 +28,37 @@ export const floorLevel = (f: number) => TOWER.baseLevel + TOWER.levelPerFloor *
 export const floorPl = (f: number): number => TOWER.plBase * (1 + TOWER.plPerFloor * f);
 
 /**
- * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 always offers a battle and never an elite or rest.
- * Path rule: if a type was offered on both previous floors, this floor must offer some other type,
- * so no route is ever forced into the same node type three floors in a row (rest included).
+ * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 offers battles only.
+ * No-triple rule: a type offered on both previous floors may not be offered again, so no route can pass the same
+ * node type three floors in a row (rest included). Before a forced rest floor, rest is banned if the floor before had one.
  */
 export function generateTower(rng: Rng): Tower {
   const floors: Floor[] = [];
+  const has = (n: number, t: NodeType) => (floors[n - 1]?.options ?? []).includes(t);
   for (let n = 1; n <= TOWER.floors; n++) {
     if (TOWER.bossFloors.includes(n)) { floors.push({ n, options: ['boss'] }); continue; }
     const count = rng.chance(0.5) ? 3 : 2;
+    if (n === 1) { floors.push({ n, options: Array<NodeType>(count).fill('battle') }); continue; }
+    const banned = (t: NodeType) =>
+      (has(n - 1, t) && has(n - 2, t)) || (t === 'rest' && TOWER.restFloors.includes(n + 1) && has(n - 1, 'rest'));
     const options: NodeType[] = [];
-    for (let lane = 0; lane < count; lane++) {
-      let t: NodeType;
-      let guard = 0;
-      do {
-        t = rng.weighted(TOWER.weights);
-        guard++;
-      } while (guard < 50 && (
-        (n === 1 && (t === 'elite' || t === 'rest')) ||
-        options.includes(t)
-      ));
-      options.push(t);
+    if (TOWER.restFloors.includes(n)) options.push('rest');
+    while (options.length < count) {
+      const pool = TOWER.weights.filter(([t]) => !banned(t) && !options.includes(t));
+      options.push(rng.weighted(pool));
     }
-    if (n === 1 && !options.includes('battle')) options[0] = 'battle';
-    if (TOWER.restFloors.includes(n) && !options.includes('rest')) options[rng.int(0, options.length - 1)] = 'rest';
+    if (options[0] === 'rest' && TOWER.restFloors.includes(n)) { const i = rng.int(0, count - 1); [options[0], options[i]] = [options[i]!, options[0]!]; }
     floors.push({ n, options });
   }
   return { floors };
+}
+
+/** Count of (floor, type) where the type is offered on that floor and the two before it (any route through it is a triple). */
+export function tripleViolations(t: Tower): number {
+  const f = t.floors;
+  let v = 0;
+  for (let n = 2; n < f.length; n++) for (const ty of new Set(f[n]!.options)) if (f[n - 1]!.options.includes(ty) && f[n - 2]!.options.includes(ty)) v++;
+  return v;
 }
 
 /** True if some route can be forced into the same type on three consecutive floors. */
