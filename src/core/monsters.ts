@@ -22,6 +22,21 @@ export function pickRows(rng: Rng, pool: MonsterPool, plMin: number, plMax: numb
   for (let i = 0; i < n; i++) out.push(pool.rows[Math.min(pool.rows.length - 1, rng.int(lo, hi - 1))]!);
   return out;
 }
+/** design §4: PL centre ±15%; if empty, widen to ±25% then ±40%. */
+export const PL_WINDOWS = [0.15, 0.25, 0.4] as const;
+export const widenLog: { center: number; width: number }[] = [];
+export function plWindow(pool: MonsterPool, center: number): { lo: number; hi: number; width: number } {
+  for (const w of PL_WINDOWS) {
+    const lo = Math.round(center * (1 - w)), hi = Math.round(center * (1 + w));
+    if (lowerBound(pool.rows, hi + 1) > lowerBound(pool.rows, lo)) {
+      if (w !== PL_WINDOWS[0]) widenLog.push({ center, width: w });
+      return { lo, hi, width: w };
+    }
+  }
+  const w = PL_WINDOWS[PL_WINDOWS.length - 1]!;
+  widenLog.push({ center, width: -1 });
+  return { lo: Math.round(center * (1 - w)), hi: Math.round(center * (1 + w)), width: -1 };
+}
 function lowerBound(rows: MonsterRow[], pl: number): number {
   let a = 0, b = rows.length;
   while (a < b) { const m = (a + b) >> 1; if (rows[m]![3] < pl) a = m + 1; else b = m; }

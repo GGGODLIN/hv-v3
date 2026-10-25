@@ -13,6 +13,7 @@ export const TOWER = {
   baseLevel: 1,
   levelPerFloor: 3,
   /** Monster PL window centre on floor f. */
+  /** 暫定 (provisional): tower base PL; not in findings/design, kept by producer decision. */
   plBase: 40,
   /** design §2: PL = base × (1 + 0.08 × floor). base 40 is this branch's existing value; not in findings/design. */
   plPerFloor: 0.08,
@@ -23,10 +24,8 @@ export interface Floor { n: number; options: NodeType[] }
 export interface Tower { floors: Floor[] }
 
 export const floorLevel = (f: number) => TOWER.baseLevel + TOWER.levelPerFloor * (f - 1);
-export function floorPl(f: number): [number, number] {
-  const c = TOWER.plBase * (1 + TOWER.plPerFloor * f);
-  return [Math.max(25, Math.round(c * 0.6)), Math.round(c * 1.4)];
-}
+/** Monster PL centre on floor f (design §2, base 暫定). */
+export const floorPl = (f: number): number => TOWER.plBase * (1 + TOWER.plPerFloor * f);
 
 /**
  * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 always offers a battle and never an elite or rest.

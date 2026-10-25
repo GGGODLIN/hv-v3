@@ -29,8 +29,8 @@ describe('tower', () => {
   });
   it('weights and PL follow design §2', () => {
     expect(Object.fromEntries(TOWER.weights)).toEqual({ battle: 45, elite: 12, chest: 10, merchant: 10, rest: 13, shrine: 10 });
-    const c = (f: number) => (floorPl(f)[0] + floorPl(f)[1]) / 2;
-    expect(c(10) / c(1)).toBeCloseTo(1.8 / 1.08, 1);
+    expect(floorPl(1)).toBeCloseTo(43.2);
+    expect(floorPl(10)).toBeCloseTo(72);
   });
   it('all six node types appear', () => {
     const seen = new Set<string>();

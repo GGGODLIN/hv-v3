@@ -1,7 +1,7 @@
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
-import { buildMonster, pickRows, type Monster, type MonsterPool, type Rank } from './monsters';
+import { buildMonster, pickRows, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -73,7 +73,7 @@ export function runDerived(p: Player, run: RunState) {
 export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Monster[] {
   const f = run.floor;
   const L = floorLevel(f);
-  const [lo, hi] = floorPl(f);
+  const { lo, hi } = plWindow(pool, floorPl(f));
   return withRng(run, (rng) => {
     const plan: Rank[] =
       type === 'boss' ? (f >= 10 ? ['normal', 'boss', 'normal'] : ['boss', 'normal']) :
