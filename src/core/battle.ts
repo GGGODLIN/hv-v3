@@ -2,7 +2,7 @@ import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
-import type { PDot } from './cp5';
+import { CP5, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
 
@@ -55,6 +55,36 @@ function phaseShift(s: BattleState, ev: BEvent[]): void {
     for (let k = ev.length - 1; k >= 0; k--) { const e = ev[k]!; if (e.t === 'death' && e.to === i) ev.splice(k, 1); }
     ev.push({ t: 'status', to: i, text: BOSS_PHASE_TEXT, phase: true });
   });
+  if (s.cp5) cp5Split(s, ev);
+}
+type CM = Monster & Cp5Mon;
+/** CP5 分裂: a dead split elite becomes 2 normals (monster cap CP5.maxMonsters alive). */
+function cp5Split(s: BattleState, ev: BEvent[]): void {
+  s.monsters.forEach((m0) => {
+    const m = m0 as CM;
+    if (m.hp > 0 || !m.splitInto || m.splitDone) return;
+    m.splitDone = true;
+    for (const c of m.splitInto) if (alive(s).length < CP5.maxMonsters) { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `分裂！${c.name} 出現` }); }
+  });
+}
+/** CP5 鐵壁: damage halved on the elite's first turns. Returns mit unchanged otherwise. */
+const ironMit = (m: Monster, mit: number) => ((m as CM).ironTurns ? 1 - (1 - mit) * CP5.ironMit : mit);
+/** CP5 反傷 (守門者 stance / 尖刺 affix): reflect a share of physical damage through player physMit, spec and defend. */
+function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
+  const m = s.monsters[ti] as CM;
+  const frac = (m.thornTurns ? CP5.thornsFrac : 0) + (m.affixes?.includes('spikes') ? CP5.spikesFrac : 0);
+  if (!frac || dmg <= 0) return;
+  const out = Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
+  if (out <= 0) return;
+  s.hp = Math.max(0, s.hp - out);
+  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });
+}
+/** Clear player bleed / burn (health potion, defend). */
+function cleanse(s: BattleState, ev: BEvent[], by: string): void {
+  const p = s.cp5?.pdot;
+  if (!p || (!p.burnTurns && !p.bleedTurns)) return;
+  s.cp5!.pdot = emptyDot();
+  ev.push({ t: 'status', to: 'player', text: `${by}：解除流血／燃燒` });
 }
 
 export type Action =
@@ -71,7 +101,9 @@ export type BEvent =
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
   | { t: 'status'; to: 'player' | number; text: string; phase?: boolean }
   | { t: 'death'; to: number }
-  | { t: 'charge'; from: number }
+  | { t: 'charge'; from: number; drain?: boolean }
+  | { t: 'sig'; from: number; sig: BossSig; text: string }
+  | { t: 'pdot'; kind: 'burn' | 'bleed'; dmg: number }
   | { t: 'spirit'; on: boolean }
   | { t: 'msg'; text: string };
 
@@ -198,7 +230,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   const r = resolveHit(rng, {
     raw, magic: false, acc: s.d.physAcc,
     evade: m.status.stun > 0 ? 0 : m.evade, parry: m.status.stun > 0 ? 0 : m.parry, block: 0, resist: 0,
-    critChance, critMod: s.d.critMod, mit: m.physMit, spec: m.spec[dtype] / 100,
+    critChance, critMod: s.d.critMod, mit: ironMit(m, m.physMit), spec: m.spec[dtype] / 100,
   });
   if (r.avoidMult > 0) {
     m.hp = Math.max(0, m.hp - r.damage);
@@ -210,6 +242,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+  if (s.cp5 && r.avoidMult > 0) reflect(s, ti, r.damage, ev);
   return r.avoidMult > 0 ? r.damage : 0;
 }
 
@@ -226,7 +259,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   const r = resolveHit(rng, {
     raw, magic: true, acc: s.d.magAcc,
     evade: m.status.stun > 0 ? 0 : m.evade, parry: 0, block: 0, resist: m.resist, counterResist: 0.5 * pf + s.d.counterResist,
-    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: m.magMit, spec: m.spec[def.element] / 100 - specReduce,
+    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: m.spec[def.element] / 100 - specReduce,
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element) });
@@ -293,6 +326,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       const before = s[res];
       s[res] = Math.min(max, s[res] + Math.round(max * f.fraction));
       ev.push({ t: 'heal', res, amount: s[res] - before, label: a.id === 'health' ? '生命藥水' : a.id === 'mana' ? '法力藥水' : '靈力藥水' });
+      if (s.cp5 && a.id === 'health') cleanse(s, ev, '生命藥水');
       break;
     }
     case 'defend': {
@@ -303,6 +337,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
         ev.push({ t: 'heal', res: 'hp', amount: s.hp - before, label: '防禦' });
       } else ev.push({ t: 'status', to: 'player', text: '防禦' });
       s.defendTurns = DEF.turns;
+      if (s.cp5) cleanse(s, ev, '防禦');
       if (s.mods?.combo.bulwark) s.mods.counterReady = true;
       break;
     }
@@ -328,6 +363,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   }
   phaseShift(s, ev);
   if (alive(s).length === 0) { s.over = 'win'; return ev; }
+  if (s.cp5 && s.hp <= 0) { s.over = 'lose'; return ev; } // reflected damage
   if (free) return ev;
   endOfPlayerTurn(s, ev, noRegen);
   monstersAct(s, rng, ev);
@@ -365,32 +401,115 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
       if (m.hp <= 0) ev.push({ t: 'death', to: i });
     }
   });
+  if (s.cp5) {
+    const p = s.cp5.pdot;
+    if (p.burnTurns > 0) { s.hp = Math.max(0, s.hp - p.burn); p.burnTurns--; ev.push({ t: 'pdot', kind: 'burn', dmg: p.burn }); }
+    if (p.bleedTurns > 0) { s.hp = Math.max(0, s.hp - p.bleed); p.bleedTurns--; ev.push({ t: 'pdot', kind: 'bleed', dmg: p.bleed }); }
+    if (!p.burnTurns) p.burn = 0;
+    if (!p.bleedTurns) p.bleed = 0;
+  }
   phaseShift(s, ev);
   if (alive(s).length === 0) s.over = 'win';
+}
+
+/** CP5 boss signature turn (not drain). Returns true when the signature used the boss's action. */
+function sigTurn(s: BattleState, m: CM, i: number, ev: BEvent[]): boolean {
+  const per = (base: number) => Math.max(2, base - (m.enraged ? 1 : 0));
+  if (m.sig === 'summon' || m.sig === 'thorns') {
+    if (m.sigPending) {
+      m.sigPending = false;
+      if (m.sig === 'thorns') { m.thornTurns = CP5.thornsTurns; ev.push({ t: 'status', to: i, text: `尖刺盾展開（${CP5.thornsTurns} 回合）` }); return false; }
+      const minions = s.monsters.filter((x) => x.hp > 0 && (x as CM).summoned).length;
+      const c = m.reserve?.shift();
+      if (c && minions < CP5.summonMax && alive(s).length < CP5.maxMonsters) { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `援軍 ${c.name} 出現` }); return true; }
+      return false;
+    }
+    m.sigTurns = (m.sigTurns ?? 0) + 1;
+    if (m.sigTurns % per(m.sig === 'summon' ? CP5.summonEvery : CP5.thornsEvery) === 0) { m.sigPending = true; ev.push({ t: 'sig', from: i, sig: m.sig, text: SIG_TEXT[m.sig].tele }); }
+    return false;
+  }
+  m.sigTurns = (m.sigTurns ?? 0) + 1;
+  if (m.sigTurns % per(CP5.shieldEvery) === 0) rotateShield(m, i, ev);
+  return false;
+}
+/** 深淵之王: rotate fire → cold → elec → wind. Shield element spec +75, breach (next) -50, others back to base. */
+export function rotateShield(m: CM, i: number, ev: BEvent[]): void {
+  const o = CP5.shieldOrder;
+  m.specBase ??= { ...m.spec };
+  const k = m.shieldEl ? (o.indexOf(m.shieldEl) + 1) % o.length : 0;
+  m.spec = { ...m.specBase };
+  m.shieldEl = o[k]!; m.breachEl = o[(k + 1) % o.length]!;
+  m.spec[m.shieldEl] = CP5.shieldSpec; m.spec[m.breachEl] = CP5.breachSpec;
+  const Z: Record<string, string> = { fire: '火', cold: '冰', elec: '雷', wind: '風' };
+  ev.push({ t: 'sig', from: i, sig: 'shield', text: `深淵之王展開 ${Z[m.shieldEl]} 之盾，破綻：${Z[m.breachEl]}` });
+}
+/** CP5 on-hit: vampire strike heal, 嗜血 heal + bleed, 烈焰 burn. */
+function cp5OnHit(s: BattleState, m: CM, i: number, dmg: number, drain: boolean, ev: BEvent[]): void {
+  const heal = (f: number, t: string) => { const h = Math.min(m.maxHp - m.hp, Math.round(dmg * f)); if (h > 0) { m.hp += h; ev.push({ t: 'status', to: i, text: `${t} +${h}` }); } };
+  if (drain) heal(CP5.drainFrac, '吸血');
+  const p = s.cp5!.pdot;
+  if (m.affixes?.includes('leech')) {
+    heal(CP5.leechFrac, '嗜血');
+    p.bleed = Math.max(p.bleed, Math.ceil(dmg * CP5.bleed.frac)); p.bleedTurns = CP5.bleed.turns;
+    ev.push({ t: 'status', to: 'player', text: `流血：每回合 ${p.bleed}，${p.bleedTurns} 回合` });
+  }
+  if (m.affixes?.includes('flame')) {
+    p.burn = Math.max(p.burn, Math.ceil(dmg * CP5.burn.frac)); p.burnTurns = CP5.burn.turns;
+    ev.push({ t: 'status', to: 'player', text: `燃燒：每回合 ${p.burn}，${p.burnTurns} 回合` });
+  }
+}
+
+/** CP5: attach battle state (flag on). Starts the 深淵之王 shield. Returns the opening events. */
+export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
+  s.cp5 = { pdot: pdot ? { ...pdot } : emptyDot() };
+  const ev: BEvent[] = [];
+  s.monsters.forEach((m, i) => { if ((m as CM).sig === 'shield') rotateShield(m as CM, i, ev); });
+  return ev;
 }
 
 function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
   if (s.over) return;
   const defending = s.defendTurns > 0;
-  s.monsters.forEach((m, i) => {
+  s.monsters.forEach((m0, i) => {
+    const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
-    if (m.status.stun > 0) { m.status.stun--; return; }
+    if (s.cp5) { if (m.thornTurns) m.thornTurns--; if (m.ironTurns) m.ironTurns--; }
+    if (m.status.stun > 0) {
+      m.status.stun--;
+      if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
+      if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
+      return;
+    }
     let mult = 1;
     let label: string | undefined;
+    let drain = false;
     if (m.rank === 'boss') {
-      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
-      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
+      if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; label = '吸血重擊！'; } }
+      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) {
+        m.charge = 1;
+        if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
+        else ev.push({ t: 'charge', from: i });
+        return;
+      } else if (m.sig && m.sig !== 'drain' && sigTurn(s, m, i, ev)) return;
+    } else if (s.cp5 && m.affixes?.includes('berserk')) {
+      if (!m.enraged && m.hp < m.maxHp * 0.5) { m.enraged = true; m.ownTurns = 0; ev.push({ t: 'status', to: i, text: '狂戰：狂暴！' }); }
+      if (m.enraged) {
+        if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
+        else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
+      }
     }
     const zero = s.focusTurn;
+    const el = m.elemAttack;
     const r = resolveHit(rng, {
       raw: m.adb * mult, magic: false, acc: m.acc,
       evade: zero ? 0 : s.d.evade, parry: zero ? 0 : s.d.parry, block: zero ? 0 : s.d.block, resist: 0,
-      critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance, bonus: MCRIT.critDamageBonus },
-      mit: 1 - (1 - s.d.physMit) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[m.attackType],
+      critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
+      mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],
     });
     const dmg = r.avoidMult > 0 ? r.damage : 0;
     s.hp = Math.max(0, s.hp - dmg);
-    ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label });
+    ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
+    if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
     if (s.mods?.combo.bulwark && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;

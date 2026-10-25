@@ -1,11 +1,12 @@
 import { BOSS_SEP, markDuplicates } from './names';
-import { BOSS_BY_FLOOR } from './cp5';
+import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
 import { CONSTANTS as C } from './data/constants';
 import { monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
+import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
@@ -215,9 +216,11 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
       type === 'elite' ? (run.weakNext ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
       ['normal', 'normal'] /* 暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
+    const th = run.cp5 && !CP5_FORCE.themeOff ? themeOf(f) : null;
+    const w = th ? (r: MonsterRow) => themeWeight(th, r) : undefined;
     const out = plan.map((rank) => {
       const weak = rank === 'elite' && run.weakNext ? weakRow(pool, lo, hi) : null;
-      const row = weak ?? (rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi));
+      const row = weak ?? (rank === 'normal' ? pickRows(rng, pool, lo, hi, 1, w)[0] : pickTop(rng, pool, lo, hi, w));
       const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
       if (rank === 'boss') {
         m.phases = RULES.bossPhases;
@@ -227,12 +230,31 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       }
       if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
+      if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w);
       return m;
     });
     if (type === 'elite') run.weakNext = false;
     markDuplicates(out.map((m) => m.name)).forEach((n, i) => { out[i]!.name = n; });
     return out;
   });
+}
+
+/** CP5: boss signature + summon reserve, elite affixes + split children. Only called with the flag on. */
+function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: number, f: number, m: Monster, w?: (r: MonsterRow) => number): void {
+  const x = m as Monster & Cp5Mon;
+  if (m.rank === 'boss' && BOSS_BY_FLOOR[f]) {
+    x.sig = BOSS_BY_FLOOR[f]!.sig; x.sigTurns = 0;
+    if (x.sig === 'summon') x.reserve = pickRows(rng, pool, lo, hi, CP5.summonMax, w).map((r) => Object.assign(buildMonster(r, L, 'normal'), { summoned: true }));
+  }
+  if (m.rank !== 'elite') return;
+  let ids: AffixId[];
+  if (CP5_FORCE.affixes) ids = [...CP5_FORCE.affixes];
+  else {
+    ids = [rng.pick(AFFIX_IDS)];
+    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.pick(AFFIX_IDS.filter((b) => compatible(ids[0]!, b))));
+  }
+  if (ids.includes('split')) x.splitInto = pickRows(rng, pool, lo, hi, 2, w).map((r) => { const c = buildMonster(r, L, 'normal'); c.maxHp = c.hp = Math.max(1, Math.round(m.maxHp * CP5.splitHp)); return c; });
+  applyAffixes(m, ids);
 }
 
 export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number }

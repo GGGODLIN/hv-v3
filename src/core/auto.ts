@@ -1,6 +1,8 @@
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, canUse, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, act, alive, armCp5, canUse, startBattle, SPELLS, type SpellId } from './battle';
+import type { Cp5Mon } from './cp5';
+import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
 import { type Equip, SLOTS, blocksOffHand, sellPrice } from './items';
 import { has, unlockRate } from './progress';
@@ -118,12 +120,64 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   return 0;
 }
 
-export interface BossFight { floor: number; turns: number; potions: number; won: boolean; spirit: boolean; buffs?: number }
+export interface BossFight { floor: number; turns: number; potions: number; won: boolean; spirit: boolean; buffs?: number;
+  /** CP5 paired fight: the same battle snapshot replayed with the other strategy (does not affect the run). */
+  alt?: { turns: number; potions: number; won: boolean } }
+
+/** CP5 sim options. mode = battle AI layer on top of the strategy; pair = replay each boss with 'ignore'; retreat = HP fraction below which the sim retreats after a boss floor. */
+export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; retreat?: number }
+type CM = Monster & Cp5Mon;
+const ELEMS: SpellId[] = ['fiery', 'freeze', 'shock', 'gale'];
+function bestSpell(b: BattleState, t: number, only?: SpellId[]): Action | null {
+  const m = b.monsters[t]!;
+  const ids = (only ?? (Object.keys(SPELLS) as SpellId[])).slice().sort((x, y) => m.spec[SPELLS[x].element] - m.spec[SPELLS[y].element]);
+  for (const id of ids) if (m.spec[SPELLS[id].element] < 50 && canUse(b, { kind: 'spell', id, target: t })) return { kind: 'spell', id, target: t };
+  return null;
+}
+/** CP5 §4 counter / ignore play on top of a base AI. 'ignore' never reacts to a signature telegraph (normal charges still defended). */
+export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Action): Action {
+  if (mode === 'base') return base();
+  const live = alive(b);
+  const boss = live.find((m) => m.rank === 'boss') as CM | undefined;
+  const bi = boss ? b.monsters.indexOf(boss) : -1;
+  const heal: Action = { kind: 'item', id: 'health' };
+  const low = b.hp < b.d.hp * 0.35 && canUse(b, heal);
+  const bash: Action = { kind: 'skill', id: 'shieldBash', target: bi };
+  if (mode === 'ignore') {
+    if (!boss?.sig) return base();
+    if (low) return heal;
+    if (boss.sig === 'summon') return boss.charge > 0 ? { kind: 'defend' } : { kind: 'attack', target: bi };
+    if (boss.sig === 'drain' && boss.drainNext) return { kind: 'attack', target: bi };
+    if (boss.sig === 'shield') { const a = base(); return a.kind === 'spell' ? (canUse(b, { kind: 'spell', id: 'fiery', target: a.target }) ? { kind: 'spell', id: 'fiery', target: a.target } : { kind: 'attack', target: a.target }) : a; }
+    return base();
+  }
+  if (boss?.sig) {
+    if (boss.sig === 'summon') {
+      if (boss.sigPending && canUse(b, bash)) return bash;
+      if (live.length >= 3 && !low) { const a = bestSpell(b, bi, ELEMS); if (a) return a; }
+    }
+    if (boss.sig === 'drain' && boss.drainNext) return canUse(b, bash) ? bash : b.hp < b.d.hp * 0.6 && canUse(b, heal) ? heal : { kind: 'defend' };
+    if (boss.sig === 'thorns' && boss.thornTurns && !low) return bestSpell(b, bi) ?? (boss.charge > 0 ? base() : { kind: 'defend' });
+    if (boss.sig === 'shield' && boss.breachEl && !low && boss.charge === 0) {
+      const id = ELEMS.find((x) => SPELLS[x].element === boss.breachEl)!;
+      if (b.d.mdb * 4 > b.d.adb * 0.8 && canUse(b, { kind: 'spell', id, target: bi })) return { kind: 'spell', id, target: bi };
+      const a = base(); if (a.kind === 'spell' && SPELLS[a.id].element === boss.shieldEl) return { kind: 'attack', target: bi };
+      return a;
+    }
+    return base();
+  }
+  const a = base();
+  if (a.kind === 'attack' || (a.kind === 'skill' && a.id !== 'shieldBash')) {
+    const m = b.monsters[a.target] as CM | undefined;
+    if (m?.affixes?.some((x) => x === 'spikes' || x === 'hard')) { const s2 = bestSpell(b, a.target); if (s2) return s2; }
+  }
+  return a;
+}
 export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number;
   /** CP4 (buff strategies only) */
   cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number; offers: number; contests: number } }
 
-export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto'): RunReport {
+export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
   // Town prep.
   if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p);
@@ -131,12 +185,20 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   const level = derive(p).level;
   const power = powerScore(derive(p));
   const bs = isBuffStrat(strategy);
-  const flag0 = RULES.cp4RunBuffs;
+  const flag0 = RULES.cp4RunBuffs, flag5 = RULES.cp5Bosses;
   if (bs) RULES.cp4RunBuffs = true;
+  if (cp5) RULES.cp5Bosses = true;
   if (strategy.endsWith('-nofloor')) coreFloor.on = false; // r3 step 2 control: both core guarantees off for this run
-  try { return autoRunInner(p, pool, seed, strategy, level, power, bs); } finally { RULES.cp4RunBuffs = flag0; coreFloor.on = true; }
+  try { return autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); } finally { RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; }
 }
-function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Strategy, level: number, power: number, bs: boolean): RunReport {
+/** Play one battle to the end with a strategy (+ CP5 layer). */
+export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
+  const base = () => (strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b));
+  while (!b.over && b.turn < 400) act(b, mode ? chooseCp5(b, mode, base) : base(), rng, profs);
+  if (!b.over) b.over = 'lose';
+}
+const potCount = (b: BattleState) => b.potions.health + b.potions.mana + b.potions.spirit;
+function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Strategy, level: number, power: number, bs: boolean, cp5?: Cp5Sim): RunReport {
   const run = startRun(p, seed);
   const rng = new Rng(seed ^ 0x5bd1e995);
   const prng = new Rng((seed ^ 0x27d4eb2d) >>> 0 || 1);
@@ -167,18 +229,27 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       const oc0 = openingOc(p, type, run);
       armBattle(b, run);
       b.oc += oc0;
+      if (run.cp5) armCp5(b, run.pdot);
       const profs = profsOf(p);
-      const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
-      while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }
+      const pot0 = potCount(b);
+      let alt: BossFight['alt'];
+      if (cp5?.pair && type === 'boss') {
+        const c = structuredClone(b); const r2 = new Rng(1); r2.state = rng.state;
+        fight(c, strategy, r2, profs, 'ignore');
+        alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
+      }
+      if (cp5) fight(b, strategy, rng, profs, cp5.mode);
+      else while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }
       turns += b.turn;
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
-      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}) });
+      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) break;
       const used = autoEquip(p, run.bag);
       run.bag = run.bag.filter((e) => !used.includes(e));
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
+      if (cp5?.retreat && type === 'boss' && run.floor < run.tower.floors.length && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run));
       const used = autoEquip(p, run.bag);
