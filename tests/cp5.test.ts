@@ -60,3 +60,13 @@ describe('CP5: boss three-pick has ≥1 card of the main school', () => {
     }
   }));
 });
+
+import { dangerHint as _dh, type AffixId as _A } from '../src/core/cp5';
+import { readFileSync as _rf } from 'node:fs';
+it('CP5 r5: every sim death combo (current + r4 list) has a visible counter hint', () => {
+  const log = _rf(new URL('../docs/logs/cp5-deathcombo.txt', import.meta.url), 'utf8');
+  const cur = [...log.matchAll(/^必死 \S+ F\d+ (\S+)/gm)].map((m) => m[1]!);
+  const r4 = ['warded', 'swift+warded', 'flame+warded', 'split+warded', 'leech+warded', 'berserk+warded', 'guard+warded', 'warded+spikes', 'warded+iron', 'antimagic', 'split+antimagic', 'warded+keen'];
+  for (const c of [...cur, ...r4]) { const h = _dh(c.split('+') as _A[]); expect(h, c).toBeTruthy(); expect(h!).toContain('撤退'); }
+  expect(_dh(['leech'])).toBeNull();
+});

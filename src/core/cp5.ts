@@ -29,8 +29,8 @@ export const CP5 = {
    *  法抗 resist / magic mitigation; pick weight of 法抗/反魔 vs 1 for the others. */
   /** CP5 r4 (暫定): bulwark 3-set anti-turtle — consecutive defend heal ×decay^streak; 1 = no riposte while defending. */
   /** CP5 r4 (暫定): per-boss HP / ADB multipliers (key = floor; missing = 1). */
-  /** CP5 r5 (暫定): B5 HP ×0.78 / ADB ×1.1 — trip-1 F5 turns ≤24 with counter/ignore gap ≥25pp (docs/logs/cp5-sim.txt). */
-  bossHp: { 5: 0.78, 10: 1, 15: 1, 20: 1 } as Record<number, number>, bossAdb: { 5: 1.1, 10: 1, 15: 1, 20: 1 } as Record<number, number>,
+  /** CP5 r5 (暫定): B5 HP ×0.78 / ADB ×1.1 — trip-1 F5 turns ≤24 with counter/ignore gap ≥25pp (docs/logs/cp5-sim.txt). B20 ×0.9: counter win at trips 6–10 ≥65% for every school (first −10% step). */
+  bossHp: { 5: 0.78, 10: 1, 15: 1, 20: 0.9 } as Record<number, number>, bossAdb: { 5: 1.1, 10: 1, 15: 1, 20: 1 } as Record<number, number>,
   /** CP5 r4 (暫定): 深淵之王 — after each shield rotation (not the opening one) its next action is an elemental pulse
    *  (magic, shield element, ×pulseMult ADB). Defend or stun counters it. 0 = off. drainMult = 吸血重擊 multiplier. */
   pulseMult: 0, drainMult: 2, // r4: pulse off (4 widened the B10 gap but cut counter win <90% and pushed arcane F9 to 79%); sweeps in docs/logs/cp5-r4-sweep.txt
@@ -139,3 +139,24 @@ export const CP5_FORCE: { affixes?: AffixId[] | null; themeOff?: boolean } = {};
 
 /** Sim instrumentation only (never read by game logic). */
 export const CP5_STAT = { reflect: 0, reflectN: 0, thornsOn: 0, drainHits: 0, drainHeal: 0, drainTele: 0, summons: 0 };
+
+/** CP5 r5 (暫定, producer: accept the death-combo list but every one needs a visible counter).
+ *  Elites carrying 法抗 or 反魔 are the whole sim death-combo list (docs/cp5-bosses-floors.md §CP5 r5); shown every battle. */
+const DANGER_EXTRA: Partial<Record<AffixId, string>> = {
+  leech: '嗜血會讓你流血：Z·生命藥水 或 D·防禦 解除，別讓它回血拖長戰鬥',
+  split: '分裂死後會變 2 隻小怪：留一瓶生命藥水和範圍技能收尾',
+  swift: '迅捷容易閃避：別急，穩定普攻、血量低於一半先喝藥',
+  flame: '烈焰會讓你燃燒：Z·生命藥水 或 D·防禦 解除',
+  berserk: '狂戰在 HP 低於 50% 後蓄力：看到蓄力預告就防禦',
+  guard: '守護會格擋：多打幾回合，血量低於一半先喝藥',
+  spikes: '尖刺反彈物理傷害：血量低於一半先喝藥',
+  iron: '鐵壁前 2 回合減傷：先防禦或補狀態，第 3 回合再全力攻擊',
+  keen: '銳眼命中與暴擊較高：血量低於一半先喝藥',
+};
+export function dangerHint(ids: readonly AffixId[]): string | null {
+  const mag = ids.includes('antimagic') ? '反魔' : ids.includes('warded') ? '法抗' : null;
+  if (!mag) return null;
+  const base = mag === '反魔' ? '反魔會反彈法術傷害：改用普攻或物理技能，不要放法術' : '法抗大幅降低法術傷害：改用普攻或物理技能';
+  const extra = ids.map((a) => DANGER_EXTRA[a]).filter(Boolean);
+  return `⚠ 高危險精英（${ids.map((a) => AFFIXES[a].zh).join('＋')}）：${[base, ...extra].join('；')}。本場打不過就多喝藥水慢慢打；之後在地圖上可以選別條路或先撤退回城補強。`;
+}
