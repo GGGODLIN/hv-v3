@@ -1,3 +1,4 @@
+import { abyssFloor } from '../src/core/abyss';
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { BUFF, BUFFS, SCHOOLS, schoolCounts } from '../src/core/buffs';
@@ -95,5 +96,15 @@ describe('CP5 rc2 fix 8: F1–F3 offer ≥2 routes', () => {
       const t = tut ? r.tower : generateTower(new Rng(s), { long: true });
       for (let n = 1; n <= 3; n++) expect(t.floors[n - 1]!.options.length).toBeGreaterThanOrEqual(2);
     }
+  }));
+});
+describe('CP6 rc2 (c): no floor offers two routes of the same type (cp6Abyss on)', () => {
+  it('tutorial + normal towers (flag on) and abyss floors', () => cp5(() => {
+    for (let s = 1; s <= 300; s++) for (const tut of [true, false]) {
+      const t = generateTower(new Rng(s), { long: true, distinct: true, tutorial: tut, shrine: s % 2 === 0 });
+      for (const f of t.floors) expect(new Set(f.options).size, `seed ${s} F${f.n} ${f.options}`).toBe(f.options.length);
+      if (tut) expect(t.floors[2]!.options[0]).toBe('merchant');
+    }
+    for (let d = 1; d <= 40; d++) for (let s = 1; s <= 30; s++) { const o = abyssFloor(new Rng(s * 100 + d), d, 1).options; expect(new Set(o).size, `abyss d${d} ${o}`).toBe(o.length); }
   }));
 });

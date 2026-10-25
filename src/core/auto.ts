@@ -110,6 +110,8 @@ export function profsOf(p: Player): Partial<Record<Prof, number>> {
 
 export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'): number {
   const opts = run.tower.floors[run.floor - 1]!.options;
+  // CP6 rc2 (c): tutorial floors 2–4 now pair the taught node with a different one; the sim player follows the tutorial (taught node first), as when both routes were identical.
+  if (run.tutorial && run.floor >= 2 && run.floor <= 4) return 0;
   const frac = run.hp / runDerived(p, run).hp;
   // 暫定 (CP2b) human route: below 55% HP always a non-combat node; otherwise a coin flip (HUMAN_COMBAT_SHARE) between
   // taking a normal battle and taking a non-combat node. A pure "never fight" route is printed separately as 'avoid'.

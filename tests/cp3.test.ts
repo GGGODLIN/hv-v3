@@ -63,8 +63,8 @@ describe('CP3-B early unlocks (暫定 gameplay layer)', () => {
   it('trip 1 tutorial tower: F2 battle, F3 shop, F4 lone elite with an elemental weakness', () => {
     const p = newPlayer();
     const r = startRun(p, 11);
-    // CP5 (on by default since cp5-pass) duplicates the tutorial route on each floor (rc2 fix 7); the node types are unchanged.
-    expect(r.tower.floors.map((f) => [...new Set(f.options)].sort().join('/')).slice(1, 4)).toEqual(['battle', 'merchant', 'elite']);
+    // CP5 (on by default) offers two routes; with CP6 on, rc2 (c) makes them different types; the taught node is always first.
+    expect(r.tower.floors.map((f) => f.options[0]).slice(1, 4)).toEqual(['battle', 'merchant', 'elite']);
     expect(battleLocks(p)).toEqual({ skill: true, spell: true, spirit: true });
     r.floor = 1; enterNode(p, r, 'battle'); expect(has(p, 'defend') && has(p, 'potion')).toBe(true);
     r.floor = 2; enterNode(p, r, 'battle'); expect(has(p, 'ocSkill')).toBe(true);

@@ -42,7 +42,8 @@ describe('buff cards match their preview', () => {
         if (isPct) { expect(r!.after, `${k} preview unit`).toMatch(/%$/); expect(bf.desc, `${k} card unit`).toMatch(/[%×]/); }
         if (!isPct && kind !== 'rel') expect(r!.after, `${k} preview unit`).not.toMatch(/%$/);
         if (kind === 'rel') {
-          expect(b / a).toBeGreaterThan(1 + x - 0.02); expect(b / a).toBeLessThan(1 + x + 0.02);
+          const tol = Math.max(0.02, 0.5 / a); // integer stats (e.g. SP 9→11) round by up to half a point
+          expect(b / a).toBeGreaterThan(1 + x - tol); expect(b / a).toBeLessThan(1 + x + tol);
           if (isPct) expect(r!.after).toMatch(/%$/);
           expect(bf.desc).toContain(isPct ? `×${fmt(1 + x)}` : `+${fmt(x * 100)}%`);
         } else if (kind === 'pp') {
