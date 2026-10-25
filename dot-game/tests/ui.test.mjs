@@ -18,7 +18,7 @@ test('UI uses local relative assets and no imported HTML injection', () => {
   assert.doesNotMatch(html, /(?:src|href)="https?:/);
   assert.doesNotMatch(css, /@import|url\(https?:/);
 });
-test('save boundary, hidden-page pause, bounded import and reduced motion are explicit', () => {
+test('save boundary, foreground visuals, bounded import and reduced motion are explicit', () => {
   assert.match(js, /validateSave\(JSON\.parse/);
   assert.match(js, /file\.size>2\*1024\*1024/);
   assert.match(js, /if\(!document\.hidden\)/);
@@ -46,4 +46,14 @@ test('all eight quality labels come from the loot tiers without falling back', (
   assert.equal(labels.Fair, '尚可');
   assert.equal(labels.Average, '普通');
   assert.equal(labels.Exquisite, '精良');
+});
+
+ test('simulation timer is separate from rAF, safe fallback never writes saves', () => {
+  const frame = js.slice(js.indexOf('function frame(now)'));
+  assert.doesNotMatch(frame, /advance\(state/);
+  assert.match(js, /step: seconds => advance\(state, seconds\)/);
+  assert.match(js, /if \(!ownership.supported \|\| !tabOwner \|\| preventOverwrite/);
+  assert.match(html, /background-toggle/);
+  assert.match(html, /takeover-button/);
+  assert.doesNotMatch(js, /until: now|LEASE_KEY/);
 });

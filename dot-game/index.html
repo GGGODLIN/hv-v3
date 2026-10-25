@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.1</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.2</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -36,7 +36,7 @@
         <div id="reward-banner" class="reward-banner" role="status" hidden></div>
       </div>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
-      <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
       <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
     </section>
     <aside class="loot-panel panel">
@@ -48,10 +48,10 @@
       <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><span>◇</span><h3>看看下一件好東西</h3><p>選擇一件裝備，比較它會為旅者帶來什麼改變。</p></div></section>
     </aside>
   </main>
-  <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。離開頁面暫停，不計離線收益。</span><span id="tab-status"></span></footer>
+  <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。支援背景線上掛機；關閉後不計離線收益。</span><span id="tab-status"></span></footer>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
-<dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景分頁暫停，不累積離線收益。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
-<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
+<dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景掛機預設開啟；瀏覽器可能節流，關閉後無離線收益。停頓超過 5 秒整段不補算。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
+<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
 <script type="module" src="./src/ui.js"></script>
 </body></html>

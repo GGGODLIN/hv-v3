@@ -13,9 +13,11 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
-Version 0.1 is a desktop-first playable prototype. See docs/STATUS.md and docs/BROWSER-QA.md for release evidence and limits. Current background tabs pause; no offline earnings. Development continues beyond this first loop.
+Version 0.2 is currently a candidate building on the accepted v0.1 desktop-first prototype. See docs/STATUS.md and docs/BROWSER-QA.md for release evidence and limits. The v0.2 candidate supports online background processing where browser timers permit; long pauses and closed-page time give no offline earnings. Web Locks serialize writes, with a safe foreground/export-only fallback if unavailable. Development continues beyond this first loop.
 
 ## Play
+Choose 均衡 for the original policy, 猛攻 for more skill use at higher MP cost, or 持久 for earlier healing and finite automatic potions. Change tactics at camp. These are independent auto-decision policies, not an original-HV skill-tree claim.
+
 Choose a stage and start an expedition. Combat and skills resolve automatically. Return to camp to compare, equip, lock, and sell loot, then replay or challenge a higher stage. Failed expeditions can recover; no real-money purchases. Export saves periodically; clearing browser storage can lose progress. The UI documents exact controls as implemented.
 
 ## Source and fidelity
@@ -25,3 +27,6 @@ See docs/ORIGINAL-HV.md for allowed research, docs/COMBAT-DESIGN.md and docs/LOO
 Source backups are committed to GGGODLIN/hv-v3 branch bot/dot under dot-game/. Retrieve the exact checkpoint commit; preserve source, tests, documentation and assets together. Verify the checkpoint manifest where provided, then serve and run tests. A source backup is not necessarily an accepted playable release: read docs/STATUS.md and its validation evidence. Browser saves are separate from source backups.
 
 Accepted static releases deploy only to https://gggodlin.github.io/play/hv-v3-dot/ through the separate personal-site repo. Other branches of hv-v3 and other personal-site works are not modified. The old dot-probe is only infrastructure verification, not this game. This package cannot restore credentials, platform permissions or automation schedules.
+
+## Save migration in v0.2
+On first v0.2 load without a v2 save, a validated v0.1 save is copied read-only into the new version. The old save is retained untouched. Progress made later in a still-open old tab is not merged; use the new version going forward or export/import deliberately. Multiple v0.2 tabs have one writer; use the explicit takeover control. Candidate builds keep separate save namespaces.

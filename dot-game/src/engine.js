@@ -3,6 +3,14 @@ import { generateItem } from './loot.js';
 export const VERSION = 1;
 export const MAX_STAGE = 30;
 export const INVENTORY_LIMIT = 120;
+export const STRATEGIES = Object.freeze([
+  Object.freeze({id:'balanced',label:'均衡',description:'每 5 回合破勢斬；HP 低於 38% 時治癒，藥水手動使用。'}),
+  Object.freeze({id:'assault',label:'猛攻',description:'每 3 回合破勢斬；HP 低於 22% 才治癒，較快消耗 MP，藥水手動使用。'}),
+  Object.freeze({id:'sustain',label:'持久',description:'每 5 回合破勢斬但保留 6 MP；HP 低於 60% 時治癒，治癒後仍低於 30% 自動喝藥。'})
+]);
+const POLICIES = {balanced:{cadence:5,healAt:.38,reserve:0},assault:{cadence:3,healAt:.22,reserve:0},sustain:{cadence:5,healAt:.60,reserve:6,potionAt:.30}};
+const validStrategy = value => STRATEGIES.some(strategy=>strategy.id===value);
+const freshActions = () => ({attacks:0,skills:0,heals:0,potions:0,manaSpent:0});
 const SLOTS = ['weapon', 'armor', 'accessory'];
 const QUALITY = ['Crude','Fair','Average','Superior','Exquisite','Magnificent','Legendary','Peerless'];
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
@@ -26,7 +34,7 @@ function starter(slot) {
   return {id:`starter-${slot}`,name,slot,quality:'Crude',rarityColor:'#8d9bb0',level:1,roll:10,power:1,stats:bonuses,locked:true,description:'獨立設計的入門裝備；換上戰利品即可改善戰力。'};
 }
 export function createGame(seed = 1) {
-  const s = {version:VERSION,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{}},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
+  const s = {version:VERSION,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,strategy:'balanced',inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{},actions:freshActions()},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
   recover(s); return s;
 }
 export function stats(s) {
@@ -78,7 +86,7 @@ function enemiesFor(s) {
 }
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
-  s.mode='battle';s.wave=1;s.battle.elapsed=0;s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
+  s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
   recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
 }
 function addLoot(s, slot) {
@@ -112,9 +120,18 @@ function win(s) {
 function playerTurn(s) {
   const p=stats(s), target=s.enemies.find(e=>e.hp>0);if(!target)return;
   s._turns++;s.timing.turns++;s.hero.proficiency=round(Math.min(1.2*s.hero.level,s.hero.proficiency+.08));s.hero.mp=Math.min(p.maxMp,s.hero.mp+.6);
-  if(s.hero.hp<p.maxHp*.38&&s.hero.mp>=6){s.hero.mp-=6;s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.27);event(s,'heal','自動治癒',Math.round(p.maxHp*.27),'hero');}
-  const skill=s._turns%5===0&&s.hero.mp>=3;
-  if(skill)s.hero.mp-=3;
+  const policy=POLICIES[validStrategy(s.strategy)?s.strategy:'balanced'];
+  const actions=s.battle.actions;
+  if(s.hero.hp<p.maxHp*policy.healAt&&s.hero.mp>=6){
+    s.hero.mp-=6;actions.heals++;actions.manaSpent+=6;
+    s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.27);event(s,'heal','自動治癒',Math.round(p.maxHp*.27),'hero');
+  }
+  // Existing v0.1 support actions do not replace the attack. Policies alter
+  // eligibility only: no extra turns, free stats, or altered damage formulas.
+  if(policy.potionAt&&s.hero.hp<p.maxHp*policy.potionAt)usePotion(s);
+  const skill=s._turns%policy.cadence===0&&s.hero.mp>=3+policy.reserve;
+  actions.attacks++;
+  if(skill){s.hero.mp-=3;actions.skills++;actions.manaSpent+=3;}
   const attack=resolveAttack({attack:p.attack*(skill?2.3:1),crit:p.crit,skill},target,()=>random(s));
   target.hp=Math.max(0,target.hp-attack.damage);
   event(s,attack.damage?attack.crit?'crit':'hit':attack.outcome==='block'?'block':'miss',`${skill?'破勢斬 · ':''}${attack.damage?attack.crit?'暴擊':'斬擊':'未造成傷害'}`,attack.damage,target.id);
@@ -144,10 +161,22 @@ export function advance(s, seconds) {
   return s;
 }
 function refillPending(s){while(s.pendingLoot.length&&s.inventory.length<INVENTORY_LIMIT)s.inventory.push(s.pendingLoot.shift());}
+function usePotion(s) {
+  const p=stats(s);
+  if(s.potions>0&&s.hero.hp<p.maxHp){
+    s.potions--;s.battle.actions.potions++;
+    s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.4);
+    event(s,'heal','補給藥水',Math.round(p.maxHp*.4),'hero');
+  }
+}
 export function act(s, action, payload) {
+  if(action==='setStrategy'){
+    if(s.mode==='town'&&validStrategy(payload))s.strategy=payload;
+    return s;
+  }
   if(action==='setAutoAdvance'&&typeof payload==='boolean'){s.autoAdvance=payload;return s;}
   if(action==='retreat') {s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
-  if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'&&s.potions>0){const p=stats(s);if(s.hero.hp<p.maxHp){s.potions--;s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.4);event(s,'heal','補給藥水',Math.round(p.maxHp*.4),'hero');}return s;}
+  if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
   if(action==='start'){start(s);return s;}
@@ -178,7 +207,7 @@ export function validateSave(input) {
   s.pendingLoot=(input.pendingLoot||[]).map(i=>sanitizeItem(i));
   const items=[...Object.values(s.equipment),...s.inventory,...s.pendingLoot];if(new Set(items.map(i=>i.id)).size!==items.length)throw new Error('重複裝備識別碼');
   s._itemId=Math.max(integer(input._itemId,0,1e9),...items.map(i=>/^loot-\d+$/.test(i.id)?Number(i.id.slice(5)):0));
-  s.unlocked=integer(input.unlocked,1,MAX_STAGE);s.stage=integer(input.stage,1,s.unlocked);s.kills=integer(input.kills,0,1e9);s.wins=integer(input.wins,0,1e9);s.autoAdvance=input.autoAdvance===true;s.battle.cleared=s.wins;
+  s.unlocked=integer(input.unlocked,1,MAX_STAGE);s.stage=integer(input.stage,1,s.unlocked);s.kills=integer(input.kills,0,1e9);s.wins=integer(input.wins,0,1e9);s.autoAdvance=input.autoAdvance===true;s.strategy=validStrategy(input.strategy)?input.strategy:'balanced';s.battle.cleared=s.wins;
   for(let n=1;n<=MAX_STAGE;n++){const t=input.battle?.bestTimes?.[n];if(typeof t==='number'&&Number.isFinite(t)&&t>0&&t<1e6)s.battle.bestTimes[n]=t;}
   recover(s);log(s,'存檔已讀取，安全回營；不計離線戰鬥收益。');return s;
 }

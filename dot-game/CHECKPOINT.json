@@ -1,12 +1,14 @@
 {
-  "checkpoint": "v0.1-published-receipt-003",
-  "status": "published-desktop-accepted-docs-only",
-  "runtime_source_commit": "78316483e93480e6c636c3d1ff5a31bdb729e24d",
-  "website_commit": "0cc3c431e7e161936f0c1c80cf88b4453ab2eb74",
+  "checkpoint": "v0.2-candidate",
+  "status": "88tests-pass-browser-pending",
   "files": {
     "README.md": {
-      "bytes": 2578,
-      "sha256": "0bb058bb384b1cab1db37b8c630cff6aebf387092f787a9d94f827b2866f1987"
+      "bytes": 3460,
+      "sha256": "e3e4dd484f2431db0a5b8239894b175d940c46f503e216d7070c6a8a9d365e0c"
+    },
+    "docs/ACCEPTANCE-V02.md": {
+      "bytes": 5845,
+      "sha256": "0fb9156f8299f8c50b5104118f668371d5d995a73dadcbf3d633673f3c2e0941"
     },
     "docs/ACCEPTANCE.md": {
       "bytes": 3468,
@@ -17,8 +19,8 @@
       "sha256": "092fa4fd5ae22fb195798b1b8d0a1b37678b68557367bdfa795e41275fa8fd6e"
     },
     "docs/COMBAT-DESIGN.md": {
-      "bytes": 7692,
-      "sha256": "38458477dbb5f987e8d6940b765420c9956962e65004158fb14a5d9eb8bb8b60"
+      "bytes": 10896,
+      "sha256": "a8dfbe4ab195aeb58007239679725df024e4543aebee5870a27cda74d015eba6"
     },
     "docs/INTERFACE.md": {
       "bytes": 2428,
@@ -41,36 +43,40 @@
       "sha256": "a44bbfe6d828433713e86aa6c9472e3da507cf00ac332551e7b9eda2f1be9d28"
     },
     "docs/STATUS.md": {
-      "bytes": 3451,
-      "sha256": "5663ee55698ca4b0572c8a5b8fe12031656dc14849dc3e1db0deb108ea0602e3"
+      "bytes": 4522,
+      "sha256": "4244d85b5d14bdad5b33a27cb140fe1cc65f3efa022251aa7753acd39484aa6e"
     },
     "docs/UI-AND-SAVES.md": {
-      "bytes": 2126,
-      "sha256": "6a0d004ba8a9b0326cdfb6fcfdd0cf628974659fc1dd21e874c3efbaf2dc12fb"
+      "bytes": 4144,
+      "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 9045,
-      "sha256": "9163569135588b8ef75325a342727af106652ab031b5dcfc6fca23d89919e03e"
+      "bytes": 9722,
+      "sha256": "09a9532caf8215b5f548613eefdb5b48c75b4ff960e0b3b22f4728de26fc40d8"
     },
     "package.json": {
       "bytes": 170,
-      "sha256": "e043a0bf653f07c02692b7e7f2aa3a5ed57a880016f1489b236b6dfa99f05673"
+      "sha256": "0f849de358b5e2b7bcc16bf62ea3daf55f3da26c73bcf83622754563c78a12eb"
     },
     "src/engine.js": {
-      "bytes": 16020,
-      "sha256": "d5f13c425e414c523fe08ff8a018a1dd5ddda73a3699b19c0e7abf17fcc91431"
+      "bytes": 17664,
+      "sha256": "e004cb0eca49810723533a7d9103569f663de453d0e62c6d5cbd7bdc54d2a784"
     },
     "src/loot.js": {
       "bytes": 8337,
       "sha256": "9ba8bbc7ba315b9e1084f0f877603d5c2b253cbe0fffe6abc7c96812c435132b"
     },
+    "src/session.js": {
+      "bytes": 2615,
+      "sha256": "d2062500a60223d34b491c232c72cb9d6591d8c7ba60ccd49f0d1aabe3a9a44b"
+    },
     "src/ui.js": {
-      "bytes": 30134,
-      "sha256": "e4e764870aecd68758c8c1942c7c86e68e5f0fcf55e3c5c123970ebf436f061e"
+      "bytes": 33626,
+      "sha256": "5fe0b7943b4baa7e4a964841a4b353fc135d232431d2129c3cd2237791dcc4da"
     },
     "style.css": {
-      "bytes": 16569,
-      "sha256": "629cc89dd3604e01f546e85ba3fb6a964f4d24deed27c3e3bf5166ddc8f7ed3d"
+      "bytes": 16791,
+      "sha256": "33f235a937b200c7f2cc7ad5b85257f31a56be6bc3fa3b02602ae99cdf03711c"
     },
     "tests/acceptance.test.mjs": {
       "bytes": 5964,
@@ -84,9 +90,21 @@
       "bytes": 4608,
       "sha256": "65301b18ff1c467fc4ba4d8ef85bd2c8623e4926ad499b36f9419a98f6f3902c"
     },
+    "tests/session.test.mjs": {
+      "bytes": 3820,
+      "sha256": "b1012db02391ec7b34cb1af484ebe7f071d33a64da97c65bb8bc0b498c162a63"
+    },
+    "tests/tactics.test.mjs": {
+      "bytes": 5693,
+      "sha256": "25ce8f3574189ac3666aaa1c0aee7e349afbc8dae172b0f96d3b2644de94715b"
+    },
     "tests/ui.test.mjs": {
-      "bytes": 2534,
-      "sha256": "3a370f4dd41c57a9a9b21abd836897fc971e1ed245fda5d5ad1d27175d152429"
+      "bytes": 3025,
+      "sha256": "62d6075097db0bca556f078192377b04b27e90f43feb40bd2b974270035e998a"
+    },
+    "tests/v02-acceptance.test.mjs": {
+      "bytes": 12103,
+      "sha256": "75fbaa2ca85df37f514c7a0aca3bfa90992539d5ac31857e469c88323f1c3d00"
     }
   }
 }

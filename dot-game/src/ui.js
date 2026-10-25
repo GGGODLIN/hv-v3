@@ -1,12 +1,14 @@
-import { createGame, advance, act, stats, validateSave } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES } from './engine.js';
+import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
 const storageScope = candidatePath ? `candidate-${candidatePath[1].replace(/[^a-zA-Z0-9._-]/g, '_')}` : 'stable';
-const SAVE_KEY = `hv-v3-dot-${storageScope}-save-v1`;
-const PREF_KEY = `hv-v3-dot-${storageScope}-preferences-v1`;
-const LEASE_KEY = `hv-v3-dot-${storageScope}-tab-lease-v1`;
+const SAVE_KEY = `hv-v3-dot-${storageScope}-save-v2`;
+const LEGACY_SAVE_KEY = `hv-v3-dot-${storageScope}-save-v1`;
+const PREF_KEY = `hv-v3-dot-${storageScope}-preferences-v2`;
+const LOCK_NAME = `hv-v3-dot-${storageScope}-writer-v2`;
 const $ = id => document.getElementById(id);
 const format = value => Math.round(Number(value) || 0).toLocaleString('zh-TW');
 const clock = value => `${Math.floor((value || 0) / 60).toString().padStart(2, '0')}:${Math.floor((value || 0) % 60).toString().padStart(2, '0')}`;
@@ -23,13 +25,14 @@ function readStorage(key) { try { return localStorage.getItem(key); } catch { st
 function writeStorage(key, value) { try { localStorage.setItem(key, value); return true; } catch { storeAvailable = false; return false; } }
 function node(tag, className, text) { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = String(text); return el; }
 function colorOf(item) { return /^#[0-9a-f]{3,8}$/i.test(item?.rarityColor || '') ? item.rarityColor : '#b8c3b0'; }
-let loadProblem = '';
-let state;
-try { const raw = readStorage(SAVE_KEY); state = raw ? validateSave(JSON.parse(raw)) : createGame(1000 + Math.floor(Math.random() * 1e8)); } catch { state = createGame(1000 + Math.floor(Math.random() * 1e8)); loadProblem = '既有存檔無法讀取，已開啟暫時的新旅程。原始資料尚未覆寫；請先匯出目前進度或匯入有效備份。'; }
-let preventOverwrite = Boolean(loadProblem);
-let lastSavedRaw = readStorage(SAVE_KEY);
-let prefs = { sound: false, reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches };
-try { const saved = JSON.parse(readStorage(PREF_KEY) || '{}'); if (typeof saved.reducedMotion === 'boolean') prefs.reducedMotion = saved.reducedMotion; } catch { /* optional preferences only */ }
+const loaded = loadVersionedSave({ read: readStorage, currentKey: SAVE_KEY, legacyKey: LEGACY_SAVE_KEY,
+  validate: validateSave, create: () => createGame(1000 + Math.floor(Math.random() * 1e8)) });
+let loadProblem = loaded.error ? '既有存檔無法讀取，已開啟暫時的新旅程。原始資料尚未覆寫；請先匯出目前進度或匯入有效備份。' : '';
+let state = loaded.state;
+let preventOverwrite = loaded.error || !storeAvailable;
+let lastSavedRaw = loaded.raw;
+let prefs = { sound: false, backgroundIdle: true, reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches };
+try { const saved = JSON.parse(readStorage(PREF_KEY) || '{}'); if (typeof saved.backgroundIdle === 'boolean') prefs.backgroundIdle = saved.backgroundIdle; if (typeof saved.reducedMotion === 'boolean') prefs.reducedMotion = saved.reducedMotion; } catch { /* optional preferences only */ }
 let selectedId = null;
 let selectedSlot = null;
 let lastInventorySignature = '';
@@ -48,16 +51,17 @@ let enemyPulse = 0;
 let particles = [];
 let tabOwner = false;
 const tabId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
-let leaseLast = 0;
+let pageActive = true;
+let handoff = false;
 let lastFrame = performance.now();
-let accumulated = 0;
+
 let lastRendered = 0;
 let suspendSaveUntil = 0;
 
 function showToast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3100); }
 function notice(message) { $('notice').textContent = message; $('notice').hidden = !message; }
 function save(force = false) {
-  if (!tabOwner || preventOverwrite || performance.now() < suspendSaveUntil) return false;
+  if (!ownership.supported || !tabOwner || preventOverwrite || performance.now() < suspendSaveUntil) return false;
   if (!force && performance.now() - lastSaveAt < 5000) return false;
   const raw = JSON.stringify(state);
   const saved = writeStorage(SAVE_KEY, raw);
@@ -68,39 +72,50 @@ function save(force = false) {
   if (!saved) notice('無法寫入瀏覽器存檔。遊戲仍可進行，請用「存檔 → 匯出存檔」保存。');
   return saved;
 }
-function claimLease(force = false) {
-  const now = Date.now();
-  if (document.hidden) { releaseLease(); return false; }
-  if (!force && now - leaseLast < 1800) return tabOwner;
-  leaseLast = now;
-  let lease;
-  try { lease = JSON.parse(readStorage(LEASE_KEY) || 'null'); } catch { lease = null; }
-  const other = lease && lease.id !== tabId && Number.isFinite(lease.until) && lease.until > now;
-  if (other) { tabOwner = false; $('tab-status').textContent = '另一分頁正在遠征 · 此分頁暫停'; return false; }
-  const wasOwner = tabOwner;
-  if (!wasOwner && !preventOverwrite) {
-    const raw = readStorage(SAVE_KEY);
-    if (raw && raw !== lastSavedRaw) try { state = validateSave(JSON.parse(raw)); lastSavedRaw = raw; syncSelection(); } catch { /* never replace with malformed data */ }
+function claimLease() { return pageActive && tabOwner && (!document.hidden || (ownership.supported && prefs.backgroundIdle)); }
+function releaseLease() { ownership.release(); }
+function ownershipStatus() {
+  $('tab-status').textContent = !ownership.supported ? '相容模式：僅前景遊玩、不自動存檔，請匯出' :
+    tabOwner ? (prefs.backgroundIdle ? '此分頁持有進度 · 可背景掛機' : '此分頁持有進度 · 僅前景運行') : '唯讀分頁 · 顯示最近保存進度';
+  if (ownership.supported && !tabOwner) {
+    $('save-status').textContent = '唯讀 · 不寫入存檔';
+    $('save-detail').textContent = '目前顯示最近保存的營地進度；接手後才可戰鬥、換裝或匯入。';
   }
-  writeStorage(LEASE_KEY, JSON.stringify({ id: tabId, until: now + 5000 }));
-  tabOwner = true;
-  $('tab-status').textContent = '僅前景運行 · 無離線收益';
-  return true;
+  if (!ownership.supported) $('save-detail').textContent = '此相容模式不自動存檔，請匯出目前進度。';
+  $('takeover-button').hidden = tabOwner || !ownership.supported;
+  $('takeover-button').disabled = !channel;
 }
-function releaseLease() {
-  if (tabOwner) {
-    save(true);
-    try { const lease = JSON.parse(readStorage(LEASE_KEY) || 'null'); if (lease?.id === tabId) localStorage.removeItem(LEASE_KEY); } catch { /* no storage */ }
+function refreshSavedState() {
+  if (preventOverwrite) return;
+  const raw = readStorage(SAVE_KEY);
+  if (!storeAvailable) { preventOverwrite = true; notice('無法核對最新存檔，已停止覆寫；請先匯出進度。'); return; }
+  if (raw !== null && raw !== lastSavedRaw) {
+    try { state = validateSave(JSON.parse(raw)); lastSavedRaw = raw; syncSelection(); }
+    catch { preventOverwrite = true; notice('其他分頁的存檔無法讀取；已阻止覆寫，請匯出或匯入有效存檔。'); }
   }
-  tabOwner = false;
 }
+const ownership = createOwnership({
+  locks: navigator.locks, name: LOCK_NAME,
+  acquired: refreshSavedState,
+  releasing: () => save(true),
+  changed: owner => { tabOwner = owner; pump.reset(); syncSelection(); ownershipStatus(); }
+});
+let channel;
+try { channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(LOCK_NAME) : null; } catch { channel = null; }
+const pump = createPump({ now: () => performance.now(), active: () => claimLease(), step: seconds => advance(state, seconds) });
+if (channel) channel.onmessage = event => {
+  if (event.data?.type === 'takeover' && event.data.id !== tabId && tabOwner) {
+    handoff = true; releaseLease();
+  }
+};
+if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastStageCount = 0;
 }
 function dispatch(action, payload) {
-  if (!claimLease(true)) { showToast('另一分頁正在進行遊戲，請先關閉或離開那個分頁。'); return; }
-  try { act(state, action, payload); render(true); save(true); } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+  if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
+  try { act(state, action, payload); render(true); save(true); return true; } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 function playSound(kind) {
   if (!prefs.sound || document.hidden) return;
@@ -119,9 +134,10 @@ function playSound(kind) {
 function updatePreferences() {
   document.body.classList.toggle('reduced-motion', prefs.reducedMotion);
   $('motion-toggle').checked = prefs.reducedMotion;
+  $('background-toggle').checked = prefs.backgroundIdle;
   $('sound-toggle').textContent = `音效 ${prefs.sound ? '開' : '關'}`;
   $('sound-toggle').setAttribute('aria-label', `${prefs.sound ? '關閉' : '開啟'}音效`);
-  writeStorage(PREF_KEY, JSON.stringify({ reducedMotion: prefs.reducedMotion }));
+  writeStorage(PREF_KEY, JSON.stringify({ reducedMotion: prefs.reducedMotion, backgroundIdle: prefs.backgroundIdle }));
 }
 function eventEffects() {
   for (const event of state.events || []) {
@@ -153,6 +169,10 @@ function eventEffects() {
 }
 function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(100, Number(value) / Math.max(1, Number(max)) * 100))}%`; }
 function render(force = false) {
+  $('strategy-select').value = state.strategy || 'balanced';
+  $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
+  $('strategy-description').textContent = STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '';
+
   const derived = stats(state);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
   $('hp-label').textContent = `${format(state.hero.hp)} / ${format(derived.maxHp)}`;
@@ -173,8 +193,8 @@ function render(force = false) {
   if (lastStageCount !== stageCount) {
     $('stage-select').replaceChildren(...Array.from({ length: stageCount }, (_, i) => { const opt = node('option', '', `${String(i + 1).padStart(2, '0')} · ${stageName(i + 1)}`); opt.value = i + 1; return opt; })); lastStageCount = stageCount;
   }
-  $('stage-select').value = state.stage; $('stage-select').disabled = state.mode === 'battle'; $('auto-advance').checked = Boolean(state.autoAdvance);
-  $('start-button').disabled = state.mode === 'battle' || state.mode === 'defeat'; $('retreat-button').disabled = state.mode === 'town'; $('heal-button').disabled = state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
+  $('stage-select').value = state.stage; $('stage-select').disabled = state.mode === 'battle' || !tabOwner; $('auto-advance').checked = Boolean(state.autoAdvance); $('auto-advance').disabled = !tabOwner; $('import-save').disabled = !tabOwner;
+  $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat'; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : '自動戰鬥 · 不考手速 · 隨時回營換裝';
   const inventorySignature = JSON.stringify([state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.mode]);
@@ -184,7 +204,7 @@ function render(force = false) {
   const logSignature = JSON.stringify(state.logs);
   if (logSignature !== lastLogSignature) { lastLogSignature = logSignature; const logs = (state.logs || []).slice(0, 6); $('combat-log').replaceChildren(...(logs.length ? logs : ['營火已點亮。準備好後，開始第一場遠征。']).map(text => node('li', '', text))); }
   $('inventory-count').textContent = state.inventory.length;
-  $('sell-common').disabled = state.mode === 'battle' || !state.inventory.some(item => !item.locked && ['Crude', 'Fair', 'Average'].includes(item.quality));
+  $('sell-common').disabled = !tabOwner || state.mode === 'battle' || !state.inventory.some(item => !item.locked && ['Crude', 'Fair', 'Average'].includes(item.quality));
   eventEffects();
 }
 function itemContent(item) {
@@ -237,9 +257,9 @@ function renderItemDetail() {
   const explanation = node('p', 'muted', selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。評分只是參考，屬性搭配更重要。');
   const actions = node('div', 'detail-actions');
   if (!selectedSlot) {
-    const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle'; equip.addEventListener('click', () => { dispatch('equip', item.id); selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
-    const lock = node('button', 'secondary-button', item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle'; lock.addEventListener('click', () => dispatch('lock', item.id));
-    const sell = node('button', 'secondary-button', '出售'); sell.disabled = item.locked || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
+    const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
+    const lock = node('button', 'secondary-button', item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner; lock.addEventListener('click', () => dispatch('lock', item.id));
+    const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || item.locked || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
   }
   wrap.replaceChildren(quality, name, subtitle, description, table, explanation, actions);
 }
@@ -323,14 +343,24 @@ function drawScene(t, dt) {
   if(flash>0&&!prefs.reducedMotion){ctx.fillStyle=`rgba(244,221,160,${Math.min(.13,flash)})`;ctx.fillRect(0,0,w,h);}flash=Math.max(0,flash-dt*2);attackPulse=Math.max(0,attackPulse-dt*4);enemyPulse=Math.max(0,enemyPulse-dt*4);
 }
 
-$('start-button').addEventListener('click',()=>{dispatch('start');playSound('win');});
+$('start-button').addEventListener('click',()=>{if(dispatch('start'))playSound('win');});
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));
+for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
+$('strategy-select').addEventListener('change', event => dispatch('setStrategy', event.target.value));
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
 $('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
-$('sell-common').addEventListener('click',()=>{if(confirm('出售所有未鎖定的低品質裝備？已裝備與鎖定的裝備不會出售。')){dispatch('sellCommon');showToast('已處理可出售的低品質裝備。');}});
+$('sell-common').addEventListener('click',()=>{if(confirm('出售所有未鎖定的低品質裝備？已裝備與鎖定的裝備不會出售。')){if (!dispatch('sellCommon')) return;showToast('已處理可出售的低品質裝備。');}});
 $('sound-toggle').addEventListener('click',()=>{prefs.sound=!prefs.sound;updatePreferences();if(prefs.sound)playSound('loot');});
+$('background-toggle').addEventListener('change', event => {
+  prefs.backgroundIdle = event.target.checked; updatePreferences(); pump.reset(); ownershipStatus();
+});
+$('takeover-button').addEventListener('click', () => {
+  if (!channel) return;
+  handoff = false; channel.postMessage({ type: 'takeover', id: tabId }); ownership.resume();
+  showToast('已請求安全接手；上一分頁先保存，再從營地接續。');
+});
 $('motion-toggle').addEventListener('change',event=>{prefs.reducedMotion=event.target.checked;updatePreferences();});
 $('help-toggle').addEventListener('click',()=>$('help-dialog').showModal());$('settings-toggle').addEventListener('click',()=>$('settings-dialog').showModal());
 document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>$(button.dataset.close).close()));
@@ -351,22 +381,39 @@ $('save-file').addEventListener('change',async event=>{
     state=restored;preventOverwrite=false;selectedId=null;selectedSlot=null;syncSelection();seenEvents.clear();(state.events||[]).forEach(e=>seenEvents.add(String(e.id)));notice('');save(true);render(true);showToast('存檔已匯入，從營地安全接續。');
   }catch(error){console.warn('Invalid save rejected',error);showToast('存檔格式不符或已損壞，目前進度沒有改變。');}
 });
-window.addEventListener('pagehide',()=>releaseLease());
-document.addEventListener('visibilitychange',()=>{lastFrame=performance.now();accumulated=0;if(document.hidden)releaseLease();else{claimLease(true);render(true);}});
-window.addEventListener('storage',event=>{
-  if(event.key===LEASE_KEY){leaseLast=0;claimLease(true);}
-  if(event.key===SAVE_KEY&&!tabOwner&&event.newValue){try{state=validateSave(JSON.parse(event.newValue));lastSavedRaw=event.newValue;syncSelection();render(true);}catch{/* ignore invalid external state */}}
+window.addEventListener('pagehide', () => { pageActive = false; releaseLease(); pump.reset(); });
+window.addEventListener('pageshow', () => { pageActive = true; pump.reset(); if (!handoff) ownership.resume(); });
+document.addEventListener('visibilitychange', () => {
+  lastFrame = performance.now(); pump.reset();
+  if (document.hidden) { save(true); if (!prefs.backgroundIdle) releaseLease(); }
+  else { if (!handoff) ownership.resume(); render(true); }
 });
-function frame(now){
-  const dt=Math.min(.1,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
-  if(!document.hidden){
-    const canPlay=claimLease();
-    if(canPlay){accumulated+=dt;if(accumulated>=.1){advance(state,Math.min(.2,accumulated));accumulated=0;}}
-    if(now-lastRendered>100){render();lastRendered=now;}
-    drawScene(now/1000,dt);if(canPlay)save();
+window.addEventListener('storage', event => {
+  if (event.key === SAVE_KEY && !tabOwner && event.newValue) {
+    try { state = validateSave(JSON.parse(event.newValue)); lastSavedRaw = event.newValue; syncSelection(); if (!document.hidden) render(true); } catch { /* invalid external state never imported */ }
+  }
+});
+// Simulation has exactly one clock: this timer. rAF never advances gameplay.
+setInterval(() => {
+  if (!pageActive) return;
+  if (ownership.supported && !handoff && (!document.hidden || prefs.backgroundIdle)) ownership.request();
+  pump.tick();
+  if (tabOwner) save();
+}, 250);
+function frame(now) {
+  const dt = Math.min(.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
+  if(!document.hidden) {
+    if (now - lastRendered > 100) { render(); lastRendered = now; }
+    drawScene(now / 1000, dt);
   }
   requestAnimationFrame(frame);
 }
-if(loadProblem)notice(loadProblem);
-if(!storeAvailable)notice('此瀏覽器不允許儲存資料。請定期匯出存檔，避免關閉後遺失。');
-claimLease(true);updatePreferences();render(true);resizeCanvas();requestAnimationFrame(frame);
+if (loaded.migrated) notice('已讀取 v0.1 進度，將另存為 v0.2；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在新版繼續遊玩或手動匯出。');
+if (loadProblem) notice(loadProblem);
+if (!ownership.supported) {
+  prefs.backgroundIdle = false;
+  $('background-toggle').disabled = true;
+  $('save-status').textContent = '暫存旅程 · 請匯出';
+  notice('此瀏覽器沒有安全跨分頁鎖定：僅前景遊玩，不覆寫自動存檔。請匯出保留本次進度。');
+} else if (!storeAvailable) notice('此瀏覽器不允許儲存資料。請定期匯出存檔，避免關閉後遺失。');
+ownership.resume(); ownershipStatus(); updatePreferences(); render(true); resizeCanvas(); requestAnimationFrame(frame);

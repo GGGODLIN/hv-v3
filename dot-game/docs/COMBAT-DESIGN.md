@@ -1,4 +1,4 @@
-# Independent combat and progression: v0.1
+# Independent combat and progression: v0.2 candidate
 
 This implementation was authored from scratch. No existing game implementation, constants export, monster dataset, artwork, or another author's single-player design was used. The source map is `ORIGINAL-HV.md`; public research is evidence, not access to HV server code. This document distinguishes rules implemented from evidence from explicitly chosen adaptations.
 
@@ -20,19 +20,41 @@ The first slice uses physical combat; magic/ward/resist/void/weaken branches are
 
 ## Independent adaptations, not original HV claims
 
-- This is real-time presentation of automated turn actions. One physical player action every 1.05 seconds represents 100 TU; ticks cross 100 TU. Enemy cadence is 1.9 seconds. Presentation is capped to two seconds per update and the UI suspends hidden tabs; offline earnings are not implemented.
+- This is real-time presentation of automated turn actions. One physical player action every 1.05 seconds represents 100 TU; ticks cross 100 TU. Enemy cadence is 1.9 seconds. The engine caps each update to two seconds; the UI online-time policy is documented separately. Offline earnings are not implemented.
 - Six attributes start at 8 and automatically rise by 2 each level. Original HV allocates an EXP budget; this simplified starting allocation is intentional, not the original allocation system.
 - Avoidance probability conversion is not fully established by the research. This version chooses small explicit base chances plus dexterity/agility/equipment contributions, all capped. These are not original rating curves.
 - First critical probability uses sheet critical chance; continuation is 10%, capped at the researched 25% continuation cap. The exact original accuracy-to-critical mapping is not asserted.
 - Flat `defense` on independently generated armor is interpreted as an equipment mitigation percentage divided by 100, capped per item. The original research uses actual item mitigation percentages; this normalized stat is this game's presentation contract.
 - Proficiency grows 0.08 per automated player turn, capped at 1.2 × level, choosing one side of a documented source conflict. Exact original gain coefficients are unknown. No proficiency damage ability is silently granted.
-- `破勢斬` is an original automated skill: every fifth player action if at least 3 MP, costs 3 MP, deals 2.3 × attack, and bypasses evade/parry. It is **not** Shield Bash, and the disputed original Shield Bash multiplier is not copied.
-- `自動治癒` is an original sustain action, not original Cure: below 38% HP with at least 6 MP, spends 6 MP to restore 27% max HP. Each player action restores 0.6 MP. The original Cure unlock/cooldown/baseHP scaling is deferred.
+- `破勢斬` is an original automated skill: under the default balanced policy, every fifth player action if at least 3 MP, costs 3 MP, deals 2.3 × attack, and bypasses evade/parry. It is **not** Shield Bash, and the disputed original Shield Bash multiplier is not copied.
+- `自動治癒` is an original sustain action, not original Cure: under the default balanced policy, below 38% HP with at least 6 MP, spends 6 MP to restore 27% max HP. Each player action restores 0.6 MP. The original Cure unlock/cooldown/baseHP scaling is deferred.
 - Three optional supply potions per expedition restore 40% max HP. No purchases or cash transactions exist.
 - Four waves per expedition, six independently named creatures in total, with a boss final wave. Creature stats and exponential stage scaling are independently tuned; the excluded monster dataset is not used. Stages 1–30 are currently exposed, not a permanent product scope limit.
 - Normal kill equipment chance is 14% and a clear grants one guaranteed equipment item. First clear guarantees the **weapon slot**, not a secretly upgraded quality roll. These rates intentionally support a short idle loot loop and are **not** the original 0.25% ordinary drop baseline.
 - First-clear XP/gold, repeatable expedition rewards, sell values, level-dependent creature rewards, full recovery on camp/clear, between-wave 10% recovery, and lossless defeat are independent single-player pacing.
 - The first clear can be followed by an immediate camp equipment change; then repeating the same stage demonstrates shorter clear time. Auto advance moves to the next unlocked stage; disabled auto advance repeats the selected stage after a 3-second intermission. It is not an auto-equip system.
+
+## v0.2 automatic tactics: explicit independent adaptation
+
+Choose a policy at camp before departing. This is an original automatic decision layer over the existing independently adapted abilities, **not** an implementation of the original HV skill tree. Changing policy never changes attributes, equipment, damage multipliers, the researched resolution chain, enemy stats, or loot rolls.
+
+| Policy | Burst decision | Paid healing decision | Automatic potion |
+| --- | --- | --- | --- |
+| Balanced / 均衡 (default) | Every 5th player action, if at least 3 MP | Below 38% HP, if at least 6 MP | Never; manual potion available |
+| Assault / 猛攻 | Every 3rd player action, if at least 3 MP | Below 22% HP, if at least 6 MP | Never; manual potion available |
+| Sustain / 持久 | Every 5th player action, only if spending 3 MP leaves at least 6 MP | Below 60% HP, if at least 6 MP | After healing, if still below 30% HP and a charge remains |
+
+All policies recover the existing 0.6 MP each player action; burst costs 3 MP and uses the existing 2.3× attack; healing costs 6 MP and restores 27% maximum HP. Each expedition has exactly three shared manual/automatic potion charges, each restoring 40% maximum HP. A support action and attack can occur on the same turn: this is the **existing v0.1 adaptation**, explicitly preserved rather than silently introducing a new original-HV action-economy claim. Multiple heals are not cast in a single turn. A potion may follow that one heal only if the emergency threshold remains unmet.
+
+Assault's shorter cadence is a deliberate policy pacing adaptation, not a claim that original HV skill cooldowns are policy-dependent. More burst is not universally better: it drains the pool needed to heal. Sustain gives up some burst opportunities and spends finite consumables, but does not guarantee a win. Policies cannot be changed mid-battle or while defeated; retreat to camp first. Default balanced preserves the v0.1 sequence.
+
+### Reproducible tradeoff evidence
+
+`tests/tactics.test.mjs` creates identical seed 42 level-1 starter characters, uses the same 0.1-second updates, and replaces only the test encounter with one final-wave enemy (5 defense, zero evade/parry/block). These are controlled **test fixtures**, not new selectable encounters or universal balance promises:
+
+- 2,000 enemy HP / 0 attack: balanced wins in 43.1 s spending 24 MP on 8 bursts; assault wins in 41.0 s spending 39 MP on 13 bursts. Both use no heal/potion. Clear recovery resets the MP pool, so the per-expedition expenditure counter, not post-clear MP, is compared.
+- 3,000 enemy HP / 60 attack: balanced loses at 36.1 s; assault loses at 30.4 s; sustain wins at 83.0 s, using 2 bursts, 9 paid heals, and all 3 potions. This shows survival at a resource/offense cost, not a claim that sustain always wins.
+- `battle.actions` tracks attacks, skills, heals, potions and MP spent for the current expedition; it resets on the next departure and on load. It is observational and never feeds combat outcomes. Strategy is preserved in saves; missing/invalid values safely default to balanced.
 
 ## Persistence and safety
 
