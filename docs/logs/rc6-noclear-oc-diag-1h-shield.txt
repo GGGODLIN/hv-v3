@@ -1,0 +1,14 @@
+
+== buff:oc  N=32 M=12  never full-clear: 8 (25%)
+stuck floor (best reached): F20:7 F19:1
+run ends, never-clear seeds: boss@F15:13 boss@F20:11 retreat@F10:10 retreat@F15:9 elite@F13:9 elite@F17:8 boss@F10:7 elite@F9:6 elite@F7:5 battle@F13:4 elite@F11:4 elite@F19:4
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F15 boss[thorns]:13 boss@F20 boss[drain]:11 boss@F10 boss[shield]:7 battle@F13 normal:4 elite@F13 elite{leech}:2 battle@F17 normal:2 elite@F19 elite{warded}:2 battle@F19 normal:2 elite@F9 elite{antimagic}:2 elite@F7 elite{swift}:1 elite@F13 elite{berserk}:1 elite@F13 elite{hard}:1
+run ends, all seeds: boss@F15:35 boss@F20:32 elite@F17:27 retreat@F15:20 boss@F10:20 elite@F9:17 elite@F19:17 elite@F13:17 retreat@F10:14 elite@F7:12 elite@F11:10 battle@F13:9
+  seed 3: best F20 lv 15 main axe off tower | ends elite@F7,boss@F15,boss@F15,retreat@F15,retreat@F10,retreat@F15,elite@F13,elite@F13,retreat@F15,boss@F15,boss@F20,elite@F13
+  seed 8: best F20 lv 13 main axe off buckler | ends elite@F9,elite@F13,boss@F15,elite@F17,battle@F13,boss@F15,battle@F13,elite@F11,elite@F17,boss@F20,boss@F15,elite@F17
+  seed 17: best F20 lv 13 main club off buckler | ends elite@F7,elite@F11,retreat@F10,elite@F7,boss@F15,elite@F13,retreat@F15,elite@F17,elite@F13,boss@F10,boss@F15,boss@F20
+  seed 20: best F20 lv 15 main axe off tower | ends elite@F9,elite@F9,elite@F19,retreat@F15,battle@F17,boss@F15,battle@F11,boss@F20,elite@F19,elite@F17,elite@F17,boss@F20
+  seed 25: best F19 lv 13 main axe off tower | ends elite@F7,boss@F10,boss@F10,battle@F13,elite@F13,elite@F11,retreat@F10,retreat@F15,retreat@F10,elite@F19,battle@F19,battle@F19
+  seed 26: best F20 lv 15 main axe off tower | ends elite@F9,elite@F9,boss@F10,boss@F10,retreat@F10,boss@F20,retreat@F15,retreat@F15,retreat@F15,boss@F15,boss@F20,boss@F20
+  seed 28: best F20 lv 13 main axe off buckler | ends elite@F7,boss@F10,boss@F10,battle@F13,elite@F11,retreat@F10,elite@F13,boss@F15,retreat@F10,elite@F17,retreat@F10,boss@F20
+  seed 31: best F20 lv 13 main axe off tower | ends boss@F5,elite@F9,retreat@F10,retreat@F10,elite@F17,boss@F20,boss@F20,elite@F13,boss@F15,elite@F19,battle@F17,boss@F15

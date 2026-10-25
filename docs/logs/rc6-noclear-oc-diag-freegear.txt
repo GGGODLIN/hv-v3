@@ -1,0 +1,10 @@
+
+== buff:oc  N=32 M=12  never full-clear: 4 (13%)
+stuck floor (best reached): F19:2 F15:1 F20:1
+run ends, never-clear seeds: boss@F10:8 boss@F15:8 retreat@F15:6 retreat@F10:5 elite@F13:3 battle@F19:3 battle@F11:2 elite@F11:2 battle@F13:2 battle@F17:2 elite@F17:2 elite@F9:1
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F10 boss[shield]:8 boss@F15 boss[thorns]:8 battle@F19 normal:3 battle@F11 normal:2 battle@F13 normal:2 elite@F13 elite{warded+guard}:2 battle@F17 normal:2 elite@F9 elite{swift+warded}:1 elite@F11 elite{spikes}:1 elite@F19 elite{warded}:1 elite@F13 elite{hard}:1 elite@F11 elite{warded}:1
+run ends, all seeds: boss@F15:25 boss@F10:22 elite@F19:21 retreat@F15:15 elite@F9:14 elite@F13:11 elite@F17:10 boss@F20:9 elite@F7:8 elite@F11:8 retreat@F10:8 battle@F11:7
+  seed 8: best F19 lv 14 main scythe off - | ends elite@F9,battle@F11,boss@F10,elite@F11,boss@F15,boss@F10,retreat@F15,elite@F19,retreat@F10,retreat@F15,boss@F15,boss@F15
+  seed 13: best F15 lv 14 main scythe off - | ends boss@F10,boss@F10,battle@F13,battle@F11,elite@F13,elite@F13,retreat@F10,retreat@F15,retreat@F10,elite@F13,retreat@F15,boss@F10
+  seed 24: best F19 lv 14 main mace off - | ends boss@F10,boss@F15,battle@F19,retreat@F10,boss@F15,battle@F13,elite@F11,battle@F17,boss@F15,battle@F19,retreat@F10,elite@F17
+  seed 32: best F20 lv 13 main axe off kite | ends boss@F5,battle@F9,boss@F10,boss@F10,boss@F15,battle@F19,boss@F15,elite@F17,boss@F20,retreat@F15,battle@F17,retreat@F15

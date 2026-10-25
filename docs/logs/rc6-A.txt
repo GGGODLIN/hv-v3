@@ -1,0 +1,262 @@
+CP6 abyss sim N=64 T=10 seeds 1..64 (main tower until first F20 clear, then abyss)
+
+== auto  main trips to F20 clear: median 3 (no clear in 60: 0)  lv@abyss1 p10 12 median 13 p90 15 mean 13.6  power median 609
+schools {"none":640}  titles earned 106
+abyss trips ending in death 97.2% | equipment kept per abyss trip: mean 0.8 median 0 p90 1 | quality fair 17.6% average 32.4% superior 38.5% exquisite 9.6% magnificent 2.0%
+trip1 cleared depth: p10 5 p25 10 median 15 p75 17 p90 19 mean 12.8
+best after 10 trips: p10 17 median 20 p90 24 max 27
+best after 5 trips: p10 15 median 19 p90 22 max 27
+boss fights by abyss depth over all 10 trips | n | win% | turns
+  d5 | 66 | 98.5 | 4.8
+  d10 | 65 | 98.5 | 5.7
+  d15 | 71 | 97.2 | 8.1
+  d20 | 68 | 73.5 | 7.4
+  d25 | 22 | 36.4 | 9.6
+death rate per depth (deaths/entered, %): d1:4/70 d3:1/67 d5:2/65 d6:4/71 d8:4/68 d10:2/65 d11:17/107 d13:20/89 d15:3/66 d16:53/373 d18:61/175 d20:31/58 d21:70/226 d23:67/67 d25:70/20 d26:90/31 d28:100/3
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 70 | 3 | 4.3
+  r2 | 67 | 0 | 0.0
+  r3 | 67 | 1 | 1.5
+  r4 | 66 | 0 | 0.0
+  r5 | 65 | 1 | 1.5
+  r6 | 71 | 3 | 4.2
+  r7 | 68 | 0 | 0.0
+  r8 | 68 | 3 | 4.4
+  r9 | 65 | 0 | 0.0
+  r10 | 65 | 1 | 1.5
+  r11 | 107 | 18 | 16.8
+  r12 | 89 | 0 | 0.0
+  r13 | 89 | 18 | 20.2
+  r14 | 71 | 0 | 0.0
+  r15 | 66 | 2 | 3.0
+  r16 | 373 | 198 | 53.1
+  r17 | 175 | 0 | 0.0
+  r18 | 175 | 107 | 61.1
+  r19 | 68 | 0 | 0.0
+  r20 | 58 | 18 | 31.0
+  r21 | 226 | 159 | 70.4
+  r22 | 67 | 0 | 0.0
+  r23 | 67 | 45 | 67.2
+  r24 | 22 | 0 | 0.0
+  r25 | 20 | 14 | 70.0
+  r26 | 31 | 28 | 90.3
+  r27 | 3 | 0 | 0.0
+  r28 | 3 | 3 | 100.0
+d13-d18 per-entry death rate %: d13 20.2 (18/89) | d14 0.0 (0/71) | d15 3.0 (2/66) | d16 53.1 (198/373) | d17 0.0 (0/175) | d18 61.1 (107/175)  ratios d16/d13 2.62 d16/d14 — d16/d15 17.52 d16/d17 — d16/d18 0.87
+  INFO PASS best5 median >= 15
+  INFO PASS d20 boss win >= 25%
+  INFO PASS d5 boss win >= 60%
+  INFO PASS d16 rate not tower-highest
+  INFO FAIL d16 rate <= 1.5 x d13 (53.1 vs 20.2, d13 entered 89)
+  INFO PASS d16 rate <= 1.5 x d18 (53.1 vs 61.1)
+death depth (abyss trips dying at depth d): d1:3 d3:1 d5:1 d6:3 d8:3 d10:1 d11:18 d13:18 d15:2 d16:198 d18:107 d20:18 d21:159 d23:45 d25:14 d26:28 d28:3
+
+== buff:blade  main trips to F20 clear: median 4 (no clear in 60: 7)  lv@abyss1 p10 11 median 13 p90 21 mean 14.0  power median 560
+schools {"oc":21,"arcane":19,"none":406,"blade":176,"bulwark":18}  titles earned 74
+abyss trips ending in death 96.7% | equipment kept per abyss trip: mean 1.1 median 1 p90 1 | quality fair 23.8% average 37.7% superior 29.4% exquisite 8.4% magnificent 0.7%
+trip1 cleared depth: p10 2 p25 4 median 7 p75 14 p90 17 mean 8.8
+best after 10 trips: p10 7 median 17 p90 22 max 24
+best after 5 trips: p10 4 median 15 p90 17 max 24
+boss fights by abyss depth over all 10 trips | n | win% | turns
+  d5 | 90 | 68.9 | 8.8
+  d10 | 65 | 96.9 | 10.9
+  d15 | 67 | 88.1 | 17.9
+  d20 | 21 | 95.2 | 6.9
+  d25 | 2 | 100.0 | 8.5
+death rate per depth (deaths/entered, %): d1:13/143 d3:28/125 d5:32/88 d6:11/125 d8:41/111 d10:3/58 d11:16/145 d13:45/122 d15:13/62 d16:50/338 d18:88/170 d20:6/16 d21:64/74 d23:93/27
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 143 | 18 | 12.6
+  r2 | 125 | 0 | 0.0
+  r3 | 125 | 35 | 28.0
+  r4 | 90 | 0 | 0.0
+  r5 | 88 | 28 | 31.8
+  r6 | 125 | 14 | 11.2
+  r7 | 111 | 0 | 0.0
+  r8 | 111 | 46 | 41.4
+  r9 | 65 | 0 | 0.0
+  r10 | 58 | 2 | 3.4
+  r11 | 145 | 23 | 15.9
+  r12 | 122 | 0 | 0.0
+  r13 | 122 | 55 | 45.1
+  r14 | 67 | 0 | 0.0
+  r15 | 62 | 8 | 12.9
+  r16 | 338 | 168 | 49.7
+  r17 | 170 | 0 | 0.0
+  r18 | 170 | 149 | 87.6
+  r19 | 21 | 0 | 0.0
+  r20 | 16 | 1 | 6.3
+  r21 | 74 | 47 | 63.5
+  r22 | 27 | 0 | 0.0
+  r23 | 27 | 25 | 92.6
+  r24 | 2 | 0 | 0.0
+d13-d18 per-entry death rate %: d13 45.1 (55/122) | d14 0.0 (0/67) | d15 12.9 (8/62) | d16 49.7 (168/338) | d17 0.0 (0/170) | d18 87.6 (149/170)  ratios d16/d13 1.10 d16/d14 — d16/d15 3.85 d16/d17 — d16/d18 0.57
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-12
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK PASS d16 rate <= 1.5 x d13 (49.7 vs 45.1, d13 entered 122)
+  CHECK PASS d16 rate <= 1.5 x d18 (49.7 vs 87.6)
+death depth (abyss trips dying at depth d): d1:18 d3:35 d5:28 d6:14 d8:46 d10:2 d11:23 d13:55 d15:8 d16:168 d18:149 d20:1 d21:47 d23:25
+
+== buff:oc  main trips to F20 clear: median 39 (no clear in 60: 26)  lv@abyss1 p10 13 median 21 p90 25 mean 19.7  power median 688
+schools {"oc":229,"arcane":20,"none":362,"bulwark":15,"blade":14}  titles earned 65
+abyss trips ending in death 93.9% | equipment kept per abyss trip: mean 1.2 median 1 p90 1 | quality fair 19.6% average 38.8% superior 32.5% exquisite 8.2% magnificent 0.9%
+trip1 cleared depth: p10 4 p25 4 median 7 p75 10 p90 12 mean 7.2
+best after 10 trips: p10 12 median 17 p90 19 max 22
+best after 5 trips: p10 9 median 14 p90 17 max 19
+boss fights by abyss depth over all 10 trips | n | win% | turns
+  d5 | 136 | 52.2 | 17.1
+  d10 | 125 | 66.4 | 18.6
+  d15 | 97 | 53.6 | 21.3
+  d20 | 22 | 13.6 | 15.6
+  d25 | 0 | — | —
+death rate per depth (deaths/entered, %): d3:1/137 d5:51/128 d6:10/167 d8:17/150 d10:40/104 d11:27/269 d13:51/197 d15:51/88 d16:53/232 d18:80/108 d20:90/21 d21:40/5 d23:100/3
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 137 | 0 | 0.0
+  r2 | 137 | 0 | 0.0
+  r3 | 137 | 1 | 0.7
+  r4 | 136 | 0 | 0.0
+  r5 | 128 | 65 | 50.8
+  r6 | 167 | 17 | 10.2
+  r7 | 150 | 0 | 0.0
+  r8 | 150 | 25 | 16.7
+  r9 | 125 | 0 | 0.0
+  r10 | 104 | 42 | 40.4
+  r11 | 269 | 72 | 26.8
+  r12 | 197 | 0 | 0.0
+  r13 | 197 | 100 | 50.8
+  r14 | 97 | 0 | 0.0
+  r15 | 88 | 45 | 51.1
+  r16 | 232 | 124 | 53.4
+  r17 | 108 | 0 | 0.0
+  r18 | 108 | 86 | 79.6
+  r19 | 22 | 0 | 0.0
+  r20 | 21 | 19 | 90.5
+  r21 | 5 | 2 | 40.0
+  r22 | 3 | 0 | 0.0
+  r23 | 3 | 3 | 100.0
+d13-d18 per-entry death rate %: d13 50.8 (100/197) | d14 0.0 (0/97) | d15 51.1 (45/88) | d16 53.4 (124/232) | d17 0.0 (0/108) | d18 79.6 (86/108)  ratios d16/d13 1.05 d16/d14 — d16/d15 1.05 d16/d17 — d16/d18 0.67
+  CHECK FAIL best5 median >= 15
+  CHECK FAIL d20 boss win >= 25%
+  CHECK PASS trip1 median 5-12
+  CHECK FAIL d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK PASS d16 rate <= 1.5 x d13 (53.4 vs 50.8, d13 entered 197)
+  CHECK PASS d16 rate <= 1.5 x d18 (53.4 vs 79.6)
+death depth (abyss trips dying at depth d): d3:1 d5:65 d6:17 d8:25 d10:42 d11:72 d13:100 d15:45 d16:124 d18:86 d20:19 d21:2 d23:3
+
+== buff:arcane  main trips to F20 clear: median 4 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 15 mean 12.9  power median 607
+schools {"arcane":198,"none":395,"bulwark":22,"blade":7,"oc":18}  titles earned 90
+abyss trips ending in death 94.8% | equipment kept per abyss trip: mean 1.1 median 1 p90 1 | quality fair 22.7% average 34.1% superior 31.3% exquisite 10.6% magnificent 1.1% legendary 0.3%
+trip1 cleared depth: p10 5 p25 10 median 12 p75 14 p90 15 mean 11.3
+best after 10 trips: p10 17 median 19 p90 24 max 25
+best after 5 trips: p10 14 median 17 p90 20 max 24
+boss fights by abyss depth over all 10 trips | n | win% | turns
+  d5 | 68 | 97.1 | 4.1
+  d10 | 64 | 100.0 | 3.8
+  d15 | 86 | 91.9 | 7.4
+  d20 | 53 | 56.6 | 5.6
+  d25 | 12 | 33.3 | 5.1
+death rate per depth (deaths/entered, %): d1:3/71 d3:1/69 d5:3/66 d6:3/76 d8:14/74 d11:26/211 d13:45/156 d15:10/68 d16:49/385 d18:73/196 d20:55/42 d21:53/103 d23:75/48 d25:80/10 d26:100/4
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 71 | 2 | 2.8
+  r2 | 69 | 0 | 0.0
+  r3 | 69 | 1 | 1.4
+  r4 | 68 | 0 | 0.0
+  r5 | 66 | 2 | 3.0
+  r6 | 76 | 2 | 2.6
+  r7 | 74 | 0 | 0.0
+  r8 | 74 | 10 | 13.5
+  r9 | 64 | 0 | 0.0
+  r10 | 64 | 0 | 0.0
+  r11 | 211 | 55 | 26.1
+  r12 | 156 | 0 | 0.0
+  r13 | 156 | 70 | 44.9
+  r14 | 86 | 0 | 0.0
+  r15 | 68 | 7 | 10.3
+  r16 | 385 | 189 | 49.1
+  r17 | 196 | 0 | 0.0
+  r18 | 196 | 143 | 73.0
+  r19 | 53 | 0 | 0.0
+  r20 | 42 | 23 | 54.8
+  r21 | 103 | 55 | 53.4
+  r22 | 48 | 0 | 0.0
+  r23 | 48 | 36 | 75.0
+  r24 | 12 | 0 | 0.0
+  r25 | 10 | 8 | 80.0
+  r26 | 4 | 4 | 100.0
+d13-d18 per-entry death rate %: d13 44.9 (70/156) | d14 0.0 (0/86) | d15 10.3 (7/68) | d16 49.1 (189/385) | d17 0.0 (0/196) | d18 73.0 (143/196)  ratios d16/d13 1.09 d16/d14 — d16/d15 4.77 d16/d17 — d16/d18 0.67
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-12
+  CHECK PASS d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK PASS d16 rate <= 1.5 x d13 (49.1 vs 44.9, d13 entered 156)
+  CHECK PASS d16 rate <= 1.5 x d18 (49.1 vs 73.0)
+death depth (abyss trips dying at depth d): d1:2 d3:1 d5:2 d6:2 d8:10 d11:55 d13:70 d15:7 d16:189 d18:143 d20:23 d21:55 d23:36 d25:8 d26:4
+
+== buff:bulwark  main trips to F20 clear: median 3 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 15 mean 13.0  power median 563
+schools {"none":435,"bulwark":147,"oc":20,"blade":19,"arcane":19}  titles earned 86
+abyss trips ending in death 98.3% | equipment kept per abyss trip: mean 0.8 median 1 p90 1 | quality fair 24.4% average 33.6% superior 29.5% exquisite 9.8% magnificent 2.7%
+trip1 cleared depth: p10 2 p25 4 median 9 p75 17 p90 22 mean 10.6
+best after 10 trips: p10 5 median 20 p90 24 max 32
+best after 5 trips: p10 4 median 17 p90 24 max 32
+boss fights by abyss depth over all 10 trips | n | win% | turns
+  d5 | 128 | 50.0 | 15.3
+  d10 | 56 | 96.4 | 15.0
+  d15 | 49 | 100.0 | 24.2
+  d20 | 34 | 94.1 | 9.8
+  d25 | 13 | 69.2 | 18.8
+  d30 | 1 | 100.0 | 11.0
+death rate per depth (deaths/entered, %): d1:4/166 d3:19/159 d5:52/122 d6:29/125 d8:37/89 d10:4/55 d11:19/81 d13:26/66 d16:41/225 d18:74/133 d20:6/34 d21:59/196 d23:84/81 d25:40/10 d26:74/35 d28:89/9 d31:90/10 d33:100/1
+death rate per entry by depth | depth | entered | died | rate%
+  r1 | 166 | 7 | 4.2
+  r2 | 159 | 0 | 0.0
+  r3 | 159 | 31 | 19.5
+  r4 | 128 | 0 | 0.0
+  r5 | 122 | 64 | 52.5
+  r6 | 125 | 36 | 28.8
+  r7 | 89 | 0 | 0.0
+  r8 | 89 | 33 | 37.1
+  r9 | 56 | 0 | 0.0
+  r10 | 55 | 2 | 3.6
+  r11 | 81 | 15 | 18.5
+  r12 | 66 | 0 | 0.0
+  r13 | 66 | 17 | 25.8
+  r14 | 49 | 0 | 0.0
+  r15 | 48 | 0 | 0.0
+  r16 | 225 | 92 | 40.9
+  r17 | 133 | 0 | 0.0
+  r18 | 133 | 99 | 74.4
+  r19 | 34 | 0 | 0.0
+  r20 | 34 | 2 | 5.9
+  r21 | 196 | 115 | 58.7
+  r22 | 81 | 0 | 0.0
+  r23 | 81 | 68 | 84.0
+  r24 | 13 | 0 | 0.0
+  r25 | 10 | 4 | 40.0
+  r26 | 35 | 26 | 74.3
+  r27 | 9 | 0 | 0.0
+  r28 | 9 | 8 | 88.9
+  r29 | 1 | 0 | 0.0
+  r30 | 1 | 0 | 0.0
+  r31 | 10 | 9 | 90.0
+  r32 | 1 | 0 | 0.0
+  r33 | 1 | 1 | 100.0
+d13-d18 per-entry death rate %: d13 25.8 (17/66) | d14 0.0 (0/49) | d15 0.0 (0/48) | d16 40.9 (92/225) | d17 0.0 (0/133) | d18 74.4 (99/133)  ratios d16/d13 1.59 d16/d14 — d16/d15 — d16/d17 — d16/d18 0.55
+  CHECK PASS best5 median >= 15
+  CHECK PASS d20 boss win >= 25%
+  CHECK PASS trip1 median 5-12
+  CHECK FAIL d5 boss win >= 60%
+  CHECK PASS d16 rate not tower-highest
+  CHECK FAIL d16 rate <= 1.5 x d13 (40.9 vs 25.8, d13 entered 66)
+  CHECK PASS d16 rate <= 1.5 x d18 (40.9 vs 74.4)
+death depth (abyss trips dying at depth d): d1:7 d3:31 d5:64 d6:36 d8:33 d10:2 d11:15 d13:17 d16:92 d18:99 d20:2 d21:115 d23:68 d25:4 d26:26 d28:8 d31:9 d33:1
+
+== VERDICT: FAIL
+  buff:oc: FAIL best5 median >= 15
+  buff:oc: FAIL d20 boss win >= 25%
+  buff:oc: FAIL d5 boss win >= 60%
+  buff:bulwark: FAIL d5 boss win >= 60%
+  buff:bulwark: FAIL d16 rate <= 1.5 x d13 (40.9 vs 25.8, d13 entered 66)

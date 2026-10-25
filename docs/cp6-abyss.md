@@ -279,3 +279,17 @@
 
 結論（已驗證）：兩旋鈕開到極限（怪物不追蹤等級、物理抗性全歸零）時，blade d16 仍只有 28%、oc d20 18%、bulwark d5 68%、bulwark/oc d16 52%，目標無法只用這兩個旋鈕達成。依指示停止，不硬調；旋鈕維持 rc5 值（K 0.8、PR 1）。
 推論（未驗證）：d16 一般戰的牆不是物理抗性或等級追蹤造成（PR 0 只讓 blade 3%→28%），而 d20 首領反而比 d16 一般戰容易，原因可能是 d16 的多隻怪／tier ramp 帶來的數量與傷害；需另查原因後才能決定新旋鈕。
+
+## rc6 項目 4：重新量測（前 = rc5，後 = rc6；新 UI-only AI）
+
+| 項目 | rc5 | rc6 | 來源 |
+|---|---|---|---|
+| 12 趟內從未全通 F20：auto / blade / oc / arcane / bulwark（目標每流派 ≤10%） | 0 / 25 / 13 / 0 / 0 % | 0 / **6** / **78** / 0 / **3** % | docs/logs/rc4-schoolgear-noclear.txt → rc6-noclear.txt |
+| 同上，omni 參考 AI（僅供對照） | — | 0 / 84 / 78 / 0 / 0 % | rc6-noclear-omni-reference.txt |
+| 死亡組合掃描 必死 / 警告 / 相對必死 | 18 / 70 / 48 | **13** / 71 / **30** | rc4-schoolgear-deathcombo.txt → rc6-deathcombo.txt |
+| CP4 使用率檢查 | PASS | PASS | rc6-cp4-buffs.txt |
+| CP6 abyss-sim A / B VERDICT | ALL PASS / ALL PASS | **FAIL / FAIL**（oc：best5、d20、d5；bulwark：d5 首領） | rc6-A.txt、rc6-B.txt |
+| CP4+CP5 開、CP6 關 基線 | rc4-schoolgear 檔 | 改變（cp4-balance 的流派列），另存 docs/cp5-on-baseline-sim-rc6.txt；cp4-on-check.sh 指向新檔 | |
+| vitest | 全過 | 221/221 | |
+
+OC 退步原因（已驗證，診斷跑 rc4-noclear 32×12 只改 OC 選裝）：1H 無盾 78%；1H 可帶盾 25%；rc5 的自由選裝 13%（docs/logs/rc6-noclear-oc-diag-*.txt）。也就是項目 3「OC 雙持→本遊戲無雙持改單手、不帶盾」這條規則本身造成；未調任何數值，需製作人決定 OC 是否可帶盾或改其他武器。
