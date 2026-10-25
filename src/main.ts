@@ -26,6 +26,7 @@ async function boot() {
   // CP4 run buffs are on by default since cp4-pass; `?cp4` is kept as a no-op alias for old links.
   if (new URLSearchParams(location.search).has('cp4')) RULES.cp4RunBuffs = true;
   // CP5 bosses / affixes / themes are off by default; `?cp5` turns them on for playtesting.
+  // CP5 is on by default since cp5-pass; `?cp5` is kept as a no-op alias for old links.
   if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;
   // CP6 abyss tower is off by default; `?cp6` turns it on (and the CP5 bosses / affixes it reuses).
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }

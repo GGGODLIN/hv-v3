@@ -38,8 +38,8 @@ export const RULES = {
   cp4RunBuffs: true, // CP4 accepted 2026-10-25 (cp4-pass): run buffs on by default
   /** CP4 decision 5 (暫定): boss max HP × (1 + k × buffs held). Gameplay layer, monsters.json untouched. */
   cp4BossHpPerBuff: 0.06,
-  /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. `?cp5` in the URL turns it on. */
-  cp5Bosses: false,
+  /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. On by default since cp5-pass (2026-10-26). */
+  cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
   /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
   cp6Abyss: false,
 };

@@ -11,7 +11,7 @@ import { eligible, rollBuffs } from '../src/core/buffoffer';
 import { CP5 } from '../src/core/cp5';
 import { generateTower } from '../src/core/tower';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
-const cp5 = <T,>(f: () => T): T => { RULES.cp5Bosses = true; try { return f(); } finally { RULES.cp5Bosses = false; } };
+const cp5 = <T,>(f: () => T): T => { RULES.cp5Bosses = true; try { return f(); } finally { RULES.cp5Bosses = true; } };
 const p = newPlayer(); starterKit(p);
 function bulwarkBattle(withCp5: boolean, ids?: string[]) {
   const r = startRun(p, 3); r.buffs = ids ?? BUFFS.filter((b) => b.school === 'bulwark').slice(0, 4).map((b) => b.id);
