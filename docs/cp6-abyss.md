@@ -409,3 +409,14 @@ Findings from rounds 1-4:
 - A negative DPD moves pressure to shallow depths. It is capped at −0.01: at −0.0167 monster damage reaches 0 at d60.
 - Blade's d16 normal battle is the binding constraint. Every config that puts the trip-1 median ≤12 for all schools (r2B, r2D, r3B, r4B) drops blade d16 to 13-42%. Every config that keeps blade ≥60 (r3A, r3C, r4A, r4C) leaves auto/arcane/bulwark trip-1 at 15-27.
 - HP × hurts blade's d16 more than damage ×.
+
+Round 5 (low HS / high DS):
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| r5A | 0 / 1.25 / 5 / -0.01 / 5 | 100/98/98/89 | 67/89/88/75 | 95/92/98/95 | 25/17/9/17/17 | 0.92/0.84/1.21/0.59/0.49 |
+| r5B | 0 / 1 / 5.5 / -0.01 / 5 | 100/98/98/91 | 88/94/88/79 | 100/91/92/95 | 27/19/15/17/25 | 4.02/0.29/2.18/0.80/— |
+| r5C | 0 / 1.5 / 5 / -0.01 / 5 | 98/94/97/84 | 47/88/86/62 | 97/77/95/94 | 15/7/7/10/15 | 2.18/0.44/1.21/0.48/0.63 |
+| r5D | 0 / 1.25 / 6 / -0.01 / 5 | 97/92/95/84 | 58/82/88/63 | 97/83/91/94 | 12/9/9/12/12 | 0.99/0.41/0.36/1.03/0.90 |
+
+r5D comes closest: every trip-1 median is ≤12 and every ratio is ≤1.03. Blade's d16 battle is 58% (target 60, N=16x4, likely within noise; to be confirmed).
