@@ -29,7 +29,8 @@ export const CP5 = {
    *  法抗 resist / magic mitigation; pick weight of 法抗/反魔 vs 1 for the others. */
   /** CP5 r4 (暫定): bulwark 3-set anti-turtle — consecutive defend heal ×decay^streak; 1 = no riposte while defending. */
   /** CP5 r4 (暫定): per-boss HP / ADB multipliers (key = floor; missing = 1). */
-  bossHp: { 5: 1, 10: 1, 15: 1, 20: 1 } as Record<number, number>, bossAdb: { 5: 1, 10: 1, 15: 1, 20: 1 } as Record<number, number>,
+  /** CP5 r5 (暫定): B5 HP ×0.78 / ADB ×1.1 — trip-1 F5 turns ≤24 with counter/ignore gap ≥25pp (docs/logs/cp5-sim.txt). */
+  bossHp: { 5: 0.78, 10: 1, 15: 1, 20: 1 } as Record<number, number>, bossAdb: { 5: 1.1, 10: 1, 15: 1, 20: 1 } as Record<number, number>,
   /** CP5 r4 (暫定): 深淵之王 — after each shield rotation (not the opening one) its next action is an elemental pulse
    *  (magic, shield element, ×pulseMult ADB). Defend or stun counters it. 0 = off. drainMult = 吸血重擊 multiplier. */
   pulseMult: 0, drainMult: 2, // r4: pulse off (4 widened the B10 gap but cut counter win <90% and pushed arcane F9 to 79%); sweeps in docs/logs/cp5-r4-sweep.txt
