@@ -1,5 +1,6 @@
 import type { Player } from './player';
-import type { RunState } from './run';
+import { RULES, type RunState } from './run';
+import { migrateBonus } from './buffs';
 
 export const SAVE_KEY = 'hv-v3-save';
 export const SAVE_VERSION = 1;
@@ -14,6 +15,9 @@ export function deserialize(raw: string | null): SaveData | null {
   try {
     const s = JSON.parse(raw) as SaveData;
     if (s.v !== SAVE_VERSION || !s.player) return null;
+    // CP4 (flag on only): an in-progress CP3 run's shrine bonus becomes S-might / S-vigor buffs.
+    // SAVE_VERSION stays 1 so flag-off loading is unchanged (the new run fields are optional).
+    if (RULES.cp4RunBuffs && s.run && !s.run.buffs) migrateBonus(s.run);
     return s;
   } catch {
     return null;

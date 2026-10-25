@@ -199,6 +199,8 @@
 
 ## 11. 與 main 隔離
 
+- 存檔：`SAVE_VERSION` 維持 1（若升版，關閉時舊存檔會被拒，違反隔離）。新欄位都是選填；旗標開啟時，讀檔遇到沒有 `run.buffs` 的進行中 run 才執行 `migrateBonus`。
+
 - tag `cp3-pass`（annotated）= 771f9b3。main 只能接受它與之後訊息開頭為 `CP3-bugfix` 的純修 bug commit。
 - CP4 全部以 `RULES.cp4RunBuffs` 包住，預設 false；網址加 `?cp4` 可開啟試玩。
 - 每一步都驗證關閉時：舊測試、e2e 通過；`npx tsx scripts/difficulty.ts 16 8` 輸出與 `docs/cp4-baseline-sim.txt`（771f9b3 輸出）逐字相同（`scripts/cp4-off-check.sh`）。

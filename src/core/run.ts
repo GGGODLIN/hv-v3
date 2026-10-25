@@ -27,6 +27,8 @@ export const RULES = {
   floorCredits: 15,
   /** 暫定 (round 5): at least one equipment drop is guaranteed by this floor. */
   earlyEquipByFloor: 4,
+  /** CP4 feature flag (docs/cp4-run-buffs.md §11). Off = identical to tag cp3-pass. `?cp4` in the URL turns it on. */
+  cp4RunBuffs: false,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -63,6 +65,8 @@ export interface RunState {
   /** Next elite is picked with an elemental weakness (CP3-7 grimoire lesson). */
   weakNext?: boolean;
   notes?: string[];
+  /** CP4 (flag): buff ids held this run. Cleared every run, never written to Player. */
+  buffs?: string[];
 }
 
 export function startRun(p: Player, seed: number): RunState {
