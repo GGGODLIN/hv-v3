@@ -13,7 +13,7 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
-Version 0.2 is a desktop-tested update; consult docs/STATUS.md and RELEASES.md for actual publication evidence. See docs/STATUS.md and docs/BROWSER-QA.md for release evidence and limits. Version 0.2 supports online background processing where browser timers permit; long pauses and closed-page time give no offline earnings. Web Locks serialize writes, with a safe foreground/export-only fallback if unavailable. Development continues beyond this first loop.
+Version 0.2 is published at https://gggodlin.github.io/play/hv-v3-dot/ . See docs/STATUS.md, docs/RELEASES.md and docs/BROWSER-QA-V02.md for exact source/site commits, verification and bounded desktop acceptance. Version 0.2 supports online background processing where browser timers permit; long pauses and closed-page time give no offline earnings. Web Locks serialize writes, with a safe foreground/export-only fallback if unavailable. Development continues beyond this first loop.
 
 ## Play
 Choose 均衡 for the original policy, 猛攻 for more skill use at higher MP cost, or 持久 for earlier healing and finite automatic potions. Change tactics at camp. These are independent auto-decision policies, not an original-HV skill-tree claim.
