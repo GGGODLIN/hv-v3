@@ -113,3 +113,4 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .icon { image-rendering: pixelated; vertical-align: middle; margin-right: 6px; flex: none; }
 .iname { display: flex; align-items: center; }
 .cmdbar button .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }
+.log .phase{color:#ff6060;font-weight:bold}

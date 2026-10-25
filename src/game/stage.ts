@@ -165,7 +165,8 @@ export class Stage extends Phaser.Scene {
         if (e.label !== '自然回復') await this.wait(150);
       } else if (e.t === 'status') {
         const v = typeof e.to === 'number' ? this.mons[e.to] : undefined;
-        if (v) this.popup(v.x, this.monTop(v) - 20, e.text, '#c8a8ff', 16, 40);
+        if (v && e.phase) { this.popup(v.x, this.monTop(v) - 40, e.text, '#ff5050', 26, 80); this.flash(v.sprite, 0xff3030); await this.wait(600); }
+        else if (v) this.popup(v.x, this.monTop(v) - 20, e.text, '#c8a8ff', 16, 40);
         else this.popup(this.hero.x, this.hero.y - 250, e.text, '#c8a8ff', 16, 40);
         await this.wait(120);
       } else if (e.t === 'death') {

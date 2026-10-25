@@ -84,7 +84,7 @@ describe('CP3-B early unlocks (暫定 gameplay layer)', () => {
     expect(whyNot(b, { kind: 'spirit' })).toBe('尚未解鎖');
   });
   it('carry-back x5 / x3 / x2 (CP3-fix 3) and town unlocks per trip', () => {
-    expect(CARRY_MULT).toEqual([5, 3, 2]); expect(carryMult(5)).toBe(2);
+    expect(CARRY_MULT).toEqual([5, 3, 2]); expect(carryMult(3)).toBe(2); expect(carryMult(4)).toBe(1); expect(carryMult(5)).toBe(1);
     const p = newPlayer();
     for (const [trip, mult] of [[1, 5], [2, 3], [3, 2]] as const) {
       const r = startRun(p, trip); r.exp = 100; r.credits = 10; r.done = 'retreat';
