@@ -284,7 +284,7 @@ export class App {
     if (r.risk) {
       const k = r.risk, x = RISKS[k];
       const btns = k === 'discard' ? (r.buffs ?? []).map((id) => `<button data-risk="discard:${id}">捨棄【${BUFF[id]!.zh}】</button>`).join(' ') : `<button data-risk="${k}">${x.zh}</button>`;
-      out += `<div class="risk" data-riskbox="${k}"><h3>⚠ 或接受風險：${x.zh}</h3><div>代價：${x.cost}　回報：${x.reward}</div><div class="row">${btns}</div></div>`;
+      out += `<div class="risk" data-riskbox="${k}"><h3>⚠ 另外可加上風險（選填，三選一照拿）：${x.zh}</h3><div>代價：${x.cost}　回報：${x.reward}</div><div class="row">${btns}</div></div>`;
     }
     return out + this.buffStrip();
   }
