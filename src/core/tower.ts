@@ -28,7 +28,7 @@ export function floorPl(f: number): [number, number] {
 }
 
 /**
- * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 never has an elite.
+ * Floors 1..10. Boss floors have one option. Rest floors always offer a rest. Floor 1 always offers a battle and never an elite or rest.
  * No lane may show the same node type on three floors in a row.
  */
 export function generateTower(rng: Rng): Tower {
@@ -50,6 +50,7 @@ export function generateTower(rng: Rng): Tower {
       ));
       options.push(t);
     }
+    if (n === 1 && !options.includes('battle')) options[0] = 'battle';
     if (TOWER.restFloors.includes(n) && !options.includes('rest')) options[rng.int(0, options.length - 1)] = 'rest';
     floors.push({ n, options });
   }
