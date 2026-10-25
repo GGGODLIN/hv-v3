@@ -6,7 +6,7 @@ import { buffPreview } from '../src/game/buffpreview';
 import { newPlayer as newPlayerP } from '../src/core/player';
 
 describe('CP4 step 1: buff data', () => {
-  it('flag defaults off', () => expect(RULES.cp4RunBuffs).toBe(false));
+  it('flag defaults on (CP4 accepted)', () => expect(RULES.cp4RunBuffs).toBe(true));
   it('pool is 30-40 with three rarities, bulwark has 8', () => {
     expect(BUFFS.length).toBeGreaterThanOrEqual(30); expect(BUFFS.length).toBeLessThanOrEqual(40);
     const r = (x: string) => BUFFS.filter((b) => b.rarity === x).length;
@@ -42,15 +42,18 @@ import { deserialize, SAVE_VERSION } from '../src/core/save';
 describe('CP4 step 1: save migration', () => {
   const raw = (bonus: object) => JSON.stringify({ v: SAVE_VERSION, player: { name: 'x' }, run: { bonus }, settings: {}, stats: {} });
   it('flag off: CP3 save loads untouched', () => {
-    const s = deserialize(raw({ dmg: 0.15, hp: 0.2 }))!;
-    expect(s.run!.bonus).toEqual({ dmg: 0.15, hp: 0.2 }); expect(s.run!.buffs).toBeUndefined();
+    const was = RULES.cp4RunBuffs; RULES.cp4RunBuffs = false;
+    try {
+      const s = deserialize(raw({ dmg: 0.15, hp: 0.2 }))!;
+      expect(s.run!.bonus).toEqual({ dmg: 0.15, hp: 0.2 }); expect(s.run!.buffs).toBeUndefined();
+    } finally { RULES.cp4RunBuffs = was; }
   });
   it('flag on: CP3 save bonus becomes buffs', () => {
     RULES.cp4RunBuffs = true;
     try {
       const s = deserialize(raw({ dmg: 0.15, hp: 0.2 }))!;
       expect(s.run!.buffs).toEqual(['S-might', 'S-vigor']); expect(s.run!.bonus).toEqual({ dmg: 0, hp: 0 });
-    } finally { RULES.cp4RunBuffs = false; }
+    } finally { RULES.cp4RunBuffs = true; }
   });
 });
 
@@ -61,15 +64,18 @@ import { Rng } from '../src/core/rng';
 import { armBattle, encounter, openingOc, runDerived, startRun } from '../src/core/run';
 import { starterKit } from '../src/core/auto';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
-const on = <T,>(f: () => T): T => { RULES.cp4RunBuffs = true; try { return f(); } finally { RULES.cp4RunBuffs = false; } };
+const on = <T,>(f: () => T): T => { RULES.cp4RunBuffs = true; try { return f(); } finally { RULES.cp4RunBuffs = true; } };
 
 describe('CP4 step 2: buffs apply as run-layer mods', () => {
   const p = newPlayer(); starterKit(p);
   it('flag off: buffs held have no effect', () => {
-    const r = startRun(p, 3); r.buffs = ['B2', 'W4', 'O3'];
-    expect(runDerived(p, r)).toEqual(derive(p));
-    const b = startBattle(derive(p), { hp: 1, mp: 1, sp: 1 }, [], p.potions); armBattle(b, r);
-    expect(b.mods).toBeUndefined(); expect(openingOc(p, 'battle', r)).toBe(0);
+    RULES.cp4RunBuffs = false;
+    try {
+      const r = startRun(p, 3); r.buffs = ['B2', 'W4', 'O3'];
+      expect(runDerived(p, r)).toEqual(derive(p));
+      const b = startBattle(derive(p), { hp: 1, mp: 1, sp: 1 }, [], p.potions); armBattle(b, r);
+      expect(b.mods).toBeUndefined(); expect(openingOc(p, 'battle', r)).toBe(0);
+    } finally { RULES.cp4RunBuffs = true; }
   });
   it('flag on: derived mods and opening OC', () => on(() => {
     const r = startRun(p, 3); r.buffs = ['B2', 'W4', 'O3'];
@@ -207,9 +213,9 @@ describe('CP4 step 6: tuning + sim strategies', () => {
   it('buff strategies turn the flag on only inside the run and record buffs', () => {
     const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
     const q = newPlayer(); starterKit(q, 3);
-    expect(RULES.cp4RunBuffs).toBe(false);
-    const rep = autoRun(q, pool, 3001, 'buff:blade');
-    expect(RULES.cp4RunBuffs).toBe(false);
+    RULES.cp4RunBuffs = false;
+    let rep;
+    try { rep = autoRun(q, pool, 3001, 'buff:blade'); expect(RULES.cp4RunBuffs).toBe(false); } finally { RULES.cp4RunBuffs = true; }
     expect(rep.cp4).toBeDefined();
     const q2 = newPlayer(); starterKit(q2, 3);
     expect(autoRun(q2, pool, 3001, 'human').cp4).toBeUndefined();
