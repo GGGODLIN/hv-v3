@@ -11,6 +11,10 @@ import { TOWER, floorLevel, floorPl } from './tower';
 export const ABYSS = {
   /** Decision 1 (暫定): +2 monster levels per depth. Original The Tower is floor × 10 (The_Tower.md:9) — deliberately not used. */
   levelPerDepth: 2,
+  /** rc6 item 1 knob A (暫定，無來源): abyss-only monster-level follow k (Lv += k × max(0, player Lv − RULES.monLvFollow.free)); main tower keeps RULES.monLvFollow.k. rc5 = 0.8. */
+  lvFollowK: 0.8,
+  /** rc6 item 1 knob B (暫定，無來源): abyss-only × on monster physical resistance (physMit and positive piercing/crushing/slashing spec). rc5 = 1. */
+  physResScale: 1,
   /** Decision 2: +2% monster damage per depth, cumulative (original: +2% per wave, Battles.md:261; wave→depth is 暫定). */
   dmgPerDepth: 0.02,
   /** The_Tower.md:12: past F40, +5% monster damage and +5% HP every 5 floors (sourced). */

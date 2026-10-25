@@ -151,7 +151,7 @@ export const abyssBestMsg = (n: number): string => `深淵新紀錄：已通過 
 export const deathCarryMsg = (exp: number, credits: number): string => `戰死：本趟累積 ${exp} EXP、${credits} C，帶回 ${Math.round(RULES.death.exp * 100)}%${exp || credits ? '' : '（本趟尚未獲得任何獎勵）'}`;
 export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
 /** rc5: monster-level follow added on top of the depth base (the map used to show the base only: d16 'Lv71' while the fight is Lv80 for a Lv15 player). */
-export const abyssLvFollow = (run: RunState): number => Math.round(RULES.monLvFollow.k * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
+export const abyssLvFollow = (run: RunState): number => Math.round(ABYSS.lvFollowK * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
 export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + abyssLvFollow(run);
 /** CP6: deepest depth cleared by a finished abyss run. */
 export function abyssCleared(run: RunState): number {
@@ -276,7 +276,8 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w, ab);
       if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
-      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? ABYSS.bossDmgAt[ab] ?? 1 : 1); }
+      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? ABYSS.bossDmgAt[ab] ?? 1 : 1);
+        if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
       return m;
     });
     if (type === 'elite') run.weakNext = false;
