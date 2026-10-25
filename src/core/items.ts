@@ -172,7 +172,8 @@ export function equipName(e: Equip): string {
   } else if (e.group === 'staff') core = `${core} Staff`;
   else if (e.group === 'shield') core = `${core} Shield`;
   const pre = e.prefix ? `${PREFIX_NAMES[e.prefix] ?? e.prefix} ` : '';
-  const suf = e.suffix ? ` of ${SUFFIX_NAMES[e.suffix] ?? e.suffix}` : '';
+  const sufName = e.suffix ? SUFFIX_NAMES[e.suffix] ?? e.suffix : '';
+  const suf = sufName ? (/^of /i.test(sufName) ? ` ${sufName}` : ` of ${sufName}`) : '';
   const q = e.quality[0]!.toUpperCase() + e.quality.slice(1);
   return `${q} ${pre}${core}${suf}${e.iw ? ` +${e.iw}` : ''}`;
 }

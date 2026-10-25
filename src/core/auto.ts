@@ -56,7 +56,7 @@ export function chooseAction(b: BattleState): Action {
   return { kind: 'attack', target };
 }
 
-function profsOf(p: Player): Partial<Record<Prof, number>> {
+export function profsOf(p: Player): Partial<Record<Prof, number>> {
   return { elemental: profValue(p, 'elemental'), divine: profValue(p, 'divine'), forbidden: profValue(p, 'forbidden') };
 }
 
