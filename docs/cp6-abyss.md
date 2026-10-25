@@ -249,4 +249,4 @@
 
 - **四流派 buff 使用率規則：** 見 docs/cp4-run-buffs.md §7-4（核心 B1/O1/A1/W1 不設上限、其他 ≤80% 通關組合、本流派被選率 ≥5%），四流派一律適用。
 - **併回 main 時（尚未執行）：** `tests/buffcards.test.ts` 的 O4 韌魂門檻要改成 <1.25。原因：c7f60ec 的武器修正後實測值為 1.2308（=16/13），main 上舊的容差會失敗；bot/grok 已用 `tol = Math.max(0.02, 0.5 / a)`。現在不動 main。
-- **sim 依流派選裝（7fb8014）：** 秘術用法杖、磐石用單手＋盾（W1 格擋／招架）；刃鋒用單手、副手自由（推定：B7 強化的 Merciful Blow 屬單手技能線）；奔流用雙手（推定：文件沒有指定武器）。主副手一起評估。`auto`、`human`、`buff:random` 維持原本逐格邏輯。
+- **sim 依流派選裝（7fb8014）：** 秘術用法杖、磐石用單手＋盾（W1 格擋／招架）；刃鋒用單手、副手自由（推定：B7 強化的 Merciful Blow 屬單手技能線）；奔流不限主手、盾自由，取主副手最佳組合（推定：文件沒有指定武器；強制雙手版 sim 未通關 97%，見 docs/logs/rc4-noclear-schoolgear-oc2h.txt）。主副手一起評估。`auto`、`human`、`buff:random` 維持原本逐格邏輯。

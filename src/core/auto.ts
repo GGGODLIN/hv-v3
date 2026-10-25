@@ -31,13 +31,13 @@ export const AUTO_EQUIP_MARGIN = 0.05;
 
 /** rc4 (sim only): weapon layout per play school. arcane = staff, bulwark = one-hand + shield (docs/cp4-run-buffs.md §2: W1 不動之盾 block/parry),
  * blade = one-hand, off-hand free (推定：B7 處刑者 buffs Merciful Blow, a One-Handed skill line in F-002-4.2-skills / Ticket 04),
- * oc = two-hand (推定：no doc names a weapon; Spirit Stance +100% physical and OC-per-hit favour raw hit damage). null = original slot-by-slot logic. */
-export type GearStyle = { main: Equip['group']; shield: 'yes' | 'free' | 'no' } | null;
+ * oc = any main hand, shield free, best joint pair (推定：no doc names a weapon; a forced two-hander gave 97% never-clear in the sim, docs/logs/rc4-noclear-schoolgear-oc2h.txt). null = original slot-by-slot logic. */
+export type GearStyle = { main: Equip['group'] | null; shield: 'yes' | 'free' | 'no' } | null;
 export function gearStyle(strategy: string): GearStyle {
   if (strategy.startsWith('buff:arcane')) return { main: 'staff', shield: 'no' };
   if (strategy.startsWith('buff:bulwark')) return { main: 'oneHand', shield: 'yes' };
   if (strategy.startsWith('buff:blade')) return { main: 'oneHand', shield: 'free' };
-  if (strategy.startsWith('buff:oc')) return { main: 'twoHand', shield: 'no' };
+  if (strategy.startsWith('buff:oc')) return { main: null, shield: 'free' };
   return null;
 }
 /** Pick main hand + off hand together (can go back from a two-hander to one-hand + shield). Off-style weapons are only used when no
@@ -45,12 +45,12 @@ export function gearStyle(strategy: string): GearStyle {
 function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equip[] {
   const mains = [p.equipped.mainHand, ...cands.filter((x) => x.slot === 'mainHand')].filter((x): x is Equip => !!x);
   const offs = [p.equipped.offHand, ...cands.filter((x) => x.slot === 'offHand')].filter((x): x is Equip => !!x);
-  const styled = mains.filter((m) => m.group === st.main);
+  const styled = st.main ? mains.filter((m) => m.group === st.main) : mains;
   const pool = styled.length ? styled : mains;
   const score = (m: Equip | undefined, o: Equip | undefined) => powerScore(derive({ ...p, equipped: { ...p.equipped, mainHand: m, offHand: o } as Player['equipped'] }));
   let best: [Equip | undefined, Equip | undefined] = [p.equipped.mainHand, p.equipped.offHand];
   const legal = (m: Equip | undefined, o: Equip | undefined) => !(o && blocksOffHand(m)) && !(o && st.shield === 'no') && !(st.shield === 'yes' && offs.length && !o && !blocksOffHand(m));
-  const curOk = (!best[0] || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
+  const curOk = (!best[0] || !st.main || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
   let bestS = curOk ? score(best[0], best[1]) * (1 + AUTO_EQUIP_MARGIN) : -Infinity;
   for (const m of pool.length ? pool : [undefined]) for (const o of [undefined, ...offs]) {
     if (!legal(m, o)) continue;
