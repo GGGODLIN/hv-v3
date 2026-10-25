@@ -90,6 +90,8 @@ export interface RunState {
   curse?: number;
   ocZeroNext?: boolean;
   buffStock?: { id: string; price: number }[];
+  /** CP4-rc-fix 3: non-stackable buffs already shown by a merchant this trip (never listed again). */
+  merchantSeen?: string[];
   /** CP5 (flag): this run uses the 20-floor tower and CP5 mechanics; f10 = the floor-10 boss was beaten this run. */
   cp5?: boolean;
   f10?: boolean;

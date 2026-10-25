@@ -89,3 +89,20 @@ describe('CP4-rc-fix 2: 韌魂 preview never says "用不到" just because of ro
     }
   });
 });
+
+describe('CP4-rc-fix 3: merchants in one trip never repeat a non-stackable buff', () => {
+  it('many merchants in one trip: each non-S buff listed at most once, none held', async () => {
+    const { merchantBuffs } = await import('../src/core/buffoffer');
+    const was = RULES.cp4RunBuffs; RULES.cp4RunBuffs = true;
+    try {
+      for (let seed = 1; seed <= 30; seed++) {
+        const p = newPlayer(); starterKit(p, 5);
+        const r = startRun(p, seed); r.buffs = ['B2'];
+        const listed: string[] = [];
+        for (let m = 0; m < 4; m++) for (const x of merchantBuffs(p, r)) if (!x.id.startsWith('S-')) listed.push(x.id);
+        expect(new Set(listed).size).toBe(listed.length);
+        expect(listed).not.toContain('B2');
+      }
+    } finally { RULES.cp4RunBuffs = was; }
+  });
+});
