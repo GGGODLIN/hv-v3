@@ -127,7 +127,7 @@ export interface BossFight { floor: number; turns: number; potions: number; won:
 /** CP5 sim options. mode = battle AI layer on top of the strategy; pair = replay each boss with 'ignore'; retreat = HP fraction below which the sim retreats after a boss floor. */
 export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; retreat?: number;
   /** CP6 sim: run the abyss from this depth until death or depth > cap. */
-  abyss?: number; cap?: number;
+  abyss?: number; cap?: number; /** milestone depth already claimed */ ms?: number;
   /** Called on entering each node (sim snapshots for the death-combo sweep). */
   snap?: (p: Player, run: RunState) => void }
 type CM = Monster & Cp5Mon;
@@ -180,7 +180,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
   if (a.kind === 'spell' && b.hp < b.d.hp * 0.5 && (b.monsters[a.target] as CM | undefined)?.affixes?.includes('antimagic')) return { kind: 'attack', target: a.target };
   return a;
 }
-export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP6 abyss result. */ abyss?: { cleared: number; school: string }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
   /** CP4 (buff strategies only) */
   cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number; offers: number; contests: number } }
 
@@ -210,7 +210,7 @@ export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Parti
 }
 const potCount = (b: BattleState) => b.potions.health + b.potions.mana + b.potions.spirit;
 function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Strategy, level: number, power: number, bs: boolean, cp5?: Cp5Sim): RunReport {
-  const run = cp5?.abyss ? startAbyss(p, seed, cp5.abyss) : startRun(p, seed);
+  const run = cp5?.abyss ? startAbyss(p, seed, cp5.abyss, cp5.ms ?? 0) : startRun(p, seed);
   const rng = new Rng(seed ^ 0x5bd1e995);
   const prng = new Rng((seed ^ 0x27d4eb2d) >>> 0 || 1);
   const cp4 = { buffs: [] as string[], formed: [] as string[], sources: {} as Record<string, number>, offered: {} as Record<string, number>, picked: {} as Record<string, number>, risks: 0, offers: 0, contests: 0 };
@@ -264,7 +264,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       const used = autoEquip(p, run.bag);
       run.bag = run.bag.filter((e) => !used.includes(e));
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
-      if (cp5?.retreat && type === 'boss' && run.floor < run.tower.floors.length && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; break; }
+      if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run));
       const used = autoEquip(p, run.bag);
@@ -291,7 +291,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     advance(run, opt);
   }
   const floorReached = run.abyss ? depthOf(run) : run.done === 'clear' ? run.tower.floors.length + 1 : run.floor;
-  const abyss = run.abyss ? { cleared: abyssCleared(run), school: abyssSchool(run) } : undefined;
+  const abyss = run.abyss ? { cleared: abyssCleared(run), school: abyssSchool(run), ms: run.abyss.ms ?? 0, titles: run.abyss.titles ?? [] } : undefined;
   const s = settle(p, run);
   // Sell the junk in town.
   const keep = new Set(Object.values(p.equipped).map((e) => e!.id));

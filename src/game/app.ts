@@ -11,7 +11,7 @@ import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { abyssOpen, abyssCleared, abyssSchool, depthOf, startAbyss } from '../core/run';
-import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, guaranteeQuality } from '../core/abyss';
+import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
@@ -546,11 +546,11 @@ export class App {
     const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
     const zh: Record<string, string> = { blade: '刃鋒', oc: '奔流', arcane: '秘術', bulwark: '磐石', none: '無流派' };
     const rows = Object.entries(rec.bySchool).map(([k, v]) => `${zh[k] ?? k} ${v!.best} 層（第 ${v!.trip} 趟）`).join('、');
-    return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}</div>`;
+    return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}${rec.titles.length ? `<br>稱號：${rec.titles.map((t) => `<b data-title>${esc(t)}</b>`).join('、')}` : ''}</div>`;
   }
   startAbyss() {
-    const st = checkpointStart(loadRecord(localStorage.getItem(ABYSS_KEY)).best);
-    this.data.run = startAbyss(this.p, randomSeed(), st);
+    const rec = loadRecord(localStorage.getItem(ABYSS_KEY)), st = checkpointStart(rec.best);
+    this.data.run = startAbyss(this.p, randomSeed(), st, rec.ms);
     this.notice = [`深淵塔第 ${st} 層：戰死帶回 50%，撤退保留全部。每 5 層一個檢查點。`];
     this.go('map');
   }
@@ -680,6 +680,7 @@ export class App {
     if (r.abyss) {
       const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
       if (recordTrip(rec, abyssCleared(r), abyssSchool(r))) this.notice = [`深淵新紀錄：${abyssCleared(r)} 層`];
+      recordTitles(rec, r.abyss.ms ?? 0, r.abyss.titles ?? []);
       localStorage.setItem(ABYSS_KEY, JSON.stringify(rec));
     } else {
     const floor = r.done === 'clear' ? r.tower.floors.length : r.floor;
