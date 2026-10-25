@@ -1,8 +1,16 @@
 # Current status
 
-## v0.4 desktop accepted, publication pending — 2026-10-25 16:24 UTC
+## v0.4 published — 2026-10-25 16:30 UTC
 
-Current public release remains v0.3 below. Next slice: club stun, visible control/recovery feedback and equipment-choice descriptions. Original-source timing conflicts and unknown regular/recovery interaction are explicitly documented; fixed proc parameters and scheduler are adaptations. 202 Node tests and four JS syntax checks pass. Source candidate `3a0bf240eb6216438f278ffe8064f386e74d919e` is fully readback verified. Candidate site `77ab8973d5c29cc36eab96b24fd0d9a85b7d2902` / Pages run `40210714831` and six public hashes pass. Cloud Chrome observed natural loot/equip progression, active stun and recovery notices with reduced motion, stages2–8 cleared, narrow layout and reload. See BROWSER-QA-V04.md for exact scope and limits. Accepted-source backup, live promotion and final shared-v3 takeover are pending. Existing v3 save schema is retained: the actual prior validator round-trip preserves weapon identity and progression, and encounter state is discarded on load. A timer-partition double-strike defect found in review was fixed with per-enemy player-turn coalescing; seven timing partitions now agree.
+Accepted runtime source: `b47ecc87f5fa66bbd2dbf85f7581bdc06626f74f`; website: `5aa89cb1771f3b934e26a8085030830f2747c73b`. Live: https://gggodlin.github.io/play/hv-v3-dot/ . All 39 source files / 389175 bytes were read back before promotion; 38 manifest payload hashes verified. Exact Pages run `40211704287` succeeded; all six live runtime files returned HTTP200 with matching SHA-256. Only five root runtime blobs changed because session.js is unchanged; candidates and concurrent unrelated website work were preserved. This receipt changes documentation only.
+
+202 Node tests and four JS syntax checks pass. New gameplay: club stun, no refresh, loss of enemy evade/parry, earned recovery action before the next player turn, visible countdown/recovery cues and honest equipment descriptions. Fixed 25% / four ticks and recovery-turn coalescing are explicitly labeled adaptations. The review-found partition-dependent double strike was fixed; seven timing partitions agree. PA behavior and item numeric/RNG generation remain unchanged.
+
+Cloud Chrome used natural drops to equip the club and armor, clear stages 2–8 and reach stage 9. Active stun, recovery notices and persistent logs were observed with reduced motion. Narrow layout and reload passed. The public root retained Lv18, XP421/1076, gold7874, kills412, wins68 and 82 inventory items. Shared-v3 takeover made the new v0.4 tab writable and older v0.3 tab read-only; reload kept equipment and progress. A living enemy on the public root visibly had four stun ticks. No app-origin errors in inspected logs. See BROWSER-QA-V04.md and RELEASES.md.
+
+The existing v3 save schema is retained after actual prior-validator compatibility tests. Older tabs still run their old combat until refreshed; use refresh or explicit takeover for current mechanics. Fatal recovery and exact boundary details have automated evidence, not natural browser observation. File-chooser import was not rerun; 393 CSS-pixel zoom is not a physical-mobile test. OS suspension and inherited foreground-only visibility anomaly remain unresolved; no offline earnings or universal background guarantee.
+
+## Retained prior releases
 
 ## v0.3 published — 2026-10-25 15:28 UTC
 
@@ -31,7 +39,7 @@ Bounded desktop acceptance only: inactive-tab progress, follower/takeover and 38
 55 Node tests and JavaScript syntax checks pass. Dedicated cloud Chrome verified combat → loot → equip → faster replay and save export/import/reload. Final public-root smoke at 13:15 UTC passed: independent fresh save, first clear in 31.5 seconds, two loot items, stage 2 unlocked, consistent quality labels, successful return to camp, and no application-origin console errors in inspected entries. This documentation checkpoint does not change runtime files or republish the game. Candidate v0.1 remains separately available, uses separate localStorage keys, and is not the accepted root URL.
 
 ## Next priority
-Rapier proc slice is complete. Next add meaningful club control or enemy defensive roles, checking current/historical source conflicts and separating original facts/research models/adaptations. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
+Rapier and club slices are complete. Next prioritize recognizable enemy defensive roles and beginner-facing equipment decisions, checking current/historical source conflicts and separating original facts/research models/adaptations. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
 
 ## Work allocation
 - Research: original HV source evidence and explicit uncertainty.

@@ -20,10 +20,19 @@ All observations used dot cloud Chrome via CUA, ordinary UI controls and read-on
 - Return-to-camp hid enemy/proc/recovery panels. Reload preserved Lv10, gold1452, wins11 and equipped club/armor, returning safely to camp with statuses absent.
 - Inspected final error logs contain no app-origin errors. Extension errors were excluded only by explicit chrome-extension URL provenance.
 
-Exact expiry/no-refresh/partition invariance and fatal-recovery ordering are covered by automated tests; a real fatal recovery was not observed in this playthrough. File-chooser import was not rerun. Shared-v3 cross-version takeover and final public-root smoke remain post-promotion checks.
+Exact expiry/no-refresh/partition invariance and fatal-recovery ordering are covered by automated tests; a real fatal recovery was not observed in this playthrough. File-chooser import was not rerun. The subsequent public-root receipt below records shared-v3 takeover and final smoke.
 
 ## Limits
 Original source versions disagree on duration terminology and leave ordinary/recovery turn interaction unknown. Fixed 25% / four simulation ticks and the chosen player-turn recovery policy are adaptations. Magic resist reduction is deferred. Physical mobile, OS suspension and the inherited foreground-only visibility anomaly remain unverified; no offline rewards or universal background guarantee.
 
 ## Public root
-Candidate bounded desktop acceptance is complete. Public root has not yet been promoted at this source checkpoint; preserve v0.3 until exact accepted-source readback and separately authorized promotion. Record final shared-v3 takeover and public verification in the subsequent receipt.
+Accepted source `b47ecc87f5fa66bbd2dbf85f7581bdc06626f74f` was verified by exact readback of all 39 files / 389175 bytes before promotion. Website commit `5aa89cb1771f3b934e26a8085030830f2747c73b` passed exact Pages run `40211704287`. All six public runtime HTTP200 bodies match source SHA-256. Only five root blobs changed (session.js unchanged); candidate paths and concurrent unrelated work were preserved.
+
+Final root smoke at 16:28–16:30 UTC:
+- Kept the older v0.3 root tab open. New v0.4 root correctly started read-only, preserving Lv18, XP421/1076, gold7874, kills412, wins68, inventory82, balanced strategy and equipped rapier/armor/accessory. Candidate Lv10 progress did not mix.
+- Opened settings and explicitly took over. New v0.4 start became enabled; old v0.3 became read-only with start disabled. Reload retained all visible progression/equipment and v0.4 header, with the existing v3 namespace rather than a fresh timeline.
+- Selected a pre-existing club from the shared inventory. Its old no-proc description was replaced for display with current truthful stun/recovery explanation, without duplicate trait paragraphs. Equipped it and started stage3.
+- On the actual public root, a living enemy displayed stun remaining4ticks and a matching named proc notice. No app-origin console errors appeared in inspected entries.
+- Returned safely to camp at Lv19 / wins73. Closed old and candidate test tabs; left the public v0.4 tab as the deliverable. No user-computer access, hidden-storage inspection, or game-state injection occurred.
+
+Bounded desktop publication acceptance passes. This documentation receipt does not change or republish runtime code.
