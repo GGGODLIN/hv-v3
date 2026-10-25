@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
@@ -208,9 +209,10 @@ test('v0.4 independent: club identity changes no sheet stat, item score, or camp
     assert.equal(resolveWeaponFamily(loaded.equipment.weapon),family);assert.deepEqual(stats(loaded),sheet);
   }
 });
-test('v0.4 independent: nonproc starter regression signatures remain unchanged for all frozen seeds',()=>{
+test('historical v0.4–v0.8: nonproc starter signatures run on frozen v0.8, not corrected v0.8.1',()=>{
   for(const [seed,finalSeed,itemCount] of [[1,2209033545,2],[42,3839731728,1],[999,876178866,1]]) {
-    const s=createGame(seed);act(s,'start');finish(s);
+    const s=historicalV08.createGame(seed);historicalV08.act(s,'start');
+    for(let n=0;n<20000&&s.mode==='battle'&&!s.wins;n++)historicalV08.advance(s,.1);
     assert.equal(s.wins,1);assert.equal(Number(s.battle.elapsed.toFixed(1)),31.6);assert.equal(s.seed,finalSeed);
     assert.equal(s.inventory.length,itemCount);assert.equal(s.hero.gold,76);assert.equal(s.hero.level,2);assert.equal(s.hero.xp,6);assert.equal(s.timing.turns,30);
   }
@@ -261,13 +263,13 @@ test('v0.4 independent: recovery/regular coalescing cannot create an extra attac
     assert.deepEqual(replay(partition),baseline,`partition ${JSON.stringify(partition)}`);
   }
 });
-test('v0.4 independent: same-stat same-encounter club treatment improves controlled avoidance and pressure outcomes',()=>{
-  function replay(family,hp,attack,avoid) {
-    const s=encounter(42,[enemy({hp,maxHp:hp,attack,evade:avoid,parry:avoid,boss:true})]);
+function controlledClubReplay(family,hp,attack,avoid,engine={createGame,act,advance}) {
+    const s=engine.createGame(42);engine.act(s,'start');s.wave=s.totalWaves;
+    s.enemies=[enemy({hp,maxHp:hp,attack,evade:avoid,parry:avoid,boss:true})];
     s.equipment.weapon.weaponFamily=family;
     let last=0,incoming=0,incomingAttempts=0,procCount=0,recoveryCount=0;
     for(let n=0;n<20000&&s.mode==='battle'&&!s.wins;n++) {
-      advance(s,.1);
+      engine.advance(s,.1);
       for(const event of s.events.filter(event=>event.id>last)) {
         if(event.target==='hero'&&['hit','miss','block'].includes(event.type)){incoming+=event.value||0;incomingAttempts++;}
         if(event.type==='proc'&&event.effect==='stun')procCount++;
@@ -277,16 +279,31 @@ test('v0.4 independent: same-stat same-encounter club treatment improves control
     }
     assert.ok(s.wins||s.mode==='defeat');
     return {win:s.wins,time:Number(s.battle.elapsed.toFixed(1)),incoming,incomingAttempts,procCount,recoveryCount,actions:clone(s.battle.actions),seed:s.seed};
-  }
+}
+test('v0.8.1 independent: unchanged paired club fixtures show paid recovery and less incoming, not the old forced win/loss split',()=>{
+  const replay=controlledClubReplay;
   const ordinary=replay(null,1000,40,.3),controlled=replay('club',1000,40,.3);
   assert.equal(ordinary.win,1);assert.equal(controlled.win,1);
   assert.ok(controlled.time<ordinary.time);assert.ok(controlled.incoming<ordinary.incoming);assert.ok(controlled.incomingAttempts<ordinary.incomingAttempts);
   assert.ok(controlled.procCount>0);assert.ok(controlled.recoveryCount>0);
   assert.deepEqual(replay('club',1000,40,.3),controlled);assert.deepEqual(replay(null,1000,40,.3),ordinary);
   const pressure=replay(null,2000,50,0),protectedRun=replay('club',2000,50,0);
-  assert.equal(pressure.win,0);assert.equal(protectedRun.win,1);
+  // The corrected clock gives the same old no-proc fixture its due action in
+  // time to win. Keep the seed/stats; do not search for a replacement loser.
+  assert.equal(pressure.win,1);assert.equal(protectedRun.win,1);
+  assert.ok(protectedRun.incoming<pressure.incoming);assert.ok(protectedRun.incomingAttempts<pressure.incomingAttempts);
+  assert.ok(protectedRun.procCount>0);assert.ok(protectedRun.recoveryCount>0);
   assert.deepEqual(replay(null,2000,50,0),pressure);assert.deepEqual(replay('club',2000,50,0),protectedRun);
-  assert.equal(replay('club',3000,40,.2).win,0,'control does not promise invulnerability against every pressure fixture');
+  assert.equal(replay('club',3000,40,.2).win,1,'the old losing counterexample also changes; it cannot be advertised as a current loss');
+  // Current fatal-recovery tests above/below still prove that stun cannot grant
+  // immunity; no new hand-picked seed is substituted for the changed result.
+});
+
+test('historical v0.4–v0.8: old pressure split and losing club counterexample remain reproducible on frozen v0.8',()=>{
+  const replay=(...args)=>controlledClubReplay(...args,historicalV08);
+  const pressure=replay(null,2000,50,0),protectedRun=replay('club',2000,50,0),counterexample=replay('club',3000,40,.2);
+  assert.equal(pressure.win,0);assert.equal(protectedRun.win,1);assert.equal(counterexample.win,0);
+  assert.deepEqual(replay(null,2000,50,0),pressure);assert.deepEqual(replay('club',2000,50,0),protectedRun);assert.deepEqual(replay('club',3000,40,.2),counterexample);
 });
 
 

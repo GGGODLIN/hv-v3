@@ -1,5 +1,7 @@
 # Independent combat and progression: v0.8 candidate
 
+> Version scope: the v0.1–v0.8 sections preserve the mechanics and measured evidence of those versions. The v0.8.1 numerical clock correction supersedes historical per-frame clock hashes, exact clear times and boundary-sensitive outcome claims; it does not change the underlying hit, proc, loot, reward or stat formulas. See CLOCK-CORRECTION.md, CLOCK-BALANCE.md and ACCEPTANCE-V081.md for current patch evidence. Publication is still gated separately.
+
 This implementation was authored from scratch. No existing game implementation, constants export, monster dataset, artwork, or another author's single-player design was used. The source map is `ORIGINAL-HV.md`; public research is evidence, not access to HV server code. This document distinguishes rules implemented from evidence from explicitly chosen adaptations.
 
 ## Research-supported rules implemented
@@ -118,7 +120,7 @@ The free action is tagged with the upcoming player-turn index in `stunRecoveryTu
 
 Lethal hits clear active stun, queued recovery, the recovery-turn marker and PA on that enemy. Death/defeat interrupts further actions. New waves, retreat, fresh expeditions and validated save loads cannot carry an old enemy's recovery to another target. Proc feedback remains after the triggering hit; `proc` and `recovery` events identify `effect: 'stun'` and the enemy ID. A recovery combat-log entry also explains fatal recoveries after the battlefield view closes. Events and logs remain capped at 30.
 
-### Reproducible same-stat survival evidence
+### Historical v0.4–v0.8 same-stat survival evidence
 
 `tests/club-stun.test.mjs` pairs identical seed-42, level-one starter characters with balanced policy against one controlled final-wave fixture: 2,000 HP, 50 attack, 5 defense, no evade/parry/block. The only treatment change is `weaponFamily: null` versus `'club'` on the identical weapon stats. This is a synthetic test enemy, not a shipped encounter, imported dataset, or new selectable stage.
 

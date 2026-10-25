@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import {
@@ -24,7 +25,7 @@ function canonical(value) {
 }
 const digest = value => createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
 
-test('v0.5 stages 1–2 retain every prior state field and RNG result from our frozen v0.4',()=>{
+test('historical v0.4–v0.8: stages1–2 full-state hashes replay frozen v0.8, not corrected v0.8.1',()=>{
   // Full-state canonical SHA-256 fixtures from our verified own v0.4 engine.
   // Only newly added display roleId/roleLabel are excluded; no numeric, event,
   // item, status, timing, or seed field is removed from either side.
@@ -49,8 +50,9 @@ test('v0.5 stages 1–2 retain every prior state field and RNG result from our f
     [2,999,'club','8127e1aec5f89c81b3fa2bd7e5f6de5af5f48682932c17a21f1fac7983be6217'],
   ];
   for(const [stage,seed,family,expected] of fixtures){
-    const s=createGame(seed);s.unlocked=stage;act(s,'selectStage',stage);
-    s.equipment.weapon.weaponFamily=family;act(s,'start');finish(s);
+    const s=historicalV08.createGame(seed);s.unlocked=stage;historicalV08.act(s,'selectStage',stage);
+    s.equipment.weapon.weaponFamily=family;historicalV08.act(s,'start');
+    for(let n=0;n<20000&&s.mode==='battle'&&!s.wins;n++)historicalV08.advance(s,.1);
     assert.equal(digest(s),expected,`stage ${stage}, seed ${seed}, family ${family}`);
   }
 });

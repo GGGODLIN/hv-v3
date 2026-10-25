@@ -423,22 +423,48 @@ function recoverStunnedEnemies(s) {
 }
 export function advance(s, seconds) {
   if(s.mode!=='battle')return s;
+  // A one-nanosecond equality window repairs representation error, not cadence.
+  // Only the due decision is tolerant: subtract the real period afterwards so
+  // a small negative remainder remains debt instead of manufacturing free time.
+  const boundarySeconds=1e-9;
+  const due=(clock,period)=>Number.isFinite(clock)&&clock>=period-boundarySeconds;
   let remaining=clamp(finite(seconds),0,2);
   while(remaining>0&&s.mode==='battle'){
     const dt=Math.min(.1,remaining);remaining-=dt;
     if(s._phase==='intermission'){
-      s._rest-=dt;if(s._rest<=0){if(s.autoAdvance)s.stage=Math.min(s.unlocked,s.stage+1);start(s);}continue;
+      // Existing phase-crossing overshoot is still discarded. Equality can end
+      // this bounded countdown at most one nanosecond early; no per-step time is added.
+      s._rest-=dt;if(Number.isFinite(s._rest)&&s._rest<=boundarySeconds){if(s.autoAdvance)s.stage=Math.min(s.unlocked,s.stage+1);start(s);}continue;
     }
-    s.battle.elapsed+=dt;s.timing.tu+=dt*100/1.05;
-    const previousTick=s.timing.ticks;s.timing.ticks=Math.floor(s.timing.tu/100);
+    s.battle.elapsed+=dt;
+    // TU is session-global, so naive addition drifts beyond the equality window
+    // during long online sessions. Kahan carry preserves low-order input bits.
+    // The lazy internal carry is not restored by validateSave; start/retreat keep
+    // it because they also keep global TU. Reject malformed or oversized carry.
+    const addedTU=dt*100/1.05,oldTU=s.timing.tu;
+    const carryLimit=Number.EPSILON*Math.max(1,Math.abs(oldTU));
+    const carry=Number.isFinite(s._tuCompensation)&&Math.abs(s._tuCompensation)<=carryLimit?s._tuCompensation:0;
+    let correctedTU=addedTU-carry,nextTU=oldTU+correctedTU;
+    // Even a bounded injected carry must not rewind the observed global clock.
+    if(nextTU<oldTU){correctedTU=addedTU;nextTU=oldTU+correctedTU;}
+    const nextCarry=(nextTU-oldTU)-correctedTU;
+    s._tuCompensation=Number.isFinite(nextCarry)&&Math.abs(nextCarry)<=Number.EPSILON*Math.max(1,Math.abs(nextTU))?nextCarry:0;
+    s.timing.tu=nextTU;
+    const previousTick=s.timing.ticks,tickPosition=s.timing.tu/100;
+    let nextTick=Math.floor(tickPosition);
+    // Snap only the derived integer decision, never accumulated TU. Invalid
+    // negative/nonfinite/unsafe clocks cannot become valid status boundaries.
+    if(tickPosition>=0&&Number.isFinite(tickPosition)&&Number.isSafeInteger(nextTick+1)
+      &&nextTick+1-tickPosition<=boundarySeconds/1.05)nextTick++;
+    s.timing.ticks=nextTick;
     s._clock+=dt;s._enemyClock+=dt;
     if(s.timing.ticks!==previousTick&&tickEnemyStatuses(s,previousTick))continue;
     if(s.mode!=='battle'||s._phase!=='fight')continue;
-    if(s._clock>=1.05){
+    if(due(s._clock,1.05)){
       s._clock-=1.05;recoverStunnedEnemies(s);
       if(s.mode==='battle'&&s._phase==='fight')playerTurn(s);
     }
-    if(s.mode==='battle'&&s._phase==='fight'&&s._enemyClock>=1.9){s._enemyClock-=1.9;enemyTurn(s);}
+    if(s.mode==='battle'&&s._phase==='fight'&&due(s._enemyClock,1.9)){s._enemyClock-=1.9;enemyTurn(s);}
   }
   return s;
 }

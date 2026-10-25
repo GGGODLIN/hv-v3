@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
@@ -227,10 +228,10 @@ test('v0.3 independent: actual battle emits damage before proc with the same tar
   assert.ok(['hit','crit'].includes(s.events[i-1].type));assert.equal(s.events[i-1].target,'qa-target');
   assert.equal(s.events[i].target,'qa-target');assert.equal(s.events[i].value,1);
 });
-test('v0.3 independent: original starter seeded signatures remain unchanged without rapier',()=>{
+test('historical v0.3–v0.8: original starter signatures run on frozen v0.8, not corrected v0.8.1',()=>{
   for(const [seed,finalSeed,itemCount] of [[1,2209033545,2],[42,3839731728,1],[999,876178866,1]]) {
-    const s=createGame(seed);act(s,'start');
-    for(let n=0;n<2400&&s.mode==='battle'&&!s.wins;n++)advance(s,.1);
+    const s=historicalV08.createGame(seed);historicalV08.act(s,'start');
+    for(let n=0;n<2400&&s.mode==='battle'&&!s.wins;n++)historicalV08.advance(s,.1);
     assert.equal(s.wins,1);assert.equal(Number(s.battle.elapsed.toFixed(1)),31.6);
     assert.equal(s.seed,finalSeed);assert.equal(s.inventory.length,itemCount);assert.equal(s.hero.gold,76);
     assert.equal(s.hero.level,2);assert.equal(s.hero.xp,6);assert.equal(s.timing.turns,30);

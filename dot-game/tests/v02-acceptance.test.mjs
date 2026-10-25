@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createGame, act, advance, stats, validateSave, STRATEGIES } from '../src/engine.js';
+import * as historicalV08 from './fixtures/v0.8/engine.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 function finish(s) {
@@ -13,10 +14,11 @@ function probe(strategy, hp, attack) {
   return finish(s);
 }
 
-test('v0.2 independent: balanced retains accepted v0.1 seeded first-clear signatures',()=>{
+test('historical v0.1–v0.8: balanced first-clear signatures remain executable on frozen v0.8, not corrected v0.8.1',()=>{
   // Frozen signatures generated from our accepted v0.1 source, not a second implementation.
   for(const [seed,finalSeed,itemCount] of [[1,2209033545,2],[42,3839731728,1],[999,876178866,1]]) {
-    const s=createGame(seed);act(s,'start');finish(s);
+    const s=historicalV08.createGame(seed);historicalV08.act(s,'start');
+    for(let n=0;n<2400&&s.mode==='battle'&&!s.wins;n++)historicalV08.advance(s,.1);
     assert.equal(s.wins,1);assert.equal(Number(s.battle.elapsed.toFixed(1)),31.6);
     assert.equal(s.seed,finalSeed);assert.equal(s.hero.gold,76);assert.equal(s.hero.xp,6);
     assert.equal(s.hero.level,2);assert.equal(s.timing.turns,30);assert.equal(s.inventory.length,itemCount);

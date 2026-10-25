@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {runInNewContext} from 'node:vm';
@@ -58,17 +59,18 @@ const historicalOffRows = [
   [999,30,"club","balanced",21,"defeat",0,"a8ae34e952822a5fa43b57875d5e1bec253a50213ebacf6e4168cef3d34de24f"],
 ];
 // Seven pre-bleed axe signatures are historical evidence, not v0.8 promises.
-// Keep their original expected data verbatim and retain every non-axe digest.
+// Keep original data verbatim. Every non-axe digest remains executable against
+// frozen v0.8 only: corrected v0.8.1 cannot preserve an old floating-clock hash.
 const archivedAxeOffRows=historicalOffRows.filter(row=>row[2]==='axe');
 const offRows=historicalOffRows.filter(row=>row[2]!=='axe');
 assert.equal(archivedAxeOffRows.length,7);assert.equal(offRows.length,21);
 for(const [seed,stage,family,strategy,frames,mode,wins,digest] of offRows) {
-  test(`v0.6 independent frozen OFF trajectory: stage ${stage}, ${family??'none'}, ${strategy}`,()=>{
-    const s=createGame(seed);s.unlocked=stage;s.stage=stage;s.equipment.weapon.weaponFamily=family;s.strategy=strategy;
+  test(`historical v0.5–v0.8 OFF trajectory on frozen v0.8: stage ${stage}, ${family??'none'}, ${strategy}`,()=>{
+    const s=historicalV08.createGame(seed);s.unlocked=stage;s.stage=stage;s.equipment.weapon.weaponFamily=family;s.strategy=strategy;
     assert.equal(Object.hasOwn(s,'autoSell'),false);
     const hash=createHash('sha256');let count=0;const record=()=>{hash.update(JSON.stringify(canonical(s))+'\n');count++;};
-    record();act(s,'start');record();
-    for(let n=0;n<10000&&s.mode==='battle'&&!s.wins;n++){advance(s,.1);record();}
+    record();historicalV08.act(s,'start');record();
+    for(let n=0;n<10000&&s.mode==='battle'&&!s.wins;n++){historicalV08.advance(s,.1);record();}
     assert.equal(count,frames);assert.equal(s.mode,mode);assert.equal(s.wins,wins);assert.equal(hash.digest('hex'),digest);
   });
 }

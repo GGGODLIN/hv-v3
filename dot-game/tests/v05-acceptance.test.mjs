@@ -1,4 +1,5 @@
 import test from 'node:test';
+import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -213,7 +214,9 @@ test('v0.5 independent: unchanged combat stays byte-frozen; generator preserves 
   // Frozen from accepted v0.5 engine 2afaaf2c… (loot af7eac11…). v0.6 intentionally
   // adds opt-in sale routing and strict import validation, not new combat/rolls.
   // Narrow unchanged regions replace the old whole-module/action/sanitizer freezes;
-  // full-state OFF trajectories below and v06 acceptance guard behavior separately.
+  // v06 acceptance still guards current behavior separately. The exact-clock
+  // trajectories below are explicitly historical from v0.8.1 onward; current
+  // v081 acceptance additionally freezes every engine byte outside advance.
   const region=(code,start,end)=>{const a=code.indexOf(start),b=end?code.indexOf(end,a):code.length;assert.ok(a>=0&&b>a);return code.slice(a,b);};
   // v0.8 adds the authorized axe wrapper/pulse and shared death transition.
   // Retain independently extracted EXACT v0.7 function bodies, not hashes of
@@ -262,16 +265,17 @@ function canonical(value) {
   return value;
 }
 // The six axe hashes remain archived verbatim: v0.8 intentionally introduces
-// axe bleed. All 18 non-axe digests below remain active and unchanged.
+// axe bleed. All 18 non-axe digests below remain verbatim and executable against
+// frozen v0.8 only: v0.8.1 intentionally corrects the clocks they include.
 const archivedAxeV04Rows=baselineRows.map(([stage,seed,hashes])=>[stage,seed,hashes[1]]);
 assert.equal(archivedAxeV04Rows.length,6);
 for(const [stage,seed,hashes] of baselineRows)for(const [index,family] of families.entries()) {
   if(family==='axe')continue;
-  test(`v0.5 frozen v0.4 trajectory: stage ${stage}, seed ${seed}, family ${family??'none'}`,()=>{
-    const s=createGame(seed);s.stage=stage;s.unlocked=stage;s.equipment.weapon.weaponFamily=family;
+  test(`historical v0.4–v0.8 trajectory on frozen v0.8: stage ${stage}, seed ${seed}, family ${family??'none'}`,()=>{
+    const s=historicalV08.createGame(seed);s.stage=stage;s.unlocked=stage;s.equipment.weapon.weaponFamily=family;
     const hash=createHash('sha256'),record=()=>hash.update(JSON.stringify(canonical(s))+'\n');
-    record();act(s,'start');record();
-    for(let n=0;n<20000&&s.mode==='battle'&&!s.wins;n++){advance(s,.1);record();}
+    record();historicalV08.act(s,'start');record();
+    for(let n=0;n<20000&&s.mode==='battle'&&!s.wins;n++){historicalV08.advance(s,.1);record();}
     assert.equal(s.wins,1);assert.equal(hash.digest('hex'),hashes[index]);
   });
 }
