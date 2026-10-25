@@ -3,7 +3,7 @@ import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
 import type { Monster, MonsterPool } from '../core/monsters';
-import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, unequip, unspentExp, type Player } from '../core/player';
+import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, resetAttrs, unequip, unspentExp, type Player } from '../core/player';
 import { Rng, randomSeed } from '../core/rng';
 import { advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
@@ -144,7 +144,7 @@ export class App {
           <td class="abtn"><button data-ref="${a}" data-n="all" ${p.attrs[a] <= 0 ? 'disabled' : ''} title="全部退回">全退</button> <button data-ref="${a}" data-n="10" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−10</button> <button data-ref="${a}" data-n="1" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−1</button> <button data-add="${a}" data-n="1" ${free < next ? 'disabled' : ''}>+1</button> <button data-add="${a}" data-n="10" ${free < next ? 'disabled' : ''}>+10</button> <button data-add="${a}" data-n="max" ${free < next ? 'disabled' : ''} title="用掉所有可用 EXP">+最大</button></td><td class="hint">下一點 ${next} EXP</td></tr>`;
       }).join('');
       const profs = PROFS.map((k) => `<span class="prof">${PROF_ZH[k]} ${profValue(p, k)}</span>`).join('');
-      body = `<div class="cols"><div><h3>屬性（可自由重置）</h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>　下一級需 ${Math.ceil(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP</div>
+      body = `<div class="cols"><div><h3>屬性（可自由重置） <button data-resetall ${ATTRS.every((a) => p.attrs[a] <= 0) ? 'disabled' : ''} title="所有屬性歸零，EXP 全數退回">一鍵全部重置</button></h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>　下一級需 ${Math.ceil(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP</div>
         <table class="attrs">${attrs}</table><h3>熟練度</h3><div class="profs">${profs}</div></div>
         <div><h3>能力值</h3>${this.statsPanel()}</div></div>`;
     } else if (this.townTab === 'gear') {
@@ -260,6 +260,7 @@ export class App {
     on('[data-tab]', (el) => { this.townTab = el.dataset.tab as typeof this.townTab; this.render(); });
     const cnt = (el: HTMLElement) => (el.dataset.n === 'max' || el.dataset.n === 'all' ? 9999 : Number(el.dataset.n ?? 1));
     on('[data-add]', (el) => { allocate(this.p, el.dataset.add as keyof Player['attrs'], cnt(el)); this.save(); this.go('town'); });
+    on('[data-resetall]', () => this.ask('一鍵全部重置屬性？', '<p>所有屬性歸零，已花的 EXP 全數退回，可以重新分配。</p>', '全部重置', () => { resetAttrs(this.p); this.save(); this.go('town'); }));
     on('[data-ref]', (el) => { refund(this.p, el.dataset.ref as keyof Player['attrs'], cnt(el)); this.save(); this.go('town'); });
     on('[data-equip]', (el) => {
       const e = this.p.inventory.find((x) => x.id === el.dataset.equip);

@@ -142,3 +142,23 @@
 
 弱點：直接取 monsters.json 各列的負值屬性抗性（傷害公式 `(1 - spec)` 已自然放大），**沒有另加任何弱點加成**。
 缺資料（未發明）：弱點額外倍率規則、Boss 專屬弱點機制、戰鬥中 HP 自然回復來源。
+
+## CP2b 暫定值（試玩回饋修正）
+
+全部為 **暫定**；程式內標註 `暫定 (CP2b)`。難度以 `npx tsx scripts/difficulty.ts 20 15` 量測，需 `auto` 與 `human` 兩種策略都達標。
+
+| 項目 | 值 | 先前 | 位置 |
+|---|---|---|---|
+| Boss HP 倍率 `RANK_MULT.boss.hp` | 2.2 | 2.5（CP2）／5 | src/core/monsters.ts |
+| 6–9 樓每波怪數上限 | 2 | 3–4 | src/core/run.ts `encounter` |
+| `MID_FLOOR_MULT`（6–9 樓） | HP ×1.2、傷害 ×1.0 | HP ×1.0、傷害 ×1.05 | src/core/run.ts |
+| `EARLY_FLOOR_MULT`（1–4 樓，新增） | HP ×1.4、傷害 ×1.8 | 無 | src/core/run.ts |
+| EXP 倍率 `RULES.expMult` | 8（不變） | 8 | src/core/run.ts |
+| 真人策略 `HUMAN_COMBAT_SHARE` | 0.5（HP ≥ 55% 時有一半機率選戰鬥節點） | 新增 | src/core/auto.ts |
+
+模擬策略：
+- `auto`：原自動玩家（會用靈動架勢與 OC 技能、偏好戰鬥／精英路線）。
+- `human`：不用靈動架勢與 OC 技能；目標若對某法術屬性為負抗性就施放該法術，否則普攻；Boss 蓄力時防禦（HP < 60% 改喝藥）；HP < 40% 喝藥；路線上 HP < 55% 一律選非戰鬥節點，否則一半機率選戰鬥。
+- `avoid`（參考用）：與 human 相同戰鬥方式，但只要有非戰鬥節點就不選戰鬥。
+
+生命藥水冷卻：維持 `P-health-potion-cd` = 10。喝下後接下來 10 個行動不可用，按鈕依序顯示 冷卻10 … 冷卻1（單元測試與 e2e 已驗證）。切換靈動架勢是免費行動，不消耗冷卻；每場戰鬥開始時冷卻歸零。

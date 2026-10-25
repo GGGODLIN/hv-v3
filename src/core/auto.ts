@@ -59,14 +59,36 @@ export function chooseAction(b: BattleState): Action {
   return { kind: 'attack', target };
 }
 
+/** 'human' (CP3 playtest model, 暫定): no Spirit Stance, no OC skills; casts the spell matching the target's worst
+ * resistance when that resistance is negative, otherwise attacks; defends or drinks on a boss charge; drinks below 40% HP. */
+export type Strategy = 'auto' | 'human' | 'avoid';
+/** 暫定 (CP2b): chance the human model takes a battle when one is offered and HP is at least 55%. */
+export const HUMAN_COMBAT_SHARE = 0.5;
+export function chooseHuman(b: BattleState): Action {
+  const live = alive(b);
+  const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
+  const tm = b.monsters[target]!;
+  if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
+  if (b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
+  const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => tm.spec[SPELLS[id].element as keyof typeof tm.spec] < 0)
+    .sort((x, y) => tm.spec[SPELLS[x].element as keyof typeof tm.spec] - tm.spec[SPELLS[y].element as keyof typeof tm.spec]);
+  for (const id of sp) if (canUse(b, { kind: 'spell', id, target })) return { kind: 'spell', id, target };
+  if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
+  return { kind: 'attack', target };
+}
+
 export function profsOf(p: Player): Partial<Record<Prof, number>> {
   return { elemental: profValue(p, 'elemental'), divine: profValue(p, 'divine'), forbidden: profValue(p, 'forbidden') };
 }
 
-export function pickOption(p: Player, run: RunState): number {
+export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'): number {
   const opts = run.tower.floors[run.floor - 1]!.options;
   const frac = run.hp / runDerived(p, run).hp;
-  const pref: NodeType[] = frac < 0.55 ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
+  // 暫定 (CP2b) human route: below 55% HP always a non-combat node; otherwise a coin flip (HUMAN_COMBAT_SHARE) between
+  // taking a normal battle and taking a non-combat node. A pure "never fight" route is printed separately as 'avoid'.
+  const coin = new Rng(run.floor * 7919 + run.kills * 131 + Math.round(run.hp)).chance(HUMAN_COMBAT_SHARE);
+  const calm: NodeType[] = ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'];
+  const pref: NodeType[] = strategy === 'avoid' ? calm : strategy === 'human' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < 0.55 ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
   for (const t of pref) { const i = opts.indexOf(t); if (i >= 0) return i; }
   return 0;
 }
@@ -74,7 +96,7 @@ export function pickOption(p: Player, run: RunState): number {
 export interface BossFight { floor: number; turns: number; potions: number; won: boolean }
 export interface RunReport { settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[] }
 
-export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
+export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto'): RunReport {
   // Town prep.
   autoAllocate(p);
   autoEquip(p);
@@ -86,7 +108,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
   let turns = 0;
   const bosses: BossFight[] = [];
   while (!run.done) {
-    const opt = pickOption(p, run);
+    const opt = pickOption(p, run, strategy);
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
     if (type === 'battle' || type === 'elite' || type === 'boss') {
       const ms = encounter(run, pool, type);
@@ -94,7 +116,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number): RunReport {
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
       const profs = profsOf(p);
       const pot0 = b.potions.health + b.potions.mana + b.potions.spirit;
-      while (!b.over && b.turn < 400) { act(b, chooseAction(b), rng, profs); }
+      while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b) : chooseAction(b), rng, profs); }
       turns += b.turn;
       if (!b.over) b.over = 'lose';
       if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - (b.potions.health + b.potions.mana + b.potions.spirit), won: b.over === 'win' });

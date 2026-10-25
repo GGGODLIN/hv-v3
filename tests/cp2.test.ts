@@ -39,10 +39,10 @@ describe('CP2', () => {
     }
     expect(flagged).toBeGreaterThan(0);
   });
-  it('4/7. CP2 暫定 knobs', () => {
-    expect(RANK_MULT.boss.hp).toBe(2.5);
+  it('4/7. CP2/CP2b 暫定 knobs', () => {
+    expect(RANK_MULT.boss.hp).toBe(2.2);
     expect(RULES.expMult).toBe(8);
-    expect(MID_FLOOR_MULT).toEqual({ from: 6, to: 9, hp: 1, dmg: 1.05 });
+    expect(MID_FLOOR_MULT).toEqual({ from: 6, to: 9, hp: 1.2, dmg: 1 });
     expect(BOSS_CHARGE_MULT).toBe(2);
   });
   it('4. sim boss fights average 10-15 turns', () => {

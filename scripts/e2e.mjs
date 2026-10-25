@@ -26,6 +26,10 @@ await pg.click('[data-ref="str"][data-n="10"]');await w(100);R.cp2alloc.m10=awai
 await pg.click('[data-add="dex"][data-n="max"]');await w(100);R.cp2alloc.max=await A();R.cp2alloc.maxDisabled=await pg.$eval('[data-add="dex"][data-n="1"]',x=>x.disabled);
 await pg.screenshot({path:S+'cp2-06-alloc.png'});
 await pg.click('[data-ref="dex"][data-n="all"]');await w(100);R.cp2alloc.refundAll=await A();
+await pg.click('[data-add="str"][data-n="10"]');await pg.click('[data-add="agi"][data-n="10"]').catch(()=>{});await w(100);
+await pg.click('[data-resetall]');await w(150);R.cp2bResetModal=await pg.$eval('.modal',m=>m.textContent.replace(/\s+/g,' ').trim().slice(0,40)).catch(()=>null);
+await pg.screenshot({path:S+'cp2b-06-resetall.png'});
+await pg.click('[data-modal-ok]');await w(150);R.cp2bResetAttrs=await pg.evaluate(()=>Object.values(hv.p.attrs).every(v=>v===0));
 // ---- CP2 item 1a: equipping a weaker item from town storage asks first
 await pg.evaluate(()=>{const e=Object.values(hv.p.equipped).find(Boolean);const c=JSON.parse(JSON.stringify(e));c.id='cp2weak';c.name='CP2 弱化 '+c.name;for(const k of Object.keys(c.stats||{}))c.stats[k]=0;hv.p.inventory.push(c);hv.townTab='gear';hv.go('town')});await w(200);
 await pg.click('[data-equip="cp2weak"]');await w(200);
@@ -73,6 +77,12 @@ R.cp2decide=await pg.$eval('[data-decide]',x=>x.textContent.trim()).catch(()=>nu
 R.cp2suggest=await pg.$$eval('button.suggest',xs=>xs.map(x=>x.textContent.trim()));
 await pg.screenshot({path:S+'cp2-05-charge-decision.png'});
 await pg.evaluate(()=>{for(const m of hv.battle.monsters)m.charge=0;hv.render()});
+// ---- CP2b item 5: potion cooldown as the player sees it (button label, key presses until usable)
+await pg.evaluate(()=>{hv.stage.skip=true;for(const m of hv.battle.monsters){m.adb=0;if(m.hp>0){m.hp=m.maxHp=1e9}}hv.battle.potions.health=Math.max(1,hv.battle.potions.health);hv.battle.itemCd.health=0;hv.battle.hp=Math.round(hv.battle.d.hp/2);hv.render()});
+await pg.keyboard.press('z');await pg.waitForFunction(()=>!hv.busy,{timeout:8000});await w(100);
+R.cp2bPotion=[];for(let i=0;i<15;i++){const lab=await pg.$eval('[data-act="item:health"] small',x=>x.textContent);R.cp2bPotion.push(lab);if(!lab.startsWith('冷卻'))break;await pg.keyboard.press('a');await w(50);await pg.waitForFunction(()=>!hv.busy,{timeout:8000});await w(50);}
+await pg.evaluate(()=>{hv.stage.skip=false});
+// ---- CP2b item 6: one-click reset is checked in town (see cp2b-06)
 // ---- CP2 item 1b: weaker loot asks first
 await pg.evaluate(()=>{for(const m of hv.battle.monsters){if(m.hp>0)m.hp=1;m.evade=0;m.parry=0}});
 for(let i=0;i<8&&!(await pg.evaluate(()=>!!hv.pending.loot));i++){await pg.keyboard.press('a');await w(300);await pg.waitForFunction(()=>!hv.busy,{timeout:8000}).catch(()=>{});await w(300);}
@@ -132,5 +142,7 @@ if(!R.cp2townModal||!R.cp2townModal.includes('比較弱')||!R.cp2townKept)fails.
 if(!R.cp2lootModal||!R.cp2lootModal.includes('比較弱'))fails.push('CP2 loot weaker modal');
 if(!R.cp2regen.length||!R.cp2regen.every(t=>/HP \+\d+ · MP \+\d+ · SP \+\d+/.test(t)))fails.push('CP2 regen line');
 if(!R.cp2weakHud.some(t=>t.includes('25%'))||!R.cp2weakLog.length)fails.push('CP2 weakness');
+if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
+{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻'));if(cd.length!==10||cd[0]!=='冷卻10'||cd[9]!=='冷卻1')fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
 if(!R.cp2decide||!R.cp2suggest.some(t=>t.includes('防禦')))fails.push('CP2 charge decision');
 console.log(fails.length?'E2E FAIL: '+fails.join(', '):'E2E PASS');process.exit(fails.length?1:0);

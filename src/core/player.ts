@@ -156,6 +156,11 @@ export function refund(p: Player, a: keyof Attrs, n = 1): void {
   p.attrs[a] = Math.max(0, p.attrs[a] - n);
 }
 
+/** CP2b: one-click reset of every attribute (all EXP becomes unspent again). */
+export function resetAttrs(p: Player): void {
+  for (const k of Object.keys(p.attrs) as (keyof Attrs)[]) p.attrs[k] = 0;
+}
+
 /** Simple power score used by the sim and the compare arrow. */
 export function powerScore(d: Derived): number {
   const off = Math.max(d.adb * (1 + d.physCrit * d.critMod), d.mdb * 3);

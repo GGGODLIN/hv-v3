@@ -75,7 +75,9 @@ export function runDerived(p: Player, run: RunState) {
 }
 
 /** 暫定 (CP2): extra HP / damage multiplier for monsters on floors 6-9 (difficulty knob, scripts/difficulty.ts). */
-export const MID_FLOOR_MULT = { from: 6, to: 9, hp: 1, dmg: 1.05 };
+export const MID_FLOOR_MULT = { from: 6, to: 9, hp: 1.2, dmg: 1.0 }; // 暫定 (CP2b): dmg back to 1.0, hp 1.0 -> 1.2
+/** 暫定 (CP2b): floors 1-4 slightly harder so a mostly non-combat route arrives at floor 6 worn down. */
+export const EARLY_FLOOR_MULT = { from: 1, to: 4, hp: 1.4, dmg: 1.8 };
 
 export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Monster[] {
   const f = run.floor;
@@ -85,12 +87,13 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
     const plan: Rank[] =
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
       type === 'elite' ? ['elite', 'normal'] :
-      f >= 6 ? (rng.chance(0.5) ? ['normal', 'normal', 'normal'] : ['normal', 'normal', 'normal', 'normal']) :
+      f >= 6 ? ['normal', 'normal'] /* 暫定 (CP2b): floors 6-9 at most 2 per wave */ :
       rng.chance(0.5) ? ['normal', 'normal'] : ['normal', 'normal', 'normal'];
     return plan.map((rank) => {
       const row = rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi);
       const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
       if (f >= MID_FLOOR_MULT.from && f <= MID_FLOOR_MULT.to) { m.maxHp = m.hp = Math.round(m.maxHp * MID_FLOOR_MULT.hp); m.adb *= MID_FLOOR_MULT.dmg; }
+      if (f >= EARLY_FLOOR_MULT.from && f <= EARLY_FLOOR_MULT.to) { m.maxHp = m.hp = Math.round(m.maxHp * EARLY_FLOOR_MULT.hp); m.adb *= EARLY_FLOOR_MULT.dmg; }
       return m;
     });
   });

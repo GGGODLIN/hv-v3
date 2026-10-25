@@ -93,7 +93,7 @@ export function scaleStat(base: number, L: number): number {
 export const RANK_MULT: Record<Rank, { hp: number; dmg: number }> = {
   normal: { hp: 1, dmg: 1 },
   elite: { hp: 2.5, dmg: 1.25 },
-  boss: { hp: 2.5, dmg: 0.6 }, // 暫定 (CP2): hp 5 -> 2.5 so boss fights last ~10-15 turns; dmg 暫定 (round 5)
+  boss: { hp: 2.2, dmg: 0.6 }, // 暫定 (CP2b): hp 5 -> 2.5 (CP2) -> 2.2 so boss fights last ~10-15 turns; dmg 暫定 (round 5)
 };
 
 let uid = 1;
