@@ -1,42 +1,57 @@
-CP6 abyss sim N=24 T=5 (main trips 1-10 then abyss)
+CP6 abyss sim N=24 T=5 (main tower until first F20 clear, then abyss)
 
-== auto  lv@abyss1 mean 19.5  schools {"none":120}
-trip1 cleared depth: p10 0 p25 2 median 4 p75 7 p90 10 mean 4.3
-best after 5 trips: p10 7 median 10 p90 12 max 12
+== auto  main trips to F20 clear: median 3 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 14 mean 12.8  power median 537
+schools {"none":120}  titles earned 29
+abyss trips ending in death 92.5% | equipment kept per abyss trip: mean 1.4 median 1 p90 1 | quality fair 18.9% average 37.8% superior 32.9% exquisite 9.1% magnificent 1.2%
+trip1 cleared depth: p10 5 p25 9 median 10 p75 15 p90 17 mean 10.9
+best after 5 trips: p10 14 median 17 p90 24 max 24
 boss fights by abyss depth | n | win% | turns
-  d5 | 34 | 64.7 | 11.1
-  d10 | 21 | 57.1 | 10.8
+  d5 | 25 | 96.0 | 6.3
+  d10 | 30 | 90.0 | 6.5
+  d15 | 32 | 62.5 | 8.8
+  d20 | 12 | 41.7 | 5.3
+  d25 | 4 | 0.0 | 13.5
 
-== buff:blade  lv@abyss1 mean 16.7  schools {"none":80,"arcane":1,"blade":35,"bulwark":3,"oc":1}
-trip1 cleared depth: p10 0 p25 2 median 2 p75 4 p90 7 mean 3.1
-best after 5 trips: p10 2 median 4 p90 10 max 14
+== buff:blade  main trips to F20 clear: median 6 (no clear in 60: 0)  lv@abyss1 p10 11 median 13 p90 17 mean 13.3  power median 581
+schools {"oc":7,"none":61,"blade":47,"bulwark":3,"arcane":2}  titles earned 24
+abyss trips ending in death 93.3% | equipment kept per abyss trip: mean 1.2 median 1 p90 1 | quality fair 20.9% average 31.1% superior 36.5% exquisite 10.8% magnificent 0.7%
+trip1 cleared depth: p10 5 p25 7 median 10 p75 12 p90 14 mean 9.8
+best after 5 trips: p10 12 median 14 p90 17 max 19
 boss fights by abyss depth | n | win% | turns
-  d5 | 29 | 31.0 | 10.4
-  d10 | 9 | 33.3 | 6.3
-  d15 | 2 | 0.0 | 5.0
+  d5 | 26 | 92.3 | 8.1
+  d10 | 31 | 87.1 | 7.5
+  d15 | 31 | 32.3 | 9.0
+  d20 | 3 | 0.0 | 7.0
 
-== buff:oc  lv@abyss1 mean 15.1  schools {"none":86,"oc":30,"bulwark":3,"blade":1}
-trip1 cleared depth: p10 0 p25 0 median 2 p75 4 p90 5 mean 2.4
-best after 5 trips: p10 2 median 4 p90 12 max 14
+== buff:oc  main trips to F20 clear: median 8 (no clear in 60: 0)  lv@abyss1 p10 11 median 14 p90 15 mean 13.1  power median 545
+schools {"oc":47,"none":64,"bulwark":5,"arcane":2,"blade":2}  titles earned 23
+abyss trips ending in death 90.8% | equipment kept per abyss trip: mean 1.6 median 1 p90 1 | quality fair 21.4% average 39.6% superior 28.1% exquisite 10.9%
+trip1 cleared depth: p10 4 p25 7 median 10 p75 12 p90 14 mean 9.3
+best after 5 trips: p10 10 median 14 p90 19 max 19
 boss fights by abyss depth | n | win% | turns
-  d5 | 31 | 29.0 | 10.1
-  d10 | 8 | 62.5 | 9.6
-  d15 | 1 | 0.0 | 2.0
+  d5 | 27 | 92.6 | 9.7
+  d10 | 34 | 79.4 | 9.4
+  d15 | 36 | 41.7 | 9.1
+  d20 | 5 | 0.0 | 5.0
 
-== buff:arcane  lv@abyss1 mean 17.4  schools {"none":81,"arcane":32,"bulwark":4,"blade":2,"oc":1}
-trip1 cleared depth: p10 0 p25 2 median 4 p75 5 p90 9 mean 3.8
-best after 5 trips: p10 2 median 9 p90 12 max 17
+== buff:arcane  main trips to F20 clear: median 6 (no clear in 60: 0)  lv@abyss1 p10 12 median 13 p90 15 mean 13.2  power median 548
+schools {"arcane":48,"none":58,"blade":4,"bulwark":5,"oc":5}  titles earned 23
+abyss trips ending in death 86.7% | equipment kept per abyss trip: mean 1.8 median 1 p90 6 | quality fair 21.2% average 41.5% superior 29.5% exquisite 6.5% magnificent 1.4%
+trip1 cleared depth: p10 4 p25 5 median 9 p75 12 p90 14 mean 8.6
+best after 5 trips: p10 9 median 14 p90 17 max 19
 boss fights by abyss depth | n | win% | turns
-  d5 | 33 | 51.5 | 11.7
-  d10 | 16 | 25.0 | 8.7
-  d15 | 3 | 33.3 | 16.0
+  d5 | 33 | 87.9 | 11.3
+  d10 | 38 | 68.4 | 8.2
+  d15 | 31 | 32.3 | 9.9
+  d20 | 1 | 0.0 | 7.0
 
-== buff:bulwark  lv@abyss1 mean 18.3  schools {"none":84,"bulwark":28,"blade":3,"oc":2,"arcane":3}
-trip1 cleared depth: p10 2 p25 2 median 4 p75 7 p90 7 mean 3.9
-best after 5 trips: p10 4 median 4 p90 12 max 19
+== buff:bulwark  main trips to F20 clear: median 4 (no clear in 60: 0)  lv@abyss1 p10 12 median 13 p90 14 mean 12.8  power median 512
+schools {"none":63,"bulwark":45,"oc":2,"blade":5,"arcane":5}  titles earned 24
+abyss trips ending in death 91.7% | equipment kept per abyss trip: mean 1.4 median 1 p90 1 | quality fair 21.6% average 35.9% superior 36.5% exquisite 4.2% magnificent 1.8%
+trip1 cleared depth: p10 4 p25 7 median 9 p75 12 p90 15 mean 9.3
+best after 5 trips: p10 10 median 15 p90 19 max 22
 boss fights by abyss depth | n | win% | turns
-  d5 | 34 | 32.4 | 11.5
-  d10 | 16 | 37.5 | 9.4
-  d15 | 2 | 50.0 | 17.5
-  d20 | 1 | 0.0 | 5.0
-
+  d5 | 31 | 83.9 | 9.3
+  d10 | 35 | 77.1 | 8.8
+  d15 | 28 | 53.6 | 10.8
+  d20 | 9 | 11.1 | 5.3

@@ -23,6 +23,12 @@ export const ABYSS = {
   tripleHp: 0.8,
   /** r2 decision 6 (暫定): abyss boss drops (plus the guaranteed piece). */
   bossDrops: 2,
+  /** r2 tuning knob (暫定): flat monster-level offset added to every depth (0 = F20 level + 2/depth). */
+  levelOffset: 0,
+  /** r2 tuning knob (暫定): abyss monster HP ×. */
+  hpScale: 0.55,
+  /** r2 tuning knob (暫定): abyss monster damage ×. */
+  dmgScale: 0.55,
   /** r2 decision 8 (暫定): carry-back multiplier = 1 + this × tier index (Normal 0 … PFUDOR 6) of the deepest depth reached. */
   carryPerTier: 0.05,
   /** r2 decision 9 (暫定): milestone every N depths cleared (first time only). */
@@ -52,7 +58,7 @@ export const TROPHY_MIN: Quality[] = ['average', 'average', 'average', 'superior
 export const guaranteeQuality = (d: number): Quality => TROPHY_MIN[abyssTier(d)]!;
 
 /** Monster level at depth d (decision 1, 暫定) before the existing monLvFollow term. */
-export const abyssBaseLevel = (d: number): number => floorLevel(20) + ABYSS.levelPerDepth * d;
+export const abyssBaseLevel = (d: number): number => floorLevel(20) + ABYSS.levelOffset + ABYSS.levelPerDepth * d;
 /** PL centre: main-tower F20 centre + sourced PL ceiling modifier of the tier (the sum is 暫定). */
 export const abyssPl = (d: number): number => floorPl(20) + DIFF[abyssTier(d)]!.pl;
 
@@ -60,7 +66,7 @@ export const abyssPl = (d: number): number => floorPl(20) + DIFF[abyssTier(d)]!.
 export function abyssMult(d: number): { hp: number; dmg: number } {
   const t = DIFF[abyssTier(d)]!;
   const k = d >= 40 ? Math.floor((d - 40) / ABYSS.past40.every) : 0; // d 40–44: base PFUDOR; +5% from 45
-  return { hp: t.hp * (1 + ABYSS.past40.hp * k), dmg: t.dmg * (1 + ABYSS.past40.dmg * k) * (1 + ABYSS.dmgPerDepth * (d - 1)) };
+  return { hp: ABYSS.hpScale * t.hp * (1 + ABYSS.past40.hp * k), dmg: ABYSS.dmgScale * t.dmg * (1 + ABYSS.past40.dmg * k) * (1 + ABYSS.dmgPerDepth * (d - 1)) };
 }
 
 /** Affix count (doc §1.3, 暫定). */

@@ -7,7 +7,7 @@ import { abyssLevel, chestLoot, merchantStock, RULES, advance, battleLoot, depth
 import { starterKit } from '../src/core/auto';
 import { prog } from '../src/core/progress';
 import { type Cp5Mon } from '../src/core/cp5';
-import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
+import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 
 describe('CP6 abyss scaling', () => {
@@ -15,13 +15,20 @@ describe('CP6 abyss scaling', () => {
     expect([1, 9, 10, 14, 15, 20, 25, 30, 35, 39, 40, 80].map(abyssTier)).toEqual([0, 0, 1, 1, 2, 3, 4, 5, 6, 6, 6, 6]);
   });
   it('level +2 per depth (decision 1, not ×10)', () => { expect(abyssBaseLevel(6) - abyssBaseLevel(5)).toBe(2); });
+  it('r2 knob: hpScale/dmgScale multiply every depth (暫定 0.55)', () => {
+    expect(ABYSS.hpScale).toBe(0.55); expect(ABYSS.dmgScale).toBe(0.55);
+    expect(abyssMult(1).hp).toBeCloseTo(0.55); expect(abyssMult(10).dmg).toBeCloseTo(0.55 * 1.2 * 1.18);
+  });
   it('+2% damage per depth accumulates, past 40 adds +5% HP/dmg every 5', () => {
+    const k = [ABYSS.hpScale, ABYSS.dmgScale]; ABYSS.hpScale = 1; ABYSS.dmgScale = 1;
+    try {
     expect(abyssMult(1)).toEqual({ hp: 1, dmg: 1 });
     expect(abyssMult(6).dmg).toBeCloseTo(1.1);
     expect(abyssMult(10).dmg).toBeCloseTo(1.2 * 1.18);
     expect(abyssMult(44).hp).toBeCloseTo(2);
     expect(abyssMult(45).hp).toBeCloseTo(2.1);
     expect(abyssMult(45).dmg).toBeCloseTo(3 * 1.05 * 1.88);
+    } finally { [ABYSS.hpScale, ABYSS.dmgScale] = k as [number, number]; }
   });
   it('guarantee quality floors from the trophy table', () => {
     expect([5, 10, 15, 20, 25, 30, 35, 60].map(guaranteeQuality)).toEqual(['average', 'average', 'average', 'superior', 'superior', 'exquisite', 'magnificent', 'magnificent']);

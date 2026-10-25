@@ -7,12 +7,13 @@ import { autoRun, starterKit, type Strategy, type BossFight } from '../src/core/
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
 import { RULES } from '../src/core/run';
-import { checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssSchool } from '../src/core/abyss';
+import { ABYSS, checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssSchool } from '../src/core/abyss';
 import { QUALITIES } from '../src/core/items';
 import { powerScore } from '../src/core/player';
 RULES.cp6Abyss = true;
 const N = Number(process.argv[2] ?? 24), T = Number(process.argv[3] ?? 5);
 const STRATS = (process.argv[4] ?? 'auto,buff:blade,buff:oc,buff:arcane,buff:bulwark').split(',') as Strategy[];
+for (const kv of process.argv.slice(5)) { const [k, v] = kv.split("="); (ABYSS as unknown as Record<string, number>)[k!] = Number(v); console.log(`override ${k}=${v}`); }
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
 const mean = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);
