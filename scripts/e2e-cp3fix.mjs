@@ -31,18 +31,18 @@ for(const t of [2,3]){await pg.evaluate(t=>{hv.p.prog.trips=t;hv.data.run=null;h
   R['trip'+(t+1)]=await pg.$eval('[data-trip]',x=>x.textContent).catch(()=>null);
   if(t===2)await pg.screenshot({path:S+'cp3fix-03-trip3-carry.png'});}
 if(!R.trip3?.includes('×2'))fails.push('3 trip-3 hint '+R.trip3);
-if(R.trip4!==null)fails.push('3 trip-4 should have no carry hint '+R.trip4);
+if(!R.trip4?.includes('×1'))fails.push('3 trip-4 carry hint should show ×1 '+R.trip4);
 // ---- r3 #1 whitelist names (normal battle + F5 boss) and r3 #2 death rule hint
 R.deathRule=await pg.evaluate(()=>{hv.data.run=null;hv.go('town');return document.querySelector('[data-deathrule]')?.textContent??null});
 if(!R.deathRule?.includes('死亡會把帶回折半'))fails.push('r3-2 death rule hint missing');
 const nameCheck=async(tag)=>{const t=await pg.evaluate(()=>({names:hv.battle.monsters.map(m=>m.name),labels:(hv.stage?.children?.list??[]).filter(o=>o.type==='Text').map(o=>o.text),dom:document.body.innerText}));
-  const bad=t.names.filter(n=>!/^[\u4e00-\u9fff·]+$/.test(n)).length;const leaks=RAW.filter(r=>t.dom.includes(r)||t.labels.some(l=>l.includes(r))).length;
+  const bad=t.names.filter(n=>!/^[\u4e00-\u9fff・]+[A-Z]?$/.test(n)).length;const leaks=RAW.filter(r=>t.dom.includes(r)||t.labels.some(l=>l.includes(r))).length;
   R['names-'+tag]={n:t.names.length,bad,leaks,labels:t.labels.filter(l=>/Lv\d/.test(l)).length};if(bad||leaks)fails.push(`r3-1 ${tag}: ${bad} non-whitelist names, ${leaks} raw-name leaks`);};
 await pg.evaluate(async()=>{hv.startRun();hv.run.floor=2;await hv.startBattle('battle');});await w(900);
 await nameCheck('battle');await pg.screenshot({path:S+'cp3r3-01-names-battle.png'});
 await pg.evaluate(async()=>{hv.battle=null;hv.run.floor=5;await hv.startBattle('boss');});await w(900);
 await nameCheck('boss-f5');R.bossName=await pg.evaluate(()=>hv.battle.monsters[0].name);await pg.screenshot({path:S+'cp3r3-02-names-boss-f5.png'});
-if(!R.bossName.includes('·'))fails.push('r3-1 boss title');
+if(!R.bossName.includes('・'))fails.push('r3-1 boss title');
 await pg.evaluate(()=>{hv.battle=null;});
 // ---- 1 + 6: boss phase message, skill/stance feedback
 await pg.evaluate(async()=>{hv.run.floor=10;await hv.startBattle('boss');});await w(800);

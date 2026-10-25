@@ -8,20 +8,31 @@ export const ELEM_WORD = ['霜', '風', '雷', '炎', '闇', '聖'] as const;
 /** PL tier word (thresholds 暫定, PL median 358 / 3rd quartile 1080 / 1600). */
 export const TIER_WORD = ['', '老', '古', '太古'] as const;
 export const TIER_PL = [358, 1080, 1600] as const;
-export const TRAIT_WORD = ['羽', '甲', '牙', '角', '鱗', '影', '岩', '鋼', '骨', '爪', '紋', '翼'] as const;
+export const TRAIT_WORD = ['羽', '甲', '牙', '角', '鱗', '影', '岩', '鋼', '骨', '爪', '紋', '翼',
+  /* CP3 polish (暫定): 12 more trait words to cut repeats */ '刃', '棘', '晶', '毒', '鐵', '冠', '尾', '眼', '血', '鬃', '鐮', '蹄'] as const;
+/** Nouns per body; the last 2 of each list are CP3 polish additions (暫定). */
 export const BODY_NOUN: Record<Body, readonly string[]> = {
-  bird: ['鳳凰', '鷹', '鴉', '隼'], bug: ['甲蟲', '蜘蛛', '蠍', '螳螂'], beast: ['狼', '熊', '豹', '野豬'],
-  undead: ['骷髏', '怨靈', '屍鬼', '亡魂'], mech: ['機兵', '魔像', '鐵偶', '自走甲'], dragon: ['飛龍', '蜥蜴', '蛇龍', '地龍'],
-  humanoid: ['戰士', '巨人', '術士', '遊俠'], spirit: ['精靈', '元素靈', '光靈', '妖精'],
+  bird: ['鳳凰', '鷹', '鴉', '隼', '鶴', '梟'], bug: ['甲蟲', '蜘蛛', '蠍', '螳螂', '蜈蚣', '飛蛾'], beast: ['狼', '熊', '豹', '野豬', '虎', '獅'],
+  undead: ['骷髏', '怨靈', '屍鬼', '亡魂', '幽魂', '殭屍'], mech: ['機兵', '魔像', '鐵偶', '自走甲', '砲台', '齒輪獸'], dragon: ['飛龍', '蜥蜴', '蛇龍', '地龍', '翼龍', '雙頭龍'],
+  humanoid: ['戰士', '巨人', '術士', '遊俠', '騎士', '刺客'], spirit: ['精靈', '元素靈', '光靈', '妖精', '幻靈', '星靈'],
 };
 export const BOSS_TITLE = ['塔主', '深淵之王', '守門者', '災厄'] as const;
-export const BOSS_SEP = '·';
+export const BOSS_SEP = '・'; // CP3 polish: full-width katakana middle dot (was '·')
+/** CP3 polish (暫定): same-name monsters in one battle get A / B / C ... appended. */
+export const DUP_MARK = 'ABCDEFGH';
+export function markDuplicates(names: string[]): string[] {
+  return names.map((n, i) => {
+    const same = names.map((x, j) => [x, j] as const).filter(([x]) => x === n);
+    return same.length > 1 ? n + DUP_MARK[same.findIndex(([, j]) => j === i)] : n;
+  });
+}
 
 /** Every word a display name may contain (the e2e / test whitelist). */
 export const NAME_VOCAB: string[] = [...ELEM_WORD, ...TIER_WORD.filter(Boolean), ...TRAIT_WORD, ...Object.values(BODY_NOUN).flat(), ...BOSS_TITLE];
 const NOUN_BODY = new Map<string, Body>(Object.entries(BODY_NOUN).flatMap(([b, ns]) => ns.map((n) => [n, b as Body])));
 /** Body of a generated name (its noun suffix), so sprites keep matching the name. */
 export function nounBody(name: string): Body | null {
+  name = name.replace(/[A-Z]$/, ''); // A/B/C duplicate mark
   let best: [string, Body] | null = null;
   for (const [n, b] of NOUN_BODY) if (name.endsWith(n) && (!best || n.length > best[0].length)) best = [n, b];
   return best?.[1] ?? null;

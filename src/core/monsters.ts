@@ -17,12 +17,22 @@ export function makePool(rows: MonsterRow[]): MonsterPool {
   return { rows: rows.filter((r) => !EXCL.has(r[5])).map((r) => cleanRow(r)).sort((a, b) => a[3] - b[3]) };
 }
 
-export function pickRows(rng: Rng, pool: MonsterPool, plMin: number, plMax: number, n: number): MonsterRow[] {
+export function pickRows(rng: Rng, pool: MonsterPool, plMin: number, plMax: number, n: number, w?: (r: MonsterRow) => number): MonsterRow[] {
   const lo = lowerBound(pool.rows, plMin);
   const hi = Math.max(lo + 1, lowerBound(pool.rows, plMax + 1));
   const out: MonsterRow[] = [];
-  for (let i = 0; i < n; i++) out.push(pool.rows[Math.min(pool.rows.length - 1, rng.int(lo, hi - 1))]!);
+  for (let i = 0; i < n; i++) out.push(w ? weightedPick(rng, pool, lo, hi, w) : pool.rows[Math.min(pool.rows.length - 1, rng.int(lo, hi - 1))]!);
   return out;
+}
+/** CP5 §3: weighted pick inside [lo, hi) (theme weighting, never a filter). One rng draw. */
+function weightedPick(rng: Rng, pool: MonsterPool, lo: number, hi: number, w: (r: MonsterRow) => number): MonsterRow {
+  hi = Math.min(hi, pool.rows.length);
+  let tot = 0;
+  for (let i = lo; i < hi; i++) tot += w(pool.rows[i]!);
+  if (!(tot > 0)) return pool.rows[Math.min(pool.rows.length - 1, rng.int(lo, hi - 1))]!;
+  let x = rng.next() * tot;
+  for (let i = lo; i < hi; i++) { x -= w(pool.rows[i]!); if (x < 0) return pool.rows[i]!; }
+  return pool.rows[hi - 1]!;
 }
 /** design §4: PL centre ±15%; if empty, widen to ±25% then ±40%. */
 export const PL_WINDOWS = [0.15, 0.25, 0.4] as const;
@@ -42,10 +52,11 @@ export function plWindow(pool: MonsterPool, center: number): { lo: number; hi: n
   return { lo: Math.max(MIN_PL, Math.round(center * (1 - w))), hi: Math.max(MIN_PL, Math.round(center * (1 + w))), width: -1 };
 }
 /** design §4: elites/bosses come from the top 10% PL of the window (at least one row). */
-export function pickTop(rng: Rng, pool: MonsterPool, plMin: number, plMax: number): MonsterRow {
+export function pickTop(rng: Rng, pool: MonsterPool, plMin: number, plMax: number, w?: (r: MonsterRow) => number): MonsterRow {
   const a = lowerBound(pool.rows, plMin);
   const b = Math.max(a + 1, lowerBound(pool.rows, plMax + 1));
   const start = Math.max(a, b - Math.max(1, Math.ceil((b - a) * 0.1)));
+  if (w) return weightedPick(rng, pool, start, b, w);
   return pool.rows[Math.min(pool.rows.length - 1, rng.int(start, b - 1))]!;
 }
 function lowerBound(rows: MonsterRow[], pl: number): number {

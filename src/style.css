@@ -79,7 +79,7 @@ button.node .ni { font-size: 30px; }
 .hudl { background: #0009; padding: 4px 8px; border-radius: 6px; }
 .status { font-size: 13px; }
 .status .spirit { color: #ffb0ff; }
-.log { background: #0009; border-radius: 6px; padding: 4px 8px; font-size: 12px; height: 104px; overflow: hidden; color: #ddd; }
+.log { background: #0009; border-radius: 6px; padding: 4px 8px; font-size: 14px; line-height: 1.4; height: 128px; overflow: hidden; color: #ddd; }
 .log .crit { color: #ffe040; }
 .cmdbar { position: absolute; top: 662px; left: 0; right: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: stretch; }
 .cmdbar.busy button { pointer-events: none; opacity: .6; }
@@ -113,5 +113,23 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .icon { image-rendering: pixelated; vertical-align: middle; margin-right: 6px; flex: none; }
 .iname { display: flex; align-items: center; }
 .cmdbar button .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }
+/* CP4 run buffs (flag ?cp4) */
+.buffs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 4px 0; font-size: 12px; }
+.bf { padding: 1px 6px; border-radius: 3px; border: 1px solid #ffffff44; background: #2a2038; }
+.bf.r-rare, .buffcard.r-rare { border-color: #5aa0ff; } .bf.r-legend, .buffcard.r-legend { border-color: #ffb040; box-shadow: 0 0 6px #ffb04066; }
+.offer, .risk { margin: 8px 0; padding: 8px; border: 1px solid #ffffff22; border-radius: 6px; background: #1b1424; }
+.risk { border-color: #c04040aa; }
+.buffrow { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.buffcard { border: 1px solid #ffffff44; border-radius: 6px; padding: 8px; background: #241a30; display: flex; flex-direction: column; gap: 6px; }
+.buffcard .bh { display: flex; justify-content: space-between; gap: 6px; } .buffcard .bh small { color: #b8a8c8; }
+.buffcard .bd { font-size: 13px; flex: 1; }
 .log .phase{color:#ff6060;font-weight:bold}
 .log .statusfx{color:#ffcc66}.log .skillhit{color:#9fd3ff}.log .spirit{color:#c9a0ff}
+.bprev { font-size: 12px; display: flex; flex-direction: column; gap: 2px; color: #cfc2dc; }
+/* CP4 rc #3: held buffs row in battle (icons + hover tooltip). */
+.bbuffs { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; pointer-events: auto; }
+.bic, .bprog { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 3px; border-radius: 4px; border: 1px solid #ffffff55; background: #2a2038; font-size: 13px; cursor: help; }
+.bprog { font-size: 11px; color: #aaa; background: #1a1a22; } .bprog.on { color: #ffd060; border-color: #ffd060; }
+.bic.s-blade { color: #ff8a8a; } .bic.s-oc { color: #ffe066; } .bic.s-arcane { color: #9ad0ff; } .bic.s-bulwark { color: #b8e0a0; }
+.bic.r-rare { border-color: #5aa0ff; } .bic.r-legend { border-color: #ffb040; box-shadow: 0 0 5px #ffb04088; }
+.bic:hover::after, .bprog:hover::after { content: attr(data-tip); position: absolute; left: 0; top: 26px; z-index: 50; white-space: pre-line; width: max-content; max-width: 260px; padding: 5px 8px; background: #111e; border: 1px solid #fff4; border-radius: 4px; font-size: 12px; color: #eee; }

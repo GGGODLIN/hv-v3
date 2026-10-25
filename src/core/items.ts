@@ -1,5 +1,6 @@
 import { CONSTANTS as C } from './data/constants';
 import type { Rng } from './rng';
+import { ARMOR_SLOT_ZH, BASE_ZH, PREFIX_ZH, SUFFIX_ZH } from './equip-zh';
 
 export const QUALITIES = ['crude', 'fair', 'average', 'superior', 'exquisite', 'magnificent', 'legendary', 'peerless'] as const;
 export type Quality = (typeof QUALITIES)[number];
@@ -164,7 +165,21 @@ export function generateEquip(rng: Rng, level: number, opts: GenOpts = {}): Equi
   };
 }
 
+/** CP3 polish: Chinese display name, e.g. 「優良・平衡之烈焰長劍+2」 (all words 暫定, see equip-zh.ts). */
 export function equipName(e: Equip): string {
+  let core = BASE_ZH[e.base] ?? baseName(e.base);
+  if (['cloth', 'light', 'heavy'].includes(e.group)) {
+    const fam = e.base === 'power' ? 'power' : e.group;
+    const slot: string = ARMOR_SLOT_ZH[fam]?.[e.slot] ?? e.slot;
+    core += slot;
+  }
+  const pre = e.prefix ? PREFIX_ZH[e.prefix] ?? e.prefix : '';
+  const suf = e.suffix ? `${SUFFIX_ZH[e.suffix] ?? e.suffix}之` : '';
+  return `${QUALITY_ZH[e.quality]}・${suf}${pre}${core}${e.iw ? `+${e.iw}` : ''}`;
+}
+
+/** The pre-polish English name from the sourced word lists (kept for reference / tooltips). */
+export function equipNameEn(e: Equip): string {
   let core = baseName(e.base);
   if (['cloth', 'light', 'heavy'].includes(e.group)) {
     const fam = e.base === 'power' ? 'power' : e.group;

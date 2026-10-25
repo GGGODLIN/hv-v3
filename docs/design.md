@@ -218,3 +218,123 @@ CP3 前的舊存檔沒有進度欄位，視為老玩家：除道具界外全部�
 - 不可用按鈕：圖示灰階變暗、深色斜紋底、虛線框、原因文字紅色；文字保持可讀（不再只靠 opacity）。
 - 地圖節點符號 26–30px＋陰影；走過的節點填色並標「✓ 走過」，略過的灰階淡出。修正帶回倍率提示改用 carryMult（5/3/2）。
 - 道具界每列顯示 +n → +n+1 與每個會變的數值「前 → 後」（effectiveStats 以 iw+1 試算）。
+
+## CP4 Run Buffs（暫定，旗標 RULES.cp4RunBuffs，預設關）
+
+詳見 docs/cp4-run-buffs.md §10–§12。Step 6 調參值：Boss 勝利 1 次三選一、elite 每 2 次勝利 1 次、同流派權重 4、Boss HP 每個 buff +6%。全部暫定。
+
+### CP4 磐石修正（暫定，決策 2026-10-25 #1）
+| 值 | 暫定 | 位置 |
+|---|---|---|
+| 磐石組合「防禦後下一擊」倍率 | ×1.5（原 ×1.3） | battle.ts `BULWARK_COUNTER_MULT` |
+| 磐石組合「格擋、閃避或招架後反擊」 | 普攻公式（physHit）×0.8 | battle.ts `BULWARK_RIPOSTE_MULT` |
+| nocore-nofloor 對照組 | 只在 sim 使用，關掉兩項核心保底 | buffoffer.ts `coreFloor` |
+
+32 種子 sim 的結果見 docs/logs/cp4-r3-sim32-bulwark-riposte-nofloor.txt。cp3-pass3 之後重跑，輸出逐位元相同。持有 ≥5 個 buff 時的 F10 首領：
+
+| 流派 | 勝率 | 平均回合 |
+|---|---|---|
+| 磐石 | 97% | 14.3 |
+| 劍 | 91% | 13.3 |
+| OC | 91% | 13.8 |
+| 奧術 | 95% | 13.1 |
+
+## CP3 polish（bot/grok，全部暫定）
+- 怪物名詞表擴充：TRAIT_WORD 12→24（新增 刃棘晶毒鐵冠尾眼血鬃鐮蹄），每種體型名詞 4→6（新增各 2 個），皆為本專案自創、暫定。44,382 列的相異名稱 4,382→9,856。體型對應（nounBody）不變，精靈圖不變；數值欄位不動。
+- 同一場戰鬥同名怪物加 A/B/C…（`markDuplicates`，暫定）。nounBody 會先去掉尾端字母。
+- Boss 稱號分隔符「·」→「・」；頭頂標籤移除 ♛（已有稱號），菁英保留 ☠。
+- 帶回倍率 ×1 的趟次也顯示（地圖提示與結算）。戰鬥紀錄字體 12→14px。遭遇訊息經 esc()。
+- 以上皆不影響模擬：cp4-off-check 與 docs/cp4-baseline-sim.txt 相同（未更新基準）。
+- 裝備名稱中文化（src/core/equip-zh.ts，翻譯皆暫定）：格式「品質・[後綴之][前綴][基底][部位][+強化]」，例「精良・三重祝福之板甲鐵手套+2」。來源英文鍵值與名稱（F-003-*）保留不動，原英文名改由 equipNameEn() 產生；名稱生成不讀寫數值，cp4-off-check 相同。
+
+## CP5 Boss／詞綴／20 層塔（RULES.cp5Bosses，預設關）
+
+全部數值暫定，定義在 `src/core/cp5.ts` 的 `CP5`。flag 關閉時 `docs/cp4-baseline-sim.txt` 相同。
+sim：`npx tsx scripts/cp5-sim.ts 32 12`（輸出 docs/logs/cp5-sim.txt）、`npx tsx scripts/cp5-deathcombo.ts 32 12`（docs/logs/cp5-deathcombo.txt）。
+兩個 script 都可以在最後加 `key=value` 覆寫 CP5 值來試調。
+
+### 調整紀錄（sim tune r1，32 種子，≤12 趟，退場線 HP<30%）
+| 值 | 原暫定 | 現暫定 | 理由 |
+|---|---|---|---|
+| thornsEvery / thornsTurns / thornsFrac | 4 / 2 / 0.4 | 3 / 3 / 1.0 | 原值每次反傷約 21，ignore 與 counter 勝率差 0–1pp |
+| drainEvery / drainFrac | 2 / 0.5 | 1 / 1.0 | 原值 F20 counter 勝率反而低於 ignore |
+| splitHp | 0.25 | 0.15 | 分裂組合是最常見的必死組合 |
+| frostMult（新） | — | 0.75 | 冰霜近戰走魔法減傷，繞過物理減傷 |
+| doubleHp（新） | — | 0.8 | 雙詞綴精英 HP ×0.8 |
+
+### 結果（現值；counter 和 ignore 從同一個 Boss 戰快照出發，比較配對結果）
+| 指標 | 目標 | 結果 | 達標 |
+|---|---|---|---|
+| 首通（F10 勝）趟數 | 2–3 | 中位數 2（五流派都是），平均 1.9–2.8 | ✅ |
+| 20 層全通趟數 | 6–10 | 中位數 auto 6、blade 10、oc 12、arcane 10、bulwark 5；12 趟內沒全通：1/14/15/9/0 人 | ⚠️ 只有 auto 和 arcane 在範圍內 |
+| B5 counter 勝率 ≥90%、差距 ≥25pp | | 100%；差距 42–52pp | ✅ |
+| B10 | 同上 | 93–99%；差距 4–11pp | ❌ 差距不足（文件規定護盾不懲罰物理，ignore 只限制單一元素） |
+| B15 | 同上 | 86–95%；差距 2–5pp | ❌ |
+| B20 | 同上 | 55–80%；差距 2–15pp | ❌ counter 也太難 |
+| Boss 回合數（第 2 趟以後）10–15 | | B5 11–15.5、B10 8–12、B15 10–13、B20 9–12.6 | 大致達標，B10 auto 8.0 偏短 |
+| 第 1 趟 Boss ≤18 回合 | | F5 25–29 | ❌（沿用 CP4 已知問題） |
+| 必死組合 = 0 | | 絕對值（<50%）58 組；比無詞綴對照低 25pp 以上的有 4 組 | ❌ 無詞綴對照在 F13/F18 本身只有 46–78% |
+
+### 需要製作人決定
+1. 必死組合的定義：快照取自「第一次到達該層」的角色，所以無詞綴精英的勝率本來就只有 46–78%。要改成用無詞綴對照的相對值，還是降低 F11–20 精英的基礎強度？
+2. B10、B15、B20 的 ignore 懲罰不夠。可以加入應對獎勵（例如暈眩打斷吸血後 Boss 破綻 1 回合），或讓 ignore 的定義更嚴格。
+3. 全通趟數：blade 和 oc 兩派偏慢（中位數 10–12 趟，近半數 12 趟內沒全通）。
+
+## CP4 rc balance (2026-10-25, all values 暫定)
+
+Tools:
+- `scripts/cp4-balance.ts N M [knobs]`: N seeds × M trips per school.
+- `scripts/cp4-duel.ts N K [knobs]`: the same characters, each given an equal 3-buff set per school, fight K F9 elite / F10 boss encounters.
+- `scripts/cp4-knobs.ts`: sim-only overrides. `play=school` makes 刃鋒/奔流/磐石 attack instead of casting at weaknesses.
+
+Changes:
+
+| Knob | Before | After |
+|---|---|---|
+| ELITE_OFFER_EVERY | 2 | 3 (an offer on the 1st, 4th, … elite win) |
+| B1 物理傷害 | +12% | +20% |
+| B2 物理傷害 | +10% | +15% |
+| 刃鋒 3-buff combo 連斬 | 暴擊 OC +5 | also ×1.5 physical damage vs elite/boss (`BLADE_BIG_GAME`) |
+| 磐石反擊 riposte | ×0.8, every block/evade/parry | ×0.5, first per enemy phase |
+| W1 格擋 | +5% | +3% |
+
+Tower shield stats are sourced and were not changed. With the flag off, `difficulty.ts 16 8` is byte-identical to `docs/cp4-baseline-sim.txt`.
+
+Campaign sim, 64 seeds × 8 trips, human play (the same tactics for every school):
+
+| School | 1st F10 win, before → after | Cleared within 8 trips | F9 elite win | Median buffs at 1st clear |
+|---|---|---|---|---|
+| 刃鋒 | 83% → 88% | 100% | 66% | 5 → 4 |
+| 奔流 | 83% → 81% | 100% | 65% | 5 → 4 |
+| 秘術 | 88% → 88% | 98% | 63% | 5 → 4 |
+| 磐石 | 86% → 83% | 100% | 68% | 5 → 4 |
+
+The gap between schools went from 5pp to 7pp, under the 15pp target. The 32-seed run before the change showed 78–94%.
+
+Duel, 32 chars × 6 fights, each set played its own way:
+
+| Set | F9 elite win, before → after | F10 win, before → after | F10 win with tower shield, before → after |
+|---|---|---|---|
+| 刃鋒 | 26% → 35% | 73% → 80% | 81% |
+| 奔流 | 21% | 71% | 69% |
+| 秘術 | 74% | 80% | 84% |
+| 磐石 | 39% → 32% | 89% → 86% | 91% (97% with the human-play duel) → 88% |
+
+Known limit: attack-only play vs the F9 elite is a base-game issue.
+- With no buffs, attack-only play wins only 21%, while weakness-spell play wins 69%.
+- In losing fights the elite (~1000 HP) is still at full HP when the player dies around turn 8.
+- Even +100% physical damage lifts 刃鋒 only to 42%.
+- Fixing this needs elite/base values, which would change the flag-off baseline, so they were not touched in CP4.
+
+## First-screen timing (2026-10-25)
+
+Measured with `scripts/first-screen.mjs` (puppeteer, 1280×800). The timer stops when `#ui` shows text.
+
+| Target | Condition | Main panel shows content | FCP |
+|---|---|---|---|
+| Live gggodlin.github.io/play/hv-v3/ | box network, cold / warm | 1717 / 511 / 431 ms | 536 / 228 / 164 ms |
+| Live | Slow 4G (1.6 Mbps, 150 ms) + CPU ×4 | 9829 / 9733 ms (black until JS runs) | 2668 ms |
+| Local build (5199 / preview) | box network | 403–532 ms | 28–192 ms |
+| Local build with loading indicator | Slow 4G + CPU ×4 | 9612 ms, **indicator at 369 ms** | 404 ms |
+
+The JS bundle is ~1.5 MB. On a slow connection the panel was black for more than 2 s, so `index.html` now has an inline-styled 「試煉之塔 載入中…」 indicator inside `#ui`. The first render replaces it.

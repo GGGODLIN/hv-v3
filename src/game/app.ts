@@ -7,7 +7,10 @@ import type { Monster, MonsterPool } from '../core/monsters';
 import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, resetAttrs, unequip, unspentExp, type Player } from '../core/player';
 import { Rng, randomSeed } from '../core/rng';
 import { carryMult, has, prog, tip, TIPS } from '../core/progress';
-import { advance, applyLoot, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
+import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
+import { buffPreview } from './buffpreview';
+import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
+import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
 import type { Stage } from './stage';
@@ -215,7 +218,7 @@ export class App {
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && carryMult(r.trip) > 1 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}</div>` : ''}
+      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
   }
@@ -236,13 +239,54 @@ export class App {
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div></div>
+        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.battleBuffRow()}</div>
         <div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
         <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
+  }
+
+  /** CP4: held buffs strip (map / battle). */
+  buffStrip(): string {
+    const ids = this.run?.buffs;
+    if (!RULES.cp4RunBuffs || !ids) return '';
+    const f = formed(ids), c = combos(ids);
+    const on = (Object.keys(c) as (keyof Combos)[]).filter((k) => c[k]);
+    return `<div class="buffs" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
+      ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => COMBO_ZH[k]).join('；')}</span>` : ''}</div>`;
+  }
+  /** CP4 rc #3: held buffs in battle — one icon per buff, hover for name/desc; combo progress. */
+  battleBuffRow(): string {
+    const ids = this.run?.buffs;
+    if (!RULES.cp4RunBuffs || !ids?.length) return '';
+    const GLYPH: Record<string, string> = { blade: '⚔', oc: '⚡', arcane: '✦', bulwark: '⛨', none: '◆' };
+    const c = combos(ids), cnt = schoolCounts(ids);
+    const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${COMBO_ZH[s as keyof Combos]}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
+    return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}">${GLYPH[b.school]}</span>`; }).join('')}${prog}</div>`;
+  }
+  buffCard(id: string, btn: string): string {
+    const b = BUFF[id]!;
+    return `<div class="buffcard r-${b.rarity}"><div class="bh"><b>${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small></div><div class="bd">${esc(b.desc)}</div>${btn}</div>`;
+  }
+  /** CP4 r2 step 3: before -> after rows for a buff choice. */
+  previewHtml(id: string): string {
+    const rows = buffPreview(this.p, this.run, id);
+    return `<div class="bprev" data-bprev="${id}">${rows.length ? rows.map((x) => `<div class="iwgain" data-bprow="${x.k}">${esc(x.zh)} ${esc(x.before)} → <b>${esc(x.after)}</b></div>`).join('') : '<div class="hint">目前裝備／技能用不到，數值不變</div>'}</div>`;
+  }
+  offerHtml(): string {
+    const r = this.run;
+    if (!RULES.cp4RunBuffs) return '';
+    let out = '';
+    if (r.offer) out += `<div class="offer" data-offer="${r.offer.src}"><h3>選擇一個 buff（本趟有效）${r.offersLeft ? `　還有 ${r.offersLeft} 次` : ''}</h3><div class="buffrow">${r.offer.ids.map((id) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-buff="${id}">選這個</button>`)).join('')}</div>
+      <div class="row"><button class="ghost" data-buffskip>不拿</button></div></div>`;
+    if (r.risk) {
+      const k = r.risk, x = RISKS[k];
+      const btns = k === 'discard' ? (r.buffs ?? []).map((id) => `<button data-risk="discard:${id}">捨棄【${BUFF[id]!.zh}】</button>`).join(' ') : `<button data-risk="${k}">${x.zh}</button>`;
+      out += `<div class="risk" data-riskbox="${k}"><h3>⚠ 另外可加上風險（選填，三選一照拿）：${x.zh}</h3><div>代價：${x.cost}　回報：${x.reward}</div><div class="row">${btns}</div></div>`;
+    }
+    return out + this.buffStrip();
   }
 
   nodeHtml(): string {
@@ -258,17 +302,20 @@ export class App {
       const st = r.merchant!;
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
       body = `<h2>$ 流浪商人</h2><div>可用：${(this.p.credits + r.credits).toLocaleString()} C（先扣本趟所得）</div><div class="row">${pot}</div>
-        <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>`;
+        <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>
+        ${RULES.cp4RunBuffs ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${(r.buffStock ?? []).map((x, i) => this.buffCard(x.id, `${this.previewHtml(x.id)}<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('') || '<div class="empty">Buff 賣完了</div>'}</div>` : ''}`;
     } else if (t === 'rest') {
       const d = runDerived(this.p, r);
       const slots = SLOTS.filter((s) => this.p.equipped[s]).map((s) => `<div class="forge" data-forge="${s}"><button data-up="${s}">強化${SLOT_ZH[s]}（+${this.p.equipped[s]!.iw} → +${this.p.equipped[s]!.iw + 1}）</button> <small>${esc(equipName(this.p.equipped[s]!))}：</small>${iwGain(this.p.equipped[s]!)}</div>`).join('');
       body = `<h2>♨ 營火</h2>${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}<p>二選一：</p><div class="row"><button class="big" data-heal>休息：回復 60% HP，MP/SP 全滿</button></div>
         <p>或在火邊鍛造（裝備世界 +1，永久保留）：</p><div class="row">${slots || '沒有可強化的裝備'}</div>`;
+    } else if (t === 'shrine' && RULES.cp4RunBuffs) {
+      body = `<h2>✦ 神龕</h2>`;
     } else if (t === 'shrine') {
       body = `<h2>✦ 神龕</h2><p>選擇一項祝福（僅限本趟）：</p><div class="row">${SHRINES.map((s) => `<button class="big" data-shrine="${s.id}">${s.zh}<small>${s.desc}</small></button>`).join('')}</div>`;
     }
     const done = !!this.pending.loot || !!this.pending.text;
-    return `<div class="panel node">${this.noticeHtml()}${body}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
+    return `<div class="panel node">${this.noticeHtml()}${body}${this.offerHtml()}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
       <div class="foot"><span class="spacer"></span><button class="big" data-continue>${done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
   }
 
@@ -278,7 +325,7 @@ export class App {
     const title = s.outcome === 'clear' ? '♛ 通關試煉之塔！' : s.outcome === 'dead' ? '☠ 倒下了……' : '撤退回城';
     const rule = s.outcome === 'dead' ? '死亡：EXP、熟練度與 Credits 保留 50%，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。' : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
     return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>到達第 ${s.floor} 層。${rule}</p>
-      ${s.mult > 1 ? `<div class="hint" data-carry="${s.mult}">新手帶回加成 ×${s.mult}</div>` : ''}${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
+      <div class="hint" data-carry="${s.mult}">${s.mult > 1 ? '新手帶回加成' : '帶回倍率'} ×${s.mult}</div>${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>
       <h3 class="kept-h">保留（${s.kept.length} 件，已放入倉庫）</h3>
       <div class="inv kept">${s.kept.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>
@@ -327,6 +374,10 @@ export class App {
     on('[data-up]', (el) => { this.pending.text = rest(this.p, this.run, 'upgrade', el.dataset.up); this.save(); this.continueNode(); });
     on('[data-shrine]', (el) => { this.pending.text = shrine(this.p, this.run, el.dataset.shrine as 'might'); this.save(); this.render(); this.root.querySelectorAll<HTMLButtonElement>('[data-shrine]').forEach((b) => (b.disabled = true)); });
     on('[data-mbuy]', (el) => this.merchantBuy(Number(el.dataset.mbuy)));
+    on('[data-buff]', (el) => { const r = this.run; this.pending.text = takeBuff(this.p, r, el.dataset.buff!); r.risk = null; this.nextOffer(); });
+    on('[data-buffskip]', () => { skipOffer(this.run); this.run.risk = null; this.nextOffer(); });
+    on('[data-risk]', (el) => { const [k, id] = el.dataset.risk!.split(':'); this.pending.text = takeRisk(this.p, this.run, k as RiskId, id); this.save(); this.render(); });
+    on('[data-bbuy]', (el) => { const r = this.run; const i = Number(el.dataset.bbuy); const x = r.buffStock?.[i]; if (x && this.pay(x.price)) { this.pending.text = takeBuff(this.p, r, x.id); r.buffStock!.splice(i, 1); } this.save(); this.render(); });
     on('[data-mbuyp]', (el) => { const k = el.dataset.mbuyp as PotionId; if (this.pay(RULES.potionPrice[k])) this.p.potions[k]++; this.save(); this.render(); });
     on('[data-town]', () => this.go('town'));
   }
@@ -432,7 +483,8 @@ export class App {
     this.notice = coreEnterNode(this.p, r, t);
     if (t === 'battle' || t === 'elite' || t === 'boss') return this.startBattle(t);
     if (t === 'chest') { this.pending.loot = chestLoot(r); applyLoot(this.p, r, this.pending.loot); }
-    if (t === 'merchant') r.merchant = merchantStock(r);
+    if (t === 'merchant') { r.merchant = merchantStock(r); if (RULES.cp4RunBuffs) r.buffStock = merchantBuffs(this.p, r); }
+    if (t === 'shrine' && RULES.cp4RunBuffs) openShrine(this.p, r);
     this.go('node');
   }
 
@@ -442,9 +494,10 @@ export class App {
     this.monsters = encounter(r, this.pool, t);
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);
-    const oc0 = openingOc(this.p, t);
+    const oc0 = openingOc(this.p, t, r);
+    armBattle(this.battle, r);
     this.battle.oc += oc0;
-    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${this.monsters.map((m) => m.name).join('、')}`];
+    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`];
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
     this.target = 0;
     this.go('battle');
@@ -518,11 +571,20 @@ export class App {
     await new Promise((res) => setTimeout(res, this.data.settings.skipAnim ? 30 : 500 / this.stage.speed));
     this.busy = false;
     this.pending = { loot };
+    if (RULES.cp4RunBuffs) { r.offersLeft = winOffers(this.battleType, r); if (r.offersLeft) { r.offersLeft--; openOffer(this.p, r, this.battleType as 'elite'); } this.save(); }
     this.battle = null;
     this.go('node');
   }
 
+  /** CP4: boss wins open a second offer after the first is resolved. */
+  nextOffer() {
+    const r = this.run;
+    if (!r.offer && r.offersLeft) { r.offersLeft--; openOffer(this.p, r, 'boss'); }
+    this.save(); this.render();
+  }
+
   continueNode() {
+    if (this.run.offer || this.run.risk) { this.run.offer = null; this.run.risk = null; this.run.offersLeft = 0; }
     const r = this.run;
     advance(r, r.current?.option ?? 0);
     this.pending = {};
@@ -532,7 +594,7 @@ export class App {
 
   endRun() {
     const r = this.run;
-    const floor = r.done === 'clear' ? TOWER.floors : r.floor;
+    const floor = r.done === 'clear' ? r.tower.floors.length : r.floor;
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
     if (r.done === 'clear') this.data.stats.clears++;
     this.lastSettlement = settle(this.p, r);
