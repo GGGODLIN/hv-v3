@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "probe_id": "hv-v3-dot-probe-20261025-01",
+  "checkpoint_type": "infrastructure-only-not-game",
+  "repository": "GGGODLIN/hv-v3",
+  "branch": "bot/dot",
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 1481,
+      "sha256": "a647c7f8fcf5fc8ac4cd7ed6b4ba07da7690dc44db3710a3431d78b5fb739195"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3191,
+      "sha256": "cb3347e65f05304d480e523d50a54621c2cb0d416a398fb06ba873876ef1ab2c"
+    }
+  ]
+}
