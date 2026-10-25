@@ -1,0 +1,16 @@
+postF20-blade Lv13 d5 boss | sim: win 96% turns 4.3 | maxHP 726 monLv 56 foes boss:Lv58,normal:Lv56 | base: win 96% turns 4.3 | noweak: win 0% turns 10.1 | naive: win 0% turns 8.3 dmg/turn 141.4
+postF20-blade Lv13 d16 battle | sim: win 50% turns 2.9 | maxHP 726 monLv 78 foes normal:Lv78,normal:Lv78 | base: win 50% turns 2.9 | noweak: win 0% turns 2.8 | naive: win 0% turns 2.7 dmg/turn 302.7
+postF20-oc Lv10 d5 boss | sim: win 96% turns 4.5 | maxHP 738 monLv 54 foes boss:Lv56,normal:Lv54 | base: win 96% turns 4.5 | noweak: win 0% turns 11.4 | naive: win 0% turns 10.0 dmg/turn 114.2
+postF20-oc Lv10 d16 battle | sim: win 73% turns 3.2 | maxHP 738 monLv 76 foes normal:Lv76,normal:Lv76 | base: win 73% turns 3.2 | noweak: win 0% turns 2.8 | naive: win 0% turns 2.6 dmg/turn 329.8
+postF20-arcane Lv14 d5 boss | sim: win 99% turns 5.7 | maxHP 772 monLv 57 foes boss:Lv59,normal:Lv57 | base: win 99% turns 5.7 | noweak: win 7% turns 14.3 | naive: win 0% turns 12.3 dmg/turn 101.9
+postF20-arcane Lv14 d16 battle | sim: win 74% turns 4.7 | maxHP 772 monLv 79 foes normal:Lv79,normal:Lv79 | base: win 74% turns 4.7 | noweak: win 0% turns 4.7 | naive: win 0% turns 4.7 dmg/turn 235.2
+postF20-bulwark Lv14 d5 boss | sim: win 9% turns 13.0 | maxHP 778 monLv 57 foes boss:Lv59,normal:Lv57,normal:Lv57 | base: win 9% turns 13.0 | noweak: win 100% turns 5.2 | naive: win 27% turns 11.9 dmg/turn 90.3
+postF20-bulwark Lv14 d16 battle | sim: win 0% turns 3.7 | maxHP 778 monLv 79 foes normal:Lv79,normal:Lv79 | base: win 0% turns 3.7 | noweak: win 0% turns 3.5 | naive: win 1% turns 3.5 dmg/turn 300.6
+abyss10 Lv15 d5 boss | sim: win 100% turns 3.4 | maxHP 746 monLv 58 foes boss:Lv60,normal:Lv58 | base: win 100% turns 3.4 | noweak: win 6% turns 12.0 | naive: win 0% turns 10.2 dmg/turn 113.9
+abyss10 Lv15 d16 battle | sim: win 72% turns 2.9 | maxHP 746 monLv 80 foes normal:Lv80,normal:Lv80 | base: win 72% turns 2.9 | noweak: win 0% turns 3.1 | naive: win 0% turns 2.9 dmg/turn 309.9
+abyss15 Lv15 d5 boss | sim: win 98% turns 3.4 | maxHP 812 monLv 58 foes boss:Lv60,normal:Lv58 | base: win 98% turns 3.4 | noweak: win 1% turns 10.5 | naive: win 0% turns 6.2 dmg/turn 136.6
+abyss15 Lv15 d16 battle | sim: win 67% turns 2.1 | maxHP 812 monLv 80 foes normal:Lv80,normal:Lv80 | base: win 67% turns 2.1 | noweak: win 0% turns 2.3 | naive: win 0% turns 2.3 dmg/turn 369.5
+postF20-blade full trip d1→d5: reached boss 97/100, boss win 92%
+postF20-oc full trip d1→d5: reached boss 99/100, boss win 97%
+postF20-arcane full trip d1→d5: reached boss 100/100, boss win 98%
+postF20-bulwark full trip d1→d5: reached boss 83/100, boss win 20%
