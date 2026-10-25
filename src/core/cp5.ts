@@ -9,13 +9,15 @@ import type { Element } from './player';
 export const CP5 = {
   summonEvery: 5, summonMax: 2,
   shieldEvery: 3, shieldSpec: 75, breachSpec: -50, shieldOrder: ['fire', 'cold', 'elec', 'wind'] as Element[],
-  thornsEvery: 4, thornsTurns: 2, thornsFrac: 0.4,
-  drainEvery: 2, drainFrac: 0.5,
+  thornsEvery: 3, thornsTurns: 3, thornsFrac: 1.0, // CP5 sim tune r1 (was 4/2/0.4)
+  drainEvery: 1, drainFrac: 1.0, // CP5 sim tune r1 (was 2/0.5)
   eliteDoubleFloor: 6, eliteDoubleChance: 0.3,
   burn: { frac: 0.15, turns: 3 },
   bleed: { frac: 0.1, turns: 3 },
   maxMonsters: 4,
-  spikesFrac: 0.15, leechFrac: 0.25, ironTurns: 2, ironMit: 0.5, splitHp: 0.25,
+  spikesFrac: 0.15, leechFrac: 0.25, ironTurns: 2, ironMit: 0.5, splitHp: 0.15, // tune r1 (was 0.25)
+  /** CP5 sim tune r1: frost melee damage multiplier; 2-affix elite HP multiplier. */
+  frostMult: 0.75, doubleHp: 0.8,
   mitCap: 0.75,
 };
 
@@ -30,8 +32,8 @@ export const BOSS_BY_FLOOR: Record<number, { sig: BossSig; title: string }> = {
 export const SIG_TEXT: Record<BossSig, { tele: string; icon: string; tip: string }> = {
   summon: { tele: '塔主正在呼喚援軍（暈眩可打斷）', icon: '⟳', tip: '塔主每隔幾回合會呼喚援軍（最多 2 隻）。看到 ⟳ 預告時用盾擊暈眩它就能打斷；範圍法術可以一次清掉援軍。' },
   shield: { tele: '', icon: '◇', tip: '深淵之王會輪流展開元素之盾：盾的元素抗性大增，下一個元素變成破綻。看弱點面板換用破綻元素，或改用物理攻擊。' },
-  thorns: { tele: '守門者舉起尖刺盾（物理攻擊會被反彈）', icon: '◈', tip: '守門者看到 ◈ 預告後會舉起尖刺盾 2 回合，期間物理攻擊會反彈傷害。改用法術，或先防禦等它放下。' },
-  drain: { tele: '災厄張開血口（下回合吸血重擊：防禦可減傷，暈眩可打斷）', icon: '♥', tip: '災厄每第 2 次蓄力會變成吸血重擊（×2 並回血）。看到紅色 ♥ 預告就防禦，或用盾擊暈眩打斷。' },
+  thorns: { tele: '守門者舉起尖刺盾（物理攻擊會被反彈）', icon: '◈', tip: `守門者看到 ◈ 預告後會舉起尖刺盾 ${CP5.thornsTurns} 回合，期間物理攻擊會反彈傷害。改用法術，或先防禦等它放下。` },
+  drain: { tele: '災厄張開血口（下回合吸血重擊：防禦可減傷，暈眩可打斷）', icon: '♥', tip: `災厄${CP5.drainEvery === 1 ? '每次蓄力都是' : `每第 ${CP5.drainEvery} 次蓄力會變成`}吸血重擊（×2 並回血）。看到紅色 ♥ 預告就防禦，或用盾擊暈眩打斷。` },
 };
 
 export type AffixId = 'hard' | 'swift' | 'flame' | 'frost' | 'split' | 'leech' | 'berserk' | 'guard' | 'warded' | 'spikes' | 'keen' | 'iron';
@@ -111,3 +113,6 @@ export const emptyDot = (): PDot => ({ burn: 0, burnTurns: 0, bleed: 0, bleedTur
 
 /** Sim-only overrides (cp5-sim.ts). */
 export const CP5_FORCE: { affixes?: AffixId[] | null; themeOff?: boolean } = {};
+
+/** Sim instrumentation only (never read by game logic). */
+export const CP5_STAT = { reflect: 0, reflectN: 0, thornsOn: 0, drainHits: 0, drainHeal: 0, drainTele: 0, summons: 0 };

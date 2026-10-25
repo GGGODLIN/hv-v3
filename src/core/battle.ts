@@ -2,7 +2,7 @@ import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
-import { CP5, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
+import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
 
@@ -76,7 +76,7 @@ function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   if (!frac || dmg <= 0) return;
   const out = Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
   if (out <= 0) return;
-  s.hp = Math.max(0, s.hp - out);
+  s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
   ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });
 }
 /** Clear player bleed / burn (health potion, defend). */
@@ -418,7 +418,7 @@ function sigTurn(s: BattleState, m: CM, i: number, ev: BEvent[]): boolean {
   if (m.sig === 'summon' || m.sig === 'thorns') {
     if (m.sigPending) {
       m.sigPending = false;
-      if (m.sig === 'thorns') { m.thornTurns = CP5.thornsTurns; ev.push({ t: 'status', to: i, text: `尖刺盾展開（${CP5.thornsTurns} 回合）` }); return false; }
+      if (m.sig === 'thorns') { m.thornTurns = CP5.thornsTurns; CP5_STAT.thornsOn++; ev.push({ t: 'status', to: i, text: `尖刺盾展開（${CP5.thornsTurns} 回合）` }); return false; }
       const minions = s.monsters.filter((x) => x.hp > 0 && (x as CM).summoned).length;
       const c = m.reserve?.shift();
       if (c && minions < CP5.summonMax && alive(s).length < CP5.maxMonsters) { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `援軍 ${c.name} 出現` }); return true; }
@@ -446,7 +446,7 @@ export function rotateShield(m: CM, i: number, ev: BEvent[]): void {
 /** CP5 on-hit: vampire strike heal, 嗜血 heal + bleed, 烈焰 burn. */
 function cp5OnHit(s: BattleState, m: CM, i: number, dmg: number, drain: boolean, ev: BEvent[]): void {
   const heal = (f: number, t: string) => { const h = Math.min(m.maxHp - m.hp, Math.round(dmg * f)); if (h > 0) { m.hp += h; ev.push({ t: 'status', to: i, text: `${t} +${h}` }); } };
-  if (drain) heal(CP5.drainFrac, '吸血');
+  if (drain) { CP5_STAT.drainHits++; heal(CP5.drainFrac, '吸血'); }
   const p = s.cp5!.pdot;
   if (m.affixes?.includes('leech')) {
     heal(CP5.leechFrac, '嗜血');
@@ -487,7 +487,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; label = '吸血重擊！'; } }
       else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) {
         m.charge = 1;
-        if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
+        if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; CP5_STAT.drainTele++; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
         else ev.push({ t: 'charge', from: i });
         return;
       } else if (m.sig && m.sig !== 'drain' && sigTurn(s, m, i, ev)) return;
@@ -501,7 +501,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     const zero = s.focusTurn;
     const el = m.elemAttack;
     const r = resolveHit(rng, {
-      raw: m.adb * mult, magic: false, acc: m.acc,
+      raw: m.adb * mult * (el ? CP5.frostMult : 1), magic: false, acc: m.acc,
       evade: zero ? 0 : s.d.evade, parry: zero ? 0 : s.d.parry, block: zero ? 0 : s.d.block, resist: 0,
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],

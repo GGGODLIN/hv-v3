@@ -125,7 +125,9 @@ export interface BossFight { floor: number; turns: number; potions: number; won:
   alt?: { turns: number; potions: number; won: boolean } }
 
 /** CP5 sim options. mode = battle AI layer on top of the strategy; pair = replay each boss with 'ignore'; retreat = HP fraction below which the sim retreats after a boss floor. */
-export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; retreat?: number }
+export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; retreat?: number;
+  /** Called on entering each node (sim snapshots for the death-combo sweep). */
+  snap?: (p: Player, run: RunState) => void }
 type CM = Monster & Cp5Mon;
 const ELEMS: SpellId[] = ['fiery', 'freeze', 'shock', 'gale'];
 function bestSpell(b: BattleState, t: number, only?: SpellId[]): Action | null {
@@ -220,6 +222,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   while (!run.done) {
     const opt = pickOption(p, run, strategy);
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
+    cp5?.snap?.(p, run);
     enterNode(p, run, type);
     if (type === 'battle' || type === 'elite' || type === 'boss') {
       const ms = encounter(run, pool, type);

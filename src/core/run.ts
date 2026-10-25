@@ -253,6 +253,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
     ids = [rng.pick(AFFIX_IDS)];
     if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.pick(AFFIX_IDS.filter((b) => compatible(ids[0]!, b))));
   }
+  if (ids.length > 1 && CP5.doubleHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.doubleHp));
   if (ids.includes('split')) x.splitInto = pickRows(rng, pool, lo, hi, 2, w).map((r) => { const c = buildMonster(r, L, 'normal'); c.maxHp = c.hp = Math.max(1, Math.round(m.maxHp * CP5.splitHp)); return c; });
   applyAffixes(m, ids);
 }
