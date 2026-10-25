@@ -1,11 +1,16 @@
+// npm run e2e — headless end-to-end check against a running build (vite preview).
+// Env: CHROME_PATH (default /usr/bin/google-chrome), E2E_URL (default http://127.0.0.1:5199/), E2E_SHOTS (default e2e-shots/).
 import p from 'puppeteer-core';
-const b=await p.launch({executablePath:'/usr/bin/google-chrome',args:['--no-sandbox','--use-gl=swiftshader'],defaultViewport:{width:1280,height:900}});
-const w=ms=>new Promise(r=>setTimeout(r,ms));const S='/workspace/hv-v3-shots/';
+import { mkdirSync } from 'node:fs';
+const URL0=process.env.E2E_URL||'http://127.0.0.1:5199/';
+const b=await p.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--use-gl=swiftshader'],defaultViewport:{width:1280,height:900}});
+const w=ms=>new Promise(r=>setTimeout(r,ms));const S=(process.env.E2E_SHOTS||'e2e-shots')+'/';mkdirSync(S,{recursive:true});
 const pg=await b.newPage();const errs=[];
 pg.on('console',m=>{if(m.type()==='error')errs.push(m.text())});pg.on('pageerror',e=>errs.push(String(e)));pg.on('response',r=>{if(r.status()>=400)errs.push(r.status()+' '+r.url())});
-await pg.goto('http://127.0.0.1:5199/',{waitUntil:'networkidle0'});
+await pg.goto(URL0,{waitUntil:'networkidle0'});
+const R={};R.hvWithoutDebug=await pg.evaluate(()=>typeof window.hv);
+await pg.goto(URL0+'?debug',{waitUntil:'networkidle0'});
 await pg.evaluate(()=>localStorage.clear());await pg.reload({waitUntil:'networkidle0'});
-const R={};
 // item 8: new character confirm
 await pg.click('[data-newgame]');await w(200);
 R.newCharModal=await pg.$eval('.modal',m=>m.textContent.replace(/\s+/g,' ').trim());
@@ -76,3 +81,11 @@ R.bagCount=bagSnap.length;R.stats=await pg.evaluate(()=>hv.data.stats);
 await pg.evaluate(()=>{document.querySelector('[data-tab="gear"]')?.click()});await w(200);
 await pg.screenshot({path:S+'r6-11-town-after.png',fullPage:true});
 R.errs=errs;console.log(JSON.stringify(R,null,1));await b.close();
+const fails=[];
+if(R.hvWithoutDebug!=='undefined')fails.push('window.hv exposed without ?debug');
+if(!R.spiritOn)fails.push('spirit stance');
+if(!R.okClosed||!R.cancelClosed)fails.push('new-character dialog');
+if(R.timings1x.some(t=>t.ms>300))fails.push('1x anim >300ms');
+if(R.stats.clears<1||R.allHome.length)fails.push('clear/loot home');
+if(errs.length)fails.push('page errors');
+console.log(fails.length?'E2E FAIL: '+fails.join(', '):'E2E PASS');process.exit(fails.length?1:0);

@@ -18,6 +18,7 @@ async function boot() {
   new Phaser.Game({ type: Phaser.AUTO, parent: 'stage', width: W, height: H, pixelArt: true, backgroundColor: '#120c18', scene: stage });
   const [rows] = await Promise.all([fetch('data/monsters.json').then((r) => r.json() as Promise<MonsterRow[]>), stage.readyP]);
   const app = new App(stage, makePool(rows), document.getElementById('ui')!);
-  (window as unknown as { hv: App }).hv = app;
+  // Test shortcut: only in dev, or when the page is opened with ?debug (used by `npm run e2e`).
+  if (import.meta.env.DEV || new URLSearchParams(location.search).has('debug')) (window as unknown as { hv: App }).hv = app;
 }
 boot();
