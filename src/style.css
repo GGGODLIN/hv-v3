@@ -146,3 +146,7 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .weakbox .wk.tgt .plate .affix small { display: inline; margin-left: 3px; color: #ffd8d8; }
 .plate .tele { margin-left: 4px; font-size: 12px; }
 .cp5tips { font-size: 12px; max-width: 520px; }
+/* CP4-rc-fix 6: a 3-item chest (+ buff strip / notices) is taller than the node panel; it was overflow:hidden, so the last
+   立刻換上 / 繼續前進 were clipped under the panel edge. The node panel now scrolls and its children never shrink. */
+.panel.node { overflow-y: auto; }
+.panel.node > * { flex-shrink: 0; }
