@@ -20,8 +20,8 @@ export const SYSTEMS: { id: SystemId; zh: string; when: string }[] = [
 
 export interface Progress { trips: number; unlocked: SystemId[]; tips: string[]; iwUses: number; news: string[] }
 
-/** 暫定 (CP3-8): EXP and credits carried home are x3 on trip 1, x2 on trip 2, x1 from trip 3. */
-export const CARRY_MULT = [3, 2, 1] as const;
+/** 暫定 (CP3-8, CP3-fix 3): EXP and credits carried home are x5 on trip 1, x3 on trip 2, x2 from trip 3 (was 3/2/1). */
+export const CARRY_MULT = [5, 3, 2] as const;
 export const carryMult = (trip: number) => CARRY_MULT[Math.min(trip, CARRY_MULT.length) - 1]!;
 /** 暫定 (CP3-7): one-time credits gift at the first F3 shop. */
 export const F3_GIFT = 300;

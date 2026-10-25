@@ -13,8 +13,8 @@ export const RULES = {
   dropAccel: 8,
   /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
   expMult: C['P-exp-multiplier'].value.playerMultipliers,
-  /** 暫定 (gameplay layer, CP3-2): boss / elite kill EXP multipliers (no findings source). */
-  rankExp: { boss: 5, elite: 2, normal: 1 },
+  /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
+  rankExp: { boss: 8, elite: 3, normal: 1 },
   /** 暫定 (CP3-4): in-tower merchant sells equipment at sellPrice x this (no source for an equipment shop price). */
   merchantMarkup: 1.25, // CP3-fix 1: was 3.5 (Average ~8,845 C, about 5 trips of income)
   death: { exp: 0.5, credits: 0.5, keepBestItems: 1, loseConsumables: true },
