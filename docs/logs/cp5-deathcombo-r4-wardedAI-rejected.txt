@@ -1,0 +1,306 @@
+# CP5 death-combo sweep  N=32 seeds, snapshots from counter runs (≤12 trips), 85 combos × F3/F8/F13/F18 × 5 schools
+# 必死 = counter win < 50%, 警告 = < 70%. Elite fought at full HP/MP/SP from the snapshot.
+auto F3: snapshots 32, no-affix control 100%, worst  100%
+auto F8: snapshots 32, no-affix control 94%, worst warded+spikes 41%
+auto F13: snapshots 32, no-affix control 97%, worst warded+spikes 56%
+auto F18: snapshots 32, no-affix control 94%, worst leech+warded 28%
+buff:blade F3: snapshots 32, no-affix control 100%, worst leech+guard 97%
+buff:blade F8: snapshots 32, no-affix control 97%, worst leech+warded 50%
+buff:blade F13: snapshots 32, no-affix control 100%, worst warded+spikes 78%
+buff:blade F18: snapshots 32, no-affix control 100%, worst split+warded 47%
+buff:oc F3: snapshots 32, no-affix control 100%, worst leech+guard 97%
+buff:oc F8: snapshots 32, no-affix control 84%, worst leech+warded 47%
+buff:oc F13: snapshots 32, no-affix control 94%, worst split+warded 41%
+buff:oc F18: snapshots 31, no-affix control 81%, worst warded 26%
+buff:arcane F3: snapshots 32, no-affix control 100%, worst leech+guard 97%
+buff:arcane F8: snapshots 32, no-affix control 94%, worst leech+warded 28%
+buff:arcane F13: snapshots 32, no-affix control 94%, worst leech+warded 34%
+buff:arcane F18: snapshots 31, no-affix control 90%, worst split+warded 16%
+buff:bulwark F3: snapshots 32, no-affix control 100%, worst leech+guard 97%
+buff:bulwark F8: snapshots 32, no-affix control 94%, worst leech+warded 47%
+buff:bulwark F13: snapshots 32, no-affix control 91%, worst leech+warded 44%
+buff:bulwark F18: snapshots 32, no-affix control 88%, worst leech+warded 25%
+警告 auto F8 hard+split 69% (n=32)
+警告 auto F8 hard+leech 69% (n=32)
+警告 auto F8 flame+warded 69% (n=32)
+警告 auto F8 split+spikes 69% (n=32)
+相對 auto F8 leech+warded 59% vs 無詞綴 94%
+警告 auto F8 leech+warded 59% (n=32)
+警告 auto F8 leech+spikes 69% (n=32)
+相對 auto F8 warded+spikes 41% vs 無詞綴 94%
+必死 auto F8 warded+spikes 41% (n=32)
+相對 auto F13 leech+warded 66% vs 無詞綴 97%
+警告 auto F13 leech+warded 66% (n=32)
+相對 auto F13 warded+spikes 56% vs 無詞綴 97%
+警告 auto F13 warded+spikes 56% (n=32)
+相對 auto F18 warded 44% vs 無詞綴 94%
+必死 auto F18 warded 44% (n=32)
+相對 auto F18 antimagic 66% vs 無詞綴 94%
+警告 auto F18 antimagic 66% (n=32)
+警告 auto F18 hard+antimagic 69% (n=32)
+相對 auto F18 swift+warded 63% vs 無詞綴 94%
+警告 auto F18 swift+warded 63% (n=32)
+相對 auto F18 flame+warded 50% vs 無詞綴 94%
+警告 auto F18 flame+warded 50% (n=32)
+相對 auto F18 frost+warded 63% vs 無詞綴 94%
+警告 auto F18 frost+warded 63% (n=32)
+相對 auto F18 split+warded 50% vs 無詞綴 94%
+警告 auto F18 split+warded 50% (n=32)
+警告 auto F18 split+antimagic 69% (n=32)
+相對 auto F18 leech+warded 28% vs 無詞綴 94%
+必死 auto F18 leech+warded 28% (n=32)
+相對 auto F18 leech+antimagic 59% vs 無詞綴 94%
+警告 auto F18 leech+antimagic 59% (n=32)
+相對 auto F18 berserk+warded 59% vs 無詞綴 94%
+警告 auto F18 berserk+warded 59% (n=32)
+相對 auto F18 guard+warded 50% vs 無詞綴 94%
+警告 auto F18 guard+warded 50% (n=32)
+相對 auto F18 warded+spikes 44% vs 無詞綴 94%
+必死 auto F18 warded+spikes 44% (n=32)
+相對 auto F18 warded+keen 56% vs 無詞綴 94%
+警告 auto F18 warded+keen 56% (n=32)
+相對 auto F18 warded+iron 59% vs 無詞綴 94%
+警告 auto F18 warded+iron 59% (n=32)
+警告 auto F18 iron+antimagic 69% (n=32)
+相對 buff:blade F8 warded 63% vs 無詞綴 97%
+警告 buff:blade F8 warded 63% (n=32)
+相對 buff:blade F8 swift+warded 69% vs 無詞綴 97%
+警告 buff:blade F8 swift+warded 69% (n=32)
+相對 buff:blade F8 flame+warded 69% vs 無詞綴 97%
+警告 buff:blade F8 flame+warded 69% (n=32)
+相對 buff:blade F8 split+warded 59% vs 無詞綴 97%
+警告 buff:blade F8 split+warded 59% (n=32)
+相對 buff:blade F8 leech+warded 50% vs 無詞綴 97%
+警告 buff:blade F8 leech+warded 50% (n=32)
+相對 buff:blade F8 warded+spikes 66% vs 無詞綴 97%
+警告 buff:blade F8 warded+spikes 66% (n=32)
+相對 buff:blade F8 warded+iron 69% vs 無詞綴 97%
+警告 buff:blade F8 warded+iron 69% (n=32)
+相對 buff:blade F18 warded 53% vs 無詞綴 100%
+警告 buff:blade F18 warded 53% (n=32)
+相對 buff:blade F18 antimagic 69% vs 無詞綴 100%
+警告 buff:blade F18 antimagic 69% (n=32)
+相對 buff:blade F18 swift+warded 56% vs 無詞綴 100%
+警告 buff:blade F18 swift+warded 56% (n=32)
+相對 buff:blade F18 flame+warded 56% vs 無詞綴 100%
+警告 buff:blade F18 flame+warded 56% (n=32)
+相對 buff:blade F18 frost+warded 69% vs 無詞綴 100%
+警告 buff:blade F18 frost+warded 69% (n=32)
+相對 buff:blade F18 split+warded 47% vs 無詞綴 100%
+必死 buff:blade F18 split+warded 47% (n=32)
+相對 buff:blade F18 split+antimagic 59% vs 無詞綴 100%
+警告 buff:blade F18 split+antimagic 59% (n=32)
+相對 buff:blade F18 leech+warded 53% vs 無詞綴 100%
+警告 buff:blade F18 leech+warded 53% (n=32)
+相對 buff:blade F18 leech+antimagic 72% vs 無詞綴 100%
+相對 buff:blade F18 berserk+warded 69% vs 無詞綴 100%
+警告 buff:blade F18 berserk+warded 69% (n=32)
+相對 buff:blade F18 guard+warded 56% vs 無詞綴 100%
+警告 buff:blade F18 guard+warded 56% (n=32)
+相對 buff:blade F18 warded+spikes 56% vs 無詞綴 100%
+警告 buff:blade F18 warded+spikes 56% (n=32)
+相對 buff:blade F18 warded+keen 56% vs 無詞綴 100%
+警告 buff:blade F18 warded+keen 56% (n=32)
+相對 buff:blade F18 warded+iron 56% vs 無詞綴 100%
+警告 buff:blade F18 warded+iron 56% (n=32)
+警告 buff:oc F8 warded 63% (n=32)
+警告 buff:oc F8 split+warded 66% (n=32)
+相對 buff:oc F8 leech+warded 47% vs 無詞綴 84%
+必死 buff:oc F8 leech+warded 47% (n=32)
+警告 buff:oc F8 guard+warded 69% (n=32)
+相對 buff:oc F13 warded 47% vs 無詞綴 94%
+必死 buff:oc F13 warded 47% (n=32)
+相對 buff:oc F13 swift+warded 47% vs 無詞綴 94%
+必死 buff:oc F13 swift+warded 47% (n=32)
+相對 buff:oc F13 flame+warded 50% vs 無詞綴 94%
+警告 buff:oc F13 flame+warded 50% (n=32)
+警告 buff:oc F13 frost+warded 69% (n=32)
+相對 buff:oc F13 split+warded 41% vs 無詞綴 94%
+必死 buff:oc F13 split+warded 41% (n=32)
+相對 buff:oc F13 leech+warded 41% vs 無詞綴 94%
+必死 buff:oc F13 leech+warded 41% (n=32)
+相對 buff:oc F13 berserk+warded 66% vs 無詞綴 94%
+警告 buff:oc F13 berserk+warded 66% (n=32)
+相對 buff:oc F13 guard+warded 44% vs 無詞綴 94%
+必死 buff:oc F13 guard+warded 44% (n=32)
+相對 buff:oc F13 warded+spikes 47% vs 無詞綴 94%
+必死 buff:oc F13 warded+spikes 47% (n=32)
+相對 buff:oc F13 warded+keen 53% vs 無詞綴 94%
+警告 buff:oc F13 warded+keen 53% (n=32)
+相對 buff:oc F13 warded+iron 50% vs 無詞綴 94%
+警告 buff:oc F13 warded+iron 50% (n=32)
+警告 buff:oc F18 split 65% (n=31)
+相對 buff:oc F18 warded 26% vs 無詞綴 81%
+必死 buff:oc F18 warded 26% (n=31)
+相對 buff:oc F18 antimagic 48% vs 無詞綴 81%
+必死 buff:oc F18 antimagic 48% (n=31)
+相對 buff:oc F18 swift+warded 26% vs 無詞綴 81%
+必死 buff:oc F18 swift+warded 26% (n=31)
+相對 buff:oc F18 swift+antimagic 55% vs 無詞綴 81%
+警告 buff:oc F18 swift+antimagic 55% (n=31)
+相對 buff:oc F18 flame+warded 29% vs 無詞綴 81%
+必死 buff:oc F18 flame+warded 29% (n=31)
+警告 buff:oc F18 flame+antimagic 65% (n=31)
+相對 buff:oc F18 frost+warded 35% vs 無詞綴 81%
+必死 buff:oc F18 frost+warded 35% (n=31)
+相對 buff:oc F18 split+warded 26% vs 無詞綴 81%
+必死 buff:oc F18 split+warded 26% (n=31)
+相對 buff:oc F18 split+antimagic 39% vs 無詞綴 81%
+必死 buff:oc F18 split+antimagic 39% (n=31)
+相對 buff:oc F18 leech+warded 29% vs 無詞綴 81%
+必死 buff:oc F18 leech+warded 29% (n=31)
+相對 buff:oc F18 leech+antimagic 55% vs 無詞綴 81%
+警告 buff:oc F18 leech+antimagic 55% (n=31)
+相對 buff:oc F18 berserk+warded 42% vs 無詞綴 81%
+必死 buff:oc F18 berserk+warded 42% (n=31)
+相對 buff:oc F18 guard+warded 29% vs 無詞綴 81%
+必死 buff:oc F18 guard+warded 29% (n=31)
+警告 buff:oc F18 guard+antimagic 68% (n=31)
+相對 buff:oc F18 warded+spikes 35% vs 無詞綴 81%
+必死 buff:oc F18 warded+spikes 35% (n=31)
+相對 buff:oc F18 warded+keen 32% vs 無詞綴 81%
+必死 buff:oc F18 warded+keen 32% (n=31)
+相對 buff:oc F18 warded+iron 29% vs 無詞綴 81%
+必死 buff:oc F18 warded+iron 29% (n=31)
+警告 buff:oc F18 keen+antimagic 68% (n=31)
+警告 buff:oc F18 iron+antimagic 58% (n=31)
+相對 buff:arcane F8 warded 47% vs 無詞綴 94%
+必死 buff:arcane F8 warded 47% (n=32)
+相對 buff:arcane F8 swift+warded 63% vs 無詞綴 94%
+警告 buff:arcane F8 swift+warded 63% (n=32)
+相對 buff:arcane F8 flame+warded 59% vs 無詞綴 94%
+警告 buff:arcane F8 flame+warded 59% (n=32)
+相對 buff:arcane F8 split+warded 47% vs 無詞綴 94%
+必死 buff:arcane F8 split+warded 47% (n=32)
+相對 buff:arcane F8 leech+warded 28% vs 無詞綴 94%
+必死 buff:arcane F8 leech+warded 28% (n=32)
+相對 buff:arcane F8 guard+warded 59% vs 無詞綴 94%
+警告 buff:arcane F8 guard+warded 59% (n=32)
+相對 buff:arcane F8 warded+spikes 59% vs 無詞綴 94%
+警告 buff:arcane F8 warded+spikes 59% (n=32)
+相對 buff:arcane F8 warded+keen 66% vs 無詞綴 94%
+警告 buff:arcane F8 warded+keen 66% (n=32)
+相對 buff:arcane F8 warded+iron 63% vs 無詞綴 94%
+警告 buff:arcane F8 warded+iron 63% (n=32)
+相對 buff:arcane F13 warded 47% vs 無詞綴 94%
+必死 buff:arcane F13 warded 47% (n=32)
+相對 buff:arcane F13 swift+warded 44% vs 無詞綴 94%
+必死 buff:arcane F13 swift+warded 44% (n=32)
+相對 buff:arcane F13 flame+warded 47% vs 無詞綴 94%
+必死 buff:arcane F13 flame+warded 47% (n=32)
+相對 buff:arcane F13 frost+warded 63% vs 無詞綴 94%
+警告 buff:arcane F13 frost+warded 63% (n=32)
+相對 buff:arcane F13 split+warded 50% vs 無詞綴 94%
+警告 buff:arcane F13 split+warded 50% (n=32)
+相對 buff:arcane F13 leech+warded 34% vs 無詞綴 94%
+必死 buff:arcane F13 leech+warded 34% (n=32)
+相對 buff:arcane F13 berserk+warded 66% vs 無詞綴 94%
+警告 buff:arcane F13 berserk+warded 66% (n=32)
+相對 buff:arcane F13 guard+warded 44% vs 無詞綴 94%
+必死 buff:arcane F13 guard+warded 44% (n=32)
+相對 buff:arcane F13 warded+spikes 56% vs 無詞綴 94%
+警告 buff:arcane F13 warded+spikes 56% (n=32)
+相對 buff:arcane F13 warded+keen 53% vs 無詞綴 94%
+警告 buff:arcane F13 warded+keen 53% (n=32)
+相對 buff:arcane F13 warded+iron 50% vs 無詞綴 94%
+警告 buff:arcane F13 warded+iron 50% (n=32)
+相對 buff:arcane F18 split 61% vs 無詞綴 90%
+警告 buff:arcane F18 split 61% (n=31)
+相對 buff:arcane F18 warded 19% vs 無詞綴 90%
+必死 buff:arcane F18 warded 19% (n=31)
+相對 buff:arcane F18 antimagic 58% vs 無詞綴 90%
+警告 buff:arcane F18 antimagic 58% (n=31)
+相對 buff:arcane F18 swift+warded 19% vs 無詞綴 90%
+必死 buff:arcane F18 swift+warded 19% (n=31)
+警告 buff:arcane F18 swift+antimagic 68% (n=31)
+警告 buff:arcane F18 flame+split 68% (n=31)
+相對 buff:arcane F18 flame+warded 19% vs 無詞綴 90%
+必死 buff:arcane F18 flame+warded 19% (n=31)
+警告 buff:arcane F18 flame+antimagic 68% (n=31)
+警告 buff:arcane F18 frost+split 68% (n=31)
+相對 buff:arcane F18 frost+warded 26% vs 無詞綴 90%
+必死 buff:arcane F18 frost+warded 26% (n=31)
+相對 buff:arcane F18 frost+antimagic 61% vs 無詞綴 90%
+警告 buff:arcane F18 frost+antimagic 61% (n=31)
+相對 buff:arcane F18 split+warded 16% vs 無詞綴 90%
+必死 buff:arcane F18 split+warded 16% (n=31)
+相對 buff:arcane F18 split+antimagic 45% vs 無詞綴 90%
+必死 buff:arcane F18 split+antimagic 45% (n=31)
+相對 buff:arcane F18 leech+warded 19% vs 無詞綴 90%
+必死 buff:arcane F18 leech+warded 19% (n=31)
+相對 buff:arcane F18 leech+antimagic 65% vs 無詞綴 90%
+警告 buff:arcane F18 leech+antimagic 65% (n=31)
+相對 buff:arcane F18 berserk+warded 29% vs 無詞綴 90%
+必死 buff:arcane F18 berserk+warded 29% (n=31)
+相對 buff:arcane F18 guard+warded 19% vs 無詞綴 90%
+必死 buff:arcane F18 guard+warded 19% (n=31)
+警告 buff:arcane F18 guard+antimagic 68% (n=31)
+相對 buff:arcane F18 warded+spikes 19% vs 無詞綴 90%
+必死 buff:arcane F18 warded+spikes 19% (n=31)
+相對 buff:arcane F18 warded+keen 23% vs 無詞綴 90%
+必死 buff:arcane F18 warded+keen 23% (n=31)
+相對 buff:arcane F18 warded+iron 19% vs 無詞綴 90%
+必死 buff:arcane F18 warded+iron 19% (n=31)
+警告 buff:arcane F18 iron+antimagic 68% (n=31)
+相對 buff:bulwark F8 warded 56% vs 無詞綴 94%
+警告 buff:bulwark F8 warded 56% (n=32)
+相對 buff:bulwark F8 swift+warded 66% vs 無詞綴 94%
+警告 buff:bulwark F8 swift+warded 66% (n=32)
+相對 buff:bulwark F8 flame+warded 63% vs 無詞綴 94%
+警告 buff:bulwark F8 flame+warded 63% (n=32)
+相對 buff:bulwark F8 split+warded 56% vs 無詞綴 94%
+警告 buff:bulwark F8 split+warded 56% (n=32)
+相對 buff:bulwark F8 leech+warded 47% vs 無詞綴 94%
+必死 buff:bulwark F8 leech+warded 47% (n=32)
+相對 buff:bulwark F8 guard+warded 59% vs 無詞綴 94%
+警告 buff:bulwark F8 guard+warded 59% (n=32)
+相對 buff:bulwark F8 warded+spikes 56% vs 無詞綴 94%
+警告 buff:bulwark F8 warded+spikes 56% (n=32)
+相對 buff:bulwark F8 warded+keen 63% vs 無詞綴 94%
+警告 buff:bulwark F8 warded+keen 63% (n=32)
+相對 buff:bulwark F8 warded+iron 63% vs 無詞綴 94%
+警告 buff:bulwark F8 warded+iron 63% (n=32)
+相對 buff:bulwark F13 warded 59% vs 無詞綴 91%
+警告 buff:bulwark F13 warded 59% (n=32)
+相對 buff:bulwark F13 swift+warded 63% vs 無詞綴 91%
+警告 buff:bulwark F13 swift+warded 63% (n=32)
+相對 buff:bulwark F13 flame+warded 56% vs 無詞綴 91%
+警告 buff:bulwark F13 flame+warded 56% (n=32)
+警告 buff:bulwark F13 frost+warded 66% (n=32)
+相對 buff:bulwark F13 split+warded 59% vs 無詞綴 91%
+警告 buff:bulwark F13 split+warded 59% (n=32)
+相對 buff:bulwark F13 leech+warded 44% vs 無詞綴 91%
+必死 buff:bulwark F13 leech+warded 44% (n=32)
+相對 buff:bulwark F13 guard+warded 63% vs 無詞綴 91%
+警告 buff:bulwark F13 guard+warded 63% (n=32)
+警告 buff:bulwark F13 warded+spikes 66% (n=32)
+警告 buff:bulwark F13 warded+keen 66% (n=32)
+相對 buff:bulwark F13 warded+iron 63% vs 無詞綴 91%
+警告 buff:bulwark F13 warded+iron 63% (n=32)
+相對 buff:bulwark F18 warded 28% vs 無詞綴 88%
+必死 buff:bulwark F18 warded 28% (n=32)
+警告 buff:bulwark F18 antimagic 63% (n=32)
+相對 buff:bulwark F18 swift+warded 34% vs 無詞綴 88%
+必死 buff:bulwark F18 swift+warded 34% (n=32)
+相對 buff:bulwark F18 flame+warded 34% vs 無詞綴 88%
+必死 buff:bulwark F18 flame+warded 34% (n=32)
+相對 buff:bulwark F18 frost+warded 47% vs 無詞綴 88%
+必死 buff:bulwark F18 frost+warded 47% (n=32)
+相對 buff:bulwark F18 split+warded 28% vs 無詞綴 88%
+必死 buff:bulwark F18 split+warded 28% (n=32)
+警告 buff:bulwark F18 split+antimagic 69% (n=32)
+相對 buff:bulwark F18 leech+warded 25% vs 無詞綴 88%
+必死 buff:bulwark F18 leech+warded 25% (n=32)
+相對 buff:bulwark F18 leech+antimagic 56% vs 無詞綴 88%
+警告 buff:bulwark F18 leech+antimagic 56% (n=32)
+相對 buff:bulwark F18 berserk+warded 50% vs 無詞綴 88%
+警告 buff:bulwark F18 berserk+warded 50% (n=32)
+相對 buff:bulwark F18 guard+warded 34% vs 無詞綴 88%
+必死 buff:bulwark F18 guard+warded 34% (n=32)
+相對 buff:bulwark F18 warded+spikes 44% vs 無詞綴 88%
+必死 buff:bulwark F18 warded+spikes 44% (n=32)
+相對 buff:bulwark F18 warded+keen 34% vs 無詞綴 88%
+必死 buff:bulwark F18 warded+keen 34% (n=32)
+相對 buff:bulwark F18 warded+iron 34% vs 無詞綴 88%
+必死 buff:bulwark F18 warded+iron 34% (n=32)
+必死 57  警告 98  相對必死(比無詞綴對照低 >25pp) 128
