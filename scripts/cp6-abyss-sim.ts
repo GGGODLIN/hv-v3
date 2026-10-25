@@ -60,7 +60,8 @@ for (const strat of STRATS) {
   console.log('death rate per entry by depth | depth | entered | died | rate%');
   for (const d of ds) console.log(`  r${d} | ${reach[d]} | ${endAt[d] ?? 0} | ${f(rate(d) * 100)}`);
   const top = Math.max(...ds.filter((d) => d !== 16).map(rate).filter(Number.isFinite));
-  const r15 = rate(15), r16 = rate(16), r17 = rate(17);
+  const r14 = rate(14), r15 = rate(15), r16 = rate(16), r17 = rate(17), r18 = rate(18);
+  console.log(`d14-d18 per-entry death rate %: ${[14, 15, 16, 17, 18].map((d) => `d${d} ${f(rate(d) * 100)} (${endAt[d] ?? 0}/${reach[d] ?? 0})`).join(' | ')}  ratios d16/d14 ${f(r16 / r14, 2)} d16/d15 ${f(r16 / r15, 2)} d16/d17 ${f(r16 / r17, 2)} d16/d18 ${f(r16 / r18, 2)}`);
   const bw = (k: number) => boss[k]?.length ? mean(boss[k]!.map((b) => +b.won)) : NaN;
   const checks: [string, boolean][] = [
     ['best5 median >= 15', q(best5.length ? best5 : best, 0.5) >= 15],
@@ -68,8 +69,9 @@ for (const strat of STRATS) {
     ...(strat === 'auto' ? [] : [['trip1 median 5-10', q(first, 0.5) >= 5 && q(first, 0.5) <= 10] as [string, boolean]]),
     ['d5 boss win >= 60%', bw(5) >= 0.6],
     ['d16 rate not tower-highest', r16 < top],
-    [`d16 rate <= 1.5 x d15 (${f(r16 * 100)} vs ${f(r15 * 100)})`, r16 <= 1.5 * r15],
-    [`d16 rate <= 1.5 x d17 (${f(r16 * 100)} vs ${f(r17 * 100)}, d17 entered ${reach[17] ?? 0})`, r16 <= 1.5 * r17],
+    // Producer 2026-10-26: d16 is compared with its neighbouring combat floors d14 and d18 (was d15/d17; d17 is non-combat).
+    [`d16 rate <= 1.5 x d14 (${f(r16 * 100)} vs ${f(r14 * 100)}, d14 entered ${reach[14] ?? 0})`, r16 <= 1.5 * r14],
+    [`d16 rate <= 1.5 x d18 (${f(r16 * 100)} vs ${f(r18 * 100)})`, r16 <= 1.5 * r18],
   ];
   for (const [k, ok] of checks) { console.log(`  CHECK ${ok ? 'PASS' : 'FAIL'} ${k}`); verdicts.push(`${strat}: ${ok ? 'PASS' : 'FAIL'} ${k}`); }
   meds.push(q(best5.length ? best5 : best, 0.5));
