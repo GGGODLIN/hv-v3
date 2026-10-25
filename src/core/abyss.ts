@@ -2,7 +2,7 @@
  * CP6 深淵塔 (docs/cp6-abyss.md §9 producer decisions). Used only when RULES.cp6Abyss is on.
  * Sourced values cite their file; everything else is 暫定（缺原版出處）.
  */
-import { AFFIX_IDS, CP5, affixWeight, compatible, type AffixId } from './cp5';
+import { AFFIX_IDS, AFFIXES, CP5, DANGER_EXTRA, affixWeight, compatible, dangerHint, type AffixId } from './cp5';
 import type { Quality } from './items';
 import type { Rng } from './rng';
 import type { NodeType, Floor } from './tower';
@@ -56,6 +56,9 @@ export const DIFF = [
   { zh: 'PFUDOR', hp: 2.0, dmg: 3.0, pl: 125 },
 ] as const;
 
+/** rc3 (暫定，缺原版出處): UI names for the DIFF tiers — the repo has no Chinese names, so 「中文（英文）」. */
+export const TIER_ZH = ['普通（Normal）', '困難（Hard）', '惡夢（Nightmare）', '地獄（Hell）', '任天堂（Nintendo）', '我想成為英雄（IWBTH）', '粉紅獨角獸（PFUDOR）'] as const;
+export const tierZh = (d: number): string => TIER_ZH[abyssTier(d)]!;
 /** The_Tower.md:32-48 (sourced): d 1–9 Normal/T1, 10–14 Hard/T2 … 35+ PFUDOR/T7. Returns 0..6. */
 export const abyssTier = (d: number): number => (d < 10 ? 0 : Math.min(6, Math.floor(d / 5) - 1));
 
@@ -157,4 +160,19 @@ export function recordTitles(rec: AbyssRecord, ms: number, titles: readonly stri
 }
 export function loadRecord(raw: string | null): AbyssRecord {
   try { const r = raw ? JSON.parse(raw) : null; return r && typeof r.best === 'number' ? { ...emptyRecord(), ...r } : emptyRecord(); } catch { return emptyRecord(); }
+}
+
+/** rc3 design change (producer 2026-10-26, flag cp6Abyss): abyss elites also warn on 3-affix sets and on the sets hardest for
+ * physical builds (尖刺 / 堅硬). Falls back to the CP5 magic warning first; text follows dangerHint's style. */
+export const PHYS_HARD: AffixId[] = ['spikes', 'hard'];
+export function abyssDangerHint(ids: readonly AffixId[]): string | null {
+  const mag = dangerHint(ids);
+  if (mag) return mag;
+  const phys = ids.filter((a) => PHYS_HARD.includes(a));
+  if (!phys.length && ids.length < 3) return null;
+  const base = phys.length
+    ? `${phys.map((a) => AFFIXES[a].zh).join('、')}克制物理：物理流改用法術或屬性技能，血量低於一半先喝藥`
+    : '三詞綴精英血量與傷害都高：開場先防禦或補狀態，血量低於一半先喝藥';
+  const extra = ids.filter((a) => !PHYS_HARD.includes(a)).map((a) => DANGER_EXTRA[a]).filter(Boolean);
+  return `⚠ 高危險精英（${ids.map((a) => AFFIXES[a].zh).join('＋')}）：${[base, ...extra].join('；')}。本場打不過就多喝藥水慢慢打；之後在地圖上可以選別條路或先撤退回城補強。`;
 }

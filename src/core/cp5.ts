@@ -145,7 +145,7 @@ export const CP5_STAT = { reflect: 0, reflectN: 0, thornsOn: 0, drainHits: 0, dr
 
 /** CP5 r5 (暫定, producer: accept the death-combo list but every one needs a visible counter).
  *  Elites carrying 法抗 or 反魔 are the whole sim death-combo list (docs/cp5-bosses-floors.md §CP5 r5); shown every battle. */
-const DANGER_EXTRA: Partial<Record<AffixId, string>> = {
+export const DANGER_EXTRA: Partial<Record<AffixId, string>> = {
   leech: '嗜血會讓你流血：Z·生命藥水 或 D·防禦 解除，別讓它回血拖長戰鬥',
   split: '分裂死後會變 2 隻小怪：留一瓶生命藥水和範圍技能收尾',
   swift: '迅捷容易閃避：別急，穩定普攻、血量低於一半先喝藥',

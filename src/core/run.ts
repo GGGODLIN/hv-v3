@@ -142,6 +142,8 @@ export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState
   };
 }
 /** CP6: monster / item / merchant / chest level at the current depth (r2 decision 7: one formula). */
+/** CP6: carry-back multiplier an abyss run would get if it ended now (same as settle). */
+export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
 export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + Math.round(RULES.monLvFollow.k * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
 /** CP6: deepest depth cleared by a finished abyss run. */
 export function abyssCleared(run: RunState): number {
@@ -441,6 +443,8 @@ export interface Settlement {
   floor: number;
   /** CP3: carry-back multiplier applied and systems opened by this return. */
   mult: number; unlocks: string[];
+  /** CP6 (abyss runs only): `floor` is then the abyss depth reached. */
+  abyss?: boolean;
 }
 
 /** Apply the run result to the persistent character (design §8 death rules). */
@@ -449,7 +453,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const dead = outcome === 'dead';
   const before = level(p);
   const g = prog(p);
-  const mult = run.abyss ? abyssCarry(depthOf(run)) : carryMult(run.trip ?? g.trips + 1);
+  const mult = run.abyss ? abyssCarryAt(run) : carryMult(run.trip ?? g.trips + 1);
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
   let kept = run.bag;
@@ -468,7 +472,7 @@ export function settle(p: Player, run: RunState): Settlement {
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
   if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
-  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.floor };
+  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, ...(run.abyss ? { abyss: true } : {}) };
 }
 
 export function score(e: Equip): number {
