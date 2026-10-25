@@ -32,7 +32,7 @@ const B = (id: string, zh: string, rarity: Rarity, school: School, desc: string,
 export const BUFFS: BuffDef[] = [
   // ---- common (21)
   B('B2', '磨利', 'common', 'blade', '物理傷害 +10%', { d: { adbPct: 0.1 } }),
-  B('B3', '精準', 'common', 'blade', '物理命中 +8%', { d: { physAccPct: 0.08 } }),
+  B('B3', '精準', 'common', 'blade', '物理命中 ×1.08（乘在目前命中上）', { d: { physAccPct: 0.08 } }),
   B('B4', '銳眼', 'common', 'blade', '物理暴擊率 +4%', { d: { physCrit: 0.04 } }),
   B('B5', '破甲直覺', 'common', 'blade', '抵抗反制 +0.1', { d: { counterResist: 0.1 } }),
   B('O2', '熱血', 'common', 'oc', '每次命中 OC +2', { b: { ocGain: 2 } }),
@@ -42,7 +42,7 @@ export const BUFFS: BuffDef[] = [
   B('A2', '火之印記', 'common', 'arcane', '火焰 EDB +15', { d: { edb: { fire: 15 } }, needs: 'spell' }),
   B('A3', '冰之印記', 'common', 'arcane', '冰霜 EDB +15', { d: { edb: { cold: 15 } }, needs: 'spell' }),
   B('A4', '雷之印記', 'common', 'arcane', '雷電 EDB +15', { d: { edb: { elec: 15 } }, needs: 'spell' }),
-  B('A5', '澄心', 'common', 'arcane', '法術命中 +8%', { d: { magAccPct: 0.08 }, needs: 'spell' }),
+  B('A5', '澄心', 'common', 'arcane', '法術命中 ×1.08（乘在目前命中上）', { d: { magAccPct: 0.08 }, needs: 'spell' }),
   B('A6', '魔力池', 'common', 'arcane', '最大 MP +20%', { d: { mpPct: 0.2 }, needs: 'spell' }),
   B('W2', '厚皮', 'common', 'bulwark', '物理減傷 +3%', { d: { physMit: 0.03 } }),
   B('W3', '靈巧', 'common', 'bulwark', '迴避 +3%', { d: { evade: 0.03 } }),
