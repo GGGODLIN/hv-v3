@@ -1,6 +1,8 @@
 // CP3-bugfix e2e (run by `npm run e2e` after e2e.mjs). Same env as e2e.mjs.
 import p from 'puppeteer-core';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
+// r3 #1: raw player-submitted names (never printed; only counted)
+const RAW=[...new Set(JSON.parse(readFileSync(new URL('../public/data/monsters.json',import.meta.url),'utf8')).map(r=>r[2]).filter(n=>n.length>=5))];
 const URL0=process.env.E2E_URL||'http://127.0.0.1:5199/';
 const S=(process.env.E2E_SHOTS||'e2e-shots')+'/';mkdirSync(S,{recursive:true});
 const w=ms=>new Promise(r=>setTimeout(r,ms));
@@ -30,6 +32,18 @@ for(const t of [2,3]){await pg.evaluate(t=>{hv.p.prog.trips=t;hv.data.run=null;h
   if(t===2)await pg.screenshot({path:S+'cp3fix-03-trip3-carry.png'});}
 if(!R.trip3?.includes('×2'))fails.push('3 trip-3 hint '+R.trip3);
 if(R.trip4!==null)fails.push('3 trip-4 should have no carry hint '+R.trip4);
+// ---- r3 #1 whitelist names (normal battle + F5 boss) and r3 #2 death rule hint
+R.deathRule=await pg.evaluate(()=>{hv.data.run=null;hv.go('town');return document.querySelector('[data-deathrule]')?.textContent??null});
+if(!R.deathRule?.includes('死亡會把帶回折半'))fails.push('r3-2 death rule hint missing');
+const nameCheck=async(tag)=>{const t=await pg.evaluate(()=>({names:hv.battle.monsters.map(m=>m.name),labels:(hv.stage?.children?.list??[]).filter(o=>o.type==='Text').map(o=>o.text),dom:document.body.innerText}));
+  const bad=t.names.filter(n=>!/^[\u4e00-\u9fff·]+$/.test(n)).length;const leaks=RAW.filter(r=>t.dom.includes(r)||t.labels.some(l=>l.includes(r))).length;
+  R['names-'+tag]={n:t.names.length,bad,leaks,labels:t.labels.filter(l=>/Lv\d/.test(l)).length};if(bad||leaks)fails.push(`r3-1 ${tag}: ${bad} non-whitelist names, ${leaks} raw-name leaks`);};
+await pg.evaluate(async()=>{hv.startRun();hv.run.floor=2;await hv.startBattle('battle');});await w(900);
+await nameCheck('battle');await pg.screenshot({path:S+'cp3r3-01-names-battle.png'});
+await pg.evaluate(async()=>{hv.battle=null;hv.run.floor=5;await hv.startBattle('boss');});await w(900);
+await nameCheck('boss-f5');R.bossName=await pg.evaluate(()=>hv.battle.monsters[0].name);await pg.screenshot({path:S+'cp3r3-02-names-boss-f5.png'});
+if(!R.bossName.includes('·'))fails.push('r3-1 boss title');
+await pg.evaluate(()=>{hv.battle=null;});
 // ---- 1 + 6: boss phase message, skill/stance feedback
 await pg.evaluate(async()=>{hv.run.floor=10;await hv.startBattle('boss');});await w(800);
 await pg.evaluate(async()=>{hv.battle.oc=250;hv.render();await hv.command('spirit');});await w(600);
@@ -64,4 +78,4 @@ if(!R.sellModal?.includes('無法買回')||R.invAfterOpen!==R.inv0||R.invAfterCa
 if(errs.length)fails.push('page errors '+errs.join(' | '));
 console.log(JSON.stringify(R,null,1));
 await b.close();
-console.log(fails.length?'E2E-CP3FIX FAIL: '+fails.join(', '):'E2E-CP3FIX PASS');process.exit(fails.length?1:0);
+console.log('R3 names',JSON.stringify({b:R['names-battle'],f5:R['names-boss-f5'],boss:R.bossName,death:R.deathRule}));console.log(fails.length?'E2E-CP3FIX FAIL: '+fails.join(', '):'E2E-CP3FIX PASS');process.exit(fails.length?1:0);
