@@ -258,7 +258,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
-      if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
+      if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) break;
       const used = autoEquip(p, run.bag);
