@@ -471,3 +471,4 @@ Judged on blade/oc/arcane/bulwark only; auto is reference.
 
 Death-combo scan rc8: 必死 0, 警告 34, 相對必死 16 (unchanged vs rc7 log; main tower unaffected by abyss knobs).
 Unmet: blade trip1 median (B=2), bulwark trip1 median (A=20), oc d16/d13 (A=1.76), bulwark d16/d13 (A=1.62). No retuning per producer instruction.
+- vitest (single-threaded, --no-file-parallelism): 23 files, 221/221 passed; no test changes. Log: docs/logs/rc8-vitest.txt
