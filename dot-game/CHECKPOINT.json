@@ -1,6 +1,6 @@
 {
-  "checkpoint": "v0.6-candidate",
-  "status": "source-tests-passed-browser-pending",
+  "checkpoint": "v0.6-browser-fixtures",
+  "status": "source-tests-passed-browser-in-progress",
   "files": {
     "README.md": {
       "bytes": 6669,
@@ -23,8 +23,8 @@
       "sha256": "cac36fe509f802953fe9112a7e4a7d6432e83456d9ab47be99adcbe9de8d6033"
     },
     "docs/ACCEPTANCE-V06.md": {
-      "bytes": 11834,
-      "sha256": "f4972534cd7a9c4d3af897243b38b9061b33774ed522e155714c4f89965d2252"
+      "bytes": 13301,
+      "sha256": "633ec61604c8eb3eff2bf3c594ec53f974a6b70e8ebce392c6e9dc82633e4af7"
     },
     "docs/ACCEPTANCE.md": {
       "bytes": 3468,
@@ -83,8 +83,8 @@
       "sha256": "cfe7e3efa2bc20b895d3af46ec95987e70178e261334ed4739d8128375a920f4"
     },
     "docs/STATUS.md": {
-      "bytes": 12489,
-      "sha256": "4b34d519672b535c94be0a710e28ef4502f5e2ab534eba6ba5fa7c229fbdd35a"
+      "bytes": 13084,
+      "sha256": "febb0f01de00b075e669fae9ec09b0b83e41fdc37f83987d84f8edd145a705e2"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
@@ -121,6 +121,14 @@
     "tests/acceptance.test.mjs": {
       "bytes": 5964,
       "sha256": "3681247b278ca376a9a61cad2a29560c651e73385a9950c2378f893ed573585b"
+    },
+    "tests/browser-fixtures/index.html": {
+      "bytes": 574,
+      "sha256": "ae7a49053013ec029e6508397663ba8aeb53e997f155f8ff264af6d6dfc262c2"
+    },
+    "tests/browser-fixtures/unsupported-import.json": {
+      "bytes": 2227,
+      "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
     },
     "tests/club-stun.test.mjs": {
       "bytes": 14386,

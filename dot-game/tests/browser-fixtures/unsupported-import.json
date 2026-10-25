@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "seed": 6,
+  "hero": {
+    "level": 1,
+    "xp": 0,
+    "xpNext": 99,
+    "hp": 575,
+    "mp": 19,
+    "gold": 0,
+    "proficiency": 0,
+    "attributes": {
+      "str": 8,
+      "dex": 8,
+      "agi": 8,
+      "end": 8,
+      "int": 8,
+      "wis": 8
+    }
+  },
+  "mode": "town",
+  "stage": 1,
+  "unlocked": 1,
+  "wave": 0,
+  "totalWaves": 4,
+  "kills": 0,
+  "wins": 0,
+  "autoAdvance": false,
+  "strategy": "balanced",
+  "inventory": [],
+  "equipment": {
+    "weapon": {
+      "id": "starter-weapon",
+      "name": "旅人的鈍劍",
+      "slot": "weapon",
+      "quality": "Crude",
+      "rarityColor": "#8d9bb0",
+      "level": 1,
+      "roll": 10,
+      "power": 1,
+      "stats": {
+        "attack": 3,
+        "futureUnsupportedStat": 1
+      },
+      "locked": true,
+      "description": "獨立設計的入門裝備；換上戰利品即可改善戰力。"
+    },
+    "armor": {
+      "id": "starter-armor",
+      "name": "磨舊旅裝",
+      "slot": "armor",
+      "quality": "Crude",
+      "rarityColor": "#8d9bb0",
+      "level": 1,
+      "roll": 10,
+      "power": 1,
+      "stats": {
+        "defense": 2,
+        "hp": 12
+      },
+      "locked": true,
+      "description": "獨立設計的入門裝備；換上戰利品即可改善戰力。"
+    },
+    "accessory": {
+      "id": "starter-accessory",
+      "name": "素色護符",
+      "slot": "accessory",
+      "quality": "Crude",
+      "rarityColor": "#8d9bb0",
+      "level": 1,
+      "roll": 10,
+      "power": 1,
+      "stats": {
+        "hp": 5
+      },
+      "locked": true,
+      "description": "獨立設計的入門裝備；換上戰利品即可改善戰力。"
+    }
+  },
+  "enemies": [],
+  "events": [],
+  "logs": [
+    "整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。"
+  ],
+  "battle": {
+    "elapsed": 0,
+    "cleared": 0,
+    "bestTimes": {},
+    "actions": {
+      "attacks": 0,
+      "skills": 0,
+      "heals": 0,
+      "potions": 0,
+      "manaSpent": 0
+    }
+  },
+  "pendingLoot": [],
+  "timing": {
+    "turns": 0,
+    "ticks": 0,
+    "tu": 0
+  },
+  "potions": 3,
+  "_eventId": 0,
+  "_itemId": 0,
+  "_clock": 0,
+  "_enemyClock": 0,
+  "_turns": 0,
+  "_phase": "idle",
+  "_rest": 0
+}

@@ -84,6 +84,12 @@ These identify this local source/unit checkpoint, not an eventual deployment. Re
 | `src/ui.js` | `f7c46038cafd036c54f1136382d738735f3b3de8737387c9509bd0e86d024bae` |
 | `tests/v06-acceptance.test.mjs` | `14489957b5052b0c43e3908bbdcc00da021ce000835be4b9a06623357631968b` |
 
+## Parent-reported browser checkpoint — partial, not a verdict
+
+At 18:37 UTC the parent reported actual CUA observations: default OFF/fresh state; empty preview with disabled confirmation and safe cancel; a browser-exported natural v0.5 profile imported through the file chooser with cancel preserving the fresh state, then acceptance restoring Lv.19, 8,764 gold and 99 inventory items with auto-sale OFF. Preview listed exactly `loot-123`/`loot-127`, keeper `loot-114`, total 152. Cancel retained the displayed inventory/gold; confirmation removed those two expected item labels, changed count 99→97 and gold 8,764→8,916, and left other labels unchanged. Enabling auto-sale after locking natural keepers did not sweep existing items or alter gold; reload retained the flag/locks.
+
+**Important limit:** the parent's malformed-schema browser import attempt used a synthetic file in an executor `/tmp` not visible to the browser's filesystem. `file.text()` failed with `NotFoundError`; UI state remained intact after reload. This establishes the actual **file-read-failure preservation path**, not schema-specific browser rejection. Schema rejection remains covered by automated engine/DOM tests. No extra computer access or filesystem bypass is warranted solely to turn that observation into a different claim. Live auto-sale and ownership browser checks were still in progress when this checkpoint was supplied; no browser acceptance verdict is inferred here.
+
 ## Remaining release gates
 
 - Rerun final aggregate and syntax checks after all edits and record the exact package/source fingerprints.
