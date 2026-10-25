@@ -7,6 +7,8 @@ import type { Monster, MonsterPool } from '../core/monsters';
 import { allocate, derive, equip, level, newPlayer, powerScore, PROF_ZH, PROFS, profValue, refund, resetAttrs, unequip, unspentExp, type Player } from '../core/player';
 import { Rng, randomSeed } from '../core/rng';
 import { carryMult, has, prog, tip, TIPS } from '../core/progress';
+import { BUFF, RARITY_ZH, SCHOOL_ZH, COMBO_ZH, combos, formed, type Combos } from '../core/buffs';
+import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
@@ -213,7 +215,7 @@ export class App {
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>試煉之塔 · 第 ${r.floor} 層</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && r.trip <= 2 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}</div>` : ''}
+      ${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.trip && r.trip <= 2 ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
   }
@@ -243,6 +245,33 @@ export class App {
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
 
+  /** CP4: held buffs strip (map / battle). */
+  buffStrip(): string {
+    const ids = this.run?.buffs;
+    if (!RULES.cp4RunBuffs || !ids) return '';
+    const f = formed(ids), c = combos(ids);
+    const on = (Object.keys(c) as (keyof Combos)[]).filter((k) => c[k]);
+    return `<div class="buffs" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
+      ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => COMBO_ZH[k]).join('；')}</span>` : ''}</div>`;
+  }
+  buffCard(id: string, btn: string): string {
+    const b = BUFF[id]!;
+    return `<div class="buffcard r-${b.rarity}"><div class="bh"><b>${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small></div><div class="bd">${esc(b.desc)}</div>${btn}</div>`;
+  }
+  offerHtml(): string {
+    const r = this.run;
+    if (!RULES.cp4RunBuffs) return '';
+    let out = '';
+    if (r.offer) out += `<div class="offer" data-offer="${r.offer.src}"><h3>選擇一個 buff（本趟有效）${r.offersLeft ? `　還有 ${r.offersLeft} 次` : ''}</h3><div class="buffrow">${r.offer.ids.map((id) => this.buffCard(id, `<button class="big" data-buff="${id}">選這個</button>`)).join('')}</div>
+      <div class="row"><button class="ghost" data-buffskip>不拿</button></div></div>`;
+    if (r.risk) {
+      const k = r.risk, x = RISKS[k];
+      const btns = k === 'discard' ? (r.buffs ?? []).map((id) => `<button data-risk="discard:${id}">捨棄【${BUFF[id]!.zh}】</button>`).join(' ') : `<button data-risk="${k}">${x.zh}</button>`;
+      out += `<div class="risk" data-riskbox="${k}"><h3>⚠ 或接受風險：${x.zh}</h3><div>代價：${x.cost}　回報：${x.reward}</div><div class="row">${btns}</div></div>`;
+    }
+    return out + this.buffStrip();
+  }
+
   nodeHtml(): string {
     const r = this.run;
     const t = r.current?.type;
@@ -256,17 +285,20 @@ export class App {
       const st = r.merchant!;
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
       body = `<h2>$ 流浪商人</h2><div>可用：${(this.p.credits + r.credits).toLocaleString()} C（先扣本趟所得）</div><div class="row">${pot}</div>
-        <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>`;
+        <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>
+        ${r.buffStock?.length ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${r.buffStock.map((x, i) => this.buffCard(x.id, `<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('')}</div>` : ''}`;
     } else if (t === 'rest') {
       const d = runDerived(this.p, r);
       const slots = SLOTS.filter((s) => this.p.equipped[s]).map((s) => `<button data-up="${s}">強化${SLOT_ZH[s]}（+${this.p.equipped[s]!.iw} → +${this.p.equipped[s]!.iw + 1}）</button>`).join(' ');
       body = `<h2>♨ 營火</h2>${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}<p>二選一：</p><div class="row"><button class="big" data-heal>休息：回復 60% HP，MP/SP 全滿</button></div>
         <p>或在火邊鍛造（裝備世界 +1，永久保留）：</p><div class="row">${slots || '沒有可強化的裝備'}</div>`;
+    } else if (t === 'shrine' && RULES.cp4RunBuffs) {
+      body = `<h2>✦ 神龕</h2>`;
     } else if (t === 'shrine') {
       body = `<h2>✦ 神龕</h2><p>選擇一項祝福（僅限本趟）：</p><div class="row">${SHRINES.map((s) => `<button class="big" data-shrine="${s.id}">${s.zh}<small>${s.desc}</small></button>`).join('')}</div>`;
     }
     const done = !!this.pending.loot || !!this.pending.text;
-    return `<div class="panel node">${this.noticeHtml()}${body}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
+    return `<div class="panel node">${this.noticeHtml()}${body}${this.offerHtml()}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
       <div class="foot"><span class="spacer"></span><button class="big" data-continue>${done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
   }
 
@@ -325,6 +357,10 @@ export class App {
     on('[data-up]', (el) => { this.pending.text = rest(this.p, this.run, 'upgrade', el.dataset.up); this.save(); this.continueNode(); });
     on('[data-shrine]', (el) => { this.pending.text = shrine(this.p, this.run, el.dataset.shrine as 'might'); this.save(); this.render(); this.root.querySelectorAll<HTMLButtonElement>('[data-shrine]').forEach((b) => (b.disabled = true)); });
     on('[data-mbuy]', (el) => this.merchantBuy(Number(el.dataset.mbuy)));
+    on('[data-buff]', (el) => { const r = this.run; this.pending.text = takeBuff(this.p, r, el.dataset.buff!); r.risk = null; this.nextOffer(); });
+    on('[data-buffskip]', () => { skipOffer(this.run); this.run.risk = null; this.nextOffer(); });
+    on('[data-risk]', (el) => { const [k, id] = el.dataset.risk!.split(':'); this.pending.text = takeRisk(this.p, this.run, k as RiskId, id); this.save(); this.render(); });
+    on('[data-bbuy]', (el) => { const r = this.run; const i = Number(el.dataset.bbuy); const x = r.buffStock?.[i]; if (x && this.pay(x.price)) { this.pending.text = takeBuff(this.p, r, x.id); r.buffStock!.splice(i, 1); } this.save(); this.render(); });
     on('[data-mbuyp]', (el) => { const k = el.dataset.mbuyp as PotionId; if (this.pay(RULES.potionPrice[k])) this.p.potions[k]++; this.save(); this.render(); });
     on('[data-town]', () => this.go('town'));
   }
@@ -430,7 +466,8 @@ export class App {
     this.notice = coreEnterNode(this.p, r, t);
     if (t === 'battle' || t === 'elite' || t === 'boss') return this.startBattle(t);
     if (t === 'chest') { this.pending.loot = chestLoot(r); applyLoot(this.p, r, this.pending.loot); }
-    if (t === 'merchant') r.merchant = merchantStock(r);
+    if (t === 'merchant') { r.merchant = merchantStock(r); if (RULES.cp4RunBuffs) r.buffStock = merchantBuffs(this.p, r); }
+    if (t === 'shrine' && RULES.cp4RunBuffs) openShrine(this.p, r);
     this.go('node');
   }
 
@@ -511,11 +548,20 @@ export class App {
     await new Promise((res) => setTimeout(res, this.data.settings.skipAnim ? 30 : 500 / this.stage.speed));
     this.busy = false;
     this.pending = { loot };
+    if (RULES.cp4RunBuffs) { r.offersLeft = winOffers(this.battleType); if (r.offersLeft) { r.offersLeft--; openOffer(this.p, r, this.battleType as 'elite'); } this.save(); }
     this.battle = null;
     this.go('node');
   }
 
+  /** CP4: boss wins open a second offer after the first is resolved. */
+  nextOffer() {
+    const r = this.run;
+    if (!r.offer && r.offersLeft) { r.offersLeft--; openOffer(this.p, r, 'boss'); }
+    this.save(); this.render();
+  }
+
   continueNode() {
+    if (this.run.offer || this.run.risk) { this.run.offer = null; this.run.risk = null; this.run.offersLeft = 0; }
     const r = this.run;
     advance(r, r.current?.option ?? 0);
     this.pending = {};

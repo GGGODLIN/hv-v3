@@ -78,6 +78,7 @@ export interface RunState {
   risk?: import('./buffoffer').RiskId | null;
   curse?: number;
   ocZeroNext?: boolean;
+  buffStock?: { id: string; price: number }[];
 }
 
 export function startRun(p: Player, seed: number): RunState {
