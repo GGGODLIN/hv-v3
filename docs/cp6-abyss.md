@@ -340,3 +340,18 @@ After a8, oc and arcane met every target, while blade and bulwark still missed i
 
 Final row c2 0.25/1.5/1.5 in full (d5 boss / d13 / d16 / d18 / d20 boss):
 blade 100/97/70/66/100 · oc 100/100/92/88/78 · arcane 100/89/83/88/94 · bulwark 100/83/64/58/89. All schools meet the targets.
+
+### rc6 → rc7 (UI-only AI, rc7-targets 16 4; d5 boss / d13 / d16 / d18 / d20 boss win %)
+| school | rc6 | rc7 |
+|---|---|---|
+| blade | 82/42/4/2/54 | 100/97/70/66/100 |
+| oc | 81/78/44/42/30 | 100/100/92/88/78 |
+| arcane | 97/70/66/55/43 | 100/89/83/88/94 |
+| bulwark | 48/63/18/8/68 | 100/83/64/58/89 |
+
+Pre-tag suite results (logs in docs/logs/rc7-*.txt):
+- never-clear F20 within 12 trips, rc6 → rc7: blade 6→9%, oc 78→3%, arcane 0→0%, bulwark 3→3%, auto 0→0%.
+- death-combo scan: 必死 0, 警告 34. rc6 had 必死 lines.
+- CP4/CP5: the main-tower baseline changed (style passives and the adb term are shared). It is saved as the new file docs/cp5-on-baseline-sim-rc7.txt; the rc6 file is kept. First clear median went from 2 to 1, and the F10 boss win rate over trips 1-3 went from 84% to 98%.
+- CP6 A/B: both FAIL on "trip1 median 5-12" (trip-1 depth is now median 25) and on "d16 ≤ 1.5 × d13". rc6 also failed CP6 A/B, on other checks. Early depths are now too easy; this is a known open item and was not retuned (outside the producer's scope).
+- vitest: 221/221 passed when run alone. Under the parallel load of the suite, one cp3 acceptance test hit its 5 s timeout.
