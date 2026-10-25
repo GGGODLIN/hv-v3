@@ -4,6 +4,8 @@
 
 A separate inherited UI defect was reproduced with the real dispatcher, pump and engine: Start at 249 ms between timer callbacks credited 250 ms to a fight only 1 ms old. The fix rebases the pump only after a successful manual Start/Retreat mode change. Failed starts, repeated clicks and ordinary combat actions do not discard their pending time. Engine/session/loot bytes remain unchanged from the prior source-backed numerical patch. This is source-only correctness work, not a newly published feature. See PUMP-BOUNDARY.md for final test and backup evidence.
 
+Complete candidate/runtime source is backed up at `053a5dc7dd05d3332a3a6f1bf3a2667dfc12375a`: all 81 files / 1117788 bytes and 80 manifest payloads were read back from that exact commit and independently checked by bytes, SHA256 and Git blob SHA. A package reconstructed exclusively from the remote readback passes all 531 tests and four runtime syntax checks. All 432 outside-dot-game entries remain unchanged; expected-head non-force update and no removals were verified. This subsequent receipt changes only documentation/manifest, not candidate runtime. For continued development, recover the candidate source or this receipt; for accepted play, use the v0.7 recovery target below.
+
 The public HTTP verification decision and pause-schedule question remain unanswered. No retry or alternate browser route is attempted; no website modification or new browser acceptance is claimed. Public v0.7 and its accepted recovery receipt e1b576ee2041bd2772f79587e859a80b5ab1f108 remain unchanged.
 
 ## v0.8.1 source-only candidate — 2026-10-25 21:00 UTC iteration

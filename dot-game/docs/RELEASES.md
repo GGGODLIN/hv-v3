@@ -110,3 +110,9 @@ This is not a published release or browser-accepted checkpoint. No public HTTP r
 
 ## v0.8.1 manual timer boundary follow-up — 2026-10-25 22:00 UTC
 Source-only correction: successful manual Start/Retreat resets the online timer, preventing preceding camp time from becoming new combat time. Failed/repeated actions preserve the interval. 531 tests pass, four runtime syntax checks pass; independent source-only acceptance documented in PUMP-BOUNDARY.md. Only UI dispatch changes in runtime; engine/session/loot are unchanged. No browser or public verification claim, no website publication. Exact source backup receipt follows separately; accepted recovery remains e1b576ee2041bd2772f79587e859a80b5ab1f108.
+
+### Manual timer boundary verified source receipt — 2026-10-25 22:07 UTC
+- Candidate runtime/source commit: `053a5dc7dd05d3332a3a6f1bf3a2667dfc12375a` on bot/dot, parent `cc51f05172858dbf168d2ccb3217c920d0b4cc54`.
+- Exact readback: 81 files, 1117788 bytes, 80 manifest payloads; every content, byte count, SHA256 and Git blob SHA matches the frozen candidate. All 432 outside-dot-game entries are unchanged, with no removals and an expected-head non-force update.
+- The remote-only reconstructed package passes 531/531 tests, zero skips/failures, and four runtime syntax checks.
+- This receipt changes documentation/manifest only; candidate runtime/tests are unchanged. No website, CI, public HTTP or browser action occurred. Accepted v0.7 recovery remains `e1b576ee2041bd2772f79587e859a80b5ab1f108`; source recoverability does not establish browser acceptance or authorize the blocked HTTP retry.

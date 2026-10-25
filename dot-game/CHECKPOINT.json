@@ -1,12 +1,12 @@
 {
-  "checkpoint": "v0.8.1-pump-boundary-candidate",
-  "status": "source-tested-awaiting-exact-backup-not-browser-accepted",
+  "checkpoint": "v0.8.1-pump-boundary-source-receipt",
+  "status": "candidate-source-backup-exact-readback-verified-unpublished",
   "base_candidate_recovery": "cc51f05172858dbf168d2ccb3217c920d0b4cc54",
   "latest_accepted_recovery": "e1b576ee2041bd2772f79587e859a80b5ab1f108",
   "files": {
     "README.md": {
-      "bytes": 9435,
-      "sha256": "be7a85be987e7a9d68d03fc79b713ba8bc09848f89a1e84eed5dad610e85c618"
+      "bytes": 9687,
+      "sha256": "7af72be54c6a8c9a3653f84bb845a7caa3cbe88dc4b335ff0ccc8b874f8d4221"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -113,20 +113,20 @@
       "sha256": "51a72369f00e7db9b2faa9bffbe2e95401e972eabb4ff8659f692d00d145f9a6"
     },
     "docs/PUMP-BOUNDARY.md": {
-      "bytes": 4139,
-      "sha256": "2c0bb28ce6ec7be580be60eda3909c170cb9324fc3df49e52b82f9958e9ad557"
+      "bytes": 4852,
+      "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RELEASES.md": {
-      "bytes": 16580,
-      "sha256": "f91851f5e5b42fb56c30df17a2422c20a2ff3592efb94a85949dbad7c87f37c2"
+      "bytes": 17481,
+      "sha256": "45bf82e545e82c211233b876cc7cea7dec82e16722631ac9d7bfe179b409b030"
     },
     "docs/ROADMAP.md": {
       "bytes": 8828,
       "sha256": "36ffdf52ec909a9f8e0c28ecd7b46b525b7654a44d8e0e4a92b38eca71580788"
     },
     "docs/STATUS.md": {
-      "bytes": 22839,
-      "sha256": "565a003a67623473e88f2af4cb179b66a60caa23dcf8b7f43499a33df7b2bff5"
+      "bytes": 23526,
+      "sha256": "4296154f99079fe615a7ee23b917034354514bc62f75d4f1c8d3e79519ea4f26"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
@@ -324,5 +324,7 @@
       "bytes": 14913,
       "sha256": "abeb35c0f005dd8d1b9304694242e0b389dd595e4578dd3c02b460c424e51cd0"
     }
-  }
+  },
+  "candidate_runtime_source": "053a5dc7dd05d3332a3a6f1bf3a2667dfc12375a",
+  "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged"
 }
