@@ -1,0 +1,371 @@
+import { createGame, advance, act, stats, validateSave } from './engine.js';
+
+// Candidate builds never share progress or tab leases with the accepted game.
+const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
+const storageScope = candidatePath ? `candidate-${candidatePath[1].replace(/[^a-zA-Z0-9._-]/g, '_')}` : 'stable';
+const SAVE_KEY = `hv-v3-dot-${storageScope}-save-v1`;
+const PREF_KEY = `hv-v3-dot-${storageScope}-preferences-v1`;
+const LEASE_KEY = `hv-v3-dot-${storageScope}-tab-lease-v1`;
+const $ = id => document.getElementById(id);
+const format = value => Math.round(Number(value) || 0).toLocaleString('zh-TW');
+const clock = value => `${Math.floor((value || 0) / 60).toString().padStart(2, '0')}:${Math.floor((value || 0) % 60).toString().padStart(2, '0')}`;
+const qualityNames = { Crude: '粗製', Fair: '普通', Average: '良好', Superior: '優良', Exquisite: '精緻', Magnificent: '華麗', Legendary: '傳奇', Peerless: '無雙' };
+const qualityName = quality => qualityNames[quality] || quality;
+const slotNames = { weapon: '武器', armor: '護甲', accessory: '飾品' };
+const slotIcons = { weapon: '⚔', armor: '◈', accessory: '◇' };
+const statNames = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' };
+const rateStats = new Set(['crit', 'evade', 'block']);
+const stageNames = ['霧松邊境', '青苔古道', '斷月遺跡', '幽燈深林', '灰燼城門', '沉星聖所'];
+const stageName = stage => stageNames[(Math.max(1, Number(stage)) - 1) % stageNames.length];
+let storeAvailable = true;
+function readStorage(key) { try { return localStorage.getItem(key); } catch { storeAvailable = false; return null; } }
+function writeStorage(key, value) { try { localStorage.setItem(key, value); return true; } catch { storeAvailable = false; return false; } }
+function node(tag, className, text) { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = String(text); return el; }
+function colorOf(item) { return /^#[0-9a-f]{3,8}$/i.test(item?.rarityColor || '') ? item.rarityColor : '#b8c3b0'; }
+let loadProblem = '';
+let state;
+try { const raw = readStorage(SAVE_KEY); state = raw ? validateSave(JSON.parse(raw)) : createGame(1000 + Math.floor(Math.random() * 1e8)); } catch { state = createGame(1000 + Math.floor(Math.random() * 1e8)); loadProblem = '既有存檔無法讀取，已開啟暫時的新旅程。原始資料尚未覆寫；請先匯出目前進度或匯入有效備份。'; }
+let preventOverwrite = Boolean(loadProblem);
+let lastSavedRaw = readStorage(SAVE_KEY);
+let prefs = { sound: false, reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches };
+try { const saved = JSON.parse(readStorage(PREF_KEY) || '{}'); if (typeof saved.reducedMotion === 'boolean') prefs.reducedMotion = saved.reducedMotion; } catch { /* optional preferences only */ }
+let selectedId = null;
+let selectedSlot = null;
+let lastInventorySignature = '';
+let lastEquipmentSignature = '';
+let lastLogSignature = '';
+let lastStageCount = 0;
+let toastTimer;
+let bannerTimer;
+let lastSaveAt = 0;
+let lastProcessedEvent = null;
+const seenEvents = new Set((state.events || []).map(event => String(event.id)));
+let audioContext;
+let flash = 0;
+let attackPulse = 0;
+let enemyPulse = 0;
+let particles = [];
+let tabOwner = false;
+const tabId = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+let leaseLast = 0;
+let lastFrame = performance.now();
+let accumulated = 0;
+let lastRendered = 0;
+let suspendSaveUntil = 0;
+
+function showToast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3100); }
+function notice(message) { $('notice').textContent = message; $('notice').hidden = !message; }
+function save(force = false) {
+  if (!tabOwner || preventOverwrite || performance.now() < suspendSaveUntil) return false;
+  if (!force && performance.now() - lastSaveAt < 5000) return false;
+  const raw = JSON.stringify(state);
+  const saved = writeStorage(SAVE_KEY, raw);
+  if (saved) lastSavedRaw = raw;
+  lastSaveAt = performance.now();
+  $('save-status').textContent = saved ? '進度已保存' : '僅此分頁 · 請匯出';
+  $('save-detail').textContent = saved ? `自動存檔已更新 · ${new Date().toLocaleTimeString('zh-TW')}` : '此瀏覽器不允許儲存資料。請使用匯出存檔保留進度。';
+  if (!saved) notice('無法寫入瀏覽器存檔。遊戲仍可進行，請用「存檔 → 匯出存檔」保存。');
+  return saved;
+}
+function claimLease(force = false) {
+  const now = Date.now();
+  if (document.hidden) { releaseLease(); return false; }
+  if (!force && now - leaseLast < 1800) return tabOwner;
+  leaseLast = now;
+  let lease;
+  try { lease = JSON.parse(readStorage(LEASE_KEY) || 'null'); } catch { lease = null; }
+  const other = lease && lease.id !== tabId && Number.isFinite(lease.until) && lease.until > now;
+  if (other) { tabOwner = false; $('tab-status').textContent = '另一分頁正在遠征 · 此分頁暫停'; return false; }
+  const wasOwner = tabOwner;
+  if (!wasOwner && !preventOverwrite) {
+    const raw = readStorage(SAVE_KEY);
+    if (raw && raw !== lastSavedRaw) try { state = validateSave(JSON.parse(raw)); lastSavedRaw = raw; syncSelection(); } catch { /* never replace with malformed data */ }
+  }
+  writeStorage(LEASE_KEY, JSON.stringify({ id: tabId, until: now + 5000 }));
+  tabOwner = true;
+  $('tab-status').textContent = '僅前景運行 · 無離線收益';
+  return true;
+}
+function releaseLease() {
+  if (tabOwner) {
+    save(true);
+    try { const lease = JSON.parse(readStorage(LEASE_KEY) || 'null'); if (lease?.id === tabId) localStorage.removeItem(LEASE_KEY); } catch { /* no storage */ }
+  }
+  tabOwner = false;
+}
+function syncSelection() {
+  if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
+  lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastStageCount = 0;
+}
+function dispatch(action, payload) {
+  if (!claimLease(true)) { showToast('另一分頁正在進行遊戲，請先關閉或離開那個分頁。'); return; }
+  try { act(state, action, payload); render(true); save(true); } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+}
+function playSound(kind) {
+  if (!prefs.sound || document.hidden) return;
+  try {
+    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') audioContext.resume();
+    const osc = audioContext.createOscillator(), gain = audioContext.createGain();
+    const now = audioContext.currentTime;
+    const tone = { loot: 700, win: 530, level: 630, crit: 250, hit: 120, heal: 430 }[kind] || 140;
+    osc.type = ['loot', 'win', 'level', 'heal'].includes(kind) ? 'sine' : 'triangle';
+    osc.frequency.setValueAtTime(tone, now); osc.frequency.exponentialRampToValueAtTime(tone * (kind === 'loot' ? 1.5 : .65), now + .1);
+    gain.gain.setValueAtTime(.0001, now); gain.gain.exponentialRampToValueAtTime(.035, now + .008); gain.gain.exponentialRampToValueAtTime(.0001, now + .15);
+    osc.connect(gain); gain.connect(audioContext.destination); osc.start(now); osc.stop(now + .17);
+  } catch { prefs.sound = false; updatePreferences(); }
+}
+function updatePreferences() {
+  document.body.classList.toggle('reduced-motion', prefs.reducedMotion);
+  $('motion-toggle').checked = prefs.reducedMotion;
+  $('sound-toggle').textContent = `音效 ${prefs.sound ? '開' : '關'}`;
+  $('sound-toggle').setAttribute('aria-label', `${prefs.sound ? '關閉' : '開啟'}音效`);
+  writeStorage(PREF_KEY, JSON.stringify({ reducedMotion: prefs.reducedMotion }));
+}
+function eventEffects() {
+  for (const event of state.events || []) {
+    const key = String(event.id);
+    if (seenEvents.has(key)) continue;
+    seenEvents.add(key); lastProcessedEvent = key;
+    if (seenEvents.size > 200) { const keep = Array.from(seenEvents).slice(-100); seenEvents.clear(); keep.forEach(id => seenEvents.add(id)); }
+    const type = event.type;
+    if (['hit', 'crit', 'miss', 'block', 'heal'].includes(type)) {
+      const targetHero = event.target === 'hero' || event.target === 'player';
+      if (targetHero) enemyPulse = 1; else attackPulse = 1;
+      if (!prefs.reducedMotion) {
+        const number = node('span', `floating-number ${type}${targetHero ? ' enemy' : ''}`, event.value ? `${type === 'heal' ? '+' : ''}${format(event.value)}${type === 'crit' ? '!' : ''}` : (type === 'miss' ? '閃避' : type === 'block' ? '格擋' : event.text));
+        number.style.marginLeft = `${(Math.random() - .5) * 36}px`;
+        $('floating-layer').append(number);
+        setTimeout(() => number.remove(), 950);
+      }
+      if (type === 'crit') { flash = .3; if (!prefs.reducedMotion) { $('battle-scene').classList.remove('shake'); void $('battle-scene').offsetWidth; $('battle-scene').classList.add('shake'); } }
+      playSound(type);
+    }
+    if (['loot', 'win', 'level', 'defeat'].includes(type)) {
+      $('reward-banner').textContent = event.text || ({ loot: '獲得戰利品', win: '遠征完成', level: '等級提升', defeat: '暫時撤退，整備後再出發' }[type]);
+      $('reward-banner').hidden = false;
+      clearTimeout(bannerTimer); bannerTimer = setTimeout(() => { $('reward-banner').hidden = true; }, type === 'loot' ? 2400 : 3500);
+      if (!prefs.reducedMotion) for (let i = 0; i < 16; i++) particles.push({ x: .65, y: .63, vx: (Math.random() - .5) * .15, vy: -Math.random() * .22, life: 1, color: type === 'level' ? '#a9e3cf' : '#e9c77e' });
+      playSound(type);
+    }
+  }
+}
+function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(100, Number(value) / Math.max(1, Number(max)) * 100))}%`; }
+function render(force = false) {
+  const derived = stats(state);
+  $('level-badge').textContent = `LV. ${state.hero.level}`;
+  $('hp-label').textContent = `${format(state.hero.hp)} / ${format(derived.maxHp)}`;
+  $('mp-label').textContent = `${format(state.hero.mp)} / ${format(derived.maxMp)}`;
+  $('xp-label').textContent = `${format(state.hero.xp)} / ${format(state.hero.xpNext)}`;
+  setMeter('hp-bar', state.hero.hp, derived.maxHp); setMeter('mp-bar', state.hero.mp, derived.maxMp); setMeter('xp-bar', state.hero.xp, state.hero.xpNext);
+  $('stat-attack').textContent = format(derived.attack); $('stat-defense').textContent = format(derived.defense); $('stat-crit').textContent = `${((derived.crit || 0) * 100).toFixed(1)}%`; $('stat-gold').textContent = format(state.hero.gold);
+  $('zone-title').textContent = stageName(state.stage); $('stage-label').textContent = `遠征 ${String(state.stage).padStart(2, '0')}`;
+  $('wave-label').textContent = state.mode === 'battle' ? `第 ${state.wave} / ${state.totalWaves} 波` : state.mode === 'defeat' ? '旅者倒下了' : '準備出發';
+  $('mode-badge').textContent = { town: '整備中', battle: '遠征進行中', defeat: '需要整備' }[state.mode] || '整備中'; $('mode-badge').className = `status-pill ${state.mode}`;
+  $('run-time').textContent = clock(state.battle?.elapsed); const best = state.battle?.bestTimes?.[state.stage]; $('best-time').textContent = best ? clock(best) : '尚無紀錄';
+  $('kill-count').textContent = format(state.kills); $('win-count').textContent = format(state.wins); $('deepest-stage').textContent = String(state.unlocked).padStart(2, '0'); $('progress-label').textContent = `${Math.max(0, state.mode === 'town' ? 0 : state.wave - 1)} / ${state.totalWaves}`;
+  $('scene-message').hidden = state.mode === 'battle';
+  if (state.mode !== 'battle') {
+    const msg = $('scene-message'); msg.querySelector('h3').textContent = state.mode === 'defeat' ? '這不是旅程的終點。' : '下一段旅程，準備好了嗎？'; msg.querySelector('p').textContent = state.mode === 'defeat' ? '回營恢復，換上好裝，再來一次。' : '選好裝備，剩下的交給戰鬥。';
+  }
+  const stageCount = Math.min(1000, Math.max(1, state.unlocked));
+  if (lastStageCount !== stageCount) {
+    $('stage-select').replaceChildren(...Array.from({ length: stageCount }, (_, i) => { const opt = node('option', '', `${String(i + 1).padStart(2, '0')} · ${stageName(i + 1)}`); opt.value = i + 1; return opt; })); lastStageCount = stageCount;
+  }
+  $('stage-select').value = state.stage; $('stage-select').disabled = state.mode === 'battle'; $('auto-advance').checked = Boolean(state.autoAdvance);
+  $('start-button').disabled = state.mode === 'battle' || state.mode === 'defeat'; $('retreat-button').disabled = state.mode === 'town'; $('heal-button').disabled = state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
+  $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
+  $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : '自動戰鬥 · 不考手速 · 隨時回營換裝';
+  const inventorySignature = JSON.stringify([state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.mode]);
+  if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
+  const equipmentSignature = JSON.stringify(state.equipment);
+  if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
+  const logSignature = JSON.stringify(state.logs);
+  if (logSignature !== lastLogSignature) { lastLogSignature = logSignature; const logs = (state.logs || []).slice(0, 6); $('combat-log').replaceChildren(...(logs.length ? logs : ['營火已點亮。準備好後，開始第一場遠征。']).map(text => node('li', '', text))); }
+  $('inventory-count').textContent = state.inventory.length;
+  $('sell-common').disabled = state.mode === 'battle' || !state.inventory.some(item => !item.locked && ['Crude', 'Fair', 'Average'].includes(item.quality));
+  eventEffects();
+}
+function itemContent(item) {
+  const icon = node('span', 'item-icon', slotIcons[item.slot] || '◇');
+  const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${slotNames[item.slot] || '裝備'} · Lv.${item.level} · ${qualityName(item.quality)}`));
+  return [icon, info];
+}
+function renderEquipment() {
+  $('equipment').replaceChildren(...Object.entries(state.equipment).map(([slot, item]) => {
+    const button = node('button', 'gear-button'); button.style.setProperty('--item-color', colorOf(item));
+    button.append(...itemContent(item)); button.title = `${slotNames[slot]}：${item.name}`;
+    button.addEventListener('click', () => { selectedSlot = slot; selectedId = null; lastInventorySignature = ''; render(true); }); return button;
+  }));
+}
+function renderInventory() {
+  const filter = $('slot-filter').value, sort = $('sort-select').value;
+  const items = state.inventory.filter(item => filter === 'all' || item.slot === filter).slice().reverse();
+  if (sort === 'power') items.sort((a, b) => (b.power || 0) - (a.power || 0));
+  if (sort === 'level') items.sort((a, b) => b.level - a.level);
+  if (!items.length) { const empty = node('div', 'empty-inventory'); empty.append(node('b', '', '◇'), node('span', '', state.inventory.length ? '這個部位還沒有戰利品。' : '背包還很輕。出發帶回第一件寶物吧。')); $('inventory-list').replaceChildren(empty); return; }
+  $('inventory-list').replaceChildren(...items.map(item => {
+    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
+    if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
+    else if ((item.power || 0) > (state.equipment[item.slot]?.power || 0)) button.append(node('span', 'item-upgrade', '↑'));
+    button.setAttribute('aria-label', `${item.name}，${qualityName(item.quality)}，等級 ${item.level}${item.locked ? '，已鎖定' : ''}`);
+    button.setAttribute('aria-pressed', String(item.id === selectedId));
+    button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); }); return button;
+  }));
+}
+function renderItemDetail() {
+  const item = selectedSlot ? state.equipment[selectedSlot] : state.inventory.find(item => item.id === selectedId);
+  if (!item) {
+    const placeholder = node('div', 'detail-placeholder'); placeholder.append(node('span', '', '◇'), node('h3', '', '看看下一件好東西'), node('p', '', '選擇一件裝備，比較它會為旅者帶來什麼改變。')); $('item-detail').replaceChildren(placeholder); return;
+  }
+  const wrap = $('item-detail'); wrap.style.setProperty('--item-color', colorOf(item));
+  const current = state.equipment[item.slot];
+  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}`);
+  const name = node('h3', 'detail-name', item.name);
+  const subtitle = node('div', 'detail-subtitle', `${slotNames[item.slot]} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 評分 ${format(item.power)}`);
+  const description = node('p', 'detail-description', item.description || '一件等待發揮力量的裝備。');
+  const table = node('div', 'compare-table');
+  const keys = new Set([...Object.keys(item.stats || {}), ...Object.keys(current?.stats || {})]);
+  for (const key of keys) {
+    if (!statNames[key]) continue;
+    const value = Number(item.stats?.[key]) || 0, old = Number(current?.stats?.[key]) || 0, diff = value - old;
+    const display = rateStats.has(key) ? `${(value * 100).toFixed(1)}%` : format(value);
+    const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : Math.round(diff)}`;
+    const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', display), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
+  }
+  const explanation = node('p', 'muted', selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。評分只是參考，屬性搭配更重要。');
+  const actions = node('div', 'detail-actions');
+  if (!selectedSlot) {
+    const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle'; equip.addEventListener('click', () => { dispatch('equip', item.id); selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
+    const lock = node('button', 'secondary-button', item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle'; lock.addEventListener('click', () => dispatch('lock', item.id));
+    const sell = node('button', 'secondary-button', '出售'); sell.disabled = item.locked || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
+  }
+  wrap.replaceChildren(quality, name, subtitle, description, table, explanation, actions);
+}
+
+// Entire scene is independently drawn with canvas primitives; no external assets.
+const canvas = $('battle-canvas'), ctx = canvas.getContext('2d');
+let sceneWidth = 640, sceneHeight = 360;
+function resizeCanvas() {
+  const bounds = canvas.getBoundingClientRect();
+  sceneWidth = Math.max(320, Math.round(bounds.width / 2)); sceneHeight = Math.max(160, Math.round(bounds.height / 2));
+  canvas.width = sceneWidth; canvas.height = sceneHeight;
+}
+const resizeObserver = new ResizeObserver(resizeCanvas); resizeObserver.observe(canvas);
+function rect(x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+function polygon(points, color) { ctx.fillStyle = color; ctx.beginPath(); points.forEach(([x,y], i) => i ? ctx.lineTo(x,y) : ctx.moveTo(x,y)); ctx.closePath(); ctx.fill(); }
+function drawHero(x, y, t) {
+  const fighting = state.mode === 'battle' && state.enemies.length > 0;
+  const pulse = prefs.reducedMotion ? 0 : attackPulse;
+  const bob = prefs.reducedMotion ? 0 : Math.sin(t * 3) * 1;
+  ctx.save(); ctx.translate(x + pulse * 5, y + bob);
+  ctx.fillStyle = '#06161d70'; ctx.beginPath(); ctx.ellipse(0, 3, 16, 4, 0, 0, Math.PI * 2); ctx.fill();
+  polygon([[-13,-5],[-9,-31],[-4,-38],[7,-36],[13,-8],[8,0],[-8,0]], '#24575a');
+  polygon([[-11,-6],[-4,-29],[5,-31],[9,-6],[3,-2]], '#548c81');
+  rect(-6,-9,5,14,'#172d35'); rect(4,-8,5,13,'#20333b'); rect(-7,4,8,3,'#101f28'); rect(3,4,9,3,'#101f28');
+  rect(-7,-39,16,13,'#456c68'); rect(-4,-35,10,10,'#dbb98a'); rect(3,-33,2,2,'#17282d');
+  polygon([[-10,-34],[-7,-43],[3,-46],[11,-38],[10,-33],[2,-36],[-4,-33]], '#769d87');
+  rect(-6,-23,14,3,'#bd9557'); rect(-7,-21,4,13,'#678d7d');
+  ctx.save(); ctx.translate(10,-22); ctx.rotate(pulse * 1.6 - .4);
+  rect(-1,-21,3,27,'#cbd7c5'); rect(0,-24,2,4,'#f0f1d4'); rect(-5,0,12,3,'#dab478'); rect(0,3,3,7,'#8a6041'); ctx.restore();
+  if (fighting && pulse > .25) { ctx.strokeStyle = '#dcf6d4'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(15,-23,20,-1,.9); ctx.stroke(); }
+  ctx.restore();
+}
+function drawEnemy(enemy, x, y, index, t) {
+  const boss = enemy.boss;
+  const pulse = prefs.reducedMotion ? 0 : enemyPulse;
+  const bob = prefs.reducedMotion ? 0 : Math.sin(t * 2 + index * 2) * 2;
+  ctx.save(); ctx.translate(x - pulse * 4, y + bob); const size = boss ? 1.5 : 1; ctx.scale(size,size);
+  ctx.fillStyle = '#06161d70'; ctx.beginPath(); ctx.ellipse(0,4,18,4,0,0,Math.PI*2); ctx.fill();
+  const palette = boss ? ['#614456','#a26776','#cf9b8c'] : index % 2 ? ['#3e5654','#6d9582','#adbf93'] : ['#434b5c','#68758b','#a0b4b1'];
+  polygon([[-16,0],[-19,-18],[-13,-32],[-4,-29],[6,-36],[17,-29],[21,-10],[13,2]],palette[0]);
+  polygon([[-11,-3],[-12,-19],[-5,-26],[5,-30],[13,-21],[13,-4]],palette[1]);
+  polygon([[-16,-26],[-23,-44],[-9,-34]],palette[0]); polygon([[10,-32],[20,-47],[18,-23]],palette[0]);
+  rect(-7,-22,4,3,'#ebd19a'); rect(5,-23,4,3,'#ebd19a'); rect(-5,-13,13,3,palette[0]);
+  rect(-15,-4,7,10,palette[0]);rect(9,-3,7,10,palette[0]);
+  if(boss){rect(-8,-37,20,4,'#b3996f');polygon([[-7,-37],[-5,-45],[0,-39],[5,-48],[9,-39],[14,-45],[12,-37]],'#d9ba78');}
+  ctx.restore();
+  const width = boss ? 57 : 40;
+  const sy = y - (boss ? 80 : 57);
+  rect(x - width/2, sy, width, 3, '#10222a'); rect(x-width/2, sy, width * Math.max(0, enemy.hp) / Math.max(1,enemy.maxHp),3,boss?'#d29a76':'#b4a778');
+  ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#d8ded0'; ctx.fillText(enemy.name,x,sy-5,width+25);
+}
+function drawScene(t, dt) {
+  const w = sceneWidth, h = sceneHeight;
+  const gradient = ctx.createLinearGradient(0,0,0,h); gradient.addColorStop(0,'#112730'); gradient.addColorStop(.5,'#28534e'); gradient.addColorStop(1,'#152a2b');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);
+  // Moon, layered fir forest, stone ruins and narrow path.
+  ctx.fillStyle='#becdb13b';ctx.beginPath();ctx.arc(w*.72,h*.22,18,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e3dec77d';ctx.beginPath();ctx.arc(w*.72,h*.22,12,0,Math.PI*2);ctx.fill();
+  for(let layer=0;layer<3;layer++)for(let i=0;i<13;i++){
+    const x=i*w/11+(layer%2)*17-20,base=h*(.58+layer*.09),height=h*(.28+((i*7+layer*3)%9)/35),color=['#23443f','#1b3b37','#132e2d'][layer];
+    rect(x-2,base-height*.35,4,height*.5,color);polygon([[x,base-height],[x-13-layer*4,base-12],[x+15+layer*3,base-12]],color);
+  }
+  rect(0,h*.75,w,h*.25,'#172e2e');
+  polygon([[0,h*.94],[w*.25,h*.72],[w*.62,h*.71],[w,h*.89],[w,h],[0,h]],'#344b42');
+  polygon([[0,h*.97],[w*.25,h*.77],[w*.62,h*.77],[w,h*.94],[w,h],[0,h]],'#415649');
+  // Broken pillars, never generated from another game's artwork.
+  rect(w*.12,h*.39,11,h*.37,'#344e48');rect(w*.1,h*.39,17,5,'#547168');rect(w*.13,h*.45,3,h*.29,'#43635b');
+  rect(w*.9,h*.4,13,h*.37,'#344e48');rect(w*.89,h*.4,18,5,'#5d7869');
+  for(let i=0;i<26;i++){const x=(i*37+13)%w,y=h*.79+(i*11)%Math.max(1,h*.18);rect(x,y,3+(i%4),1,'#60705966');}
+  for(let i=0;i<14;i++){const x=(i*71+9)%w,y=h*.44+(i*19)%(h*.28);const drift=prefs.reducedMotion?0:Math.sin(t*.5+i)*3;ctx.fillStyle=i%2?'#d5cb8359':'#b1ddbd55';ctx.fillRect(x+drift,y,1,1);}
+  const ground=h*.79;
+  drawHero(w*.28,ground,t);
+  const enemies=(state.enemies||[]).slice(0,3);
+  enemies.forEach((enemy,i)=>drawEnemy(enemy,w*(.64+i*.13),ground-i*2,i,t));
+  if(!enemies.length){
+    rect(w*.68,ground-12,19,12,'#6d6043');rect(w*.68-1,ground-14,21,5,'#9d8255');rect(w*.68+8,ground-12,3,12,'#d2ac66');
+    if(state.mode!=='battle'){ctx.fillStyle='#e2bf7660';ctx.beginPath();ctx.arc(w*.7,ground-8,20,0,Math.PI*2);ctx.fill();}
+  }
+  // Front grass and vignette.
+  for(let i=0;i<16;i++){const x=(i*43)%w;polygon([[x,h],[x+2,h-10-(i%3)*3],[x+5,h-3],[x+10,h-8],[x+9,h]],'#0d2326');}
+  const vignette=ctx.createRadialGradient(w*.5,h*.5,10,w*.5,h*.5,w*.65);vignette.addColorStop(0,'#04151a00');vignette.addColorStop(1,'#04151a88');ctx.fillStyle=vignette;ctx.fillRect(0,0,w,h);
+  particles=particles.filter(p=>p.life>0);for(const p of particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=dt*.25;ctx.globalAlpha=Math.max(0,p.life);rect(p.x*w,p.y*h,2,2,p.color);}ctx.globalAlpha=1;
+  if(flash>0&&!prefs.reducedMotion){ctx.fillStyle=`rgba(244,221,160,${Math.min(.13,flash)})`;ctx.fillRect(0,0,w,h);}flash=Math.max(0,flash-dt*2);attackPulse=Math.max(0,attackPulse-dt*4);enemyPulse=Math.max(0,enemyPulse-dt*4);
+}
+
+$('start-button').addEventListener('click',()=>{dispatch('start');playSound('win');});
+$('retreat-button').addEventListener('click',()=>dispatch('retreat'));
+$('heal-button').addEventListener('click',()=>dispatch('heal'));
+$('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
+$('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
+$('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
+$('sell-common').addEventListener('click',()=>{if(confirm('出售所有未鎖定的低品質裝備？已裝備與鎖定的裝備不會出售。')){dispatch('sellCommon');showToast('已處理可出售的低品質裝備。');}});
+$('sound-toggle').addEventListener('click',()=>{prefs.sound=!prefs.sound;updatePreferences();if(prefs.sound)playSound('loot');});
+$('motion-toggle').addEventListener('change',event=>{prefs.reducedMotion=event.target.checked;updatePreferences();});
+$('help-toggle').addEventListener('click',()=>$('help-dialog').showModal());$('settings-toggle').addEventListener('click',()=>$('settings-dialog').showModal());
+document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>$(button.dataset.close).close()));
+for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',event=>{if(event.target===dialog){const bounds=dialog.getBoundingClientRect();if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)dialog.close();}});
+$('export-save').addEventListener('click',()=>{
+  try {
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=node('a');link.href=url;link.download=`hv-v3-dot-lv${state.hero.level}-${new Date().toISOString().slice(0,10)}.json`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);showToast('存檔已準備下載，請確認檔案保存位置。');
+  }catch{showToast('匯出失敗，請稍後再試。');}
+});
+$('import-save').addEventListener('click',()=>$('save-file').click());
+$('save-file').addEventListener('change',async event=>{
+  const file=event.target.files?.[0];event.target.value='';if(!file)return;
+  if(file.size>2*1024*1024){showToast('存檔過大，請選擇小於 2 MB 的 JSON 存檔。');return;}
+  try{
+    const restored=validateSave(JSON.parse(await file.text()));
+    if(!confirm(`匯入 Lv.${restored.hero.level} 的旅程並取代目前進度？建議先匯出備份。`))return;
+    if(!claimLease(true)){showToast('請先關閉另一個正在進行遊戲的分頁。');return;}
+    state=restored;preventOverwrite=false;selectedId=null;selectedSlot=null;syncSelection();seenEvents.clear();(state.events||[]).forEach(e=>seenEvents.add(String(e.id)));notice('');save(true);render(true);showToast('存檔已匯入，從營地安全接續。');
+  }catch(error){console.warn('Invalid save rejected',error);showToast('存檔格式不符或已損壞，目前進度沒有改變。');}
+});
+window.addEventListener('pagehide',()=>releaseLease());
+document.addEventListener('visibilitychange',()=>{lastFrame=performance.now();accumulated=0;if(document.hidden)releaseLease();else{claimLease(true);render(true);}});
+window.addEventListener('storage',event=>{
+  if(event.key===LEASE_KEY){leaseLast=0;claimLease(true);}
+  if(event.key===SAVE_KEY&&!tabOwner&&event.newValue){try{state=validateSave(JSON.parse(event.newValue));lastSavedRaw=event.newValue;syncSelection();render(true);}catch{/* ignore invalid external state */}}
+});
+function frame(now){
+  const dt=Math.min(.1,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
+  if(!document.hidden){
+    const canPlay=claimLease();
+    if(canPlay){accumulated+=dt;if(accumulated>=.1){advance(state,Math.min(.2,accumulated));accumulated=0;}}
+    if(now-lastRendered>100){render();lastRendered=now;}
+    drawScene(now/1000,dt);if(canPlay)save();
+  }
+  requestAnimationFrame(frame);
+}
+if(loadProblem)notice(loadProblem);
+if(!storeAvailable)notice('此瀏覽器不允許儲存資料。請定期匯出存檔，避免關閉後遺失。');
+claimLease(true);updatePreferences();render(true);resizeCanvas();requestAnimationFrame(frame);

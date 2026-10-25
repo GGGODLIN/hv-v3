@@ -1,6 +1,8 @@
 # Current status
 
-2026-10-25: independent v0.1 development started. No playable game has yet passed acceptance. Live site still serves the infrastructure probe until this candidate passes gameplay, persistence, test and source readback checks.
+2026-10-25 12:27 UTC: v0.1 candidate source complete. 54 Node tests pass (combat, loot, independent acceptance, UI static) and all three JavaScript modules pass syntax checks. Browser gameplay/visual/persistence acceptance is pending. Live root still serves the infrastructure probe.
+
+The backed-up runtime will first be staged at /play/hv-v3-dot/candidates/v0.1/ for cloud-browser QA because executor localhost is not reachable by the cloud browser. Candidate storage is namespaced separately from the accepted root. Public candidate existence is not acceptance; only after QA passes will root be promoted. No old game is overwritten.
 
 ## Work allocation
 - Research: original HV source evidence and explicit uncertainty.

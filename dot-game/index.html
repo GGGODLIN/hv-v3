@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111c22"><meta name="description" content="獨立製作的 HV 風格自動戰鬥刷寶 RPG。配裝，出征，再突破。">
+  <title>霧境遠征 · HV × dot</title><link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="masthead">
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.1</span></h1></span></a>
+    <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
+  </header>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <main id="main" class="game-grid">
+    <aside class="hero-panel panel">
+      <div class="section-heading"><span class="eyebrow">YOUR WAYFARER</span><span id="level-badge" class="badge">LV. 1</span></div>
+      <div class="portrait" aria-hidden="true"><svg viewBox="0 0 180 148"><defs><linearGradient id="cloak" x2="0" y2="1"><stop stop-color="#5d9393"/><stop offset="1" stop-color="#1e454b"/></linearGradient></defs><circle cx="90" cy="67" r="49" fill="none" stroke="#9b835d" stroke-width="1"/><path d="M48 139 62 79 75 70 109 70 121 83 135 139Z" fill="url(#cloak)"/><path d="M68 68 70 41 86 26 104 31 115 51 112 73 100 86 81 85Z" fill="#263d46"/><path d="m78 51 25-1 2 20-13 9-14-9Z" fill="#d9ba8d"/><path d="m68 55 6-20 13-10 17 7 12 22-19-10Z" fill="#609291"/><path d="m81 59 5 0m11 0 5 0" stroke="#202c34" stroke-width="3"/><path d="m111 92 21 9-5 19-22-13" fill="#adb2a3"/><path d="m126 107 18-66 6 1-12 69" fill="#d8dcc7"/><path d="m128 100 17 5" stroke="#cba76f" stroke-width="5"/><path d="m61 88-13 33 19 4 13-32" fill="#638b89"/><path d="m79 84 15 16 17-18-17 34Z" fill="#192f39"/><path d="m78 112 30 0" stroke="#c9a765" stroke-width="5"/></svg><span class="portrait-orbit"></span></div>
+      <div class="hero-name"><h2>無名旅者</h2><p>以每一次遠征，留下自己的名字。</p></div>
+      <div class="resource"><div><span>生命</span><strong id="hp-label">—</strong></div><div class="meter hp"><i id="hp-bar"></i></div></div>
+      <div class="resource"><div><span>魔力</span><strong id="mp-label">—</strong></div><div class="meter mp"><i id="mp-bar"></i></div></div>
+      <div class="resource small"><div><span>成長</span><strong id="xp-label">—</strong></div><div class="meter xp"><i id="xp-bar"></i></div></div>
+      <div class="stat-grid"><div><span>攻擊</span><strong id="stat-attack">—</strong></div><div><span>防禦</span><strong id="stat-defense">—</strong></div><div><span>暴擊</span><strong id="stat-crit">—</strong></div><div><span>金幣</span><strong id="stat-gold" class="gold">—</strong></div></div>
+      <div class="section-heading gear-heading"><h3>目前裝備</h3><span class="muted">點擊檢視</span></div>
+      <div id="equipment" class="equipment-list"></div>
+      <div class="hero-footnote"><span class="tiny-diamond">◆</span> 裝備決定上限，下一件好物就在前方。</div>
+    </aside>
+    <section class="expedition-column">
+      <div class="expedition-header"><div><span class="eyebrow">THE EXPEDITION</span><h2 id="zone-title">霧松邊境</h2></div><span id="mode-badge" class="status-pill">整備中</span></div>
+      <div class="battle-scene" id="battle-scene">
+        <canvas id="battle-canvas" aria-label="像素風遠征戰鬥場景；戰況亦顯示於下方文字紀錄"></canvas>
+        <div class="scene-top"><span id="stage-label">遠征 01</span><span id="wave-label">準備出發</span></div>
+        <div class="scene-bottom"><div><span class="eyebrow">EXPEDITION TIME</span><strong id="run-time">00:00</strong></div><div class="scene-best"><span>同關最佳</span><strong id="best-time">尚無紀錄</strong></div></div>
+        <div id="scene-message" class="scene-message"><span class="scene-emblem">✦</span><h3>下一段旅程，準備好了嗎？</h3><p>選好裝備，剩下的交給戰鬥。</p></div>
+        <div id="floating-layer" class="floating-layer" aria-hidden="true"></div>
+        <div id="reward-banner" class="reward-banner" role="status" hidden></div>
+      </div>
+      <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
+      <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
+    </section>
+    <aside class="loot-panel panel">
+      <div class="section-heading"><div><span class="eyebrow">THE SPOILS</span><h2>遠征戰利品</h2></div><span id="inventory-count" class="badge">0</span></div>
+      <p class="panel-description">帶回寶物，換上新的可能。</p>
+      <div class="loot-tools"><select id="slot-filter" aria-label="篩選裝備部位"><option value="all">全部部位</option><option value="weapon">武器</option><option value="armor">護甲</option><option value="accessory">飾品</option></select><select id="sort-select" aria-label="排序戰利品"><option value="new">最新取得</option><option value="power">評分優先</option><option value="level">等級優先</option></select></div>
+      <div id="inventory-list" class="inventory-list"></div>
+      <button id="sell-common" class="text-button">出售未鎖定的低品質裝備</button>
+      <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><span>◇</span><h3>看看下一件好東西</h3><p>選擇一件裝備，比較它會為旅者帶來什麼改變。</p></div></section>
+    </aside>
+  </main>
+  <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。離開頁面暫停，不計離線收益。</span><span id="tab-status"></span></footer>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景分頁暫停，不累積離線收益。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
+<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
+<script type="module" src="./src/ui.js"></script>
+</body></html>
