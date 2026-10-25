@@ -37,6 +37,9 @@ export function autoEquip(p: Player, extra: Equip[] = []): Equip[] {
       const cur = powerScore(derive(p));
       const trial: Player = { ...p, equipped: { ...p.equipped, [slot]: e } };
       if (blocksOffHand(e)) delete trial.equipped.offHand;
+      // rc4 fix: an off-hand cannot go next to a two-hander / staff. The old trial scored the illegal pair, then equip() pushed the
+      // weapon to the inventory and the town sell (keep = equipped only) sold it, leaving the sim character unarmed. Never trade the main hand away.
+      if (slot === 'offHand' && blocksOffHand(p.equipped.mainHand)) continue;
       if (powerScore(derive(trial)) > cur * (1 + AUTO_EQUIP_MARGIN)) {
         if (!p.inventory.includes(e)) { p.inventory.push(e); used.push(e); }
         equip(p, e);
