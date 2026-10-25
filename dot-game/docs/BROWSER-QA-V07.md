@@ -20,3 +20,10 @@ Test-export SHA256: initial `f1b67363cdaf011c96bbb13bce7824834a6cbe503e7e85a6758
 416 source tests/four syntax checks and separate100-seed actual-engine measurements supplement observations; not browser evidence. All1500 catalog/collision/replay/cap/schema cases automated, not exhaustively browser-tested. Inherited v0.6 schema-negative browser gap remains; denied internal-download route was not retried. Physical mobile, OS suspension and foreground-only visibility anomaly remain unresolved. No offline rewards. Narrow desktop zoom is not phone testing.
 
 **Candidate desktop GO.** Root promotion, exact root CI/HTTP hashes and shared-save smoke remain separate gates; append evidence only after completion.
+
+## Final public-root smoke — 2026-10-25 19:49 UTC
+Accepted source `03e769c1beff762ff370b7539cc0c8cb8589678d` (64 files/814222 bytes/63 payloads) fully verified before site `bc706c9b87d4117aac6ddcf5436e1817bd1f9233`. Exact Pages40227611219 SUCCESS, six Git/HTTP hashes match. Only root runtime changed; all prior candidates/fixtures/other works preserved.
+
+New root tab retainedLv19,XP470/1192,gold8764,wins76,inventory99, oldLv4 club and auto-saleOFF. Initially read-only; explicit takeover made oldv0.6 read-only. Quote/cancel/reload preserved values. Actual root purchase1036 delivered one locked club without equipping; explicit equip raised attack187→237 and stage3 log10.6 seconds. After auto-loop began and manual retreat/reload:Lv19,XP674/1192,gold7888,wins77,kills472,inventory102, newclub equipped, auto-saleOFF. No app-origin warnings/errors in inspected log. Closed old/candidate test tabs, retained newroot in safe camp. Final values include subsequent-loop kills, not just oneclear reward.
+
+**Final bounded desktop release PASS**, with inherited limits above unchanged.

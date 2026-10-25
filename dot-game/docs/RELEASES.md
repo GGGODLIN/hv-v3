@@ -82,3 +82,10 @@ This later receipt is documentation-only; the six runtime files are unchanged an
 - 361 tests and four JS syntax checks pass; final100-seed/300-policy actual-runtime rerun passes. Actual Chrome covered valid import/cancel, exact sales, future-only toggle, exported live auto-sale record, safe cap stop, consent revocation, reload and stable old-tab takeover/defaultOFF smoke.
 - Schema-specific browser rejection remains unverified because the supported file/download handoff failed; its extensive automated coverage and separate actual file-read-failure preservation are documented, not conflated. BROWSER-QA-V06.md lists this and other device/lifecycle limits.
 - This later receipt changes documentation/manifest only. Runtime equals accepted source and tested candidate. Quiet-hour notification was suppressed; latest verified receipt commit is the recovery-documentation point, separate from runtime and historical candidates.
+
+## v0.7 — 2026-10-25 19:50 UTC
+- Accepted runtime source: `03e769c1beff762ff370b7539cc0c8cb8589678d` on bot/dot. All64 files/814222 bytes and63 manifest payloads read back before promotion.
+- Candidate source `520b915747b18e6ee85519d48211b87368a19519`; site `b471d7ff356c6776cf988d858372b89f3c8e4dfb`; exact Pages40226863695 and six HTTP hashes passed. Isolated candidate retained.
+- Accepted site `bc706c9b87d4117aac6ddcf5436e1817bd1f9233`; exact Pages40227611219 SUCCESS. Six public HTTP200 bodies match accepted source; root-only runtime changes, all candidates/fixtures/other works preserved.
+-416 tests/four syntax checks,1500 prior-validator purchase roundtrips,3000 baseline item/RNG fingerprints,100-seed natural purchase measurement. Actual candidate/root purchase/equip/reload/takeover and same-start14.7→10.6s witness; not universal benefit. See BROWSER-QA-V07.md and COMMISSION-GUIDE.md.
+- This later receipt changes docs/manifest only; runtime unchanged. Latest fully verified receipt commit is the recovery-doc checkpoint; retain older versions. No GPT Library sync or browser-save/credential/schedule restoration claimed. Routine notice suppressed during Taipei quiet hours.
