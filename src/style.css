@@ -79,7 +79,7 @@ button.node .ni { font-size: 30px; }
 .hudl { background: #0009; padding: 4px 8px; border-radius: 6px; }
 .status { font-size: 13px; }
 .status .spirit { color: #ffb0ff; }
-.log { background: #0009; border-radius: 6px; padding: 4px 8px; font-size: 12px; height: 104px; overflow: hidden; color: #ddd; }
+.log { background: #0009; border-radius: 6px; padding: 4px 8px; font-size: 14px; line-height: 1.45; height: 128px; overflow: hidden; color: #ddd; }
 .log .crit { color: #ffe040; }
 .cmdbar { position: absolute; top: 662px; left: 0; right: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: stretch; }
 .cmdbar.busy button { pointer-events: none; opacity: .6; }
