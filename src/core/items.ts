@@ -169,8 +169,8 @@ export function equipName(e: Equip): string {
   if (['cloth', 'light', 'heavy'].includes(e.group)) {
     const fam = e.base === 'power' ? 'power' : e.group;
     core = `${core} ${SLOT_NAMES[fam]?.[e.slot] ?? e.slot}`;
-  } else if (e.group === 'staff') core = `${core} Staff`;
-  else if (e.group === 'shield') core = `${core} Shield`;
+  } else if (e.group === 'staff' && !/\bStaff$/.test(core)) core = `${core} Staff`;
+  else if (e.group === 'shield' && !/\bShield$/.test(core)) core = `${core} Shield`; // CP3-fix 5: base names like 'Kite Shield' already end in it
   const pre = e.prefix ? `${PREFIX_NAMES[e.prefix] ?? e.prefix} ` : '';
   const sufName = e.suffix ? SUFFIX_NAMES[e.suffix] ?? e.suffix : '';
   const suf = sufName ? (/^of /i.test(sufName) ? ` ${sufName}` : ` of ${sufName}`) : '';

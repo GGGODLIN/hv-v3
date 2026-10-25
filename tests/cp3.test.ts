@@ -158,3 +158,14 @@ describe('CP3-fix 4: Spirit Stance unlock', () => {
     expect(canUse(b, { kind: 'spirit' })).toBe(true);
   });
 });
+
+describe('CP3-fix 5: equipment names', () => {
+  it('never repeat a word back to back (e.g. "Kite Shield Shield")', async () => {
+    const { equipName } = await import('../src/core/items');
+    const rng = new Rng(21);
+    for (let i = 0; i < 3000; i++) {
+      const n = equipName(generateEquip(rng, 1 + (i % 50), {}));
+      expect(n, n).not.toMatch(/\b(\w+) \1\b/);
+    }
+  });
+});
