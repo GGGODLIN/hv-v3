@@ -16,13 +16,13 @@ export const ABYSS = {
    * 'floor' = rc6 curve (floorLevel(20) + levelPerDepth × d + lvFollow). */
   levelBase: 'player' as 'player' | 'floor',
   /** rc7 (a) (暫定，無來源): extra monster levels per depth on top of the player level. */
-  playerLevelPerDepth: 0.25, // 暫定，無來源 (rc7 sweep, docs/cp6-abyss.md)
+  playerLevelPerDepth: 0, // 暫定，無來源 (rc8 sweep c6D, docs/cp6-abyss.md; rc7 0.25)
   /** rc6 item 1 knob A (暫定，無來源): abyss-only monster-level follow k (Lv += k × max(0, player Lv − RULES.monLvFollow.free)); main tower keeps RULES.monLvFollow.k. rc5 = 0.8. */
   lvFollowK: 0.8,
   /** rc6 item 1 knob B (暫定，無來源): abyss-only × on monster physical resistance (physMit and positive piercing/crushing/slashing spec). rc5 = 1. */
   physResScale: 1,
   /** Decision 2: +2% monster damage per depth, cumulative (original: +2% per wave, Battles.md:261; wave→depth is 暫定). */
-  dmgPerDepth: 0.02,
+  dmgPerDepth: -0.01, // 暫定，無來源 (rc8 sweep c6D; deviates from sourced +2%/wave Battles.md:261; must stay ≥ -0.0167 for the d60 cap)
   /** The_Tower.md:12: past F40, +5% monster damage and +5% HP every 5 floors (sourced). */
   past40: { every: 5, dmg: 0.05, hp: 0.05 },
   /** Decision 4 (暫定): checkpoint every 5 depths. */
@@ -36,13 +36,13 @@ export const ABYSS = {
   /** r2 tuning knob (暫定): flat monster-level offset added to every depth (0 = F20 level + 2/depth). */
   levelOffset: 0,
   /** r2 tuning knob (暫定): abyss monster HP ×. */
-  hpScale: 1.5, // 暫定，無來源 (rc7 sweep; rc6 0.55 was tuned for the floor curve)
+  hpScale: 1.1, // 暫定，無來源 (rc8 sweep c6D; rc7 1.5)
   /** r2 tuning knob (暫定): abyss monster damage ×. */
-  dmgScale: 1.5, // 暫定，無來源 (rc7 sweep)
+  dmgScale: 6, // 暫定，無來源 (rc8 sweep c6D; rc7 1.5)
   /** r2b knob (暫定): extra damage × for the abyss boss at a given depth (missing = 1). */
   bossDmgAt: { 15: 0.6, 20: 0.6, 25: 0.6 } as Record<number, number>,
   /** r4 decision (c) (暫定): a tier's DIFF jump (hp/dmg/pl) phases in over its first N depths: 1/N, 2/N, … full. 1 = old step. */
-  tierRamp: 3,
+  tierRamp: 5, // 暫定，無來源 (rc8 sweep; rc7 3)
   /** 暫定 sim knob: shift the ramp start past the tier's first depth (0 = ramp begins on the tier's first depth). */
   tierRampOffset: 0,
   /** r2 decision 8 (暫定): carry-back multiplier = 1 + this × tier index (Normal 0 … PFUDOR 6) of the deepest depth reached. */
