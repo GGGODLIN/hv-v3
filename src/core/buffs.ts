@@ -31,7 +31,7 @@ export interface BuffDef { id: string; zh: string; rarity: Rarity; school: Schoo
 const B = (id: string, zh: string, rarity: Rarity, school: School, desc: string, m: Partial<BuffDef> = {}): BuffDef => ({ id, zh, rarity, school, desc, ...m });
 export const BUFFS: BuffDef[] = [
   // ---- common (21)
-  B('B2', '磨利', 'common', 'blade', '物理傷害 +10%', { d: { adbPct: 0.1 } }),
+  B('B2', '磨利', 'common', 'blade', '物理傷害 +15%', { d: { adbPct: 0.15 } }),
   B('B3', '精準', 'common', 'blade', '物理命中 ×1.08（乘在目前命中上）', { d: { physAccPct: 0.08 } }),
   B('B4', '銳眼', 'common', 'blade', '物理暴擊率 +4%', { d: { physCrit: 0.04 } }),
   B('B5', '破甲直覺', 'common', 'blade', '抵抗反制 +0.1', { d: { counterResist: 0.1 } }),
@@ -53,7 +53,7 @@ export const BUFFS: BuffDef[] = [
   B('S-might', '力量祝福', 'common', 'none', '攻擊與法術傷害 +15%', { d: { adbPct: 0.15, mdbPct: 0.15 } }),
   B('S-vigor', '生命祝福', 'common', 'none', '最大 HP +20%，取得時回滿', { d: { hpPct: 0.2 } }),
   // ---- rare (13)
-  B('B1', '鋒刃專精', 'rare', 'blade', '物理傷害 +12%、暴擊倍率 +0.25', { core: true, d: { adbPct: 0.12, critMod: 0.25 } }),
+  B('B1', '鋒刃專精', 'rare', 'blade', '物理傷害 +20%、暴擊倍率 +0.25', { core: true, d: { adbPct: 0.2, critMod: 0.25 } }),
   B('B6', '弱點洞察', 'rare', 'blade', '命中目前目標的弱點時傷害 ×1.15', { b: { weakMult: 0.15 } }),
   B('B7', '處刑者', 'rare', 'blade', '慈悲一擊冷卻 −1', { b: { skillCd: { mercifulBlow: -1 } }, needs: 'skill' }),
   B('O1', '戰意湧動', 'rare', 'oc', '每次命中 OC +3、OC 上限 +50', { core: true, b: { ocGain: 3, ocCap: 50 } }),
@@ -62,7 +62,7 @@ export const BUFFS: BuffDef[] = [
   B('A1', '元素共鳴', 'rare', 'arcane', '全元素 EDB +10、法術暴擊 +4%', { core: true, d: { edbAll: 10, magCrit: 0.04 }, needs: 'spell' }),
   B('A7', '節能詠唱', 'rare', 'arcane', '法術 MP 消耗 −15%（上限 50%）', { d: { manaCons: 0.15 }, needs: 'spell' }),
   B('A8', '冥想', 'rare', 'arcane', '專注回復 MP ×1.5', { b: { focMpPct: 0.5 }, needs: 'spell' }),
-  B('W1', '不動之盾', 'rare', 'bulwark', '格擋 +5%、招架 +3%、魔法減傷 +3%', { core: true, d: { block: 0.05, parry: 0.03, magMit: 0.03 } }),
+  B('W1', '不動之盾', 'rare', 'bulwark', '格擋 +3%、招架 +3%、魔法減傷 +3%', { core: true, d: { block: 0.03, parry: 0.03, magMit: 0.03 } }),
   B('W5', '撕裂', 'rare', 'bulwark', '流血傷害 ×1.5', { b: { bleedMult: 0.5 } }),
   B('W8', '震盪', 'rare', 'bulwark', '盾擊暈眩 +1 回合', { b: { bashStun: 1 }, needs: 'skill' }),
   B('N3', '良品嗅覺', 'rare', 'none', '菁英與寶箱裝備品質 +1', { r: { qualityBump: 1 } }),
@@ -81,7 +81,7 @@ export interface Combos { blade: boolean; oc: boolean; arcane: boolean; bulwark:
 export const COMBO_AT = 3; // 暫定
 export const CROSS_AT = 2; // 暫定
 export const COMBO_ZH: Record<keyof Combos, string> = {
-  blade: '連斬：暴擊時 OC +5', oc: '滿溢：OC 達上限時，下一個技能不耗 OC', arcane: '共振：連續同元素法術，第二次 EDB +20', bulwark: '反擊架勢：防禦後下一次攻擊 ×1.5（暫定）',
+  blade: '連斬（3 張刃鋒）：暴擊時 OC +5；對菁英與首領物理傷害 ×1.5（暫定）', oc: '滿溢（3 張奔流）：OC 達上限時，下一個技能不耗 OC', arcane: '共振（3 張秘術）：連續同元素法術，第二次 EDB +20', bulwark: '磐石反擊（3 張磐石）：防禦後下一次攻擊 ×1.5；每個敵方回合第一次格擋／迴避／招架時，立刻反擊一次普攻 ×0.5（暫定）',
   bladeOc: '刃鋒＋奔流：架勢中物理暴擊率 +5%', arcaneOc: '秘術＋奔流：架勢中法術 MP 再 −10%', bulwarkBlade: '磐石＋刃鋒：要害打擊對暈眩倍率 +0.5', bulwarkArcane: '磐石＋秘術：冰／雷附帶暈眩 +1 回合',
 };
 export function schoolCounts(ids: string[]): Record<School, number> {

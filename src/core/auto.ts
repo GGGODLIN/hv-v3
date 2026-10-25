@@ -175,9 +175,13 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
   }
   return a;
 }
-export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number;
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
   /** CP4 (buff strategies only) */
   cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number; offers: number; contests: number } }
+
+/** Sim-only: buff:<school> strategies listed here attack instead of casting at weaknesses (scripts/cp4-knobs.ts play=school). */
+export const BUFF_PLAY = { attackOnly: [] as string[] };
+const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(s);
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
   // Town prep.
@@ -195,7 +199,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
 }
 /** Play one battle to the end with a strategy (+ CP5 layer). */
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
-  const base = () => (strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b));
+  const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy)) : chooseAction(b));
   while (!b.over && b.turn < 400) act(b, mode ? chooseCp5(b, mode, base) : base(), rng, profs);
   if (!b.over) b.over = 'lose';
 }
@@ -218,6 +222,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   };
   let turns = 0;
   const bosses: BossFight[] = [];
+  const elites: { floor: number; won: boolean; hpPct: number }[] = [];
   let battles = 0, spiritBattles = 0;
   while (!run.done) {
     const opt = pickOption(p, run, strategy);
@@ -242,10 +247,11 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
       }
       if (cp5) fight(b, strategy, rng, profs, cp5.mode);
-      else while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, strategy !== 'noweak') : chooseAction(b), rng, profs); }
+      else while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy)) : chooseAction(b), rng, profs); }
       turns += b.turn;
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
+      if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') bosses.push({ floor: run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) break;
@@ -286,7 +292,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
+  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
 export function starterKit(p: Player, seed = 7): void {

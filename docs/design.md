@@ -279,3 +279,49 @@ sim：`npx tsx scripts/cp5-sim.ts 32 12`（輸出 docs/logs/cp5-sim.txt）、`np
 1. 必死組合的定義：快照取自「第一次到達該層」的角色，所以無詞綴精英的勝率本來就只有 46–78%。要改成用無詞綴對照的相對值，還是降低 F11–20 精英的基礎強度？
 2. B10、B15、B20 的 ignore 懲罰不夠。可以加入應對獎勵（例如暈眩打斷吸血後 Boss 破綻 1 回合），或讓 ignore 的定義更嚴格。
 3. 全通趟數：blade 和 oc 兩派偏慢（中位數 10–12 趟，近半數 12 趟內沒全通）。
+
+## CP4 rc balance (2026-10-25, all values 暫定)
+
+Tools:
+- `scripts/cp4-balance.ts N M [knobs]`: N seeds × M trips per school.
+- `scripts/cp4-duel.ts N K [knobs]`: the same characters, each given an equal 3-buff set per school, fight K F9 elite / F10 boss encounters.
+- `scripts/cp4-knobs.ts`: sim-only overrides. `play=school` makes 刃鋒/奔流/磐石 attack instead of casting at weaknesses.
+
+Changes:
+
+| Knob | Before | After |
+|---|---|---|
+| ELITE_OFFER_EVERY | 2 | 3 (an offer on the 1st, 4th, … elite win) |
+| B1 物理傷害 | +12% | +20% |
+| B2 物理傷害 | +10% | +15% |
+| 刃鋒 3-buff combo 連斬 | 暴擊 OC +5 | also ×1.5 physical damage vs elite/boss (`BLADE_BIG_GAME`) |
+| 磐石反擊 riposte | ×0.8, every block/evade/parry | ×0.5, first per enemy phase |
+| W1 格擋 | +5% | +3% |
+
+Tower shield stats are sourced and were not changed. With the flag off, `difficulty.ts 16 8` is byte-identical to `docs/cp4-baseline-sim.txt`.
+
+Campaign sim, 64 seeds × 8 trips, human play (the same tactics for every school):
+
+| School | 1st F10 win, before → after | Cleared within 8 trips | F9 elite win | Median buffs at 1st clear |
+|---|---|---|---|---|
+| 刃鋒 | 83% → 88% | 100% | 66% | 5 → 4 |
+| 奔流 | 83% → 81% | 100% | 65% | 5 → 4 |
+| 秘術 | 88% → 88% | 98% | 63% | 5 → 4 |
+| 磐石 | 86% → 83% | 100% | 68% | 5 → 4 |
+
+The gap between schools went from 5pp to 7pp, under the 15pp target. The 32-seed run before the change showed 78–94%.
+
+Duel, 32 chars × 6 fights, each set played its own way:
+
+| Set | F9 elite win, before → after | F10 win, before → after | F10 win with tower shield, before → after |
+|---|---|---|---|
+| 刃鋒 | 26% → 35% | 73% → 80% | 81% |
+| 奔流 | 21% | 71% | 69% |
+| 秘術 | 74% | 80% | 84% |
+| 磐石 | 39% → 32% | 89% → 86% | 91% (97% with the human-play duel) → 88% |
+
+Known limit: attack-only play vs the F9 elite is a base-game issue.
+- With no buffs, attack-only play wins only 21%, while weakness-spell play wins 69%.
+- In losing fights the elite (~1000 HP) is still at full HP when the player dies around turn 8.
+- Even +100% physical damage lifts 刃鋒 only to 42%.
+- Fixing this needs elite/base values, which would change the flag-off baseline, so they were not touched in CP4.

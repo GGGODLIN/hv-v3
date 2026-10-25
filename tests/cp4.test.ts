@@ -23,7 +23,7 @@ describe('CP4 step 1: buff data', () => {
     for (const b of BUFFS) expect(doc.includes(`| ${b.id} |`), b.id).toBe(true);
   });
   it('sums, combos and formed', () => {
-    expect(sumMods(['B2', 'S-might']).d.adbPct).toBeCloseTo(0.25);
+    expect(sumMods(['B2', 'S-might']).d.adbPct).toBeCloseTo(0.3);
     expect(sumMods(['A2', 'A1']).d.edb?.fire).toBe(15);
     expect(combos(['B2', 'B3', 'B4']).blade).toBe(true);
     expect(combos(['B2', 'B3', 'O2', 'O3']).bladeOc).toBe(true);
@@ -74,7 +74,7 @@ describe('CP4 step 2: buffs apply as run-layer mods', () => {
   it('flag on: derived mods and opening OC', () => on(() => {
     const r = startRun(p, 3); r.buffs = ['B2', 'W4', 'O3'];
     const d0 = derive(p), d = runDerived(p, r);
-    expect(d.adb).toBeCloseTo(d0.adb * 1.1); expect(d.hp).toBe(Math.round(d0.hp * 1.12));
+    expect(d.adb).toBeCloseTo(d0.adb * 1.15); expect(d.hp).toBe(Math.round(d0.hp * 1.12));
     expect(openingOc(p, 'battle', r)).toBe(20);
   }));
   it('flag on: might/vigor buffs equal the old shrine numbers', () => on(() => {
@@ -199,10 +199,10 @@ describe('CP4 step 6: tuning + sim strategies', () => {
       expect(Math.abs(c.legend / n - w[2] / tot)).toBeLessThan(0.01);
     }
   }));
-  it('win offers: boss 1, elite on 1st/3rd elite win', () => {
+  it('win offers: boss 1, elite on 1st/4th elite win', () => {
     const r = startRun(p, 1);
     expect(winOffers('boss', r)).toBe(1); expect(winOffers('battle', r)).toBe(0);
-    expect([1, 2, 3, 4].map(() => winOffers('elite', r))).toEqual([1, 0, 1, 0]);
+    expect([1, 2, 3, 4].map(() => winOffers('elite', r))).toEqual([1, 0, 0, 1]);
   });
   it('buff strategies turn the flag on only inside the run and record buffs', () => {
     const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);

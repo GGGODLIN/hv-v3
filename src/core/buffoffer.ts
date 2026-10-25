@@ -78,12 +78,14 @@ export function takeBuff(p: Player, run: RunState, id: string): string {
 }
 export const skipOffer = (run: RunState) => { run.offer = null; };
 /** Offers after a won fight (step 6 tuning, 暫定): boss 1; elite 1 on every ELITE_OFFER_EVERY-th elite win of the trip (1st, 3rd, ...). Mutates run.eliteWins. */
-export const ELITE_OFFER_EVERY = 2;
+export const ELITE_OFFER_EVERY = 3; // 暫定, CP4 rc: was 2
+/** Mutable copy of the 暫定 offer knobs, changed only by sim scripts (scripts/cp4-knobs.ts). */
+export const OFFER_KNOBS = { eliteEvery: ELITE_OFFER_EVERY, bossFloors: [] as number[] /* boss floors that give NO offer */ };
 export function winOffers(type: NodeType, run: RunState): number {
-  if (type === 'boss') return 1;
+  if (type === 'boss') return OFFER_KNOBS.bossFloors.includes(run.floor) ? 0 : 1;
   if (type !== 'elite') return 0;
   run.eliteWins = (run.eliteWins ?? 0) + 1;
-  return (run.eliteWins - 1) % ELITE_OFFER_EVERY === 0 ? 1 : 0;
+  return (run.eliteWins - 1) % OFFER_KNOBS.eliteEvery === 0 ? 1 : 0;
 }
 export function merchantBuffs(p: Player, run: RunState): { id: string; price: number }[] {
   const pm = 1 + ((run.buffs ?? []).filter((x) => x === 'N2').length * -0.15);

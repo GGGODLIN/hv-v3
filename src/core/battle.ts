@@ -215,7 +215,11 @@ function retarget(s: BattleState, t: number): number {
 /** 暫定 (decision 2026-10-25 #1): bulwark combo 'next hit after defend' multiplier, was 1.3. */
 export const BULWARK_COUNTER_MULT = 1.5;
 /** 暫定 (decision 2026-10-25 #1): bulwark combo riposte after block/evade/parry, × normal attack (physHit, ADB). */
-export const BULWARK_RIPOSTE_MULT = 0.8;
+export const BULWARK_RIPOSTE_MULT = 0.5; // CP4 rc: was 0.8
+/** 暫定 (CP4 rc balance): riposte limit per enemy phase, and which avoids trigger it. Mutated only by sim scripts. */
+/** 暫定 (CP4 rc balance): blade combo 連斬 also deals × (1 + this) physical damage to elites and bosses. Mutated only by sim scripts. */
+export const BLADE_BIG_GAME = { pct: 0.5 }; // CP4 rc: new
+export const BULWARK_RIPOSTE = { mult: BULWARK_RIPOSTE_MULT, perTurn: 1 /* CP4 rc: was unlimited */ }; // mutable for sim overrides only (scripts/cp4-balance.ts)
 
 function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
   const m = s.monsters[ti]!;
@@ -226,6 +230,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
     if (M.weakMult && isWeak(m, dtype)) raw *= 1 + M.weakMult;
     if (M.counterReady) { M.counterReady = false; raw *= BULWARK_COUNTER_MULT; fire(s); }
     if (M.combo.bladeOc && s.spirit) critChance += 0.05;
+    if (M.combo.blade && (m.rank === 'elite' || m.rank === 'boss')) raw *= 1 + BLADE_BIG_GAME.pct;
   }
   const r = resolveHit(rng, {
     raw, magic: false, acc: s.d.physAcc,
@@ -470,6 +475,7 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
   if (s.over) return;
   const defending = s.defendTurns > 0;
+  let ripostes = 0;
   s.monsters.forEach((m0, i) => {
     const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
@@ -511,9 +517,9 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
-    if (s.mods?.combo.bulwark && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0) {
+    if (s.mods?.combo.bulwark && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
-      physHit(s, rng, i, BULWARK_RIPOSTE_MULT, ev, '反擊');
+      physHit(s, rng, i, BULWARK_RIPOSTE.mult, ev, '反擊');
       s.mods.counterReady = keep;
     }
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
