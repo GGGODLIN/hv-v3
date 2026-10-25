@@ -11,7 +11,7 @@ import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } 
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
 import { combos, formed, schoolCounts, sumMods } from './buffs';
-import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
+import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
@@ -152,7 +152,7 @@ export const deathCarryMsg = (exp: number, credits: number): string => `戰死�
 export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
 /** rc5: monster-level follow added on top of the depth base (the map used to show the base only: d16 'Lv71' while the fight is Lv80 for a Lv15 player). */
 export const abyssLvFollow = (run: RunState): number => Math.round(ABYSS.lvFollowK * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
-export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + abyssLvFollow(run);
+export const abyssLevel = (run: RunState): number => abyssMonLevel(depthOf(run), run.plv ?? 0, abyssLvFollow(run));
 /** CP6: deepest depth cleared by a finished abyss run. */
 export function abyssCleared(run: RunState): number {
   if (!run.abyss) return 0;

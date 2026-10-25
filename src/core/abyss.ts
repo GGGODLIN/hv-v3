@@ -11,6 +11,12 @@ import { TOWER, floorLevel, floorPl } from './tower';
 export const ABYSS = {
   /** Decision 1 (暫定): +2 monster levels per depth. Original The Tower is floor × 10 (The_Tower.md:9) — deliberately not used. */
   levelPerDepth: 2,
+  /** rc7 (a): monster-level base. 'player' = player Lv + playerLevelPerDepth × (d − 1); original HV spawns monsters at the player's level
+   * (parsed_wiki/Monster_Stats.md:33 "monster_level = … equal to player's level"; Battles.md:220). The Tower itself uses floor × 10 (The_Tower.md:9) — not used.
+   * 'floor' = rc6 curve (floorLevel(20) + levelPerDepth × d + lvFollow). */
+  levelBase: 'floor' as 'player' | 'floor',
+  /** rc7 (a) (暫定，無來源): extra monster levels per depth on top of the player level. */
+  playerLevelPerDepth: 0,
   /** rc6 item 1 knob A (暫定，無來源): abyss-only monster-level follow k (Lv += k × max(0, player Lv − RULES.monLvFollow.free)); main tower keeps RULES.monLvFollow.k. rc5 = 0.8. */
   lvFollowK: 0.8,
   /** rc6 item 1 knob B (暫定，無來源): abyss-only × on monster physical resistance (physMit and positive piercing/crushing/slashing spec). rc5 = 1. */
@@ -72,6 +78,9 @@ export const guaranteeQuality = (d: number): Quality => TROPHY_MIN[abyssTier(d)]
 
 /** Monster level at depth d (decision 1, 暫定) before the existing monLvFollow term. */
 export const abyssBaseLevel = (d: number): number => floorLevel(20) + ABYSS.levelOffset + ABYSS.levelPerDepth * d;
+/** rc7 (a): abyss monster level at depth d for a player of level plv (see ABYSS.levelBase). follow = rc6 lvFollow term (floor mode only). */
+export const abyssMonLevel = (d: number, plv: number, follow: number): number =>
+  ABYSS.levelBase === 'player' ? Math.max(1, plv) + ABYSS.levelOffset + Math.round(ABYSS.playerLevelPerDepth * (d - 1)) : abyssBaseLevel(d) + follow;
 /** PL centre: main-tower F20 centre + sourced PL ceiling modifier of the tier (the sum is 暫定). */
 /** First depth of tier t (inverse of abyssTier). */
 const tierStart = (t: number): number => (t === 0 ? 1 : 5 * (t + 1));
