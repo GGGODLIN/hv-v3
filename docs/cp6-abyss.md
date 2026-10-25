@@ -448,3 +448,26 @@ Decision (暫定), reached at the tuning limit as the instructions allow:
   - auto 20 and bulwark 20 (fail; rc7 auto was 25).
 - d16/d13 ratios: blade .56, arcane .53, auto .89 (pass). oc 1.80 (fail; at N=32 oc was 1.54 and 1.21 in earlier rounds, so this is noisy). Bulwark has no d13 deaths.
 - DPD −0.01 deviates from the sourced +2%/wave (Battles.md:261). It is a 暫定 game-feel value.
+
+## rc8 — c6D defaults confirmation (LPD0 HS1.1 DS6 DPD-0.01 TR5, all 暫定)
+Logs: docs/logs/rc8-{A,B,noclear,deathcombo,targets}.txt, all generated from bb89206 (A/B/noclear/deathcombo re-run and byte-identical).
+Judged on blade/oc/arcane/bulwark only; auto is reference.
+
+| school | metric | rc7 | rc8 | target |
+|---|---|---|---|---|
+| blade | trip1 median depth A/B | 22/22 | 7/**2** | 5–12 |
+| oc | trip1 median depth A/B | 20/20 | 9/12 | 5–12 |
+| arcane | trip1 median depth A/B | 22/20 | 12/12 | 5–12 |
+| bulwark | trip1 median depth A/B | 27/27 | **20**/7 | 5–12 |
+| blade | d16/d13 death ratio A/B | 3.11/2.85 | 0.93/0.68 | ≤1.5 |
+| oc | d16/d13 death ratio A/B | 5.41/2.81 | **1.76**/1.03 | ≤1.5 |
+| arcane | d16/d13 death ratio A/B | 1.41/0.54 | 0.69/0.81 | ≤1.5 |
+| bulwark | d16/d13 death ratio A/B | 6.33/— (d13 0 deaths) | **1.62**/0.99 | ≤1.5 |
+| blade | d5 boss / d16 battle / d20 boss (rc7-targets 16 4) | 100/70/100 | 98/77/94 | ≥75/≥60/≥35 |
+| oc | same | 100/92/78 | 95/88/86 | same |
+| arcane | same | 100/83/94 | 97/88/95 | same |
+| bulwark | same | 100/64/89 | 86/64/95 | same |
+| blade/oc/arcane/bulwark | never-clear F20 ≤12 trips | 9/3/0/3% | 9/3/0/3% | ≤10% |
+
+Death-combo scan rc8: 必死 0, 警告 34, 相對必死 16 (unchanged vs rc7 log; main tower unaffected by abyss knobs).
+Unmet: blade trip1 median (B=2), bulwark trip1 median (A=20), oc d16/d13 (A=1.76), bulwark d16/d13 (A=1.62). No retuning per producer instruction.
