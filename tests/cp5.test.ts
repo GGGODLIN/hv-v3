@@ -9,6 +9,7 @@ import { armBattle, finishBattle, RULES, runDerived, startRun } from '../src/cor
 import { starterKit } from '../src/core/auto';
 import { eligible, rollBuffs } from '../src/core/buffoffer';
 import { CP5 } from '../src/core/cp5';
+import { generateTower } from '../src/core/tower';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 const cp5 = <T,>(f: () => T): T => { RULES.cp5Bosses = true; try { return f(); } finally { RULES.cp5Bosses = false; } };
 const p = newPlayer(); starterKit(p);
@@ -85,5 +86,14 @@ describe('CP5 rc2 fix 2: DoTs end with the battle', () => {
     expect(r.pdot).toBeUndefined();
     const b2 = startBattle(runDerived(p, r), { hp: 999, mp: 999, sp: 99 }, [m], p.potions); armCp5(b2, r.pdot);
     expect(b2.cp5!.pdot.burnTurns).toBe(0); expect(b2.cp5!.pdot.bleedTurns).toBe(0);
+  }));
+});
+describe('CP5 rc2 fix 8: F1–F3 offer ≥2 routes', () => {
+  it('tutorial and normal towers with the flag on', () => cp5(() => {
+    for (let s = 1; s <= 200; s++) for (const tut of [true, false]) {
+      const q = newPlayer(); starterKit(q, s); const r = startRun(q, s); if (!tut) r.tutorial = false;
+      const t = tut ? r.tower : generateTower(new Rng(s), { long: true });
+      for (let n = 1; n <= 3; n++) expect(t.floors[n - 1]!.options.length).toBeGreaterThanOrEqual(2);
+    }
   }));
 });

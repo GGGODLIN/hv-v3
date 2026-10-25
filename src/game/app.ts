@@ -431,7 +431,7 @@ export class App {
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
     on('[data-act]', (el) => this.command(el.dataset.act!));
-    on('[data-continue]', () => this.continueNode());
+    on('[data-continue]', () => { this.modal = null; this.continueNode(); });
     on('[data-heal]', () => { this.pending.text = rest(this.p, this.run, 'heal'); this.save(); this.continueNode(); });
     on('[data-up]', (el) => { this.pending.text = rest(this.p, this.run, 'upgrade', el.dataset.up); this.save(); this.continueNode(); });
     on('[data-shrine]', (el) => { this.pending.text = shrine(this.p, this.run, el.dataset.shrine as 'might'); this.save(); this.render(); this.root.querySelectorAll<HTMLButtonElement>('[data-shrine]').forEach((b) => (b.disabled = true)); });
@@ -487,12 +487,12 @@ export class App {
   }
 
   /** In-game confirmation dialog (replaces window.confirm). */
-  modal: { title: string; body: string; ok: string; onOk: () => void } | null = null;
+  modal: { title: string; body: string; ok: string; onOk: () => void; dock?: boolean } | null = null;
   ask(title: string, body: string, ok: string, onOk: () => void) { this.modal = { title, body, ok, onOk }; this.render(); }
   modalHtml(): string {
     const m = this.modal;
     if (!m) return '';
-    return `<div class="modal-back"><div class="modal panel" role="dialog"><h2>${m.title}</h2>${m.body}
+    return `<div class="modal-back${m.dock ? ' dock' : ''}"><div class="modal panel" role="dialog"><h2>${m.title}</h2>${m.body}
       <div class="foot"><button data-modal-cancel>取消</button><span class="spacer"></span><button class="big" data-modal-ok>${m.ok}</button></div></div></div>`;
   }
 
@@ -509,6 +509,8 @@ export class App {
     const cur = this.p.equipped[e.slot];
     this.ask(`這件比較弱（戰力 ▼${-this.powerDelta(e)}），確定要換上？`, `<div class="cmp2"><div><h3>目前</h3>${cur ? this.itemCard(cur) : '<div class="empty">—</div>'}</div><div><h3>新裝備</h3>${this.itemCard(e)}</div></div>
         <div class="diff"><h3>換上後的數值變化</h3>${this.compare(e)}</div>`, '仍然換上', doIt);
+    // CP5 rc2 fix 8: docked at the top without a blocking backdrop so 「繼續前進」 stays visible and clickable.
+    if (RULES.cp5Bosses && this.modal) { this.modal.dock = true; this.render(); }
   }
 
   bagEquip(id: string, confirmed = false) {
