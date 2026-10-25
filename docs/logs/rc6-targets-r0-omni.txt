@@ -1,0 +1,6 @@
+# rc6 targets  AI=omni(reference)  lvFollowK=0.8  physResScale=1  N=24 F=4
+school | d5 boss | d16 battle | d20 boss | chars@best≥15
+blade | 58% (30/52) | 11% (4/36) | 0% (0/36) | 9/24
+oc | 59% (38/64) | 45% (18/40) | 10% (4/40) | 10/24
+arcane | 98% (94/96) | 74% (65/88) | 48% (42/88) | 22/24
+bulwark | 51% (49/96) | 22% (19/88) | 11% (10/88) | 22/24

@@ -1,0 +1,6 @@
+# rc6 targets  AI=UI-only  lvFollowK=0.8  physResScale=1  N=24 F=4
+school | d5 boss | d16 battle | d20 boss | chars@best≥15
+blade | 77% (68/88) | 3% (2/76) | 57% (43/76) | 19/24
+oc | 59% (38/64) | 45% (18/40) | 10% (4/40) | 10/24
+arcane | 98% (94/96) | 74% (65/88) | 48% (42/88) | 22/24
+bulwark | 51% (49/96) | 12% (7/60) | 70% (42/60) | 15/24
