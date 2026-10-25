@@ -111,7 +111,7 @@ describe('CP4 step 2: buffs apply as run-layer mods', () => {
   }));
 });
 
-import { eligible, merchantBuffs, openOffer, rollBuffs, takeBuff } from '../src/core/buffoffer';
+import { coreFloor, eligible, merchantBuffs, openOffer, rollBuffs, takeBuff } from '../src/core/buffoffer';
 import { BUFF } from '../src/core/buffs';
 import { prog } from '../src/core/progress';
 describe('CP4 step 3: acquisition', () => {
@@ -130,6 +130,23 @@ describe('CP4 step 3: acquisition', () => {
   it('core guaranteed after 2 of a school', () => on(() => {
     const r = startRun(p, 2); r.buffs = ['B2', 'B3'];
     expect(rollBuffs(p, r, 'shrine', 3)).toContain('B1');
+  }));
+  it('r3: bulwark combo ripostes after an evade (normal physHit, 暫定 ×0.8)', () => on(() => {
+    const r = startRun(p, 3); r.buffs = BUFFS.filter((b) => b.school === 'bulwark').slice(0, 4).map((b) => b.id);
+    const m = buildMonster(pool.rows[0]!, 5, 'normal'); m.hp = m.maxHp = 1e9; m.evade = m.parry = 0;
+    const b = startBattle(runDerived(p, r), { hp: 999, mp: 999, sp: 99 }, [m], p.potions); armBattle(b, r);
+    expect(b.mods?.combo.bulwark).toBe(true);
+    b.d = { ...b.d, evade: 1 };
+    const ev = act(b, { kind: 'attack', target: 0 }, new Rng(4));
+    expect(ev.some((e) => e.t === 'hit' && e.label === '反擊')).toBe(true);
+  }));
+  it('r3: -nofloor strategy turns both core guarantees off only for that run', () => on(() => {
+    coreFloor.on = false;
+    try {
+      const r = startRun(p, 2); r.buffs = ['B2', 'B3'];
+      let hits = 0; for (let i = 0; i < 20; i++) if (rollBuffs(p, r, 'shrine', 3).includes('B1')) hits++;
+      expect(hits).toBeLessThan(20);
+    } finally { coreFloor.on = true; }
   }));
   it('locked systems gate buffs', () => {
     const q = newPlayer(); prog(q).unlocked = ['defend', 'potion'];

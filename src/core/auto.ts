@@ -1,3 +1,4 @@
+import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
 import { type Action, type BattleState, act, alive, canUse, startBattle, SPELLS, type SpellId } from './battle';
 import { ATTRS, attrCost } from './formulas';
@@ -68,14 +69,14 @@ export function chooseAction(b: BattleState): Action {
 export type Strategy = 'auto' | 'human' | 'avoid' | 'noweak' | BuffStrategy;
 /** CP4 §8: 'buff:<school>' plays like 'human' with CP4 on and picks buffs core → own school → neutral → other; 'buff:random' picks at random. */
 /** CP4 r2 step 4: 'buff:<school>-nocore' is the control — core and other own-school buffs share one rank (offer order breaks ties). */
-export type BuffStrategy = `buff:${'blade' | 'oc' | 'arcane' | 'bulwark'}${'' | '-nocore'}` | 'buff:random';
-export const buffSchool = (s: BuffStrategy) => s.slice(5).replace(/-nocore$/, '');
+export type BuffStrategy = `buff:${'blade' | 'oc' | 'arcane' | 'bulwark'}${'' | '-nocore' | '-nocore-nofloor'}` | 'buff:random';
+export const buffSchool = (s: BuffStrategy) => s.slice(5).replace(/-nocore(-nofloor)?$/, '');
 export const isBuffStrat = (s: Strategy): s is BuffStrategy => s.startsWith('buff:');
 export function prefBuff(ids: string[], strat: BuffStrategy, rng: Rng): string | undefined {
   if (!ids.length) return undefined;
   const school = buffSchool(strat);
   if (school === 'random') return ids[rng.int(0, ids.length - 1)];
-  const nocore = strat.endsWith('-nocore');
+  const nocore = strat.includes('-nocore');
   const score = (id: string) => { const b = BUFF[id]!; return b.school === school ? (b.core && !nocore ? 0 : 1) : b.school === 'none' ? 2 : 3; };
   return [...ids].sort((a, b) => score(a) - score(b) || ids.indexOf(a) - ids.indexOf(b))[0];
 }
@@ -132,7 +133,8 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   const bs = isBuffStrat(strategy);
   const flag0 = RULES.cp4RunBuffs;
   if (bs) RULES.cp4RunBuffs = true;
-  try { return autoRunInner(p, pool, seed, strategy, level, power, bs); } finally { RULES.cp4RunBuffs = flag0; }
+  if (strategy.endsWith('-nofloor')) coreFloor.on = false; // r3 step 2 control: both core guarantees off for this run
+  try { return autoRunInner(p, pool, seed, strategy, level, power, bs); } finally { RULES.cp4RunBuffs = flag0; coreFloor.on = true; }
 }
 function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Strategy, level: number, power: number, bs: boolean): RunReport {
   const run = startRun(p, seed);
