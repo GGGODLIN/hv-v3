@@ -24,6 +24,7 @@ const bossAll: typeof bossF = [];
 const C = { runs: 0, formedRuns: 0, preRuns: 0, preFormed: 0, buffSum: 0, preBuffSum: 0, f10: 0, f10won: 0, risks: 0, lt2: 0, preLt2: 0 };
 const src: Record<string, number> = {}, offered: Record<string, number> = {}, picked: Record<string, number> = {};
 const clearSets: string[][] = []; const boss5: { floor: number; turns: number; won: boolean }[] = []; const atClear: number[] = [];
+const perTrip: { floor: number; turns: number; won: boolean }[][] = [[], [], [], [], []];
 for (let s = 1; s <= N; s++) {
   const p = newPlayer();
   starterKit(p, s);
@@ -42,6 +43,7 @@ for (let s = 1; s <= N; s++) {
       for (const b of r.bosses) if ((b.buffs ?? 0) >= 5) boss5.push(b);
       if (i <= 3) { const f = r.bosses.filter((b) => b.floor === 10); C.f10 += f.length; C.f10won += f.filter((b) => b.won).length; }
     }
+    if (i <= 5) perTrip[i - 1]!.push(...r.bosses);
     if (i <= 3) bossAll.push(...r.bosses);
     if (i <= 3) { nb += r.battles; ns += r.spiritBattles; }
     if (i <= 3) { ur = r.unlockRate; lv[i - 1]!.push(r.settlement.levelAfter); }
@@ -49,7 +51,7 @@ for (let s = 1; s <= N; s++) {
     if (fc === Infinity) bossF.push(...r.bosses);
     if (i === 1) run1.push(Math.min(r.floorReached, 11));
     if (r.floorReached > 10 && fc === Infinity) fc = i;
-    if (fc !== Infinity && i >= 3) break;
+    if (fc !== Infinity && i >= 5) break; // CP3-bugfix 4: keep playing to trip 5 so per-trip boss turns are reported
     void 0;
     if (r.floorReached > 10) continue;
     deaths.set(r.floorReached, (deaths.get(r.floorReached) ?? 0) + 1);
@@ -88,4 +90,5 @@ if (C.runs) {
   const hot = Object.entries(freq).filter(([, v]) => v / clearSets.length > 0.6).map(([k, v]) => `${k}:${pc(v, clearSets.length)}`);
   console.log(`[cp4] clear sets ${clearSets.length}; buffs in >60% of clear sets: ${hot.join(' ') || 'none'}`);
 }
+for (const f of [5, 10]) console.log(`boss F${f} turns by trip 1-5: ${perTrip.map((xs, k) => { const ys = xs.filter((b) => b.floor === f); return `T${k + 1} ${(ys.reduce((a, b) => a + b.turns, 0) / Math.max(1, ys.length)).toFixed(1)}(n=${ys.length},won ${ys.filter((b) => b.won).length})`; }).join('  ')}`);
 }

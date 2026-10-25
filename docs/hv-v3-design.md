@@ -109,3 +109,8 @@
 3. MVP 要不要包含鍛造，還是只做休息點的 IW 強化？
 4. 只做桌機，還是也要支援手機？
 5. 難度要不要做原版的 7 階難度，配上 EXP 倍率？
+
+## CP3-bugfix（cp3-pass2）暫定值
+- 怪物等級跟隨玩家（遊戲層，無出處）：`floorLevel(f) + round(0.8 × max(0, 玩家Lv − 4))`（RULES.monLvFollow.k/free）。
+- 首領 HP 跟隨玩家（遊戲層，無出處）：`× (1 + 0.18 × max(0, 玩家Lv − (floorLevel(f)/2 − 1)))`（RULES.monLvFollow.bossHp）。目標：第 2 趟起首領 10–15 回合；sim 逐趟輸出 F5/F10 首領回合。
+- carryMult：第 1–3 趟 5/3/2，第 4 趟起 ×1（原本 clamp 成 ×2 是 bug）。

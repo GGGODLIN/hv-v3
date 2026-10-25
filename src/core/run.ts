@@ -17,6 +17,8 @@ export const RULES = {
   /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
   /** 暫定 (CP3-fix 8): extra boss phases (see battle.ts BOSS_PHASE_HP). */
   bossPhases: 1,
+  /** 暫定 (CP3-bugfix 4, gameplay layer): monster level follows the player: + round(k × max(0, playerLv − free)). No source. */
+  monLvFollow: { k: 0.8, free: 4, bossHp: 0.18 },
   /** 暫定 (CP3-fix 10): boss battles open with this much OC once Spirit Stance is unlocked (sourced start OC 0 and entry 50 unchanged). */
   bossOpenOc: 50,
   rankExp: { boss: 8, elite: 3, normal: 1 },
@@ -45,6 +47,8 @@ export interface MerchantStock { equips: { e: Equip; price: number }[] }
 
 export interface RunState {
   seed: number;
+  /** CP3-bugfix 4: player level at trip start (monster level follow). */
+  plv?: number;
   rng: number;
   tower: Tower;
   floor: number;
@@ -98,7 +102,7 @@ export function startRun(p: Player, seed: number): RunState {
   const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0 });
   const d = derive(p);
   return {
-    seed, rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
+    seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip, tutorial, notes,
     ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}),
   };
@@ -187,9 +191,14 @@ function weakRow(pool: MonsterPool, lo: number, hi: number) {
   return weak.reduce((a, r) => (Math.abs(r[3] - mid) < Math.abs(a[3] - mid) ? r : a));
 }
 
+/** CP3-bugfix 4 (暫定): floor monster level, raised when the player out-levels the floor. */
+export function monsterLevel(run: RunState): number {
+  const { k, free } = RULES.monLvFollow;
+  return floorLevel(run.floor) + Math.round(k * Math.max(0, (run.plv ?? 0) - free));
+}
 export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Monster[] {
   const f = run.floor;
-  const L = floorLevel(f);
+  const L = monsterLevel(run);
   const { lo, hi } = plWindow(pool, floorPl(f));
   return withRng(run, (rng) => {
     const plan: Rank[] =
@@ -200,7 +209,12 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       const weak = rank === 'elite' && run.weakNext ? weakRow(pool, lo, hi) : null;
       const row = weak ?? (rank === 'normal' ? pickRows(rng, pool, lo, hi, 1)[0] : pickTop(rng, pool, lo, hi));
       const m = buildMonster(row!, rank === 'boss' ? L + 2 : rank === 'elite' ? L + 1 : L, rank);
-      if (rank === 'boss') m.phases = RULES.bossPhases;
+      if (rank === 'boss') {
+        m.phases = RULES.bossPhases;
+        // CP3-bugfix 4 (暫定): boss HP grows with player level over the free level so trips 2+ last 10-15 turns.
+        const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
+        m.maxHp = m.hp = Math.round(m.maxHp * g);
+      }
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       return m;
     });
