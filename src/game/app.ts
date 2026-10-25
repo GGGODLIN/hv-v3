@@ -1,3 +1,4 @@
+import { iconKey } from './icons';
 import { act, alive, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
@@ -103,10 +104,16 @@ export class App {
     return `<div class="bars">${bar('hp', hp, mhp, 'HP')}${bar('mp', mp, mmp, 'MP')}${bar('sp', sp, msp, 'SP')}${oc !== undefined ? bar('oc', oc, 250, 'OC') : ''}</div>`;
   }
 
+  /** CP3-fix 7: procedural icon (scripts/gen-icons.py) for an equipment piece. */
+  static icon(e: Equip): string {
+    const key = iconKey(e);
+    return `<img class="icon" src="assets/icons/${key}.png" alt="" width="32" height="32" onerror="this.style.visibility='hidden'">`;
+  }
+
   itemCard(e: Equip, actions = ''): string {
     const st = Object.entries(effectiveStats(e)).map(([k, v]) => `<li>${STAT_ZH[k as keyof typeof STAT_ZH] ?? k} <b>${fmtStat(k, v!)}</b></li>`).join('');
     return `<div class="item" style="--q:${hex(QUALITY_COLOR[e.quality])}">
-      <div class="iname">${esc(equipName(e))}</div>
+      <div class="iname">${App.icon(e)}${esc(equipName(e))}</div>
       <div class="imeta">${QUALITY_ZH[e.quality]} · ${SLOT_ZH[e.slot]} · Lv${e.level}${e.iw ? ` · 強化+${e.iw}` : ''}</div>
       <ul class="istats">${st}</ul>${actions ? `<div class="iact">${actions}</div>` : ''}</div>`;
   }
@@ -211,7 +218,7 @@ export class App {
       const cd = b.cooldowns[id];
       return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}>${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
-    const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}>${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
+    const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
     const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${id === 'health' && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}>${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
     const charging = chargers.length > 0;

@@ -98,3 +98,8 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .unlocks { background: #2a2410; border: 1px solid #c9a227; color: #ffe070; padding: 6px 10px; margin: 6px 0; border-radius: 4px; }
 .log .unlock { color: #ffe070; }
 .locks { margin: 4px 0; }
+
+/* CP3-fix 7: procedural icons */
+.icon { image-rendering: pixelated; vertical-align: middle; margin-right: 6px; flex: none; }
+.iname { display: flex; align-items: center; }
+button.spell .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }

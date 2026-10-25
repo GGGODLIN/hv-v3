@@ -169,3 +169,14 @@ describe('CP3-fix 5: equipment names', () => {
     }
   });
 });
+
+describe('CP3-fix 7: icons', () => {
+  it('every generated equipment piece and spell has an icon file', async () => {
+    const { iconKey } = await import('../src/game/icons');
+    const { SPELLS } = await import('../src/core/battle');
+    const idx = JSON.parse(readFileSync(new URL('../public/assets/icons/index.json', import.meta.url), 'utf8')) as Record<string, string>;
+    const rng = new Rng(31);
+    for (let i = 0; i < 4000; i++) { const e = generateEquip(rng, 1 + (i % 80), {}); expect(idx[iconKey(e)], iconKey(e)).toBeTruthy(); }
+    for (const id of Object.keys(SPELLS)) expect(idx[`sp-${id}`]).toBeTruthy();
+  });
+});
