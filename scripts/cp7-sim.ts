@@ -26,17 +26,19 @@ function one(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): 
   b.locked = battleLocks(p); armBattle(b, run); b.oc += openingOc(p, type, run); armCp5(b, run.pdot);
   fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter'); return b.over === 'win';
 }
-const W = () => ({ w: 0, n: 0 }); const c: Record<string, { w: number; n: number }> = { d1: W(), d2: W(), d3: W(), d5: W(), d13: W(), d16: W(), d18: W(), d20: W() };
+const W = () => ({ w: 0, n: 0 }); const c: Record<string, { w: number; n: number }> = { d1: W(), d2: W(), d3: W(), d5: W(), d10: W(), d10np: W(), d13: W(), d16: W(), d18: W(), d20: W() };
 const upgWon: number[] = [], first: number[] = [], firstClear: number[] = [], upgMain: number[] = [], upgAbyss: number[] = [], depthClip: number[] = [];
 const reach: Record<number, number> = {}, endAt: Record<number, number> = {};
 const p3 = { rest: { n: 0, full: 0 }, none: { n: 0, full: 0 } };
-let built = 0, deep = 0, shallow = 0, cpTrips = 0, cpDeadFirst = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
+const b10 = { n: 0, w: 0 }; let built = 0, deep = 0, shallow = 0, cpTrips = 0, cpDeadFirst = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
 for (let s = S0 + 1; s <= S0 + N; s++) {
   const p = newPlayer(); starterKit(p, s); let ok = false, i = 1;
   for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);
   if (!ok || !abyssOpen(p)) continue; built++;
-  for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++; }
+  for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++;
+    // cp7-rc3: fresh d10 boss with the post-F20 character, and the same with no potions (a player who skipped the shop).
+    c.d10!.n++; if (one(p, 10, 'boss', s * 100 + f)) c.d10!.w++; const np = clone(p); np.potions = { health: 0, mana: 0, spirit: 0 }; c.d10np!.n++; if (one(np, 10, 'boss', s * 100 + f)) c.d10np!.w++; }
   const rec = emptyRecord(); let snap: Player | null = null; let last = null as { start: number; cleared: number; dead: boolean } | null;
   for (let t = 1; t <= T; t++) {
     const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
@@ -46,7 +48,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
     if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, JSON.stringify(p.equipped.body ?? null).slice(0, 200));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
-    if (t === 1) first.push(cl);
+    if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
     if (st <= 60 && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && (E.DBG === 'all' || zero.abyssNoLoot < 15)) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
     if (dead) endAt[cl + 1] = (endAt[cl + 1] ?? 0) + 1;
@@ -59,4 +61,4 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let f = 1; f <= F; f++) for (const [d, ty] of [[13, 'battle'], [18, 'battle'], [16, 'battle'], [20, 'boss']] as const) { c[`d${d}`]!.n++; if (one(snap, d, ty, s * 100 + f)) c[`d${d}`]!.w++; }
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
-console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win }));
+console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10 }));

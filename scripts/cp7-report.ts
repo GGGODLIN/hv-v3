@@ -1,7 +1,7 @@
 /** CP7 report: reads JSON lines from scripts/cp7-sim.ts (4 schools × sets A/B) and prints CHECK lines for P1–P5 per set.
  * Usage: npx tsx scripts/cp7-report.ts /tmp/cp7/<name>.jsonl  (docs/cp7-feel.md §指標 defines every number) */
 import { readFileSync } from 'node:fs';
-type R = { shallow?: number; cpTrips?: number; cpDeadFirst?: number; sc: string; S0: number; N: number; cp7: boolean; knobs: unknown; built: number; deep: number; first: number[]; firstClear: number[]; upgMain: number[]; upgWon: number[]; upgAbyss: number[]; depthClip: number[];
+type R = { b10?: { n: number; w: number }; shallow?: number; cpTrips?: number; cpDeadFirst?: number; sc: string; S0: number; N: number; cp7: boolean; knobs: unknown; built: number; deep: number; first: number[]; firstClear: number[]; upgMain: number[]; upgWon: number[]; upgAbyss: number[]; depthClip: number[];
   reach: Record<string, number>; endAt: Record<string, number>; p3: { rest: { n: number; full: number }; none: { n: number; full: number } }; win: Record<string, number | null> };
 const rows = readFileSync(process.argv[2]!, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as R);
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
@@ -48,6 +48,8 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   for (const sc of SCH) console.log(`  P4 fresh win ${sc}: ${Object.entries(by(sc).win).map(([k, v]) => `${k} ${v == null ? '—' : pct(v)}`).join(' ')}`);
   for (const sc of SCH) { const r = by(sc).win; checks.push([`P4 ${sc} d1–3 ≥95% (${[r.d1, r.d2, r.d3].map((x) => pct(x!)).join('/')}) d5 ≥75% (${pct(r.d5!)}) d16 ≥60% (${pct(r.d16!)}) d20 ≥35% (${pct(r.d20!)})`, r.d1! >= 0.95 && r.d2! >= 0.95 && r.d3! >= 0.95 && r.d5! >= 0.75 && r.d16! >= 0.6 && r.d20! >= 0.35]); }
   void w;
+  // cp7-rc3 producer target: trip-1 d10 boss win ≥ 70% per school (among trip-1 runs that reached the d10 boss).
+  for (const sc of SCH) { const b = by(sc).b10 ?? { n: 0, w: 0 }; const r = b.n ? b.w / b.n : 0; checks.push([`P4 ${sc} trip-1 d10 boss win ${pct(r)} (${b.w}/${b.n}) ≥ 70% (fresh d10 boss ${pct(by(sc).win.d10 ?? 0)}, no potions ${pct(by(sc).win.d10np ?? 0)})`, r >= 0.7]); }
   // P5
   const fc = by('blade').firstClear; const nv = fc.filter((x) => x > 12).length / fc.length;
   console.log(`  P5 first F20 clear trip (median) ${SCH.map((sc) => `${sc} ${q(by(sc).firstClear, 0.5)} never≤12 ${pct(by(sc).firstClear.filter((x) => x > 12).length / N)}`).join(' | ')}`);
