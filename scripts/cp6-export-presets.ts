@@ -9,7 +9,8 @@
  * abyss20 (cp7, playtest #3): a character snapshotted at the START of an abyss trip that began at d16 (record best 15) and in the sim
  *   went on to clear d20 (the d20 boss). Among rule-compliant ones, closest to the median power; record best = 15 → entry d16. Lets a
  *   playtester reach and verify d20 (abyss15's Lv17 blade dies at d18 in playtests).
- * Usage: npx tsx scripts/cp6-export-presets.ts > public/data/cp6-presets.json   (do not hand-edit the output). */
+ * cp7-rc3: exported with RULES.cp7 on (fixed drop level), N=128: N=128 npx tsx scripts/with-cp7.ts scripts/cp6-export-presets.ts > public/data/cp6-presets.json
+ * Usage (cp6): npx tsx scripts/cp6-export-presets.ts > public/data/cp6-presets.json   (do not hand-edit the output). */
 import { readFileSync } from 'node:fs';
 import { autoRun, starterKit, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
@@ -21,7 +22,7 @@ import { Rng } from '../src/core/rng';
 import { checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssRecord, type AbyssSchool } from '../src/core/abyss';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
-const N = 64, T = 10;
+const N = Number(process.env.N ?? 64), T = 10; // cp7-rc3: run via scripts/with-cp7.ts with N=128 for the cp7 presets
 type Snap = { seed: number; school: string; level: number; power: number; player: Player; record: AbyssRecord; d1?: number; pot?: number };
 const K = 50;
 function d1win(p0: Player, strat: Strategy): number { let w = 0; for (let k = 1; k <= K; k++) { const p = clone(p0); const run = startAbyss(p, 9000 + k, 1);
@@ -75,3 +76,6 @@ out.abyss20 = { ...m20, note: `median power of ${d20ok.length} rule-compliant ch
 process.stdout.write(JSON.stringify(out) + '\n');
 for (const [k, v] of Object.entries(out)) { const sc = v.school; const d = runDerived(v.player, startAbyss(clone(v.player), 1, 1)); console.error(k, 'seed', v.seed, 'Lv', v.level, 'HP', d.hp, 'MP', d.mp, 'potions', JSON.stringify(v.player.potions), 'd1', v.d1 ?? d1win(v.player, `buff:${sc}` as Strategy), 'main', v.player.equipped.mainHand?.group, 'off', v.player.equipped.offHand?.group ?? '-', 'rule', ruleOk(sc, v.player), '|', v.note); }
 console.error('sim medians', JSON.stringify(sumMed));
+const grp = (name: string, a: Snap[]) => { if (!a.length) return; const dv = a.map((x) => runDerived(x.player, startAbyss(clone(x.player), 1, 1)));
+  console.error('median of', name, 'n', a.length, 'Lv', mid(a.map((x) => x.level)), 'HP', mid(dv.map((x) => x.hp)), 'potions', mid(a.map((x) => pots(x.player)))); };
+grp('at10', at10); grp('at15', at15); grp('d20ok', d20ok);

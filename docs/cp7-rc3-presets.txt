@@ -1,0 +1,11 @@
+postF20-blade seed 50 Lv 14 HP 784 MP 28 potions {"health":0,"mana":2,"spirit":1} d1 1 main twoHand off - rule true | closest to sim median d1 win 100% / potions 3 among 127 rule-compliant of 128 first-F20 clears (buff:blade, seeds 1..128)
+postF20-oc seed 9 Lv 13 HP 786 MP 27 potions {"health":2,"mana":0,"spirit":1} d1 1 main oneHand off shield rule true | closest to sim median d1 win 100% / potions 3 among 128 rule-compliant of 128 first-F20 clears (buff:oc, seeds 1..128)
+postF20-arcane seed 25 Lv 15 HP 824 MP 42 potions {"health":0,"mana":2,"spirit":1} d1 1 main staff off - rule true | closest to sim median d1 win 100% / potions 3 among 128 rule-compliant of 128 first-F20 clears (buff:arcane, seeds 1..128)
+postF20-bulwark seed 26 Lv 13 HP 738 MP 25 potions {"health":0,"mana":3,"spirit":1} d1 1 main oneHand off shield rule true | closest to sim median d1 win 100% / potions 4 among 118 rule-compliant of 128 first-F20 clears (buff:bulwark, seeds 1..128)
+abyss10 seed 31 Lv 13 HP 876 MP 29 potions {"health":0,"mana":0,"spirit":0} d1 1 main oneHand off shield rule true | median power of 512 characters when best first reached >=10 (four schools, seeds 1..128, 10 trips)
+abyss15 seed 14 Lv 13 HP 828 MP 29 potions {"health":0,"mana":0,"spirit":0} d1 1 main oneHand off shield rule true | closest to at15 median d1 win 100% / potions 0 among 469 rule-compliant Lv>=13 of 508 characters when best first reached >=15 (four schools, seeds 1..128, 10 trips)
+abyss20 seed 28 Lv 13 HP 864 MP 29 potions {"health":0,"mana":0,"spirit":0} d1 1 main oneHand off shield rule true | median power of 117 rule-compliant characters (of 118) whose sim trip from d16 (best 15) cleared d20 (four schools, seeds 1..128, 10 trips)
+sim medians {"blade":{"d1":1,"pot":3,"n":128,"ok":127,"lv":14,"hp":756,"mp":28},"oc":{"d1":1,"pot":3,"n":128,"ok":128,"lv":13,"hp":774,"mp":29},"arcane":{"d1":1,"pot":3,"n":128,"ok":128,"lv":13,"hp":752,"mp":38},"bulwark":{"d1":1,"pot":4,"n":128,"ok":118,"lv":14,"hp":742,"mp":28},"abyss15":{"d1":1,"pot":0,"n":508,"ok":469,"lv":14,"hp":0,"mp":0}}
+median of at10 n 512 Lv 14 HP 810 potions 0
+median of at15 n 508 Lv 14 HP 814 potions 0
+median of d20ok n 117 Lv 14 HP 796 potions 0
