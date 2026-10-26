@@ -97,3 +97,6 @@ cp8 開時，整備提醒列出裝備：`倉庫有 N 件「▲ 比身上好」�
 ### 其他
 P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 253 測試 PASS；cp4-on-check：cp8 關與 cp7-on baseline 相同。
 **總結：除 P4 B late-flat（5.2% vs 5.1%）之外，全部 PASS。**
+
+### P4 B 組「後段平」N=256 重跑（暫定）
+目前 AI、cp8 開、SEED0=256、N=256（docs/logs/cp8rc2/curB256.jsonl）：d16–20 5.6% ≤ 1.25 × d11–15 4.7% = 5.8% → PASS。N=128 時的 5.2% > 5.1% 判定為抽樣誤差。依製作人決定，d16–20 不做調整。
