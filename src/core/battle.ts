@@ -204,16 +204,19 @@ export function quickAttack(s: BattleState, target: number, main?: string): Acti
   return { kind: 'attack', target };
 }
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
+/** rc13 item 2: pothint / danger read the crit-case estimate (SIM_EST_CRIT=0 → rc12 normal estimate, for comparison only). */
+const ENV_EST_CRIT = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_EST_CRIT !== '0';
 export const POT_HINT = { hp: 0.5, charging: 0.75 };
 /** cp8-rc6 item 6: estimate of a charging monster's next heavy hit (mult as enemyTurn: drain → CP5.drainMult else BOSS_CHARGE_MULT,
- *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance, crits and the per-turn cap. */
-export function chargeEstimate(s: BattleState, m0: Monster, defending = false): number {
+ *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance and the per-turn cap.
+ *  rc13 item 2: crit = true → the same hit as a monster crit (× 1 + F-002-5.1B critDamageBonus 0.2, Battles.md:45). */
+export function chargeEstimate(s: BattleState, m0: Monster, defending = false, crit = false): number {
   const m = m0 as CM;
   const pulse = m.rank === 'boss' && !!m.pulseNext && m.charge === 0; // cp8-rc7 P1 item 3: 元素脈衝 is a telegraphed big move too
   const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : m.charge > 0 ? BOSS_CHARGE_MULT : 1; // rc9 P0-1: heavyNext / plain hit = ×1
   const el = pulse ? m.shieldEl : m.elemAttack;
   const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
-  return meanHit(m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
+  return meanHit(m.adb * mult * (m.elemAttack ? CP5.frostMult : 1) * (crit ? 1 + MCRIT.critDamageBonus : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
 }
 /** cp8-rc10 P0-3: the biggest plain (×1) hit this monster can land now: top roll, monster crit (+ its crit bonus damage), current mitigation. */
 export function worstHit(s: BattleState, m0: Monster, defending = false): number {
@@ -224,12 +227,12 @@ export function worstHit(s: BattleState, m0: Monster, defending = false): number
 /** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
 export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
 /** rc9 P0-2: summed estimate of every live monster's next hit (wind-ups at their release multiplier; stunned monsters skip). */
-export function nextRoundEstimate(s: BattleState): number {
-  return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1) : 0), 0);
+export function nextRoundEstimate(s: BattleState, crit = false): number {
+  return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1, crit) : 0), 0);
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
 export function hpDanger(s: BattleState): boolean {
-  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s) < s.d.hp * CP8.potAfter;
+  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s, ENV_EST_CRIT) < s.d.hp * CP8.potAfter;
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
@@ -242,7 +245,7 @@ export function guardHint(s: BattleState): 'spirit' | null {
 }
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;
-  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
+  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s, ENV_EST_CRIT) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }

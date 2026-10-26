@@ -461,11 +461,13 @@ export class App {
   chargeExtra(b: BattleState, chargers: Monster[]): string {
     const est = Math.max(...chargers.map((m) => chargeEstimate(b, m)));
     const estD = Math.max(...chargers.map((m) => chargeEstimate(b, m, true)));
-    const pct = Math.round((est / b.d.hp) * 100);
+    const estC = Math.max(...chargers.map((m) => chargeEstimate(b, m, false, true))); // rc13 item 2: monster crit case
+    const estDC = Math.max(...chargers.map((m) => chargeEstimate(b, m, true, true)));
+    const pct = Math.round((est / b.d.hp) * 100), pctC = Math.round((estC / b.d.hp) * 100);
     const cd = b.itemCd.health;
-    const urgent = est >= b.hp * 0.5; // cp8-rc7 P1 item 3: ≥ 50% of current HP
-    return `<br><span data-chargeest="${est}:${pct}">預估傷害 約 ${est}（佔最大 HP ${pct}%）· 防禦後約 ${estD}</span>`
-      + (urgent ? `<br><b class="warn" data-urgent="${est}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：先喝藥或防禦</b>` : '')
+    const urgent = estC >= b.hp * 0.5; // cp8-rc7 P1 item 3: ≥ 50% of current HP; rc13 item 2: judged on the crit value
+    return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
+      + (urgent ? `<br><b class="warn" data-urgent="${estC}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：先喝藥或防禦</b>` : '')
       + this.chargePayoff(b, chargers, est, estD)
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${guardHint(b) === 'spirit' ? '這回合改用 <b>S·靈動架勢</b>' : '繼續攻擊、儘快收掉怪物'}（D·防禦 在 OC 不足 25 時只減傷不回血，又放棄攻擊，此時不建議）</b>` : '');
   }
