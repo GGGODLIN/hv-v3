@@ -18,6 +18,8 @@ import { decide, prefBuff, LEAN_ALLOC, LEAN_ROUTE, LEAN_KIT, LEAN_BUFF_FIRST, BU
 import { openOffer, takeBuff } from '../src/core/buffoffer';
 import { derive } from '../src/core/player';
 const E = process.env;
+// rc14 producer 2026-10-27: acceptance baseline = QA-like route (戰 before 菁英). SIM_ROUTE=elite = the old elite-first route (reference).
+E.SIM_ROUTE ??= 'battle';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0'; RULES.cp8 = E.CP8 === '1';
 for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as unknown as Record<string, unknown>)[k] = Array.isArray(CP8[k]) ? E[`K8_${k}`]!.split(",").map(Number) : Number(E[`K8_${k}`]);
 for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typeof CP7[k] === "number") (CP7 as Record<string, unknown>)[k] = Number(E[`K_${k}`]);

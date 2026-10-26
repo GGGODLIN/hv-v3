@@ -7,6 +7,7 @@ import { makePool, type MonsterRow } from '../src/core/monsters';
 import { type Player } from '../src/core/player';
 import { RULES } from '../src/core/run';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp8 = true;
+process.env.SIM_ROUTE ??= 'battle'; // rc14: baseline route (SIM_ROUTE=elite = reference)
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const pre = JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8'));
 const sc = process.env.SC ?? 'blade', N = Number(process.argv[2] ?? 128), T = Number(process.argv[3] ?? 1);
