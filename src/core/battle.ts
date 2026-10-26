@@ -1,4 +1,5 @@
 import { RULES } from './run';
+import { CP8 } from './cp8';
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { resolveHit, type Avoid } from './damage';
@@ -559,6 +560,8 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
   s.cp5 = { pdot: pdot ? { ...pdot } : emptyDot() };
   const ev: BEvent[] = [];
   s.monsters.forEach((m, i) => { if ((m as CM).sig === 'shield') rotateShield(m as CM, i, ev); });
+  // CP8 P1 (暫定): boss battles open already in Spirit Stance when it can be used (a naive player never presses the toggle).
+  if (RULES.cp8 && CP8.bossSpirit && !s.spirit && s.monsters.some((m) => m.rank === 'boss') && canUse(s, { kind: 'spirit' })) { s.spirit = true; s.spiritUsed = true; ev.push({ t: 'spirit', on: true }); }
   return ev;
 }
 
@@ -566,6 +569,8 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
   if (s.over) return;
   const defending = s.defendTurns > 0;
   let ripostes = 0, counters = 0;
+  // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
+  const hp0 = s.hp, cap = RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity;
   s.monsters.forEach((m0, i) => {
     const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
@@ -604,7 +609,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],
     });
-    const dmg = r.avoidMult > 0 ? r.damage : 0;
+    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.round(cap - (hp0 - s.hp))));
     s.hp = Math.max(0, s.hp - dmg);
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);

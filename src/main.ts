@@ -33,6 +33,8 @@ async function boot() {
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
   // CP7 手感 (docs/cp7-feel.md) is off by default; `?cp7` turns it on.
   if (new URLSearchParams(location.search).has('cp7')) RULES.cp7 = true;
+  // CP8 真實遊玩 (docs/cp8-real-play.md) is off by default; `?cp8` turns it on.
+  if (new URLSearchParams(location.search).has('cp8')) RULES.cp8 = true;
   // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss10|abyss15|abyss20` (rc5: `debug` no longer required)
   // overwrites the local save with a sim-exported character (public/data/cp6-presets.json) before the game boots.
   const qs = new URLSearchParams(location.search), preset = qs.get('preset');

@@ -106,7 +106,23 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
  * decision rc6) play physically: no offensive spells. SIM_AI=omni (env) = the pre-rc6 all-knowing AI (raw spec, every school
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
-export const SIM_AI = { omni: ENV?.SIM_AI === 'omni' };
+export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
+  /** CP8 P1: SIM_AI=naive — a real first-time player: only normal attacks (lowest-HP target), a health potion below 40% HP; no skills,
+   *  spells, Spirit Stance, defend or CP5 telegraph counters. Town prep = 「全部處理」 (prepAll); loot is worn only in town (docs/cp8-real-play.md). */
+  naive: ENV?.SIM_AI === 'naive',
+  /** CP8 diagnosis only (SIM_ADD=spirit,defend,equip,counter,spells,skills): give the naive AI back one piece of the old AI. */
+  add: new Set((ENV?.SIM_ADD ?? '').split(',').filter(Boolean)) };
+/** CP8 naive battle choice. */
+export function chooseNaive(b: BattleState): Action {
+  const live = alive(b);
+  const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
+  if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
+  const A = SIM_AI.add;
+  if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
+  if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
+  if (A.has('skills')) for (const id of ['mercifulBlow', 'vitalStrike', 'shieldBash'] as const) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
+  return { kind: 'attack', target };
+}
 const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
 export const PHYS_SCHOOLS = ['blade', 'bulwark'];
 const physPlay = (s: string) => !SIM_AI.omni && s.startsWith('buff:') && PHYS_SCHOOLS.includes(s.slice(5).replace(/-nocore(-nofloor)?$/, ''));
@@ -199,6 +215,8 @@ export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; r
   snap?: (p: Player, run: RunState) => void }
 type CM = Monster & Cp5Mon;
 const ELEMS: SpellId[] = ['fiery', 'freeze', 'shock', 'gale'];
+/** prepEquip (prep.ts imports auto.ts; injected there to avoid a cycle). */
+export const naivePrep = { equip: (p: Player): void => { autoEquip(p, []); } };
 let PHYS = false; // set by fight(): the current strategy plays physically (no offensive spells)
 function bestSpell(b: BattleState, t: number, only?: SpellId[]): Action | null {
   if (PHYS) return null;
@@ -260,10 +278,13 @@ export const BUFF_PLAY = { attackOnly: [] as string[] };
 const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(s);
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
-  // Town prep.
+  // Town prep. CP8 naive: the 出發前整備 「全部處理」 button (prepAll: alloc → equip (slot by slot, no school layout) → potions).
+  if (SIM_AI.naive && !SIM_AI.add.has('equip')) { if (has(p, 'alloc')) autoAllocate(p); if (SIM_AI.add.has('townstyle')) autoEquip(p, [], gearStyle(strategy)); naivePrep.equip(p); if (has(p, 'shop')) buyHealthTo(p, TOWN_HP_POTIONS); }
+  else {
   if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p, [], gearStyle(strategy));
   if (has(p, 'shop')) buyHealthTo(p, TOWN_HP_POTIONS);
+  }
   const level = derive(p).level;
   const power = powerScore(derive(p));
   const bs = isBuffStrat(strategy);
@@ -276,6 +297,8 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
 /** Play one battle to the end with a strategy (+ CP5 layer). */
 /** One sim decision for a strategy (the same call fight() makes each turn). */
 export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
+  if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
+  if (SIM_AI.naive) { PHYS = physPlay(strategy); return mode ? chooseCp5(b, mode, () => chooseNaive(b)) : chooseNaive(b); }
   PHYS = physPlay(strategy);
   const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy) && !PHYS) : chooseAction(b));
   return mode ? chooseCp5(b, mode, base) : base();
@@ -301,6 +324,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     if (id) { takeBuff(p, run, id); cp4.picked[id] = (cp4.picked[id] ?? 0) + 1; cp4.sources[src] = (cp4.sources[src] ?? 0) + 1; }
     run.offer = null;
   };
+  if (run.startPick) { while (run.offer) { resolve('start'); if (run.offersLeft) { run.offersLeft--; openOffer(p, run, 'boss'); } } run.startPick = false; }
   let turns = 0;
   const bosses: BossFight[] = [];
   const elites: { floor: number; won: boolean; hpPct: number }[] = [];
@@ -339,14 +363,14 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) { end = { why: 'dead', floor: run.floor, type, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
-      const used = autoEquip(p, run.bag, gearStyle(strategy));
-      run.bag = run.bag.filter((e) => !used.includes(e));
+      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? null : gearStyle(strategy));
+      run.bag = run.bag.filter((e) => !used.includes(e)); }
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
       if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run, p));
-      const used = autoEquip(p, run.bag, gearStyle(strategy));
-      run.bag = run.bag.filter((e) => !used.includes(e));
+      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? null : gearStyle(strategy));
+      run.bag = run.bag.filter((e) => !used.includes(e)); }
     } else if (type === 'merchant') {
       const st = merchantStock(run);
       while (p.potions.health < 4 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }

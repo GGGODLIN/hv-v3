@@ -5,7 +5,7 @@
 import { ATTRS } from './formulas';
 import { type Player, unspentExp } from './player';
 import { has } from './progress';
-import { autoAllocate, autoEquip, buyHealthTo, TOWN_HP_POTIONS } from './auto';
+import { autoAllocate, autoEquip, buyHealthTo, naivePrep, TOWN_HP_POTIONS } from './auto';
 import { betterThanWorn } from './cp7';
 import type { Equip } from './items';
 
@@ -54,3 +54,5 @@ export function prepEquip(p: Player): number {
 }
 /** 「全部處理」: same order as the sim town prep (autoRun): alloc → equip → potions. */
 export function prepAll(p: Player): void { prepAlloc(p); prepEquip(p); prepPotions(p); }
+
+naivePrep.equip = (p: Player): void => { prepEquip(p); };

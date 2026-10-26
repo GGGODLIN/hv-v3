@@ -1,12 +1,14 @@
 import { BOSS_SEP, markDuplicates } from './names';
 import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, affixWeight, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
 import { CONSTANTS as C } from './data/constants';
-import { monsterExp } from './formulas';
+import { attrCost, monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
-import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
+import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
+import { CP8, startBuffs } from './cp8';
+import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
@@ -48,6 +50,8 @@ export const RULES = {
   cp6Abyss: true, // CP6 accepted (cp6-pass): default on
   /** CP7 手感 feature flag (docs/cp7-feel.md). Off = identical to cp6-pass. On by default since cp7-pass. */
   cp7: true, // CP7 accepted (cp7-pass): default on
+  /** CP8 真實遊玩 flag (docs/cp8-real-play.md). Off = identical to cp7-pass. `?cp8` in the URL turns it on. */
+  cp8: false,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -108,6 +112,12 @@ export interface RunState {
   f10?: boolean;
   /** CP5: player bleed / burn carried between battles (cleared by rest, health potion, defend). */
   pdot?: import('./cp5').PDot;
+  /** CP8: ids of drops auto-worn this run (CP8.autoWear). */
+  worn?: string[];
+  /** CP8 P3: the start-buff picks are still open (map screen shows them before the first node). */
+  startPick?: boolean;
+  /** CP8 P2: 戰力 (powerScore) at run start, for the settlement screen. */
+  pw0?: number;
   /** CP6 (flag): abyss trip; start = depth of floor 1. Depth of the current floor = start + floor − 1. */
   abyss?: { start: number; /** highest milestone depth already claimed (record) */ ms?: number; /** titles earned this trip */ titles?: string[] };
 }
@@ -131,6 +141,7 @@ export function startRun(p: Player, seed: number): RunState {
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip, tutorial, notes,
     ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}),
     ...(RULES.cp5Bosses ? { cp5: true } : {}),
+    ...(RULES.cp8 ? { pw0: powerScore(d) } : {}),
   };
 }
 
@@ -143,11 +154,16 @@ export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState
   const rng = new Rng(seed);
   const d = derive(p);
   const tower: Tower = { floors: [abyssFloor(rng, start, 1)] };
-  return {
+  const run: RunState = {
     seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip: 99, notes: [],
     ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}), cp5: true, abyss: { start, ms, titles: [] },
+    ...(RULES.cp8 ? { pw0: powerScore(d) } : {}),
   };
+  // CP8 P3 (暫定 N): from a checkpoint, pick startBuffs(start) run buffs from the CP4 pool before the first floor.
+  const n = RULES.cp8 && RULES.cp4RunBuffs ? startBuffs(start) : 0;
+  if (n > 0) { run.startPick = true; run.offersLeft = n - 1; openOffer(p, run, 'boss'); }
+  return run;
 }
 /** CP6: monster / item / merchant / chest level at the current depth (r2 decision 7: one formula). */
 /** CP6: carry-back multiplier an abyss run would get if it ended now (same as settle). */
@@ -413,6 +429,10 @@ export function chestLoot(run: RunState, p?: Player): Loot {
 
 export function applyLoot(p: Player, run: RunState, loot: Loot): void {
   run.bag.push(...loot.equips);
+  if (RULES.cp8 && CP8.autoWear) for (const e of loot.equips) if (betterThanWorn(p, e)) {
+    // CP8 P1 (暫定): wear a badged drop at once so it survives death; the replaced piece goes to the (persistent) inventory.
+    equip(p, e); run.bag = run.bag.filter((x) => x !== e); (run.worn ??= []).push(e.id);
+  }
   run.credits += loot.credits;
   run.exp += loot.exp;
   for (const [k, v] of Object.entries(loot.potions)) p.potions[k as PotionId] += v!;
@@ -485,6 +505,8 @@ export function advance(run: RunState, option: number): void {
 export interface Settlement {
   outcome: 'clear' | 'dead' | 'retreat';
   exp: number; credits: number; kept: Equip[]; lost: number; lostItems: Equip[]; lostPotions: Partial<Record<PotionId, number>>; levelBefore: number; levelAfter: number;
+  /** CP8 P2: what came back (戰力 at start → now, auto-worn drops, attribute points now affordable). */
+  cp8?: { pw0: number; pw1: number; worn: string[]; attrPts: number };
   floor: number;
   /** CP3: carry-back multiplier applied and systems opened by this return. */
   mult: number; unlocks: string[];
@@ -517,9 +539,16 @@ export function settle(p: Player, run: RunState): Settlement {
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
   if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
-  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, ...(run.abyss ? { abyss: true } : {}) };
+  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, ...(run.abyss ? { abyss: true } : {}),
+    ...(RULES.cp8 ? { cp8: { pw0: Math.round(run.pw0 ?? 0), pw1: Math.round(powerScore(derive(p))), worn: [...(run.worn ?? [])], attrPts: cp8AttrPts(p) } } : {}) };
 }
 
+/** CP8 P2: attribute points the 「自動分配」 logic could buy now (same greedy rule as the sim's autoAllocate). */
+export function cp8AttrPts(p: Player): number {
+  const t: Player = JSON.parse(JSON.stringify(p)); let n = 0;
+  for (let g = 0; g < 2000; g++) { const a = (['str', 'dex', 'end', 'agi', 'int', 'wis'] as const).map((k) => [k, attrCost(t.attrs[k] + 1) - attrCost(t.attrs[k])] as const).sort((x, y) => x[1] - y[1])[0]!; if (allocate(t, a[0]) === 0) break; n++; }
+  return n;
+}
 export function score(e: Equip): number {
   return QUALITIES.indexOf(e.quality) * 1000 + e.roll + e.level * 5 + e.iw * 200;
 }
