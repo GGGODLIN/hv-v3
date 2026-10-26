@@ -23,13 +23,17 @@ describe('rc10 preset load fully replaces the save', () => {
     expect(level(s.player)).toBe(12);
     expect(derive(s.player).hp).toBe(740);
     expect(Object.values(s.player.potions).reduce((a, b) => a + b, 0)).toBe(3);
-    expect(s.run).toBeNull(); expect(s.stats.runs).toBe(0);
+    expect(s.run).toBeNull(); expect(s.stats.runs).toBe((presets['postF20-blade']!.player as { prog?: { trips?: number } }).prog?.trips ?? 0);
     const rec = loadRecord(kv.getItem(ABYSS_KEY));
     expect(rec).toMatchObject({ best: 0, trips: 0, titles: [], bySchool: {} });
   });
   it('does not alias the preset object (playing must not mutate the shared preset data)', () => {
     const pr = presets['postF20-oc']!; const s = applyPreset(mem(), pr);
     expect(s.player).not.toBe(pr.player); expect(s.player).toEqual(pr.player);
+  });
+  it('playtest #4: town sortie count matches the banner trip number (runs = prog.trips)', () => {
+    const pr = presets['postF20-oc']!; const s = applyPreset(mem(), pr);
+    expect(s.stats.runs).toBe((pr.player as { prog: { trips: number } }).prog.trips); expect(s.stats.runs).toBe(5);
   });
   it('stripPreset drops only preset, so a reload keeps progress', () => {
     expect(stripPreset('?cp6&debug&preset=postF20-blade')).toBe('?cp6&debug');
