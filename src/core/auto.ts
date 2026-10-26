@@ -187,7 +187,8 @@ export function chooseNaive(b: BattleState): Action {
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   // rc13 item 3(b): hinted mode presses the skill the UI hints (suggestSkill: beats A by > 10%). SIM_SKILLHINT=any = rc12 「first usable skill」.
-  if (A.has('skills') && ENV?.SIM_SKILLHINT !== 'any' && !ENV?.SIM_SKILLS) { const g = suggestSkill(b, target); if (g) return { kind: 'skill', id: g, target }; }
+  // rc15 item 2 (diag): SIM_SKILLHINT=off = hinted mode without skill presses (S / spell hints stay).
+  if (ENV?.SIM_SKILLHINT === 'off') { /* skills off */ } else if (A.has('skills') && ENV?.SIM_SKILLHINT !== 'any' && !ENV?.SIM_SKILLS) { const g = suggestSkill(b, target); if (g) return { kind: 'skill', id: g, target }; }
   else if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
   const qa = quickAttack(b, target);
   // cp8-rc12 item 2: hinted mode follows the arcane 💡 element suggestion (app.ts arcaneSpell). SIM_SPELLHINT=old = rc11 rule, off = only A.

@@ -1,6 +1,6 @@
 /** CP7 手感 sim (docs/cp7-feel.md §指標). One school × one seed set → one JSON line; scripts/cp7-report.ts turns the lines into CHECK lines.
  * Per seed: main-tower trips (counter AI, retreat 0.3) until the first F20 clear (max 60), then T=10 abyss trips from the checkpoint
- * (cap d60), then fresh fights like rc9-tune (d1/d2/d3 normal + d5 boss from the first-clear character; d13/d16/d18 normal + d20 boss
+ * (cap d100, SIM_CAP), then fresh fights like rc9-tune (d1/d2/d3 normal + d5 boss from the first-clear character; d13/d16/d18 normal + d20 boss
  * from the snapshot at best ≥ 15). No character cache (CP7 changes the main tower too).
  * Env: SC=<school> SEED0 CP7=0|1 (default 1) PITY WINHEAL (CP7 knobs) ; Usage: npx tsx scripts/cp7-sim.ts [N=256] [F=4] */
 import { readFileSync } from 'node:fs';
@@ -20,6 +20,8 @@ import { derive } from '../src/core/player';
 const E = process.env;
 // rc14 producer 2026-10-27: acceptance baseline = QA-like route (戰 before 菁英). SIM_ROUTE=elite = the old elite-first route (reference).
 E.SIM_ROUTE ??= 'battle';
+/** rc15 producer 2026-10-27: sim-only abyss depth cap 100 (was 60; arcane hit it). SIM_CAP=60 = old. */
+const CAP = Number(E.SIM_CAP ?? 100);
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0'; RULES.cp8 = E.CP8 === '1';
 for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as unknown as Record<string, unknown>)[k] = Array.isArray(CP8[k]) ? E[`K8_${k}`]!.split(",").map(Number) : Number(E[`K8_${k}`]);
 for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typeof CP7[k] === "number") (CP7 as Record<string, unknown>)[k] = Number(E[`K_${k}`]);
@@ -95,20 +97,20 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
     if (st < checkpointStart(rec.best)) shallow++;
     if (E.DBGKIT && t === 1) console.error(kitS('K1') + ' heavyAt ' + (heavyAt || 'none'));
-    RDMG.max = 0; RDMG.raw = 0; const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms }); pd(r);
+    RDMG.max = 0; RDMG.raw = 0; const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: CAP, ms: rec.ms }); pd(r);
     const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
     if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') { heavyAt = 'a' + t; console.error('HA', s, t); }
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
     if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, level(p), Object.values(p.equipped).map((e) => e ? e.slot + ':' + e.quality[0] + e.roll + 'L' + e.level : '').join(' '));
-    if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
+    if (st <= CAP && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
     if (E.DBGP2 && t <= 2) { const z = r.settlement as { cp8?: { pw0: number; pw1: number; worn: string[] }; lostItems?: unknown[]; kept?: unknown[]; levelBefore?: number; levelAfter?: number }; console.error('P2', JSON.stringify({ s, t, st, cl, dead, pw0: z.cp8?.pw0, pw1: z.cp8?.pw1, worn: z.cp8?.worn.length, lost: z.lostItems?.length ?? 0, kept: z.kept?.length ?? 0, lv0: z.levelBefore, lv1: z.levelAfter, kills: r.kills })); } // cp8-rc2 P2 diagnosis (stderr only)
     if (RULES.cp8 && st <= 30) { rdAll.push(+RDMG.max.toFixed(3)); rdSt.push(st); rdCl.push(cl); if (t === 1) { rd1.push(+RDMG.max.toFixed(3)); rd1raw.push(+RDMG.raw.toFixed(3)); } }
     if (E.DBGRD && st <= 30) console.error('RD', JSON.stringify({ s, t, st, cl, max: +RDMG.max.toFixed(3), av: RDMG.av, hits: RDMG.hits, mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group, body: p.equipped.body?.group, lean: p.lean }));
     if (E.DBGLOW && t === 1) console.error('LOW', JSON.stringify({ s, cl, why: r.end?.why, type: r.end?.type, hpPots: r.end?.hpPots, mp: r.end?.mp, mpMax: r.end?.mpMax, mpPots: r.end?.mpPots, hpCd: r.end?.hpCd, mpCd: r.end?.mpCd, hp0: r.end?.hp0, rd: +RDMG.max.toFixed(3), bturns: r.end?.bturns, foes: r.end?.foes.map((f) => f.rank + (f.affixes ? ':' + f.affixes.join('+') : '')), lv: level(p), mh: p.equipped.mainHand ? p.equipped.mainHand.quality + ' L' + p.equipped.mainHand.level : '-', pot0: p.potions.health }));
     if (t === 2) second.push(cl);
     if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
-    if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
-    if (st <= 60 && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && (E.DBG === 'all' || zero.abyssNoLoot < 15)) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
+    if (st <= CAP) upgAbyss.push(r.upg ?? 0); if (st <= CAP && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
+    if (st <= CAP && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && (E.DBG === 'all' || zero.abyssNoLoot < 15)) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
     if (dead) endAt[cl + 1] = (endAt[cl + 1] ?? 0) + 1;
     for (let d = st; d <= cl + (dead ? 1 : 0); d++) reach[d] = (reach[d] ?? 0) + 1;
     if (st <= 13 && cl >= 12) { const k = (r.rests ?? []).some((d) => d >= 13 && d < 20) ? 'rest' : 'none'; p3[k].n++; if (cl >= 20) p3[k].full++; }
