@@ -159,3 +159,9 @@ P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 25
   Breakdown: worst rounds are mostly one uncritted elite hit with no defend; mitigation = END/AGI attr + armor physMitigation (heavy body mean 0.43 vs cloth 0.33), block only from gear. Bulwark is a buff school, not a gear set: 4/583 bulwark trips wore a shield (staff dominates main hand), so its block is ~0.04 (W1 +3%). With a shield block is ~0.27–0.34 per the sourced tables. No sourced mitigation is missing; making bulwark take clearly less needs a design choice (e.g. steer bulwark to 1H+shield) → not changed, numbers brought back.
 - **Start-buff picks**: buff strip has a min height under cp8 (node top moved 270→274 after the first pick); nodes stay clickable, entering a node forgoes the picks still open. e2e: scripts/cp8-rc4-startpick-e2e.mjs, scripts/cp8-rc4-pothint-e2e.mjs.
 - **abyss20 checkpoint 21**: by design — the preset's record.best is 15 (built as "start d16, clear d20"), so the options are 1/6/11/16.
+
+## rc5（未打 tag；待製作人決定）
+- 磐石 lean（RULES.cp8，只動配置與引導、無新數字）：起始 1H(axe)+盾(buckler)+重甲(plate body)；城鎮「換上」/naive 換裝/autoWear/▲ 徽章對 lean=bulwark 保持 1H+盾、偏好重甲（重甲換非重甲 ≥0 即換；不拿非重甲換掉重甲）。lean 只來自起始配置 / preset，出行不改（隨成形流派漂移會讓 blade trip-1 p25 17→15）。磐石卡與流派進度提示加「搭盾才有格擋」。
+- 每回合最大傷害（naive, A, N=128, trip-1）：blade p50 .60/p95 .90，oc .56/.90，arcane .58/.90，bulwark .52/.79（rc4 .50/.70，盾 4/583 → 577/577）。目標 ≤0.40 未達：最大回合多為一次未被格擋的暴擊，格擋率 ~31%、減半，不改變尾端。
+- 全量：CHECK V PASS（bulwark 25/29=0.86）；P1 強/弱比 1.318× > 1.3× FAIL（bulwark trip-1 median 29）；B N=256 current AI late flat 4.8% > 4.7% FAIL；其餘 P1–P5 PASS；vitest 255/255；e2e 16/16 PASS（新增 cp8-rc5-held-e2e）；cp4-on-check OK。
+- 待選：起始選 buff 時點節點，剩下的選項移到右欄「待選」，本趟地圖畫面隨時可選/不拿，後續次數依序補上。
