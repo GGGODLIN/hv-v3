@@ -71,3 +71,15 @@ describe('cp8-rc9 P1 bulwark', () => {
     }
   });
 });
+import { abyssMult } from '../src/core/abyss';
+import { abyssBestMsg, reachedMsg } from '../src/core/run';
+describe('cp8-rc9 P1 bugs', () => {
+  it('9. ×14.19 at d26 is the combined value (d1 already ×2); the UI shows it relative to d1 (≈ ×7.09)', () => {
+    expect(abyssMult(26).dmg).toBeCloseTo(14.19, 1); expect(abyssMult(1).dmg).toBeCloseTo(2, 5);
+    expect(abyssMult(26).dmg / abyssMult(1).dmg).toBeCloseTo(7.09, 1);
+  });
+  it('10. one wording: 到達第 N 層（已通過 N-1 層）', () => {
+    expect(reachedMsg(13, 12)).toBe('到達深淵第 13 層（已通過 12 層）');
+    expect(abyssBestMsg(12)).toBe('深淵新紀錄：到達第 13 層（已通過 12 層）');
+  });
+});

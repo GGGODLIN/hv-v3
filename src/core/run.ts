@@ -173,7 +173,9 @@ export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState
 /** rc5 (a): floor number shown in titles — absolute abyss depth in the abyss, tower floor otherwise. */
 export const floorLabel = (run: RunState): number => (run.abyss ? depthOf(run) : run.floor);
 /** rc5 (c): new-record notice; the record counts depths cleared. */
-export const abyssBestMsg = (n: number): string => `深淵新紀錄：已通過 ${n} 層`;
+/** cp8-rc9 P1-10: one wording everywhere — 「到達第 N 層（已通過 M 層）」 (reached = the depth stood on, passed = depths cleared). */
+export const reachedMsg = (reached: number, passed: number, abyss = true): string => `到達${abyss ? '深淵' : ''}第 ${reached} 層（已通過 ${passed} 層）`;
+export const abyssBestMsg = (n: number): string => `深淵新紀錄：${reachedMsg(n + 1, n, false)}`;
 /** rc5 (d): on death, say what the run had so a +0 result (died before any reward) is explained. */
 export const deathCarryMsg = (exp: number, credits: number): string => `戰死：本趟累積 ${exp} EXP、${credits} C，帶回 ${Math.round(RULES.death.exp * 100)}%${exp || credits ? '' : '（本趟尚未獲得任何獎勵）'}`;
 export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
@@ -507,6 +509,8 @@ export function advance(run: RunState, option: number): void {
 
 export interface Settlement {
   outcome: 'clear' | 'dead' | 'retreat';
+  /** cp8-rc9 P1-10: floors / depths cleared this trip. */
+  passed?: number;
   exp: number; credits: number; kept: Equip[]; lost: number; lostItems: Equip[]; lostPotions: Partial<Record<PotionId, number>>; levelBefore: number; levelAfter: number;
   /** CP8 P2: what came back (戰力 at start → now, auto-worn drops, attribute points now affordable). */
   cp8?: { pw0: number; pw1: number; worn: string[]; attrPts: number };
@@ -543,7 +547,7 @@ export function settle(p: Player, run: RunState): Settlement {
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
   if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
-  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, ...(run.abyss ? { abyss: true } : {}),
+  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, passed: run.abyss ? abyssCleared(run) : outcome === 'clear' ? run.floor : run.floor - 1, ...(run.abyss ? { abyss: true } : {}),
     ...(RULES.cp8 ? { cp8: { pw0: Math.round(run.pw0 ?? 0), pw1: Math.round(powerScore(derive(p))), worn: [...(run.worn ?? [])], attrPts: cp8AttrPts(p) } } : {}) };
 }
 

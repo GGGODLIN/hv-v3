@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -11,7 +11,7 @@ import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
-import { abyssBestMsg, abyssLvFollow, deathCarryMsg } from '../core/run';
+import { abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
@@ -307,11 +307,15 @@ export class App {
       const sp = canUse(b, { kind: 'spirit' }) ? '、S·靈動架勢' : '';
       return `<div class="hint" data-skillhint>💡 本場可用：${now.length ? now.join('、') + sp : `攻擊累積 OC 後可用 ${later.join('、') || '—'}${sp}`}</div>`;
     })() : '';
+    const ready = RULES.cp8 && b.turn > 0 && (lean === 'blade' || lean === 'oc') ? this.cdReady.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })) : [];
+    const ids0 = Object.keys(SKILLS) as SkillId[];
+    const readyHint = ready.length ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 冷卻結束，現在可以用（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
+    const elemHint = RULES.cp8 && lean === 'arcane' ? this.arcaneHint(b) : '';
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（單擊超過最大 HP 一半）！' : '準備放出元素脈衝（大招）！'}<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
-        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}
-        <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
+        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}${readyHint}${elemHint}
+        ${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
         <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊${((q) => (q.kind === 'spell' ? `<small data-quick="${q.id}">${SPELLS[q.id].zh}</small>` : ''))(quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none'))}</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
@@ -322,7 +326,7 @@ export class App {
   themeHtml(): string {
     const r = this.run;
     if (!r?.cp5) return '';
-    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${tierZh(dn)}</b> · 怪物 HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%（再乘帶回倍率）</div>`; }
+    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${tierZh(dn)}</b> · ${(() => { const k1 = abyssMult(1); return `<span data-abyssrel title="深淵總倍率（含第 1 層起算的深淵基礎倍率）：HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)}">怪物 HP ×${(k.hp / k1.hp).toFixed(2)}、傷害 ×${(k.dmg / k1.dmg).toFixed(2)}（相對深淵第 1 層）</span>`; })()} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%（再乘帶回倍率）</div>`; }
     const t = themeOf(r.floor);
     return `<div class="theme" data-theme="${esc(t.zh)}"><b>${esc(t.zh)}</b>（第 ${Math.floor((r.floor - 1) / 5) * 5 + 1}–${Math.floor((r.floor - 1) / 5) * 5 + 5} 層）· 常見：${themeRaces(t).join('、')} · 多抗：${t.elems.map((e) => ELEM_ZH[e]).join('、')}${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5] ? ` · 首領：${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5]!.title}` : ''}</div>`;
   }
@@ -451,7 +455,28 @@ export class App {
     const urgent = est >= b.hp * 0.5; // cp8-rc7 P1 item 3: ≥ 50% of current HP
     return `<br><span data-chargeest="${est}:${pct}">預估傷害 約 ${est}（佔最大 HP ${pct}%）· 防禦後約 ${estD}</span>`
       + (urgent ? `<br><b class="warn" data-urgent="${est}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：先喝藥或防禦</b>` : '')
+      + this.chargePayoff(b, chargers, est, estD)
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${cd > 0 ? `生命藥水冷卻中（還要 ${cd} 回合）` : '生命藥水已用完'}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
+  }
+  /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
+  arcaneHint(b: BattleState): string {
+    const m = b.monsters[this.target]; if (!m || m.hp <= 0) return '';
+    const ZH: Record<string, string> = { fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
+    const ids = Object.keys(SPELLS) as SpellId[];
+    for (const w of weaknesses(m).filter((x) => ZH[x.type]).sort((x, y) => y.pct - x.pct)) {
+      const id = ids.find((s) => SPELLS[s].element === w.type && canUse(b, { kind: 'spell', id: s, target: this.target }));
+      if (id) return `<div class="hint suggest" data-spellhint="${id}">💡 ${esc(m.name)} 弱${ZH[w.type]} ${w.pct}%：建議 <b>${ids.indexOf(id) + 1}·${SPELLS[id].zh}</b></div>`;
+    }
+    return '';
+  }
+  /** cp8-rc9 P2 (自訂，非原版 prompt; numbers are the battle's own): what D·防禦 / Q·盾擊 actually buy against this wind-up. */
+  chargePayoff(b: BattleState, chargers: Monster[], est: number, estD: number): string {
+    const save = Math.max(0, est - estD), parts = [`少受約 <b>${save}</b>（${Math.round((save / Math.max(1, est)) * 100)}%）`];
+    if (b.oc >= DEF.ocCost) parts.push(`回 ${Math.round(DEF.hpRecover * 100)}% HP`);
+    if (b.mods?.combo.bulwark) parts.push(`下一擊反擊 ×${BULWARK_COUNTER_MULT}`);
+    const heavy = chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext);
+    const bash = heavy && canUse(b, { kind: 'skill', id: 'shieldBash', target: b.monsters.indexOf(chargers.find((m) => (m as { heavyNext?: boolean }).heavyNext)!) });
+    return `<br><span data-payoff="${save}">按 D·防禦：${parts.join('，')}${bash ? '；或 <b>Q·盾擊</b> 暈眩 → 直接打斷蓄力一擊（0 傷害）' : ''}</span>`;
   }
   /** cp8-rc6 item 6: 死因 line — source of the last hit, its damage, and one hint. */
   deathCause(): string {
@@ -473,7 +498,7 @@ export class App {
     // rc10: the 50% is multiplied again by the carry-back multiplier shown below; say so instead of a bare 50%.
     const carryNote = s.mult !== 1 ? `，再乘下方帶回倍率 ×${s.mult}（合計約 ${Math.round(RULES.death.exp * s.mult * 100)}%）` : '';
     const rule = s.outcome === 'dead' ? `死亡：EXP、熟練度與 Credits 保留 50%${carryNote}，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。` : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
-    return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>${s.abyss ? `到達深淵第 <b data-reached>${s.floor}</b> 層。` : `到達第 ${s.floor} 層。`}${rule}</p>${s.outcome === 'dead' && RULES.cp8 ? this.deathCause() : ''}
+    return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>${reachedMsg(s.floor, s.passed ?? Math.max(0, s.floor - 1), !!s.abyss).replace(/第 (\d+) 層（已通過 (\d+) 層）/, '第 <b data-reached>$1</b> 層（已通過 <b data-passed>$2</b> 層）')}。${rule}</p>${s.outcome === 'dead' && RULES.cp8 ? this.deathCause() : ''}
       <div class="hint" data-carry="${s.mult}">${s.abyss ? '深淵帶回倍率（1＋0.05×難度階）' : s.mult > 1 ? '新手帶回加成' : '帶回倍率'} ×${s.mult}</div>${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>${s.cp8 ? `<div class="gain" data-cp8carry><b>這趟帶回：</b>等級 Lv${s.levelBefore} → Lv${s.levelAfter}${s.levelAfter > s.levelBefore ? ` <b>(+${s.levelAfter - s.levelBefore})</b>` : '（不變）'} · 裝備戰力 ${s.cp8.pw0.toLocaleString()} → <b>${s.cp8.pw1.toLocaleString()}</b>${s.cp8.pw1 > s.cp8.pw0 ? ` (+${Math.round((s.cp8.pw1 / Math.max(1, s.cp8.pw0) - 1) * 100)}%)` : ''}${s.cp8.worn.length ? ` · 途中自動換上 ${s.cp8.worn.length} 件` : ''}${s.cp8.attrPts ? ` · <b>可加 ${s.cp8.attrPts} 點屬性</b>（城鎮「全部處理」）` : ''}</div>` : ''}
       <h3 class="kept-h">保留（${s.kept.length} 件，已放入倉庫）</h3>
@@ -537,6 +562,10 @@ export class App {
   }
 
   queued: string | null = null;
+  /** cp8-rc9 P1-11: why the last key did nothing (shown above the command bar until the next accepted action). */
+  refused = '';
+  /** cp8-rc9 P2: skills whose cooldown ended on the last action (blade / oc prompt). */
+  cdReady: SkillId[] = [];
   /** cp8-rc9 item 1: wind-up input hold. */
   chargeHoldUntil = 0;
   windWas = false;
@@ -560,7 +589,8 @@ export class App {
     if (!map[k]) return;
     e.preventDefault();
     // Keys pressed during an animation are queued (latest wins) instead of being dropped.
-    if (this.busy) { this.queued = map[k]!; return; }
+    // cp8-rc9 P1-11: a queued D / Z / X / C is not overwritten by a later A or skill key (rc8 playtest: Z then A-spam = Z never happened).
+    if (this.busy) { if (!(RULES.cp8 && this.queued && /^(defend|item:)/.test(this.queued) && !/^(defend|item:)/.test(map[k]!))) this.queued = map[k]!; return; }
     this.command(map[k]!);
   }
 
@@ -754,13 +784,16 @@ export class App {
       kind === 'attack' ? quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none') : { kind: kind as 'defend' };
     if (!canUse(b, a)) {
       this.log.push(`<span class="warn">${esc(whyNot(b, a))}</span>`);
+      if (RULES.cp8) this.refused = `${kind === 'item' ? `${'ZXC'['health mana spirit'.split(' ').indexOf(id ?? '')] ?? ''}·${POTION_ZH[id as PotionId] ?? ''}` : cmd}沒有作用：${whyNot(b, a)}`; // cp8-rc9 P1-11: say so next to the buttons
       this.render();
       return;
     }
-    this.busy = true;
+    this.busy = true; this.refused = '';
     this.render();
     const hpBefore = b.hp, turnBefore = b.turn;
+    const cd0 = { ...b.cooldowns };
     const ev = act(b, a, this.rng, profsOf(this.p));
+    this.cdReady = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2
     // cp7-rc5 bug 3: per-turn damage record (display only, no effect on the battle): one line per monster phase, kept in full
     // on window.__turnLog for playtest reports (the on-screen log shows the last 6 lines only).
     if (RULES.cp7) {
