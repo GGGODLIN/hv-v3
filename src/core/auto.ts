@@ -209,8 +209,13 @@ export function prefBuff(ids: string[], strat: BuffStrategy, rng: Rng): string |
 /** 暫定 (CP2b): chance the human model takes a battle when one is offered and HP is at least 55%. */
 export const HUMAN_COMBAT_SHARE = 0.5;
 /** CP3-fix 8 'noweak': plays like 'human' but never aims at weaknesses (spells picked without looking at resistances: always the first offensive spell). */
+/** cp8-rc9 item 2 (暫定, our own sim-AI knob, not a game value; reference only): current-AI arcane play. quick = fall back to the
+ *  staff quick-cast (A) instead of a staff bonk; noweak = skip the seen-weakness spell loop; pot = drink on the UI potion hint. Env K_ARC_AI=a,b. */
+export const ARC_AI = new Set<string>((ENV?.K_ARC_AI ?? 'quick').split(',').filter(Boolean));
+let ARC = false; // set by decide(): the current strategy is buff:arcane*
 export function chooseHuman(b: BattleState, aimWeak = true): Action {
   const live = alive(b);
+  if (ARC && ARC_AI.has('pot') && RULES.cp8 && potHint(b)) return { kind: 'item', id: 'health' };
   const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
   const tm = b.monsters[target]!;
   if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
@@ -223,9 +228,9 @@ export function chooseHuman(b: BattleState, aimWeak = true): Action {
   }
   const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => seen(tm)[SPELLS[id].element as keyof typeof tm.spec] < 0)
     .sort((x, y) => seen(tm)[SPELLS[x].element as keyof typeof tm.spec] - seen(tm)[SPELLS[y].element as keyof typeof tm.spec]);
-  for (const id of sp) if (canUse(b, { kind: 'spell', id, target })) return { kind: 'spell', id, target };
+  if (!(ARC && ARC_AI.has('noweak'))) for (const id of sp) if (canUse(b, { kind: 'spell', id, target })) return { kind: 'spell', id, target };
   if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
-  return { kind: 'attack', target };
+  return ARC && ARC_AI.has('quick') ? quickAttack(b, target) : { kind: 'attack', target };
 }
 
 export function profsOf(p: Player): Partial<Record<Prof, number>> {
@@ -347,7 +352,7 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
   if (SIM_AI.naive && RULES.cp8 && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
   if (SIM_AI.naive) { PHYS = physPlay(strategy); return mode ? chooseCp5(b, mode, () => chooseNaive(b)) : chooseNaive(b); }
-  PHYS = physPlay(strategy);
+  PHYS = physPlay(strategy); ARC = strategy.startsWith('buff:arcane');
   const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy) && !PHYS) : chooseAction(b));
   return mode ? chooseCp5(b, mode, base) : base();
 }
