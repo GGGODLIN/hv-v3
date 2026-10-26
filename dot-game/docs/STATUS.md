@@ -1,5 +1,12 @@
 # Current status
 
+## v0.12 desktop accepted; root promotion pending — 2026-10-26 05:13 UTC
+
+Intentional selected-item batch sale passed bounded cloud-browser acceptance: exact IDs survive sorting/filtering, hidden selections remain disclosed, cancel leaves inventory/gold unchanged, one confirmation sells only the three reviewed items for219 credits, reload preserves the result, and ownership/departure clears pending intent. A normal exported-save comparison preserved every unselected item and all equipment. Three actual victories followed cleanup. See docs/BROWSER-QA-V012.md (BROWSER-QA-V012.md in this directory) for observations and limits.
+
+Complete source `21247944ce2615847be37ae31f18b2b5c1e86841` is backed up and exact-readback verified:115 files/114 payloads. Candidate site `5b3c9cbc86cf7d321db153b88c2070c3f62be920` passed exact Pages40272612375 and HTTP6. This checkpoint changes only docs/manifest;921 tests/four syntax checks are reused without runtime reruns. Public v0.11 remains accepted until root promotion and final smoke.
+
+
 ## v0.12 development candidate — 2026-10-26 05:00 UTC
 
 Adds intentional exact-item multi-selection and reviewed batch sale, without changing conservative automatic cleanup, loot/combat rules, prices or saves. See docs/SELECTED-SALE.md (SELECTED-SALE.md from this docs directory). Final aggregate921/921 tests and four runtime syntax checks pass. Independent acceptance reproduces90 naturally earned baseline-identical victories and exact selected-batch/singleton proceeds. A checkbox keyboard-focus defect was corrected before this pass. Backup and browser acceptance remain pending. Public v0.11 remains accepted at recovery `61bd11e904e2aa1ea152e37deb461714df08e139`; do not treat this candidate as a published release.
