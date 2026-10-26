@@ -1,0 +1,163 @@
+{
+ "main: reminder with 3 rows + 全部處理 + 忽略並出發": {
+  "ok": true,
+  "info": {
+   "attrs": 36,
+   "hp": 0,
+   "credits": 10000,
+   "body": null,
+   "inv": 1,
+   "modal": true,
+   "rows": [
+    "alloc",
+    "potion",
+    "equip"
+   ],
+   "done": false,
+   "ok": "忽略並出發",
+   "all": true,
+   "run": null
+  }
+ },
+ "全部處理: attrs allocated": {
+  "ok": true,
+  "info": {
+   "before": 36,
+   "after": 684
+  }
+ },
+ "全部處理: 3 HP potions bought": {
+  "ok": true,
+  "info": {
+   "hp": 3,
+   "credits": [
+    10000,
+    9850
+   ]
+  }
+ },
+ "全部處理: body armour worn again": {
+  "ok": true,
+  "info": {
+   "body": "emvoplpv2sfiae3c",
+   "inv": [
+    1,
+    0
+   ]
+  }
+ },
+ "全部處理: no row left, 整備完成 + 出發": {
+  "ok": true,
+  "info": {
+   "attrs": 684,
+   "hp": 3,
+   "credits": 9850,
+   "body": "emvoplpv2sfiae3c",
+   "inv": 0,
+   "modal": true,
+   "rows": [],
+   "done": true,
+   "ok": "出發",
+   "all": false,
+   "run": null
+  }
+ },
+ "main: departs after 全部處理": {
+  "ok": true,
+  "info": {
+   "attrs": 684,
+   "hp": 3,
+   "credits": 9850,
+   "body": "emvoplpv2sfiae3c",
+   "inv": 0,
+   "modal": false,
+   "rows": [],
+   "done": false,
+   "ok": null,
+   "all": false,
+   "run": "main"
+  }
+ },
+ "main: reminder shows": {
+  "ok": true,
+  "info": [
+   "alloc",
+   "potion",
+   "equip"
+  ]
+ },
+ "main: 忽略並出發 departs, nothing changed": {
+  "ok": true,
+  "info": {
+   "attrs": 36,
+   "hp": 0,
+   "credits": 10000,
+   "body": null,
+   "inv": 1,
+   "modal": false,
+   "rows": [],
+   "done": false,
+   "ok": null,
+   "all": false,
+   "run": "main"
+  }
+ },
+ "abyss: reminder shows": {
+  "ok": true,
+  "info": [
+   "alloc",
+   "potion",
+   "equip"
+  ]
+ },
+ "abyss: 忽略並出發 departs, nothing changed": {
+  "ok": true,
+  "info": {
+   "attrs": 36,
+   "hp": 0,
+   "credits": 10000,
+   "body": null,
+   "inv": 1,
+   "modal": false,
+   "rows": [],
+   "done": false,
+   "ok": null,
+   "all": false,
+   "run": "abyss"
+  }
+ },
+ "one-click potion removes its row": {
+  "ok": true,
+  "info": [
+   "alloc",
+   "equip"
+  ]
+ },
+ "one-click alloc removes its row": {
+  "ok": true,
+  "info": [
+   "equip"
+  ]
+ },
+ "one-click equip removes its row": {
+  "ok": true,
+  "info": []
+ },
+ "all fixed → no reminder, departs at once": {
+  "ok": true,
+  "info": {
+   "attrs": 684,
+   "hp": 3,
+   "credits": 9850,
+   "body": "emvoplpv2sfiae3c",
+   "inv": 0,
+   "modal": false,
+   "rows": [],
+   "done": false,
+   "ok": null,
+   "all": false,
+   "run": "main"
+  }
+ }
+}
+CP7-RC4 PREP E2E ALL PASS

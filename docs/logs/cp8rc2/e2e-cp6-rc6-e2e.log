@@ -1,0 +1,139 @@
+{
+ "res": {
+  "abyss15/battle": [
+   {
+    "i": 0,
+    "name": "炎冠蜥蜴",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:-40",
+     "crushing:25",
+     "dark:7",
+     "elec:30",
+     "fire:31",
+     "holy:10",
+     "slashing:25",
+     "wind:-16"
+    ],
+    "want": [
+     "cold:-40",
+     "crushing:25",
+     "dark:7",
+     "elec:30",
+     "fire:31",
+     "holy:10",
+     "slashing:25",
+     "wind:-16"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "霜鐵戰士",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:32",
+     "crushing:25",
+     "dark:10",
+     "elec:-15",
+     "fire:32",
+     "holy:8",
+     "piercing:-25",
+     "wind:-15"
+    ],
+    "want": [
+     "cold:32",
+     "crushing:25",
+     "dark:10",
+     "elec:-15",
+     "fire:32",
+     "holy:8",
+     "piercing:-25",
+     "wind:-15"
+    ]
+   }
+  ],
+  "abyss15/elite": [
+   {
+    "i": 0,
+    "name": "反魔烈焰・雷刃蛇龍",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:-50",
+     "crushing:25",
+     "elec:30",
+     "fire:25",
+     "slashing:25",
+     "wind:-18"
+    ],
+    "want": [
+     "cold:-50",
+     "crushing:25",
+     "elec:30",
+     "fire:25",
+     "slashing:25",
+     "wind:-18"
+    ]
+   }
+  ],
+  "postF20-blade/boss": [
+   {
+    "i": 0,
+    "name": "深淵之王・炎鐵遊俠",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:8",
+     "dark:-15",
+     "elec:8",
+     "fire:10",
+     "holy:8",
+     "wind:8"
+    ],
+    "want": [
+     "cold:8",
+     "dark:-15",
+     "elec:8",
+     "fire:10",
+     "holy:8",
+     "wind:8"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "雷羽蛇龍",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:-33",
+     "crushing:25",
+     "dark:12",
+     "elec:35",
+     "fire:35",
+     "holy:12",
+     "slashing:25",
+     "wind:-10"
+    ],
+    "want": [
+     "cold:-33",
+     "crushing:25",
+     "dark:12",
+     "elec:35",
+     "fire:35",
+     "holy:12",
+     "slashing:25",
+     "wind:-10"
+    ]
+   }
+  ]
+ },
+ "errs": []
+}
+ALL PASS

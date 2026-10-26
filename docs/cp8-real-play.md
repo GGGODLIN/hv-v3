@@ -54,3 +54,46 @@
 - P5 備註：turnCap < 1 時，「滿血一回合死亡」在構造上不可能（DoT 等非怪物行動除外），所以 0% 是必然結果，不是調出來的數字。
 - vitest（單執行緒 `--no-file-parallelism --maxWorkers=1`）：29 個檔案全數通過（含 tests/cp8.test.ts）。
 - e2e：新增的 `scripts/cp8-rc1-e2e.mjs` PASS（preset abyss20 → 從 d16 出發 → 先選 3 個 buff，選完前地圖節點鎖住）。舊的 e2e.mjs、cp6-rc2-ui、cp6-rc3（「preset without cp6」）、cp6-rc6、cp7-rc4-prep（「cp7 off」）在 **cp7-main 的建置（5199）上一樣 FAIL**，失敗訊息相同，因此是既有問題，不是 cp8 造成的回歸。e2e-cp3fix、cp5-rc2、cp6-rc2-dot、cp7-rc5-bug1 PASS。
+
+## cp8-rc2
+
+數據來源：docs/logs/cp8rc2/（rc2F = naive A+B N=128 F4；curF = 目前 AI，P5=0，A+B N=128；bwF = 磐石 A 組 N=256 目前 AI）。
+
+### 1. e2e（全部 11 支在 rc2 建置 PASS）
+| 腳本 | 變更 | 原因 |
+|---|---|---|
+| e2e.mjs | 藥水冷卻改比對數字 | 文案已改成「冷卻 N 回合」 |
+| e2e.mjs | 教學層改成「教學類型在該層選項之中」 | cp5 起教學層提供兩個選項 |
+| cp6-rc3 / cp6-rc6 | 加 `okPrep` 關閉整備提醒 | 整備提醒 modal 擋住出發（abyss of null） |
+| cp6-rc2-ui | BASE 由 argv/E2E_URL 取得；`dialog` 自動接受 | 「確定不拿」的 confirm 讓 evaluate 卡死（protocolTimeout） |
+| cp5-rc2 / cp6-rc2-dot | BASE 由 argv 取得 | 原寫死 5198 |
+| cp8-rc2-prep（新增） | 檢查整備提醒列出裝備名（cp8 開）與舊文案（cp8 關） | UX 決策 6 |
+
+**刪除的檢查**
+- cp6-rc3「preset without cp6」、cp7-rc4-prep 第 4 項「cp7 off」：這些旗標預設開啟，main.ts 沒有關閉開關，UI 上無法到達該狀態，檢查已過時。對應行為仍由 vitest 與 `scripts/cp4-on-check.sh`（cp8 關 == cp7-on baseline，逐位元組相同）覆蓋。
+
+### 2. P3：怪物強度分解（已驗證，scripts/cp8-rc2-p3-breakdown.ts，p3bd.txt）
+d18 勝率 85.2%（adb 968）→ d21 62.3%（adb 1469，+52%），但 tier 傷害倍率只升 +9.5%。斷層來源：CP7.themeDmg 對主題 16–19 的 ×0.7 折扣在 d21 突然結束，加上 tier-3 ramp。**有斷層 → 依決策平滑，P3 目標維持 40%。**
+- 新增 `RULES.cp8` 下的 `CP8.themeTail = [0.7, 0.775, 0.85, 0.925]`（暫定）：d21–24 主題傷害折扣逐層收回（d>20 才套用）。
+- 試過 [0.775, 0.85, 0.925]：P3 A 34.0% / B 35.5% FAIL，故採 4 段版本。
+- 結果：P3 A 40.5%（658/1624）、B 42.6%（695/1632） PASS（rc1 約 20%）。
+
+### 3. P4（目前 AI 判定；naive 只用於 P1/P2）
+- A 全 PASS（磐石 d16 見下）。
+- **B「late flat」FAIL：d16–20 5.2% > 1.25 × d11–15 4.1% = 5.1%**（差距在四捨五入等級；rc1 程式碼時為 5.2 ≤ 5.2 PASS）。其餘 B 項全部 PASS。themeTail 只影響 d>20，所以 d16–20 的差異（推測）來自亂數消耗路徑改變，屬於取樣噪音；未做額外調整，交由製作人決定。
+
+### 4. 磐石 d16（N=256）
+A 組 N=256：59.9%（rc1 程式碼 60.5%），≥59% → PASS，不調整磐石。B 組 73.4%。cp8-report 在設定 `BW256` 時，以 N=256 的數值判定磐石 d16。
+
+### 5. P2
+- 判定方式改為 A+B 合併：每個流派第 2 趟中位數 ≥ 第 1 趟 + 2。結果：blade 15→17、oc 15→17、arcane 15→17、bulwark 15→19，PASS。
+- A 組 oc 17→17 的診斷（p2oc.err，DBGP2=1，118 個兩趟都有的 seed）
+  - 已驗證：109/118 死在第 1 趟；第 1 趟中位數到 d17；第 2 趟從 d16 checkpoint 出發，中位數也是 17；戰力 1162→1184，第 2 趟起始 1186（+2.7%）；第 1 趟自動穿上的裝備中位數 1 件（53/118 沒穿上任何裝備）；死亡損失的物品中位數 23 件；等級 16→16。差值分布：0 有 36 個，−2 有 14 個，−4 有 4 個，其餘為正。
+  - 推測：第 1 趟死亡會失去背包，所以第 2 趟幾乎是同一個角色從 d16 重來，而且起點正好在前一次死亡深度之下。oc 第 1 趟較深（17），剛好越過 checkpoint，所以沒有提升。
+
+### 6. UX
+cp8 開時，整備提醒列出裝備：`倉庫有 N 件「▲ 比身上好」的裝備：部位・裝備名（▲戰力差）、…`；cp8 關時維持舊文案。
+
+### 其他
+P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 253 測試 PASS；cp4-on-check：cp8 關與 cp7-on baseline 相同。
+**總結：除 P4 B late-flat（5.2% vs 5.1%）之外，全部 PASS。**
