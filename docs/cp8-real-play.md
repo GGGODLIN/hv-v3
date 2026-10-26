@@ -173,3 +173,12 @@ P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 25
 - 觀察：最重的一下通常是**未格擋的暴擊**。暴擊減傷與格擋比例目前無依據，**待查原版來源**。
 - P4 後段平：超出 < 0.2pp 視為抽樣誤差，判 PASS（**暫定**）。
 - 結果：P1 仍 FAIL 1.318×（磐石 trip-1 中位 29 vs 22），依指示不調數字、回報。其餘 CHECK（含 V 磐石 0.86、受傷）PASS；B256 late flat 4.9% ≤ 4.7%+0.2pp PASS。Log：docs/logs/cp8rc6。
+
+## rc6 起始配置驗證 + rc5 試玩修正（2026-10-26）
+
+- 起始皮甲確實生效（DBGKIT，K0 全為 light:leather:fair）。但深淵 trip 1 前要先打完主線 F1–20：重甲在主線第 1–5 趟換上（m1 107、m2 56、m3 24、m4 4、m5 1、未換重甲 64 / 256），到 trip 1 時 HP 中位 800 vs rc5 796、physMit .412 vs .414，所以 P1 不變。
+- A 鍵快捷施法改為同時檢查當下主手是法杖（按鈕副標用同一判斷）；e2e cp8-rc5-quickcast。
+- turnCap 0.9 → 0.7（暫定，自訂規則）。
+- naive AI 改打 UI 預設目標（第一隻活著的怪），不再挑最低血量（SIM_TGT=low 保留舊行為）。preset 回放 sim：blade trip-1 22 → 17。
+- 試玩：每個 preset 一個存檔槽（切換時暫存／還原；同 preset 或 &fresh 重新套用）。
+- 結果（rc7 log）：P1 PASS（A 1.136×、B 1.227×）。FAIL：受傷 CHECK（turnCap 0.7 讓各派 trip-1 p95 都頂在 0.70）、B 組 late flat 4.3% > 3.8%+0.2pp、B256 5.0% > 4.6%+0.2pp。未打 tag。
