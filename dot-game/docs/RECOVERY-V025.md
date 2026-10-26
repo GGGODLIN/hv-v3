@@ -21,4 +21,4 @@ Uncertain writes require readback before retry; permission denial never authoriz
 
 ## Current gate
 
-Final source gate passed1,538 tests/four syntax/17 independent checks at2026-10-26 21:08UTC. Candidate publication/browser acceptance pending. Formal root remains accepted v0.24 until the above gates complete. See STATUS and the checkpoint-specific acceptance documents as they are added.
+Final source gate passed1,538 tests/four syntax/17 independent checks at2026-10-26 21:08UTC. Candidate7ed4e0127d6100d8d616e9f66346e85ab77e47f4 passed exactPages40402738946/sixHTTP and bounded actualbrowser at21:21UTC. Complete source8c186565ac07b71e30239a0e1ac2550c15256fdc was verified before staging. Accepted-source documentation backup and formal-root gates follow. Formal root remains accepted v0.24 until the above gates complete. See STATUS and the checkpoint-specific acceptance documents as they are added.
