@@ -2,7 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Development candidate: v0.22 — departure-build report context.** Latest verified public release remains v0.21 (`9998ac34176ab2bc0055e60ca340e7a86a602016`). The new compact policy row and collapsed actual slotted-ability/equipment details record start configuration without changing combat. [Report guide](docs/REPORT-BUILD-GUIDE.md). Browser acceptance and publication are pending; a source candidate is not a published release.
+**Bounded-desktop accepted candidate: v0.22 — departure-build report context.** Latest verified public release remains v0.21 (`9998ac34176ab2bc0055e60ca340e7a86a602016`). The new compact policy row and collapsed actual slotted-ability/equipment details record start configuration without changing combat. [Report guide](docs/REPORT-BUILD-GUIDE.md). Browser acceptance passed; accepted-source readback and root publication are next. A tested candidate is not yet the published root release.
 
 ## Play
 
