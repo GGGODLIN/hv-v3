@@ -43,3 +43,13 @@ Cloud browser cannot reach this executor'slocalhost. An initial localpreview pro
 Not claimed: physicalmobile/narrowviewport, OSsleep, comprehensiveconcurrency, malformedimport or hostile state manipulation inbrowser. Sourceaudit owns those explicitly listed syntheticcases. No newformula, balance, IWhigher-tier or universalbestgear claim.
 
 **GO for complete accepted-source documentation backup/readback, then formal-root promotion of exactly the same sixruntime files.** Parent stabletab2 must retain its own profile; do not import thiscandidate export. No runtime rerun/redeploy is needed for subsequent documents-only receipts.
+
+## Formal-root publication and independent stable smoke —21:27–21:28UTC
+
+Complete accepted source `341b5e9d55dab176807aef1a14e7b6b044b46d8d` (234 files/233payloads) was read back before website root `f00fdfe1fcad529081057e99592a49466341bb08`. Exact Pages40404233686 succeeded; allsix publicHTTP200 bodies/SHA256s matched acceptedruntime. Onlyindex/style/UI changed; engine/loot/session stayed exactv0.24 and all3,942 otherwebsite blobs/modes were preserved.
+
+Parent used the existing stable cloudtab2, never importing candidateprogress. Reload retained its ownLv10/gold838/wins17/bag32/fragments20/seeds1. ActualIW1filter showed an honestempty backpack with equipped-versus-backpack wording; reset restored32cards andallcriteria. A normalstage1 expedition with queuedcamp return won in11.6processedseconds and naturally leveled to11:gold914/wins18/bag34/HP872/fragments30/seeds2. Reload retainedprogress and reset allthreefilters toall. A selectorwait deadline was followed by freshDOM confirmation of completedclear, not repeatedaction or an appfailure.
+
+Normal stableUI export SHA256`9f4bc472b1c7549c367550169279d932be6d36c89a28b10f08ca6e7f047e0f60` validates asformat3 and confirms the above balances,MP49 and originalunboundLv7weapon`loot-12`. All32 capturedwarn/errors were the same knownextensionmetadata source; noother capturedsource. Parent markedtab2Deliverable and leftcamp. Completed candidate20 was closed after retaining its normalexport/evidence; failedlocalpreview19 remains untouched under its earlierpolicydenial.
+
+**Published and bounded-desktop accepted.** Final121receipt changes onlydocuments/manifest and reuses unchanged-runtime1,538tests/foursyntax/candidate/root evidence; it is not anotherdeployment or a claim of rerun tests. Verify its exactcommit readback and fullmanifest before using it as the newer complete recovery point.

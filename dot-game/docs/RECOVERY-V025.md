@@ -19,6 +19,10 @@ This workbench is an independent interface adaptation. Engine, loot and session 
 
 Uncertain writes require readback before retry; permission denial never authorizes another tool/account/path workaround. Preserve raw errors and pause when no newly relevant evidence authorizes the same operation.
 
-## Current gate
+## Published recovery —2026-10-26 21:29UTC
 
-Final source gate passed1,538 tests/four syntax/17 independent checks at2026-10-26 21:08UTC. Candidate7ed4e0127d6100d8d616e9f66346e85ab77e47f4 passed exactPages40402738946/sixHTTP and bounded actualbrowser at21:21UTC. Complete source8c186565ac07b71e30239a0e1ac2550c15256fdc was verified before staging. Accepted-source documentation backup and formal-root gates follow. Formal root remains accepted v0.24 until the above gates complete. See STATUS and the checkpoint-specific acceptance documents as they are added.
+Final source gate passed1,538tests/foursyntax/17independent checks. Candidate7ed4e0127d6100d8d616e9f66346e85ab77e47f4 passed exactPages40402738946/sixHTTP and bounded actualbrowser. Complete candidate source8c186565ac07b71e30239a0e1ac2550c15256fdc was verified before staging.
+
+Complete browser-accepted source `341b5e9d55dab176807aef1a14e7b6b044b46d8d` was exactly read back before formal root `f00fdfe1fcad529081057e99592a49466341bb08`; Pages40404233686 succeeded and allsix HTTP bodies matched. Parent stabletab2 retained its ownsave, exercisedfilters/normalwin/reload and endedLv11/gold914/wins18/bag34/fragments30/seeds2. See BROWSER-QA-V025.md.
+
+The exactcommit containing checkpoint121-v025-publication-receipt is a newer documents-only complete recovery point of the same acceptedruntime. Prefer it once its complete manifest and remote readback are verified. No new deployment or runtime test rerun follows this receipt. Private browserexports remain excluded.

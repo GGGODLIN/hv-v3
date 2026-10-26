@@ -18,7 +18,7 @@ Engine SHA256 `54dda1cf9982b4eab2336071d43cf398a1ad35fbe4397508f6fed5afedb5d974`
 
 ## Browser gate
 
-Public candidate and bounded actual cloud-browser acceptance passed at2026-10-26 21:21UTC, separately recorded in BROWSER-QA-V025.md. A source test does not establish actual focus/layout/import or Pages publication. Ordinary UI controls and an unchanged prior export are the only allowed browser-progress inputs. Formal root remains v0.24 until complete source readback, candidate CI/HTTP/play, accepted-source backup and root CI/HTTP/stable-profile smoke pass.
+Public candidate and bounded actual cloud-browser acceptance passed at2026-10-26 21:21UTC, separately recorded in BROWSER-QA-V025.md. A source test does not establish actual focus/layout/import or Pages publication. Ordinary UI controls and an unchanged prior export are the only allowed browser-progress inputs. All publication gates subsequently passed: accepted-source341b5e9d55dab176807aef1a14e7b6b044b46d8d before rootf00fdfe1fcad529081057e99592a49466341bb08, exactPages40404233686/sixHTTP and independent stable-profile smoke at21:28UTC. Final receipt is documents/manifest only; no runtime rerun or redeploy.
 
 ## Limits
 
