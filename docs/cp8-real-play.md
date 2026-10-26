@@ -225,3 +225,4 @@ P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 
 | P1 最強/最弱（B 組） | 「待調」 | 1.588×（cur B）/1.350×（F B）/1.421×（B256） | ≤1.3× |
 | V（arcane） | 「待調」 | 0.63 | ≥0.7 |
 | 受傷 CHECK | 「待調」 | 磐石 p50 0.55 > 0.47 | 見定義 |
+- 出貨檢查（docs/logs/cp8rc6-ship）：vitest（--no-file-parallelism）全過；19 支 e2e 在 5289 建置 PASS（cp7-rc5-bug1 的 /tmp 夾具需依新 preset 主手重產，`npx tsx scripts/cp7-rc5-bug1-save.ts` 後 PASS）；cp4-on-check 與 cp7-on baseline 一致。sim 不擋。
