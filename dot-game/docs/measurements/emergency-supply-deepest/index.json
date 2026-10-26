@@ -1,0 +1,277 @@
+{
+  "format": "hv-dot-measurement-shards-v1",
+  "maxShardBytes": 65536,
+  "keys": [
+    "kind",
+    "seeds",
+    "snapshots",
+    "acquisitionRuns",
+    "acquisitionOutcomes",
+    "summary",
+    "acquisitions",
+    "pairs",
+    "sourceBefore",
+    "sourceAfter"
+  ],
+  "metadata": {
+    "kind": "fixed-protocol naturally earned source simulation; not browser play",
+    "seeds": [
+      1,
+      7,
+      12,
+      19,
+      29,
+      42,
+      55,
+      77,
+      101,
+      123
+    ],
+    "snapshots": [
+      0,
+      4,
+      8,
+      12
+    ],
+    "acquisitionRuns": 120,
+    "acquisitionOutcomes": {
+      "win": 120
+    },
+    "summary": {
+      "balanced": {
+        "pairs": 40,
+        "offWins": 40,
+        "onWins": 40,
+        "changedOutcomes": [],
+        "offPotions": 0,
+        "onPotions": 0,
+        "bothWins": 40,
+        "winTime": {
+          "lower": 0,
+          "equal": 40,
+          "higher": 0
+        },
+        "minimumStockOn": 3,
+        "censored": 0
+      },
+      "assault": {
+        "pairs": 40,
+        "offWins": 40,
+        "onWins": 40,
+        "changedOutcomes": [],
+        "offPotions": 0,
+        "onPotions": 16,
+        "bothWins": 40,
+        "winTime": {
+          "lower": 0,
+          "equal": 40,
+          "higher": 0
+        },
+        "minimumStockOn": 1,
+        "censored": 0
+      },
+      "sustain": {
+        "pairs": 40,
+        "offWins": 40,
+        "onWins": 40,
+        "changedOutcomes": [],
+        "offPotions": 0,
+        "onPotions": 0,
+        "bothWins": 40,
+        "winTime": {
+          "lower": 0,
+          "equal": 40,
+          "higher": 0
+        },
+        "minimumStockOn": 3,
+        "censored": 0
+      }
+    },
+    "sourceBefore": {
+      "src/engine.js": "76750a0da6b2ecf4a0e61ce0a99bc1c166f76a53ea744098f8f03fe5074b0ffd",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "scripts/measure-emergency-supply.mjs": "5994e42603f2320a8ac4dd16a84489ba91190f75462bdc90f3efeb6b71f9431f",
+      "docs/EMERGENCY-SUPPLY-MEASUREMENT-PROTOCOL.md": "3109033bc563024df911098f8d805f6d8b2fdff0804c8d16d49058f8144d2dea"
+    },
+    "sourceAfter": {
+      "src/engine.js": "76750a0da6b2ecf4a0e61ce0a99bc1c166f76a53ea744098f8f03fe5074b0ffd",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "scripts/measure-emergency-supply.mjs": "5994e42603f2320a8ac4dd16a84489ba91190f75462bdc90f3efeb6b71f9431f",
+      "docs/EMERGENCY-SUPPLY-MEASUREMENT-PROTOCOL.md": "3109033bc563024df911098f8d805f6d8b2fdff0804c8d16d49058f8144d2dea"
+    }
+  },
+  "arrays": {
+    "acquisitions": {
+      "length": 120
+    },
+    "pairs": {
+      "length": 120
+    }
+  },
+  "shards": [
+    {
+      "array": "acquisitions",
+      "part": 0,
+      "file": "acquisitions-000.json",
+      "count": 20,
+      "bytes": 62632,
+      "sha256": "515336e66bc1f47ca69e6bfc7b82b8f6627780db5ce8df3f9a5e3a477064c80b"
+    },
+    {
+      "array": "acquisitions",
+      "part": 1,
+      "file": "acquisitions-001.json",
+      "count": 20,
+      "bytes": 62962,
+      "sha256": "4189e2e2bcedad80c396b7a4b151fdbb8ba03d988aecc27a61a7f644ec937604"
+    },
+    {
+      "array": "acquisitions",
+      "part": 2,
+      "file": "acquisitions-002.json",
+      "count": 20,
+      "bytes": 63279,
+      "sha256": "a19bdf813339944d81ba0bcde4ff7f9a293ea22ee2e6949749c7444ee66a2f14"
+    },
+    {
+      "array": "acquisitions",
+      "part": 3,
+      "file": "acquisitions-003.json",
+      "count": 20,
+      "bytes": 62745,
+      "sha256": "afb357c66aa00f1f0721b27eb3d7e019230b0c08748ca3e1fd9e074bee268619"
+    },
+    {
+      "array": "acquisitions",
+      "part": 4,
+      "file": "acquisitions-004.json",
+      "count": 20,
+      "bytes": 62854,
+      "sha256": "6f0b3ef887b0e762c08f17333be272e5d9912336a4463dd4dbe1003333a1b747"
+    },
+    {
+      "array": "acquisitions",
+      "part": 5,
+      "file": "acquisitions-005.json",
+      "count": 20,
+      "bytes": 63162,
+      "sha256": "b36dc365ccf5af783ecd8d1bdaa890137655a4648fb9825f66470cb8d4ac4304"
+    },
+    {
+      "array": "pairs",
+      "part": 0,
+      "file": "pairs-000.json",
+      "count": 9,
+      "bytes": 61596,
+      "sha256": "79360f1dd01e8d37ea03501860f09664d84cce3a0e58c901e9261dd1de33fa64"
+    },
+    {
+      "array": "pairs",
+      "part": 1,
+      "file": "pairs-001.json",
+      "count": 9,
+      "bytes": 62279,
+      "sha256": "028eb20fae6adc10178dcafa1978486a552266579f1c7ef8349cda3357fd4cca"
+    },
+    {
+      "array": "pairs",
+      "part": 2,
+      "file": "pairs-002.json",
+      "count": 9,
+      "bytes": 61682,
+      "sha256": "89e0fc2bcfa1c7b431c5324c902fc40bb7b1e422a850c9437081c15835317125"
+    },
+    {
+      "array": "pairs",
+      "part": 3,
+      "file": "pairs-003.json",
+      "count": 9,
+      "bytes": 63766,
+      "sha256": "d9ecb1f9900fb393d0bd0f9e214a2ea9e95980bbad6aba2e52a12cc1b927149f"
+    },
+    {
+      "array": "pairs",
+      "part": 4,
+      "file": "pairs-004.json",
+      "count": 9,
+      "bytes": 61809,
+      "sha256": "f3a833d498f4f92f37b0cae33b8e74e012b9a4de39108ebca8f9d4106189d8ab"
+    },
+    {
+      "array": "pairs",
+      "part": 5,
+      "file": "pairs-005.json",
+      "count": 9,
+      "bytes": 62014,
+      "sha256": "5d1193c1ef760cc76275dd03bc6a5e08dc7855cb959b9beaf845a37c94caa0c9"
+    },
+    {
+      "array": "pairs",
+      "part": 6,
+      "file": "pairs-006.json",
+      "count": 9,
+      "bytes": 62084,
+      "sha256": "5a232aa46865e1533d5b756c8adc25c8899e2867c27a5e1a8629ec8ba2a80972"
+    },
+    {
+      "array": "pairs",
+      "part": 7,
+      "file": "pairs-007.json",
+      "count": 9,
+      "bytes": 63798,
+      "sha256": "fbce2821c8b8b4c9d6540c2857def59ebc885b64b6ed6d5a195f3b9406109a11"
+    },
+    {
+      "array": "pairs",
+      "part": 8,
+      "file": "pairs-008.json",
+      "count": 9,
+      "bytes": 61573,
+      "sha256": "5376d729f1ed04fda43129b3cc3a779e19c34d12190a2bd65818bae482053d5f"
+    },
+    {
+      "array": "pairs",
+      "part": 9,
+      "file": "pairs-009.json",
+      "count": 9,
+      "bytes": 62130,
+      "sha256": "0ccdfebcaa45d077da87320030ef3f44ee1d4637ad2334df1684ecf134011e28"
+    },
+    {
+      "array": "pairs",
+      "part": 10,
+      "file": "pairs-010.json",
+      "count": 9,
+      "bytes": 62400,
+      "sha256": "fecf139004caf498cf0dbfe3ba1ebae9c975135b2c44f4080433073256813682"
+    },
+    {
+      "array": "pairs",
+      "part": 11,
+      "file": "pairs-011.json",
+      "count": 9,
+      "bytes": 64378,
+      "sha256": "fc4c7fadf87757996ad18895fab27e06b5944174da872f3a07514f453c9fe00e"
+    },
+    {
+      "array": "pairs",
+      "part": 12,
+      "file": "pairs-012.json",
+      "count": 9,
+      "bytes": 61605,
+      "sha256": "e67ea30a8f207122a85430ae251808878615f0003ffbe066c28e3237c3d59d82"
+    },
+    {
+      "array": "pairs",
+      "part": 13,
+      "file": "pairs-013.json",
+      "count": 3,
+      "bytes": 21574,
+      "sha256": "527b74b1bfb4ce000608bbd58e335e9e6468071cc428e9401f9a97e99e4b4f66"
+    }
+  ],
+  "reconstructed": {
+    "bytes": 1211395,
+    "sha256": "fe1dc6f1561dd89898c32fba69b6f311537368ac8c8906049121a8113e51be19"
+  }
+}

@@ -1,0 +1,837 @@
+{
+  "array": "pairs",
+  "part": 13,
+  "items": [
+    {
+      "seed": 123,
+      "afterAttempts": 12,
+      "strategy": "balanced",
+      "snapshotSha256": "71fd72856464c59b0c9688e83c5f2de74da81a6e85cdefe8331afd9050386074",
+      "off": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 777472284,
+          "inventory": 16,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 2481017321,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "pulses": 215,
+        "elapsed": 53.600000000000215,
+        "minHpPercent": 32.698555956678696,
+        "hpLost": 1644,
+        "actions": {
+          "attacks": 51,
+          "skills": 10,
+          "heals": 3,
+          "potions": 0,
+          "manaSpent": 48,
+          "counters": 1
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-15",
+                "name": "精良・裂岩戰棍・屠戮",
+                "level": 13,
+                "quality": "Exquisite"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-14",
+                "name": "華麗・巡獵皮甲・壁壘",
+                "level": 13,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-16",
+                "name": "普通・守望墜飾・長夜",
+                "level": 14,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "精良・裂岩戰棍・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 216.46,
+            "maxHp": 1083,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 6054,
+            "skill": 3397,
+            "bleed": 0,
+            "counter": 134
+          },
+          "survival": {
+            "hpLost": 1644,
+            "minHpPercent": 32.698555956678696
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 53.600000000000215,
+          "actions": {
+            "attacks": 51,
+            "skills": 10,
+            "heals": 3,
+            "potions": 0,
+            "manaSpent": 48,
+            "counters": 1
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 777472284,
+          "inventory": 16,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 2481017321,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "pulses": 215,
+        "elapsed": 53.600000000000215,
+        "minHpPercent": 32.698555956678696,
+        "hpLost": 1644,
+        "actions": {
+          "attacks": 51,
+          "skills": 10,
+          "heals": 3,
+          "potions": 0,
+          "manaSpent": 48,
+          "counters": 1
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-15",
+                "name": "精良・裂岩戰棍・屠戮",
+                "level": 13,
+                "quality": "Exquisite"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-14",
+                "name": "華麗・巡獵皮甲・壁壘",
+                "level": 13,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-16",
+                "name": "普通・守望墜飾・長夜",
+                "level": 14,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "精良・裂岩戰棍・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 216.46,
+            "maxHp": 1083,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 6054,
+            "skill": 3397,
+            "bleed": 0,
+            "counter": 134
+          },
+          "survival": {
+            "hpLost": 1644,
+            "minHpPercent": 32.698555956678696
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 53.600000000000215,
+          "actions": {
+            "attacks": 51,
+            "skills": 10,
+            "heals": 3,
+            "potions": 0,
+            "manaSpent": 48,
+            "counters": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 123,
+      "afterAttempts": 12,
+      "strategy": "assault",
+      "snapshotSha256": "71fd72856464c59b0c9688e83c5f2de74da81a6e85cdefe8331afd9050386074",
+      "off": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 777472284,
+          "inventory": 16,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 1903153035,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "pulses": 189,
+        "elapsed": 47.25000000000021,
+        "minHpPercent": 18.330324909747283,
+        "hpLost": 1400,
+        "actions": {
+          "attacks": 45,
+          "skills": 15,
+          "heals": 1,
+          "potions": 0,
+          "manaSpent": 51,
+          "counters": 1
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-15",
+                "name": "精良・裂岩戰棍・屠戮",
+                "level": 13,
+                "quality": "Exquisite"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-14",
+                "name": "華麗・巡獵皮甲・壁壘",
+                "level": 13,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-16",
+                "name": "普通・守望墜飾・長夜",
+                "level": 14,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "精良・裂岩戰棍・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 216.46,
+            "maxHp": 1083,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 4262,
+            "skill": 5154,
+            "bleed": 0,
+            "counter": 169
+          },
+          "survival": {
+            "hpLost": 1400,
+            "minHpPercent": 18.330324909747283
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 6,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 47.25000000000021,
+          "actions": {
+            "attacks": 45,
+            "skills": 15,
+            "heals": 1,
+            "potions": 0,
+            "manaSpent": 51,
+            "counters": 1
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 777472284,
+          "inventory": 16,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 1903153035,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "pulses": 189,
+        "elapsed": 47.25000000000021,
+        "minHpPercent": 29.882671480144396,
+        "hpLost": 1400,
+        "actions": {
+          "attacks": 45,
+          "skills": 15,
+          "heals": 0,
+          "potions": 1,
+          "manaSpent": 45,
+          "counters": 1
+        },
+        "remaining": 2,
+        "minStock": 2,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-15",
+                "name": "精良・裂岩戰棍・屠戮",
+                "level": 13,
+                "quality": "Exquisite"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-14",
+                "name": "華麗・巡獵皮甲・壁壘",
+                "level": 13,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-16",
+                "name": "普通・守望墜飾・長夜",
+                "level": 14,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "精良・裂岩戰棍・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 216.46,
+            "maxHp": 1083,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 4262,
+            "skill": 5154,
+            "bleed": 0,
+            "counter": 169
+          },
+          "survival": {
+            "hpLost": 1400,
+            "minHpPercent": 29.882671480144396
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 6,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 47.25000000000021,
+          "actions": {
+            "attacks": 45,
+            "skills": 15,
+            "heals": 0,
+            "potions": 1,
+            "manaSpent": 45,
+            "counters": 1
+          }
+        }
+      }
+    },
+    {
+      "seed": 123,
+      "afterAttempts": 12,
+      "strategy": "sustain",
+      "snapshotSha256": "71fd72856464c59b0c9688e83c5f2de74da81a6e85cdefe8331afd9050386074",
+      "off": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 777472284,
+          "inventory": 16,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 2481017321,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "pulses": 215,
+        "elapsed": 53.600000000000215,
+        "minHpPercent": 57.10018050541517,
+        "hpLost": 1644,
+        "actions": {
+          "attacks": 51,
+          "skills": 10,
+          "heals": 3,
+          "potions": 0,
+          "manaSpent": 48,
+          "counters": 1
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-15",
+                "name": "精良・裂岩戰棍・屠戮",
+                "level": 13,
+                "quality": "Exquisite"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-14",
+                "name": "華麗・巡獵皮甲・壁壘",
+                "level": 13,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-16",
+                "name": "普通・守望墜飾・長夜",
+                "level": 14,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "精良・裂岩戰棍・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 216.46,
+            "maxHp": 1083,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 6054,
+            "skill": 3397,
+            "bleed": 0,
+            "counter": 134
+          },
+          "survival": {
+            "hpLost": 1644,
+            "minHpPercent": 57.10018050541517
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 53.600000000000215,
+          "actions": {
+            "attacks": 51,
+            "skills": 10,
+            "heals": 3,
+            "potions": 0,
+            "manaSpent": 48,
+            "counters": 1
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 777472284,
+          "inventory": 16,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 2481017321,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-15",
+            "armor": "loot-14",
+            "accessory": "loot-16"
+          }
+        },
+        "pulses": 215,
+        "elapsed": 53.600000000000215,
+        "minHpPercent": 57.10018050541517,
+        "hpLost": 1644,
+        "actions": {
+          "attacks": 51,
+          "skills": 10,
+          "heals": 3,
+          "potions": 0,
+          "manaSpent": 48,
+          "counters": 1
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-15",
+                "name": "精良・裂岩戰棍・屠戮",
+                "level": 13,
+                "quality": "Exquisite"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-14",
+                "name": "華麗・巡獵皮甲・壁壘",
+                "level": 13,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-16",
+                "name": "普通・守望墜飾・長夜",
+                "level": 14,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "精良・裂岩戰棍・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 216.46,
+            "maxHp": 1083,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 6054,
+            "skill": 3397,
+            "bleed": 0,
+            "counter": 134
+          },
+          "survival": {
+            "hpLost": 1644,
+            "minHpPercent": 57.10018050541517
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 53.600000000000215,
+          "actions": {
+            "attacks": 51,
+            "skills": 10,
+            "heals": 3,
+            "potions": 0,
+            "manaSpent": 48,
+            "counters": 1
+          }
+        }
+      }
+    }
+  ]
+}

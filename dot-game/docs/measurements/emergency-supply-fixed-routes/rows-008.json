@@ -1,0 +1,448 @@
+{
+  "array": "rows",
+  "part": 8,
+  "items": [
+    {
+      "seed": 123,
+      "stage": 8,
+      "strategy": "assault",
+      "profileSha256": "505459ceb661318990b3c2b3c295a776cb60c7e6b05057d584fffdc17b27b449",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 15,
+        "rng": 3602097149,
+        "weapon": "loot-13"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 89,
+        "elapsed": 22.100000000000072,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 464,
+        "minHpPercent": 69.40021810250819,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 17,
+          "rng": 3187159342,
+          "weapon": "loot-13"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-11",
+                "name": "優良・銳意巡獵皮甲・追風",
+                "level": 10,
+                "quality": "Superior"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-15",
+                "name": "普通・赤晶指環・破陣",
+                "level": 10,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 222.3,
+            "maxHp": 917,
+            "mitigation": 0.14012738853503182
+          },
+          "damage": {
+            "basic": 2155,
+            "skill": 1697,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 464,
+            "minHpPercent": 69.40021810250819
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 4,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 22.100000000000072,
+          "actions": {
+            "attacks": 21,
+            "skills": 7,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 21
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 89,
+        "elapsed": 22.100000000000072,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 464,
+        "minHpPercent": 69.40021810250819,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 17,
+          "rng": 3187159342,
+          "weapon": "loot-13"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-11",
+                "name": "優良・銳意巡獵皮甲・追風",
+                "level": 10,
+                "quality": "Superior"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-15",
+                "name": "普通・赤晶指環・破陣",
+                "level": 10,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 222.3,
+            "maxHp": 917,
+            "mitigation": 0.14012738853503182
+          },
+          "damage": {
+            "basic": 2155,
+            "skill": 1697,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 464,
+            "minHpPercent": 69.40021810250819
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 4,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 22.100000000000072,
+          "actions": {
+            "attacks": 21,
+            "skills": 7,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 21
+          }
+        }
+      }
+    },
+    {
+      "seed": 123,
+      "stage": 8,
+      "strategy": "sustain",
+      "profileSha256": "505459ceb661318990b3c2b3c295a776cb60c7e6b05057d584fffdc17b27b449",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 15,
+        "rng": 3602097149,
+        "weapon": "loot-13"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 266,
+        "minHpPercent": 88.54961832061069,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 17,
+          "rng": 84476370,
+          "weapon": "loot-13"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-11",
+                "name": "優良・銳意巡獵皮甲・追風",
+                "level": 10,
+                "quality": "Superior"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-15",
+                "name": "普通・赤晶指環・破陣",
+                "level": 10,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 222.3,
+            "maxHp": 917,
+            "mitigation": 0.14012738853503182
+          },
+          "damage": {
+            "basic": 2892,
+            "skill": 960,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 266,
+            "minHpPercent": 88.54961832061069
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 3,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 266,
+        "minHpPercent": 88.54961832061069,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 17,
+          "rng": 84476370,
+          "weapon": "loot-13"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-11",
+                "name": "優良・銳意巡獵皮甲・追風",
+                "level": 10,
+                "quality": "Superior"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-15",
+                "name": "普通・赤晶指環・破陣",
+                "level": 10,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 222.3,
+            "maxHp": 917,
+            "mitigation": 0.14012738853503182
+          },
+          "damage": {
+            "basic": 2892,
+            "skill": 960,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 266,
+            "minHpPercent": 88.54961832061069
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 3,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      }
+    }
+  ]
+}

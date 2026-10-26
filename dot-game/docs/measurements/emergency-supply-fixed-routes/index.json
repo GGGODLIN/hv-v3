@@ -1,0 +1,287 @@
+{
+  "format": "hv-dot-measurement-shards-v1",
+  "maxShardBytes": 65536,
+  "keys": [
+    "kind",
+    "protocol",
+    "summary",
+    "acquisition",
+    "rows",
+    "skipped",
+    "runtimeBefore",
+    "runtimeAfter",
+    "scriptSha256"
+  ],
+  "metadata": {
+    "kind": "v0.27 source engine simulation, not actual browser play",
+    "protocol": {
+      "seeds": [
+        1,
+        7,
+        12,
+        19,
+        29,
+        42,
+        55,
+        77,
+        101,
+        123
+      ],
+      "acquisitionAttempts": 12,
+      "acquisitionRouteCap": 8,
+      "measurementRoutes": [
+        1,
+        5,
+        8
+      ],
+      "strategies": [
+        "balanced",
+        "assault",
+        "sustain"
+      ],
+      "maxPulses": 20000,
+      "pulseSeconds": 0.25,
+      "acquisition": "Highest-score currently held gear per slot; attempt learn/slot three rank1 lines; highest unlocked route capped8, one route lower immediately after defeat. Highest-score is a measurement adapter, not a recommended best build. No commission, potion, stat, RNG or resource injection.",
+      "comparison": "Validate one earned camp save, fork identical bytes; use public camp strategy and emergencySupply actions only. OFF vs ON; no manual potions. Skip locked routes, retain all no-use, defeat and censor outcomes."
+    },
+    "summary": {
+      "balanced": {
+        "pairs": 30,
+        "offWins": 30,
+        "onWins": 30,
+        "changedOutcome": 0,
+        "onPotionUses": 0,
+        "offPotionUses": 0,
+        "morePotionPairs": 0,
+        "noAdditionalUse": 30,
+        "elapsed": {
+          "shorter": 0,
+          "equal": 30,
+          "longer": 0
+        },
+        "lowestOnStock": 3,
+        "censored": 0
+      },
+      "assault": {
+        "pairs": 30,
+        "offWins": 30,
+        "onWins": 30,
+        "changedOutcome": 0,
+        "onPotionUses": 0,
+        "offPotionUses": 0,
+        "morePotionPairs": 0,
+        "noAdditionalUse": 30,
+        "elapsed": {
+          "shorter": 0,
+          "equal": 30,
+          "longer": 0
+        },
+        "lowestOnStock": 3,
+        "censored": 0
+      },
+      "sustain": {
+        "pairs": 30,
+        "offWins": 30,
+        "onWins": 30,
+        "changedOutcome": 0,
+        "onPotionUses": 0,
+        "offPotionUses": 0,
+        "morePotionPairs": 0,
+        "noAdditionalUse": 30,
+        "elapsed": {
+          "shorter": 0,
+          "equal": 30,
+          "longer": 0
+        },
+        "lowestOnStock": 3,
+        "censored": 0
+      }
+    },
+    "runtimeBefore": {
+      "src/engine.js": "76750a0da6b2ecf4a0e61ce0a99bc1c166f76a53ea744098f8f03fe5074b0ffd",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+      "src/ui.js": "f66be60ee9d0194db918e7d5afa6fcc04caa5a9e013c5fc96288ff5dd289bd09",
+      "index.html": "bf9d919a74f060edc93bad6de0746fe4c9cfe939a3cf8f6ed156b3c42e46d8c3",
+      "style.css": "248263ac4a0f503a5aaf0bf2e7f9af3e0e0fc0637a92afd196708387d131dbba"
+    },
+    "runtimeAfter": {
+      "src/engine.js": "76750a0da6b2ecf4a0e61ce0a99bc1c166f76a53ea744098f8f03fe5074b0ffd",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+      "src/ui.js": "f66be60ee9d0194db918e7d5afa6fcc04caa5a9e013c5fc96288ff5dd289bd09",
+      "index.html": "bf9d919a74f060edc93bad6de0746fe4c9cfe939a3cf8f6ed156b3c42e46d8c3",
+      "style.css": "248263ac4a0f503a5aaf0bf2e7f9af3e0e0fc0637a92afd196708387d131dbba"
+    },
+    "scriptSha256": "9da9e073ad1d91cbee662c782a10851c6262b474358803ef23f0ba571d328ee7"
+  },
+  "arrays": {
+    "acquisition": {
+      "length": 10
+    },
+    "rows": {
+      "length": 90
+    },
+    "skipped": {
+      "length": 0
+    }
+  },
+  "shards": [
+    {
+      "array": "acquisition",
+      "part": 0,
+      "file": "acquisition-000.json",
+      "count": 1,
+      "bytes": 34957,
+      "sha256": "c5baa546667ba25f69fa933202ac465d51af57e116386206d94d9b0a426b836e"
+    },
+    {
+      "array": "acquisition",
+      "part": 1,
+      "file": "acquisition-001.json",
+      "count": 1,
+      "bytes": 34906,
+      "sha256": "592651039866b28603b17e66028bb9d49513e9272230ef72383218e2d34217cf"
+    },
+    {
+      "array": "acquisition",
+      "part": 2,
+      "file": "acquisition-002.json",
+      "count": 1,
+      "bytes": 35230,
+      "sha256": "ee3da3711eeb3535c6ea630472334adede0cb047bd139d3f81aaef418b245137"
+    },
+    {
+      "array": "acquisition",
+      "part": 3,
+      "file": "acquisition-003.json",
+      "count": 1,
+      "bytes": 34865,
+      "sha256": "84f06fea54a2b90f88c0d8dbe09ff7598c24e606c65bf5996ad4180f75fcd8f9"
+    },
+    {
+      "array": "acquisition",
+      "part": 4,
+      "file": "acquisition-004.json",
+      "count": 1,
+      "bytes": 35079,
+      "sha256": "45ab83bc482dd56e22b3e9f42a9b9942c188983a65e5fafa2aaf282d3b679ee7"
+    },
+    {
+      "array": "acquisition",
+      "part": 5,
+      "file": "acquisition-005.json",
+      "count": 1,
+      "bytes": 35116,
+      "sha256": "ff63d45f8bcc375054e1cc3f4fdb4777de3a222c325977ab2953aa0cb4e1559f"
+    },
+    {
+      "array": "acquisition",
+      "part": 6,
+      "file": "acquisition-006.json",
+      "count": 1,
+      "bytes": 34918,
+      "sha256": "5f60b18b03e19235bf3f935431177103f472f5ee21b552ca2ea57a5da81fac7d"
+    },
+    {
+      "array": "acquisition",
+      "part": 7,
+      "file": "acquisition-007.json",
+      "count": 1,
+      "bytes": 34994,
+      "sha256": "f8371221c168d828fd3925266dc0f22ef74c46ca3ba42deda705def4e97f3a0d"
+    },
+    {
+      "array": "acquisition",
+      "part": 8,
+      "file": "acquisition-008.json",
+      "count": 1,
+      "bytes": 35030,
+      "sha256": "2cf7351f585e945ad09dde97a845ae82720d76a67a777d0d6957e677bab19fc1"
+    },
+    {
+      "array": "acquisition",
+      "part": 9,
+      "file": "acquisition-009.json",
+      "count": 1,
+      "bytes": 34716,
+      "sha256": "c62e08c9349e73b4b041770326e0c8d792e953c30ae06fd830801ac89aceb3b7"
+    },
+    {
+      "array": "rows",
+      "part": 0,
+      "file": "rows-000.json",
+      "count": 11,
+      "bytes": 63489,
+      "sha256": "fae3eb9f2154ba670fbade065627ccf0413c6584fbf025b75a9e610da7df1223"
+    },
+    {
+      "array": "rows",
+      "part": 1,
+      "file": "rows-001.json",
+      "count": 11,
+      "bytes": 63395,
+      "sha256": "22883e764133aaada087b15a63e13f7de1cebd012ba8c267dc013aa69ec97989"
+    },
+    {
+      "array": "rows",
+      "part": 2,
+      "file": "rows-002.json",
+      "count": 11,
+      "bytes": 63348,
+      "sha256": "2635515681950567688f15674c1456724947dac7b0ba1f346aa565ccd5ecf12f"
+    },
+    {
+      "array": "rows",
+      "part": 3,
+      "file": "rows-003.json",
+      "count": 11,
+      "bytes": 63911,
+      "sha256": "1ee977144b15756c25147b04bb2fbdb87be59a256de483fd52d086ee77432846"
+    },
+    {
+      "array": "rows",
+      "part": 4,
+      "file": "rows-004.json",
+      "count": 11,
+      "bytes": 64054,
+      "sha256": "8b4be754153d5e60677d40dfd3851f3d78758a1f1c6e408f264bab7c6e24d054"
+    },
+    {
+      "array": "rows",
+      "part": 5,
+      "file": "rows-005.json",
+      "count": 11,
+      "bytes": 64087,
+      "sha256": "e4434b50458f0ec2475f3d28e6bfb96728f2d268a6e53de3acbbfe9d9f2f3ef9"
+    },
+    {
+      "array": "rows",
+      "part": 6,
+      "file": "rows-006.json",
+      "count": 11,
+      "bytes": 64173,
+      "sha256": "69e4c22377292f971518d1d742aa49f8a5835773f0662e2ecd688f070c246ada"
+    },
+    {
+      "array": "rows",
+      "part": 7,
+      "file": "rows-007.json",
+      "count": 11,
+      "bytes": 63738,
+      "sha256": "b93678d6f4fd07b29e1cfef5295d1febd1aee28379014a5bc0a88e5cb426c1c5"
+    },
+    {
+      "array": "rows",
+      "part": 8,
+      "file": "rows-008.json",
+      "count": 2,
+      "bytes": 11582,
+      "sha256": "1eb59bfcf139d4baad4082e29e6a6d4f9d28e1089eb8f098f9f9605559259710"
+    }
+  ],
+  "reconstructed": {
+    "bytes": 873849,
+    "sha256": "52475721fc6645adde7130d9f01297bd729494d08af9ee6e0e37bf8f47baa1b4"
+  }
+}

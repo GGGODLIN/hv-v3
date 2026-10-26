@@ -1,0 +1,2445 @@
+{
+  "array": "rows",
+  "part": 0,
+  "items": [
+    {
+      "seed": 1,
+      "stage": 1,
+      "strategy": "balanced",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 30,
+        "elapsed": 7.349999999999989,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 54,
+        "minHpPercent": 97.87685774946921,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 20,
+          "rng": 4051428878,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 916,
+            "skill": 159,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 54,
+            "minHpPercent": 97.87685774946921
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 7.349999999999989,
+          "actions": {
+            "attacks": 7,
+            "skills": 1,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 3
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 30,
+        "elapsed": 7.349999999999989,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 54,
+        "minHpPercent": 97.87685774946921,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 20,
+          "rng": 4051428878,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 916,
+            "skill": 159,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 54,
+            "minHpPercent": 97.87685774946921
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 7.349999999999989,
+          "actions": {
+            "attacks": 7,
+            "skills": 1,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 3
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 1,
+      "strategy": "assault",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 26,
+        "elapsed": 6.3499999999999925,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 27,
+        "minHpPercent": 97.87685774946921,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2797133451,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 591,
+            "skill": 484,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 27,
+            "minHpPercent": 97.87685774946921
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 6.3499999999999925,
+          "actions": {
+            "attacks": 6,
+            "skills": 2,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 6
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 26,
+        "elapsed": 6.3499999999999925,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 27,
+        "minHpPercent": 97.87685774946921,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2797133451,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 591,
+            "skill": 484,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 27,
+            "minHpPercent": 97.87685774946921
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 6.3499999999999925,
+          "actions": {
+            "attacks": 6,
+            "skills": 2,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 6
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 1,
+      "strategy": "sustain",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 30,
+        "elapsed": 7.349999999999989,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 54,
+        "minHpPercent": 97.87685774946921,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 20,
+          "rng": 4051428878,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 916,
+            "skill": 159,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 54,
+            "minHpPercent": 97.87685774946921
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 7.349999999999989,
+          "actions": {
+            "attacks": 7,
+            "skills": 1,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 3
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 30,
+        "elapsed": 7.349999999999989,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 54,
+        "minHpPercent": 97.87685774946921,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 20,
+          "rng": 4051428878,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 916,
+            "skill": 159,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 54,
+            "minHpPercent": 97.87685774946921
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 7.349999999999989,
+          "actions": {
+            "attacks": 7,
+            "skills": 1,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 3
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 5,
+      "strategy": "balanced",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 63,
+        "elapsed": 15.749999999999988,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 200,
+        "minHpPercent": 91.40127388535032,
+        "end": {
+          "level": 11,
+          "gold": 2008,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 18,
+          "rng": 1156070412,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 5,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 1739,
+            "skill": 378,
+            "bleed": 113
+          },
+          "survival": {
+            "hpLost": 200,
+            "minHpPercent": 91.40127388535032
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 3
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 15.749999999999988,
+          "actions": {
+            "attacks": 15,
+            "skills": 3,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 9
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 63,
+        "elapsed": 15.749999999999988,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 200,
+        "minHpPercent": 91.40127388535032,
+        "end": {
+          "level": 11,
+          "gold": 2008,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 18,
+          "rng": 1156070412,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 5,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 1739,
+            "skill": 378,
+            "bleed": 113
+          },
+          "survival": {
+            "hpLost": 200,
+            "minHpPercent": 91.40127388535032
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 3
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 15.749999999999988,
+          "actions": {
+            "attacks": 15,
+            "skills": 3,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 9
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 5,
+      "strategy": "assault",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 55,
+        "elapsed": 13.699999999999987,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 111,
+        "minHpPercent": 93.31210191082803,
+        "end": {
+          "level": 11,
+          "gold": 2008,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 1433850175,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 5,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 1263,
+            "skill": 935,
+            "bleed": 32
+          },
+          "survival": {
+            "hpLost": 111,
+            "minHpPercent": 93.31210191082803
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 1
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 13.699999999999987,
+          "actions": {
+            "attacks": 13,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 55,
+        "elapsed": 13.699999999999987,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 111,
+        "minHpPercent": 93.31210191082803,
+        "end": {
+          "level": 11,
+          "gold": 2008,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 1433850175,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 5,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 1263,
+            "skill": 935,
+            "bleed": 32
+          },
+          "survival": {
+            "hpLost": 111,
+            "minHpPercent": 93.31210191082803
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 1
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 13.699999999999987,
+          "actions": {
+            "attacks": 13,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 5,
+      "strategy": "sustain",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 63,
+        "elapsed": 15.749999999999988,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 200,
+        "minHpPercent": 91.40127388535032,
+        "end": {
+          "level": 11,
+          "gold": 2008,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 18,
+          "rng": 1156070412,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 5,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 1739,
+            "skill": 378,
+            "bleed": 113
+          },
+          "survival": {
+            "hpLost": 200,
+            "minHpPercent": 91.40127388535032
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 3
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 15.749999999999988,
+          "actions": {
+            "attacks": 15,
+            "skills": 3,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 9
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 63,
+        "elapsed": 15.749999999999988,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 200,
+        "minHpPercent": 91.40127388535032,
+        "end": {
+          "level": 11,
+          "gold": 2008,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 18,
+          "rng": 1156070412,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 5,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 1739,
+            "skill": 378,
+            "bleed": 113
+          },
+          "survival": {
+            "hpLost": 200,
+            "minHpPercent": 91.40127388535032
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 3
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 15.749999999999988,
+          "actions": {
+            "attacks": 15,
+            "skills": 3,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 9
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 8,
+      "strategy": "balanced",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 345,
+        "minHpPercent": 83.03609341825903,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2483110723,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 2018,
+            "skill": 1251,
+            "bleed": 179,
+            "counter": 404
+          },
+          "survival": {
+            "hpLost": 345,
+            "minHpPercent": 83.03609341825903
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 5
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12,
+            "counters": 2
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 345,
+        "minHpPercent": 83.03609341825903,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2483110723,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 2018,
+            "skill": 1251,
+            "bleed": 179,
+            "counter": 404
+          },
+          "survival": {
+            "hpLost": 345,
+            "minHpPercent": 83.03609341825903
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 5
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12,
+            "counters": 2
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 8,
+      "strategy": "assault",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 89,
+        "elapsed": 22.100000000000072,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 431,
+        "minHpPercent": 73.16348195329087,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2161997712,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 2104,
+            "skill": 1536,
+            "bleed": 212
+          },
+          "survival": {
+            "hpLost": 431,
+            "minHpPercent": 73.16348195329087
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 4
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 22.100000000000072,
+          "actions": {
+            "attacks": 21,
+            "skills": 7,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 21
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 89,
+        "elapsed": 22.100000000000072,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 431,
+        "minHpPercent": 73.16348195329087,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2161997712,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 2104,
+            "skill": 1536,
+            "bleed": 212
+          },
+          "survival": {
+            "hpLost": 431,
+            "minHpPercent": 73.16348195329087
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 4
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 22.100000000000072,
+          "actions": {
+            "attacks": 21,
+            "skills": 7,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 21
+          }
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "stage": 8,
+      "strategy": "sustain",
+      "profileSha256": "27c4c003d7294f304fbc9a378d54018cc36fcb7ca8d28f5a963cc35ba80d2c67",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 17,
+        "rng": 1192262552,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 345,
+        "minHpPercent": 83.03609341825903,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2483110723,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 2018,
+            "skill": 1251,
+            "bleed": 179,
+            "counter": 404
+          },
+          "survival": {
+            "hpLost": 345,
+            "minHpPercent": 83.03609341825903
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 5
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12,
+            "counters": 2
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 345,
+        "minHpPercent": 83.03609341825903,
+        "end": {
+          "level": 11,
+          "gold": 2059,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 19,
+          "rng": 2483110723,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 8,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "優良・暮鋼戰斧・屠戮",
+                "level": 9,
+                "quality": "Superior"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-12",
+                "name": "華麗・流風巡獵皮甲・壁壘",
+                "level": 10,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-7",
+                "name": "普通・堅守赤晶指環",
+                "level": 8,
+                "quality": "Average"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "axe",
+            "name": "優良・暮鋼戰斧・屠戮"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 942,
+            "mitigation": 0.21350318471337582
+          },
+          "damage": {
+            "basic": 2018,
+            "skill": 1251,
+            "bleed": 179,
+            "counter": 404
+          },
+          "survival": {
+            "hpLost": 345,
+            "minHpPercent": 83.03609341825903
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 5
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12,
+            "counters": 2
+          }
+        }
+      }
+    },
+    {
+      "seed": 7,
+      "stage": 1,
+      "strategy": "balanced",
+      "profileSha256": "78b8ca67c8cc120ca3bd0972ec8d4af7400f94aa514c6b66fbb389d9659bf13a",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 21,
+        "rng": 2351000890,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 30,
+        "elapsed": 7.349999999999989,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 44,
+        "minHpPercent": 98.68204283360791,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 22,
+          "rng": 2064124717,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 9,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-17",
+                "name": "無雙・銳意餘燼護衣・追風",
+                "level": 10,
+                "quality": "Peerless"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-10",
+                "name": "優良・守望墜飾・長夜",
+                "level": 10,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 1214,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 916,
+            "skill": 159,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 44,
+            "minHpPercent": 98.68204283360791
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 7.349999999999989,
+          "actions": {
+            "attacks": 7,
+            "skills": 1,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 3
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 30,
+        "elapsed": 7.349999999999989,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 44,
+        "minHpPercent": 98.68204283360791,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 22,
+          "rng": 2064124717,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 9,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-17",
+                "name": "無雙・銳意餘燼護衣・追風",
+                "level": 10,
+                "quality": "Peerless"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-10",
+                "name": "優良・守望墜飾・長夜",
+                "level": 10,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 1214,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 916,
+            "skill": 159,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 44,
+            "minHpPercent": 98.68204283360791
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 7.349999999999989,
+          "actions": {
+            "attacks": 7,
+            "skills": 1,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 3
+          }
+        }
+      }
+    },
+    {
+      "seed": 7,
+      "stage": 1,
+      "strategy": "assault",
+      "profileSha256": "78b8ca67c8cc120ca3bd0972ec8d4af7400f94aa514c6b66fbb389d9659bf13a",
+      "start": {
+        "level": 11,
+        "gold": 1864,
+        "wins": 12,
+        "kills": 72,
+        "unlocked": 9,
+        "inventory": 21,
+        "rng": 2351000890,
+        "weapon": "loot-9"
+      },
+      "off": {
+        "outcome": "win",
+        "pulses": 26,
+        "elapsed": 6.3499999999999925,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 21,
+        "minHpPercent": 98.84678747940691,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 22,
+          "rng": 767198799,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 9,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-17",
+                "name": "無雙・銳意餘燼護衣・追風",
+                "level": 10,
+                "quality": "Peerless"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-10",
+                "name": "優良・守望墜飾・長夜",
+                "level": 10,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 1214,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 591,
+            "skill": 484,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 21,
+            "minHpPercent": 98.84678747940691
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 6.3499999999999925,
+          "actions": {
+            "attacks": 6,
+            "skills": 2,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 6
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "pulses": 26,
+        "elapsed": 6.3499999999999925,
+        "potions": 0,
+        "stockUsed": 0,
+        "endingStock": 3,
+        "minStock": 3,
+        "manualUses": 0,
+        "heals": 0,
+        "hpLost": 21,
+        "minHpPercent": 98.84678747940691,
+        "end": {
+          "level": 11,
+          "gold": 1940,
+          "wins": 13,
+          "kills": 78,
+          "unlocked": 9,
+          "inventory": 22,
+          "rng": 767198799,
+          "weapon": "loot-9"
+        },
+        "report": {
+          "stage": 1,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-9",
+                "name": "華麗・裂岩戰棍・屠戮",
+                "level": 9,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-17",
+                "name": "無雙・銳意餘燼護衣・追風",
+                "level": 10,
+                "quality": "Peerless"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-10",
+                "name": "優良・守望墜飾・長夜",
+                "level": 10,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "華麗・裂岩戰棍・屠戮"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 207.46,
+            "maxHp": 1214,
+            "mitigation": 0.2557324840764331
+          },
+          "damage": {
+            "basic": 591,
+            "skill": 484,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 21,
+            "minHpPercent": 98.84678747940691
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 11,
+          "elapsed": 6.3499999999999925,
+          "actions": {
+            "attacks": 6,
+            "skills": 2,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 6
+          }
+        }
+      }
+    }
+  ]
+}

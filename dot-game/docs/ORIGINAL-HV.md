@@ -289,3 +289,8 @@ The [current Item World table](https://ehwiki.org/wiki/Item_World#Item_World_Lev
 v0.26 extends eligibility only. Five rounds, fixed local strength5, one paid seed, quarter kill credits, immutable-anchor1.02attack/1.01other-present-stats and no ordinary completion bonus are unchanged adaptations. No IW2+, new stat field, quality generator, forge or economy is added; legacy missing parry stays missing. Same-level pre/post IW observations must not misattribute Soulbind level growth to the trial. Historical v0.24/v0.25 scope descriptions remain historical.
 
 Same-shaped format3 data does not mean old v0.24/v0.25 readers understand Exquisite IW1. Refresh old tabs before loading new progress; the release acceptance evidence must establish old-reader refusal and protected persistence rather than asserting backward compatibility.
+
+
+## v0.27 extra emergency supply boundary
+
+The optional Balanced/Assault policy is an independent idle-control adapter, not an original-HV potion system. Existing3-per-expedition stock and40%-maxHP restoration remain unchanged. Default OFF preserves every strategy's prior behavior; ON checks strictly below30% after normal healing and only consumes stock above1, reserving one manual bottle. Sustain retains its own existing below30% rule, including the last bottle, and is explicitly outside the new control. No purchase, cooldown, item schema, formula, turn cost or currency is invented. Source playthroughs must retain no-use/loss outcomes rather than promising survival. Historical readers drop the new optional preference, while existing invested-item incompatibility and format3 guards remain. See EMERGENCY-SUPPLY-GUIDE.md.

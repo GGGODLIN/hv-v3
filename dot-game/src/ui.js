@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -1009,6 +1009,30 @@ function renderCounterattack() {
 function renderPlayerParry(derived) {
   $('stat-parry').textContent = `${((Number(derived.parry) || 0) * 100).toFixed(2)}%`;
 }
+function renderEmergencySupply() {
+  const toggle = $('emergency-supply');
+  if (!toggle) return; // A cached older document may omit this optional panel.
+  const view = emergencySupplyView(state), sustain = view.strategy === 'sustain';
+  toggle.checked = view.enabled;
+  toggle.disabled = !tabOwner || state.mode !== 'town' || sustain;
+  const access = !tabOwner ? '唯讀分頁；取得控制權並回營後可改。' : state.mode !== 'town' ? '回營後可改。' : '僅營地可調整。';
+  $('emergency-supply-status').textContent = sustain
+    ? `持久戰術不受此開關控制：仍按既有規則在治癒後 HP 低於 30% 自動喝藥，可用最後 1 瓶。均衡／猛攻設定保留為${view.enabled ? '開啟' : '關閉'}。${access}`
+    : `${view.enabled ? '已開啟' : '預設關閉；目前藥水僅手動使用'}。${view.enabled ? '每個我方回合先依戰術判斷治癒，再檢查 HP；低於 30% 且剩餘超過 1 瓶才用 1 瓶。' : ''}${access}`;
+  const live = $('emergency-supply-live');
+  live.hidden = state.mode !== 'battle';
+  if (live.hidden) { live.textContent = ''; return; }
+  const stock = `補給剩 ${format(view.remaining)} 瓶 · 本場已用 ${format(state.battle.actions.potions)} 瓶（含手動／自動）`;
+  const condition = view.status === 'away' ? '目前不在交戰；不自動喝藥。'
+    : view.status === 'empty' ? '庫存已空，不會購買或補充。'
+    : view.status === 'reserved' ? '已到保留量；額外緊急補給不再使用，仍可手動喝藥。'
+    : view.status === 'ready' ? '目前低於 30%；待我方回合先判斷治癒，再判斷是否使用，不是立即觸發。'
+    : '等待我方回合治癒後仍低於 30%；不保證能防止戰敗。';
+  live.textContent = sustain
+    ? `${stock} · 持久既有自動補給：治癒後低於 30% 可用最後 1 瓶；不受額外補給開關控制。`
+    : view.effective ? `${stock} · 額外緊急補給保留 ${format(view.reserve)} 瓶供手動使用。${condition}`
+    : `${stock} · 額外緊急補給關閉；均衡／猛攻仍須手動喝藥。`;
+}
 function renderProtection() {
   const view = protectionView(state);
   const toggle = $('auto-protection');
@@ -1042,11 +1066,12 @@ function render(force = false) {
   const trial = itemWorldView(state);
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
-  $('strategy-description').textContent = STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '';
+  $('strategy-description').textContent = (STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '').replace('藥水手動使用。', emergencySupplyView(state).effective ? '額外緊急補給已開啟；仍可手動喝藥。' : '藥水手動使用。');
 
   renderCounterattack();
   renderProtection();
   renderTargetPriority();
+  renderEmergencySupply();
   const derived = stats(state);
   renderPlayerParry(derived);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
@@ -1147,6 +1172,8 @@ function expeditionBuildContext(build) {
   const protection = build.autoProtection === true ? 'ON' : build.autoProtection === false ? 'OFF' : '未記錄';
   section.append(node('p', 'report-build-policy', `出發政策：${target} · Protection ${protection}`),
     node('p', 'report-build-note', '政策不代表護盾已生效；有實際施放時另列護盾取捨。'));
+  if (build.emergencySupply === true) section.append(node('p', 'report-build-policy', '出發設定：額外緊急補給 ON · 僅均衡／猛攻於治癒後 HP 低於 30% 使用，保留 1 瓶手動；持久仍用既有規則，可用最後 1 瓶。'),
+    node('p', 'report-build-note', '此設定不代表實際喝藥；行動次數另列本場實際藥水消耗（含手動／自動）。'));
   const details = node('details', 'report-build-details');
   details.append(node('summary', '', '出發配置詳情 · 已裝配能力／裝備'));
   const abilities = node('ul', 'report-build-list');
@@ -1609,6 +1636,10 @@ $('target-priority-select').addEventListener('change', event => {
 $('auto-protection').addEventListener('change', event => {
   if (!tabOwner || state.mode !== 'town' || !protectionView(state).unlocked) { renderProtection(); return; }
   dispatch('autoProtection', event.target.checked);
+});
+$('emergency-supply')?.addEventListener('change', event => {
+  if (!tabOwner || state.mode !== 'town' || emergencySupplyView(state).strategy === 'sustain') { renderEmergencySupply(); return; }
+  if (!dispatch('setEmergencySupply', event.target.checked)) renderEmergencySupply();
 });
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));

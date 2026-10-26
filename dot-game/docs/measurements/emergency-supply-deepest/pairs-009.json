@@ -1,0 +1,2415 @@
+{
+  "array": "pairs",
+  "part": 9,
+  "items": [
+    {
+      "seed": 55,
+      "afterAttempts": 12,
+      "strategy": "balanced",
+      "snapshotSha256": "df2a9320e1f21f82fca250682b151c98217074508ce1fcc9814bb63301e8d13b",
+      "off": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 1542645066,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 1739329341,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "pulses": 206,
+        "elapsed": 51.450000000000216,
+        "minHpPercent": 29.20222634508348,
+        "hpLost": 2192,
+        "actions": {
+          "attacks": 49,
+          "skills": 9,
+          "heals": 4,
+          "potions": 0,
+          "manaSpent": 51,
+          "counters": 3
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・獵隙逐風刺劍・平衡",
+                "level": 12,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-5",
+                "name": "華麗・堅守餘燼護衣・壁壘",
+                "level": 5,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-4",
+                "name": "傳奇・獵隙輕羽符印・長夜",
+                "level": 5,
+                "quality": "Legendary"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "rapier",
+            "name": "華麗・獵隙逐風刺劍・平衡"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 175.46,
+            "maxHp": 1078,
+            "mitigation": 0.21656050955414008
+          },
+          "damage": {
+            "basic": 6596,
+            "skill": 2626,
+            "bleed": 0,
+            "counter": 363
+          },
+          "survival": {
+            "hpLost": 2192,
+            "minHpPercent": 29.20222634508348
+          },
+          "procs": {
+            "penetratedArmor": 18,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 51.450000000000216,
+          "actions": {
+            "attacks": 49,
+            "skills": 9,
+            "heals": 4,
+            "potions": 0,
+            "manaSpent": 51,
+            "counters": 3
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 1542645066,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 1739329341,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "pulses": 206,
+        "elapsed": 51.450000000000216,
+        "minHpPercent": 29.20222634508348,
+        "hpLost": 2192,
+        "actions": {
+          "attacks": 49,
+          "skills": 9,
+          "heals": 4,
+          "potions": 0,
+          "manaSpent": 51,
+          "counters": 3
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・獵隙逐風刺劍・平衡",
+                "level": 12,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-5",
+                "name": "華麗・堅守餘燼護衣・壁壘",
+                "level": 5,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-4",
+                "name": "傳奇・獵隙輕羽符印・長夜",
+                "level": 5,
+                "quality": "Legendary"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "rapier",
+            "name": "華麗・獵隙逐風刺劍・平衡"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 175.46,
+            "maxHp": 1078,
+            "mitigation": 0.21656050955414008
+          },
+          "damage": {
+            "basic": 6596,
+            "skill": 2626,
+            "bleed": 0,
+            "counter": 363
+          },
+          "survival": {
+            "hpLost": 2192,
+            "minHpPercent": 29.20222634508348
+          },
+          "procs": {
+            "penetratedArmor": 18,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 51.450000000000216,
+          "actions": {
+            "attacks": 49,
+            "skills": 9,
+            "heals": 4,
+            "potions": 0,
+            "manaSpent": 51,
+            "counters": 3
+          }
+        }
+      }
+    },
+    {
+      "seed": 55,
+      "afterAttempts": 12,
+      "strategy": "assault",
+      "snapshotSha256": "df2a9320e1f21f82fca250682b151c98217074508ce1fcc9814bb63301e8d13b",
+      "off": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 1542645066,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 150959651,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "pulses": 177,
+        "elapsed": 44.100000000000215,
+        "minHpPercent": 8.21396192203082,
+        "hpLost": 2029,
+        "actions": {
+          "attacks": 42,
+          "skills": 14,
+          "heals": 3,
+          "potions": 0,
+          "manaSpent": 60,
+          "counters": 2
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・獵隙逐風刺劍・平衡",
+                "level": 12,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-5",
+                "name": "華麗・堅守餘燼護衣・壁壘",
+                "level": 5,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-4",
+                "name": "傳奇・獵隙輕羽符印・長夜",
+                "level": 5,
+                "quality": "Legendary"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "rapier",
+            "name": "華麗・獵隙逐風刺劍・平衡"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 175.46,
+            "maxHp": 1078,
+            "mitigation": 0.21656050955414008
+          },
+          "damage": {
+            "basic": 4043,
+            "skill": 5228,
+            "bleed": 0,
+            "counter": 314
+          },
+          "survival": {
+            "hpLost": 2029,
+            "minHpPercent": 8.21396192203082
+          },
+          "procs": {
+            "penetratedArmor": 9,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 44.100000000000215,
+          "actions": {
+            "attacks": 42,
+            "skills": 14,
+            "heals": 3,
+            "potions": 0,
+            "manaSpent": 60,
+            "counters": 2
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 1542645066,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 150959651,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "pulses": 177,
+        "elapsed": 44.100000000000215,
+        "minHpPercent": 27.180417044424292,
+        "hpLost": 2029,
+        "actions": {
+          "attacks": 42,
+          "skills": 14,
+          "heals": 0,
+          "potions": 2,
+          "manaSpent": 42,
+          "counters": 2
+        },
+        "remaining": 1,
+        "minStock": 1,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・獵隙逐風刺劍・平衡",
+                "level": 12,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-5",
+                "name": "華麗・堅守餘燼護衣・壁壘",
+                "level": 5,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-4",
+                "name": "傳奇・獵隙輕羽符印・長夜",
+                "level": 5,
+                "quality": "Legendary"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "rapier",
+            "name": "華麗・獵隙逐風刺劍・平衡"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 175.46,
+            "maxHp": 1078,
+            "mitigation": 0.21656050955414008
+          },
+          "damage": {
+            "basic": 4043,
+            "skill": 5228,
+            "bleed": 0,
+            "counter": 314
+          },
+          "survival": {
+            "hpLost": 2029,
+            "minHpPercent": 27.180417044424292
+          },
+          "procs": {
+            "penetratedArmor": 9,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 44.100000000000215,
+          "actions": {
+            "attacks": 42,
+            "skills": 14,
+            "heals": 0,
+            "potions": 2,
+            "manaSpent": 42,
+            "counters": 2
+          }
+        }
+      }
+    },
+    {
+      "seed": 55,
+      "afterAttempts": 12,
+      "strategy": "sustain",
+      "snapshotSha256": "df2a9320e1f21f82fca250682b151c98217074508ce1fcc9814bb63301e8d13b",
+      "off": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 1542645066,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 1739329341,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "pulses": 206,
+        "elapsed": 51.450000000000216,
+        "minHpPercent": 51.55844155844156,
+        "hpLost": 2192,
+        "actions": {
+          "attacks": 49,
+          "skills": 9,
+          "heals": 5,
+          "potions": 0,
+          "manaSpent": 57,
+          "counters": 3
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・獵隙逐風刺劍・平衡",
+                "level": 12,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-5",
+                "name": "華麗・堅守餘燼護衣・壁壘",
+                "level": 5,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-4",
+                "name": "傳奇・獵隙輕羽符印・長夜",
+                "level": 5,
+                "quality": "Legendary"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "rapier",
+            "name": "華麗・獵隙逐風刺劍・平衡"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 175.46,
+            "maxHp": 1078,
+            "mitigation": 0.21656050955414008
+          },
+          "damage": {
+            "basic": 6596,
+            "skill": 2626,
+            "bleed": 0,
+            "counter": 363
+          },
+          "survival": {
+            "hpLost": 2192,
+            "minHpPercent": 51.55844155844156
+          },
+          "procs": {
+            "penetratedArmor": 18,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 51.450000000000216,
+          "actions": {
+            "attacks": 49,
+            "skills": 9,
+            "heals": 5,
+            "potions": 0,
+            "manaSpent": 57,
+            "counters": 3
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 13,
+        "before": {
+          "level": 11,
+          "xp": 365,
+          "gold": 2034,
+          "fragments": 120,
+          "seeds": 12,
+          "wins": 12,
+          "kills": 72,
+          "rng": 1542645066,
+          "inventory": 17,
+          "pending": 0,
+          "unlocked": 13,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "after": {
+          "level": 12,
+          "xp": 210,
+          "gold": 2314,
+          "fragments": 130,
+          "seeds": 13,
+          "wins": 13,
+          "kills": 78,
+          "rng": 1739329341,
+          "inventory": 18,
+          "pending": 0,
+          "unlocked": 14,
+          "equipped": {
+            "weapon": "loot-13",
+            "armor": "loot-5",
+            "accessory": "loot-4"
+          }
+        },
+        "pulses": 206,
+        "elapsed": 51.450000000000216,
+        "minHpPercent": 51.55844155844156,
+        "hpLost": 2192,
+        "actions": {
+          "attacks": 49,
+          "skills": 9,
+          "heals": 5,
+          "potions": 0,
+          "manaSpent": 57,
+          "counters": 3
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 13,
+          "level": 11,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-13",
+                "name": "華麗・獵隙逐風刺劍・平衡",
+                "level": 12,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-5",
+                "name": "華麗・堅守餘燼護衣・壁壘",
+                "level": 5,
+                "quality": "Magnificent"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-4",
+                "name": "傳奇・獵隙輕羽符印・長夜",
+                "level": 5,
+                "quality": "Legendary"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "rapier",
+            "name": "華麗・獵隙逐風刺劍・平衡"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 175.46,
+            "maxHp": 1078,
+            "mitigation": 0.21656050955414008
+          },
+          "damage": {
+            "basic": 6596,
+            "skill": 2626,
+            "bleed": 0,
+            "counter": 363
+          },
+          "survival": {
+            "hpLost": 2192,
+            "minHpPercent": 51.55844155844156
+          },
+          "procs": {
+            "penetratedArmor": 18,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 12,
+          "elapsed": 51.450000000000216,
+          "actions": {
+            "attacks": 49,
+            "skills": 9,
+            "heals": 5,
+            "potions": 0,
+            "manaSpent": 57,
+            "counters": 3
+          }
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "afterAttempts": 0,
+      "strategy": "balanced",
+      "snapshotSha256": "8cbddf3209e3f27ad43a1d40b8cd35e21b5a6eebf0ae498157f94f00752707f0",
+      "off": {
+        "outcome": "win",
+        "stage": 1,
+        "before": {
+          "level": 1,
+          "xp": 0,
+          "gold": 0,
+          "fragments": 0,
+          "seeds": 0,
+          "wins": 0,
+          "kills": 0,
+          "rng": 77,
+          "inventory": 0,
+          "pending": 0,
+          "unlocked": 1,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "after": {
+          "level": 2,
+          "xp": 6,
+          "gold": 76,
+          "fragments": 10,
+          "seeds": 1,
+          "wins": 1,
+          "kills": 6,
+          "rng": 1445088384,
+          "inventory": 2,
+          "pending": 0,
+          "unlocked": 2,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "pulses": 114,
+        "elapsed": 28.35000000000016,
+        "minHpPercent": 77.61904761904762,
+        "hpLost": 284,
+        "actions": {
+          "attacks": 27,
+          "skills": 5,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 15
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 1,
+          "level": 1,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "starter-weapon",
+                "name": "旅人的鈍劍",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "starter-accessory",
+                "name": "素色護符",
+                "level": 1,
+                "quality": "Crude"
+              }
+            ]
+          },
+          "weapon": {
+            "family": null,
+            "name": "旅人的鈍劍"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 36.95,
+            "maxHp": 630,
+            "mitigation": 0.03289473684210531
+          },
+          "damage": {
+            "basic": 735,
+            "skill": 340,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 284,
+            "minHpPercent": 77.61904761904762
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 2,
+          "elapsed": 28.35000000000016,
+          "actions": {
+            "attacks": 27,
+            "skills": 5,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 15
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 1,
+        "before": {
+          "level": 1,
+          "xp": 0,
+          "gold": 0,
+          "fragments": 0,
+          "seeds": 0,
+          "wins": 0,
+          "kills": 0,
+          "rng": 77,
+          "inventory": 0,
+          "pending": 0,
+          "unlocked": 1,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "after": {
+          "level": 2,
+          "xp": 6,
+          "gold": 76,
+          "fragments": 10,
+          "seeds": 1,
+          "wins": 1,
+          "kills": 6,
+          "rng": 1445088384,
+          "inventory": 2,
+          "pending": 0,
+          "unlocked": 2,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "pulses": 114,
+        "elapsed": 28.35000000000016,
+        "minHpPercent": 77.61904761904762,
+        "hpLost": 284,
+        "actions": {
+          "attacks": 27,
+          "skills": 5,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 15
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 1,
+          "level": 1,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "starter-weapon",
+                "name": "旅人的鈍劍",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "starter-accessory",
+                "name": "素色護符",
+                "level": 1,
+                "quality": "Crude"
+              }
+            ]
+          },
+          "weapon": {
+            "family": null,
+            "name": "旅人的鈍劍"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 36.95,
+            "maxHp": 630,
+            "mitigation": 0.03289473684210531
+          },
+          "damage": {
+            "basic": 735,
+            "skill": 340,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 284,
+            "minHpPercent": 77.61904761904762
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 2,
+          "elapsed": 28.35000000000016,
+          "actions": {
+            "attacks": 27,
+            "skills": 5,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 15
+          }
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "afterAttempts": 0,
+      "strategy": "assault",
+      "snapshotSha256": "8cbddf3209e3f27ad43a1d40b8cd35e21b5a6eebf0ae498157f94f00752707f0",
+      "off": {
+        "outcome": "win",
+        "stage": 1,
+        "before": {
+          "level": 1,
+          "xp": 0,
+          "gold": 0,
+          "fragments": 0,
+          "seeds": 0,
+          "wins": 0,
+          "kills": 0,
+          "rng": 77,
+          "inventory": 0,
+          "pending": 0,
+          "unlocked": 1,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "after": {
+          "level": 2,
+          "xp": 6,
+          "gold": 76,
+          "fragments": 10,
+          "seeds": 1,
+          "wins": 1,
+          "kills": 6,
+          "rng": 2297726315,
+          "inventory": 3,
+          "pending": 0,
+          "unlocked": 2,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "pulses": 114,
+        "elapsed": 28.35000000000016,
+        "minHpPercent": 80.7936507936508,
+        "hpLost": 276,
+        "actions": {
+          "attacks": 27,
+          "skills": 9,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 27
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 1,
+          "level": 1,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "starter-weapon",
+                "name": "旅人的鈍劍",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "starter-accessory",
+                "name": "素色護符",
+                "level": 1,
+                "quality": "Crude"
+              }
+            ]
+          },
+          "weapon": {
+            "family": null,
+            "name": "旅人的鈍劍"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 36.95,
+            "maxHp": 630,
+            "mitigation": 0.03289473684210531
+          },
+          "damage": {
+            "basic": 514,
+            "skill": 561,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 276,
+            "minHpPercent": 80.7936507936508
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 2,
+          "elapsed": 28.35000000000016,
+          "actions": {
+            "attacks": 27,
+            "skills": 9,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 27
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 1,
+        "before": {
+          "level": 1,
+          "xp": 0,
+          "gold": 0,
+          "fragments": 0,
+          "seeds": 0,
+          "wins": 0,
+          "kills": 0,
+          "rng": 77,
+          "inventory": 0,
+          "pending": 0,
+          "unlocked": 1,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "after": {
+          "level": 2,
+          "xp": 6,
+          "gold": 76,
+          "fragments": 10,
+          "seeds": 1,
+          "wins": 1,
+          "kills": 6,
+          "rng": 2297726315,
+          "inventory": 3,
+          "pending": 0,
+          "unlocked": 2,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "pulses": 114,
+        "elapsed": 28.35000000000016,
+        "minHpPercent": 80.7936507936508,
+        "hpLost": 276,
+        "actions": {
+          "attacks": 27,
+          "skills": 9,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 27
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 1,
+          "level": 1,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "starter-weapon",
+                "name": "旅人的鈍劍",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "starter-accessory",
+                "name": "素色護符",
+                "level": 1,
+                "quality": "Crude"
+              }
+            ]
+          },
+          "weapon": {
+            "family": null,
+            "name": "旅人的鈍劍"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 36.95,
+            "maxHp": 630,
+            "mitigation": 0.03289473684210531
+          },
+          "damage": {
+            "basic": 514,
+            "skill": 561,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 276,
+            "minHpPercent": 80.7936507936508
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 2,
+          "elapsed": 28.35000000000016,
+          "actions": {
+            "attacks": 27,
+            "skills": 9,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 27
+          }
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "afterAttempts": 0,
+      "strategy": "sustain",
+      "snapshotSha256": "8cbddf3209e3f27ad43a1d40b8cd35e21b5a6eebf0ae498157f94f00752707f0",
+      "off": {
+        "outcome": "win",
+        "stage": 1,
+        "before": {
+          "level": 1,
+          "xp": 0,
+          "gold": 0,
+          "fragments": 0,
+          "seeds": 0,
+          "wins": 0,
+          "kills": 0,
+          "rng": 77,
+          "inventory": 0,
+          "pending": 0,
+          "unlocked": 1,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "after": {
+          "level": 2,
+          "xp": 6,
+          "gold": 76,
+          "fragments": 10,
+          "seeds": 1,
+          "wins": 1,
+          "kills": 6,
+          "rng": 1445088384,
+          "inventory": 2,
+          "pending": 0,
+          "unlocked": 2,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "pulses": 114,
+        "elapsed": 28.35000000000016,
+        "minHpPercent": 77.61904761904762,
+        "hpLost": 284,
+        "actions": {
+          "attacks": 27,
+          "skills": 5,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 15
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 1,
+          "level": 1,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "starter-weapon",
+                "name": "旅人的鈍劍",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "starter-accessory",
+                "name": "素色護符",
+                "level": 1,
+                "quality": "Crude"
+              }
+            ]
+          },
+          "weapon": {
+            "family": null,
+            "name": "旅人的鈍劍"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 36.95,
+            "maxHp": 630,
+            "mitigation": 0.03289473684210531
+          },
+          "damage": {
+            "basic": 735,
+            "skill": 340,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 284,
+            "minHpPercent": 77.61904761904762
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 2,
+          "elapsed": 28.35000000000016,
+          "actions": {
+            "attacks": 27,
+            "skills": 5,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 15
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 1,
+        "before": {
+          "level": 1,
+          "xp": 0,
+          "gold": 0,
+          "fragments": 0,
+          "seeds": 0,
+          "wins": 0,
+          "kills": 0,
+          "rng": 77,
+          "inventory": 0,
+          "pending": 0,
+          "unlocked": 1,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "after": {
+          "level": 2,
+          "xp": 6,
+          "gold": 76,
+          "fragments": 10,
+          "seeds": 1,
+          "wins": 1,
+          "kills": 6,
+          "rng": 1445088384,
+          "inventory": 2,
+          "pending": 0,
+          "unlocked": 2,
+          "equipped": {
+            "weapon": "starter-weapon",
+            "armor": "starter-armor",
+            "accessory": "starter-accessory"
+          }
+        },
+        "pulses": 114,
+        "elapsed": 28.35000000000016,
+        "minHpPercent": 77.61904761904762,
+        "hpLost": 284,
+        "actions": {
+          "attacks": 27,
+          "skills": 5,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 15
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 1,
+          "level": 1,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "starter-weapon",
+                "name": "旅人的鈍劍",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "starter-accessory",
+                "name": "素色護符",
+                "level": 1,
+                "quality": "Crude"
+              }
+            ]
+          },
+          "weapon": {
+            "family": null,
+            "name": "旅人的鈍劍"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 36.95,
+            "maxHp": 630,
+            "mitigation": 0.03289473684210531
+          },
+          "damage": {
+            "basic": 735,
+            "skill": 340,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 284,
+            "minHpPercent": 77.61904761904762
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 0,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 2,
+          "elapsed": 28.35000000000016,
+          "actions": {
+            "attacks": 27,
+            "skills": 5,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 15
+          }
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "afterAttempts": 4,
+      "strategy": "balanced",
+      "snapshotSha256": "757e3bdb31369830d88688a57855280cca4ac9e57564db2f848ca7e355195608",
+      "off": {
+        "outcome": "win",
+        "stage": 5,
+        "before": {
+          "level": 5,
+          "xp": 135,
+          "gold": 406,
+          "fragments": 40,
+          "seeds": 4,
+          "wins": 4,
+          "kills": 24,
+          "rng": 826886239,
+          "inventory": 8,
+          "pending": 0,
+          "unlocked": 5,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "after": {
+          "level": 6,
+          "xp": 149,
+          "gold": 550,
+          "fragments": 50,
+          "seeds": 5,
+          "wins": 5,
+          "kills": 30,
+          "rng": 484813274,
+          "inventory": 10,
+          "pending": 0,
+          "unlocked": 6,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "minHpPercent": 92.08972845336481,
+        "hpLost": 172,
+        "actions": {
+          "attacks": 20,
+          "skills": 4,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 12
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 5,
+          "level": 5,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-4",
+                "name": "傳奇・堅守裂岩戰棍・平衡",
+                "level": 4,
+                "quality": "Legendary"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-8",
+                "name": "優良・堅守守望墜飾・破陣",
+                "level": 6,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "傳奇・堅守裂岩戰棍・平衡"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 135.96,
+            "maxHp": 823,
+            "mitigation": 0.12964545454545462
+          },
+          "damage": {
+            "basic": 1484,
+            "skill": 746,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 172,
+            "minHpPercent": 92.08972845336481
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 6,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 5,
+        "before": {
+          "level": 5,
+          "xp": 135,
+          "gold": 406,
+          "fragments": 40,
+          "seeds": 4,
+          "wins": 4,
+          "kills": 24,
+          "rng": 826886239,
+          "inventory": 8,
+          "pending": 0,
+          "unlocked": 5,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "after": {
+          "level": 6,
+          "xp": 149,
+          "gold": 550,
+          "fragments": 50,
+          "seeds": 5,
+          "wins": 5,
+          "kills": 30,
+          "rng": 484813274,
+          "inventory": 10,
+          "pending": 0,
+          "unlocked": 6,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "minHpPercent": 92.08972845336481,
+        "hpLost": 172,
+        "actions": {
+          "attacks": 20,
+          "skills": 4,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 12
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 5,
+          "level": 5,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-4",
+                "name": "傳奇・堅守裂岩戰棍・平衡",
+                "level": 4,
+                "quality": "Legendary"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-8",
+                "name": "優良・堅守守望墜飾・破陣",
+                "level": 6,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "傳奇・堅守裂岩戰棍・平衡"
+          },
+          "strategy": "balanced",
+          "startStats": {
+            "attack": 135.96,
+            "maxHp": 823,
+            "mitigation": 0.12964545454545462
+          },
+          "damage": {
+            "basic": 1484,
+            "skill": 746,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 172,
+            "minHpPercent": 92.08972845336481
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 6,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "afterAttempts": 4,
+      "strategy": "assault",
+      "snapshotSha256": "757e3bdb31369830d88688a57855280cca4ac9e57564db2f848ca7e355195608",
+      "off": {
+        "outcome": "win",
+        "stage": 5,
+        "before": {
+          "level": 5,
+          "xp": 135,
+          "gold": 406,
+          "fragments": 40,
+          "seeds": 4,
+          "wins": 4,
+          "kills": 24,
+          "rng": 826886239,
+          "inventory": 8,
+          "pending": 0,
+          "unlocked": 5,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "after": {
+          "level": 6,
+          "xp": 149,
+          "gold": 550,
+          "fragments": 50,
+          "seeds": 5,
+          "wins": 5,
+          "kills": 30,
+          "rng": 2157623381,
+          "inventory": 10,
+          "pending": 0,
+          "unlocked": 6,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "pulses": 89,
+        "elapsed": 22.100000000000072,
+        "minHpPercent": 92.20779220779221,
+        "hpLost": 217,
+        "actions": {
+          "attacks": 21,
+          "skills": 7,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 21
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 5,
+          "level": 5,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-4",
+                "name": "傳奇・堅守裂岩戰棍・平衡",
+                "level": 4,
+                "quality": "Legendary"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-8",
+                "name": "優良・堅守守望墜飾・破陣",
+                "level": 6,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "傳奇・堅守裂岩戰棍・平衡"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 135.96,
+            "maxHp": 823,
+            "mitigation": 0.12964545454545462
+          },
+          "damage": {
+            "basic": 1446,
+            "skill": 784,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 217,
+            "minHpPercent": 92.20779220779221
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 4,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 6,
+          "elapsed": 22.100000000000072,
+          "actions": {
+            "attacks": 21,
+            "skills": 7,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 21
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 5,
+        "before": {
+          "level": 5,
+          "xp": 135,
+          "gold": 406,
+          "fragments": 40,
+          "seeds": 4,
+          "wins": 4,
+          "kills": 24,
+          "rng": 826886239,
+          "inventory": 8,
+          "pending": 0,
+          "unlocked": 5,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "after": {
+          "level": 6,
+          "xp": 149,
+          "gold": 550,
+          "fragments": 50,
+          "seeds": 5,
+          "wins": 5,
+          "kills": 30,
+          "rng": 2157623381,
+          "inventory": 10,
+          "pending": 0,
+          "unlocked": 6,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "pulses": 89,
+        "elapsed": 22.100000000000072,
+        "minHpPercent": 92.20779220779221,
+        "hpLost": 217,
+        "actions": {
+          "attacks": 21,
+          "skills": 7,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 21
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 5,
+          "level": 5,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-4",
+                "name": "傳奇・堅守裂岩戰棍・平衡",
+                "level": 4,
+                "quality": "Legendary"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-8",
+                "name": "優良・堅守守望墜飾・破陣",
+                "level": 6,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "傳奇・堅守裂岩戰棍・平衡"
+          },
+          "strategy": "assault",
+          "startStats": {
+            "attack": 135.96,
+            "maxHp": 823,
+            "mitigation": 0.12964545454545462
+          },
+          "damage": {
+            "basic": 1446,
+            "skill": 784,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 217,
+            "minHpPercent": 92.20779220779221
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 4,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 6,
+          "elapsed": 22.100000000000072,
+          "actions": {
+            "attacks": 21,
+            "skills": 7,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 21
+          }
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "afterAttempts": 4,
+      "strategy": "sustain",
+      "snapshotSha256": "757e3bdb31369830d88688a57855280cca4ac9e57564db2f848ca7e355195608",
+      "off": {
+        "outcome": "win",
+        "stage": 5,
+        "before": {
+          "level": 5,
+          "xp": 135,
+          "gold": 406,
+          "fragments": 40,
+          "seeds": 4,
+          "wins": 4,
+          "kills": 24,
+          "rng": 826886239,
+          "inventory": 8,
+          "pending": 0,
+          "unlocked": 5,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "after": {
+          "level": 6,
+          "xp": 149,
+          "gold": 550,
+          "fragments": 50,
+          "seeds": 5,
+          "wins": 5,
+          "kills": 30,
+          "rng": 484813274,
+          "inventory": 10,
+          "pending": 0,
+          "unlocked": 6,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "minHpPercent": 92.08972845336481,
+        "hpLost": 172,
+        "actions": {
+          "attacks": 20,
+          "skills": 4,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 12
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 5,
+          "level": 5,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-4",
+                "name": "傳奇・堅守裂岩戰棍・平衡",
+                "level": 4,
+                "quality": "Legendary"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-8",
+                "name": "優良・堅守守望墜飾・破陣",
+                "level": 6,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "傳奇・堅守裂岩戰棍・平衡"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 135.96,
+            "maxHp": 823,
+            "mitigation": 0.12964545454545462
+          },
+          "damage": {
+            "basic": 1484,
+            "skill": 746,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 172,
+            "minHpPercent": 92.08972845336481
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 6,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      },
+      "on": {
+        "outcome": "win",
+        "stage": 5,
+        "before": {
+          "level": 5,
+          "xp": 135,
+          "gold": 406,
+          "fragments": 40,
+          "seeds": 4,
+          "wins": 4,
+          "kills": 24,
+          "rng": 826886239,
+          "inventory": 8,
+          "pending": 0,
+          "unlocked": 5,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "after": {
+          "level": 6,
+          "xp": 149,
+          "gold": 550,
+          "fragments": 50,
+          "seeds": 5,
+          "wins": 5,
+          "kills": 30,
+          "rng": 484813274,
+          "inventory": 10,
+          "pending": 0,
+          "unlocked": 6,
+          "equipped": {
+            "weapon": "loot-4",
+            "armor": "starter-armor",
+            "accessory": "loot-8"
+          }
+        },
+        "pulses": 84,
+        "elapsed": 21.000000000000057,
+        "minHpPercent": 92.08972845336481,
+        "hpLost": 172,
+        "actions": {
+          "attacks": 20,
+          "skills": 4,
+          "heals": 0,
+          "potions": 0,
+          "manaSpent": 12
+        },
+        "remaining": 3,
+        "minStock": 3,
+        "report": {
+          "stage": 5,
+          "level": 5,
+          "build": {
+            "targetPriority": "front",
+            "autoProtection": false,
+            "emergencySupply": true,
+            "abilities": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "equipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-4",
+                "name": "傳奇・堅守裂岩戰棍・平衡",
+                "level": 4,
+                "quality": "Legendary"
+              },
+              {
+                "slot": "armor",
+                "id": "starter-armor",
+                "name": "磨舊旅裝",
+                "level": 1,
+                "quality": "Crude"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-8",
+                "name": "優良・堅守守望墜飾・破陣",
+                "level": 6,
+                "quality": "Superior"
+              }
+            ]
+          },
+          "weapon": {
+            "family": "club",
+            "name": "傳奇・堅守裂岩戰棍・平衡"
+          },
+          "strategy": "sustain",
+          "startStats": {
+            "attack": 135.96,
+            "maxHp": 823,
+            "mitigation": 0.12964545454545462
+          },
+          "damage": {
+            "basic": 1484,
+            "skill": 746,
+            "bleed": 0
+          },
+          "survival": {
+            "hpLost": 172,
+            "minHpPercent": 92.08972845336481
+          },
+          "procs": {
+            "penetratedArmor": 0,
+            "stun": 5,
+            "bleeding": 0
+          },
+          "outcome": "win",
+          "endLevel": 6,
+          "elapsed": 21.000000000000057,
+          "actions": {
+            "attacks": 20,
+            "skills": 4,
+            "heals": 0,
+            "potions": 0,
+            "manaSpent": 12
+          }
+        }
+      }
+    }
+  ]
+}
