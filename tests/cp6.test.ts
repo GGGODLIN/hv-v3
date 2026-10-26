@@ -23,7 +23,7 @@ describe('CP6 abyss scaling', () => {
     expect(ABYSS.bossDmgAt[15]).toBe(0.6); expect(ABYSS.bossDmgAt[10] ?? 1).toBe(1); expect(ABYSS.bossDmgAt[20]).toBe(0.6); expect(ABYSS.bossDmgAt[25]).toBe(0.6); expect(ABYSS.bossDmgAt[5] ?? 1).toBe(1);
   });
   it('r4 (c): tier jump phases in over its first 3 depths (hp/dmg/pl), 暫定', () => {
-    expect(ABYSS.tierRamp).toBe(5); // rc8 default; mechanism below is checked at ramp 3
+    expect(ABYSS.tierRamp).toBe(3); // rc9 default; mechanism below is checked at ramp 3
     const o0 = ABYSS.tierRamp; ABYSS.tierRamp = 3; try {
     expect(diffAt(9, 'dmg')).toBeCloseTo(1.0);
     expect(diffAt(15, 'dmg')).toBeCloseTo(1.2 + 0.2 / 3); expect(diffAt(16, 'dmg')).toBeCloseTo(1.2 + 0.4 / 3); expect(diffAt(17, 'dmg')).toBeCloseTo(1.4); expect(diffAt(19, 'dmg')).toBeCloseTo(1.4);
@@ -31,12 +31,12 @@ describe('CP6 abyss scaling', () => {
     const o = ABYSS.tierRamp; ABYSS.tierRamp = 1; try { expect(diffAt(15, 'dmg')).toBeCloseTo(1.4); expect(diffAt(14, 'dmg')).toBeCloseTo(1.2); } finally { ABYSS.tierRamp = o; }
     } finally { ABYSS.tierRamp = o0; }
   });
-  it('r2 knob: hpScale/dmgScale multiply every depth (rc8 暫定 1.1/6)', () => {
-    expect(ABYSS.hpScale).toBe(1.1); expect(ABYSS.dmgScale).toBe(6);
-    expect(abyssMult(1).hp).toBeCloseTo(1.1); expect(abyssMult(12).dmg).toBeCloseTo(6 * diffAt(12, 'dmg') * (1 + ABYSS.dmgPerDepth * 11));
+  it('r2 knob: hpScale/dmgScale multiply every depth (rc9 暫定 0.9/2)', () => {
+    expect(ABYSS.hpScale).toBe(0.9); expect(ABYSS.dmgScale).toBe(2);
+    expect(abyssMult(1).hp).toBeCloseTo(0.9); expect(abyssMult(12).dmg).toBeCloseTo(2 * diffAt(12, 'dmg') * (1 + ABYSS.dmgPerDepth * 11));
   });
   it('+2% damage per depth accumulates, past 40 adds +5% HP/dmg every 5', () => {
-    expect(ABYSS.dmgPerDepth).toBe(-0.01); // rc8 default 暫定; mechanism checked at the sourced +2%
+    expect(ABYSS.dmgPerDepth).toBe(0.08); // rc9 default 暫定; mechanism checked at the sourced +2%
     const k = [ABYSS.hpScale, ABYSS.dmgScale, ABYSS.dmgPerDepth]; ABYSS.hpScale = 1; ABYSS.dmgScale = 1; ABYSS.dmgPerDepth = 0.02; const tr = ABYSS.tierRamp; ABYSS.tierRamp = 3;
     try {
     expect(abyssMult(1)).toEqual({ hp: 1, dmg: 1 });

@@ -502,3 +502,10 @@ LPD 0 × TR {1,3} × HS {0.9,1.1} × DS {2,2.5} × DPD {0.04,0.08,0.12}. Again n
 
 ### CP7 candidates
 - Change the curve shape (option 3): add mid-floor pressure (e.g. mid-depth elites or a d10 boss) or cap damage past d16, so a short trip 1 (≤14) can coexist with d1–3 ≥95 and d16 ≥60.
+
+### Round 3: set A defaults, 256×2 confirmation (docs/logs/rc9/setA-256-*)
+Defaults now LPD 0, HS 0.9, DS 2, DPD 0.08, TR 3 (all 暫定). cp6-abyss-sim CHECKs updated: trip1 10–30, d5 boss ≥75%, d20 boss ≥35%, d16/d13 ratio removed (d16 fresh ≥60 lives in rc9-tune / rc7-targets).
+- cp6-abyss-sim A and B: VERDICT ALL PASS. Trip-1 median: blade 22/22, oc 20/22, arcane 22/22, bulwark 27/27.
+- rc9-tune (fresh fights, worst of A/B): d1–3 ≥99.2, d5B ≥99.3, d16 blade 70.8 / bulwark 75.6 / arcane 87.7 / oc 95.5, d20B ≥85.7. (rc9-sum's FAIL labels use the old trip1/ratio targets and can be ignored.)
+- cp5-deathcombo: 必死 0 (34 warnings, 16 relative).
+- rc4-noclear 256: blade 26/256 = 10.2% (just over the ≤10% gate), oc 2.7%, arcane 0, bulwark 0.8%. This metric is main tower only. It came out identical with the rc8 defaults (re-run), so it is not caused by set A. Reported and not adjusted.

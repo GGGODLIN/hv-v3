@@ -65,12 +65,12 @@ for (const strat of STRATS) {
   const bw = (k: number) => boss[k]?.length ? mean(boss[k]!.map((b) => +b.won)) : NaN;
   const checks: [string, boolean][] = [
     ['best5 median >= 15', q(best5.length ? best5 : best, 0.5) >= 15],
-    ['d20 boss win >= 25%', bw(20) >= 0.25],
-    ...(strat === 'auto' ? [] : [['trip1 median 5-12', q(first, 0.5) >= 5 && q(first, 0.5) <= 12] as [string, boolean]]),
-    ['d5 boss win >= 60%', bw(5) >= 0.6],
+    ['d20 boss win >= 35%', bw(20) >= 0.35],
+    ...(strat === 'auto' ? [] : [['trip1 median 10-30', q(first, 0.5) >= 10 && q(first, 0.5) <= 30] as [string, boolean]]),
+    ['d5 boss win >= 75%', bw(5) >= 0.75],
     ['d16 rate not tower-highest', r16 < top],
     // Producer 2026-10-26 (2nd): d16 vs combat floors d13 and d18 (d14 is a rest floor, d17 non-combat). trip1 band widened to 5-12.
-    [`d16 rate <= 1.5 x d13 (${f(r16 * 100)} vs ${f(r13 * 100)}, d13 entered ${reach[13] ?? 0})`, r16 <= 1.5 * r13],
+    // Producer 2026-10-26 (rc9 set A): d16/d13 ratio dropped (d13 almost never kills); trip1 band 10-30; d5 boss >= 75%; d20 boss >= 35%. d16 fresh win >= 60% is graded in rc7-targets / rc9-tune.
     [`d16 rate <= 1.5 x d18 (${f(r16 * 100)} vs ${f(r18 * 100)})`, r16 <= 1.5 * r18],
   ];
   // Producer 2026-10-26 (3rd): balance gates use the four schools only; auto is reference (INFO), not graded.

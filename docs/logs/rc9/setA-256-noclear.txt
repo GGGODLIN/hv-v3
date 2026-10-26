@@ -1,0 +1,65 @@
+
+== auto  N=256 M=12  never full-clear: 0 (0%)
+stuck floor (best reached): 
+run ends, never-clear seeds: 
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): 
+run ends, all seeds: elite@F19:64 boss@F20:63 elite@F17:53 elite@F9:49 elite@F13:48 elite@F11:30 boss@F10:27 boss@F15:26 retreat@F15:21 retreat@F10:15 battle@F11:11 elite@F7:5
+
+== buff:blade  N=256 M=12  never full-clear: 26 (10%)
+stuck floor (best reached): F17:8 F20:7 F19:5 F15:4 F13:2
+run ends, never-clear seeds: elite@F9:54 boss@F15:42 battle@F13:28 elite@F13:26 boss@F10:25 elite@F11:24 elite@F17:23 elite@F7:22 battle@F11:15 elite@F19:12 retreat@F15:12 retreat@F10:11
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F15 boss[thorns]:42 battle@F13 normal:28 boss@F10 boss[shield]:25 battle@F11 normal:15 boss@F20 boss[drain]:8 elite@F9 elite{antimagic}:6 elite@F13 elite{antimagic}:6 elite@F9 elite{leech}:6 elite@F11 elite{split}:5 elite@F7 elite{warded}:5 elite@F9 elite{swift}:5 elite@F9 elite{warded}:4
+run ends, all seeds: elite@F9:157 boss@F15:91 elite@F7:90 boss@F20:72 elite@F17:66 boss@F10:62 elite@F13:61 elite@F19:57 battle@F13:49 retreat@F15:47 elite@F11:44 battle@F11:40
+  seed 1: best F19 lv 11 main longsword off - | ends elite@F7,battle@F9,elite@F7,boss@F15,elite@F19,elite@F9,elite@F9,boss@F15,elite@F11,boss@F15,retreat@F10,battle@F13
+  seed 12: best F15 lv 12 main longsword off - | ends boss@F5,elite@F13,boss@F10,battle@F13,retreat@F10,elite@F9,boss@F10,elite@F9,battle@F7,boss@F15,boss@F10,retreat@F15
+  seed 27: best F20 lv 13 main longsword off - | ends elite@F9,elite@F11,battle@F13,elite@F13,battle@F11,boss@F20,elite@F13,elite@F17,boss@F15,elite@F19,elite@F13,elite@F13
+  seed 53: best F17 lv 13 main swordchucks off - | ends boss@F10,elite@F9,battle@F11,elite@F17,elite@F17,elite@F9,boss@F15,battle@F13,elite@F17,battle@F13,elite@F17,elite@F17
+  seed 60: best F13 lv 9 main ebony off - | ends elite@F7,elite@F7,boss@F10,elite@F9,elite@F13,elite@F9,elite@F9,elite@F13,elite@F9,elite@F9,elite@F9,elite@F9
+  seed 61: best F19 lv 14 main swordchucks off - | ends elite@F7,battle@F13,battle@F13,elite@F19,boss@F15,boss@F10,boss@F15,elite@F11,retreat@F15,retreat@F15,elite@F11,boss@F15
+  seed 69: best F13 lv 11 main katana off - | ends elite@F7,elite@F13,elite@F9,boss@F10,elite@F9,elite@F11,retreat@F10,battle@F13,boss@F10,elite@F9,retreat@F5,boss@F10
+  seed 76: best F17 lv 11 main swordchucks off - | ends boss@F5,elite@F9,elite@F9,elite@F13,battle@F17,boss@F15,boss@F10,elite@F13,elite@F11,retreat@F10,boss@F10,boss@F15
+  seed 81: best F20 lv 13 main mace off - | ends elite@F7,elite@F9,elite@F17,elite@F17,battle@F13,boss@F15,boss@F20,battle@F13,elite@F11,elite@F17,boss@F15,elite@F19
+  seed 85: best F20 lv 13 main swordchucks off - | ends elite@F7,boss@F15,elite@F11,boss@F15,boss@F15,boss@F15,elite@F9,boss@F15,boss@F10,retreat@F10,boss@F20,elite@F13
+  seed 87: best F20 lv 14 main katana off - | ends elite@F9,elite@F13,elite@F13,elite@F11,elite@F9,boss@F10,elite@F17,retreat@F15,elite@F17,boss@F15,boss@F15,boss@F20
+  seed 93: best F19 lv 14 main katana off - | ends boss@F10,elite@F9,battle@F11,elite@F11,boss@F15,elite@F17,elite@F19,elite@F9,retreat@F15,elite@F13,retreat@F15,elite@F19
+  seed 99: best F19 lv 12 main mace off - | ends elite@F7,elite@F9,battle@F11,elite@F9,elite@F11,elite@F17,battle@F13,battle@F13,elite@F17,elite@F9,boss@F15,elite@F19
+  seed 109: best F19 lv 12 main swordchucks off - | ends elite@F9,elite@F9,retreat@F10,elite@F19,boss@F10,elite@F13,boss@F15,battle@F13,elite@F7,elite@F9,battle@F13,boss@F10
+  seed 111: best F20 lv 13 main katana off - | ends boss@F5,elite@F9,elite@F17,boss@F15,boss@F20,battle@F11,elite@F19,battle@F13,elite@F19,elite@F13,elite@F19,battle@F13
+  seed 114: best F15 lv 12 main longsword off - | ends elite@F9,elite@F9,battle@F11,elite@F11,boss@F15,battle@F13,boss@F15,elite@F9,elite@F9,boss@F15,elite@F11,retreat@F15
+  seed 124: best F17 lv 11 main mace off - | ends elite@F7,elite@F7,elite@F9,elite@F17,boss@F15,elite@F17,battle@F13,elite@F13,battle@F13,boss@F10,battle@F11,battle@F11
+  seed 149: best F15 lv 10 main katana off - | ends elite@F7,elite@F7,boss@F15,elite@F7,elite@F11,boss@F10,boss@F10,elite@F7,elite@F7,elite@F9,elite@F11,boss@F15
+  seed 164: best F17 lv 11 main mace off - | ends elite@F7,elite@F13,elite@F13,elite@F9,elite@F9,boss@F15,elite@F9,battle@F11,elite@F11,battle@F11,battle@F9,elite@F17
+  seed 181: best F15 lv 16 main swordchucks off - | ends retreat@F15,battle@F13,elite@F7,elite@F9,boss@F10,boss@F15,battle@F13,battle@F13,elite@F9,elite@F11,retreat@F15,retreat@F10
+  seed 198: best F17 lv 12 main mace off - | ends elite@F9,elite@F17,boss@F15,elite@F9,boss@F15,elite@F13,elite@F9,elite@F9,retreat@F10,elite@F9,elite@F13,boss@F10
+  seed 208: best F20 lv 12 main swordchucks off - | ends elite@F7,elite@F7,elite@F9,boss@F10,elite@F9,elite@F17,boss@F20,battle@F11,boss@F15,battle@F13,elite@F13,boss@F20
+  seed 216: best F17 lv 15 main scythe off - | ends elite@F11,elite@F11,battle@F13,retreat@F10,retreat@F15,boss@F15,elite@F17,elite@F17,battle@F11,retreat@F10,boss@F15,retreat@F15
+  seed 228: best F20 lv 15 main estoc off - | ends elite@F13,elite@F19,boss@F20,battle@F11,battle@F13,boss@F10,boss@F15,boss@F15,elite@F13,boss@F15,battle@F13,elite@F11
+  seed 239: best F17 lv 13 main katana off - | ends elite@F9,battle@F11,elite@F13,elite@F11,boss@F15,retreat@F15,battle@F13,elite@F11,elite@F11,elite@F17,elite@F11,battle@F17
+  seed 243: best F17 lv 11 main swordchucks off - | ends elite@F9,elite@F9,boss@F10,elite@F7,retreat@F10,boss@F10,elite@F9,elite@F13,boss@F15,battle@F11,battle@F13,battle@F17
+
+== buff:oc  N=256 M=12  never full-clear: 7 (3%)
+stuck floor (best reached): F20:6 F19:1
+run ends, never-clear seeds: elite@F19:18 boss@F20:14 boss@F15:13 elite@F17:11 elite@F7:4 elite@F11:3 elite@F13:3 elite@F9:3 battle@F13:3 battle@F9:2 retreat@F15:2 battle@F17:2
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F20 boss[drain]:14 boss@F15 boss[thorns]:13 elite@F17 elite{warded}:6 elite@F19 elite{warded}:4 battle@F13 normal:3 battle@F9 normal:2 elite@F13 elite{antimagic}:2 elite@F19 elite{split}:2 battle@F17 normal:2 boss@F10 boss[shield]:2 elite@F11 elite{warded}:1 elite@F17 elite{iron+hard}:1
+run ends, all seeds: boss@F20:194 elite@F19:168 boss@F15:134 elite@F17:124 elite@F9:116 boss@F10:82 elite@F13:80 retreat@F15:74 elite@F7:65 elite@F11:37 battle@F13:35 battle@F11:33
+  seed 8: best F20 lv 14 main club off tower | ends battle@F9,elite@F11,elite@F13,elite@F17,boss@F20,boss@F15,elite@F19,elite@F19,elite@F19,boss@F20,boss@F20,boss@F20
+  seed 49: best F20 lv 15 main axe off tower | ends elite@F7,boss@F15,elite@F19,elite@F11,elite@F17,elite@F17,boss@F15,retreat@F15,battle@F17,elite@F19,elite@F19,boss@F20
+  seed 124: best F20 lv 14 main axe off kite | ends elite@F9,battle@F13,battle@F13,boss@F10,retreat@F10,boss@F15,boss@F15,elite@F19,elite@F17,boss@F20,boss@F20,battle@F17
+  seed 195: best F19 lv 14 main axe off tower | ends elite@F9,battle@F13,boss@F15,boss@F15,elite@F17,elite@F19,boss@F15,elite@F13,elite@F19,elite@F17,boss@F15,elite@F19
+  seed 219: best F20 lv 14 main club off buckler | ends elite@F7,elite@F13,elite@F9,retreat@F10,boss@F20,boss@F20,elite@F19,elite@F17,elite@F19,boss@F15,boss@F20,retreat@F15
+  seed 227: best F20 lv 13 main axe off tower | ends boss@F5,battle@F9,boss@F10,elite@F7,elite@F11,boss@F15,boss@F20,boss@F20,elite@F19,elite@F19,boss@F20,elite@F17
+  seed 233: best F20 lv 15 main axe off kite | ends elite@F7,boss@F15,boss@F15,elite@F17,battle@F19,elite@F17,elite@F19,boss@F20,elite@F19,elite@F17,elite@F19,elite@F19
+
+== buff:arcane  N=256 M=12  never full-clear: 0 (0%)
+stuck floor (best reached): 
+run ends, never-clear seeds: 
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): 
+run ends, all seeds: boss@F20:133 elite@F19:85 elite@F9:84 elite@F13:83 elite@F17:62 boss@F10:54 retreat@F15:48 elite@F7:47 boss@F15:39 elite@F11:29 battle@F13:24 battle@F11:22
+
+== buff:bulwark  N=256 M=12  never full-clear: 2 (1%)
+stuck floor (best reached): F19:2
+run ends, never-clear seeds: elite@F11:7 elite@F17:4 elite@F13:3 elite@F19:3 elite@F7:2 elite@F9:2 boss@F10:1 boss@F15:1 retreat@F15:1
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): elite@F11 elite{split}:2 elite@F11 elite{warded}:2 elite@F7 elite{warded+leech}:1 boss@F10 boss[shield]:1 elite@F11 elite{hard}:1 elite@F11 elite{flame}:1 elite@F13 elite{berserk}:1 elite@F13 elite{warded}:1 boss@F15 boss[thorns]:1 elite@F13 elite{antimagic}:1 elite@F19 elite{guard}:1 elite@F17 elite{antimagic+split}:1
+run ends, all seeds: elite@F9:92 elite@F17:90 elite@F7:58 elite@F13:47 elite@F19:45 elite@F11:38 boss@F20:26 boss@F10:26 battle@F13:21 battle@F11:19 boss@F15:16 retreat@F10:10
+  seed 12: best F19 lv 13 main wakizashi off kite | ends elite@F7,boss@F10,elite@F11,elite@F11,elite@F13,elite@F13,boss@F15,elite@F11,elite@F13,elite@F19,retreat@F15,elite@F17
+  seed 208: best F19 lv 13 main rapier off tower | ends elite@F7,elite@F11,elite@F11,elite@F11,elite@F11,elite@F9,elite@F17,elite@F17,elite@F17,elite@F9,elite@F19,elite@F19
