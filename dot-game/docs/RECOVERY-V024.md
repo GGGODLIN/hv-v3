@@ -20,3 +20,7 @@ Only independent dot-game source is used; other authors' code, constants, monste
 Save format3 is not the same as the existing browser namespace `...-save-v3`. Old data formats1/2 migrate but receive no retroactive seeds; v2 binding/fragment data survives. Old readers reject format3. Refresh old tabs, retain an exported save and avoid simultaneous writers.
 
 An in-progress paid trial is deliberately not restored: a successful ordinary storage write preserves the spent seed and settled earnings, while reload returns camp without an upgrade/refund. Source restoration is not browser-save recovery. There is no account, Library sync, authentication, permission, computer backup or offline-progress guarantee.
+
+## Candidate gate result — 2026-10-26 20:17UTC
+
+Source60e87374eeddcf93ea54d72128deaea57e4d2411 and candidate8aa0732d1871ae76ebd95ea9a399143eae05d36e passed exact readback/Pages40392640069/sixHTTP verification and bounded actual desktop play. See BROWSER-QA-V024.md. The first candidate blob was initially denied; actor direct-read of the actual owner question/affirmative response and unchangedHEAD/object404 reconciliation supplied missing evidence, then one identical operation succeeded. No alternative account/path/tool or bypass was used. Root promotion still waits accepted-source backup and stable-profile smoke.

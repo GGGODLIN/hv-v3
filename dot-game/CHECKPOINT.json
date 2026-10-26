@@ -1,6 +1,6 @@
 {
-  "checkpoint": "112-v024-item-world-candidate",
-  "status": "source-verified-browser-pending",
+  "checkpoint": "114-v024-browser-accepted",
+  "status": "browser-accepted-prepublication",
   "base_accepted_recovery": "f9cd7aedd3f26bab628d0d249f9ff17a7eeb817d",
   "source_tests_passed": 1504,
   "runtime_syntax_checks": 4,
@@ -13,11 +13,11 @@
   "natural_fresh_trial_defeats": 0,
   "advanced_unchanged_export_trials": 2,
   "item_world_scope": "IW1 only; bound Fair/Average/Superior axe/rapier/club; fixed local strength5",
-  "frozen_utc": "2026-10-26T19:55:32Z",
+  "frozen_utc": "2026-10-26T20:18:50Z",
   "files": {
     "README.md": {
-      "bytes": 4131,
-      "sha256": "f124695aaacb5913c6b71f378edcf6bd1a2b93e45cccb10e9676487a492e9921"
+      "bytes": 4601,
+      "sha256": "eb280dc26d339f0213fa5c80349200f6707feaa8a87ac4a94ed7e107c8b043bf"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -187,6 +187,10 @@
       "bytes": 10711,
       "sha256": "fe5efedc83a568a71986e3b64900114c233e5f736eac9dbb036ea5def0f5a107"
     },
+    "docs/BROWSER-QA-V024.md": {
+      "bytes": 6480,
+      "sha256": "8b576e52bef6d195c3357a2e8edccc33d36bcf21eac4e423b9adbe689a8ae59c"
+    },
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
       "sha256": "f7d08605e9876f5ff78e3a59a11b99b6a245ecfa4edfa6717fdebd8f23832420"
@@ -352,8 +356,8 @@
       "sha256": "8733f57e32ae90088e361ec8a5f5e00b382bf363e34d33962b172002190c3f7f"
     },
     "docs/RECOVERY-V024.md": {
-      "bytes": 2793,
-      "sha256": "583f0812a388e5c67f492988643e10acab23e96f5031399295f572e187491b97"
+      "bytes": 3416,
+      "sha256": "d84cfdf8442748852ecbc755b833df3f9d111f1040535764685e3aed74550eee"
     },
     "docs/RELEASES.md": {
       "bytes": 39788,
@@ -380,8 +384,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 3681,
-      "sha256": "5467f5a9341266e809ccaedc1777b41e6815c87c9196607da8e5f63da7ed6f3a"
+      "bytes": 2708,
+      "sha256": "e8bce29dcffbf94ef86a1c356adc90bd5c4eeef491c61ed7016909ebf9f7f1ca"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -907,5 +911,9 @@
       "bytes": 15068,
       "sha256": "4519002afe8c26d5bd7d5f938948b9dc9eb07f0a43f894b57110dc8acc5e4c17"
     }
-  }
+  },
+  "runtime_source": "60e87374eeddcf93ea54d72128deaea57e4d2411",
+  "candidate_site": "8aa0732d1871ae76ebd95ea9a399143eae05d36e",
+  "candidate_pages_run": 40392640069,
+  "browser_acceptance_utc": "2026-10-26T20:17:00Z"
 }
