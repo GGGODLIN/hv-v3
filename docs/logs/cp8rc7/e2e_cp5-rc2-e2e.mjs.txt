@@ -1,0 +1,1 @@
+{"elite":{"marks":7,"inNode":1,"banner":true},"b5":{"loops":1,"tele":false},"dock":{"dock":true,"n":1,"pe":["modal-back dock:none"]},"hit":true,"after":{"modal":false,"screen":"map"},"errs":[]}

@@ -238,3 +238,10 @@ P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 
 - B256：P1 1.421→1.227 PASS；V arcane .63→.64、blade .68 仍 FAIL；受傷(c) PASS。
 - 副作用：F 組 P4 late-flat 4.2% > 4.0%（基線 PASS），暫定，待其他 seed 確認。
 - vitest 262/262、e2e 19/19、cp4-on-check == baseline。未打 rc7，5199 未切換。
+
+## cp8-rc7（2026-10-26）
+- P0 自動分配依流派（LEAN_ALLOC 四派，暫定 AI 權重）；自動換裝依流派鎖防具類別（arcane 布/輕，其餘輕/重），身上不合規的會被合規件取代。e2e：scripts/cp8-rc7-e2e.mjs（真 UI 建角 → 出發前整備）。
+- P1 元素脈衝也有蓄力警告；預估 ≥ 目前 HP 一半時提示「先喝藥或防禦」；死亡畫面列出蓄力/最大一擊與最後幾回合受傷。
+- P2 格擋/招架與反擊浮字加大、固定顯示時間（不隨 4x 縮短）。
+- 小 bug：按 4x / 勾跳過動畫後 A 鍵失效（checkbox 焦點吃熱鍵）已修；速度/跳過動畫改存獨立 key（hv-v3-settings），重整與 &fresh 預設都保留。
+- 待調：現行 AI 下 oc trip-1 中位 14（rc6 為 22），P1 1.929× FAIL、V FAIL、受傷 FAIL；naive 回合 ALL PASS（docs/logs/cp8rc7/rc7.txt）。
