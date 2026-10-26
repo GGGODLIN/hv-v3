@@ -71,6 +71,13 @@ for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
   const elw = R.arc.weak.some((x) => /^(fire|cold|elec|wind|holy|dark):/.test(x));
   if (elw && (!R.arc.hint || R.arc.btn !== 'spell:' + R.arc.hint)) fail.push('P0-4 arcane hint/button');
   await pg.close(); }
+// P1-9: an animation that never resolves (hidden tab / destroyed tween target) no longer blocks 繼續前進
+{ const pg = await open('postF20-oc'); await fight(pg);
+  await pg.evaluate(() => { const h = window.hv, s = h.battle; h.stage.play = () => new Promise(() => {}); h.stage.lootBeams = () => new Promise(() => {}); s.monsters.forEach((m) => { m.hp = 1; m.maxHp = 1; }); s.d = { ...s.d, acc: 1e6 }; h.render(); });
+  const t0 = Date.now(); let ok = false;
+  for (let i = 0; i < 25 && !ok; i++) { await pg.keyboard.press('KeyA'); await w(1000); ok = !!(await pg.$('[data-continue]')); }
+  R.p19 = { ok, ms: Date.now() - t0, dbg: await pg.evaluate(() => ({ scr: window.hv.screen, busy: window.hv.busy, over: window.hv.battle?.over, hp: window.hv.battle?.monsters.map((m) => m.hp), turn: window.hv.battle?.turn })) }; if (!ok) fail.push('P1-9 繼續前進 never appeared with a hung animation');
+  await pg.close(); }
 await b.close();
 console.log(JSON.stringify({ R, errs, fail }, null, 1));
 console.log(fail.length || errs.length ? 'CP8-RC10 E2E FAIL' : 'CP8-RC10 E2E PASS');

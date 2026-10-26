@@ -51,6 +51,10 @@ function gate(b: BattleState, a: Action, desc = ''): string {
 
 /** cp8-rc7: device-level speed / skip-animation preference. */
 export const SETTINGS_KEY = 'hv-v3-settings';
+/** cp8-rc10 P1-9 (UI only): Phaser tweens / delayedCalls stop while the tab is hidden or the GPU stalls, and a tween whose
+ *  target is destroyed never calls onComplete — the awaited animation then never resolves, `busy` stays true and the
+ *  loot screen's 「繼續前進」 never appears. Animation awaits are capped by a wall-clock timer; the battle state is unaffected. */
+const capped = (p: Promise<unknown>, ms: number): Promise<unknown> => Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
 export class App {
   data: SaveData;
   screen: Screen = 'town';
@@ -841,7 +845,7 @@ export class App {
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
     if (turnHits.length) { const big = turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x); this.recent = [...this.recent, { turn: b.turn, taken: turnHits.reduce((t, h) => t + h.dmg, 0), big }].slice(-3); } // cp8-rc7 P1 item 5
-    await this.stage.play(ev, b);
+    await capped(this.stage.play(ev, b), 2000 + ev.length * 300); // cp8-rc10 P1-9
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
     let q = this.queued; this.queued = null;
@@ -873,7 +877,7 @@ export class App {
     }
     this.busy = true;
     this.render();
-    await this.stage.lootBeams(loot.equips.map((e, i) => ({ q: e.quality, idx: i })));
+    await capped(this.stage.lootBeams(loot.equips.map((e, i) => ({ q: e.quality, idx: i }))), 2500); // cp8-rc10 P1-9
     await new Promise((res) => setTimeout(res, this.data.settings.skipAnim ? 30 : 500 / this.stage.speed));
     this.busy = false;
     this.pending = { loot };
