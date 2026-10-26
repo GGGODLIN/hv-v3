@@ -252,6 +252,7 @@ export function guardHint(s: BattleState): 'spirit' | null {
 }
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;
+  if (s.hp >= s.d.hp) return false; // rc13 item 4: never at full HP (Z would heal +0)
   if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s, ENV_EST_CRIT) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;

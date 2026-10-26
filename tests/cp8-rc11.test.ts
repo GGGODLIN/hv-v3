@@ -24,8 +24,8 @@ describe('cp8-rc11 4(b): 全部處理 leaves no buyable point; 下一級 is EXP 
 });
 
 describe('cp8-rc11 potion', () => {
-  it('health potion cooldown 5 (暫定、非原版); empty wins over cooldown', () => {
-    expect(HEALTH_POTION_CD).toBe(5);
+  it('health potion cooldown 3 (rc13; 暫定、非原版); empty wins over cooldown', () => {
+    expect(HEALTH_POTION_CD).toBe(3);
     const s = { potions: { health: 0 }, itemCd: { health: 3 } } as never;
     expect(whyNot(s, { kind: 'item', id: 'health' })).toBe('藥水用完了');
   });

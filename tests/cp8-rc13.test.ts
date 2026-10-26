@@ -35,3 +35,20 @@ describe('rc13 2H / 1H skills (Skills.md:61,73,75)', () => {
     expect(chargeEstimate(b, m, false, true) / chargeEstimate(b, m)).toBeCloseTo(1.2, 1);
   });
 });
+
+import { potHint, HEALTH_POTION_CD } from '../src/core/battle';
+import { abyssMult } from '../src/core/abyss';
+import { RULES } from '../src/core/run';
+describe('rc13 playtest fixes', () => {
+  it('pothint never lights at full HP, even with a charge telegraphed', () => {
+    const b = mk(1); b.hp = b.d.hp; b.monsters[0]!.charge = 1; (b.monsters[0] as { heavyNext?: boolean }).heavyNext = true;
+    for (const cp8 of [false, true]) { const o = RULES.cp8; RULES.cp8 = cp8; expect(potHint(b)).toBe(false); RULES.cp8 = o; }
+  });
+  it('health potion cooldown 3 (暫定)', () => { expect(HEALTH_POTION_CD).toBe(3); });
+  it('cp8 damage multiplier rises on every floor d16–d21', () => {
+    const o = [RULES.cp7, RULES.cp8]; RULES.cp7 = true; RULES.cp8 = true;
+    const v = [16, 17, 18, 19, 20, 21].map((d) => abyssMult(d).dmg);
+    RULES.cp7 = o[0]!; RULES.cp8 = o[1]!;
+    for (let i = 1; i < v.length; i++) expect(v[i]!).toBeGreaterThan(v[i - 1]!);
+  });
+});
