@@ -269,7 +269,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
 }
 export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP7 P1: better-than-worn drops this trip. */ upg?: number; /** CP7 P3: depths (abyss) / floors of rest nodes visited. */ rests?: number[]; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
   /** rc4 diagnostics (sim-only, read by scripts/rc4-noclear.ts): why the run stopped early. */
-  end?: { why: 'dead' | 'retreat'; floor: number; type: string; foes: { name: string; rank: string; affixes?: string[]; sig?: string }[] };
+  end?: { why: 'dead' | 'retreat'; floor: number; type: string; hpPots?: number; bturns?: number; foes: { name: string; rank: string; affixes?: string[]; sig?: string }[] };
   /** CP4 (buff strategies only) */
   cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number; offers: number; contests: number } }
 
@@ -362,7 +362,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
-      if (!loot) { end = { why: 'dead', floor: run.floor, type, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
+      if (!loot) { end = { why: 'dead', floor: run.floor, type, hpPots: b.potions.health, bturns: b.turn, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
       if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? null : gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e)); }
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
