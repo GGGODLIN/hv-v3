@@ -615,7 +615,9 @@ export class App {
     const rows = [
       worn.length ? `<li data-prep-row="worn">上一趟已自動換上 ${worn.length} 件較好的裝備：<span data-prep-worn>${worn.map((e) => `<b data-prep-worn-item="${e.id}">${SLOT_ZH[e.slot]}・${esc(equipName(e))}</b>`).join('、')}</span>（不需處理）</li>` : '',
       iss.includes('alloc') ? row('alloc', `還有 ${unspentExp(p).toLocaleString()} EXP 未分配成屬性點。`, '自動分配') : '',
-      iss.includes('potion') ? row('potion', `沒有帶生命藥水（持有 ${p.potions.health} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（補到 ${TOWN_HP_POTIONS} 瓶）`) : '',
+      iss.includes('potion') ? (RULES.cp8
+        ? row('potion', `藥水不足（生命 ${p.potions.health}／魔力 ${p.potions.mana}／靈力 ${p.potions.spirit} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（三種各補到 ${TOWN_HP_POTIONS} 瓶）`)
+        : row('potion', `沒有帶生命藥水（持有 ${p.potions.health} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（補到 ${TOWN_HP_POTIONS} 瓶）`)) : '',
       iss.includes('equip') ? row('equip', RULES.cp8 // cp8-rc2 UX: name each better piece (slot · name · power gain), not only the count
         ? `倉庫有 ${nb} 件「▲ 比身上好」的裝備：<span data-prep-items>${betterInBag(p).map((e) => `<b data-prep-item="${e.id}">${SLOT_ZH[e.slot]}・${esc(equipName(e))}（▲${this.powerDelta(e)}）</b>`).join('、')}</span>`
         : `倉庫有 ${nb} 件「▲ 比身上好」的裝備。`, '換上') : '',
@@ -634,7 +636,7 @@ export class App {
     const want = (x: PrepIssue) => todo.includes(x);
     if (want('alloc')) { const n = prepAlloc(p); if (n) msg.push(`自動分配 ${n} 點屬性`); }
     if (want('equip')) { const n = prepEquip(p); if (n) msg.push('已換上較好的裝備'); }
-    if (want('potion')) { const n = prepPotions(p); msg.push(n ? `買了 ${n} 瓶生命藥水` : '錢不夠，沒買到藥水'); }
+    if (want('potion')) { const n = prepPotions(p); msg.push(n ? `買了 ${n} 瓶${RULES.cp8 ? '藥水（生命／魔力／靈力）' : '生命藥水'}` : '錢不夠，沒買到藥水'); }
     if (msg.length) this.notice = msg;
     this.save();
     if (this.prepKind) this.prepModal(); else this.render();

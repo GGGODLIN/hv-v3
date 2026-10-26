@@ -3,7 +3,8 @@ import { newPlayer, equip, unspentExp } from '../src/core/player';
 import { RULES } from '../src/core/run';
 import { autoAllocate, autoEquip, leanStyle, starterKit, TOWN_HP_POTIONS } from '../src/core/auto';
 import { betterThanWorn, leanAllows } from '../src/core/cp7';
-import { prepAll } from '../src/core/prep';
+import { prepAll, prepIssues } from '../src/core/prep';
+import { unlock } from '../src/core/progress';
 import { generateEquip } from '../src/core/items';
 import { generateTower, CP5_TOWER } from '../src/core/tower';
 import { Rng } from '../src/core/rng';
@@ -48,8 +49,9 @@ describe('cp8-rc6', () => {
   });
   it('bug 2: 全部處理 tops up health, mana and spirit to TOWN_HP_POTIONS (暫定)', () => {
     cp8();
-    const p = newPlayer(); p.unlocks = [...(p.unlocks ?? []), 'shop'] as never; p.credits = 100000;
-    p.potions = { health: 0, mana: 0, spirit: 0 }; prepAll(p);
+    const p = newPlayer(); unlock(p, 'shop'); p.credits = 100000;
+    p.potions = { health: 2, mana: 0, spirit: 1 };
+    expect(prepIssues(p)).toContain('potion'); prepAll(p);
     expect(p.potions).toEqual({ health: TOWN_HP_POTIONS, mana: TOWN_HP_POTIONS, spirit: TOWN_HP_POTIONS });
   });
   it('item 2: floor before each boss floor offers rest under cp8; constants and other floors unchanged', () => {

@@ -20,7 +20,8 @@ export const canAllocate = (p: Player): boolean => {
   return ATTRS.some((a) => t.attrs[a] !== p.attrs[a]);
 };
 /** (b) no health potion (only once the town shop is open; before that startRun tops up to STARTER_POTIONS). */
-export const lacksPotion = (p: Player): boolean => has(p, 'shop') && p.potions.health <= 0;
+// cp8-rc6 bug 2: under cp8 an empty mana or spirit stock also counts (全部處理 tops all three up to TOWN_HP_POTIONS, 暫定).
+export const lacksPotion = (p: Player): boolean => has(p, 'shop') && (RULES.cp8 ? p.potions.health <= 0 || p.potions.mana <= 0 || p.potions.spirit <= 0 : p.potions.health <= 0);
 /** (c) inventory pieces that beat the worn slot by CP7.betterMargin (the 「▲ 比身上好」 badge rule). */
 export const betterInBag = (p: Player): Equip[] => {
   // cp8-rc3: judge on the character after 「自動分配」 (prepAll runs alloc before equip), so the list matches what 換上 will do.
