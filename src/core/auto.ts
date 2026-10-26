@@ -172,7 +172,9 @@ export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
    *  spells, Spirit Stance, defend or CP5 telegraph counters. Town prep = 「全部處理」 (prepAll); loot is worn only in town (docs/cp8-real-play.md). */
   naive: ENV?.SIM_AI === 'naive',
   /** CP8 diagnosis only (SIM_ADD=spirit,defend,equip,counter,spells,skills): give the naive AI back one piece of the old AI. */
-  add: new Set((ENV?.SIM_ADD ?? '').split(',').filter(Boolean)) };
+  // cp8-rc12 item 2: the naive player now presses a skill when its hint lights (castable; app.ts readyHint). SIM_NAIVE_AONLY=1 = the
+  // rc11 「只按 A」 comparison (no skills).
+  add: new Set([...(ENV?.SIM_ADD ?? '').split(',').filter(Boolean), ...(ENV?.SIM_NAIVE_AONLY === '1' ? [] : ['skills'])].filter((x) => !(ENV?.SIM_NAIVE_AONLY === '1' && x === 'skills'))) };
 /** CP8 naive battle choice. */
 export function chooseNaive(b: BattleState): Action {
   const live = alive(b);
