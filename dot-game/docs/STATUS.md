@@ -1,5 +1,14 @@
 # Current status
 
+## v0.14 desktop accepted; root promotion pending — 2026-10-26 07:23 UTC
+
+Actual cloud-browser gear-only presets passed bounded acceptance: explicit save locks, exact three-item preview, cancel/apply, clear retaining locks, overwrite, shared references, import/reload and read-only takeover. A normal export proved all120 owned items retained with only three intended false→true locks, while hero/gold/RNG/abilities/tactics stayed unchanged. Two real victories followed ordinary inventory cleanup. See docs/BROWSER-QA-V014.md (BROWSER-QA-V014.md in docs) for measurements, capacity and device limits.
+
+Complete source65e02542472fc4cf9eb9592f2eab1ababd777b39 is verified133files/132payloads; candidatef3530c6b2e0bcc19b279dda4ad3bbbe5c54ea329 passed exact Pages40284707129 and HTTP6. Runtime/tests are unchanged;1081tests/foursyntax are reused for this docs-only checkpoint. Publicv0.13/recoveryf707a916e79cd8fbd87ba5dae2d90dc598047e23 remain accepted until root promotion and stable-root smoke. Source backup does not restore personal browser saves, Library, credentials or schedules.
+
+### Earlier candidate timeline
+
+
 ## v0.14 development candidate — 2026-10-26 07:00 UTC
 
 Three gear-only presets are source-tested:1081 tests and four runtime syntax checks pass. Independent acceptance covers natural earned gear, exact state/RNG preservation and whole-set conservation. An audit found a pending-item getter serialization gap; supported pending metadata is now validated before preview. No combat formula, loot or economy coefficients changed. Exact complete source backup, isolated browser acceptance and publication remain pending. Public v0.13 stays accepted at recovery f707a916e79cd8fbd87ba5dae2d90dc598047e23.

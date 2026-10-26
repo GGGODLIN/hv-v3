@@ -14,6 +14,15 @@ Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do 
 
 ## Current milestone
 
+## v0.14 desktop accepted; root promotion pending — 2026-10-26 07:23 UTC
+
+Actual cloud-browser gear-only presets passed bounded acceptance: explicit save locks, exact three-item preview, cancel/apply, clear retaining locks, overwrite, shared references, import/reload and read-only takeover. A normal export proved all120 owned items retained with only three intended false→true locks, while hero/gold/RNG/abilities/tactics stayed unchanged. Two real victories followed ordinary inventory cleanup. See docs/BROWSER-QA-V014.md (BROWSER-QA-V014.md in docs) for measurements, capacity and device limits.
+
+Complete source65e02542472fc4cf9eb9592f2eab1ababd777b39 is verified133files/132payloads; candidatef3530c6b2e0bcc19b279dda4ad3bbbe5c54ea329 passed exact Pages40284707129 and HTTP6. Runtime/tests are unchanged;1081tests/foursyntax are reused for this docs-only checkpoint. Publicv0.13/recoveryf707a916e79cd8fbd87ba5dae2d90dc598047e23 remain accepted until root promotion and stable-root smoke. Source backup does not restore personal browser saves, Library, credentials or schedules.
+
+### Earlier candidate timeline
+
+
 Version0.14 is a development candidate adding three gear-only camp presets. Explicitly save and lock currently equipped items, preview an atomic swap, and retain referenced gear against accidental sale. Abilities and tactics are not part of these presets. See docs/GEAR-SETS.md. Public v0.13 and recovery `f707a916e79cd8fbd87ba5dae2d90dc598047e23` remain accepted until this candidate completes source backup and browser/release acceptance.
 
 ### Earlier accepted timeline

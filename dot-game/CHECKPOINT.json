@@ -1,13 +1,13 @@
 {
-  "checkpoint": "v0.14-candidate",
-  "status": "source-tested-browser-pending",
+  "checkpoint": "v0.14-browser-accepted",
+  "status": "bounded-desktop-accepted-root-promotion-pending",
   "base_accepted_recovery": "f707a916e79cd8fbd87ba5dae2d90dc598047e23",
   "source_tests_passed": 1081,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 29783,
-      "sha256": "20ae0c6d39de864c14313d63a3af07cc13cbe64fcd4999f86630589ec63707a0"
+      "bytes": 30905,
+      "sha256": "8a0c1960ffa7ad429c2bc4d7b0ed09720ec616fd97c8502d4ef0862656d465bf"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -92,6 +92,10 @@
     "docs/BROWSER-QA-V013.md": {
       "bytes": 7123,
       "sha256": "47ed65ae6c934ab53781adbbd0eb6c5745ae96165cd83f48a336773ba3b7db0a"
+    },
+    "docs/BROWSER-QA-V014.md": {
+      "bytes": 5608,
+      "sha256": "49de9da67eb711d44d578963109c27ff6931126bf385ef8a7988d93b75f13961"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -198,8 +202,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 53240,
-      "sha256": "9d5f7fad0e2012f2f7f3d8a7fdcba928c7a8c103940677c052ac2c2ac7e0eae0"
+      "bytes": 54362,
+      "sha256": "fae6071f572e170733640d67b0813c9a6e404e8a665b998d3cb23a951203b208"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
@@ -533,5 +537,10 @@
       "bytes": 14910,
       "sha256": "3a5bbbef012ebe2477e4db9ac3c37a3916ca4ef49cf3ecf2e6d9d297efa42b55"
     }
-  }
+  },
+  "candidate_runtime_source": "65e02542472fc4cf9eb9592f2eab1ababd777b39",
+  "candidate_site_commit": "f3530c6b2e0bcc19b279dda4ad3bbbe5c54ea329",
+  "candidate_pages_run": 40284707129,
+  "browser_qa": "docs/BROWSER-QA-V014.md",
+  "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged"
 }
