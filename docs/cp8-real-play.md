@@ -141,3 +141,21 @@ P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 25
 - 已驗證：rc3 起 naive 與目前 AI 強度相近（trip1 中位 naive 20–24 vs 目前 AI 20–27），主因是 staffQuickSpell（刀 A 組 N=32：關 14、開 22）。
 - 推測：trip2 中位全部停在 25 是 d25 首領造成的天花板效應（cleared 值集中在 22/24/25/27，trip2 有 50–64% 擊敗 d25 首領，其餘多停在 d25 之前），所以中位對進步不敏感，改看擊敗率與平均。
 - 其餘 P1/P3/P4/P5 同上節；B 組後段平依 rc2 決定以 N=256 判定（5.6% ≤ 5.8% PASS）。
+
+## rc4 (2026-10-26)
+
+- **Variance (CHECK V, 暫定)**: naive trip-1 cleared p25 ≥ 0.7 × median, A+B pooled. rc3: bulwark 15/24 = 0.63 FAIL. Diagnosis (docs/logs/cp8rc4/low_*.txt): the bottom quarter dies mostly to elites at d9–15 while still holding 2–4 health potions; weak main hand is a minor factor.
+  Fix (producer decision 2026-10-26, RULES.cp8): potion button blinks (`data-pothint`) at HP < 50%, or < 75% while a foe charges; elite nodes show 「危險，先備好藥」; the naive sim drinks on the same hint. rc4: blade 17/22 0.77, oc 17/22 0.77, arcane 17/22 0.77, bulwark 17/24 0.71 → PASS.
+- **Health potion cooldown**: stays 10 turns, 暫定 — 原版數字待查 (no findings/parsed_wiki source; F-002-4.1A 40 is items in general and itself provisional).
+- **Bulwark tank feel** (docs/logs/cp8rc4/rd_*.txt, naive A N=64, trips starting ≤ d30, worst single monster round / max HP):
+
+  | school | trip-1 p50 | trip-1 p95 | all p50 | all p95 |
+  |---|---|---|---|---|
+  | blade | 0.61 | 0.90 | 0.72 | 0.90 |
+  | oc | 0.56 | 0.78 | 0.70 | 0.90 |
+  | arcane | 0.57 | 0.90 | 0.71 | 0.90 |
+  | bulwark | 0.50 | 0.70 | 0.64 | 0.90 |
+
+  Breakdown: worst rounds are mostly one uncritted elite hit with no defend; mitigation = END/AGI attr + armor physMitigation (heavy body mean 0.43 vs cloth 0.33), block only from gear. Bulwark is a buff school, not a gear set: 4/583 bulwark trips wore a shield (staff dominates main hand), so its block is ~0.04 (W1 +3%). With a shield block is ~0.27–0.34 per the sourced tables. No sourced mitigation is missing; making bulwark take clearly less needs a design choice (e.g. steer bulwark to 1H+shield) → not changed, numbers brought back.
+- **Start-buff picks**: buff strip has a min height under cp8 (node top moved 270→274 after the first pick); nodes stay clickable, entering a node forgoes the picks still open. e2e: scripts/cp8-rc4-startpick-e2e.mjs, scripts/cp8-rc4-pothint-e2e.mjs.
+- **abyss20 checkpoint 21**: by design — the preset's record.best is 15 (built as "start d16, clear d20"), so the options are 1/6/11/16.
