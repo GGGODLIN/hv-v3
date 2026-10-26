@@ -57,7 +57,9 @@ const idle = (pg) => pg.waitForFunction(() => !window.hv.busy, { timeout: 5000 }
   await pg.evaluate(() => { const h = window.hv, s = h.battle; s.mp = s.d.mp; h.render(); });
   R.arc = await pg.evaluate(() => ({ hint: document.querySelector('[data-spellhint]')?.textContent ?? '', weak: [...document.querySelectorAll('[data-wk]')].map((x) => x.getAttribute('data-wk')) }));
   const elw = R.arc.weak.some((x) => /^(fire|cold|elec|wind|holy|dark):/.test(x));
-  if (elw && !/建議/.test(R.arc.hint)) fail.push('P2 arcane hint');
+  // rc12 item 2: the hint is MP/splash-aware and stays silent unless a spell beats the quick-cast spell by >10%, so a weakness alone no longer forces it.
+  if (R.arc.hint && !/建議|較高/.test(R.arc.hint)) fail.push('P2 arcane hint');
+  R.arc.elw = elw;
   await pg.close(); }
 // P2 blade: prompt when a skill comes off cooldown
 { const { pg } = await enter('postF20-blade');
