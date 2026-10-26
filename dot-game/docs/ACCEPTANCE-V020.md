@@ -1,6 +1,6 @@
 # v0.20 acceptance record
 
-Status: source-tested candidate; **browser and root publication pending**.
+Status: **bounded candidate browser accepted at2026-10-26 15:26UTC; root publication pending**.
 
 ## Scope
 
@@ -17,7 +17,7 @@ One stage5+ nonboss enemy archetype now alternates physical attacks and a named 
 
 ## Release gates remaining
 
-Complete source checkpoint/readback; isolated publiccandidate exactCI/HTTP; actual browser normalprogress reachingstage5+, telegraph/cast/harm, growth/loot/equip and reload; acceptance source backup; then exactrootCI/HTTP and publicsmoke. Do not replace root before candidate acceptance.
+Source090 and corrected-label092 backups/readback, exact candidate CI/HTTP and actual normal-progress browser acceptance passed; see BROWSER-QA-V020.md. This acceptance receipt must be backed up/read back before root promotion, then exactrootCI/HTTP and publicsmoke remain.
 
 ## Pre-browser feedback correction
 

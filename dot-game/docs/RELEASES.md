@@ -228,3 +228,7 @@ Three first-rank learned/slotted AP abilities (HP Tank, MP Tank,1H Damage), five
 Existing eligible learning, uninstalled learned ranks and active-line upgrades are visible from the growth tab. Focus-only shortcut never spends or configures; Protection remains a separate optional tradeoff. No rule/RNG/save change. 1,295 tests; four syntax checks; 14,400 paired baseline observations. Source `88907e42c728922a50038b219799a7baa6c74c4f`; candidate `7a424212937f61ce019662ee44389397fc562760`; Pages `40340421670` and six HTTP comparisons passed. [Browser acceptance](BROWSER-QA-V019.md). Current restore/publication evidence lives in STATUS; earlier README/status provenance in HISTORY-READMES-STATUS.
 
 Publication receipt: accepted source `deb39342a5ac84a85c9e898370a2acbf10b02432`; root `ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`; exact Pages `40342010206`, six HTTP hashes and stable-root learn/slot/victory/reload passed. See current STATUS and BROWSER-QA-V019 for full bounded evidence; no further v0.19 publication gate remains.
+
+## v0.20 — browser accepted, root pending (2026-10-26 15:26UTC)
+
+One stage5+ enemy uses telegraphed alternating physical/magical skill; original-kind gates and explicit limits retained. Runtime sourcebb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1; candidate7ed4e4df8c494baf4207afd7e4f77aa844408d8b /Pages40348541936success. 1,318tests and actualnormalprogress acceptance passed. [Evidence](BROWSER-QA-V020.md). Rootpublication still requires its own verification.

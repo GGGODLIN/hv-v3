@@ -1,10 +1,11 @@
 # Current status
 
-## v0.20 candidate — source verified, browser/publication pending
+## v0.20 browser accepted — root publication pending
 
-- One later-route mixed physical/magical-skill enemy with next-action telegraph; firstfour routes unchanged. No new MP/element/resist-equipment system.
-- Integration **1,318/1,318 tests** passed; 12,000 exact firstfour-route state/RNG/report comparisons and independent historical parity check. Natural measurement preserves rare casts and worse outcomes rather than claiming universal benefit; see MEASUREMENT-V020.md.
-- Candidate source backup, isolated browser acceptance and root publication must be recorded before treating this as accepted. Latest verified release remains v0.19 below.
+- Runtime source `bb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1`; this exact receipt checkpoint preserves the accepted source, assets, tests and recovery docs together.
+- **1,318/1,318 tests**, four syntax checks,12,000 exact firstfour-route state/RNG/report comparisons; independent audit found no blockers. Natural180pairs retain limitedmagicexposure and worse outcomes, not universal benefit.
+- Corrected candidate site `7ed4e4df8c494baf4207afd7e4f77aa844408d8b`, exact Pages40348541936success and sixHTTP200 hash/byte matches. Actual normal UI progression reachedLv12; cast/telegraph/reducedmotion/Protection/drop/equip/repeat/reload passed at15:26UTC. See BROWSER-QA-V020.md.
+- Back up this acceptance receipt before root promotion. Current publicroot remains v0.19 below until exactrootCI/HTTP and smoke pass. No other project or branch touched.
 
 ## Latest verified release — v0.19
 
