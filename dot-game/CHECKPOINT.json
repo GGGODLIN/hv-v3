@@ -1,15 +1,15 @@
 {
-  "checkpoint": "v0.18-staging-blocked-receipt",
-  "status": "source-tested-publication-blocked-not-browser-accepted",
+  "checkpoint": "v0.18-finish-camp-source-candidate",
+  "status": "source-tested-not-browser-accepted-not-published",
+  "base_source": "50d37a0eac4189bbdecd70ccd29dc06bee82c7af",
   "base_accepted_recovery": "69c837f85c01b8352be4316874dc959d2462e0cb",
-  "runtime_source": "c32a5a815e0634d62cc0c5fb00071498d25b2511",
   "accepted_site": "972f55df0b6951efdaa939c3bd7dba6331ace862",
-  "source_tests_passed": 1207,
+  "source_tests_passed": 1253,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 47827,
-      "sha256": "464cf68101df8b19dc66be11b269f32be302a0f907ece55ad49311821829728f"
+      "bytes": 49776,
+      "sha256": "d12f98a383c628d7130d522b14a6cc252ca9212adc63f1898d10d91a8ec19ca3"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -124,8 +124,8 @@
       "sha256": "c2eaf2c75d2c970d608d3572c7ee3ffae1f2f5dcb058baa39cc8a888dbf3e461"
     },
     "docs/BROWSER-QA-V018.md": {
-      "bytes": 2383,
-      "sha256": "38c2c30cb3016a6890f956dc9ddf5efcf409406278a79085c2adbdaab24dadae"
+      "bytes": 3293,
+      "sha256": "4cbfeedccf1a15e9ea93c9ccbaea72bd388dc7ec9e2dd689d6f2b69ff60f8878"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -203,6 +203,14 @@
       "bytes": 2961,
       "sha256": "d4268eebe2919327f6937334ea120063e4830b65c10670fd49f2a12e8633c0c0"
     },
+    "docs/FINISH-CAMP-AUDIT.md": {
+      "bytes": 3917,
+      "sha256": "a4e1b046b3c017dedc5914738b2d32b37731deb26ece65b505c2707d73081f61"
+    },
+    "docs/FINISH-CAMP-GUIDE.md": {
+      "bytes": 1562,
+      "sha256": "a9ad77e9cbd6ab15f68d2d33730afd27110f2accae0b7af84e0d62e4ab617a3e"
+    },
     "docs/GEAR-SETS.md": {
       "bytes": 3704,
       "sha256": "fb782182dbba33f14a78c83df48acc71477165c4ae72bcaefc36466c585e8331"
@@ -220,8 +228,8 @@
       "sha256": "2850f75da8fd2ccd2bff6edc0c41afc4c876154b43f0099e9095985ef9398f2b"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 40250,
-      "sha256": "40d3148c722510f184e3c8214f4147b8336be86b4b85613196178379d4ba76f3"
+      "bytes": 40716,
+      "sha256": "b4f6a3cc3b4e650c8ada4450ca387deb15b38c754ad66619d8e58b747bf96b47"
     },
     "docs/PARRY-GEAR-GUIDE.md": {
       "bytes": 6825,
@@ -244,8 +252,8 @@
       "sha256": "b4ae7f344fa88a086cc22a45ba1547744f18bcbf9a39f74f93ad37e27e429dda"
     },
     "docs/ROADMAP.md": {
-      "bytes": 15160,
-      "sha256": "15dba5569cf49800a70a55b099f71b67f5c4dc13e62cea3f6b0466700218c788"
+      "bytes": 15634,
+      "sha256": "52e3f242d514ecf22f4ef44923b0ef2d41d0c5fc83dd80772f584971f4189358"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
@@ -256,24 +264,24 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 71389,
-      "sha256": "553d8845b4305784a0e9b8d5a74be7c6dcabf810dfac3d8af13904dfbae56eeb"
+      "bytes": 73338,
+      "sha256": "472812f5ff6886b969d50a0ed626560ed0f2a59776f9e7857dc5cf374276df50"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
       "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 33351,
-      "sha256": "a4f98b212e516c2334e231e9ac7aa4fef03436ab6a3b51cff5e8e20a5933fe73"
+      "bytes": 33605,
+      "sha256": "10540e3dfe5eeed86697e6e2b3434418fc7b31ba6c6251165960a4575c572ffa"
     },
     "package.json": {
       "bytes": 207,
       "sha256": "327e040bcad1369271ca41bf3e10e49b6ac9202d52d680473e9134947cdcec1d"
     },
     "src/engine.js": {
-      "bytes": 76892,
-      "sha256": "c1691c6fb334c07ff462d5b9995580bb2195459cbeecd77d00a2cd7cf5aa61de"
+      "bytes": 77916,
+      "sha256": "57bc344ebd1fa553f56394719fdf0712ce6b6461df5dae30a7bfbb365a2f2e79"
     },
     "src/loot.js": {
       "bytes": 23836,
@@ -284,8 +292,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 105186,
-      "sha256": "c837e6625a0f1435625f262b32a6fb661b04e6fc5f452f43a682d45981206fe9"
+      "bytes": 106876,
+      "sha256": "364df47f9204105029dd7f720cd6321c2a90f54e76225bbb2aa9cdfeb9a2706c"
     },
     "style.css": {
       "bytes": 39213,
@@ -364,8 +372,8 @@
       "sha256": "941dbda588a86da74680b3dcb7faae4055e6f7472b9a71c2a8bbfe2db34a62a1"
     },
     "tests/commission-ui.test.mjs": {
-      "bytes": 18109,
-      "sha256": "7b5eb2a5b7377de5267ed420204a2fb80e8faee03b73686d86c1df4b5f5cb1a4"
+      "bytes": 18179,
+      "sha256": "f53eebce3d7263a9950af5a590bcdb7bd669ed18f74ef895e6a97f3e91dfc5e0"
     },
     "tests/counterattack-acceptance.test.mjs": {
       "bytes": 12479,
@@ -394,6 +402,14 @@
     "tests/expedition-report.test.mjs": {
       "bytes": 15148,
       "sha256": "dd3bafa33ec4e21773dca82129ef423035171e77f0679dc8cd32503f13b17fe4"
+    },
+    "tests/finish-camp-acceptance.test.mjs": {
+      "bytes": 10325,
+      "sha256": "ae32ff3c2740b5a84c76e2db8f68602aac2c7837caf460975eafb7565c9aee68"
+    },
+    "tests/finish-camp-ui.test.mjs": {
+      "bytes": 10448,
+      "sha256": "e4d4a781030688c98fc7ed1db07ddfe66e1ab5f9772140efa290d3cee1829b8c"
     },
     "tests/fixtures/v0.10/PROVENANCE.md": {
       "bytes": 752,

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { createGame, act, previewWeaponCommission, previewSafeSale, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES, AXE_BLEED_RULES } from '../src/engine.js';
+import { createGame, act, clearFinishThenCamp, previewWeaponCommission, previewSafeSale, PENETRATED_ARMOR_RULES, CLUB_STUN_RULES, AXE_BLEED_RULES } from '../src/engine.js';
 import { COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES, QUALITY_TIERS, createCommissionWeapon, resolveWeaponFamily, describeWeaponTrait } from '../src/loot.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
@@ -28,7 +28,7 @@ function harness(state = fixture(), options = {}) {
   const dom = Object.fromEntries([...html.matchAll(/\bid="([^"]+)"/g)].map(match => [match[1], node('div')]));
   const window = node('window'), calls = [], toasts = [];
   // This partial controller harness does not load the independent manual-selection UI.
-  const context = { closeGearSetDialog() {}, clearSelectedSale() {}, clearTimeout() {}, state, tabOwner: true, lease: true, window, node, $: id => dom[id], COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES,
+  const context = { clearFinishThenCamp, finishCampCancelled: false, closeGearSetDialog() {}, clearSelectedSale() {}, clearTimeout() {}, state, tabOwner: true, lease: true, window, node, $: id => dom[id], COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES,
     format: value => String(Math.round(value)), qualityName: quality => QUALITY_TIERS.find(tier => tier.name === quality)?.label || quality,
     itemTypeName: item => COMMISSION_WEAPON_FAMILIES.find(choice => choice.family === resolveWeaponFamily(item))?.label || '武器',
     statNames: { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' }, rateStats: new Set(['crit','evade','block']),

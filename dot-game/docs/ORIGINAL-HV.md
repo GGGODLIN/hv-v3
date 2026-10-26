@@ -239,3 +239,8 @@ Protection uses the sourced25% independent remaining-damage multiplier and base 
 
 ## v0.18 supported commission suffix subset
 Existing researched Slaughter/Balance/Nimble endpoints now become deliberate paid commission choices; no new loot/combat rules. Six supported pairs are not the full original legality table (Axe Balance and Club Nimble also legal in original but not catalogued here). See COMMISSION-AFFIXES-GUIDE.md and ACCEPTANCE-V018.md for original evidence versus quality model and commission adaptation.
+
+
+### v0.18 one-shot return-to-camp control — adaptation
+
+Finish-current-expedition-and-camp is an independently designed idle convenience, not a researched original-HV mechanic. It changes only the post-victory auto-repeat decision. All normal win loot, credits, XP and reports settle exactly once before returning; it does not alter attacks, RNG, difficulty, item formulas, or saved automatic stage advancement. Intent is transient and never a saved preference.

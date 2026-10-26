@@ -96,3 +96,8 @@ Add the first supported defensive spell decision: optional Protection, with inde
 
 ## v0.18 chosen slice
 Expose existing supported weapon suffixes as intentional paid commission choices, keeping default Slaughter and existing quality/economy. Preview real attack/crit/parry tradeoffs, invalidate stale consent, preserve stronger randomized drops. Next breadth remains open; do not claim this partial catalog or small natural-play samples establish universal balance.
+
+
+## v0.18 bounded quality-of-life follow-through
+
+Implemented alongside suffix-choice commissions: a transient finish-current-expedition-and-camp intent, avoiding timing the three-second intermission to keep all victory rewards. It adds no offline progression or original-HV rule. Source tests and exact backup precede a rebuilt isolated candidate and actual browser acceptance; stable v0.17 remains separate. No further gameplay expansion is bundled into this checkpoint.

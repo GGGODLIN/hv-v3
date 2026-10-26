@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -102,6 +102,7 @@ let preventOverwrite = loaded.error || !storeAvailable;
 let lastSavedRaw = loaded.raw;
 let prefs = { sound: false, backgroundIdle: true, reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches };
 try { const saved = JSON.parse(readStorage(PREF_KEY) || '{}'); if (typeof saved.backgroundIdle === 'boolean') prefs.backgroundIdle = saved.backgroundIdle; if (typeof saved.reducedMotion === 'boolean') prefs.reducedMotion = saved.reducedMotion; } catch { /* optional preferences only */ }
+let finishCampCancelled = false; // Session-only feedback, never serialized.
 let selectedId = null;
 let selectedSlot = null;
 let selectedSaleIds = new Set();
@@ -215,6 +216,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
+  clearFinishThenCamp(state); finishCampCancelled = false;
   closeGearSetDialog(); lastGearSetSignature = ''; $('gear-set-feedback').textContent = '';
   $('counter-notice').hidden = true; clearTimeout(counterTimer);
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
@@ -244,7 +246,8 @@ function dispatch(action, payload) {
     act(state, action, payload);
     // A successful lifecycle change cannot credit time from the previous mode.
     // Rejected/repeated starts and ordinary combat actions keep their interval.
-    if ((action === 'start' || action === 'retreat') && state.mode !== previousMode) pump.reset();
+    if ((action === 'start' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
+    if (action === 'start' || action === 'retreat') finishCampCancelled = false;
     reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
@@ -965,6 +968,7 @@ function render(force = false) {
   $('stage-select').value = state.stage; $('stage-select').disabled = state.mode === 'battle' || !tabOwner; $('auto-advance').checked = Boolean(state.autoAdvance); $('auto-advance').disabled = !tabOwner; $('import-save').disabled = !tabOwner;
   const departure = departureReadiness();
   $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat' || !departure.ready; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
+  renderFinishCamp();
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
@@ -1228,6 +1232,32 @@ function drawScene(t, dt) {
   particles=particles.filter(p=>p.life>0);for(const p of particles){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=dt*.25;ctx.globalAlpha=Math.max(0,p.life);rect(p.x*w,p.y*h,2,2,p.color);}ctx.globalAlpha=1;
   if(flash>0&&!prefs.reducedMotion){ctx.fillStyle=`rgba(244,221,160,${Math.min(.13,flash)})`;ctx.fillRect(0,0,w,h);}flash=Math.max(0,flash-dt*2);attackPulse=Math.max(0,attackPulse-dt*4);enemyPulse=Math.max(0,enemyPulse-dt*4);
 }
+
+// One-shot idle adaptation: not a saved policy or original HV mechanic.
+function renderFinishCamp() {
+  const view = finishThenCampView(state);
+  const button = $('finish-camp-button');
+  button.disabled = !tabOwner || !view.available;
+  button.setAttribute('aria-pressed', String(view.queued));
+  button.textContent = view.queued ? '取消通關後回營' : state._phase === 'intermission' && view.available ? '通關完成，立即回營' : '本次通關後回營';
+  $('finish-camp-status').textContent = view.queued
+    ? '已預約：本次通關獎勵結算後回營，不再自動開下一場。可再次點擊取消。'
+    : view.available && state._phase === 'intermission'
+      ? '本次獎勵已結算；現在回營不會重複領獎。'
+      : view.available && finishCampCancelled
+        ? '已取消回營預約；通關後依原設定自動繼續。'
+        : view.available
+          ? '可預約打完本次再回營；「回營整備」仍會立即撤退。'
+          : '單次回營預約不會保存；出戰後可設定，戰敗或重新載入即清除。';
+}
+$('finish-camp-button').addEventListener('click', () => {
+  const view = finishThenCampView(state);
+  if (!view.available) return;
+  if (dispatch('finishThenCamp', !view.queued)) {
+    finishCampCancelled = view.queued && !finishThenCampView(state).queued;
+    renderFinishCamp();
+  }
+});
 
 $('start-button').addEventListener('click',()=>{const previousMode=state.mode;if(dispatch('start')&&previousMode!=='battle'&&state.mode==='battle')playSound('win');});
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));

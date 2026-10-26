@@ -1,5 +1,17 @@
 # Current status
 
+## v0.18 combined source candidate — finish this expedition, then camp
+
+The existing suffix-choice commissions are now joined by a one-shot **通關後回營** control. During combat, queue it to collect the current expedition's full normal victory rewards and return before automatic repetition or stage advancement. Click again to cancel. During the already-settled victory intermission, the same control returns immediately without repeating rewards. Immediate **回營整備** remains available and retains its existing behavior.
+
+This is an explicit idle-play adaptation, not an original HV system. The intent is session-only, defaults off, is not saved/exported, and is cleared by defeat, immediate retreat, reload/import or ownership change. Combat, progression, loot formulas, commission choices, and the saved auto-advance preference are unchanged. See `docs/FINISH-CAMP-GUIDE.md` and `docs/FINISH-CAMP-AUDIT.md` for operation and source-test evidence.
+
+**Validation:** 1,253 tests and four runtime syntax checks passed. Independent default-off comparison covered 24 paired runs / 14,400 full state, RNG and report observations; eight UI mock checks passed. These are source/mock checks, not actual browser QA.
+
+This checkpoint is **source-tested candidate only; not browser-accepted or published**. Stable v0.17 remains the last accepted version, with full restore `69c837f85c01b8352be4316874dc959d2462e0cb`. The earlier v0.18 isolated website commit `021f68cc4b7aabaf59ff3ce38039cd29a0e22bc8` is now stale: staging must be rebuilt from the latest verified combined source, not that earlier runtime. Fresh standing isolated-candidate authorization was received on 2026-10-26 at 13:44 UTC; this source-only checkpoint performs no website writes and makes no CI, public-page or browser acceptance claim. Source backup does not restore personal saves, credentials, Library files or schedules.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.18 source-tested; isolated browser staging blocked — 2026-10-26 13:35 UTC
 
 New supported weapon-commission suffix choices are implemented and all **1,207 tests / four syntax checks pass**. Full runtime source `c32a5a815e0634d62cc0c5fb00071498d25b2511` was verified before attempted staging: 159 files, 23 exact-commit changed-file readbacks, 136 unchanged verified identities and 409 outside-path blobs preserved. This receipt only changes documentation/manifest; reuse unchanged runtime evidence.

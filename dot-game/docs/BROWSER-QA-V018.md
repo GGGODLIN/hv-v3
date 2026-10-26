@@ -1,5 +1,13 @@
 # v0.18 browser and publication status
 
+## Combined-source update; prior staging commit is stale
+
+2026-10-26: the source candidate now also includes one-shot finish-current-expedition-and-camp. The user explicitly approved standing isolated candidates after the prior denial at 13:44 UTC. This source-only implementation performs no website mutation. Rebuild staging from its latest exact verified source; do not deploy the earlier unreferenced commit `021f68cc4b7aabaf59ff3ce38039cd29a0e22bc8`, which lacks the new UI/runtime.
+
+In addition to commission acceptance below, actual browser QA must queue/cancel during battle, finish and collect a victory once, confirm stage does not auto-advance when stopping, use the control in intermission, verify keyboard and read-only behavior, and confirm reload clears intent. Node/mock evidence is not browser evidence. Stable v0.17 remains accepted until both features pass.
+
+### Historical staging receipt
+
 2026-10-26 13:35 UTC. **Pending: not browser-accepted, not published.**
 
 ## Verified source

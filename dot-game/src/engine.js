@@ -42,6 +42,18 @@ const counterBudgets = new WeakMap();
 // full-action automatic recast is an adaptation, not original Auto-cast Slots.
 export const PROTECTION_RULES = Object.freeze({unlockLevel:10,durationTicks:15,reduction:.25});
 const protectionSessions = new WeakMap();
+// One-shot idle UX adaptation, never an original-HV rule or saved preference.
+const finishThenCampSessions = new WeakSet();
+export function finishThenCampView(s) {
+  const available=s?.mode==='battle'&&['fight','intermission'].includes(s?._phase);
+  return {available,queued:available&&finishThenCampSessions.has(s)};
+}
+export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); }
+function finishThenCamp(s) {
+  clearFinishThenCamp(s);s.mode='town';s._phase='idle';s._rest=0;
+  s._clock=0;s._enemyClock=0;s.enemies=[];
+}
+
 export function protectionView(s) {
   const session=s&&protectionSessions.get(s);
   const level=Math.max(0,finite(s?.hero?.level));
@@ -446,7 +458,7 @@ function enemiesFor(s) {
 }
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
-  protectionSessions.delete(s);
+  clearFinishThenCamp(s);protectionSessions.delete(s);
   s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
   resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
   beginExpeditionReport(s);
@@ -681,6 +693,7 @@ function win(s) {
   event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
   settleExpeditionReport(s,'win');
   protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
+  if(finishThenCampSessions.has(s)){finishThenCamp(s);return;}
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 // Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
@@ -739,7 +752,7 @@ function enemyAttack(s, e) {
   observeExpeditionLoss(s,previousHp-s.hero.hp,p.maxHp);
   if(s.hero.hp<=0){
     settleExpeditionReport(s,'defeat');
-    protectionSessions.delete(s);counterBudgets.delete(s);s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
+    clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.delete(s);s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
     event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');
     return false;
   }
@@ -877,6 +890,15 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(action==='finishThenCamp'){
+    if(typeof payload!=='boolean'||!finishThenCampView(s).available)return s;
+    if(!payload){clearFinishThenCamp(s);return s;}
+    // Intermission already settled the win. Only leave; never settle it again.
+    if(s._phase==='intermission')finishThenCamp(s);
+    else finishThenCampSessions.add(s);
+    return s;
+  }
+
   if(action==='autoProtection'){if(s.mode==='town'&&typeof payload==='boolean'){if(payload)s.autoProtection=true;else delete s.autoProtection;}return s;}
 
   if(['saveGearSet','clearGearSet','applyGearSet'].includes(action)){
@@ -1026,7 +1048,7 @@ export function act(s, action, payload) {
   }
   if(action==='setAutoAdvance'&&typeof payload==='boolean'){s.autoAdvance=payload;return s;}
   if(action==='retreat'&&s.mode==='battle'&&s._phase==='fight')settleExpeditionReport(s,'retreat');
-  if(action==='retreat') {protectionSessions.delete(s);counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
+  if(action==='retreat') {clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
   if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
