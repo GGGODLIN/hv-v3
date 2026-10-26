@@ -61,13 +61,19 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   console.log(`  ${parts.join(' | ')}`);
   console.log(`  CHECK V trip-1 p25 ≥ 0.7 × median every school (A+B pooled) ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 // rc6 受傷 CHECK (暫定, producer 2026-10-26, no number changes): worst monster round / max HP per trip (st ≤ 30), naive, A+B pooled.
-// bulwark all-trips p50 (actual damage) ≤ (lowest other school) − 0.10 and trip-1 p95 of the PRE-turnCap raw round (rd1raw, cp8-rc5 producer call, 暫定) ≤ (lowest other school) − 0.08.
+// cp8-rc6 Part B: bulwark all-trips p50 lowest of four and ≤ mean(four) − 0.10 (was: ≤ lowest other − 0.10) and trip-1 p95 of the PRE-turnCap raw round (rd1raw, cp8-rc5 producer call, 暫定) ≤ (lowest other school) − 0.08.
 { const rr = rows as (R & { rd1?: number[]; rdAll?: number[]; rd1raw?: number[] })[]; const g = (sc: string, k: 'rd1' | 'rdAll' | 'rd1raw') => rr.filter((r) => r.sc === sc).flatMap((r) => r[k] ?? []);
   const qf = (a: number[], k: number) => { const s2 = [...a].sort((x, y) => x - y); return s2.length ? s2[Math.min(s2.length - 1, Math.floor(k * s2.length))]! : NaN; };
   const oth = SCH.filter((sc) => sc !== 'bulwark'), f2 = (x: number) => x.toFixed(2);
-  const a50 = qf(g('bulwark', 'rdAll'), 0.5), o50 = Math.min(...oth.map((sc) => qf(g(sc, 'rdAll'), 0.5)));
+  const a50 = qf(g('bulwark', 'rdAll'), 0.5), p50s = SCH.map((sc) => qf(g(sc, 'rdAll'), 0.5)), m50 = p50s.reduce((a, v) => a + v, 0) / p50s.length;
+  const lowest = oth.every((sc) => a50 < qf(g(sc, 'rdAll'), 0.5));
   const t95 = qf(g('bulwark', 'rd1raw'), 0.95), o95 = Math.min(...oth.map((sc) => qf(g(sc, 'rd1raw'), 0.95)));
   console.log(`  ${SCH.map((sc) => `${sc} trip1 p50 ${f2(qf(g(sc, 'rd1'), 0.5))} p95 ${f2(qf(g(sc, 'rd1'), 0.95))} raw p95 ${f2(qf(g(sc, 'rd1raw'), 0.95))} all p50 ${f2(qf(g(sc, 'rdAll'), 0.5))} p95 ${f2(qf(g(sc, 'rdAll'), 0.95))}`).join(' | ')}`);
-  const ok = a50 <= o50 - 0.1 + 1e-9 && t95 <= o95 - 0.08 + 1e-9;
-  console.log(`  CHECK 受傷 bulwark all p50 ${f2(a50)} ≤ ${f2(o50)} − 0.10 (actual, 暫定) and trip-1 raw(pre-cap) p95 ${f2(t95)} ≤ ${f2(o95)} − 0.08 (A+B pooled, 暫定) ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
+  // cp8-rc6 Part B3 (暫定): same floor ranges — trips bucketed by start depth (rdSt) and by cleared depth (rdCl).
+  const rs = rr as (R & { rdAll?: number[]; rdSt?: number[]; rdCl?: number[] })[];
+  for (const [key, bk] of [['rdSt', [[1, 10], [11, 20], [21, 30]]], ['rdCl', [[0, 10], [11, 20], [21, 30], [31, 999]]]] as const) for (const [lo, hi] of bk) {
+    const cell = (sc: string) => rs.filter((r) => r.sc === sc).flatMap((r) => (r.rdAll ?? []).filter((_, i) => { const v = (r[key] ?? [])[i]; return v !== undefined && v >= lo && v <= hi; }));
+    console.log(`  受傷 ${key === 'rdSt' ? 'start' : 'cleared'} d${lo}-${hi > 100 ? '+' : hi}: ${SCH.map((sc) => { const c = cell(sc); return `${sc} n${c.length} p50 ${c.length ? f2(qf(c, 0.5)) : '-'}`; }).join(' | ')}`); }
+  const ok = lowest && a50 <= m50 - 0.1 + 1e-9 && t95 <= o95 - 0.08 + 1e-9;
+  console.log(`  CHECK 受傷 bulwark all p50 ${f2(a50)} lowest ${lowest ? '✓' : '✗'} and ≤ mean ${f2(m50)} − 0.10 (cp8-rc6 Part B, 暫定) and trip-1 raw(pre-cap) p95 ${f2(t95)} ≤ ${f2(o95)} − 0.08 (A+B pooled, 暫定) ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 console.log(all ? '\nCP8 ALL PASS' : '\nCP8 SOME FAIL');
