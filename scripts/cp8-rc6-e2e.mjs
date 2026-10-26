@@ -21,8 +21,8 @@ const toBattle = async (pg) => { await pg.click('[data-start]'); await w(300); a
 
 // bug 1 + item 5 (bulwark side)
 let pg = await page('postF20-bulwark');
-R.bulwark = await pg.evaluate(() => { const q = window.hv.p; return { lean: q.lean, main: q.equipped.mainHand?.group, off: q.equipped.offHand?.group }; });
-if (R.bulwark.lean !== 'bulwark' || R.bulwark.main !== 'oneHand' || R.bulwark.off !== 'shield') fail.push('bug1 bulwark preset');
+R.bulwark = await pg.evaluate(() => { const q = window.hv.p; return { lean: q.lean, main: q.equipped.mainHand?.group, off: q.equipped.offHand?.group, mainBase: q.equipped.mainHand?.base, offBase: q.equipped.offHand?.base }; });
+if (R.bulwark.lean !== 'bulwark' || R.bulwark.main !== 'oneHand' || R.bulwark.off !== 'shield' || R.bulwark.mainBase !== 'axe' || R.bulwark.offBase !== 'tower') fail.push('bug1 bulwark preset');
 await pg.close();
 // bug 3
 pg = await page('postF20-arcane');
