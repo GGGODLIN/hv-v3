@@ -227,12 +227,60 @@ export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !
 export function nextRoundEstimate(s: BattleState): number {
   return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1) : 0), 0);
 }
+/** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
+export function hpDanger(s: BattleState): boolean {
+  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s) < s.d.hp * CP8.potAfter;
+  const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
+  return s.hp < s.d.hp * th;
+}
+/** cp8-rc12 item 5（自訂，非原版）: HP in danger but the health potion cannot be drunk (cooldown / empty) → suggest D (and S when usable). */
+/** cp8-rc12 item 5（自訂，非原版）: HP in danger but the health potion cannot be drunk (cooldown / empty) → hint S (Spirit Stance) when usable.
+ *  D is NOT hinted here: rc12 sim (preset arcane, 64 paired seeds, naive hinted) — pressing D on every such turn cut the trip median
+ *  24 → 12, and D only on a wind-up still 24 → 19 (D skips the attack and takes only 25% off). */
+export function guardHint(s: BattleState): 'spirit' | null {
+  if (s.over || canUse(s, { kind: 'item', id: 'health' }) || !hpDanger(s)) return null;
+  return !s.spirit && canUse(s, { kind: 'spirit' }) ? 'spirit' : null;
+}
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;
   if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
+/** cp8-rc12 item 2: the arcane element suggestion (UI 💡 + highlighted spell button; the hinted sim follows it).
+ *  rc8–rc11 ('old'): the castable spell matching the target's biggest weakness — ignores MP cost (聖擊／腐化 cost 14 vs 6, hit
+ *  1 target vs 3), the other targets the spell splashes, and the spell's EDB. 'new'（自訂，非原版）: expected damage of every
+ *  castable spell over the targets it would hit (EDB × mod × weakness/resist, the same terms spellHit uses), per MP when MP is
+ *  short (< `SPELL_HINT_MP_CASTS` casts of the cheapest spell left after it); a spell is only suggested when it beats the A·攻擊
+ *  quick spell by > `SPELL_HINT_EDGE`. */
+export const SPELL_HINT_MP_CASTS = 3; // 暫定（自訂，非原版）
+export const SPELL_HINT_EDGE = 0.1; // 暫定（自訂，非原版）
+export function spellValue(s: BattleState, id: SpellId, target: number): number {
+  const def = SPELLS[id], t0 = s.monsters[target]?.hp ? target : s.monsters.findIndex((m) => m.hp > 0);
+  if (t0 < 0) return 0;
+  const order = [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)].slice(0, def.targets);
+  const base = (1 + s.d.edb[def.element] / 100) * def.mod;
+  return order.reduce((a, i) => { const m = s.monsters[i]!; const sp = m.spec[def.element] / 100;
+    return a + Math.min(m.hp, s.d.mdb * base * (s.mods?.weakMult && sp < 0 ? 1 + s.mods.weakMult : 1) * (1 - m.magMit) * (1 - sp)); }, 0);
+}
+export function suggestSpell(s: BattleState, target: number, mode: 'old' | 'new' = 'new'): { id: SpellId; type: string; pct: number } | null {
+  const m = s.monsters[target]; if (!m || m.hp <= 0) return null;
+  const ids = (Object.keys(SPELLS) as SpellId[]).filter((id) => canUse(s, { kind: 'spell', id, target }));
+  if (mode === 'old') {
+    for (const w of weaknesses(m).filter((x) => x.type in ELEM_OF).sort((x, y) => y.pct - x.pct)) {
+      const id = ids.find((sp) => SPELLS[sp].element === w.type); if (id) return { id, type: w.type, pct: w.pct };
+    }
+    return null;
+  }
+  if (!ids.length) return null;
+  const cheap = Math.min(...ids.map((id) => spellCost(s, id)));
+  const score = (id: SpellId) => { const c = spellCost(s, id), v = spellValue(s, id, target); return s.mp - c < cheap * SPELL_HINT_MP_CASTS ? v / c : v; };
+  const best = ids.reduce((a, id) => (score(id) > score(a) ? id : a));
+  const q = quickAttack(s, target); const qid = q.kind === 'spell' ? q.id : null;
+  if (qid && (best === qid || score(best) <= score(qid) * (1 + SPELL_HINT_EDGE))) return null;
+  const el = SPELLS[best].element; return { id: best, type: el, pct: Math.max(0, -m.spec[el]) };
+}
+const ELEM_OF: Record<string, true> = { fire: true, cold: true, elec: true, wind: true, holy: true, dark: true };
 export function canUse(s: BattleState, a: Action): boolean {
   if (s.over) return false;
   switch (a.kind) {

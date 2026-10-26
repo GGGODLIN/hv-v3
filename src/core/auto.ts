@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, act, alive, armCp5, canUse, potHint, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, act, alive, armCp5, canUse, potHint, guardHint, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -187,7 +187,10 @@ export function chooseNaive(b: BattleState): Action {
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
-  return quickAttack(b, target);
+  const qa = quickAttack(b, target);
+  // cp8-rc12 item 2: hinted mode follows the arcane 💡 element suggestion (app.ts arcaneSpell). SIM_SPELLHINT=old = rc11 rule, off = only A.
+  if (A.has('skills') && qa.kind === 'spell' && ENV?.SIM_SPELLHINT !== 'off') { const g = suggestSpell(b, target, ENV?.SIM_SPELLHINT === 'old' ? 'old' : 'new'); if (g) return { kind: 'spell', id: g.id, target }; }
+  return qa;
 }
 const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
 export const PHYS_SCHOOLS = ['blade', 'bulwark'];
@@ -379,6 +382,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
 /** One sim decision for a strategy (the same call fight() makes each turn). */
 export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
   if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP
+  if (SIM_AI.naive && RULES.cp8 && SIM_AI.add.has('skills') && ENV?.SIM_GUARDHINT !== '0') { const g = guardHint(b); if (g) return { kind: g }; } // cp8-rc12 item 5: hinted mode follows the D hint (HP danger, potion unusable)
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
   if (SIM_AI.naive) { PHYS = physPlay(strategy); return mode ? chooseCp5(b, mode, () => chooseNaive(b)) : chooseNaive(b); }
   PHYS = physPlay(strategy); ARC = strategy.startsWith('buff:arcane');

@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, guardHint, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -305,7 +305,7 @@ export class App {
       return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : RULES.cp8 && (lean === 'blade' || lean === 'oc') && canUse(b, { kind: 'skill', id, target: this.target }) ? 'class="castable" data-castable ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${SKILL_ICON[id] ?? id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}${spellSug?.id === id ? ' suggest" data-sugbtn="1' : ''}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.potions[id] <= 0 ? 'data-potempty' : b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.potions[id] <= 0 ? '用完' : b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.potions[id] <= 0 ? 'data-potempty' : b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.potions[id] <= 0 ? '用完' : b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]}｜剩 ${b.potions[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0)); // cp8-rc7 P1 item 3: 元素脈衝 too
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
@@ -328,7 +328,7 @@ export class App {
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}${readyHint}${elemHint}
         ${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
-        <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊${((q) => (q.kind === 'spell' ? `<small data-quick="${q.id}">${SPELLS[q.id].zh}</small>` : ''))(quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none'))}</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
+        <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊${((q) => (q.kind === 'spell' ? `<small data-quick="${q.id}">${SPELLS[q.id].zh}</small>` : ''))(quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none'))}</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${RULES.cp8 && guardHint(b) === 'spirit' ? 'class="suggest" data-guardhint ' : ''}${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
@@ -471,18 +471,10 @@ export class App {
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
   /** cp8-rc10 P0-4 */
-  arcaneSpell(b: BattleState): { id: SpellId; type: string; pct: number } | null {
-    const m = b.monsters[this.target]; if (!m || m.hp <= 0) return null;
-    const ids = Object.keys(SPELLS) as SpellId[];
-    for (const w of weaknesses(m).filter((x) => ELEM_ZH[x.type]).sort((x, y) => y.pct - x.pct)) {
-      const id = ids.find((s) => SPELLS[s].element === w.type && canUse(b, { kind: 'spell', id: s, target: this.target }));
-      if (id) return { id, type: w.type, pct: w.pct };
-    }
-    return null;
-  }
+  arcaneSpell(b: BattleState): { id: SpellId; type: string; pct: number } | null { return suggestSpell(b, this.target); } // cp8-rc12 item 2: MP- and splash-aware (core)
   arcaneHint(b: BattleState, g: { id: SpellId; type: string; pct: number }): string {
     const m = b.monsters[this.target]!, ids = Object.keys(SPELLS) as SpellId[];
-    return `<div class="hint suggest" data-spellhint="${g.id}">💡 ${esc(m.name)} 弱${ELEM_ZH[g.type]} ${g.pct}%：建議 <b>${ids.indexOf(g.id) + 1}·${SPELLS[g.id].zh}</b>（已標亮）</div>`;
+    return `<div class="hint suggest" data-spellhint="${g.id}">💡 ${esc(m.name)} ${g.pct > 0 ? `弱${ELEM_ZH[g.type]} ${g.pct}%` : `用${ELEM_ZH[g.type]}傷害較高`}：建議 <b>${ids.indexOf(g.id) + 1}·${SPELLS[g.id].zh}</b>（已標亮）</div>`;
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt; numbers are the battle's own): what D·防禦 / Q·盾擊 actually buy against this wind-up. */
   chargePayoff(b: BattleState, chargers: Monster[], est: number, estD: number): string {
@@ -592,8 +584,9 @@ export class App {
     if (tg && /^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName) && !(tg instanceof HTMLInputElement && tg.type === 'checkbox')) return; // cp8-rc7: a focused checkbox (跳過動畫) no longer eats hotkeys
     // CP3-fix 6: use the physical key (e.code) so a Chinese IME (e.key = 'Process') or Caps Lock does not break hotkeys.
     const k = /^Key[A-Z]$/.test(e.code) ? e.code.slice(3).toLowerCase() : /^(Digit|Numpad)[0-9]$/.test(e.code) ? e.code.slice(-1) : e.key.toLowerCase();
-    const map: Record<string, string> = { a: 'attack', d: 'defend', f: 'focus', s: 'spirit', q: 'skill:shieldBash', w: 'skill:vitalStrike', e: 'skill:mercifulBlow', z: 'item:health', x: 'item:mana', c: 'item:spirit' };
+    const map: Record<string, string> = { a: 'attack', d: 'defend', f: 'focus', s: 'spirit', z: 'item:health', x: 'item:mana', c: 'item:spirit' };
     (Object.keys(SPELLS) as SpellId[]).forEach((id, i) => (map[String(i + 1)] = `spell:${id}`));
+    if (this.battle) skillKit(this.battle).forEach((id, i) => (map['qwe'[i]!] = `skill:${id}`)); // cp8-rc12: Q/W/E follow the style kit (was hard-wired to the 1H set)
     if (k === 'tab') {
       e.preventDefault();
       const live = this.battle.monsters.map((m, i) => (m.hp > 0 ? i : -1)).filter((i) => i >= 0);
