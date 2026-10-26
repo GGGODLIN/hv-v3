@@ -139,3 +139,6 @@ Source-only persistence correction: protected followers re-read/validate durable
 - Exact readback: 83 files, 1146291 bytes, 82 manifest payloads; every content, byte count, SHA256 and Git blob SHA matches the frozen candidate. All 432 outside-dot-game entries are unchanged, with no removals and an expected-head non-force update.
 - The remote-only reconstructed package passes 551/551 tests, zero skips/failures, and four runtime syntax checks.
 - This receipt changes documentation/manifest only; candidate runtime/tests are unchanged. No website, CI, public HTTP or browser action occurred. Accepted v0.7 recovery remains `e1b576ee2041bd2772f79587e859a80b5ab1f108`; source recoverability does not establish browser acceptance or authorize the blocked HTTP retry.
+
+## v0.9 development candidate — 2026-10-26 02:12 UTC
+Session-only recent expedition reports with an optional pinned comparison; no combat/RNG/reward changes. Parent aggregate599/599 and runtime syntax4 pass. Independent natural paired326expeditions/36591steps preserve exact gameplay states; separate adversarial outcomes tested. See ACCEPTANCE-V09.md and EXPEDITION-REPORTS.md. Browser acceptance and publication are not yet claimed; accepted recovery remains c1530bc76aa06716443b9ccca8de6f616e9f5f47.

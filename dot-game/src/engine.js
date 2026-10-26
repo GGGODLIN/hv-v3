@@ -55,6 +55,60 @@ function recover(s) { const p=stats(s); s.hero.hp=p.maxHp;s.hero.mp=p.maxMp; }
 
 const validTick = tick => Number.isSafeInteger(tick)&&tick>=0&&tick<=Number.MAX_SAFE_INTEGER-PENETRATED_ARMOR_RULES.durationTicks;
 const generalMitigation = defender => clamp(finite(defender.mitigation,Math.max(0,finite(defender.defense))/100),0,.95);
+
+// Session expedition feedback (v0.9): observation only, never serialized into
+// game/save state. validateSave rebuilds a new state, so imported history (even
+// supplied under invented report fields) is never restored or trusted.
+const expeditionFeedback = new WeakMap();
+const reportNumber = value => clamp(finite(value),0,Number.MAX_SAFE_INTEGER);
+function copyExpeditionReport(report) {
+  return {...report,weapon:{...report.weapon},startStats:{...report.startStats},
+    actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
+}
+/** Detached newest-first completed expeditions, at most two for this state in
+ * this session. Reads never settle a fight, consume RNG, or change game state.
+ * Counts describe observations, not causal PA damage/stun savings or gear scores.
+ */
+export function expeditionReports(s) {
+  return (expeditionFeedback.get(s)?.reports||[]).map(copyExpeditionReport);
+}
+function beginExpeditionReport(s) {
+  const p=stats(s),feedback=expeditionFeedback.get(s)||{active:null,reports:[]};
+  feedback.active={stage:integer(s.stage,1,MAX_STAGE),level:integer(s.hero.level,1,500),
+    weapon:{family:resolveWeaponFamily(s.equipment.weapon),name:text(s.equipment.weapon?.name,'未知武器')},
+    strategy:validStrategy(s.strategy)?s.strategy:'balanced',
+    startStats:{attack:reportNumber(p.attack),maxHp:reportNumber(p.maxHp),mitigation:chance(p.mitigation)},
+    damage:{basic:0,skill:0,bleed:0},survival:{hpLost:0,minHpPercent:100},
+    procs:{penetratedArmor:0,stun:0,bleeding:0}};
+  expeditionFeedback.set(s,feedback);
+}
+function observeExpeditionHit(s, source, hpRemoved, proc) {
+  const active=expeditionFeedback.get(s)?.active;if(!active)return;
+  active.damage[source]=reportNumber(active.damage[source]+reportNumber(hpRemoved));
+  if(Object.hasOwn(active.procs,proc))active.procs[proc]=reportNumber(active.procs[proc]+1);
+}
+function observeExpeditionLoss(s, hpLost, maxHp) {
+  const active=expeditionFeedback.get(s)?.active;if(!active)return;
+  active.survival.hpLost=reportNumber(active.survival.hpLost+reportNumber(hpLost));
+  observeExpeditionHealth(s,maxHp);
+}
+function observeExpeditionHealth(s, maxHp) {
+  const active=expeditionFeedback.get(s)?.active;if(!active)return;
+  if(maxHp===undefined)maxHp=stats(s).maxHp;
+  if(Number.isFinite(maxHp)&&maxHp>0)active.survival.minHpPercent=Math.min(active.survival.minHpPercent,clamp(finite(s.hero.hp)/maxHp*100,0,100));
+}
+function settleExpeditionReport(s, outcome) {
+  const feedback=expeditionFeedback.get(s),active=feedback?.active;if(!active)return;
+  observeExpeditionHealth(s);
+  // Consume before publishing. Repeated retreat/defeat/win observations cannot
+  // replace a completed win or record the same expedition a second time.
+  feedback.active=null;
+  const report={...active,outcome,endLevel:integer(s.hero.level,1,500),elapsed:reportNumber(s.battle.elapsed),
+    actions:Object.fromEntries(Object.keys(freshActions()).map(key=>[key,reportNumber(s.battle.actions?.[key])]))};
+  for(const value of Object.values(report))if(value&&typeof value==='object')Object.freeze(value);
+  feedback.reports.unshift(Object.freeze(report));feedback.reports.length=Math.min(2,feedback.reports.length);
+}
+// End session expedition feedback.
 /** Read-only UI/combat view. Invalid, expired, or unbounded status is inactive. */
 export function penetratedArmorStatus(enemy, tick) {
   const status=enemy?.penetratedArmor;
@@ -222,6 +276,7 @@ function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
   s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
   recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
+  beginExpeditionReport(s);
 }
 function protectedLootKeepers(s) {
   // Reject unsupported item descriptors before reading lock/name/ID fields.
@@ -315,6 +370,7 @@ function win(s) {
   const previous=s.battle.bestTimes[s.stage];if(!previous||s.battle.elapsed<previous)s.battle.bestTimes[s.stage]=round(s.battle.elapsed);
   const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
   event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
+  settleExpeditionReport(s,'win');
   recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
@@ -328,6 +384,7 @@ function finishWave(s, maxHp) {
   if(s.mode!=='battle'||s._phase!=='fight'||!s.enemies.length||s.enemies.some(enemy=>enemy.hp>0))return false;
   if(s.wave===s.totalWaves)win(s);
   else{s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(maxHp,s.hero.hp+maxHp*.10);s._enemyClock=0;}
+  observeExpeditionHealth(s);
   return true;
 }
 function playerTurn(s) {
@@ -348,6 +405,7 @@ function playerTurn(s) {
   const attack=resolveWeaponAttack({attack:p.attack*(skill?2.3:1),crit:p.crit,skill},target,s.equipment.weapon,s.timing.ticks,()=>random(s));
   const previousHp=target.hp;
   target.hp=Math.max(0,target.hp-attack.damage);
+  observeExpeditionHit(s,skill?'skill':'basic',previousHp-target.hp,attack.proc?.type);
   event(s,attack.damage?attack.crit?'crit':'hit':attack.outcome==='block'?'block':'miss',`${skill?'破勢斬 · ':''}${attack.damage?attack.crit?'暴擊':'斬擊':'未造成傷害'}`,attack.damage,target.id);
   if(attack.proc?.type==='penetratedArmor')event(s,'proc',`穿透護甲 ${attack.proc.stacks}/3 層 · ${attack.proc.durationTicks} Tick`,attack.proc.stacks,target.id);
   if(attack.proc?.type==='stun')event(s,'proc',`暈眩 · ${attack.proc.durationTicks} Tick`,attack.proc.durationTicks,target.id,'stun');
@@ -358,8 +416,11 @@ function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
   const p=stats(s);
   const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2},{...p,parry:.035},()=>random(s));
+  const previousHp=s.hero.hp;
   s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');
+  observeExpeditionLoss(s,previousHp-s.hero.hp,p.maxHp);
   if(s.hero.hp<=0){
+    settleExpeditionReport(s,'defeat');
     s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
     event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');
   }
@@ -392,6 +453,7 @@ function tickEnemyStatuses(s, previousTick) {
       if(bleeding&&bleeding.damagePerTick>0){
         const previousHp=enemy.hp,damage=Math.min(previousHp,bleeding.damagePerTick);
         enemy.hp=Math.max(0,previousHp-damage);
+        observeExpeditionHit(s,'bleed',previousHp-enemy.hp);
         event(s,'bleed',`${enemy.name||'敵人'} · 流血 ${damage}`,damage,enemy.id,'bleed');
         if(settleEnemyDeath(s,enemy,previousHp)){
           killed=true;log(s,`${enemy.name||'敵人'} 因流血倒下 · ${damage} 傷害；擊殺獎勵已結算。`);
@@ -528,6 +590,7 @@ export function act(s, action, payload) {
     return s;
   }
   if(action==='setAutoAdvance'&&typeof payload==='boolean'){s.autoAdvance=payload;return s;}
+  if(action==='retreat'&&s.mode==='battle'&&s._phase==='fight')settleExpeditionReport(s,'retreat');
   if(action==='retreat') {s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
   if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;

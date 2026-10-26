@@ -122,3 +122,31 @@
 .bleed-damage-notice[hidden] { display: none; }
 .floating-number.bleed { color: #ffc1c5; font-size: 16px; letter-spacing: 0; }
 @media(max-width:680px) { .enemy-status-list { grid-template-columns: minmax(0, 1fr); } .bleed-damage-notice, .enemy-effect { font-size: 11px; } }
+
+/* Completed-run observations remain visible during the next expedition. */
+.expedition-reports { min-width: 0; padding: 16px; margin-top: 17px; }
+.report-heading { flex-wrap: wrap; }
+.report-heading button { min-height: 36px; padding: 6px 10px; font-size: 11px; }
+.report-note, .report-caution, .report-rules { margin-top: 8px; font-size: 11px; line-height: 1.8; color: var(--muted); overflow-wrap: anywhere; }
+.report-empty { padding: 16px 0 6px; font-size: 12px; color: #b5c9bd; }
+.report-empty[hidden], .pinned-report[hidden] { display: none; }
+.expedition-report-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 9px; margin-top: 12px; }
+.expedition-report-card { min-width: 0; border: 1px solid #38514e; border-radius: 8px; padding: 11px 12px; background: #102027; overflow-wrap: anywhere; }
+.report-card-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.report-card-heading h4 { margin: 0; color: #b5c9bd; font-size: 12px; font-weight: 600; }
+.report-outcome { font-size: 11px; color: var(--gold); white-space: nowrap; }
+.report-start { margin-top: 6px; font-size: 12px; font-weight: 600; }
+.report-weapon { margin-top: 4px; font-size: 12px; color: #d4e3d8; }
+.report-start-stats { margin-top: 4px; color: var(--muted); font-size: 10px; }
+.report-metrics { display: grid; gap: 7px; margin: 10px 0 0; padding-top: 9px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.report-metric { min-width: 0; }
+.report-metric dt { font-size: 10px; color: var(--muted); }
+.report-metric dd { margin: 1px 0 0; font-size: 11px; color: #d4e3d8; }
+.pinned-report { margin-top: 12px; }
+.pinned-report .expedition-report-card { border-color: #807044; }
+.pinned-report .report-card-heading h4 { color: var(--gold); }
+.report-caution { border-left: 2px solid #807044; padding-left: 9px; }
+.report-rules summary { color: #bfd1c5; cursor: pointer; padding: 3px 0; }
+.report-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.report-rules p { margin-top: 7px; }
+@media(max-width:680px) { .expedition-report-list { grid-template-columns: minmax(0, 1fr); } .report-metric dt, .report-start-stats { font-size: 11px; } .report-metric dd { font-size: 12px; } }

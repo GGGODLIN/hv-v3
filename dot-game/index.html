@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.8.1 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.9 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -45,6 +45,16 @@
       <p id="bleed-notice" class="bleed-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
       <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；流血須先打出傷害再觸發，之後每 Tick 的無類型傷害不受減傷影響，但需要時間累積，並非每次命中都會觸發。沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <section class="expedition-reports panel" aria-labelledby="report-heading" aria-describedby="report-session report-caution">
+        <div class="section-heading report-heading"><h3 id="report-heading">最近兩次遠征戰報</h3><button id="pin-report" class="secondary-button" disabled>設為比較基準</button></div>
+        <p id="report-session" class="report-note">僅本分頁遊玩紀錄，不寫入存檔；重新整理、匯入或載入其他進度後清空。比較基準也會在進度控制權變更時清空。</p>
+        <p id="report-status" class="report-note" role="status" aria-live="polite" aria-atomic="true">遠征通關、戰敗或中途回營後，戰報會自動出現在這裡。</p>
+        <p id="report-empty" class="report-empty">先完成一場遠征，看看這套配裝實際打出了什麼。</p>
+        <div id="pinned-report" class="pinned-report" hidden></div>
+        <div id="expedition-report-list" class="expedition-report-list"></div>
+        <p id="report-caution" class="report-caution">這是實戰紀錄，不是配裝優劣判定。關卡、出發等級、裝備、戰術或隨機判定不同，都不能直接推論差異由換裝造成；同關也不是受控比較。可先把最近一次設為基準，再換裝試跑。</p>
+        <details class="report-rules"><summary>戰報數字怎麼讀</summary><p>只計遊戲已處理的戰鬥時間，不含營地與通關後休息，不是現實經過秒數。傷害記錄實際扣除的生命，超過剩餘生命的部分不計；承受生命損失是整場累計，不扣回治療量。最低生命比例使用各觀測時點當時的生命上限。</p><p>攻擊總數包含技能攻擊；治療次數是治療技能，藥水另計，不代表額外回合；特效次數是成功施加／刷新，不是層數或命中率。沒有估算穿透護甲多打多少、暈眩擋下多少傷害，也不換算每秒傷害。中途回營是未完成遠征，不能直接與通關時間相比。</p><p>只保留最近兩次已結束遠征；自動重刷也會更新。比較基準保留一份當下的最近戰報，再按一次會取代基準，不改變戰鬥或存檔。</p></details>
+      </section>
       <section class="weapon-commission panel" aria-labelledby="commission-heading">
         <div class="section-heading"><h3 id="commission-heading">武器委託</h3><span class="badge">本作獨立機制</span></div>
         <p>首次通關後，以金幣取得目前等級的固定規格武器，試試不同路線；不會自動換裝。</p>

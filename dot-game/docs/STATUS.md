@@ -1,5 +1,11 @@
 # Current status
 
+## v0.9 development candidate — 2026-10-26 02:00 UTC
+
+New feedback feature: newest two immutable expedition reports, plus one optional locally pinned comparison. Start build context, actual basic/skill/bleed HP removal, incoming HP loss/minimum HP, actions/resources and successful proc applications make build trials readable without invented causal estimates. Session-only data is omitted from saves and cleared on load/import. See EXPEDITION-REPORTS.md and ACCEPTANCE-V09.md. Parent aggregate passes 599/599 tests with zero skips/failures, plus four runtime syntax checks. Independent paired acceptance covers 20 natural routes, 326 expeditions and 36591 sampled steps with identical full gameplay/RNG states and matching report measurements. No natural-route defeats occurred; separate fatal/retreat fixtures cover those outcomes. Exact-source backup and real-browser acceptance remain pending before publication. Public v0.8.1 remains the accepted restore target at c1530bc76aa06716443b9ccca8de6f616e9f5f47 until then.
+
+### Earlier release timeline
+
 ## v0.8.1 published and root-smoke accepted — 2026-10-26 01:17 UTC
 
 Live: https://gggodlin.github.io/play/hv-v3-dot/ . Accepted pre-promotion source `f1228ea6e2777c9469fd387c32f2ba312b725a75` was backed up and exact-readback verified before website commit `5f2edb7a6927b6433c1a5d8fd64c0a51e4e7561c`. Exact Pages run `40253248001` succeeded; all six public HTTP 200 runtime bodies match frozen source bytes/SHA-256. Only five root runtime blobs changed (session.js is unchanged); all 3839 non-root site blobs, candidates and other works were preserved, with no additions/removals.

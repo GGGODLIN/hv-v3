@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale, previewWeaponCommission } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale, previewWeaponCommission, expeditionReports } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -112,6 +112,8 @@ let lastInventorySignature = '';
 let lastEquipmentSignature = '';
 let lastLogSignature = '';
 let lastEnemyStatusSignature = '';
+let lastReportSignature = '';
+let pinnedExpeditionReport = null;
 let lastStageCount = 0;
 let lastPreviewStage = null;
 let toastTimer;
@@ -205,6 +207,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
+  pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
@@ -558,6 +561,7 @@ function render(force = false) {
   renderWeaponCommission();
   renderEnemyStatuses();
   renderRoutePreview();
+  renderExpeditionReports();
   eventEffects();
 }
 function itemContent(item) {
@@ -571,6 +575,49 @@ function renderEquipment() {
     button.append(...itemContent(item)); button.title = `${slotNames[slot]}：${item.name}`;
     button.addEventListener('click', () => { selectedSlot = slot; selectedId = null; lastInventorySignature = ''; render(true); }); return button;
   }));
+}
+function expeditionReportCard(report, label) {
+  const outcomes = { win: '通關', defeat: '戰敗', retreat: '中途回營' };
+  const outcome = Object.hasOwn(outcomes, report.outcome) ? outcomes[report.outcome] : '已結束';
+  const family = Object.hasOwn(weaponFamilyNames, report.weapon.family) ? weaponFamilyNames[report.weapon.family] : '未辨識武器路線';
+  const strategy = STRATEGIES.find(entry => entry.id === report.strategy)?.label || '未辨識戰術';
+  const card = node('article', 'expedition-report-card');
+  const heading = node('div', 'report-card-heading');
+  heading.append(node('h4', '', label), node('span', 'report-outcome', outcome));
+  card.append(heading, node('p', 'report-start', `出發第 ${format(report.stage)} 層 · 等級 ${format(report.level)} → 結束 ${format(report.endLevel ?? report.level)} · ${strategy}`));
+  card.append(node('p', 'report-weapon', `${family} · ${report.weapon.name}`));
+  if (report.startStats) card.append(node('p', 'report-start-stats', `出發面板：攻擊 ${format(report.startStats.attack)} · 生命上限 ${format(report.startStats.maxHp)} · 一般減傷 ${defenseRate(report.startStats.mitigation)}`));
+  const metrics = node('dl', 'report-metrics');
+  const row = (title, value) => { const entry = node('div', 'report-metric'); entry.append(node('dt', '', title), node('dd', '', value)); metrics.append(entry); };
+  row('已處理時間', `${report.elapsed.toFixed(1)} 秒`);
+  row('實際扣除敵方生命', `普攻 ${format(report.damage.basic)} · 技能 ${format(report.damage.skill)} · 流血 ${format(report.damage.bleed)}`);
+  row('承受生命損失', `${format(report.survival.hpLost)} · 最低生命 ${report.survival.minHpPercent.toFixed(1).replace(/\.0$/, '')}%`);
+  row('行動次數', `攻擊總數 ${format(report.actions.attacks)}（含技能 ${format(report.actions.skills)}） · 治療 ${format(report.actions.heals)} · 藥水 ${format(report.actions.potions)}`);
+  row('魔力消耗', format(report.actions.manaSpent));
+  row('特效成功施加／刷新', `流血 ${format(report.procs.bleeding)} · 穿透護甲 ${format(report.procs.penetratedArmor)} · 暈眩 ${format(report.procs.stun)}`);
+  card.append(metrics);
+  return card;
+}
+function renderExpeditionReports() {
+  const reports = expeditionReports(state).slice(0, 2);
+  $('pin-report').disabled = !reports.length;
+  const signature = JSON.stringify([reports, pinnedExpeditionReport]);
+  if (signature === lastReportSignature) return;
+  lastReportSignature = signature;
+  $('report-empty').hidden = reports.length > 0;
+  $('expedition-report-list').replaceChildren(...reports.map((report, index) => expeditionReportCard(report, index === 0 ? '最近一次' : '前一次')));
+  $('pinned-report').hidden = !pinnedExpeditionReport;
+  $('pinned-report').replaceChildren(...(pinnedExpeditionReport ? [expeditionReportCard(pinnedExpeditionReport, '比較基準 · 手動保留')] : []));
+  const latest = reports[0];
+  $('report-status').textContent = latest ? `已記錄第 ${format(latest.stage)} 層的最近一次遠征；新遠征開始後仍可查看。${pinnedExpeditionReport ? '比較基準已保留，不會隨新戰報替換。' : ''}` : '遠征通關、戰敗或中途回營後，戰報會自動出現在這裡。';
+}
+function pinRecentExpeditionReport() {
+  const latest = expeditionReports(state)[0];
+  if (!latest) return;
+  // The engine getter supplies a detached snapshot. Pinning is local inspection,
+  // not a combat action, save mutation, or permission to edit another tab's game.
+  pinnedExpeditionReport = latest;
+  renderExpeditionReports();
 }
 function renderInventory() {
   const filter = $('slot-filter').value, sort = $('sort-select').value;
@@ -750,6 +797,7 @@ function drawScene(t, dt) {
 $('start-button').addEventListener('click',()=>{if(dispatch('start'))playSound('win');});
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));
+$('pin-report').addEventListener('click', pinRecentExpeditionReport);
 for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
 $('strategy-select').addEventListener('change', event => dispatch('setStrategy', event.target.value));
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));

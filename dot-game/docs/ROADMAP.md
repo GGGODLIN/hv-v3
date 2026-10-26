@@ -57,3 +57,6 @@ Correct manual expedition-start timing independently of the denied public verifi
 
 ## v0.8.1 repaired-save takeover follow-up
 Prioritize a reproduced lost-progress defect over new breadth: a protected follower must revalidate durable bytes when it acquires ownership after another tab repairs the save. Valid recovery may restore persistence; missing, unreadable or unsupported data must not become permission to overwrite. Preserve source-only/public acceptance separation.
+
+## v0.9 chosen slice
+Make the three weapon routes easier to evaluate: show bounded recent expedition reports with start build context, actual basic/skill/bleed HP removal, incoming HP loss/minimum HP, action/resource counts and proc applications. A local pinned baseline survives the automatic loop until replaced; it is observation, not a causal best-build ranking. Preserve combat/RNG/rewards exactly and show session-only lifetime. This is a gameplay feedback feature, not a backup巡檢 milestone.

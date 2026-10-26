@@ -13,6 +13,9 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
+Version 0.9 is a development candidate adding session-only expedition reports and one optional pinned comparison. See docs/EXPEDITION-REPORTS.md for controls, measurement definitions and limits. Combat, RNG, rewards and durable save schema are unchanged; public v0.8.1 remains accepted until candidate browser/release verification completes.
+
+### Earlier accepted version
 Version 0.8.1 is published and bounded-desktop accepted at https://gggodlin.github.io/play/hv-v3-dot/ . Website commit `5f2edb7a6927b6433c1a5d8fd64c0a51e4e7561c` passed exact Pages run `40253248001`; all six public runtime HTTP 200 bodies match the accepted source bytes/SHA-256. Pre-promotion accepted source `f1228ea6e2777c9469fd387c32f2ba312b725a75` was backed up and verified first. The complete runtime originates at `ff6bb071240deef5d86c34e80a1d514daeb9762d`, unchanged by later documentation receipts.
 
 The final public-root browser smoke retained the original v0.7 stable profile, not candidate progress, and verified a real stage-3 win, loot, retreat, reload and saved writer ownership. See docs/BROWSER-QA-V081.md for observed values and limits. The exact verified commit containing this publication receipt is the latest accepted full-source restore point; keep prior v0.7 recovery `e1b576ee2041bd2772f79587e859a80b5ab1f108` as history. This receipt updates docs/manifest only, without another deployment or redundant runtime test run.

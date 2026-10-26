@@ -13,6 +13,7 @@ import {
 const clone = value => JSON.parse(JSON.stringify(value));
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const source = readFileSync(new URL('../src/engine.js',import.meta.url),'utf8');
+const historicalV081Source = readFileSync(new URL('./fixtures/v0.8.1/engine.js',import.meta.url),'utf8');
 const target = extra => ({hp:1e6,maxHp:1e6,defense:0,evade:0,parry:0,block:0,...extra});
 const plain = {slot:'weapon',weaponFamily:null};
 const families = [null,'axe','rapier','club'];
@@ -210,13 +211,15 @@ test('v0.5 independent: role metadata itself never changes damage, proc eligibil
   assert.deepEqual(CLUB_STUN_RULES,{chance:.25,durationTicks:4});
 });
 
-test('v0.5 independent: unchanged combat stays byte-frozen; generator preserves accepted full outputs and RNG',()=>{
+test('v0.5 independent: unchanged resolver/rewards and historical enemyAttack stay byte-frozen; generator preserves outputs and RNG',()=>{
   // Frozen from accepted v0.5 engine 2afaaf2c… (loot af7eac11…). v0.6 intentionally
   // adds opt-in sale routing and strict import validation, not new combat/rolls.
   // Narrow unchanged regions replace the old whole-module/action/sanitizer freezes;
   // v06 acceptance still guards current behavior separately. The exact-clock
   // trajectories below are explicitly historical from v0.8.1 onward; current
-  // v081 acceptance additionally freezes every engine byte outside advance.
+  // v081 historical acceptance additionally freezes its bytes outside advance.
+  // v0.9 adds enemyAttack observation hooks only: retain the accepted old body
+  // and digest here; v09 acceptance checks current full-state/RNG equivalence.
   const region=(code,start,end)=>{const a=code.indexOf(start),b=end?code.indexOf(end,a):code.length;assert.ok(a>=0&&b>a);return code.slice(a,b);};
   // v0.8 adds the authorized axe wrapper/pulse and shared death transition.
   // Retain independently extracted EXACT v0.7 function bodies, not hashes of
@@ -229,7 +232,7 @@ test('v0.5 independent: unchanged combat stays byte-frozen; generator preserves 
     ['enemyTurn','d52ac2e7b95ec9c00691851d3a3716a66e3f05a93e12fcb29d6a882a969a1f0b'],
     ['recoverStunnedEnemies','3793f627724f1f5063ada2aa8133bb666fa0304b8ec072fbba06800a94eb33c8'],
     ['usePotion','f206089133516eacdb5c692b555de6909acd22326248522db65ab34c846be842'],
-  ])assert.equal(sha256(region(source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
+  ])assert.equal(sha256(region(name==='enemyAttack'?historicalV081Source:source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
   assert.equal(sha256(region(source,'function gainXp','function win')),'b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4','unchanged XP/death rewards');
   // v0.7 shares arithmetic between random drops and the fixed commission.
   // These complete-output/RNG baselines were independently rerun against the
