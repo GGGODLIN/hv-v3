@@ -101,7 +101,7 @@ export const abyssPl = (d: number): number => floorPl(20) + Math.round(RULES.cp7
 export function abyssMult(d: number): { hp: number; dmg: number } {
   // rc13 producer 2026-10-27（暫定、自訂，非原版）: d17–19 used to be flat (cp7DepthDmg stops at knee 15 and the tier ramp
   // finishes by d17, the next tier starts at d20). Under cp8 d18/d19 interpolate the damage between d17 and d20 so it rises every floor.
-  if (RULES.cp8 && RULES.cp7 && (d === 18 || d === 19)) { const a = abyssMultRaw(17).dmg, z = abyssMultRaw(20).dmg; return { hp: abyssMultRaw(d).hp, dmg: a + ((z - a) * (d - 17)) / 3 }; }
+  if (RULES.cp8 && RULES.cp7 && (d === 18 || d === 19)) { const a = abyssMultRaw(17).dmg, z = abyssMultRaw(20).dmg; const ha = abyssMultRaw(17).hp, hz = abyssMultRaw(20).hp; /* rc14（暫定、自訂，非原版）: HP interpolated the same way */ return { hp: ha + ((hz - ha) * (d - 17)) / 3, dmg: a + ((z - a) * (d - 17)) / 3 }; }
   return abyssMultRaw(d);
 }
 function abyssMultRaw(d: number): { hp: number; dmg: number } {

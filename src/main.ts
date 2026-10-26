@@ -49,8 +49,8 @@ async function boot() {
       (window as unknown as { hvSlot: string }).hvSlot = switchSlot(localStorage, preset, pr, qs.has('fresh'));
       history.replaceState(null, '', location.pathname + stripPreset(location.search) + location.hash);
       (window as unknown as { hvPreset: string }).hvPreset = preset;
-    } else console.warn(`unknown preset ${preset}; known: ${Object.keys(all).join(', ')}`);
-  }
+    } else presetWarn(`未知的 preset「${preset}」，已忽略（可用：${Object.keys(all).join(', ')}）`);
+  } else if (preset) presetWarn(`preset「${preset}」被忽略：CP6 深淵未開啟（網址加 ?cp6）`); // rc14 item 6
   buildBadge();
   const stage = new Stage();
   new Phaser.Game({ type: Phaser.AUTO, parent: 'stage', width: W, height: H, pixelArt: true, backgroundColor: '#120c18', scene: stage });
@@ -60,3 +60,11 @@ async function boot() {
   if (import.meta.env.DEV || new URLSearchParams(location.search).has('debug')) (window as unknown as { hv: App }).hv = app;
 }
 boot();
+
+/** rc14 item 6: a preset that is not applied is reported on screen (and in the console), never silently. */
+function presetWarn(msg: string): void {
+  console.warn(msg);
+  const d = document.createElement('div'); d.dataset.presetIgnored = '1'; d.textContent = '⚠ ' + msg;
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#a33;color:#fff;padding:4px 8px;font-size:13px';
+  document.body.appendChild(d); (window as unknown as { hvPresetIgnored: string }).hvPresetIgnored = msg;
+}

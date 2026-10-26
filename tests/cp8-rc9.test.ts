@@ -47,7 +47,8 @@ describe('cp8-rc9 P0-2 potion hint uses HP − next hit estimate', () => {
     cp8(); const b = setup('normal', 1); b.hp = b.d.hp * 0.8; b.itemCd.health = 0;
     expect(potHint(b)).toBe(false);
     const m = b.monsters[0]!; while (chargeEstimate(b, m) < b.d.hp * 0.6) m.adb *= 1.5;
-    expect(potHint(b)).toBe(true);
+    expect(potHint(b)).toBe(false); // rc14 item 4: at 80% HP a full-heal potion would mostly be wasted
+    b.hp = b.d.hp * 0.5; expect(potHint(b)).toBe(true); // 50% missing: lights on the deadly-hit estimate
   });
 });
 import { autoAllocate, allocWeights, autoEquip, leanStyle } from '../src/core/auto';

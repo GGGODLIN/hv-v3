@@ -323,7 +323,7 @@ export class App {
     const ids0 = skillKit(b);
     const readyHint = ready.length && !skillHint ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 可以用了（冷卻結束／OC 已夠）（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
     const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.guardOnly(b) ? `決策：${guardHint(b) === 'spirit' ? '<b>S·靈動架勢</b>' : '<b>A·攻擊</b>（儘快收掉怪物）'}（生命藥水${b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}，HP 危險）` : `決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）`} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.guardOnly(b) ? `決策：${guardHint(b) === 'spirit' ? '<b>S·靈動架勢</b>' : '<b>A·攻擊</b>（儘快收掉怪物）'}（生命藥水${b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}${hpDanger(b) ? '，HP 危險' : ''}）` : `決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）`} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ` · <b class="warn" data-chargestatus>${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！${this.guardOnly(b) ? (guardHint(b) === 'spirit' ? '建議 S·靈動架勢' : '建議繼續攻擊') : potHint(b) ? '建議防禦或喝藥' : '建議防禦'}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}${readyHint}${elemHint}
@@ -460,7 +460,8 @@ export class App {
   recent: { turn: number; taken: number; big?: { who: string; label?: string; dmg: number; charged: boolean } }[] = [];
   /** cp8-rc6 items 3 + 6: estimated heavy-hit damage and, when the health potion is on cooldown, a hint to use 防禦 / 靈動 instead. */
   /** rc13 item 1: HP in danger and the health potion unusable (cooldown / none left) → only S (or keep attacking) is hinted, never D. */
-  guardOnly(b: BattleState): boolean { return RULES.cp8 && !canUse(b, { kind: 'item', id: 'health' }) && hpDanger(b); }
+  // rc14 item 3: the hpDanger gate let high-HP turns (741/850, 588/786, crit est ≥ HP/2) with the potion on cooldown fall through to 「D·防禦 或 Z」. Potion unusable → S/A only.
+  guardOnly(b: BattleState): boolean { return RULES.cp8 && !canUse(b, { kind: 'item', id: 'health' }); }
   chargeExtra(b: BattleState, chargers: Monster[]): string {
     const est = Math.max(...chargers.map((m) => chargeEstimate(b, m)));
     const estD = Math.max(...chargers.map((m) => chargeEstimate(b, m, true)));
@@ -495,13 +496,13 @@ export class App {
     const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);
     if (r.length) { // cp8-rc7 P1 item 5: the charged / big-move hit (if any) or the biggest single hit of the last turns, plus damage per turn
       const ch = hb.find((x) => x.charged), top = ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), maxHp = this.lastHit?.maxHp ?? 1;
-      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招：看到 ⚠ 預告就先按 D·防禦或先喝藥，藥水冷卻中就別等藥。` : top.dmg >= maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招：看到 ⚠ 預告：HP 危險且能喝藥就按 Z；藥水冷卻中就按 S·靈動架勢（可用時）或 A 儘快收掉怪物。` : top.dmg >= maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
       return `<p data-deathcause="${top.dmg}" ${ch ? `data-deathcharge="${ch.dmg}"` : ''}>死因：${ch ? '蓄力大招 ' : '最後幾回合最大單擊 '}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
     }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
-    const hint = h.charged ? '首領蓄力（⚠）時先按 D·防禦，藥水冷卻中就別等藥。' : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+    const hint = h.charged ? '首領蓄力（⚠）時：HP 危險且能喝藥就按 Z；藥水冷卻中就按 S·靈動架勢（可用時）或 A 儘快收掉怪物。' : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
     return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（佔最大 HP ${Math.round((h.dmg / h.maxHp) * 100)}%）<br><span class="hint">建議：${hint}</span></p>`;
   }
   resultHtml(): string {

@@ -213,7 +213,7 @@ export function quickAttack(s: BattleState, target: number, main?: string): Acti
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
 /** rc13 item 2: pothint / danger read the crit-case estimate (SIM_EST_CRIT=0 → rc12 normal estimate, for comparison only). */
 const ENV_EST_CRIT = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_EST_CRIT !== '0';
-export const POT_HINT = { hp: 0.5, charging: 0.75 };
+export const POT_HINT = { hp: 0.5, charging: 0.75, /** rc14 item 4（暫定）: share of the heal that must land */ minUseful: 0.5 };
 /** cp8-rc6 item 6: estimate of a charging monster's next heavy hit (mult as enemyTurn: drain → CP5.drainMult else BOSS_CHARGE_MULT,
  *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance and the per-turn cap.
  *  rc13 item 2: crit = true → the same hit as a monster crit (× 1 + F-002-5.1B critDamageBonus 0.2, Battles.md:45). */
@@ -253,6 +253,8 @@ export function guardHint(s: BattleState): 'spirit' | null {
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;
   if (s.hp >= s.d.hp) return false; // rc13 item 4: never at full HP (Z would heal +0)
+  // rc14 item 4（暫定、自訂，非原版）: above 50% HP, no hint while less than half of the potion's heal would land (the rest is wasted).
+  if (RULES.cp8 && s.hp >= s.d.hp * POT_HINT.hp && s.d.hp - s.hp < Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful) return false;
   if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s, ENV_EST_CRIT) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
