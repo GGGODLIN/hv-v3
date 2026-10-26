@@ -1,3 +1,5 @@
+import { RULES } from './run';
+import { cp7DepthDmg } from './cp7';
 /**
  * CP6 深淵塔 (docs/cp6-abyss.md §9 producer decisions). Used only when RULES.cp6Abyss is on.
  * Sourced values cite their file; everything else is 暫定（缺原版出處）.
@@ -98,7 +100,7 @@ export const abyssPl = (d: number): number => floorPl(20) + Math.round(diffAt(d,
 export function abyssMult(d: number): { hp: number; dmg: number } {
   const t = { hp: diffAt(d, 'hp'), dmg: diffAt(d, 'dmg') };
   const k = d >= 40 ? Math.floor((d - 40) / ABYSS.past40.every) : 0; // d 40–44: base PFUDOR; +5% from 45
-  return { hp: ABYSS.hpScale * t.hp * (1 + ABYSS.past40.hp * k), dmg: ABYSS.dmgScale * t.dmg * (1 + ABYSS.past40.dmg * k) * (1 + ABYSS.dmgPerDepth * (d - 1)) };
+  return { hp: ABYSS.hpScale * t.hp * (1 + ABYSS.past40.hp * k), dmg: ABYSS.dmgScale * t.dmg * (1 + ABYSS.past40.dmg * k) * (RULES.cp7 ? cp7DepthDmg(d) : 1 + ABYSS.dmgPerDepth * (d - 1)) };
 }
 
 /** Affix count (doc §1.3, 暫定). */

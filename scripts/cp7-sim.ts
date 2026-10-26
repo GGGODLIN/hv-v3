@@ -14,7 +14,7 @@ import { CP7 } from '../src/core/cp7';
 import { Rng } from '../src/core/rng';
 const E = process.env;
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0';
-if (E.PITY) CP7.pityUntil = Number(E.PITY); if (E.WINHEAL) CP7.winHeal = Number(E.WINHEAL);
+for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typeof CP7[k] === "number") (CP7 as Record<string, unknown>)[k] = Number(E[`K_${k}`]);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;
 const strat = `buff:${sc}` as Strategy; const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
@@ -54,4 +54,4 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let f = 1; f <= F; f++) for (const [d, ty] of [[13, 'battle'], [18, 'battle'], [16, 'battle'], [20, 'boss']] as const) { c[`d${d}`]!.n++; if (one(snap, d, ty, s * 100 + f)) c[`d${d}`]!.w++; }
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
-console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: { pityUntil: CP7.pityUntil, winHeal: CP7.winHeal }, built, deep, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win }));
+console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win }));

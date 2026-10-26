@@ -335,7 +335,7 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
 /** rc11: main-tower loot level (see RULES.lootPlayerLevel). */
-export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel || RULES.cp7 ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
+export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
 export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p?: Player): Loot {
   const ab = depthOf(run);
   const L = ab ? abyssLevel(run) : lootLevel(run);
