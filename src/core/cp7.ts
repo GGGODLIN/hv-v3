@@ -35,9 +35,9 @@ export const CP7 = {
   /** 暫定: tier HP/damage ramp length under CP7 (ABYSS.tierRamp = 3 otherwise); 5 spreads each tier jump over the whole tier. */
   tierRamp: 3,
   /** 暫定: non-boss abyss damage factor by CP5 theme floor (themeKey). Themes 16–19 pick ~12% stronger rows (sim: base adb 80→90), which made d16/d18 the death spike. */
-  themeDmg: { 16: 0.85, 17: 0.85, 18: 0.85, 19: 0.85 } as Record<number, number>,
+  themeDmg: { 16: 0.7, 17: 0.7, 18: 0.7, 19: 0.7 } as Record<number, number>,
   /** sim knob: scales every themeDmg entry's distance from 1 (1 = as listed). */
-  themeK: 2,
+  themeK: 1,
   plScale: 1,
 };
 /** CP7 depth damage factor (replaces 1 + ABYSS.dmgPerDepth·(d−1) when RULES.cp7). */
