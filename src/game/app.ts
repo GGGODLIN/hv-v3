@@ -17,6 +17,8 @@ import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as cor
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
 import { betterThanWorn, checkpointOptions } from '../core/cp7';
+import { betterInBag, prepAlloc, prepEquip, prepIssues, prepPotions, type PrepIssue } from '../core/prep';
+import { TOWN_HP_POTIONS } from '../core/auto';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
 import { sortieLabel } from '../core/progress';
 import { scrollToCurrentFloor } from './mapscroll';
@@ -456,10 +458,11 @@ export class App {
     on('[data-sellall]', () => { const n = this.p.inventory.length; const sum = this.p.inventory.reduce((t, e) => t + sellPrice(e), 0); this.ask('賣掉倉庫全部？', `<p class="warn">會賣掉倉庫裡全部 ${n} 件裝備，得到 ${sum}C。賣掉後無法買回。</p>`, `確定賣掉 ${n} 件`, () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); }); }); // CP3-bugfix 6: confirm
     on('[data-buy]', (el) => { const k = el.dataset.buy as PotionId; if (this.p.credits >= RULES.potionPrice[k]) { this.p.credits -= RULES.potionPrice[k]; this.p.potions[k]++; } this.go('town'); });
     on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>`, '清空並建立新角色', () => { const settings = { ...this.data.settings }; this.data = App.fresh(); this.data.settings = settings; this.stage.speed = settings.speed; this.save(); this.go('town'); })); // CP4-rc-fix 5: speed / skip-anim are preferences, kept
-    on('[data-modal-cancel]', () => { this.modal = null; this.render(); });
+    on('[data-modal-cancel]', () => { this.modal = null; this.prepKind = null; this.render(); });
     on('[data-modal-ok]', () => { const m = this.modal; this.modal = null; m?.onOk(); if (!this.modal) this.render(); });
-    on('[data-start]', () => this.startRun());
-    on('[data-abyss]', () => this.startAbyss());
+    on('[data-start]', () => this.depart('main'));
+    on('[data-abyss]', () => this.depart('abyss'));
+    on('[data-prep]', (el) => this.prepFix(el.dataset.prep as PrepIssue | 'all'));
     document.querySelector('[data-abyss-start]')?.addEventListener('change', (ev) => { this.abyssStart = Number((ev.target as HTMLSelectElement).value); const b = document.querySelector('[data-abyss]'); if (b) b.textContent = `進入深淵塔（第 ${this.abyssStart} 層起）▶`; });
     on('[data-node]', (el) => this.enterNode(Number(el.dataset.node)));
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
@@ -564,6 +567,44 @@ export class App {
     r.mp = Math.min(after.mp, r.mp); r.sp = Math.min(after.sp, r.sp);
     if (this.pending.loot) this.pending.loot.equips = this.pending.loot.equips.filter((x) => x.id !== id);
     this.save(); this.render();
+  }
+
+  /** CP7 出發前整備提醒: town → tower / abyss. Opens the reminder when any prepIssues() holds; otherwise departs at once. */
+  depart(kind: 'main' | 'abyss') {
+    const go = () => (kind === 'main' ? this.startRun() : this.startAbyss());
+    if (!RULES.cp7 || !prepIssues(this.p).length) return go();
+    if (kind === 'abyss') { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value); if (v) this.abyssStart = v; }
+    this.prepKind = kind;
+    this.prepModal();
+  }
+  prepKind: 'main' | 'abyss' | null = null;
+  prepModal() {
+    const p = this.p, iss = prepIssues(p), kind = this.prepKind!;
+    const go = () => { this.prepKind = null; if (kind === 'main') this.startRun(); else this.startAbyss(); };
+    const row = (id: PrepIssue, text: string, btn: string) => `<li data-prep-row="${id}">${text} <button data-prep="${id}">${btn}</button></li>`;
+    const nb = betterInBag(p).length;
+    const rows = [
+      iss.includes('alloc') ? row('alloc', `還有 ${unspentExp(p).toLocaleString()} EXP 未分配成屬性點。`, '自動分配') : '',
+      iss.includes('potion') ? row('potion', `沒有帶生命藥水（持有 ${p.potions.health} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（補到 ${TOWN_HP_POTIONS} 瓶）`) : '',
+      iss.includes('equip') ? row('equip', `倉庫有 ${nb} 件「▲ 比身上好」的裝備。`, '換上') : '',
+    ].join('');
+    const body = iss.length
+      ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
+      : `<p data-prepbox data-prep-done>整備完成。</p>`;
+    this.modal = { title: '出發前整備', body, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
+    this.render();
+  }
+  prepFix(k: PrepIssue | 'all') {
+    const p = this.p;
+    const msg: string[] = [];
+    const todo = k === 'all' ? prepIssues(p) : [k]; // 全部處理 = each open item, in the sim's town-prep order (alloc → equip → potions)
+    const want = (x: PrepIssue) => todo.includes(x);
+    if (want('alloc')) { const n = prepAlloc(p); if (n) msg.push(`自動分配 ${n} 點屬性`); }
+    if (want('equip')) { const n = prepEquip(p); if (n) msg.push('已換上較好的裝備'); }
+    if (want('potion')) { const n = prepPotions(p); msg.push(n ? `買了 ${n} 瓶生命藥水` : '錢不夠，沒買到藥水'); }
+    if (msg.length) this.notice = msg;
+    this.save();
+    if (this.prepKind) this.prepModal(); else this.render();
   }
 
   startRun() {

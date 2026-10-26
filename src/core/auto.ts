@@ -27,6 +27,15 @@ export function autoAllocate(p: Player): void {
   }
 }
 
+/** 暫定（缺原版出處）: sim town prep buys health potions up to this stock (shared with the CP7 出發前整備 「買藥」). */
+export const TOWN_HP_POTIONS = 3;
+/** Buy health potions up to `n` while credits last (sim town prep; UI 「買藥」). Returns potions bought. */
+export function buyHealthTo(p: Player, n: number): number {
+  let k = 0;
+  while (p.potions.health < n && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; k++; }
+  return k;
+}
+
 /** 暫定 (round 5): auto-equip only swaps when the power score rises by at least this fraction, so IW-upgraded gear is not pushed out by a near-equal drop. */
 export const AUTO_EQUIP_MARGIN = 0.05;
 
@@ -254,7 +263,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   // Town prep.
   if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p, [], gearStyle(strategy));
-  while (has(p, 'shop') && p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
+  if (has(p, 'shop')) buyHealthTo(p, TOWN_HP_POTIONS);
   const level = derive(p).level;
   const power = powerScore(derive(p));
   const bs = isBuffStrat(strategy);
