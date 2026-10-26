@@ -484,3 +484,6 @@ d1–d3 win: blade 71–74, bulwark 71–73, arcane 91–92, oc 96. d16 battle: 
 
 ### Round 1: grid at N=64×2 (docs/logs/rc9/grid1-64*.txt/jsonl)
 LPD {0,0.25} × HS {1.1,1.5} × DS {2.5,3,3.5,4} × DPD {0,0.03,0.06}, TR 5. No row meets all. LPD 0.25 is worse everywhere. Structural conflict: d1–3 ≥95% needs DS ≤ ~2.5 (HS 1.1), and at that start trip-1 median is ≥17 unless DPD is high, which then drops blade d16 below 60.
+
+### Round 2: grid at N=64×2 (docs/logs/rc9/grid2-64*)
+LPD 0 × TR {1,3} × HS {0.9,1.1} × DS {2,2.5} × DPD {0.04,0.08,0.12}. Again no row meets all. Best (2 fails each: trip-1 median too deep, d16/d13 ratio): HS0.9 DS2–2.5 DPD0.04 TR1/3 gives d1–3 ≥97.5, d16 66–86, d20B 76–97, but trip-1 median 20–32. Over all 72 rows, every row with trip-1 median ≤14 has min d16 ≤24 and min d20B ≤37. Conclusion (暫定): with the linear DPD / tier-ramp shape, "trip-1 median 5–12" and "d16 fresh ≥60 / d20B ≥35" can't hold together once d1–3 ≥95 is required. Defaults unchanged (still c6D) pending a producer decision.
