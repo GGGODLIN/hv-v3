@@ -534,3 +534,8 @@ Selection for postF20-*: only characters whose gear follows the school rule. Amo
 | never cleared F20 in 12 trips (blade worst) | 26/256 = 10.2% | 26/256 = 10.2% (main tower, unchanged) | ≤10 |
 | certain-death combos | 0 | 0 | 0 |
 - deploy: worktree /workspace/hv-v3-cp6rc9 @ cp6-rc9 built; rc8 preview on 5199 stopped; vite preview 127.0.0.1:5199 (setsid nohup) serves / 200, /data/cp6-presets.json 200 (byte-identical to the rc9 file); scripts/cp6-rc6-e2e.mjs ALL PASS. vitest single-threaded 221/221.
+
+### 接受紀錄：刃鋒「12 趟內從未全通 F20」10.2%（2026-10-26）
+- 製作人於 2026-10-26 接受 rc4-noclear 256 刃鋒 26/256 = 10.2%（門檻 ≤10%）不調整。
+- 理由：此指標只看主塔，深淵參數不影響；rc8 參數重跑同樣 10.2%；僅超門檻 0.2pp，屬抽樣邊界。
+- 主塔平衡留到 CP7 處理。
