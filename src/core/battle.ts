@@ -44,7 +44,8 @@ export const BOSS_CHARGE_MULT = 2;
 /** CP3-fix 8 (暫定, gameplay layer): a boss with phases left rises at this fraction of max HP, enraged (charges every BOSS_ENRAGED_EVERY turns). */
 export const BOSS_PHASE_HP = 0.3;
 export const BOSS_ENRAGED_EVERY = 3;
-export const BOSS_PHASE_TEXT = '復活！第二階段・狂暴';
+/** rc11: revive clears stun/bleed (CP3-fix 8 code; not in any design doc — wording only, behaviour unchanged pending producer). */
+export const BOSS_PHASE_TEXT = '復活！第二階段・狂暴（復活清除異常狀態）';
 function phaseShift(s: BattleState, ev: BEvent[]): void {
   s.monsters.forEach((m, i) => {
     if (m.hp > 0 || !m.phases) return;

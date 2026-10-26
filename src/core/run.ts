@@ -23,6 +23,9 @@ export const RULES = {
   bossPhases: 1,
   /** 暫定 (CP3-bugfix 4, gameplay layer): monster level follows the player: + round(k × max(0, playerLv − free)). No source. */
   monLvFollow: { k: 0.8, free: 4, bossHp: 0.18 },
+  /** rc11 (OFF, producer decision): findings 003 §1.1 — Crude/Fair/Average drop "Level Unassigned" (synced to the player's level when first worn),
+   *  Superior+ get the player's current level at drop. ON = main-tower loot level = player level at run start. OFF = floorLevel(floor) (rc10). */
+  lootPlayerLevel: false,
   /** 暫定 (CP3-fix 10): boss battles open with this much OC once Spirit Stance is unlocked (sourced start OC 0 and entry 50 unchanged). */
   bossOpenOc: 50,
   rankExp: { boss: 8, elite: 3, normal: 1 },
@@ -314,7 +317,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the abyss boss's guaranteed pieces (UI label only). */ guaranteed?: string[] }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[] }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -326,9 +329,11 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 // 暫定 (round 5): floors 1-5 raised from crude to fair to speed early progression.
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
+/** rc11: main-tower loot level (see RULES.lootPlayerLevel). */
+export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
 export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): Loot {
   const ab = depthOf(run);
-  const L = ab ? abyssLevel(run) : floorLevel(run.floor);
+  const L = ab ? abyssLevel(run) : lootLevel(run);
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
     // CP5 r3 (暫定): a solo elite rolls the drop table once more for the missing normal add (producer decision 1).
@@ -349,6 +354,8 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
       for (let i = 0; i < n; i++) loot.equips.push(generateEquip(rng, L, { minQuality: C['F-003-clear-bonus'].value.minQuality as Quality, qualityBump: i === 0 ? 1 : 0 }));
+      // rc11: main tower — the first piece is the sourced clear-bonus guarantee (F-003-clear-bonus: 1 drop, Average+); label it 保底. Extra pieces are 暫定.
+      if (!ab) (loot.guaranteed ??= []).push(loot.equips[loot.equips.length - n]!.id);
       loot.credits += 40 * run.floor;
       // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
       if (ab) { const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); }
@@ -370,7 +377,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
 }
 
 export function chestLoot(run: RunState): Loot {
-  const L = run.abyss ? abyssLevel(run) : floorLevel(run.floor); // CP6 r2 decision 7
+  const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
   // design §5: chests drop 2-3 items (暫定 single-player acceleration).
   return withRng(run, (rng) => ({
     equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
@@ -404,7 +411,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
 }
 
 export function merchantStock(run: RunState): MerchantStock {
-  const L = run.abyss ? abyssLevel(run) : floorLevel(run.floor); // CP6 r2 decision 7
+  const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
   return withRng(run, (rng) => ({
     equips: [0, 1, 2].map((i) => {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });

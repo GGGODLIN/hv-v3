@@ -43,3 +43,42 @@ describe('rc11 abyss15 preset', () => {
     expect(level(a15.player)).toBe(17);
   });
 });
+
+import { makePool, type MonsterRow } from '../src/core/monsters';
+import { battleLoot, encounter, lootLevel, monsterLevel, RULES, startRun } from '../src/core/run';
+import { starterKit } from '../src/core/auto';
+import { newPlayer } from '../src/core/player';
+import { BOSS_PHASE_TEXT } from '../src/core/battle';
+import { floorLevel } from '../src/core/tower';
+const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
+
+describe('rc11 main-tower boss clear-bonus labelled 保底', () => {
+  it('F5 boss: the first piece is marked guaranteed, Average or better', () => {
+    const saved = RULES.cp5Bosses; RULES.cp5Bosses = true;
+    try {
+      const p = newPlayer(); starterKit(p); const run = startRun(p, 7); run.floor = 5;
+      const loot = battleLoot(run, encounter(run, pool, 'boss'), 'boss');
+      expect(loot.guaranteed?.length).toBe(1); // 2 boss pieces (F<10) after any ordinary kill drops; the first boss piece is labelled
+      const g = loot.equips.find((e) => e.id === loot.guaranteed![0])!;
+      expect(loot.equips.indexOf(g)).toBe(loot.equips.length - 2);
+      expect(['crude', 'fair']).not.toContain(g.quality);
+    } finally { RULES.cp5Bosses = saved; }
+  });
+});
+
+describe('rc11 loot level (report only; flag stays OFF)', () => {
+  it('default: loot level = floor level, monster level follows player level', () => {
+    expect(RULES.lootPlayerLevel).toBe(false);
+    const p = newPlayer(); starterKit(p); const run = startRun(p, 7); run.plv = 12;
+    expect(lootLevel(run)).toBe(floorLevel(1));
+    expect(monsterLevel(run)).toBe(floorLevel(1) + Math.round(0.8 * (12 - 4)));
+  });
+  it('flag ON: loot level = player level', () => {
+    RULES.lootPlayerLevel = true;
+    try { const p = newPlayer(); starterKit(p); const run = startRun(p, 7); run.plv = 12; expect(lootLevel(run)).toBe(12); } finally { RULES.lootPlayerLevel = false; }
+  });
+});
+
+describe('rc11 boss revive text', () => {
+  it('says the revive clears status ailments', () => { expect(BOSS_PHASE_TEXT).toContain('復活清除異常狀態'); });
+});
