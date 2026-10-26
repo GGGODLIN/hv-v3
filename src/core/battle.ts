@@ -185,6 +185,12 @@ export function spellCost(s: BattleState, id: SpellId): number {
   return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1) * x));
 }
 
+/** CP8 rc3 (暫定): what 「A·攻擊」 does — the staff quick spell (CP8.staffQuickSpell) when usable, else a normal attack. */
+export function quickAttack(s: BattleState, target: number): Action {
+  const id = CP8.staffQuickSpell as SpellId;
+  if (RULES.cp8 && id && s.d.style === 'staff' && SPELLS[id]) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
+  return { kind: 'attack', target };
+}
 export function canUse(s: BattleState, a: Action): boolean {
   if (s.over) return false;
   switch (a.kind) {

@@ -1,7 +1,7 @@
 import { CP7 } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, armCp5, canUse, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, act, alive, armCp5, canUse, quickAttack, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -121,7 +121,7 @@ export function chooseNaive(b: BattleState): Action {
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (A.has('skills')) for (const id of ['mercifulBlow', 'vitalStrike', 'shieldBash'] as const) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
-  return { kind: 'attack', target };
+  return quickAttack(b, target);
 }
 const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
 export const PHYS_SCHOOLS = ['blade', 'bulwark'];

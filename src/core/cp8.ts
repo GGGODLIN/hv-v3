@@ -19,6 +19,10 @@ export const CP8 = {
    *  gives themes 16–19 ×0.7, so at d20→d21 the discount ended at once (adb +52% vs d18 while the tier multiplier is only +9.5%).
    *  The discount now fades out 0.7 → 1 over themes 1–3 (theme 20 is the boss floor, not affected). */
   themeTail: [0.7, 0.775, 0.85, 0.925] as number[],
+  /** 暫定（缺原版出處；產品規則）rc3: with a staff in the main hand, 「A·攻擊」 casts this basic spell when it can (MP, unlocked),
+   *  else it is a normal melee hit. Playtest: an arcane player who only presses 攻擊 hit with the staff (adb 118, wprof 5) and died at d8.
+   *  '' = off. The spell itself (cost, damage) is unchanged. */
+  staffQuickSpell: 'fiery' as string,
 };
 /** CP8 rc2: theme damage factor at theme floor f (1..20) for abyss depth > 20. */
 export const cp8ThemeDmg = (f: number): number => (f >= 1 && f <= CP8.themeTail.length ? CP8.themeTail[f - 1]! : CP7.themeDmg[f] ?? 1);
