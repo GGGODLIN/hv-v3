@@ -30,3 +30,14 @@ describe('cp8-rc11 potion', () => {
     expect(whyNot(s, { kind: 'item', id: 'health' })).toBe('藥水用完了');
   });
 });
+
+import { CP8, cp8ThemeDmg } from '../src/core/cp8';
+describe('cp8-rc11 item 3: themeTail ramps over d21–d29', () => {
+  it('rises strictly from 0.7 at theme 1 to <1 at theme 9, 1 from theme 10', () => {
+    expect(CP8.themeTail.length).toBe(9);
+    expect(cp8ThemeDmg(1)).toBe(0.7);
+    for (let f = 2; f <= 9; f++) expect(cp8ThemeDmg(f)).toBeGreaterThan(cp8ThemeDmg(f - 1));
+    expect(cp8ThemeDmg(9)).toBeLessThan(1);
+    expect(cp8ThemeDmg(10)).toBe(1);
+  });
+});

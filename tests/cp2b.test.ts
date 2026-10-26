@@ -16,7 +16,7 @@ function setup(rank: 'normal' | 'boss' = 'normal', potions = { health: 3, mana: 
 }
 
 describe('CP2b', () => {
-  it('5. health potion: 10 player turns blocked after drinking, countdown shown 10..1', () => {
+  it('5. health potion: 5 player turns blocked after drinking, countdown shown 5..1 (cp8-rc11 暫定、非原版)', () => {
     expect(HEALTH_POTION_CD).toBe(5);
     const b = setup(); b.monsters[0]!.adb = 0;
     const rng = new Rng(1);
@@ -27,7 +27,7 @@ describe('CP2b', () => {
       expect(whyNot(b, { kind: 'item', id: 'health' })).toContain(`${b.itemCd.health} 回合`);
       act(b, { kind: 'attack', target: 0 }, rng, {});
     }
-    expect(shown).toEqual([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    expect(shown).toEqual([5, 4, 3, 2, 1]);
   });
   it('CP2c-3. defend still cuts an ordinary monster hit by 25%', () => {
     const hit = (a: Action) => {

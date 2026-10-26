@@ -29,8 +29,11 @@ export const CP8 = {
   startBuffMax: 6,
   /** 暫定（缺原版出處）P3 (rc2): non-boss damage factor for abyss themes 1–3 from the 2nd rotation (d21–23, d41–43 …). CP7.themeDmg
    *  gives themes 16–19 ×0.7, so at d20→d21 the discount ended at once (adb +52% vs d18 while the tier multiplier is only +9.5%).
-   *  The discount now fades out 0.7 → 1 over themes 1–3 (theme 20 is the boss floor, not affected). */
-  themeTail: [0.7, 0.775, 0.85, 0.925] as number[],
+   *  The discount now fades out 0.7 → 1 over themes 1–3 (theme 20 is the boss floor, not affected).
+   *  cp8-rc11 item 3（暫定、自訂，非原版）: rc2's 4 steps ended at d24, so d24→d25 still jumped ×0.925→×1. The ramp now spans
+   *  themes 1–9 (d21–d29), linear 0.7 + 0.3·i/9, and d30 is the first full-strength floor.
+   *  (rc2–rc10 value: [0.7, 0.775, 0.85, 0.925].) */
+  themeTail: Array.from({ length: 9 }, (_, i) => Math.round((0.7 + (0.3 * i) / 9) * 1000) / 1000) as number[],
   /** 暫定（缺原版出處；產品規則）rc3: with a staff in the main hand, 「A·攻擊」 casts this basic spell when it can (MP, unlocked),
    *  else it is a normal melee hit. Playtest: an arcane player who only presses 攻擊 hit with the staff (adb 118, wprof 5) and died at d8.
    *  '' = off. The spell itself (cost, damage) is unchanged. */
