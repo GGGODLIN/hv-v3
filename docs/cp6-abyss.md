@@ -487,3 +487,18 @@ LPD {0,0.25} × HS {1.1,1.5} × DS {2.5,3,3.5,4} × DPD {0,0.03,0.06}, TR 5. No 
 
 ### Round 2: grid at N=64×2 (docs/logs/rc9/grid2-64*)
 LPD 0 × TR {1,3} × HS {0.9,1.1} × DS {2,2.5} × DPD {0.04,0.08,0.12}. Again no row meets all. Best (2 fails each: trip-1 median too deep, d16/d13 ratio): HS0.9 DS2–2.5 DPD0.04 TR1/3 gives d1–3 ≥97.5, d16 66–86, d20B 76–97, but trip-1 median 20–32. Over all 72 rows, every row with trip-1 median ≤14 has min d16 ≤24 and min d20B ≤37. Conclusion (暫定): with the linear DPD / tier-ramp shape, "trip-1 median 5–12" and "d16 fresh ≥60 / d20B ≥35" can't hold together once d1–3 ≥95 is required. Defaults unchanged (still c6D) pending a producer decision.
+
+### Producer decision 2026-10-26 (option 1, set A) — revised rc9 targets (暫定)
+| Target | Value | Reason |
+|---|---|---|
+| Trip-1 median depth | d10–30 | The user wants the early game to go fast, so a deeper first trip is accepted (grid1/2: no curve gets ≤14 with d1–3 ≥95 and d16 ≥60). |
+| d16/d13 death-rate ratio | **dropped** | d13 almost never kills under set A, so the ratio is noise (often ∞). |
+| d16 normal-fight win | ≥60% per school | Replaces the ratio as the mid-depth difficulty gate. |
+| d1–d3 normal-fight win | ≥95% per school | Unchanged (low start). |
+| d5 boss win | ≥75% | Unchanged. |
+| d20 boss win | ≥35% | Unchanged. |
+| Never fully cleared F20 within 12 trips | ≤10% | Unchanged. |
+| Certain-death affix combos | 0 | Unchanged. |
+
+### CP7 candidates
+- Change the curve shape (option 3): add mid-floor pressure (e.g. mid-depth elites or a d10 boss) or cap damage past d16, so a short trip 1 (≤14) can coexist with d1–3 ≥95 and d16 ≥60.
