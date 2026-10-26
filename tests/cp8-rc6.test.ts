@@ -37,14 +37,14 @@ describe('cp8-rc6', () => {
     expect(p.equipped.mainHand?.group).toBe('oneHand');
     expect(p.equipped.offHand?.base).toMatch(/buckler/i);
   });
-  it('bug 3: arcane lean allocates INT above STR; physical schools unchanged', () => {
+  it('bug 3: arcane lean allocates INT above STR; physical schools (rc7: school-specific, no longer equal to cp8-off)', () => {
     cp8();
     const a = newPlayer(); a.lean = 'arcane'; a.exp = 20000; autoAllocate(a);
     expect(a.attrs.int).toBeGreaterThan(a.attrs.str);
     expect(a.attrs.wis).toBeGreaterThan(a.attrs.dex);
     const b = newPlayer(); b.lean = 'blade'; b.exp = 20000; autoAllocate(b);
     RULES.cp8 = false; const c = newPlayer(); c.exp = 20000; autoAllocate(c);
-    expect(b.attrs).toEqual(c.attrs);
+    expect(b.attrs).not.toEqual(c.attrs); // cp8-rc7 P0 bug 1
     expect(unspentExp(a)).toBeGreaterThanOrEqual(0);
   });
   it('bug 2: 全部處理 tops up health, mana and spirit to TOWN_HP_POTIONS (暫定)', () => {

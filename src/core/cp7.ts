@@ -68,11 +68,18 @@ export function leanAllows(p: Player, e: Equip): boolean {
   const [main, shield] = LEAN_HANDS[p.lean];
   if (e.slot === 'mainHand') return e.group === main;
   if (e.slot === 'offHand') return shield;
+  if (ARMOR_GROUPS.includes(e.group)) return LEAN_ARMOR[p.lean]!.includes(e.group); // cp8-rc7 P0 bug 2
   return true;
 }
+/** cp8-rc7 P0 bug 2 (layout only, 暫定 school→armour mapping, no numbers): rc6 locked only weapons, so a preset bulwark kept a cloth robe and
+ *  arcane kept heavy legs. arcane = cloth / light, others = light / heavy (bulwark still prefers heavy, see betterThanWorn). */
+const ARMOR_GROUPS: readonly string[] = ['cloth', 'light', 'heavy'];
+export const LEAN_ARMOR = { blade: ['light', 'heavy'], oc: ['light', 'heavy'], arcane: ['cloth', 'light'], bulwark: ['light', 'heavy'] } as Record<string, readonly string[]>;
 /** CP7 P1 definition of a better drop (UI badge + sim metric). */
 export function betterThanWorn(p: Player, e: Equip): boolean {
-  if (!leanAllows(p, e)) return false; // cp8-rc6 item 5: school-locked weapon layout (badge, autoWear, 換上 all share this)
+  if (!leanAllows(p, e)) return false;
+  if (RULES.cp8 && p.lean && p.equipped[e.slot] && !leanAllows(p, p.equipped[e.slot]!)) return e.id !== p.equipped[e.slot]!.id; // cp8-rc7 P0 bug 2: replaces a disallowed worn piece
+  // cp8-rc6 item 5: school-locked weapon layout (badge, autoWear, 換上 all share this)
   if (RULES.cp8 && p.lean === 'bulwark') { // cp8-rc5 (layout only): a bulwark-leaning player keeps 1H + shield and heavy armour
     const w = p.equipped[e.slot], arm = ['cloth', 'light', 'heavy'].includes(e.group);
     if (e.slot === 'mainHand' && e.group !== 'oneHand') return false;

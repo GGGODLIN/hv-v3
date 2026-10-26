@@ -1,4 +1,4 @@
-import { CP7 } from './cp7';
+import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
 import { type Action, type BattleState, act, alive, armCp5, canUse, potHint, quickAttack, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
@@ -23,12 +23,20 @@ import type { NodeType } from './tower';
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
 export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
 /** cp8-rc6 Part B (暫定，缺原版出處): per-lean 自動分配 weights under cp8; a lean missing here uses phys (arcane: ALLOC_WEIGHTS.arcane). Sim override: K_ALLOC_<lean>=str,dex,end,agi,int,wis. */
-export const LEAN_ALLOC: Partial<Record<NonNullable<Player['lean']>, Record<string, number>>> = { arcane: { ...ALLOC_WEIGHTS.arcane } };
+/** cp8-rc7 P0 bug 1 (暫定，缺原版出處，our own AI knob — not a game value): rc6 only had arcane here, so blade / oc / bulwark all used phys
+ *  (STR 3 = END 3, INT/WIS 1 still bought once cheap → INT/WIS 7 on blade/oc, END = STR on bulwark) and arcane had END 3 = INT 3.
+ *  Weight 0 = never buy. Each school's main stats now lead: blade STR/DEX, oc STR/AGI, bulwark END, arcane INT/WIS (INT > STR kept). */
+export const LEAN_ALLOC: Partial<Record<NonNullable<Player['lean']>, Record<string, number>>> = {
+  blade: { str: 3, dex: 3, end: 2, agi: 2, int: 0, wis: 0 },
+  oc: { str: 3, dex: 2, end: 2, agi: 3, int: 0, wis: 0 },
+  bulwark: { str: 2, dex: 1, end: 3, agi: 1, int: 0, wis: 0 },
+  arcane: { str: 0, dex: 0, end: 2, agi: 1, int: 3, wis: 2 },
+};
 export const allocWeights = (p: Player): Record<string, number> => (RULES.cp8 && p.lean ? LEAN_ALLOC[p.lean] ?? ALLOC_WEIGHTS.phys : ALLOC_WEIGHTS.phys);
 export function autoAllocate(p: Player): void {
   const weights = allocWeights(p);
   for (let guard = 0; guard < 2000; guard++) {
-    const best = ATTRS.map((a) => [a, (attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])) / weights[a]!] as const).sort((x, y) => x[1] - y[1])[0]!;
+    const best = ATTRS.map((a) => [a, (weights[a] ? (attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])) / weights[a]! : Infinity)] as const).sort((x, y) => x[1] - y[1])[0]!;
     if (allocate(p, best[0]) === 0) break;
   }
 }
@@ -105,6 +113,9 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
   for (const slot of SLOTS) {
     if (style && (slot === 'mainHand' || slot === 'offHand')) continue;
     for (const e of cands.filter((x) => x.slot === slot)) {
+      if (style?.lock && !leanAllows(p, e)) continue; // cp8-rc7 P0 bug 2: armour class is school-locked too
+      // cp8-rc7 P0 bug 2: a worn piece the school may not wear (preset / old save) is swapped for any allowed piece
+      if (style?.lock && p.equipped[slot] && !leanAllows(p, p.equipped[slot]!)) { if (!p.inventory.includes(e)) { p.inventory.push(e); used.push(e); } equip(p, e); continue; }
       // cp8-rc5: heavy preference — never trade worn heavy for non-heavy; a heavy piece replaces non-heavy when it scores at least as well (no margin).
       const w = p.equipped[slot], hv = style?.armor === 'heavy' && ['cloth', 'light', 'heavy'].includes(e.group);
       if (hv && w?.group === 'heavy' && e.group !== 'heavy') continue;
