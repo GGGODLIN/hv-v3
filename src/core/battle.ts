@@ -571,7 +571,15 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
   return ev;
 }
 
+/** cp8-rc4 diagnostic: worst single monster round (fraction of max HP) since the last reset, with its hits. */
+export const RDMG = { max: 0, hits: [] as Record<string, unknown>[], av: {} as Record<string, number> };
 function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
+  const hits: Record<string, unknown>[] = [], h0 = s.hp;
+  monstersAct0(s, rng, ev, hits);
+  const f = (h0 - s.hp) / s.d.hp;
+  if (f > RDMG.max) { RDMG.max = f; RDMG.hits = hits; RDMG.av = { hp: s.d.hp, evade: s.d.evade, parry: s.d.parry, block: s.d.block, physMit: s.d.physMit, magMit: s.d.magMit }; }
+}
+function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<string, unknown>[]): void {
   if (s.over) return;
   const defending = s.defendTurns > 0;
   let ripostes = 0, counters = 0;
@@ -617,6 +625,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     });
     const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.round(cap - (hp0 - s.hp))));
     s.hp = Math.max(0, s.hp - dmg);
+    hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
     if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev)) counters++;

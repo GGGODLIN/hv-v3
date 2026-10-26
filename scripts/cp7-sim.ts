@@ -9,7 +9,7 @@ import { makePool, type MonsterRow } from '../src/core/monsters';
 import { level, newPlayer, type Player } from '../src/core/player';
 import { RULES, abyssOpen, armBattle, battleLocks, encounter, openingOc, runDerived, startAbyss } from '../src/core/run';
 import { checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssSchool } from '../src/core/abyss';
-import { armCp5, startBattle } from '../src/core/battle';
+import { RDMG, armCp5, startBattle } from '../src/core/battle';
 import { CP7, simPickStart } from '../src/core/cp7';
 import { Rng } from '../src/core/rng';
 import { CP8 } from '../src/core/cp8';
@@ -75,12 +75,13 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let t = 1; t <= T; t++) {
     const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
     if (st < checkpointStart(rec.best)) shallow++;
-    const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
+    RDMG.max = 0; const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
     const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
     if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, level(p), Object.values(p.equipped).map((e) => e ? e.slot + ':' + e.quality[0] + e.roll + 'L' + e.level : '').join(' '));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
     if (E.DBGP2 && t <= 2) { const z = r.settlement as { cp8?: { pw0: number; pw1: number; worn: string[] }; lostItems?: unknown[]; kept?: unknown[]; levelBefore?: number; levelAfter?: number }; console.error('P2', JSON.stringify({ s, t, st, cl, dead, pw0: z.cp8?.pw0, pw1: z.cp8?.pw1, worn: z.cp8?.worn.length, lost: z.lostItems?.length ?? 0, kept: z.kept?.length ?? 0, lv0: z.levelBefore, lv1: z.levelAfter, kills: r.kills })); } // cp8-rc2 P2 diagnosis (stderr only)
+    if (E.DBGRD && st <= 30) console.error('RD', JSON.stringify({ s, t, st, cl, max: +RDMG.max.toFixed(3), av: RDMG.av, hits: RDMG.hits, mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group, body: p.equipped.body?.group }));
     if (E.DBGLOW && t === 1) console.error('LOW', JSON.stringify({ s, cl, why: r.end?.why, type: r.end?.type, hpPots: r.end?.hpPots, bturns: r.end?.bturns, foes: r.end?.foes.map((f) => f.rank + (f.affixes ? ':' + f.affixes.join('+') : '')), lv: level(p), mh: p.equipped.mainHand ? p.equipped.mainHand.name + ' ' + p.equipped.mainHand.quality + ' L' + p.equipped.mainHand.level : '-', pot0: p.potions.health }));
     if (t === 2) second.push(cl);
     if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
