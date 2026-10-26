@@ -1,5 +1,16 @@
 # Current status
 
+## v0.13 published and stable-root accepted — 2026-10-26 06:30 UTC
+
+Version0.13 is published at https://gggodlin.github.io/play/hv-v3-dot/ . Accepted source `328d746f077b155e62a4c58c39279b778b45025e` was backed up and exact-readback verified before website `ce9a91f142fd10fd2dc8cfde7ce34dddae031a09`. Exact Pages40279841540 succeeded; HTTP6 returned six200 exact frozen-runtime byte/SHA256 matches. Runtime remains `c08de8e753edf690eff96066e3d9dbd7b385f968`. Only four root files changed; loot/session and3870non-root website blobs were preserved.
+
+Actual candidate play showed genuine194/205counter notices and a stage7 victory with2counters/298actualHPremoved using owned block gear. The stable root retained its separate Lv20/original gear, completed two normal stage3 victories and automatically returned near inventory capacity. Reload retained gold9528, inventory117, wins87, HP1090 and AP19of20; Start remained enabled. No counter was observed in those two root fights, which is expected for a conditional passive. See docs/BROWSER-QA-V013.md (BROWSER-QA-V013.md from docs/) for source-versus-browser evidence, no new narrow/mobile/takeover claim, and bounded console inspection.
+
+The exact verified source commit containing this receipt is the latest accepted full-source restore (125files/124payloads); prior v0.12 recovery `9e84422bfc366fc1c526ff7f052f2dd8bd69d30d` remains available. This receipt changes documentation/manifest only;978tests/foursyntax and the final expanded15-test independent cohort are reused without another runtime rerun/deployment. Source backup does not restore personal browser saves, Library files, credentials or schedules.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.13 desktop accepted; root promotion pending — 2026-10-26 06:24 UTC
 
 Bounded actual cloud-browser acceptance passed. Fresh unknown starter weapon was inactive; the normal earned Lv20 import showed29.24% conditional counterchance and a1-per-turn cap. Manually equipping owned block gear and ordinary stage4 onward progression produced visible194/205counter notices and a stage7 report with2counterattempts/298actualHPremoved, distinct from basic/skill damage. Reload retained naturalLv21/gold10816/items109/wins91 and cleared session-only counter/report observations. No new narrow/mobile/takeover claim is made; see docs/BROWSER-QA-V013.md (BROWSER-QA-V013.md from docs/) for limits and separate source evidence.

@@ -1,5 +1,14 @@
 # Published releases
 
+## v0.13 — published, 2026-10-26 06:30 UTC
+
+- Original-shaped1H Counter-Attack damage subset: conditional sourced chance/proficiency caps, shared reserved-player-turn budget, dedicated counter feedback/reporting and exact death/wave settlement. Partial-defense eligibility and current-family classification are explicit adaptations; counter-stun/OC/OS remain absent.
+- Runtime `c08de8e753edf690eff96066e3d9dbd7b385f968`; pre-publication accepted source `328d746f077b155e62a4c58c39279b778b45025e` verified first.978tests/foursyntax pass; final independent15-test suite includes120earnedwins/54pairedtrials with mixed outcomes, not a universal buff.
+- Website `ce9a91f142fd10fd2dc8cfde7ce34dddae031a09`; exact Pages40279841540SUCCESS/HTTP6 exact.3870non-root blobs preserved. Candidate `d121a67aad4ad41b65ca05deee77f5dd8c10b6f0` remains.
+- Browser candidate observed actual counter damage after earnedgear/progression; root preserved separateprofile, won twice, reloaded gold9528/items117/wins87. BROWSER-QA-V013.md preserves explicit device/lifecycle limits.
+- Latest accepted restore is this exact verified receipt commit:125files/124payloads. Prior v0.12 `9e84422bfc366fc1c526ff7f052f2dd8bd69d30d` retained. No personal-save/Library/account recovery claim.
+
+
 ## v0.12 — published, 2026-10-26 05:18 UTC
 
 - Explicit per-item multi-selection and reviewed batch sale. Exact ID/price comparison, hidden-selection count, cancel/repeat/stale/ownership safeguards and keyboard-focus retention. This is an independent convenience adaptation, not expanded safe-auto-sale; prices, loot, combat and saves remain unchanged.

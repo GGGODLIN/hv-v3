@@ -36,3 +36,13 @@ The documented `tab.dev.logs` API was used for warn/error inspection. After expl
 Current desktop rendering and a genuine visible counter were inspected. Native zoom shortcuts did not produce a verified narrow viewport, so this iteration makes **no new narrow-layout or physical-phone acceptance claim**; source responsive UI tests remain separate. No OS-suspension claim is made.
 
 High proficiency100/200 caps, exact reserved-turn/wave terminal edge, forced partial defense/magic/zero damage/critical negatives, malformed imports and exhaustive lifecycle races are Node evidence, not all separately exercised in browser. Multi-tab takeover was covered in prior releases/source tests, not re-run here. Source backup is not a personal browser-save backup. Original counter-stun, OC and OS remain explicitly absent.
+
+## Stable-root publication and smoke — 2026-10-26 06:30 UTC
+
+Accepted source `328d746f077b155e62a4c58c39279b778b45025e` was backed up/readback verified before website root `ce9a91f142fd10fd2dc8cfde7ce34dddae031a09`. Exact Pages40279841540 succeeded and HTTP6 returned six200 exact byte/SHA256 matches. Only index/style/engine/UI root files changed; loot/session and3870non-root site blobs remained unchanged.
+
+Actual stable tab26 loaded v0.13 while preserving its separate Lv20/gold9308/inventory113/wins85/HP1090/AP19of20 profile, not the candidate's defensive gear/progress. It displayed29.24% conditional counterchance and1-per-turn budget. Two normal stage3 wins followed:12.6s and10.5s, zero counters in both; latest report1273basic+275skill enemyHP removed,73incomingloss/min96.5%,10normalattacks including2skills,6MPspent and2stuns. These are ordinary play observations, not proof of a counter benefit.
+
+Near-full inventory automatically returned the profile to camp; the now-disabled Retreat button correctly did not perform a second retreat. Reload retained Lv20/gold9528/inventory117/wins87/HP1090/AP19of20 and camp budget wording. Start was enabled, although inventory remains near capacity and may soon need normal cleanup. No unrequested extra sale was made in this root smoke. Session reports/notice cleared on reload, progress ownership was held, and inspected logs showed no app-origin errors after explicit known extension-noise exclusion.
+
+Candidate tab37 was closed. Only the stable game tab26 remains marked Deliverable at camp. The exact verified source commit containing this final publication receipt is the newest accepted full-source restore point; prior v0.12 `9e84422bfc366fc1c526ff7f052f2dd8bd69d30d` remains recoverable. Runtime and tests are unchanged by this receipt:978test/foursyntax and final independent15-test evidence are reused, not rerun.
