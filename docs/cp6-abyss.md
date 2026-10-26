@@ -539,3 +539,8 @@ Selection for postF20-*: only characters whose gear follows the school rule. Amo
 - 製作人於 2026-10-26 接受 rc4-noclear 256 刃鋒 26/256 = 10.2%（門檻 ≤10%）不調整。
 - 理由：此指標只看主塔，深淵參數不影響；rc8 參數重跑同樣 10.2%；僅超門檻 0.2pp，屬抽樣邊界。
 - 主塔平衡留到 CP7 處理。
+
+### rc10（preset 載入 bug + 小修，未改任何數值）
+- preset 回報（HP 722／藥水 0、紀錄「共 2 趟 · 磐石 17 層」）：rc9 worktree 的 dist 與 5199 實際送出的 cp6-presets.json 與 git 版位元組一致（Lv12/HP740/藥水 3），headless 新 profile 與「先放舊存檔再載入」皆正確 → 無法在乾淨環境重現。程式面找到的漏洞並修補：(1) 另一個分頁開著舊遊戲時，它的下一次存檔／深淵結算會把 preset 寫的存檔和紀錄整個蓋回去（現在監聽 storage 事件，舊分頁停止存檔並提示重新載入）；(2) preset 留在網址，之後重新整理會再次覆蓋進度（現在載入後從網址移除）；(3) preset 檔改用 no-store 抓取；(4) 改為先刪除所有遊戲 key 再完整寫入（core/preset.ts applyPreset，tests/rc10.test.ts）。
+- 死亡結算文字說明 50% 再乘帶回倍率；城鎮「出擊」改為「主塔出擊 N 次（深淵 N 趟另計）」——深淵本來就不計主塔趟數；每 5 層首領後提示檢查點；首領掉落標示「保底」件。
+- d2 無戰鬥節點：abyssFloor 規則（d%5=1、3 戰鬥，2 非戰鬥，4 休息＋非戰鬥，0 首領）自 CP6 初版（3bd8787）即如此，屬程式設計預期；設計文件沒有寫出出處。
