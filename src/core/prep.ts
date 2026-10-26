@@ -5,7 +5,7 @@
 import { ATTRS } from './formulas';
 import { type Player, unspentExp } from './player';
 import { has } from './progress';
-import { autoAllocate, autoEquip, buyHealthTo, naivePrep, TOWN_HP_POTIONS } from './auto';
+import { autoAllocate, autoEquip, leanStyle, buyHealthTo, naivePrep, TOWN_HP_POTIONS } from './auto';
 import { betterThanWorn } from './cp7';
 import { RULES } from './run';
 import type { Equip } from './items';
@@ -52,7 +52,7 @@ export function prepEquip(p: Player): number {
   let n = 0;
   for (let guard = 0; guard < 8 && betterInBag(p).length; guard++) {
     const before = Object.values(p.equipped).map((e) => e?.id).join();
-    autoEquip(p, []);
+    autoEquip(p, [], leanStyle(p));
     const after = Object.values(p.equipped).map((e) => e?.id).join();
     if (before === after) break;
     n++;

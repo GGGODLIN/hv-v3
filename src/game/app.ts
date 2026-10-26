@@ -365,12 +365,12 @@ export class App {
     if (!RULES.cp4RunBuffs || !ids?.length) return '';
     const GLYPH: Record<string, string> = { blade: '⚔', oc: '⚡', arcane: '✦', bulwark: '⛨', none: '◆' };
     const c = combos(ids), cnt = schoolCounts(ids);
-    const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${comboZh(s as keyof Combos)}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
+    const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${comboZh(s as keyof Combos)}${RULES.cp8 && s === 'bulwark' ? '（搭盾才有格擋）' : ''}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
     return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}"><i>${GLYPH[b.school]}</i>${esc([...b.zh][0] ?? '')}</span>`; }).join('')}${prog}</div>`;
   }
   buffCard(id: string, btn: string): string {
     const b = BUFF[id]!;
-    return `<div class="buffcard r-${b.rarity}"><div class="bh"><b>${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small></div><div class="bd">${esc(b.desc)}</div>${btn}</div>`;
+    return `<div class="buffcard r-${b.rarity}"><div class="bh"><b>${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small></div><div class="bd">${esc(b.desc)}${RULES.cp8 && b.school === 'bulwark' ? '<br><small class="warn" data-shieldnote>搭盾才有格擋</small>' : ''}</div>${btn}</div>`;
   }
   /** CP4 r2 step 3: before -> after rows for a buff choice. */
   previewHtml(id: string): string {

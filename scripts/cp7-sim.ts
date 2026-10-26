@@ -64,7 +64,7 @@ const reach: Record<number, number> = {}, endAt: Record<number, number> = {};
 const p3 = { rest: { n: 0, full: 0 }, none: { n: 0, full: 0 } };
 const b10 = { n: 0, w: 0 }; let built = 0, deep = 0, shallow = 0, cpTrips = 0, cpDeadFirst = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
 for (let s = S0 + 1; s <= S0 + N; s++) {
-  const p = newPlayer(); starterKit(p, s); let ok = false, i = 1;
+  const p = newPlayer(); starterKit(p, s, sc === 'bulwark' ? 'bulwark' : undefined); let ok = false, i = 1;
   for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);
   if (!ok || !abyssOpen(p)) continue; built++;
@@ -82,7 +82,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
     if (E.DBGP2 && t <= 2) { const z = r.settlement as { cp8?: { pw0: number; pw1: number; worn: string[] }; lostItems?: unknown[]; kept?: unknown[]; levelBefore?: number; levelAfter?: number }; console.error('P2', JSON.stringify({ s, t, st, cl, dead, pw0: z.cp8?.pw0, pw1: z.cp8?.pw1, worn: z.cp8?.worn.length, lost: z.lostItems?.length ?? 0, kept: z.kept?.length ?? 0, lv0: z.levelBefore, lv1: z.levelAfter, kills: r.kills })); } // cp8-rc2 P2 diagnosis (stderr only)
     if (E.DBGRD && st <= 30) console.error('RD', JSON.stringify({ s, t, st, cl, max: +RDMG.max.toFixed(3), av: RDMG.av, hits: RDMG.hits, mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group, body: p.equipped.body?.group }));
-    if (E.DBGLOW && t === 1) console.error('LOW', JSON.stringify({ s, cl, why: r.end?.why, type: r.end?.type, hpPots: r.end?.hpPots, bturns: r.end?.bturns, foes: r.end?.foes.map((f) => f.rank + (f.affixes ? ':' + f.affixes.join('+') : '')), lv: level(p), mh: p.equipped.mainHand ? p.equipped.mainHand.name + ' ' + p.equipped.mainHand.quality + ' L' + p.equipped.mainHand.level : '-', pot0: p.potions.health }));
+    if (E.DBGLOW && t === 1) console.error('LOW', JSON.stringify({ s, cl, why: r.end?.why, type: r.end?.type, hpPots: r.end?.hpPots, bturns: r.end?.bturns, foes: r.end?.foes.map((f) => f.rank + (f.affixes ? ':' + f.affixes.join('+') : '')), lv: level(p), mh: p.equipped.mainHand ? p.equipped.mainHand.quality + ' L' + p.equipped.mainHand.level : '-', pot0: p.potions.health }));
     if (t === 2) second.push(cl);
     if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)

@@ -42,10 +42,13 @@ export const AUTO_EQUIP_MARGIN = 0.05;
 /** rc4 (sim only): weapon layout per play school. arcane = staff, bulwark = one-hand + shield (docs/cp4-run-buffs.md §2: W1 不動之盾 block/parry),
  * blade = one-hand, off-hand free (推定：B7 處刑者 buffs Merciful Blow, a One-Handed skill line in F-002-4.2-skills / Ticket 04),
  * oc = any main hand, shield free, best joint pair (推定：no doc names a weapon; a forced two-hander gave 97% never-clear in the sim, docs/logs/rc4-noclear-schoolgear-oc2h.txt). null = original slot-by-slot logic. */
-export type GearStyle = { main: Equip['group'] | null; shield: 'yes' | 'free' | 'no' } | null;
+export type GearStyle = { main: Equip['group'] | null; shield: 'yes' | 'free' | 'no'; armor?: 'heavy' } | null;
+/** cp8-rc5 (producer 2026-10-26, layout only, no numbers): a bulwark-leaning player's town 換上 = 1H + shield, heavy armor preferred. */
+export const BULWARK_STYLE: NonNullable<GearStyle> = { main: 'oneHand', shield: 'yes', armor: 'heavy' };
+export const leanStyle = (p: Player): GearStyle => (RULES.cp8 && p.lean === 'bulwark' ? BULWARK_STYLE : null);
 export function gearStyle(strategy: string): GearStyle {
   if (strategy.startsWith('buff:arcane')) return { main: 'staff', shield: 'no' };
-  if (strategy.startsWith('buff:bulwark')) return { main: 'oneHand', shield: 'yes' };
+  if (strategy.startsWith('buff:bulwark')) return RULES.cp8 ? BULWARK_STYLE : { main: 'oneHand', shield: 'yes' };
   // rc6 item 3 (school→style mapping: producer decision, 暫定，無來源; style definitions: parsed_wiki/Fighting_Styles.md).
   if (strategy.startsWith('buff:blade')) return { main: 'twoHand', shield: 'no' };
   // OC = dual wield per producer; the game has no dual wield (offHand = shield group only, constants.ts F-003-base-groups) → 1H, no shield (暫定).
@@ -84,6 +87,9 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
   for (const slot of SLOTS) {
     if (style && (slot === 'mainHand' || slot === 'offHand')) continue;
     for (const e of cands.filter((x) => x.slot === slot)) {
+      // cp8-rc5: heavy preference — never trade worn heavy for non-heavy; a heavy piece replaces non-heavy when it scores at least as well (no margin).
+      const w = p.equipped[slot], hv = style?.armor === 'heavy' && ['cloth', 'light', 'heavy'].includes(e.group);
+      if (hv && w?.group === 'heavy' && e.group !== 'heavy') continue;
       const cur = powerScore(derive(p));
       const trial: Player = { ...p, equipped: { ...p.equipped, [slot]: e } };
       if (blocksOffHand(e)) delete trial.equipped.offHand;
@@ -91,7 +97,7 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
       // weapon to the inventory and the town sell (keep = equipped only) sold it, leaving the sim character unarmed. Never trade the main hand away.
       if (slot === 'offHand' && blocksOffHand(p.equipped.mainHand)) continue;
       // CP7: the AI wears what the UI badges as 「▲ 比身上好」 (same rule, CP7.betterMargin).
-      if (powerScore(derive(trial)) > cur * (1 + (RULES.cp7 ? CP7.betterMargin : AUTO_EQUIP_MARGIN))) {
+      if (powerScore(derive(trial)) > (hv && e.group === 'heavy' && w && w.group !== 'heavy' ? cur - 1e-9 : cur * (1 + (RULES.cp7 ? CP7.betterMargin : AUTO_EQUIP_MARGIN)))) {
         if (!p.inventory.includes(e)) { p.inventory.push(e); used.push(e); }
         equip(p, e);
       }
@@ -364,13 +370,13 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) { end = { why: 'dead', floor: run.floor, type, hpPots: b.potions.health, bturns: b.turn, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
-      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? null : gearStyle(strategy));
+      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e)); }
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
       if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run, p));
-      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? null : gearStyle(strategy));
+      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e)); }
     } else if (type === 'merchant') {
       const st = merchantStock(run);
@@ -406,8 +412,12 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   return { upg: run.upg ?? 0, rests, trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
-export function starterKit(p: Player, seed = 7): void {
+export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
   const rng = new Rng(seed);
+  if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5: bulwark start = 1H + shield + heavy (same fair L1 rolls as the default kit)
+    const kit = [generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' }), generateEquip(rng, 1, { group: 'shield', base: 'buckler', quality: 'fair' }), generateEquip(rng, 1, { group: 'heavy', base: 'plate', slot: 'body', quality: 'fair' })];
+    for (const e of kit) { p.inventory.push(e); equip(p, e); } p.lean = 'bulwark'; return;
+  }
   const w = generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' });
   const a = generateEquip(rng, 1, { group: 'light', base: 'leather', slot: 'body', quality: 'fair' });
   p.inventory.push(w, a);

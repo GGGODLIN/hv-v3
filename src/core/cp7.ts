@@ -5,6 +5,7 @@
 import { type Equip, type Slot, QUALITIES, blocksOffHand, generateEquip, type Quality } from './items';
 import { type Player, derive, powerScore } from './player';
 import type { Rng } from './rng';
+import { RULES } from './run';
 
 export const CP7 = {
   /** "比身上好" threshold: wearing the item raises 戰力 (powerScore) by more than this fraction. Under CP7 the sim's armour
@@ -60,7 +61,15 @@ export function wearGain(p: Player, e: Equip): number {
   return cur > 0 ? powerScore(derive(trial)) / cur - 1 : 1;
 }
 /** CP7 P1 definition of a better drop (UI badge + sim metric). */
-export const betterThanWorn = (p: Player, e: Equip): boolean => wearGain(p, e) > CP7.betterMargin;
+export function betterThanWorn(p: Player, e: Equip): boolean {
+  if (RULES.cp8 && p.lean === 'bulwark') { // cp8-rc5 (layout only): a bulwark-leaning player keeps 1H + shield and heavy armour
+    const w = p.equipped[e.slot], arm = ['cloth', 'light', 'heavy'].includes(e.group);
+    if (e.slot === 'mainHand' && e.group !== 'oneHand') return false;
+    if (arm && w?.group === 'heavy' && e.group !== 'heavy') return false;
+    if (arm && e.group === 'heavy' && w && w.group !== 'heavy') return wearGain(p, e) >= 0 && e.id !== w.id;
+  }
+  return wearGain(p, e) > CP7.betterMargin;
+}
 /** cp7-rc5 bug 1: one verdict for every 「▲」 the UI shows (裝備欄 compare, 「▲ 比身上好」 badge, 出發前整備). `small` = 戰力 goes up
  *  but by no more than CP7.betterMargin, so the badge / reminder do not list it (the UI says so instead of a bare ▲). */
 export function gearVerdict(p: Player, e: Equip): 'better' | 'small' | 'none' {
