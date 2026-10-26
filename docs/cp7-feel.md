@@ -2,7 +2,7 @@
 
 所有 CP7 改動都只在 `RULES.cp7 = true` 時生效；關閉時 `scripts/cp4-on-check.sh` 仍輸出 `CP4+CP5+CP6-ON SIM == cp6-on baseline`。
 旋鈕集中在 `src/core/cp7.ts`。Sim：`scripts/cp7-round.sh <name>`（N×4 流派×A/B），報告 `scripts/cp7-report.ts` 印出 P1–P5 CHECK 行。
-最終 N=256 結果：`docs/cp7-final-sim.txt`。
+最終結果（cp7-rc4，N=128）：`docs/cp7-final-sim.txt`。
 
 ## 定義
 - **「比身上好」**：穿上後 戰力（`powerScore(derive)`）提升 > `betterMargin` = 2%。UI 徽章「▲ 比身上好」、sim 指標、CP7 下 AI 防具自動換裝共用同一規則。**暫定（缺原版出處）**：單件防具只動總戰力約 1–4%，舊 5% 門檻幾乎永遠不觸發。
@@ -60,3 +60,20 @@
 - 掉寶等級 bug：cp7 下深淵掉落用 abyssLevel（=玩家 Lv，無 +5）；Lv33/39 來自 pity 以「最高穿戴等級」為基準每 pass +3（最多 +24）並逐趟棘輪上升（sim 見 Lv38/51 身甲）。修正：dropLevel = 玩家 Lv + lootLvAdd(5)；pity 以 dropLevel 為基準、+1/pass、上限 +3（pityLevelCap，暫定），後續 pass 提升品質（pityQualityPerPass 1，暫定），第 2 pass 起奇數次可換甲系（暫定），武器後備全區開放（暫定）。
 - 未達：P1「每個勝趟 ≥1 件更好」99.6% / 99.4%（目標 100%）。剩餘失敗趟為裝備已近飽和（peerless roll200）於深檢查點 1 勝即死；pity 上限 +3/+6 均無法超過 betterMargin 2%。要 100% 只能回到無上限等級膨脹（即本 bug）或調整 betterMargin／P1 定義 → 需製作人決定。
 - run-buff 假說（檢查點起點 0 buff → 首戰死）：d6/d11 幾乎無差；d16/d21 顯著（postF20-blade d21 12% vs 8 buff 45%、bulwark d16 64% vs 91%、abyss15 d16 34% vs 66%）。部分成立 → 列為 CP8 候選，未實作。
+
+## 出發前整備提醒（cp7-rc4 製作人決定 2，只在 `RULES.cp7`）
+從城鎮出發（主塔 `[data-start]`、深淵 `[data-abyss]`）時，`src/core/prep.ts` 的 `prepIssues()` 任一成立就彈出「出發前整備」；都不成立直接出發。
+| 條件 | 判定 | 一鍵處理（與 sim 共用） |
+|---|---|---|
+| (a) 未分配 EXP | 已解鎖配點，且 sim 的 `autoAllocate` 至少會花掉 1 點（剩餘不夠 autoAllocate 下一點的零頭不提醒，確保按一次即消除） | 「自動分配」= `autoAllocate`（sim 城鎮整備同一函式；城鎮沒有流派，故不依流派） |
+| (b) 沒帶 HP 藥 | 已解鎖城鎮商店，且生命藥水 = 0（商店開放前 `startRun` 會補到 STARTER_POTIONS） | 「買藥」= `buyHealthTo(p, TOWN_HP_POTIONS)`，補到 3 瓶，錢不夠就買到買不起為止 |
+| (c) 倉庫有更好裝備 | 倉庫任一件 `betterThanWorn`（betterMargin 2%，即「▲ 比身上好」徽章） | 「換上」= `autoEquip(p, [])`（CP7 下同一 2% 門檻），重複到倉庫沒有徽章件為止（上限 8 次） |
+另有「全部處理」（依 sim 城鎮整備順序：配點 → 換裝 → 買藥，只處理仍成立的項目）與「忽略並出發」（狀態不變直接出發）。全部處理完後提醒改顯示「整備完成。」，按鈕變「出發」；「取消」關閉不出發。
+- **暫定（缺原版出處）**：`TOWN_HP_POTIONS = 3`（原 sim 城鎮整備的 3 瓶，抽成常數，數值未變）；「(b) 只看生命藥水、門檻 0 瓶」照製作人文字；「(a) 以 autoAllocate 會不會花點為準」為實作判斷。
+- 驗證：`tests/cp7-prep.test.ts`（三條件觸發/不觸發、各一鍵結果）；`scripts/cp7-rc4-prep-e2e.mjs`（真 build headless，log：`docs/logs/cp7rc4/prep-e2e.txt`）。
+- sim 重構只把 `autoRun` 的買藥迴圈抽成 `buyHealthTo`，行為不變：cp7 關閉 `cp4-on-check.sh` 與 cp6-on baseline 逐位元一致；cp7 開啟 cp7-report 數值與 rc3 完全相同（只有 P1 CHECK 因門檻改為 PASS）。
+
+## cp7-rc4 結果（N=128）
+- cp7-report A/B：ALL PASS（`docs/cp7-final-sim.txt`；P1 99.6% / 99.4% ≥ 99%）。
+- cp6-abyss-sim（cp7 開，N=128）：ALL PASS（`docs/logs/cp7rc4/cp6-abyss-sim-N128.txt`）。
+- 必死組合（N=96）：必死 0、警告 17、相對必死 8（rc2 同為 8）（`docs/logs/cp7rc4/deathcombo-N96.txt`）。
