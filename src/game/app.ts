@@ -1,3 +1,4 @@
+import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
 import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
@@ -536,6 +537,9 @@ export class App {
   }
 
   queued: string | null = null;
+  /** cp8-rc9 item 1: wind-up input hold. */
+  chargeHoldUntil = 0;
+  windWas = false;
 
   key(e: KeyboardEvent) {
     if (this.screen !== 'battle' || !this.battle) return;
@@ -740,6 +744,7 @@ export class App {
   async command(cmd: string): Promise<void> {
     const b = this.battle;
     if (!b || this.busy || b.over) return;
+    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:)/.test(cmd)) return; // cp8-rc9 item 1
     const [kind, id] = cmd.split(':') as [string, string | undefined];
     if (b.monsters[this.target]?.hp === 0) this.target = b.monsters.findIndex((m) => m.hp > 0);
     const a: Action =
@@ -796,7 +801,13 @@ export class App {
     await this.stage.play(ev, b);
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
-    const q = this.queued; this.queued = null;
+    let q = this.queued; this.queued = null;
+    // cp8-rc9 item 1 (UI only, 暫定): a new 蓄力 / 大招 wind-up drops the queued key and holds non-defensive input for
+    // CP8.chargeHoldMs, so tapping / holding A at 4x + 跳過動畫 cannot skip the decide panel. D / Z / X / C stay instant.
+    if (RULES.cp8 && !b.over && b.monsters.some(windingUp)) {
+      const fresh = !this.windWas; this.windWas = true;
+      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !/^(defend|item:)/.test(q)) q = null; }
+    } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }
     if (b.over) return this.endBattle();
