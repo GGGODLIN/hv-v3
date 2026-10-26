@@ -594,7 +594,9 @@ export class App {
     const rows = [
       iss.includes('alloc') ? row('alloc', `還有 ${unspentExp(p).toLocaleString()} EXP 未分配成屬性點。`, '自動分配') : '',
       iss.includes('potion') ? row('potion', `沒有帶生命藥水（持有 ${p.potions.health} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（補到 ${TOWN_HP_POTIONS} 瓶）`) : '',
-      iss.includes('equip') ? row('equip', `倉庫有 ${nb} 件「▲ 比身上好」的裝備。`, '換上') : '',
+      iss.includes('equip') ? row('equip', RULES.cp8 // cp8-rc2 UX: name each better piece (slot · name · power gain), not only the count
+        ? `倉庫有 ${nb} 件「▲ 比身上好」的裝備：<span data-prep-items>${betterInBag(p).map((e) => `<b data-prep-item="${e.id}">${SLOT_ZH[e.slot]}・${esc(equipName(e))}（▲${this.powerDelta(e)}）</b>`).join('、')}</span>`
+        : `倉庫有 ${nb} 件「▲ 比身上好」的裝備。`, '換上') : '',
     ].join('');
     const body = iss.length
       ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
