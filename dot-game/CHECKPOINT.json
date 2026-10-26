@@ -1,6 +1,6 @@
 {
-  "checkpoint": "114-v024-browser-accepted",
-  "status": "browser-accepted-prepublication",
+  "checkpoint": "116-v024-publication-receipt",
+  "status": "published-bounded-desktop-accepted",
   "base_accepted_recovery": "f9cd7aedd3f26bab628d0d249f9ff17a7eeb817d",
   "source_tests_passed": 1504,
   "runtime_syntax_checks": 4,
@@ -13,11 +13,11 @@
   "natural_fresh_trial_defeats": 0,
   "advanced_unchanged_export_trials": 2,
   "item_world_scope": "IW1 only; bound Fair/Average/Superior axe/rapier/club; fixed local strength5",
-  "frozen_utc": "2026-10-26T20:18:50Z",
+  "frozen_utc": "2026-10-26T20:27:00Z",
   "files": {
     "README.md": {
-      "bytes": 4601,
-      "sha256": "eb280dc26d339f0213fa5c80349200f6707feaa8a87ac4a94ed7e107c8b043bf"
+      "bytes": 4879,
+      "sha256": "7da498e4cf52f6a46acca139789f3dcb68512445630406309e25e75cd0f9e878"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -188,8 +188,8 @@
       "sha256": "fe5efedc83a568a71986e3b64900114c233e5f736eac9dbb036ea5def0f5a107"
     },
     "docs/BROWSER-QA-V024.md": {
-      "bytes": 6480,
-      "sha256": "8b576e52bef6d195c3357a2e8edccc33d36bcf21eac4e423b9adbe689a8ae59c"
+      "bytes": 8122,
+      "sha256": "522aa96d444a339e392b38411adcba36f6669f441491509fc2ca58bd7976ec6c"
     },
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
@@ -356,12 +356,12 @@
       "sha256": "8733f57e32ae90088e361ec8a5f5e00b382bf363e34d33962b172002190c3f7f"
     },
     "docs/RECOVERY-V024.md": {
-      "bytes": 3416,
-      "sha256": "d84cfdf8442748852ecbc755b833df3f9d111f1040535764685e3aed74550eee"
+      "bytes": 3991,
+      "sha256": "ca5d559705720aee678ca5cd4f7b70fadb9a0d31cf44dd739764040872e5e166"
     },
     "docs/RELEASES.md": {
-      "bytes": 39788,
-      "sha256": "fea144c422e30eb1736455fbd36cdc270f87ee3e1e2f37534b75359b10a153a2"
+      "bytes": 40768,
+      "sha256": "5734bd96840ba9963dc52edd5e8b85794a19648b67c46a86f5b8c797fa4415b5"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
@@ -384,8 +384,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 2708,
-      "sha256": "e8bce29dcffbf94ef86a1c356adc90bd5c4eeef491c61ed7016909ebf9f7f1ca"
+      "bytes": 3474,
+      "sha256": "ac04617f975fc91fd613734a2e1fce6d7ad2f71013338dca42bf50304d296ade"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -915,5 +915,10 @@
   "runtime_source": "60e87374eeddcf93ea54d72128deaea57e4d2411",
   "candidate_site": "8aa0732d1871ae76ebd95ea9a399143eae05d36e",
   "candidate_pages_run": 40392640069,
-  "browser_acceptance_utc": "2026-10-26T20:17:00Z"
+  "browser_acceptance_utc": "2026-10-26T20:17:00Z",
+  "accepted_prepublication_source": "e1e1ce6816fa43cfe3d89e2036b1da95dfe1e967",
+  "accepted_site": "962b1cee329b23dccae58f916ca7c5a74dc43e91",
+  "root_pages_run": 40395026538,
+  "root_smoke_utc": "2026-10-26T20:25:00Z",
+  "root_export_sha256": "975f910f30da515cee2dd423a95d2520d3d946348cb8fd88e2b68d46670f18b1"
 }

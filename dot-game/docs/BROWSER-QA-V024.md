@@ -1,6 +1,6 @@
 # v0.24 actual cloud-browser acceptance
 
-**Bounded desktop candidate acceptance passed:2026-10-26 20:17UTC.** Formal-root publication and its separate stable-profile smoke remain pending at this checkpoint. No runtime edits followed the frozen source or candidate verification.
+**Bounded desktop candidate acceptance passed:2026-10-26 20:17UTC.** Formal-root publication and its separate stable-profile smoke subsequently passed; see the final section. No runtime edits followed the frozen source or candidate verification.
 
 ## Exact runtime and environment
 
@@ -48,3 +48,13 @@ Captured103 warn/error entries through20:16UTC; all were exactly `chrome-extensi
 No natural defeat was manufactured: all600 source-earned trials won; source synthetic tests separately establish defeat/refund and each lethal-path correctness. No browser malformed-import, forced capacity/overflow, stale ownership takeover, physical mobile, narrow viewport, OS sleep or comprehensive balance claim is made. Cancel, actual retreat/reload, earning, two victories, later growth, normal equip/preset, protection and persistence were actually exercised as stated.
 
 **GO for a complete accepted-source documentation backup/readback, then promotion of these same six runtime files to formal root.** Root smoke must use the parent's existing stable profile, not this candidate export. Source backup does not restore personal browser progress, Library/account state or credentials.
+
+## Formal-root publication and independent stable smoke —20:24–20:25UTC
+
+Accepted complete source `e1e1ce6816fa43cfe3d89e2036b1da95dfe1e967` was exactly backed up before root website `962b1cee329b23dccae58f916ca7c5a74dc43e91`. Exact Pages40395026538 succeeded; all six public HTTP200 bodies/SHA256s matched the accepted runtime. All3,936 other website blobs/modes, including candidate, stayed unchanged.
+
+The parent used the existing stable cloud tab2, not candidate18 or a new parallel profile. Reload showedv0.24 and preserved its own Lv10/gold762/wins16/inventory31/HP848/MP46/fragments10, with new seeds0 and original unboundLv7`loot-12`. One actual ordinary stage1 expedition with queued camp return produced Lv10/gold838/wins17/inventory32/HP848/MP46/fragments20/seeds1. Reload preserved that result. There was no candidate import or forced binding.
+
+Normal UI export SHA256 `975f910f30da515cee2dd423a95d2520d3d946348cb8fd88e2b68d46670f18b1` validates as format3; original weapon remains unboundLv7, noIW item exists, and resources/wins match the visible observations.34 captured warn/error entries were exclusively the same exact known extension metadata source, none app-origin. Stabletab2 was markedDeliverable and left camp; completed candidate18 was closed after its exports/evidence were retained.
+
+Root smoke proves the original profile's migration, ordinary earning and reload; first-tier trials were actually tested on byte-identical candidate. Final publication receipt is documents/manifest only, reusing1,504 tests/four syntax and unchanged-runtime evidence. No additional deployment or test rerun is implied.
