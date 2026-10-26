@@ -19,7 +19,10 @@ const top = (pg) => pg.evaluate(() => { const e = document.querySelector('button
 // A: pick all, record node top before every pick and after the last.
 let pg = await open(); R.ys = [];
 for (let k = 0; k < 10 && (await pg.$('[data-startpick] [data-buff]')); k++) { R.ys.push(await top(pg)); await pg.click('[data-startpick] [data-buff]'); await w(200); }
-R.ys.push(await top(pg)); await pg.close();
+R.ys.push(await top(pg));
+// cp8-rc5: the flake was the buff strip wrapping to a 2nd row once the picked names got long — force many long buffs.
+R.many = await pg.evaluate(() => { const a = window.hv, y0 = document.querySelector('button[data-node]').getBoundingClientRect().y; const keep = a.run.buffs.slice(); const pool = Object.keys(window.hvBuffs ?? {}); a.run.buffs = keep.concat(keep, keep, keep); a.render(); const y1 = document.querySelector('button[data-node]').getBoundingClientRect().y; a.run.buffs = keep; a.render(); return Math.round(Math.abs(y1 - y0) * 10) / 10; });
+await pg.close();
 const ys = R.ys.map((x) => x[0]); R.maxJump = Math.max(...ys.map((y) => Math.abs(y - ys[0]))); R.disabledDuring = R.ys.slice(0, -1).some((x) => x[1]);
 // B: click a node in the middle of the picks.
 pg = await open(); await pg.click('[data-startpick] [data-buff]'); await w(200);
@@ -28,5 +31,5 @@ const box = await pg.evaluate(() => { const r = document.querySelector('button[d
 await pg.mouse.click(box[0], box[1]); await w(400);
 R.entered = !!(await pg.$('.cmdbar')) || !(await pg.$('[data-startpick]'));
 R.errs = errs; console.log(JSON.stringify(R));
-const ok = R.ys.length >= 3 && R.maxJump <= 1 && !R.disabledDuring && R.midPick && R.entered && !errs.length;
+const ok = R.ys.length >= 3 && R.maxJump <= 1 && R.many <= 1 && !R.disabledDuring && R.midPick && R.entered && !errs.length;
 console.log(ok ? 'CP8 RC4 STARTPICK E2E PASS' : 'CP8 RC4 STARTPICK E2E FAIL'); await b.close(); process.exit(ok ? 0 : 1);

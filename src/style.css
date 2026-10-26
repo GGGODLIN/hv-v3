@@ -117,6 +117,9 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .cmdbar button .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }
 /* CP4 run buffs (flag ?cp4) */
 .buffs.fixh { min-height: 21px; }
+/* cp8-rc5: one fixed row — wrapping to a 2nd row when the picked names got long moved the map nodes 21.8px (startpick e2e flake). */
+.buffs.fixh { height: 22px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.buffs.fixh > * { flex-shrink: 0; }
 .buffs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 4px 0; font-size: 12px; }
 .bf { padding: 1px 6px; border-radius: 3px; border: 1px solid #ffffff44; background: #2a2038; }
 .bf.r-rare, .buffcard.r-rare { border-color: #5aa0ff; } .bf.r-legend, .buffcard.r-legend { border-color: #ffb040; box-shadow: 0 0 6px #ffb04066; }
