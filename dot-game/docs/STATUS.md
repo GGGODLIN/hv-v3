@@ -1,5 +1,16 @@
 # Current status
 
+## v0.12 published and stable-root accepted — 2026-10-26 05:18 UTC
+
+Version0.12 is published and bounded-desktop accepted at https://gggodlin.github.io/play/hv-v3-dot/ . Complete accepted source `26e96e6626dfc80e42492de9b3869e9d90eb8ec1` was backed up and exact-readback verified before website commit `02939222eed1789a235f343fd9e07a155ce80c8d`. Exact Pages run `40273174651` succeeded; HTTP6 returned six200 responses with exact frozen runtime bytes/SHA256. Runtime remains unchanged from `21247944ce2615847be37ae31f18b2b5c1e86841`.
+
+The public root retained its separate level20, gold8880, inventory114 and HP Tank rank1 profile. Normal reviewed selection sold onlyloot-167 andloot-165 for268 credits, yielding112 items/gold9148. An ordinary stage3 victory followed; retreat/reload retained level20, HP1090, AP19/20, wins85, inventory113 and gold9308. Selection was empty, the tab held progress ownership and Start was enabled. Candidate progress did not replace root progress. See docs/BROWSER-QA-V012.md for actual observations and limits.
+
+The exact verified commit containing this publication receipt is the latest accepted full-source restore point (116 files/115 manifest payloads). Prior v0.11 restore `61bd11e904e2aa1ea152e37deb461714df08e139` remains available. This receipt changes only docs/manifest;921 tests and four syntax checks are reused without runtime reruns or another deployment. Source backup does not restore browser saves, Library files, credentials or schedules.
+
+### Earlier candidate timeline (historical)
+
+
 ## v0.12 desktop accepted; root promotion pending — 2026-10-26 05:13 UTC
 
 Intentional selected-item batch sale passed bounded cloud-browser acceptance: exact IDs survive sorting/filtering, hidden selections remain disclosed, cancel leaves inventory/gold unchanged, one confirmation sells only the three reviewed items for219 credits, reload preserves the result, and ownership/departure clears pending intent. A normal exported-save comparison preserved every unselected item and all equipment. Three actual victories followed cleanup. See docs/BROWSER-QA-V012.md (BROWSER-QA-V012.md in this directory) for observations and limits.

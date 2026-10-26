@@ -1,6 +1,6 @@
 # v0.12 bounded cloud-browser acceptance
 
-Candidate acceptance PASS at 2026-10-26 05:13 UTC. Root promotion and stable-root smoke remain pending. Source `21247944ce2615847be37ae31f18b2b5c1e86841` was backed up/readback verified first (115 files / 114 payloads). Candidate site `5b3c9cbc86cf7d321db153b88c2070c3f62be920` passed exact Pages run `40272612375` and HTTP6: six 200 responses with exact runtime bytes/SHA256. Public v0.11 remained unchanged during staging and this acceptance.
+Candidate acceptance passed at 2026-10-26 05:13 UTC. Stable-root smoke passed at05:18 UTC as recorded below. Source `21247944ce2615847be37ae31f18b2b5c1e86841` was backed up/readback verified first (115 files / 114 payloads). Candidate site `5b3c9cbc86cf7d321db153b88c2070c3f62be920` passed exact Pages run `40272612375` and HTTP6: six 200 responses with exact runtime bytes/SHA256. Public v0.11 remained unchanged during staging and this acceptance.
 
 ## Initial preservation and fresh controls
 
@@ -34,3 +34,11 @@ Retreat/reload retained level20, gold9429, wins87, inventory114, HP Tank rank1, 
 ## Explicit limits
 
 Node acceptance separately covers malformed, stale-price/item/lock, overflow, pending FIFO and repeated transactions. Browser evidence covers cancel, sorting/filtering, exact exported survivors, reload, ownership, combat guards and actual victories. No physical-mobile, OS-suspension, exhaustive lifecycle or application-console inspection is claimed. Explicit manual selection can intentionally sell better equipment after review; it has no automatic quality protection beyond locked/equipped exclusions.
+
+## Public-root smoke — 05:17–05:18 UTC
+
+Website `02939222eed1789a235f343fd9e07a155ce80c8d` passed exact Pages40273174651 and six exact HTTP body/hash checks before this smoke. Actual root tab26 loadedv0.12 with its original level20, gold8880, inventory114, HP Tank rank1 and AP19/20; no candidate save was substituted.
+
+Normal checkbox selection and review named onlyloot-167/loot-165, total268 and post-sale balance9148. Confirmation produced inventory112/gold9148 and cleared selection. One real stage3 victory took10.6s: attack242/maxHP1090/general mitigation9%,1165 basic plus383 skill HP removal,87 incoming HP loss, minimum96.3%, one stun. Retreat/reload retained level20, gold9308, wins85, inventory113, HP1090 and AP19/20. Selection remained empty; settled save status said saved, ownership belonged to this tab and Start was enabled.
+
+Candidate tabs35/36 were closed. Public tab26 remains a Deliverable in camp. No application-console or physical-device coverage is claimed.

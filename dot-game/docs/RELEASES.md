@@ -1,5 +1,14 @@
 # Published releases
 
+## v0.12 — published, 2026-10-26 05:18 UTC
+
+- Explicit per-item multi-selection and reviewed batch sale. Exact ID/price comparison, hidden-selection count, cancel/repeat/stale/ownership safeguards and keyboard-focus retention. This is an independent convenience adaptation, not expanded safe-auto-sale; prices, loot, combat and saves remain unchanged.
+- Runtime source `21247944ce2615847be37ae31f18b2b5c1e86841`; accepted pre-publication source `26e96e6626dfc80e42492de9b3869e9d90eb8ec1` verified first.921 tests/four syntax checks pass.
+- Website `02939222eed1789a235f343fd9e07a155ce80c8d`, exact Pages40273174651 SUCCESS and HTTP6 exact. Only four root runtime blobs changed;3864 non-root site blobs and concurrent other works preserved. Candidate `5b3c9cbc86cf7d321db153b88c2070c3f62be920` remains available.
+- Candidate actual three-item sale removed exactly the reviewed IDs and preserved every unselected item/equipment record; reload, filter/sort, cancel, takeover and three victories passed. Root retained its independent profile, sold two reviewed weapons, won a real expedition and reloaded atlevel20/gold9308/items113/wins85. See BROWSER-QA-V012.md for bounded evidence and limitations.
+- Latest accepted restore is this exact verified receipt commit:116 files/115 payloads. Previous v0.11 restore `61bd11e904e2aa1ea152e37deb461714df08e139` retained. No personal browser-save, Library or external account recovery claim.
+
+
 ## v0.11 — published, 2026-10-26 04:32 UTC
 
 - Full researched ranks for the three existing AP lines: HP Tank10, MP Tank10,1H Damage3. Exact next-level gates, incremental AP costs, cumulative refunds and active/inactive semantics are shown. This is not the entire HV ability tree.
