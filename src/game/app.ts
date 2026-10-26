@@ -286,12 +286,19 @@ export class App {
 
   battleHtml(): string {
     const b = this.battle!;
+    const lean = this.p.lean;
+    // cp8-rc10 P0-4: a skill that came off cooldown stays "pending" until it is castable (OC permitting) and has been shown
+    // once, so the prompt is no longer lost when the turn it comes off cooldown is short on OC. Reset per battle.
+    if (this.cdBattle !== b) { this.cdBattle = b; this.cdPending = []; }
+    const ready = RULES.cp8 && b.turn > 0 && (lean === 'blade' || lean === 'oc') ? this.cdPending.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })) : [];
+    this.cdShown = ready;
+    const spellSug = RULES.cp8 && lean === 'arcane' ? this.arcaneSpell(b) : null;
     const sk = (Object.keys(SKILLS) as SkillId[]).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
-      return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
+      return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
-    const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
+    const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}${spellSug?.id === id ? ' suggest" data-sugbtn="1' : ''}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
     const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0)); // cp8-rc7 P1 item 3: 元素脈衝 too
     const charging = chargers.length > 0;
@@ -299,7 +306,6 @@ export class App {
     const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：<span data-wkl>${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}" data-wk="${w.type}:${w.pct}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</span> <span class="res" data-resl>抗：${resistances(m).map((r) => `<i class="${r.type === b.d.damageType ? 'mine' : ''}" data-res="${r.type}:${r.pct}">${TZ[r.type]} ${r.pct}%</i>`).join(' ') || '<span class="hint">無</span>'}</span></div>`).join('');
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     // cp8-rc8 P2 item 2: blade / oc see which skills they can use (or what unlocks them) on turn 1 of every fight.
-    const lean = this.p.lean;
     const skillHint = RULES.cp8 && b.turn === 0 && (lean === 'blade' || lean === 'oc') ? (() => {
       const ids = (Object.keys(SKILLS) as SkillId[]);
       const now = ids.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}`);
@@ -307,11 +313,10 @@ export class App {
       const sp = canUse(b, { kind: 'spirit' }) ? '、S·靈動架勢' : '';
       return `<div class="hint" data-skillhint>💡 本場可用：${now.length ? now.join('、') + sp : `攻擊累積 OC 後可用 ${later.join('、') || '—'}${sp}`}</div>`;
     })() : '';
-    const ready = RULES.cp8 && b.turn > 0 && (lean === 'blade' || lean === 'oc') ? this.cdReady.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })) : [];
     const ids0 = Object.keys(SKILLS) as SkillId[];
     const readyHint = ready.length ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 冷卻結束，現在可以用（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
-    const elemHint = RULES.cp8 && lean === 'arcane' ? this.arcaneHint(b) : '';
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（單擊超過最大 HP 一半）！' : '準備放出元素脈衝（大招）！'}<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
+    const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}${readyHint}${elemHint}
@@ -459,15 +464,19 @@ export class App {
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${cd > 0 ? `生命藥水冷卻中（還要 ${cd} 回合）` : '生命藥水已用完'}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
-  arcaneHint(b: BattleState): string {
-    const m = b.monsters[this.target]; if (!m || m.hp <= 0) return '';
-    const ZH: Record<string, string> = { fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
+  /** cp8-rc10 P0-4 */
+  arcaneSpell(b: BattleState): { id: SpellId; type: string; pct: number } | null {
+    const m = b.monsters[this.target]; if (!m || m.hp <= 0) return null;
     const ids = Object.keys(SPELLS) as SpellId[];
-    for (const w of weaknesses(m).filter((x) => ZH[x.type]).sort((x, y) => y.pct - x.pct)) {
+    for (const w of weaknesses(m).filter((x) => ELEM_ZH[x.type]).sort((x, y) => y.pct - x.pct)) {
       const id = ids.find((s) => SPELLS[s].element === w.type && canUse(b, { kind: 'spell', id: s, target: this.target }));
-      if (id) return `<div class="hint suggest" data-spellhint="${id}">💡 ${esc(m.name)} 弱${ZH[w.type]} ${w.pct}%：建議 <b>${ids.indexOf(id) + 1}·${SPELLS[id].zh}</b></div>`;
+      if (id) return { id, type: w.type, pct: w.pct };
     }
-    return '';
+    return null;
+  }
+  arcaneHint(b: BattleState, g: { id: SpellId; type: string; pct: number }): string {
+    const m = b.monsters[this.target]!, ids = Object.keys(SPELLS) as SpellId[];
+    return `<div class="hint suggest" data-spellhint="${g.id}">💡 ${esc(m.name)} 弱${ELEM_ZH[g.type]} ${g.pct}%：建議 <b>${ids.indexOf(g.id) + 1}·${SPELLS[g.id].zh}</b>（已標亮）</div>`;
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt; numbers are the battle's own): what D·防禦 / Q·盾擊 actually buy against this wind-up. */
   chargePayoff(b: BattleState, chargers: Monster[], est: number, estD: number): string {
@@ -565,7 +574,7 @@ export class App {
   /** cp8-rc9 P1-11: why the last key did nothing (shown above the command bar until the next accepted action). */
   refused = '';
   /** cp8-rc9 P2: skills whose cooldown ended on the last action (blade / oc prompt). */
-  cdReady: SkillId[] = [];
+  cdPending: SkillId[] = []; cdShown: SkillId[] = []; cdBattle: BattleState | null = null;
   /** cp8-rc9 item 1: wind-up input hold. */
   chargeHoldUntil = 0;
   windWas = false;
@@ -793,7 +802,8 @@ export class App {
     const hpBefore = b.hp, turnBefore = b.turn;
     const cd0 = { ...b.cooldowns };
     const ev = act(b, a, this.rng, profsOf(this.p));
-    this.cdReady = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2
+    { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4
+      this.cdPending = [...new Set([...this.cdPending, ...off])].filter((id) => !this.cdShown.includes(id) && b.cooldowns[id] <= 0); }
     // cp7-rc5 bug 3: per-turn damage record (display only, no effect on the battle): one line per monster phase, kept in full
     // on window.__turnLog for playtest reports (the on-screen log shows the last 6 lines only).
     if (RULES.cp7) {
