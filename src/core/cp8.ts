@@ -33,6 +33,9 @@ export const CP8 = {
    *  cp8-rc11 item 3（暫定、自訂，非原版）: rc2's 4 steps ended at d24, so d24→d25 still jumped ×0.925→×1. The ramp now spans
    *  themes 1–9 (d21–d29), linear 0.7 + 0.3·i/9, and d30 is the first full-strength floor.
    *  (rc2–rc10 value: [0.7, 0.775, 0.85, 0.925].) */
+  /** cp8-rc12 item 3（暫定、自訂，非原版）: from d21 each DIFF tier jump ramps over all 5 depths of the tier (was CP7.tierRamp 3 →
+   *  depths 3–5 of a tier shared one multiplier: d22–24 ×6.08, d27–29 ×7.60). Now the multiplier rises on every floor. */
+  tailRamp: 5,
   themeTail: Array.from({ length: 9 }, (_, i) => Math.round((0.7 + (0.3 * i) / 9) * 1000) / 1000) as number[],
   /** 暫定（缺原版出處；產品規則）rc3: with a staff in the main hand, 「A·攻擊」 casts this basic spell when it can (MP, unlocked),
    *  else it is a normal melee hit. Playtest: an arcane player who only presses 攻擊 hit with the staff (adb 118, wprof 5) and died at d8.

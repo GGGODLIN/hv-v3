@@ -1,3 +1,4 @@
+import { CP8 } from './cp8';
 import { RULES } from './run';
 import { CP7, cp7DepthDmg } from './cp7';
 /**
@@ -98,7 +99,7 @@ export const abyssPl = (d: number): number => floorPl(20) + Math.round(RULES.cp7
 
 /** HP and damage multipliers at depth d. */
 export function abyssMult(d: number): { hp: number; dmg: number } {
-  const r = RULES.cp7 ? CP7.tierRamp : ABYSS.tierRamp;
+  const r = RULES.cp8 && d >= 21 ? CP8.tailRamp : RULES.cp7 ? CP7.tierRamp : ABYSS.tierRamp;
   const t = { hp: diffAt(d, 'hp', r), dmg: diffAt(d, 'dmg', r) };
   const k = d >= 40 ? Math.floor((d - 40) / ABYSS.past40.every) : 0; // d 40–44: base PFUDOR; +5% from 45
   return { hp: ABYSS.hpScale * t.hp * (1 + ABYSS.past40.hp * k), dmg: ABYSS.dmgScale * t.dmg * (1 + ABYSS.past40.dmg * k) * (RULES.cp7 ? cp7DepthDmg(d) : 1 + ABYSS.dmgPerDepth * (d - 1)) };
