@@ -215,3 +215,13 @@ P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 
 - 修正：bulwark 起始裝/preset 重匯、全部處理補三藥至 3（暫定）、流派配點、Boss 前休息、冷卻中蓄力提示、流派鎖定自動換裝、預估傷害/死因、格擋/招架回饋。
 - 測試：vitest 262/262、cp4-on-check 一致、全部 e2e PASS。
 - 模擬（CP8 SOME FAIL）：P1 比值 1.588×(cur B)/1.350×(F B)/1.421×(B256) > 1.3；V 失敗（cur、B256）；受傷 bulwark p50 0.55 > 0.47（三份皆 FAIL）。故不 tag cp8-rc6。紀錄見 docs/logs/cp8rc6*。
+
+### cp8-rc6 出貨（製作人決定：試玩才是真正的關卡，sim 門檻不再擋 tag）
+- App.fresh 把新角色選的流派當 lean 傳給 starterKit；「建立新角色」視窗（cp8 開）可選流派。e2e：scripts/cp8-rc6-fresh-e2e.mjs。
+- postF20-bulwark preset：主手改為單手斧（同等級/品質/id，數值由 generateEquip 產生），副手維持塔盾。
+
+| 項目 | 狀態 | 目前值 | 目標 |
+|---|---|---|---|
+| P1 最強/最弱（B 組） | 「待調」 | 1.588×（cur B）/1.350×（F B）/1.421×（B256） | ≤1.3× |
+| V（arcane） | 「待調」 | 0.63 | ≥0.7 |
+| 受傷 CHECK | 「待調」 | 磐石 p50 0.55 > 0.47 | 見定義 |
