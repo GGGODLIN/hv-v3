@@ -17,7 +17,7 @@ import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as cor
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
 import { CP7, betterThanWorn, checkpointOptions, gearVerdict } from '../core/cp7';
-import { betterInBag, prepAlloc, prepEquip, prepIssues, prepPotions, type PrepIssue } from '../core/prep';
+import { autoWorn, betterInBag, prepAlloc, prepEquip, prepIssues, prepPotions, type PrepIssue } from '../core/prep';
 import { TOWN_HP_POTIONS } from '../core/auto';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
 import { sortieLabel } from '../core/progress';
@@ -580,7 +580,7 @@ export class App {
   /** CP7 出發前整備提醒: town → tower / abyss. Opens the reminder when any prepIssues() holds; otherwise departs at once. */
   depart(kind: 'main' | 'abyss') {
     const go = () => (kind === 'main' ? this.startRun() : this.startAbyss());
-    if (!RULES.cp7 || !prepIssues(this.p).length) return go();
+    if (!RULES.cp7 || (!prepIssues(this.p).length && !(RULES.cp8 && autoWorn(this.p).length))) return go();
     if (kind === 'abyss') { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value); if (v) this.abyssStart = v; }
     this.prepKind = kind;
     this.prepModal();
@@ -591,7 +591,9 @@ export class App {
     const go = () => { this.prepKind = null; if (kind === 'main') this.startRun(); else this.startAbyss(); };
     const row = (id: PrepIssue, text: string, btn: string) => `<li data-prep-row="${id}">${text} <button data-prep="${id}">${btn}</button></li>`;
     const nb = betterInBag(p).length;
+    const worn = RULES.cp8 ? autoWorn(p) : []; // cp8-rc3 item 2: CP8.autoWear already put the better drops on during the trip — say which
     const rows = [
+      worn.length ? `<li data-prep-row="worn">上一趟已自動換上 ${worn.length} 件較好的裝備：<span data-prep-worn>${worn.map((e) => `<b data-prep-worn-item="${e.id}">${SLOT_ZH[e.slot]}・${esc(equipName(e))}</b>`).join('、')}</span>（不需處理）</li>` : '',
       iss.includes('alloc') ? row('alloc', `還有 ${unspentExp(p).toLocaleString()} EXP 未分配成屬性點。`, '自動分配') : '',
       iss.includes('potion') ? row('potion', `沒有帶生命藥水（持有 ${p.potions.health} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（補到 ${TOWN_HP_POTIONS} 瓶）`) : '',
       iss.includes('equip') ? row('equip', RULES.cp8 // cp8-rc2 UX: name each better piece (slot · name · power gain), not only the count
@@ -601,7 +603,8 @@ export class App {
     const body = iss.length
       ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
       : `<p data-prepbox data-prep-done>整備完成。</p>`;
-    this.modal = { title: '出發前整備', body, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
+    if (worn.length) p.lastWorn = []; // shown once
+    this.modal = { title: '出發前整備', body: worn.length && !iss.length ? `<ul class="prep" data-prepbox>${rows}</ul>` : body, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
     this.render();
   }
   prepFix(k: PrepIssue | 'all') {

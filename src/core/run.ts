@@ -523,6 +523,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const mult = run.abyss ? abyssCarryAt(run) : carryMult(run.trip ?? g.trips + 1);
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
+  if (RULES.cp8) p.lastWorn = (run.worn ?? []).filter((id) => Object.values(p.equipped).some((e) => e?.id === id)); // cp8-rc3 item 2
   let kept = run.bag;
   let lostPotions: Partial<Record<PotionId, number>> = {};
   if (dead) {
