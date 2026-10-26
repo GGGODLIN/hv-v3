@@ -1,0 +1,52 @@
+{
+ "retry": {
+  "hv": "object",
+  "retries": 2,
+  "bg": true,
+  "stageRetries": 1
+ },
+ "retryHit": {
+  "monsters": 1,
+  "manifest": 3,
+  "png": 5
+ },
+ "trip3": "第 3 趟：帶回 EXP／Credits ×2",
+ "trip4": "第 4 趟：帶回 EXP／Credits ×1（新手加成已結束）",
+ "deathRule": "⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）",
+ "names-battle": {
+  "n": 2,
+  "bad": 0,
+  "leaks": 0,
+  "labels": 2
+ },
+ "names-boss-f5": {
+  "n": 2,
+  "bad": 0,
+  "leaks": 0,
+  "labels": 2
+ },
+ "bossName": "塔主・霜刃虎",
+ "spiritLog": [
+  "☯ 靈動架勢開啟：物理傷害 ×2（+100%），每回合消耗 1 SP 與 10 OC；OC 或 SP 不足會自動解除"
+ ],
+ "statusLog": [
+  "深淵之王・霜蹄怨靈 暈眩 5 回合（無法行動、無法迴避）"
+ ],
+ "skillLog": [
+  "盾擊 → 深淵之王・霜蹄怨靈 212（架勢 ×2）"
+ ],
+ "phaseLog": [
+  "⚡ 深淵之王・霜蹄怨靈 復活！第二階段・狂暴（復活清除異常狀態）（HP 回到 30%，蓄力變快）"
+ ],
+ "forge": [
+  "強化主手（+0 → +1） 尚可・戰鬥法師之斧：攻擊傷害 +33.8 → +35.2 攻擊命中 +5.1% → +5.3% 暴擊率 +1.8% → +1.9%",
+  "強化身（+0 → +1） 尚可・守護之皮革胸甲：物理減傷 +8.6% → +8.9% 魔法減傷 +3.9% → +4% 抵抗 +4.4% → +4.6% 閃避 +0.88% → +0.92%"
+ ],
+ "inv0": 2,
+ "sellModal": "賣掉倉庫全部？會賣掉倉庫裡全部 2 件裝備，得到 2002C。賣掉後無法買回。 取消確定賣掉 2 件",
+ "invAfterOpen": 2,
+ "invAfterCancel": 2,
+ "invAfterOk": 0
+}
+R3 names {"b":{"n":2,"bad":0,"leaks":0,"labels":2},"f5":{"n":2,"bad":0,"leaks":0,"labels":2},"boss":"塔主・霜刃虎","death":"⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）"}
+E2E-CP3FIX PASS

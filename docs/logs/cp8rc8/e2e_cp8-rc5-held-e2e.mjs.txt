@@ -1,0 +1,2 @@
+{"start":{"buffs":0,"held":0,"heldLeft":0,"offer":true,"startPick":true},"owed0":4,"afterPick":{"buffs":1,"held":0,"heldLeft":0,"offer":true,"startPick":true},"afterNode":{"buffs":1,"held":3,"heldLeft":2,"offer":false,"startPick":false},"heldShown":true,"label":"待選 buff（本趟有效，隨時可選）　之後還有 2 次","inRight":true,"picks":3,"end":{"buffs":4,"held":0,"heldLeft":0,"offer":false,"startPick":false},"errs":[]}
+CP8 RC5 HELD E2E PASS
