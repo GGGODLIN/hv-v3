@@ -217,6 +217,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
+  if ($('magic-notice')) $('magic-notice').hidden = true;
   clearFinishThenCamp(state); finishCampCancelled = false;
   closeGearSetDialog(); lastGearSetSignature = ''; $('gear-set-feedback').textContent = '';
   $('counter-notice').hidden = true; clearTimeout(counterTimer);
@@ -813,6 +814,9 @@ function updatePreferences() {
   writeStorage(PREF_KEY, JSON.stringify({ reducedMotion: prefs.reducedMotion, backgroundIdle: prefs.backgroundIdle }));
 }
 function eventEffects() {
+  const magicNotice = $('magic-notice');
+  const magicOwner = typeof tabOwner === 'boolean' && tabOwner;
+  if (magicNotice && (state.mode !== 'battle' || !magicOwner)) magicNotice.hidden = true;
   const bleedEvents = [];
   for (const event of state.events || []) {
     const key = String(event.id);
@@ -820,6 +824,12 @@ function eventEffects() {
     seenEvents.add(key); lastProcessedEvent = key;
     if (seenEvents.size > 200) { const keep = Array.from(seenEvents).slice(-100); seenEvents.clear(); keep.forEach(id => seenEvents.add(id)); }
     const type = event.type;
+    if (type === 'cast' && event.effect === 'magic' && magicNotice && state.mode === 'battle' && magicOwner) {
+      // Actual initiated cast, not next-action prediction. Persists through waves
+      // until another cast, camp, reload/import or ownership change.
+      magicNotice.textContent = `最近敵方施法 · ${event.text || '赤砂術式 · 魔法技能'}（已施放，不代表命中）`;
+      magicNotice.hidden = false;
+    }
     if ((type === 'proc' || type === 'recovery') && state.mode === 'battle') {
       // Text feedback remains visible with reduced motion; never infer a proc from a weapon name.
       const enemy = state.enemies.find(enemy => enemy.id === event.target && enemy.hp > 0);

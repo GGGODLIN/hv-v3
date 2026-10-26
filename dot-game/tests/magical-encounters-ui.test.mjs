@@ -60,3 +60,48 @@ test('current enemy cue is visible text, preserves control status, and refreshes
   assert.equal(h.dom['enemy-status-panel'].hidden, true);
   assert.equal(h.dom['enemy-status-list'].children.length, 0);
 });
+
+test('actual magic cast remains visible with reduced motion and clears in camp, readonly or adopted journey', () => {
+  const notice = node('p'); notice.hidden = true;
+  const state = { mode: 'battle', events: [{ id: 1, type: 'cast', effect: 'magic', text: '赤砂術式 · 魔法技能' }] };
+  const context = { state, tabOwner: true, prefs: { reducedMotion: true }, seenEvents: new Set(), lastProcessedEvent: '', $: id => id === 'magic-notice' ? notice : null };
+  runInNewContext(extract('eventEffects', 'setMeter'), context);
+  runInNewContext('eventEffects()', context);
+  assert.equal(notice.hidden, false);
+  assert.match(notice.textContent, /最近敵方施法 · 赤砂術式 · 魔法技能/);
+  assert.match(notice.textContent, /已施放，不代表命中/);
+  state.events = []; runInNewContext('eventEffects()', context);
+  assert.equal(notice.hidden, false, 'last real cast persists across frames');
+  context.tabOwner = false; runInNewContext('eventEffects()', context);
+  assert.equal(notice.hidden, true);
+  context.tabOwner = true; state.events = [{ id: 2, type: 'cast', effect: 'magic' }];
+  runInNewContext('eventEffects()', context); assert.equal(notice.hidden, false);
+  state.mode = 'town'; runInNewContext('eventEffects()', context); assert.equal(notice.hidden, true);
+  assert.match(source.slice(source.indexOf('function syncSelection()'), source.indexOf('function syncSelection()') + 300), /magic-notice.*hidden = true/);
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="magic-notice"[^>]*role="status"[^>]*aria-live="polite"[^>]*hidden/);
+});
+
+test('predictions and unrelated casts never claim a magical cast; readonly and loaded historical events do not replay', () => {
+  const notice = node('p'); notice.hidden = true;
+  const state = { mode: 'battle', events: [] };
+  const context = { state, tabOwner: true, prefs: { reducedMotion: true }, seenEvents: new Set(['historical']), lastProcessedEvent: '', $: id => id === 'magic-notice' ? notice : null };
+  runInNewContext(extract('eventEffects', 'setMeter'), context);
+  for (const events of [[], [{ id: 'physical', type: 'cast', effect: 'physical' }], [{ id: 'protection', type: 'cast', effect: 'protection' }], [{ id: 'historical', type: 'cast', effect: 'magic' }]]) {
+    state.events = events; runInNewContext('eventEffects()', context); assert.equal(notice.hidden, true);
+  }
+  context.tabOwner = false; state.events = [{ id: 'readonly-cast', type: 'cast', effect: 'magic' }];
+  runInNewContext('eventEffects()', context); assert.equal(notice.hidden, true);
+  context.tabOwner = true; runInNewContext('eventEffects()', context); assert.equal(notice.hidden, true);
+  state.events = [{ id: 'live', type: 'cast', effect: 'magic' }];
+  runInNewContext('eventEffects()', context); assert.equal(notice.hidden, false);
+  state.mode = 'defeat'; runInNewContext('eventEffects()', context); assert.equal(notice.hidden, true);
+});
+
+
+test('counter help no longer incorrectly limits eligible blocked attacks to physical', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /敵方物理攻擊確實出現/);
+  assert.match(html, /敵方攻擊確實出現至少一次適用的招架／格擋成功/);
+  assert.match(html, /魔法不可招架；魔法格擋後反擊沿用通用格擋規則的推論/);
+});

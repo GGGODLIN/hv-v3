@@ -3,7 +3,7 @@
 ## v0.20 candidate — source verified, browser/publication pending
 
 - One later-route mixed physical/magical-skill enemy with next-action telegraph; firstfour routes unchanged. No new MP/element/resist-equipment system.
-- Integration **1,315/1,315 tests** passed; 12,000 exact firstfour-route state/RNG/report comparisons and independent historical parity check. Natural measurement preserves rare casts and worse outcomes rather than claiming universal benefit; see MEASUREMENT-V020.md.
+- Integration **1,318/1,318 tests** passed; 12,000 exact firstfour-route state/RNG/report comparisons and independent historical parity check. Natural measurement preserves rare casts and worse outcomes rather than claiming universal benefit; see MEASUREMENT-V020.md.
 - Candidate source backup, isolated browser acceptance and root publication must be recorded before treating this as accepted. Latest verified release remains v0.19 below.
 
 ## Latest verified release — v0.19

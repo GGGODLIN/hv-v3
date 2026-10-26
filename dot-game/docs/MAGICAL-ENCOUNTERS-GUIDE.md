@@ -2,7 +2,7 @@
 
 ## Play and tradeoffs
 
-Starting at stage 5, non-boss **赤砂守衛** alternates a physical attack, then **赤砂術式**, a magical skill. The route preview identifies this pattern; its live card announces the next actual attack. A missed/evaded/blocked attack still consumes that step. A stun-skipped action does not; a real stun-recovery attack does. New enemies begin with a physical attack. Returning/reloading ends the encounter rather than saving a half-completed casting cycle.
+Starting at stage 5, non-boss **赤砂守衛** alternates a physical attack, then **赤砂術式**, a magical skill. The route preview identifies this pattern; its live card announces the next actual attack. A separate recent-cast notice records a genuinely initiated magical skill even with reduced motion; it says that casting does not guarantee a hit and clears on camp/load/ownership change. A missed/evaded/blocked attack still consumes that step. A stun-skipped action does not; a real stun-recovery attack does. New enemies begin with a physical attack. Returning/reloading ends the encounter rather than saving a half-completed casting cycle.
 
 Physical armor and parry still help against its physical strikes, but **neither applies to the magical skill**. Evade and block remain relevant, as does Protection's 25% independent reduction. Faster kills and club control can prevent opportunities to cast, without guaranteeing a faster or safer overall clear. Counterattacks remain possible after an actually reached successful block; evade or resist alone never qualify.
 

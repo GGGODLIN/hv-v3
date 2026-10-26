@@ -44,6 +44,7 @@
         <p class="enemy-status-hint">目前數字已計入穿透護甲／暈眩。閃＝閃避、招＝招架、擋＝格擋，皆為單次判定機率；暈眩不取消格擋，到期後可再行動。流血另列每 Tick 傷害，不改變防線數字。</p>
       </section>
       <p id="bleed-notice" class="bleed-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+      <p id="magic-notice" class="bleed-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
       <p id="protection-live" class="protection-live" hidden></p>
       <p id="counter-notice" class="counter-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
@@ -62,7 +63,7 @@
         <p id="counterattack-chance" class="counterattack-value"></p>
         <p id="counterattack-budget" class="counterattack-value"></p>
         <p class="counterattack-note">招架或格擋成功後才擲反擊機率，不是每次受擊機率；純閃避不觸發。增加招架判定率或格擋可增加符合條件的機會，但不保證更快通關。</p>
-        <details class="counterattack-rules"><summary>觸發條件與本版範圍</summary><p>裝備可辨識的戰斧、刺劍或戰棍時，敵方物理攻擊確實出現至少一次招架／格擋成功、我方與攻擊者仍存活，且本回合尚有次數，才有機會反擊該敵人。本作把部分招架／格擋也列為資格，這是雙判定鏈的整合改編，不是已考證的原版部分防禦規則。純閃避、盲擊落空或僅有零傷害不算。</p><p>條件機率參考原版：min(75, 25 + 0.02 × (STR + DEX) + 有效單手熟練度 / 10)%；本作沿用有效熟練度上限 1.2 × 等級。每個我方回合最多 1 次；有效熟練度達 100／200 時改為 2／3 次。回合不是全域 Tick，也不是每個敵人的回合；已發起但被擋下的反擊仍佔次數。</p><p>反擊使用當前面板一般攻擊，不花 MP、不額外增加熟練度，也不佔正常攻擊行動。不能暴擊；繞過閃避與招架，但仍受格擋、減傷與傷害亂數影響。已有穿透護甲可改善反擊傷害，反擊不施加或刷新穿透護甲、流血、暈眩或其他武器特效。</p><p>目前只實作單手反擊的傷害部分，尚無原版反擊暈眩、Overcharge／Overwhelming Strikes；不是完整原版單手流派。回營及載入不保留反擊次數；候選版與正式版存檔仍分開。戰報反擊傷害另列，不算普攻或技能傷害。</p></details>
+        <details class="counterattack-rules"><summary>觸發條件與本版範圍</summary><p>裝備可辨識的戰斧、刺劍或戰棍時，敵方攻擊確實出現至少一次適用的招架／格擋成功、我方與攻擊者仍存活，且本回合尚有次數，才有機會反擊該敵人。本作把部分招架／格擋也列為資格，這是雙判定鏈的整合改編，不是已考證的原版部分防禦規則。純閃避、盲擊落空或僅有零傷害不算。魔法不可招架；魔法格擋後反擊沿用通用格擋規則的推論，不宣稱已考證原版特例。</p><p>條件機率參考原版：min(75, 25 + 0.02 × (STR + DEX) + 有效單手熟練度 / 10)%；本作沿用有效熟練度上限 1.2 × 等級。每個我方回合最多 1 次；有效熟練度達 100／200 時改為 2／3 次。回合不是全域 Tick，也不是每個敵人的回合；已發起但被擋下的反擊仍佔次數。</p><p>反擊使用當前面板一般攻擊，不花 MP、不額外增加熟練度，也不佔正常攻擊行動。不能暴擊；繞過閃避與招架，但仍受格擋、減傷與傷害亂數影響。已有穿透護甲可改善反擊傷害，反擊不施加或刷新穿透護甲、流血、暈眩或其他武器特效。</p><p>目前只實作單手反擊的傷害部分，尚無原版反擊暈眩、Overcharge／Overwhelming Strikes；不是完整原版單手流派。回營及載入不保留反擊次數；候選版與正式版存檔仍分開。戰報反擊傷害另列，不算普攻或技能傷害。</p></details>
       </section>
       <section class="expedition-reports panel" aria-labelledby="report-heading" aria-describedby="report-session report-caution">
         <div class="section-heading report-heading"><h3 id="report-heading">最近兩次遠征戰報</h3><button id="pin-report" class="secondary-button" disabled>設為比較基準</button></div>

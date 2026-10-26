@@ -8,7 +8,7 @@ One stage5+ nonboss enemy archetype now alternates physical attacks and a named 
 
 ## Source verification
 
-- Integration 1,315/1,315 Node tests passed with no skipped or cancelled tests.
+- Integration 1,318/1,318 Node tests passed with no skipped or cancelled tests.
 - Independent 12,000 exact firstfour-route state/RNG/report comparisons against portable exactaccepted v0.19 engine/loot fixture.
 - Independent 24 finish-camp historical prefix hashes /5,395 observations match accepted v0.19 before entering changedstage5; old600-step golden evidence retained rather than falsely expecting newroute parity.
 - Targeted tests cover magic parry omission/RNG, evade-only no counter, actualblock counter, Resist factors, physical/magic Protection, no magic weaponprocs, stunned/recovery sequencing, newwave/load/retreat reset and pure previews.
@@ -18,3 +18,7 @@ One stage5+ nonboss enemy archetype now alternates physical attacks and a named 
 ## Release gates remaining
 
 Complete source checkpoint/readback; isolated publiccandidate exactCI/HTTP; actual browser normalprogress reachingstage5+, telegraph/cast/harm, growth/loot/equip and reload; acceptance source backup; then exactrootCI/HTTP and publicsmoke. Do not replace root before candidate acceptance.
+
+## Pre-browser feedback correction
+
+The first source-only v0.20 checkpoint `af88c9ca3ccc2bc452ae345857e39809b44af2c5` emitted a magic event but rendered only the next-action cue. Integration review caught the missing actual-cast feedback before any website write. A dedicated accessible recent-cast notice now records actual initiation, including reduced-motion mode; no fabricated hit claim. Independent UI review and two additional tests cover real/mismatched/historical events, ownership and reset. The earlier checkpoint stays recoverable but is not the candidate to accept or publish.
