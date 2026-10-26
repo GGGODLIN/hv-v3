@@ -92,7 +92,7 @@ export function affixCombos(floor?: number): AffixId[][] {
 
 /** CP5 extra monster state (all optional, so a flag-off Monster is unchanged). */
 export interface Cp5Mon {
-  sig?: BossSig; sigTurns?: number; sigPending?: boolean; thornTurns?: number; charges?: number; drainNext?: boolean; pulseNext?: boolean;
+  sig?: BossSig; sigTurns?: number; sigPending?: boolean; thornTurns?: number; charges?: number; drainNext?: boolean; pulseNext?: boolean; /** cp8-rc9 P0-1: telegraphed big single hit next turn (自訂，非原版). */ heavyNext?: boolean;
   shieldEl?: Element; breachEl?: Element; specBase?: Monster['spec']; reserve?: Monster[]; summoned?: boolean;
   affixes?: AffixId[]; ironTurns?: number; splitInto?: Monster[]; splitDone?: boolean; ownTurns?: number;
   elemAttack?: Element; critBonus?: number;

@@ -199,16 +199,22 @@ export const POT_HINT = { hp: 0.5, charging: 0.75 };
 export function chargeEstimate(s: BattleState, m0: Monster, defending = false): number {
   const m = m0 as CM;
   const pulse = m.rank === 'boss' && !!m.pulseNext && m.charge === 0; // cp8-rc7 P1 item 3: 元素脈衝 is a telegraphed big move too
-  const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : BOSS_CHARGE_MULT;
+  const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : m.charge > 0 ? BOSS_CHARGE_MULT : 1; // rc9 P0-1: heavyNext / plain hit = ×1
   const el = pulse ? m.shieldEl : m.elemAttack;
   const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
   return meanHit(m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
 }
 /** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
-export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || (m.rank === 'boss' && !!(m as CM).pulseNext));
+export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
+/** rc9 P0-2: summed estimate of every live monster's next hit (wind-ups at their release multiplier; stunned monsters skip). */
+export function nextRoundEstimate(s: BattleState): number {
+  return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1) : 0), 0);
+}
 export function potHint(s: BattleState): boolean {
+  if (!canUse(s, { kind: 'item', id: 'health' })) return false;
+  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
-  return s.hp < s.d.hp * th && canUse(s, { kind: 'item', id: 'health' });
+  return s.hp < s.d.hp * th;
 }
 export function canUse(s: BattleState, a: Action): boolean {
   if (s.over) return false;
@@ -616,6 +622,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
       if (m.pulseNext) { m.pulseNext = false; ev.push({ t: 'status', to: i, text: '元素脈衝被打斷！' }); }
+      if (m.heavyNext) { m.heavyNext = false; ev.push({ t: 'status', to: i, text: '蓄力一擊被打斷！' }); }
       return;
     }
     let mult = 1;
@@ -637,6 +644,11 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
         if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
         else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
       }
+    }
+    // rc9 P0-1（自訂，非原版，暫定）: a boss / elite plain hit estimated ≥ CP8.bigTele × max HP winds up for 1 round first.
+    if (RULES.cp8 && CP8.bigTele > 0 && (m.rank === 'boss' || m.rank === 'elite') && mult === 1 && !label) {
+      if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
+      else if (chargeEstimate(s, m) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
     const zero = s.focusTurn;
     const r = resolveHit(rng, {

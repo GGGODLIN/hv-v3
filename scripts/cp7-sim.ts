@@ -28,7 +28,8 @@ for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_BUFF1_${
 if (E.K_BW_ARMOR !== undefined) BULWARK_STYLE.armor = (E.K_BW_ARMOR || undefined) as 'heavy' | undefined;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;
-const strat = `buff:${sc}` as Strategy; const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
+const strat = `buff:${sc}` as Strategy; const potDeath = [0, 0]; // cp8-rc9 P0-4: [trip deaths, deaths with HP potions left]
+const pd = (r: { end?: { why: string; hpPots?: number } }) => { if (r.end?.why === 'dead') { potDeath[0]++; if ((r.end.hpPots ?? 0) > 0) potDeath[1]++; } }; const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
 function one(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): boolean {
   const p = clone(p0); const run = startAbyss(p, seed, depth);
   if (type === 'boss') run.tower.floors[0]!.options = ['boss'];
@@ -74,7 +75,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   // debug only (stderr): kit / heavy-armor timing
   const kitS = (tag: string) => { const b = p.equipped.body, d = derive(p); return `${tag} ${s} ${b ? b.group + ':' + b.base + ':' + b.quality : '-'} hp ${d.hp} pm ${d.physMit.toFixed(3)} mh ${p.equipped.mainHand ? p.equipped.mainHand.group + ':' + p.equipped.mainHand.quality + ':L' + p.equipped.mainHand.level + ':ad' + Math.round(p.equipped.mainHand.stats.attackDamage ?? 0) : '-'} lv ${level(p)}`; }; let heavyAt = p.equipped.body?.group === 'heavy' ? 'kit' : '';
   if (E.DBGKIT) console.error(kitS('K0'));
-  for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') heavyAt = 'm' + i; upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
+  for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); pd(r); if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') heavyAt = 'm' + i; upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);
   if (!ok || !abyssOpen(p)) continue; built++;
   for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++;
@@ -85,7 +86,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
     if (st < checkpointStart(rec.best)) shallow++;
     if (E.DBGKIT && t === 1) console.error(kitS('K1') + ' heavyAt ' + (heavyAt || 'none'));
-    RDMG.max = 0; RDMG.raw = 0; const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
+    RDMG.max = 0; RDMG.raw = 0; const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms }); pd(r);
     const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
     if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') { heavyAt = 'a' + t; console.error('HA', s, t); }
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
@@ -113,4 +114,4 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let f = 1; f <= F; f++) for (const [d, ty] of [[13, 'battle'], [18, 'battle'], [16, 'battle'], [20, 'boss']] as const) { c[`d${d}`]!.n++; if (one(snap, d, ty, s * 100 + f)) c[`d${d}`]!.w++; }
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
-console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, ...(RULES.cp8 ? { rd1, rdAll, rd1raw, rdSt, rdCl } : {}), knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10, cp8: RULES.cp8, naive: !!E.SIM_AI && E.SIM_AI === 'naive', second, p3d21, p5 }));
+console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, ...(RULES.cp8 ? { rd1, rdAll, rd1raw, rdSt, rdCl } : {}), knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10, cp8: RULES.cp8, naive: !!E.SIM_AI && E.SIM_AI === 'naive', second, p3d21, p5, potDeath }));

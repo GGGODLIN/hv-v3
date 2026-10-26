@@ -17,6 +17,11 @@ export const CP8 = {
   bulwarkDefCounter: 1,
   /** rc9 item 1 (UI only, 自訂，非原版，暫定): ms a fresh 蓄力 / 大招 panel ignores A / skills / spells (D / potions stay instant). */
   chargeHoldMs: 700,
+  /** rc9 P0-1（自訂，非原版，暫定）: a boss / elite normal hit whose estimate is ≥ this × max HP is wound up for 1 round first
+   *  (telegraphed with its estimate; released next turn at ×1). 0 = off. */
+  bigTele: 0.5,
+  /** rc9 P0-2（自訂，非原版，暫定）: the HP-potion hint also lights when HP − the next round's estimated damage < this × max HP. */
+  potAfter: 0.25,
   /** 暫定（缺原版出處）P5: cap on the summed monster damage of one round, as a fraction of max HP (0 = off). */
   turnCap: 0.75, // cp8-rc5 (暫定, own rule, producer 2026-10-26): 0.9 → 0.7 → 0.75 (lowest of 0.75/0.8 passing P4 late flat on B128+B256; docs/logs/cp8rc8/dec)
   /** 暫定（缺原版出處）P3: run buffs picked before an abyss trip that starts at depth `start` > 1: N = floor((start − 1) / per), max `max`. */

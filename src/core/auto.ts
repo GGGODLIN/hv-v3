@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, armCp5, canUse, potHint, quickAttack, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, act, alive, armCp5, canUse, potHint, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -169,7 +169,7 @@ export function chooseAction(b: BattleState): Action {
   const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
   const tm = b.monsters[target]!;
   if (b.hp < b.d.hp * 0.35 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
-  if (b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
+  if (b.monsters.some((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0))) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
   if (b.hp < b.d.hp * 0.3 && b.oc >= 25) return { kind: 'defend' };
   if (canUse(b, { kind: 'skill', id: 'mercifulBlow', target })) return { kind: 'skill', id: 'mercifulBlow', target };
   if (tm.status.stun > 0 && canUse(b, { kind: 'skill', id: 'vitalStrike', target })) return { kind: 'skill', id: 'vitalStrike', target };
@@ -219,7 +219,7 @@ export function chooseHuman(b: BattleState, aimWeak = true): Action {
   const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
   const tm = b.monsters[target]!;
   if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
-  if (b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
+  if (b.monsters.some((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0))) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
   // CP3-fix 10: a human enters Spirit Stance in a boss fight when the button lights up (boss battles open with OC).
   if (!b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (!aimWeak) {
