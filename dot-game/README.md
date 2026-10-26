@@ -2,7 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Bounded-desktop accepted candidate: v0.22 — departure-build report context.** Latest verified public release remains v0.21 (`9998ac34176ab2bc0055e60ca340e7a86a602016`). The new compact policy row and collapsed actual slotted-ability/equipment details record start configuration without changing combat. [Report guide](docs/REPORT-BUILD-GUIDE.md). Browser acceptance passed; accepted-source readback and root publication are next. A tested candidate is not yet the published root release.
+**Latest verified release: v0.22**, bounded-desktop accepted and published2026-10-26. Reports now remember the actual departure target/Protection policies, active ability ranks and equipped identities. Expand configuration details to understand which build produced a result; changing camp later does not rewrite history. No combat changes or claim of a best build. [Report guide](docs/REPORT-BUILD-GUIDE.md).
 
 ## Play
 
@@ -16,7 +16,7 @@ Export saves periodically before clearing browser data. The game has no real-mon
 
 ## Restore and run
 
-Latest fully accepted complete-source restore is `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/` at **`9998ac34176ab2bc0055e60ca340e7a86a602016`** (v0.21). Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. This v0.22 candidate has a separate full-source snapshot and must not replace that accepted reference until its acceptance ledger passes. Stable website remains `764e43b6736dde7795340a69aa181bf31e2003e0`. A source candidate is not automatically a published game.
+Accepted complete-source restore: `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`, prepublication accepted commit **`aa6cd6166d9424745ce9b82bb7e58d73e4bc5b21`**. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is a newer documentation checkpoint of the same accepted runtime and is preferred after its manifest/readback verifies. Runtime source `6e0614dd199c958a4d3ce7c84592936d61d2e822`; root site `0abefbcc311d68f37c56751e3c45f94a2812e39f`. A source candidate is not automatically published.
 
 From the restored `dot-game/` directory (Node.js and Python 3 required):
 
@@ -35,4 +35,4 @@ Browser saves are separate: source restoration does not restore personal progres
 - Acceptance is bounded cloud-desktop evidence, not physical-mobile or OS-suspend validation. Narrow browser layouts are not physical-device tests. The historical foreground-only visibility anomaly and schema-negative browser-test gap remain disclosed.
 - Reports, tab selection and finish-then-camp intent are transient, not saved growth. Save migrations preserve older namespaces without merging later old-tab progress.
 
-[Current verification and remaining gates](docs/STATUS.md) · [v0.21 browser evidence](docs/BROWSER-QA-V021.md) · [Release ledger](docs/RELEASES.md). Earlier README/status checkpoints are preserved in the historical archive, not repeated as current pending work.
+[Current verification and remaining gates](docs/STATUS.md) · [v0.22 browser evidence](docs/BROWSER-QA-V022.md) · [Release ledger](docs/RELEASES.md). Earlier README/status checkpoints are preserved in the historical archive, not repeated as current pending work.

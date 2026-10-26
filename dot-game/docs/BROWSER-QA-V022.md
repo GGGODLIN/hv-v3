@@ -15,8 +15,13 @@ Source `6e0614dd199c958a4d3ce7c84592936d61d2e822` fully read back before isolate
 5. Reload cleared both report list and pin, disabled pin button, retained Lv10/gold762/wins16/HP848, front/OFF. No hidden state writes or seeded replay.
 6. Bounded error-log review: no app-origin errors. Only known browser-extension metadata errors from `chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js` excluded specifically. Two initially misnamed ability selectors and an inventory-role mismatch failed before mutation; visible DOM resolved exact controls; these were automation selector errors, not game failures.
 
-Candidate acceptance passed; accepted-source backup and root promotion/smoke still pending at this checkpoint. Candidate profile/export remain separate from stable progress.
+Candidate acceptance passed. Accepted-source backup `aa6cd6166d9424745ce9b82bb7e58d73e4bc5b21` fully read back before root promotion. Candidate profile/export remain separate from stable progress.
 
 ## Limits
 
 No outcome difference is a causal build comparison: progression and random draws differ. Physical mobile, narrow viewport, OS suspension, all schema-negative imports and long-term/offline execution are not covered by this bounded desktop pass. Highest ability ranks and malformed-data fallback were source-tested, not force-created in the browser.
+
+
+## Root publication smoke — passed 2026-10-26T16:46Z
+
+Root website `0abefbcc311d68f37c56751e3c45f94a2812e39f`, exact Pages `40361672425` success and all six HTTP200 byte/SHA256 matches preceded smoke. Reloaded existing stable tab, visibly v0.22 with its own Lv10/gold610/wins14 profile (no candidate import). One ordinary stage1 victory followed queued finish-at-camp; correct front/OFF/HP Tank Rank1 and actual loot-12/starter armor/accessory report displayed. Reload retained Lv10/gold686/wins15/29inventory/HP848, front/OFF; reports and pin cleared. Error inspection excluded only the exact known extension source above; no app-origin errors. Stable tab2 retained as deliverable; candidate tab15 closed after separate normal QA export.

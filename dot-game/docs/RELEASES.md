@@ -236,3 +236,13 @@ One stage5+ enemy uses telegraphed alternating physical/magical skill; original-
 ## v0.21 — published and bounded-desktop accepted (2026-10-26T16:11:00Z)
 
 Camp target priorities add explicit choices without changing default targeting, damage formulas, counters or DoT recipients.1,341tests/foursyntax/12,000defaultparity observations passed; bounded natural720pairedtrials show mixed results. Source0e6a165a8814d1339b85bf2e10eee75cfe86c36b and candidate4b13eeed2a4515009ea5151b1f18db27cd06ab79 /Pages40354108762 were verified before normalbrowser acceptance. See ACCEPTANCE-V021.md; accepted-source0ec1b6ad742ce32d47a7a4619b57e2f19dec010a preceded root764e43b6736dde7795340a69aa181bf31e2003e0, Pages40356047960success, sixHTTPmatches and normal rootwin/reload smoke.
+
+
+## v0.22 — departure configuration reports
+
+- Runtime source `6e0614dd199c958a4d3ce7c84592936d61d2e822`; full accepted prepublication source `aa6cd6166d9424745ce9b82bb7e58d73e4bc5b21`.
+- Candidate site `569f46099afa5b1031b655b527a38f1001e5ce66`, exact Pages40360095580 success, six HTTP byte/hash matches and bounded real-browser acceptance.
+- Root site `0abefbcc311d68f37c56751e3c45f94a2812e39f`, exact Pages40361672425 success and six HTTP byte/hash matches; root smoke recorded separately.
+- 1,358 source tests, four syntax checks, 60 independent parity cohorts. Historical digests retained; only newly added report.build omitted for legacy comparison.
+- Start-only actual target/Protection policies, slotted ranks and equipped identities; collapsed UI, immutable snapshots, latest two plus one session-only pin. No combat/save/RNG/reward changes or causal best-build claims.
+- Source backup precedes each publication. Older releases remain recoverable in Git history. No GPT Library/browser progress/credentials/schedule restoration claim.
