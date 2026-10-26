@@ -1,5 +1,14 @@
 # v0.15 source-backed candidate; staging blocked
 
+## v0.15 source-only departure feedback correction — 2026-10-26 09:00 UTC
+
+This candidate fixes the existing camp control mismatch: departure requires at least five free inventory slots and no pending loot, exactly as the unchanged engine already enforces. The Start button now reflects that condition, and its adjacent hint states the remaining slot deficit or pending-loot reason. A rejected/repeated start no longer plays the successful-departure sound. Successful/manual lifecycle timing and rejected-action clock preservation are unchanged. See docs/DEPARTURE-FEEDBACK.md.
+
+Final source aggregate: **1,155/1,155 tests pass**, zero failures/skips, and all four runtime syntax checks pass. Independent new UI/engine/pump acceptance:15/15; existing pump-transition checks:16/16. Runtime engine/loot/session bytes are unchanged from the previously verified v0.15 candidate. No browser/site verification was performed.
+
+This remains a source-only candidate awaiting the existing isolated-test-page authorization; no website write, v0.15 browser acceptance, CI or HTTP verification is claimed. Public v0.14 and accepted recovery `22bdfca3068c7934921c2493eb40de624d684318` remain unchanged. The previously prepared unreferenced website commit `71c68c269745526f3dd4c9af70a9d69fb4432cf5` contains the older UI: do not publish it as this corrected candidate. A future permitted stage must be rebuilt from the latest exact verified source while preserving any concurrent website changes.
+
+
 Status at2026-10-26 08:48 UTC: **source complete and verified; browser acceptance and publication NOT completed**.
 
 ## Restore the correct version

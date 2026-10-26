@@ -1,14 +1,15 @@
 {
-  "checkpoint": "v0.15-staging-blocked-receipt",
-  "status": "source-tested-exact-backup-isolated-staging-denied-browser-pending",
+  "checkpoint": "v0.15-departure-feedback",
+  "status": "source-tested-browser-pending-website-staging-blocked",
   "base_accepted_recovery": "22bdfca3068c7934921c2493eb40de624d684318",
-  "runtime_source": "48776a2cac13eaf6842c46de7e26ef264c115bd1",
-  "source_tests_passed": 1140,
+  "base_runtime_source": "48776a2cac13eaf6842c46de7e26ef264c115bd1",
+  "source_parent": "23bb3837c11087a17e66599944af63114ac496f6",
+  "source_tests_passed": 1155,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 34370,
-      "sha256": "461bf87f39825a59f8f0f3dcb8716bd4e68349b693ae842c7ccbc2ea07066258"
+      "bytes": 35856,
+      "sha256": "918ad50997b433c34049061be4db0fd7fd91fe15e73bc894aeeadf08a0474374"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -162,6 +163,10 @@
       "bytes": 8809,
       "sha256": "2ffe983ad8afbcae21dfc01acb1ade99d99d8f2ceb6db1b66c769f88e90816c9"
     },
+    "docs/DEPARTURE-FEEDBACK.md": {
+      "bytes": 2399,
+      "sha256": "3fb481ad9614f95333ed2390e6e1463a8381034d5f224413cd3bb76d2068ba19"
+    },
     "docs/EXPEDITION-REPORTS.md": {
       "bytes": 2961,
       "sha256": "d4268eebe2919327f6937334ea120063e4830b65c10670fd49f2a12e8633c0c0"
@@ -195,16 +200,16 @@
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RECOVERY-V015.md": {
-      "bytes": 4689,
-      "sha256": "e038df3fa03f01c2458a22c24d06e50791395390c7097364409b230b01245a26"
+      "bytes": 6175,
+      "sha256": "4ee7f5e6c4aa02154065a5a49be784814b909ec606d8893f9ab4b5e74a815038"
     },
     "docs/RELEASES.md": {
       "bytes": 33832,
       "sha256": "cbfc2490620aa11aafa51899765b3014324bac3a9d6e232dc46f18eec89ed0b5"
     },
     "docs/ROADMAP.md": {
-      "bytes": 12936,
-      "sha256": "a2b46ae7a999650d968bcb2fa208c8e81ae97aafea6411b183e981a2f2479252"
+      "bytes": 13311,
+      "sha256": "fe1972dd1064b813d6b5454c9189a04df54d47b196134399f7651261f8299708"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
@@ -215,8 +220,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 57932,
-      "sha256": "7fe38825270bf0fad4d7872ac93266812acc86812ebc4ae0374a010a48fc32f7"
+      "bytes": 59418,
+      "sha256": "f51c6054d3670fc560da493fe32ce0c06412e49b43ceaca4d57311569ec52c4c"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
@@ -243,8 +248,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 98778,
-      "sha256": "3ecfc09184f4b8eb3e66d463cce0d33d33fbe0131b8991a742182953c06b81bd"
+      "bytes": 99557,
+      "sha256": "08e4c5aa8c89301a1ca97bed79b6fa32ac9b578814b53373141dc833f38de2f1"
     },
     "style.css": {
       "bytes": 36872,
@@ -321,6 +326,10 @@
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
       "sha256": "1fb173488a087f092b900d9a7e0bc2ab7288d40b803d9dc639571645d846f380"
+    },
+    "tests/departure-feedback.test.mjs": {
+      "bytes": 10208,
+      "sha256": "008e9cd603f3ec751574ec59295b1e53eb734cf13a0a12f4253f8c7d31bda5f5"
     },
     "tests/enemy-roles.test.mjs": {
       "bytes": 13984,

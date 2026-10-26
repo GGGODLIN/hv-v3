@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -223,6 +223,19 @@ function syncSelection() {
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
+}
+// Match the engine's existing departure reserve; this is feedback, not a new rule.
+function departureReadiness() {
+  const missingSlots = Math.max(0, state.inventory.length - (INVENTORY_LIMIT - 5));
+  const pendingCount = state.pendingLoot.length;
+  return {
+    ready: missingSlots === 0 && pendingCount === 0,
+    reason: pendingCount > 0
+      ? `尚有 ${pendingCount} 件待領戰利品；請先整理背包並領完，再保留 5 格空位出戰。`
+      : missingSlots > 0
+        ? `出戰需保留 5 格空位，目前還差 ${missingSlots} 格；請先整理背包。`
+        : '',
+  };
 }
 function dispatch(action, payload) {
   if (!claimLease(true)) { showToast('此分頁為唯讀；請在存檔設定接手，或關閉持有進度的分頁。'); return false; }
@@ -897,9 +910,10 @@ function render(force = false) {
     $('stage-select').replaceChildren(...Array.from({ length: stageCount }, (_, i) => { const opt = node('option', '', `${String(i + 1).padStart(2, '0')} · ${stageName(i + 1)}`); opt.value = i + 1; return opt; })); lastStageCount = stageCount;
   }
   $('stage-select').value = state.stage; $('stage-select').disabled = state.mode === 'battle' || !tabOwner; $('auto-advance').checked = Boolean(state.autoAdvance); $('auto-advance').disabled = !tabOwner; $('import-save').disabled = !tabOwner;
-  $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat'; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
+  const departure = departureReadiness();
+  $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat' || !departure.ready; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
-  $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : '自動戰鬥 · 不考手速 · 隨時回營換裝';
+  $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
   const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
@@ -1161,7 +1175,7 @@ function drawScene(t, dt) {
   if(flash>0&&!prefs.reducedMotion){ctx.fillStyle=`rgba(244,221,160,${Math.min(.13,flash)})`;ctx.fillRect(0,0,w,h);}flash=Math.max(0,flash-dt*2);attackPulse=Math.max(0,attackPulse-dt*4);enemyPulse=Math.max(0,enemyPulse-dt*4);
 }
 
-$('start-button').addEventListener('click',()=>{if(dispatch('start'))playSound('win');});
+$('start-button').addEventListener('click',()=>{const previousMode=state.mode;if(dispatch('start')&&previousMode!=='battle'&&state.mode==='battle')playSound('win');});
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));
 $('pin-report').addEventListener('click', pinRecentExpeditionReport);

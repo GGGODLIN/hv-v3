@@ -81,3 +81,6 @@ Add original-supported raw rapier parry and legal Nimble affix with honest adapt
 
 ## v0.15 next action after staging decision
 Source is backed up; runtime development is complete for this slice. Do not start another feature to avoid the blocked acceptance step. Resolve the explicit isolated test-page permission recorded in RECOVERY-V015.md, then exact CI/HTTP and ordinary browser QA, acceptance source backup, and only then root promotion. Until then retain accepted v0.14.
+
+## v0.15 departure feedback follow-up
+Correct the observed enabled-but-refused camp Start control while staging authorization is pending. Surface the existing five-slot reserve and pending-loot requirement, and play the departure sound only after an actual transition into battle. This is a bounded UI correction, not another gameplay system or permission to retry staging.
