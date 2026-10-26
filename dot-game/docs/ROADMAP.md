@@ -93,3 +93,6 @@ Reduce accumulated camp UI complexity without removing depth: put secondary batt
 
 ## v0.17 chosen slice
 Add the first supported defensive spell decision: optional Protection, with independent25% damage reduction but an MP and attack-turn cost. Keep one understandable switch instead of a scripting/configuration system. Preserve uncertain source unlock/duration labels and the distinction from original Auto-cast Slots. Test legacy OFF equivalence and active timing/ownership before source backup and isolated actual play; do not expand the spell tree until this integration is accepted.
+
+## v0.18 chosen slice
+Expose existing supported weapon suffixes as intentional paid commission choices, keeping default Slaughter and existing quality/economy. Preview real attack/crit/parry tradeoffs, invalidate stale consent, preserve stronger randomized drops. Next breadth remains open; do not claim this partial catalog or small natural-play samples establish universal balance.

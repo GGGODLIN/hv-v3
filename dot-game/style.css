@@ -264,3 +264,10 @@
 .protection-live { padding: 7px 12px; color: #bfe8d9; background: #172e2b; border: 1px solid #3d5e52; border-radius: 8px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 
 .floating-number.protection { color: #bfe8d9; }
+
+/* Each suffix select is separate from its preview button: no nested controls. */
+.commission-affixes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-top:12px; }
+.commission-affix { min-width:0; display:flex; flex-direction:column; gap:5px; }
+.commission-affix label { color:var(--muted); font-size:11px; }
+.commission-affix select { width:100%; min-width:0; min-height:40px; padding:6px 3px; font-size:11px; }
+.commission-affixes + .commission-choices { margin-top:6px; }

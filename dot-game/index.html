@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.17 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.18 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -87,9 +87,10 @@
       <section class="weapon-commission panel" aria-labelledby="commission-heading">
         <div class="section-heading"><h3 id="commission-heading">武器委託</h3><span class="badge">本作獨立機制</span></div>
         <p>首次通關後，以金幣取得目前等級的固定規格武器，試試不同路線；不會自動換裝。</p>
+        <div id="commission-affixes" class="commission-affixes"></div>
         <div id="commission-choices" class="commission-choices"></div>
         <p id="commission-status" role="status" aria-live="polite">完成首次遠征後解鎖。</p>
-        <details class="commission-rules"><summary>固定規格，不是最佳裝備保證</summary><p>優良（Superior）、品質骰 R110、屠戮（Slaughter）、無前綴。價格取 250 金幣與出售價四倍中的較高值；交付為已鎖定背包裝備。須無待領戰利品，且交付後仍保留 5 格出戰空間。</p><p>這是本作獨立單人金幣出口，不是原版商店庫存、訓練或鍛造。屬性評分不代表特效效益，不會據此推薦購買；刷寶仍可能取得更適合或更強的裝備。</p></details>
+        <details class="commission-rules"><summary>固定規格，不是最佳裝備保證</summary><p>優良（Superior）、品質骰 R110、預設屠戮（Slaughter）、無前綴。本作目前支援：戰斧屠戮；戰棍屠戮／平衡；刺劍屠戮／平衡／靈巧（不是原版全部組合）。改詞綴須重新預覽並確認，不會直接購買。價格取 250 金幣與出售價四倍中的較高值；交付為已鎖定背包裝備。須無待領戰利品，且交付後仍保留 5 格出戰空間。</p><p>這是本作獨立單人金幣出口，不是原版商店庫存、訓練或鍛造。屬性評分不代表特效效益，不會據此推薦購買；刷寶仍可能取得更適合或更強的裝備。</p></details>
       </section>
 
         </div>

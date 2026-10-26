@@ -116,9 +116,15 @@ test('v0.7 independent: all quoted current-weapon fields, level, balance, item c
   for(const change of changes){const s=camp(),p=request(s);change(s);assert.notEqual(previewWeaponCommission(s,'axe').quoteBasis,p.quoteBasis);refuse(s,p);}
 });
 
-test('v0.7 independent: unrelated armor/inventory changes do not masquerade as changed weapon comparison; commit still rechecks capacity',()=>{
-  const s=camp(),p=request(s);s.equipment.armor.stats.hp++;s.inventory.push(held('unrelated'));
-  assert.equal(previewWeaponCommission(s,'axe').quoteBasis,p.quoteBasis);act(s,'commissionWeapon',p);assert.equal(s.inventory.length,2);
+test('v0.18 strengthens v0.7 commission: armor stats preserve the weapon quote, but live inventory ID changes require fresh consent',()=>{
+  const s=camp(),p=request(s);s.equipment.armor.stats.hp++;
+  assert.equal(previewWeaponCommission(s,'axe').quoteBasis,p.quoteBasis);
+  s.inventory.push(held('unrelated'));
+  assert.notEqual(previewWeaponCommission(s,'axe').quoteBasis,p.quoteBasis);
+  refuse(s,p);assert.equal(s.inventory.length,1);
+  const fresh=request(s),before=s.hero.gold,offer=previewWeaponCommission(s,'axe');
+  act(s,'commissionWeapon',fresh);assert.equal(s.inventory.length,2);
+  assert.equal(s.hero.gold,before-offer.price);assert.deepEqual(s.inventory.at(-1),offer.item);
 });
 
 test('v0.7 independent: second confirmation, replay after reload and another-family confirmation cannot double debit or deliver',()=>{

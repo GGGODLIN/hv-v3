@@ -9,6 +9,12 @@ export const COMMISSION_WEAPON_FAMILIES = Object.freeze([
 ].map(Object.freeze));
 // Original research ranges overlap. We sample tier first, then each stat's R.
 // Drop weights below are independent expedition pacing, NOT original-HV rates.
+// Only already supported original-research base/suffix pairs; no new drop weights.
+export const COMMISSION_WEAPON_SUFFIXES = Object.freeze(Object.fromEntries([
+  ['axe', ['slaughter']], ['rapier', ['slaughter', 'balance', 'nimble']], ['club', ['slaughter', 'balance']],
+].map(([family, suffixes]) => [family, Object.freeze(suffixes.map(suffix => Object.freeze({
+  suffix, label: { slaughter: '屠戮', balance: '平衡', nimble: '靈巧' }[suffix],
+})))])));
 export const QUALITY_TIERS = Object.freeze([
   { name: 'Crude', label: '粗製', color: '#8c97a8', min: 0, max: 40, weight: 2 },
   { name: 'Fair', label: '尚可', color: '#a5b0be', min: 30, max: 70, weight: 5 },
@@ -334,14 +340,18 @@ function buildItem({ level: lv, slot: actualSlot, base, tier, prefix, suffix, ro
 }
 /** Detached fixed-spec ordinary weapon, or null for an unsupported request.
  * This independent commission consumes no RNG or state: Superior, each stat
- * R110, Slaughter, no prefix. The engine must replace the preview ID on purchase.
+ * R110, a supported suffix (default Slaughter), no prefix. The engine must replace the preview ID on purchase.
  * Hero levels are deliberately stricter than generateItem's import-safe clamp.
  */
-export function createCommissionWeapon(family, level) {
-  if (!WEAPON_FAMILIES.includes(family) || !Number.isInteger(level) || level < 1 || level > 500) return null;
+export function createCommissionWeapon(family, level, suffix = 'slaughter') {
+  if (!WEAPON_FAMILIES.includes(family) || !Number.isInteger(level) || level < 1 || level > 500
+    || !COMMISSION_WEAPON_SUFFIXES[family].some(choice => choice.suffix === suffix)) return null;
+  const affix = suffix === 'slaughter' ? SLAUGHTER_SUFFIX : suffix === 'balance'
+    ? { name: '平衡', code: 'balance', stats: {}, note: '平衡暴擊區間' }
+    : { name: '靈巧', code: 'nimble', stats: {}, note: '靈巧招架值區間' };
   return buildItem({ level, slot: 'weapon', base: BASES.weapon.find(base => base.family === family),
-    tier: QUALITY_TIERS.find(tier => tier.name === 'Superior'), prefix: null, suffix: SLAUGHTER_SUFFIX,
-    rollStat: () => 110, makeId: () => `commission-${family}-${level}`, locked: true });
+    tier: QUALITY_TIERS.find(tier => tier.name === 'Superior'), prefix: null, suffix: affix,
+    rollStat: () => 110, makeId: () => `commission-${family}-${level}${suffix === 'slaughter' ? '' : '-' + suffix}`, locked: true });
 }
 /** Flat-stat comparison aid only; excludes proc utility. Never used by combat. */
 export function scoreItem(item) {

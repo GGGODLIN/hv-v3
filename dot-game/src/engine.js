@@ -616,10 +616,10 @@ export function previewSelectedSale(s, requestedIds) {
     return {available:true,reason:'',items,total,goldAfter,quoteBasis};
   } catch {return unavailable('裝備或交易資料無效，未建立出售清單。');}
 }
-export function previewWeaponCommission(s, family) {
+export function previewWeaponCommission(s, family, suffix = 'slaughter') {
   const unavailable=reason=>({family:typeof family==='string'?family:null,item:null,price:null,goldAfter:null,available:false,reason,quoteBasis:null,currentWeapon:null});
   try {
-    const item=createCommissionWeapon(family,s?.hero?.level);
+    const item=createCommissionWeapon(family,s?.hero?.level,suffix);
     if(!item)return unavailable('委託資料無效；請選擇支援的武器與角色等級。');
     if(!Array.isArray(s.inventory)||!Array.isArray(s.pendingLoot)||!s.equipment
       ||!Number.isFinite(s.hero.gold)||s.hero.gold<0||s.hero.gold>1e12
@@ -636,13 +636,13 @@ export function previewWeaponCommission(s, family) {
     const currentWeapon=JSON.parse(JSON.stringify(s.equipment.weapon));
     // No durable receipt: the existing counter/balance and exact comparison make
     // a successful buy or relevant state change invalidate the previous consent.
-    const quoteBasis=JSON.stringify([family,s.hero.level,s.hero.gold,s._itemId,item.id,price,currentWeapon]);
+    const quoteBasis=JSON.stringify([family,suffix,s.hero.level,s.hero.gold,s._itemId,item,price,currentWeapon,ids]);
     const reason=s.mode!=='town'?'請先回營，再委託武器。'
       :s.wins<1?'完成首次遠征後開放武器委託。'
       :s.pendingLoot.length?'請先領取並整理待領戰利品；委託不會放入待領區。'
       :s.inventory.length>INVENTORY_LIMIT-6?'背包需至少 6 格空位：武器占 1 格，另保留出戰所需 5 格。'
       :goldAfter<0?`金幣不足：還差 ${price-s.hero.gold} 金幣。`:'';
-    return {family,item,price,goldAfter,available:!reason,reason,quoteBasis,currentWeapon};
+    return {family,suffix,item,price,goldAfter,available:!reason,reason,quoteBasis,currentWeapon};
   } catch { return unavailable('裝備或交易資料無效；未建立委託。'); }
 }
 function addLoot(s, slot) {
@@ -957,15 +957,16 @@ export function act(s, action, payload) {
     log(s,messages[action]);return s;
   }
   if(action==='commissionWeapon'){
-    let family,quoteBasis;
+    let family,quoteBasis,suffix='slaughter';
     try {
       const record=payload&&typeof payload==='object'&&!Array.isArray(payload)&&(Object.getPrototypeOf(payload)===Object.prototype||Object.getPrototypeOf(payload)===null);
       const fields=record?Object.getOwnPropertyDescriptors(payload):{};
-      if(!record||Reflect.ownKeys(payload).length!==2||!['family','quoteBasis'].every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value'))
-        ||typeof fields.family.value!=='string'||typeof fields.quoteBasis.value!=='string'||fields.quoteBasis.value.length>8192)throw Error('invalid quote');
-      family=fields.family.value;quoteBasis=fields.quoteBasis.value;
+      const keys=Reflect.ownKeys(fields),hasSuffix=Object.hasOwn(fields,'suffix');
+      if(!record||keys.length!==(hasSuffix?3:2)||!(hasSuffix?['family','suffix','quoteBasis']:['family','quoteBasis']).every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value'))
+        ||typeof fields.family.value!=='string'||(hasSuffix&&typeof fields.suffix.value!=='string')||typeof fields.quoteBasis.value!=='string'||fields.quoteBasis.value.length>131072)throw Error('invalid quote');
+      family=fields.family.value;quoteBasis=fields.quoteBasis.value;if(hasSuffix)suffix=fields.suffix.value;
     } catch {log(s,'武器委託取消：確認資料無效；未扣款或交付裝備。');return s;}
-    const offer=previewWeaponCommission(s,family);
+    const offer=previewWeaponCommission(s,family,suffix);
     if(!offer.available){log(s,`武器委託取消：${offer.reason}未扣款或交付裝備。`);return s;}
     if(offer.quoteBasis!==quoteBasis){log(s,'武器委託取消：報價或比較裝備已變更；請重新預覽，未扣款或交付裝備。');return s;}
     // All validation precedes this synchronous transaction. Never trust submitted

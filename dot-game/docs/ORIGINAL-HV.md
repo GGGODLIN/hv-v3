@@ -236,3 +236,6 @@ Pinned003 lines235/287/382 establish legal Nimble rapier, level divisor2000, ord
 
 ## v0.17 Protection baseline and automatic-casting adaptation
 Protection uses the sourced25% independent remaining-damage multiplier and base fee `ceil(level × 25/100)`, not a percentage of maxMP. The primary Spells page explicitly defines costs as percentages of player level rounded up. We currently exclude supportive-proficiency, interference and other cost modifiers. Source level `10?`, duration `15?` and cast speed `0.2?` remain uncertain; level10/15Ticks are the selected research model and a whole player-action cast is an explicit adaptation. Default-OFF automatic recasting is not Innate Arcana upkeep. Healing priority means a successful heal suppresses casting that turn, not reserving healing MP. See PROTECTION-GUIDE.md for checked sources and limitations.
+
+## v0.18 supported commission suffix subset
+Existing researched Slaughter/Balance/Nimble endpoints now become deliberate paid commission choices; no new loot/combat rules. Six supported pairs are not the full original legality table (Axe Balance and Club Nimble also legal in original but not catalogued here). See COMMISSION-AFFIXES-GUIDE.md and ACCEPTANCE-V018.md for original evidence versus quality model and commission adaptation.

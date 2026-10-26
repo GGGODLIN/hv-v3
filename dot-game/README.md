@@ -1,5 +1,13 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.18 development candidate — 2026-10-26 13:26 UTC
+
+Weapon commissions now let earned credits buy a deliberate existing suffix choice: Axe Slaughter; Club Slaughter/Balance; Rapier Slaughter/Balance/Nimble. These six are a supported subset, not all original-HV legal combinations. Slaughter remains default; quality R110, current-level scaling and existing price formula are unchanged. Preview compares all seven stats, then explicit confirmation delivers a locked item without equipping it. Selection and live inventory changes invalidate the quote.
+
+Independent research, default-object parity and natural earned-credit purchase→equip→fight checks passed. Full 1,207-test regression and four runtime syntax checks pass; exact source backup and browser acceptance are pending. Stable v0.17 and full restore `69c837f85c01b8352be4316874dc959d2462e0cb` remain accepted. See docs/COMMISSION-AFFIXES-GUIDE.md and docs/ACCEPTANCE-V018.md (paths relative to dot-game). No user-save, Library or schedule recovery claim.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.17 published and stable-root accepted — 2026-10-26 13:14 UTC
 
 Play: https://gggodlin.github.io/play/hv-v3-dot/ . New optional **Protection / 自動護盾** unlocks at the selectedLv10 research gate: spend base3MP atLv10 and one attack action for25% independent damage reduction. DefaultOFF retains previous play. Actual candidate natural unlock, cast, countdown, recast, damage-prevention report, readonly and savedON/OFF checks passed. Source/model/adaptation boundaries remain explicit in PROTECTION-GUIDE.md.
