@@ -1,11 +1,10 @@
 {
-  "checkpoint": "v0.8.1-desktop-accepted-source",
-  "status": "desktop-browser-accepted-source-root-promotion-pending",
-  "base_candidate_recovery": "5a280428eb940d667ee3c2a63ecbc01c5dbe9643",
+  "checkpoint": "v0.8.1-publication-receipt",
+  "status": "published-bounded-desktop-accepted",
   "files": {
     "README.md": {
-      "bytes": 11532,
-      "sha256": "c23b874dc347225c5bf1393b315eba573cf5a2909912a6d76f041879a36bd6a4"
+      "bytes": 12659,
+      "sha256": "eabcf17f7f4d22aa54f4a57180a444d4dadc673a8aaba5a03b0da82348921a89"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -72,8 +71,8 @@
       "sha256": "1442c27a360bc549c88c610be1184c5f0cb05fff101dccef81829ff3bddf59ce"
     },
     "docs/BROWSER-QA-V081.md": {
-      "bytes": 2788,
-      "sha256": "86133a2a9cff83aeeec1f92a2c02b81257e321b69e58f7e7e9e4f913d619048f"
+      "bytes": 3940,
+      "sha256": "799025937139908ecd127bf2bf73d9574ecf4e29931101dc9a4495b7f996c44b"
     },
     "docs/BROWSER-QA.md": {
       "bytes": 2596,
@@ -120,8 +119,8 @@
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RELEASES.md": {
-      "bytes": 20256,
-      "sha256": "4692ccfbc10d8ccd2aec81b73c5e955f6a9999532614906526131642e2d011ce"
+      "bytes": 21669,
+      "sha256": "9048653fa1f39901962c60fc4be0e1252919409a3cbc2700ead5a1fe508378c5"
     },
     "docs/ROADMAP.md": {
       "bytes": 9221,
@@ -132,8 +131,8 @@
       "sha256": "f1b5983b7954e85be88124b3a67c110cbd40eaf53b48dd0aa6a634aa02f681d3"
     },
     "docs/STATUS.md": {
-      "bytes": 27462,
-      "sha256": "867b77d9ba5a5a5ba0190aba59841678615a6b4bea6fd0a9425ed438c4214c10"
+      "bytes": 29561,
+      "sha256": "178c121ae532dd44d03cb913ee47e042e9008f66895a6b2ed6e51277a27d8410"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
@@ -341,5 +340,12 @@
   "previous_accepted_recovery": "e1b576ee2041bd2772f79587e859a80b5ab1f108",
   "candidate_site_commit": "57f7ab124852d9f0313c2f475ac43a09b069cb03",
   "candidate_pages_run": 40252508863,
-  "browser_qa": "docs/BROWSER-QA-V081.md"
+  "browser_qa": "docs/BROWSER-QA-V081.md",
+  "accepted_prepublication_source": "f1228ea6e2777c9469fd387c32f2ba312b725a75",
+  "accepted_runtime_source": "ff6bb071240deef5d86c34e80a1d514daeb9762d",
+  "base_source_receipt": "f1228ea6e2777c9469fd387c32f2ba312b725a75",
+  "latest_accepted_recovery": "this exact verified publication-receipt commit",
+  "accepted_site_commit": "5f2edb7a6927b6433c1a5d8fd64c0a51e4e7561c",
+  "accepted_pages_run": 40253248001,
+  "root_smoke": "bounded-desktop-pass-2026-10-26T01:17Z"
 }

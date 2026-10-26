@@ -1,5 +1,12 @@
 # Published releases
 
+## v0.8.1 — published, 2026-10-26 01:17 UTC
+
+- Accepted source before publication: `f1228ea6e2777c9469fd387c32f2ba312b725a75` on `GGGODLIN/hv-v3` branch `bot/dot`. Complete runtime source: `ff6bb071240deef5d86c34e80a1d514daeb9762d`; later acceptance/publication checkpoints change documentation/manifest only.
+- Public website: `5f2edb7a6927b6433c1a5d8fd64c0a51e4e7561c`; exact Pages run `40253248001` success and six HTTP 200 exact byte/SHA-256 matches. Five root blobs changed; session.js and all 3839 non-root blobs are preserved. Candidate `57f7ab124852d9f0313c2f475ac43a09b069cb03` remains isolated at `/play/hv-v3-dot/candidates/v0.8.1/`.
+- Candidate browser acceptance plus actual stable-root reload/save/play smoke passed within BROWSER-QA-V081.md's explicit desktop limits. Stable root retained the original club profile, not candidate axe progress; after stage-3 win/retreat/reload it retained level 19, XP 839/1192, gold 8018, wins 78, kills 480, inventory 105 and writer/saved status.
+- Latest accepted restore is the exact verified commit containing this publication receipt: 84 complete source files / 83 manifest payloads. Previous v0.7 receipt `e1b576ee2041bd2772f79587e859a80b5ab1f108` is retained historically. The prior 551 tests/four syntax checks are not redundantly repeated because runtime/tests are unchanged. No personal browser export, credential, Library or schedule recovery claim.
+
 ## v0.8.1 — desktop-accepted source, public-root promotion pending, 2026-10-26 01:11 UTC
 
 - Frozen complete runtime source `ff6bb071240deef5d86c34e80a1d514daeb9762d`; full source receipt `5a280428eb940d667ee3c2a63ecbc01c5dbe9643`. Existing evidence: 83 files / 82 manifest payloads exact-readback verified, 551 tests and four syntax checks passed. This checkpoint adds acceptance documentation/manifest only and retains all runtime/test bytes.

@@ -1,5 +1,15 @@
 # Current status
 
+## v0.8.1 published and root-smoke accepted — 2026-10-26 01:17 UTC
+
+Live: https://gggodlin.github.io/play/hv-v3-dot/ . Accepted pre-promotion source `f1228ea6e2777c9469fd387c32f2ba312b725a75` was backed up and exact-readback verified before website commit `5f2edb7a6927b6433c1a5d8fd64c0a51e4e7561c`. Exact Pages run `40253248001` succeeded; all six public HTTP 200 runtime bodies match frozen source bytes/SHA-256. Only five root runtime blobs changed (session.js is unchanged); all 3839 non-root site blobs, candidates and other works were preserved, with no additions/removals.
+
+Actual stable-root Chrome smoke retained level 19 / XP 674/1192 / gold 7888 / 77 wins / 102 inventory items and the original club at attack 237, rather than the isolated candidate's axe progress. Stage 3 cleared in displayed 11.6 seconds with drops. Following a short auto-loop, retreat and reload: level 19, XP 839/1192, gold 8018, wins 78, kills 480, inventory 105 and the original level-19 club persisted. After asynchronous ownership settled, the page reported writer/background ownership and saved progress. Inspected logs had no app-origin errors; explicit extension noise was separate. Candidate tabs were closed. See BROWSER-QA-V081.md for all limits; this does not erase outstanding physical-device/lifecycle and corrupt-repair browser coverage gaps.
+
+The exact verified commit containing this publication receipt is the latest accepted full-source restore point (84 files / 83 manifest payloads). Runtime remains byte-identical to complete runtime source `ff6bb071240deef5d86c34e80a1d514daeb9762d`; 551 tests and four runtime syntax passes are reused from the fully verified source because this receipt changes documentation/manifest only. Earlier source receipt `5a280428eb940d667ee3c2a63ecbc01c5dbe9643`, pre-promotion acceptance, and v0.7 recovery `e1b576ee2041bd2772f79587e859a80b5ab1f108` remain distinct historical checkpoints. Source backup does not restore personal browser saves, credentials, Library content or schedules.
+
+### Earlier checkpoint timeline (historical statuses, superseded above)
+
 ## v0.8.1 desktop accepted; root promotion pending — 2026-10-26 01:11 UTC
 
 Actual cloud Chrome acceptance is recorded in BROWSER-QA-V081.md: fresh clear/loot, natural v0.7 UI import, paid axe/manual equip, visible 20-point bleed at 257 attack, progression/reload, preserved 105 original items plus eight new items, and explicit multi-tab writer takeover. Limits remain explicit: repaired-corrupt-save browser reproduction, exact wall-clock boundaries, physical mobile, OS suspend, universal foreground pause and every bleed timing were not established by this pass. No app-origin errors appeared in inspected logs.
