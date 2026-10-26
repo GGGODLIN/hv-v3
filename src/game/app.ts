@@ -302,7 +302,7 @@ export class App {
     const skillHint = RULES.cp8 && b.turn === 0 && (lean === 'blade' || lean === 'oc') ? (() => {
       const ids = (Object.keys(SKILLS) as SkillId[]);
       const now = ids.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}`);
-      const later = ids.filter((id) => !canUse(b, { kind: 'skill', id, target: this.target }) && b.cooldowns[id] <= 0).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}（${SKILLS[id].oc}OC）`);
+      const later = ids.filter((id) => !canUse(b, { kind: 'skill', id, target: this.target }) && b.cooldowns[id] <= 0 && /OC/.test(whyNot(b, { kind: 'skill', id, target: this.target }) ?? '')).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}（${SKILLS[id].oc}OC）`);
       const sp = canUse(b, { kind: 'spirit' }) ? '、S·靈動架勢' : '';
       return `<div class="hint" data-skillhint>💡 本場可用：${now.length ? now.join('、') + sp : `攻擊累積 OC 後可用 ${later.join('、') || '—'}${sp}`}</div>`;
     })() : '';

@@ -245,3 +245,7 @@ P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 
 - P2 格擋/招架與反擊浮字加大、固定顯示時間（不隨 4x 縮短）。
 - 小 bug：按 4x / 勾跳過動畫後 A 鍵失效（checkbox 焦點吃熱鍵）已修；速度/跳過動畫改存獨立 key（hv-v3-settings），重整與 &fresh 預設都保留。
 - 待調：現行 AI 下 oc trip-1 中位 14（rc6 為 22），P1 1.929× FAIL、V FAIL、受傷 FAIL；naive 回合 ALL PASS（docs/logs/cp8rc7/rc7.txt）。
+
+## cp8-rc8（2026-10-26）
+- P2-1 bulwark（單手＋盾）防禦時格擋反擊每回合上限 +1（CP8.bulwarkDefCounter=1）。**自訂，非原版（暫定）**。cp5 原本「防禦時不觸發 riposte」在此加成下解除。e2e：scripts/cp8-rc8-e2e.mjs。
+- P2-2 blade / oc 每場第 1 回合顯示「💡 本場可用」技能提示（可用技能，或攻擊累積 OC 後可用的技能與所需 OC）。

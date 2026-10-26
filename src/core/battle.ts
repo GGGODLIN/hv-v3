@@ -604,7 +604,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   if (s.over) return;
   const defending = s.defendTurns > 0;
   let ripostes = 0, counters = 0;
-  const defBonus = RULES.cp8 && defending && s.mods?.combo.bulwark ? CP8.bulwarkDefCounter : 0; // cp8-rc8 P2-1 自訂，非原版
+  const defBonus = RULES.cp8 && defending && (s.mods?.combo.bulwark || (s.d.style === 'oneHand' && s.d.block > 0)) ? CP8.bulwarkDefCounter : 0; // bulwark = 1H + shield layout (or the bulwark combo) // cp8-rc8 P2-1 自訂，非原版
   // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
   const hp0 = s.hp, cap = RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity;
   s.monsters.forEach((m0, i) => {
