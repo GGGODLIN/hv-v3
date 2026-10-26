@@ -19,7 +19,7 @@ import { openOffer, takeBuff } from '../src/core/buffoffer';
 import { derive } from '../src/core/player';
 const E = process.env;
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0'; RULES.cp8 = E.CP8 === '1';
-for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as Record<string, number | boolean>)[k] = Number(E[`K8_${k}`]);
+for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as unknown as Record<string, unknown>)[k] = Array.isArray(CP8[k]) ? E[`K8_${k}`]!.split(",").map(Number) : Number(E[`K8_${k}`]);
 for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typeof CP7[k] === "number") (CP7 as Record<string, unknown>)[k] = Number(E[`K_${k}`]);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;
@@ -80,6 +80,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
     if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, level(p), Object.values(p.equipped).map((e) => e ? e.slot + ':' + e.quality[0] + e.roll + 'L' + e.level : '').join(' '));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
+    if (E.DBGP2 && t <= 2) { const z = r.settlement as { cp8?: { pw0: number; pw1: number; worn: string[] }; lostItems?: unknown[]; kept?: unknown[]; levelBefore?: number; levelAfter?: number }; console.error('P2', JSON.stringify({ s, t, st, cl, dead, pw0: z.cp8?.pw0, pw1: z.cp8?.pw1, worn: z.cp8?.worn.length, lost: z.lostItems?.length ?? 0, kept: z.kept?.length ?? 0, lv0: z.levelBefore, lv1: z.levelAfter, kills: r.kills })); } // cp8-rc2 P2 diagnosis (stderr only)
     if (t === 2) second.push(cl);
     if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)

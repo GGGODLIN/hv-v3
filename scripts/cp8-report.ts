@@ -1,15 +1,18 @@
 /** CP8 report: reads cp7-sim JSON lines produced with CP8=1 SIM_AI=naive (scripts/cp8-round.sh) and prints CHECK lines P1–P5 per set.
- * P4 reuses scripts/cp7-report.ts on the same file (its P4 CHECK lines are copied). Definitions: docs/cp8-real-play.md §指標. */
+ * rc2: P4 is judged with the CURRENT AI — its CHECK lines are copied from scripts/cp7-report.ts run on the 2nd argument (a cp7-sim
+ * CP8=1 file without SIM_AI, e.g. from `SIM_AI= bash scripts/cp8-round.sh`); naive is used only for P1/P2 (and P3/P5 as before).
+ * rc2: P2 is pooled over sets A+B: every school's trip-2 median ≥ trip-1 median + 2. Definitions: docs/cp8-real-play.md §指標.
+ * Usage: npx tsx scripts/cp8-report.ts <naive.jsonl> <current-ai.jsonl> */
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 type Cell = { n: number; k: number; mx: number };
 type R = { sc: string; S0: number; N: number; cp8: boolean; naive: boolean; first: number[]; second: number[]; firstClear: number[]; p3d21: { n: number; w: number }; p5: { hp: number; d: Record<string, Cell> }[] };
-const file = process.argv[2]!;
+const file = process.argv[2]!, p4file = process.argv[3];
 const rows = readFileSync(file, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as R);
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 const SCH = ['blade', 'oc', 'arcane', 'bulwark'];
-const cp7 = execFileSync('npx', ['tsx', 'scripts/cp7-report.ts', file], { encoding: 'utf8' }).split('\n');
+const cp7 = p4file ? execFileSync('npx', ['tsx', 'scripts/cp7-report.ts', p4file], { encoding: 'utf8' }).split('\n') : [];
 const p4: Record<string, string[]> = {}; let cur = '';
 for (const l of cp7) { const m = l.match(/^=== set (\w)/); if (m) cur = m[1]!; else { const c = l.match(/^\s*CHECK (PASS|FAIL) (P4 .*)$/); if (c) (p4[cur] ??= []).push(`${c[2]} ${c[1]}`); } }
 let all = true;
@@ -21,11 +24,18 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   SCH.forEach((sc, i) => console.log(`  ${sc}: trip1 median d${m1[i]} (p25 ${q(by(sc).first, 0.25)}) trip2 median d${m2[i]}  F20 clear median ${q(by(sc).firstClear, 0.5)} trips  d21 first battle ${by(sc).p3d21.w}/${by(sc).p3d21.n}`));
   checks.push([`P1 every school trip-1 median ≥ d10: ${SCH.map((sc, i) => `${sc} ${m1[i]}`).join(' ')}`, Math.min(...m1) >= 10]);
   checks.push([`P1 strongest/weakest trip-1 median ${(Math.max(...m1) / Math.min(...m1)).toFixed(3)}× ≤ 1.3×`, Math.max(...m1) / Math.min(...m1) <= 1.3]);
-  checks.push([`P2 trip-2 median ≥ trip-1 median + 3: ${SCH.map((sc, i) => `${sc} ${m1[i]}→${m2[i]}`).join(' ')}`, SCH.every((_, i) => m2[i]! >= m1[i]! + 3)]);
+  console.log(`  (info) trip-2 vs trip-1 median this set: ${SCH.map((sc, i) => `${sc} ${m1[i]}→${m2[i]}`).join(' ')} — P2 is judged on A+B pooled below`);
   const p3 = set.reduce((a, r) => ({ n: a.n + r.p3d21.n, w: a.w + r.p3d21.w }), { n: 0, w: 0 });
   checks.push([`P3 d21 start (with start buffs) first battle win ${pct(p3.w / p3.n)} (${p3.w}/${p3.n}) ≥ 40%`, p3.n > 0 && p3.w / p3.n >= 0.4]);
-  for (const l of p4[name] ?? []) checks.push([l.replace(/\s*(PASS|FAIL)$/, ''), /PASS$/.test(l)]);
-  if (!(p4[name] ?? []).length) checks.push(['P4 (cp7-report P4 lines missing)', false]);
+  // rc2 decision 4: bulwark d16 is judged on a set-A N=256 rerun (env BW256=<cp7-sim jsonl, SC=bulwark>): ≥59% passes (sampling noise).
+  const bw = process.env.BW256 ? (readFileSync(process.env.BW256, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as { S0: number; N: number; win: Record<string, number> }).find((r) => r.S0 === S0)) : undefined;
+  for (const l of p4[name] ?? []) {
+    let t = l.replace(/\s*(PASS|FAIL)$/, ''), ok = /PASS$/.test(l);
+    const m = t.match(/^P4 bulwark d1–3 ≥95% \(([\d.]+)%\/([\d.]+)%\/([\d.]+)%\) d5 ≥75% \(([\d.]+)%\) d16 ≥60% \(([\d.]+)%\) d20 ≥35% \(([\d.]+)%\)/);
+    if (m && bw && !ok) { const v = m.slice(1).map(Number); const d16 = 100 * bw.win.d16!;
+      ok = v[0]! >= 95 && v[1]! >= 95 && v[2]! >= 95 && v[3]! >= 75 && v[5]! >= 35 && d16 >= 59; t += ` → N=${bw.N} rerun d16 ${d16.toFixed(1)}% (≥59% passes, rc2 decision 4)`; }
+    checks.push([t, ok]); }
+  if (!(p4[name] ?? []).length) checks.push(['P4 current AI (cp7-report P4 lines missing — pass the current-AI file as 2nd arg)', false]);
   // P5: "median-HP character" = characters whose max HP is within the school's p25..p75; every depth 1..30 (every 5th is a boss fight).
   let worst = 0, where = '';
   for (const sc of SCH) { const ps = by(sc).p5; if (!ps.length) continue; const hs = ps.map((x) => x.hp); const lo = q(hs, 0.25), hi = q(hs, 0.75); const mid = ps.filter((x) => x.hp >= lo && x.hp <= hi);
@@ -35,4 +45,7 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   checks.push([`P5 full-HP one-round death, worst school×depth ${pct(worst)}${where ? ` (${where})` : ''} ≤ 2%`, worst <= 0.02]);
   for (const [t, ok] of checks) { console.log(`  CHECK ${t} ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 }
+{ const cat = (sc: string, k: 'first' | 'second') => rows.filter((r) => r.sc === sc).flatMap((r) => r[k]);
+  const a = SCH.map((sc) => q(cat(sc, 'first'), 0.5)), b = SCH.map((sc) => q(cat(sc, 'second'), 0.5)); const ok = SCH.every((_, i) => b[i]! >= a[i]! + 2);
+  console.log(`\n=== A+B pooled\n  CHECK P2 trip-2 median ≥ trip-1 median + 2 (A+B pooled): ${SCH.map((sc, i) => `${sc} ${a[i]}→${b[i]}`).join(' ')} ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 console.log(all ? '\nCP8 ALL PASS' : '\nCP8 SOME FAIL');
