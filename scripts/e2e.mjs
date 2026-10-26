@@ -5,7 +5,9 @@ import { mkdirSync } from 'node:fs';
 const URL0=process.env.E2E_URL||'http://127.0.0.1:5199/';
 const b=await p.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--use-gl=swiftshader'],defaultViewport:{width:1280,height:900}});
 const w=ms=>new Promise(r=>setTimeout(r,ms));const S=(process.env.E2E_SHOTS||'e2e-shots')+'/';mkdirSync(S,{recursive:true});
-const pg=await b.newPage();const errs=[];const consoleErrors=[];const httpErrors=[];
+const pg=await b.newPage();
+// cp8-rc2: since cp7-pass the 整備提醒 modal opens on departure; the old flow checks depart without prep, so this dismisses it (「忽略並出發」).
+const start=async(sel='[data-start]')=>{await pg.click(sel);await w(150);const ok=await pg.$eval('.modal [data-modal-ok]',x=>x.textContent).catch(()=>null);if(ok&&ok.includes('出發')){await pg.click('.modal [data-modal-ok]');await w(150);}};const errs=[];const consoleErrors=[];const httpErrors=[];
 pg.on('console',m=>{if(m.type()==='error'){consoleErrors.push(m.text());errs.push(m.text())}});pg.on('pageerror',e=>{consoleErrors.push(String(e));errs.push(String(e))});pg.on('response',r=>{if(r.status()>=400){httpErrors.push(r.status()+' '+r.url());errs.push(r.status()+' '+r.url())}});pg.on('requestfailed',r=>{httpErrors.push('failed '+r.url());errs.push('failed '+r.url())});
 await pg.goto(URL0,{waitUntil:'networkidle0'});
 const R={};R.hvWithoutDebug=await pg.evaluate(()=>typeof window.hv);
@@ -20,7 +22,7 @@ await pg.click('[data-newgame]');await w(100);await pg.click('[data-modal-ok]');
 // ---- CP3: fresh character — town locks, trip-1 tutorial, locked battle actions
 R.cp3town=await pg.evaluate(()=>({alloc:!!document.querySelector('[data-locked="alloc"]'),shopTab:!!document.querySelector('[data-tab="shop"]'),iwTab:!!document.querySelector('[data-tab="iw"]'),locks:document.querySelector('.locks')?.textContent||''}));
 await pg.screenshot({path:S+'cp3-01-town-locked.png'});
-await pg.click('[data-start]');await w(300);
+await start();await w(300);
 R.cp3trip=await pg.$eval('[data-trip]',x=>x.textContent).catch(()=>null);
 R.cp3floors=await pg.evaluate(()=>hv.run.tower.floors.slice(1,4).map(f=>f.options.join('/')));
 await pg.click('[data-node]');await w(1200);
@@ -50,7 +52,7 @@ await pg.screenshot({path:S+'cp2-01-town-weaker.png'});
 await pg.click('[data-modal-cancel]');await w(100);R.cp2townKept=await pg.evaluate(()=>hv.p.inventory.some(x=>x.id==='cp2weak'));
 await pg.evaluate(()=>{hv.p.inventory=hv.p.inventory.filter(x=>x.id!=='cp2weak');hv.townTab='char';hv.go('town')});await w(100);
 // battle 1
-await pg.click('[data-start]');await w(400);
+await start();await w(400);
 await pg.evaluate(()=>{const i=window.hv.run.nodes?.[window.hv.run.floor-1];});
 await pg.click('[data-node]');await w(1500);
 // item 2: disabled tooltip
@@ -121,7 +123,7 @@ while(guard++<600){
   const st=await pg.evaluate(()=>({s:hv.screen,over:hv.battle?.over,busy:hv.busy,done:hv.data.run?.done,bag:(hv.data.run?.bag||[]).map(e=>e.id)}));
   if(st.bag.length)bagSnap=st.bag;
   if(st.s==='result')break;
-  if(st.s==='map'){await pg.click('[data-node]');await w(300);continue;}
+  if(st.s==='map'){if(await pg.$('[data-buff]')){await pg.click('[data-buff]');await w(150);continue;}await pg.click('[data-node]');await w(300);continue;}
   if(await pg.$('.modal')){await pg.click('[data-modal-ok]');await w(150);continue;}
   if(!shotModal&&await pg.$('[data-bequip]')){ // item 6: force the weaker-item dialog
     const ok=await pg.evaluate(()=>{const r=hv.data.run;const e=r.bag.find(x=>hv.p.equipped[x.slot]);if(!e)return false;e.__w=1;return e.id});
@@ -139,6 +141,7 @@ while(guard++<600){
     }
   }
   if(st.s==='node'&&st.over===false){await pg.keyboard.press('a');await w(150);continue;}
+  if(await pg.$('[data-buff]')){await pg.click('[data-buff]');await w(150);continue;} // cp8-rc2: CP4 run-buff pick blocks 「繼續」
   if(await pg.$('[data-continue]')){await pg.evaluate(()=>{hv.stage.skip=true});await pg.click('[data-continue]');await w(200);continue;}
   await pg.keyboard.press('a');await w(150);
 }
@@ -169,11 +172,13 @@ if(!R.cp2cEnemyHits.length||!R.cp2cEnemyHits.every(t=>/對你造成 \d+ 傷害/.
 if(!R.cp2regen.length||!R.cp2regen.every(t=>/HP \+\d+ · MP \+\d+ · SP \+\d+/.test(t)))fails.push('CP2 regen line');
 if(!R.cp2weakHud.some(t=>t.includes('25%'))||!R.cp2weakLog.length)fails.push('CP2 weakness');
 if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
-{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻'));if(cd.length!==10||cd[0]!=='冷卻10'||cd[9]!=='冷卻1')fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
+// cp8-rc2: the label became 「冷卻 N 回合」 (spaces + 回合); only the countdown 10..1 is checked.
+{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻')).map(t=>Number(t.replace(/\D/g,'')));if(cd.length!==10||cd[0]!==10||cd[9]!==1)fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
 if(!R.cp2decide||!R.cp2suggest.some(t=>t.includes('防禦')))fails.push('CP2 charge decision');
 {const t=R.cp3town;if(!t.alloc||t.shopTab||t.iwTab)fails.push('CP3 town locks');}
 if(!R.cp3trip||!R.cp3trip.includes('×5'))fails.push('CP3 trip-1 carry multiplier (CARRY_MULT 5)');
-if(R.cp3floors.join(',')!=='battle,merchant,elite')fails.push('CP3 tutorial floors '+R.cp3floors);
+// cp8-rc2: since cp5 (long tower) each floor offers 2 options; the tutorial type must be one of them.
+if(!['battle','merchant','elite'].every((t,i)=>(R.cp3floors[i]||'').split('/').includes(t)))fails.push('CP3 tutorial floors '+R.cp3floors);
 if(!R.cp3unlockLog.some(t=>t.includes('防禦'))||!R.cp3unlockLog.some(t=>t.includes('教學')))fails.push('CP3 unlock notice');
 if(!R.cp3spiritTitle.includes('尚未解鎖'))fails.push('CP3 spirit locked');
 if(!R.cp3resultUnlock.some(t=>t.includes('道具界'))||!R.cp3iw||!R.cp3iwFree||!R.cp3iwBtn?.includes('免費'))fails.push('CP3 IW unlock');
