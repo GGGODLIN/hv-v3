@@ -19,4 +19,8 @@
 Source-only tests cover mana shortage, lethal hit, exact tick boundary and numeric matrices; browser play above does not independently prove those edge conditions. Original level/duration and full cost modifiers remain model limitations, not acceptance defects. Accepted candidate does not itself mean publishedroot. Sourcebackup does not restore personal browser saves, credentials, permissions, schedules or GPTLibrary.
 
 ## Stable-root publication
-Pending accepted-sourcebackup, promotion, exact CI/HTTP and actualrootsmoke. Previousv0.16 remains the accepted public version until that chain passes.
+Accepted-source `a31e5e0c46340b19464f1efc7e5e85a0e95a24e4` was backed up/readback verified before root `972f55df0b6951efdaa939c3bd7dba6331ace862`. Exact Pages40328355347 SUCCESS and six public runtime filesHTTP200/byte/SHA256 matched. All other site paths preserved.
+
+At13:13–13:14UTC actual stabletab2 reload showedv0.17 and its separate originalLv8/gold200/wins9/items15/729HP/parry15.15% profile, not the candidateLv11 profile. Growth showedOFF/lockedLv10/2MP. Ordinary stage1 combat naturally won; retreat and reload retainedLv8/gold306/wins10/items19/729HP, XP236/289. No application-origin error observed (only the known extension metadata source). Root tab remains the deliverable; isolated test tabs were closed. Active spell behavior was tested on the byte-identical candidate, not artificially unlocked on production.
+
+The final publication receipt changes docs/manifest only, reusing unchanged1188tests/four syntax and runtime browser evidence. No mobile/narrow viewport acceptance or private browser-save/Library/account recovery is implied.

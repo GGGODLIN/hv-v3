@@ -1,5 +1,15 @@
 # Current status
 
+## v0.17 published and stable-root accepted — 2026-10-26 13:14 UTC
+
+Play: https://gggodlin.github.io/play/hv-v3-dot/ . New optional **Protection / 自動護盾** unlocks at the selectedLv10 research gate: spend base3MP atLv10 and one attack action for25% independent damage reduction. DefaultOFF retains previous play. Actual candidate natural unlock, cast, countdown, recast, damage-prevention report, readonly and savedON/OFF checks passed. Source/model/adaptation boundaries remain explicit in PROTECTION-GUIDE.md.
+
+Runtime source `842ba0d13aab01ac5d75937667d144d31c7a72a4` passed1,188tests/four syntax; independent18,000OFF comparisons and350same-RNG cases passed. Accepted full source `a31e5e0c46340b19464f1efc7e5e85a0e95a24e4` was verified before root `972f55df0b6951efdaa939c3bd7dba6331ace862`; exactPages40328355347/HTTP6 and actual root victory/reload passed. See BROWSER-QA-V017.md for evidence and limits.
+
+This exact verified publication-receipt commit is the latest accepted full-source restore (154files/153payloads); priorv0.16 `b32d52af8558c15e907a77cbf1da9bbda866e666` remains available. Only docs/manifest changed after acceptance, so unchanged runtime checks are reused. Stable browserprofile remained separate and endedLv8/gold306/wins10/items19; source backup does not restore personal saves, credentials, Library synchronization or schedules.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.17 desktop accepted; root promotion pending — 2026-10-26 13:07 UTC
 
 Optional Protection is now source-tested and actually played: normalLv8 import→naturalLv10 unlock,3MP cast/15Tick countdown, longer encounter expiry/recast, mitigation report, camp/readonly controls and ON/OFF save reload passed. Source `842ba0d13aab01ac5d75937667d144d31c7a72a4` passed1,188tests/four syntax; candidate `bec9b0042a4244d7785895cb386301eefe836cf6` passed exactPages40326848552/HTTP6. See docs/BROWSER-QA-V017.md for observations and limits.

@@ -1,5 +1,11 @@
 # Published releases
 
+## v0.17 — published, 2026-10-26 13:14 UTC
+
+- First optional Protection decision: one attack turn/baselevelMP for25% independent reduction; defaultOFF. SelectedLv10/15Ticks remain questionmarked research models, auto-recast/casttime and missingoriginalmodifiers explicitly distinguished.
+- Runtime842ba0d,1188tests/four syntax; independent18000OFF/350damage cases. Actualcandidate naturalunlock/casts/recast/report/readonly/save checks passed.
+- Acceptedsourcea31e5e0 backedup/readback first; root972f55d, exactPages40328355347/HTTP6 and actualrootvictory/reload passed. Priorv016b32d52af remains recoverable. BROWSER-QA-V017.md records bounded evidence.
+
 ## v0.15 — published, 2026-10-26 12:06 UTC
 
 - New rapier equipment parry input and legal Nimble suffix, integrated character check, conservative seven-stat comparisons and presets. Original equipment endpoints/quality model are separate from the explicit adapted chance mapping; old gear is not retrofilled.
