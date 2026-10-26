@@ -53,3 +53,9 @@
 3. `lootLvAdd` 維持 5；其餘暫定值（betterMargin、pity、winHeal、dmgMid、knee、themeDmg）照 rc2 接受，仍標「暫定」。
 4. 假說「從檢查點出發沒有 run buff → 第一戰容易死」需驗證；若成立只列為 CP8 候選（例如檢查點出發時給 N 次 buff 選擇），本輪不實作。
 5. postF20 預設只選第 1 層出發：正確，不改。
+
+## cp7-rc3 結果（2026-10-26，Asia/Taipei）
+- 對帳：live 路徑（scripts/cp7-live-path.mjs，真 App、sim AI、sim 整備）與 node sim 一致，四流派 trip-1 d10 boss 6/6 全勝；無 live-only 分歧。實機 d10–13 全滅差距推定來自狀態（0 HP 藥、未分配 EXP）與人類操作（推測，未驗證）。d10 boss 不過強：trip-1 d10 boss 勝率 95–100%（新 CHECK P4 ≥70% PASS）。
+- 掉寶等級 bug：cp7 下深淵掉落用 abyssLevel（=玩家 Lv，無 +5）；Lv33/39 來自 pity 以「最高穿戴等級」為基準每 pass +3（最多 +24）並逐趟棘輪上升（sim 見 Lv38/51 身甲）。修正：dropLevel = 玩家 Lv + lootLvAdd(5)；pity 以 dropLevel 為基準、+1/pass、上限 +3（pityLevelCap，暫定），後續 pass 提升品質（pityQualityPerPass 1，暫定），第 2 pass 起奇數次可換甲系（暫定），武器後備全區開放（暫定）。
+- 未達：P1「每個勝趟 ≥1 件更好」99.6% / 99.4%（目標 100%）。剩餘失敗趟為裝備已近飽和（peerless roll200）於深檢查點 1 勝即死；pity 上限 +3/+6 均無法超過 betterMargin 2%。要 100% 只能回到無上限等級膨脹（即本 bug）或調整 betterMargin／P1 定義 → 需製作人決定。
+- run-buff 假說（檢查點起點 0 buff → 首戰死）：d6/d11 幾乎無差；d16/d21 顯著（postF20-blade d21 12% vs 8 buff 45%、bulwark d16 64% vs 91%、abyss15 d16 34% vs 66%）。部分成立 → 列為 CP8 候選，未實作。
