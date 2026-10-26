@@ -44,6 +44,7 @@ function harness(state = fixture(), options = {}) {
     },
   };
   runInNewContext(`let counterTimer; let commissionConsent = null; let lastCommissionSignature = ''; let selectedId = null; let selectedSlot = null;
+    ${extract('function resetInventoryFilters(', 'function resetInventoryFilterView(')}
     ${extract('function weaponRuleText(', 'function powerComparisonText(')} ${controllers}
     ${extract("$('commission-confirm').addEventListener", "$('motion-toggle').addEventListener")}
     window.addEventListener('popstate', closeWeaponCommission);

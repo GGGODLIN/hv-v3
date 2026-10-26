@@ -219,6 +219,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
+  resetInventoryFilters(); // A newly imported/adopted journey must not inherit a hidden subset.
   if ($('magic-notice')) $('magic-notice').hidden = true;
   clearFinishThenCamp(state); finishCampCancelled = false;
   closeGearSetDialog(); lastGearSetSignature = ''; $('gear-set-feedback').textContent = '';
@@ -371,6 +372,44 @@ function renderGearSets() {
   if (focusTarget) focusGearSetButton(focusTarget.id,focusTarget.kind);
 }
 
+// These transient view criteria never enter a save or choose an equipment action.
+function inventoryFilters() {
+  const choice = (id, allowed) => allowed.includes($(id)?.value) ? $(id).value : 'all';
+  return {
+    slot: choice('slot-filter', ['all', 'weapon', 'armor', 'accessory']),
+    family: choice('family-filter', ['all', 'axe', 'rapier', 'club', 'unknown']),
+    investment: choice('investment-filter', ['all', 'unbound', 'bound', 'iw1'])
+  };
+}
+function inventoryMatchesFilters(item, filters) {
+  if (filters.slot !== 'all' && item.slot !== filters.slot) return false;
+  if (filters.family !== 'all') {
+    if (item.slot !== 'weapon') return false;
+    const family = resolveWeaponFamily(item);
+    if (filters.family === 'unknown' ? !!family : family !== filters.family) return false;
+  }
+  const bound = Object.hasOwn(item, 'soulbound'), iw1 = bound && item.itemWorld?.level === 1;
+  if (filters.investment === 'unbound' && bound) return false;
+  if (filters.investment === 'bound' && (!bound || iw1)) return false;
+  if (filters.investment === 'iw1' && !iw1) return false;
+  return true;
+}
+function inventoryFilterLabels(filters) {
+  return [filters.slot !== 'all' ? slotNames[filters.slot] : '',
+    filters.family !== 'all' ? weaponFamilyNames[filters.family] || '未辨識武器' : '',
+    ({ unbound: '未綁定裝備', bound: '已綁定・未升 IW', iw1: 'IW1 已完成' })[filters.investment] || ''].filter(Boolean);
+}
+function hiddenSelectedSaleCount(filters = inventoryFilters()) {
+  return state.inventory.filter(item => selectedSaleIds.has(item.id) && !inventoryMatchesFilters(item, filters)).length;
+}
+function resetInventoryFilters() {
+  for (const id of ['slot-filter', 'family-filter', 'investment-filter']) $(id).value = 'all';
+  // Both inspected items and exact personal sale selections survive a view reset.
+}
+function resetInventoryFilterView() {
+  resetInventoryFilters(); render(true); $('slot-filter').focus();
+}
+
 // Explicit personal selection is separate from the conservative downgrade filter.
 function closeSelectedSale() {
   selectedSaleConsent = null;
@@ -413,16 +452,18 @@ function openSelectedSale() {
   if ($('selected-sale-dialog').open) return;
   const ids = [...selectedSaleIds];
   const preview = previewSelectedSale(state, ids);
+  const filters = inventoryFilters(), hidden = hiddenSelectedSaleCount(filters);
   if (!preview.available) { showToast(`無法預覽：${preview.reason}`); render(true); return; }
   selectedSaleConsent = { ids, ...preview };
   $('selected-sale-list').replaceChildren(...preview.items.map(entry => {
     const row = node('li', 'safe-sale-item');
+    if (!inventoryMatchesFilters(entry.item, filters)) row.append(node('p', 'selected-sale-warning', '背包篩選外・仍在本次完整出售清單'));
     row.append(node('strong', '', entry.name), node('span', 'safe-sale-meta', `${qualityName(entry.quality)} · ${slotNames[entry.slot]} · ${format(entry.value)} 金幣`), node('span', 'safe-sale-id', `出售 ID：${entry.id}`));
     row.append(node('p', '', `保留目前裝備：${entry.currentEquipment?.name || '無'}。以下差值＝本件減目前同部位裝備；正值代表將出售的這項屬性較高。`), selectedSaleComparison(entry));
     if (entry.slot === 'weapon') row.append(node('p', 'selected-sale-warning', `出售路線：${itemTypeName(entry.item)} · ${describeWeaponTrait(entry.item)}。目前路線：${entry.currentEquipment ? itemTypeName(entry.currentEquipment) : '無'}。武器特效不同，不能只看評分或單項差值。`));
     return row;
   }));
-  $('selected-sale-summary').textContent = `自行選定 ${preview.items.length} 件 · 合計 ${format(preview.total)} 金幣 · 出售後 ${format(preview.goldAfter)} 金幣`;
+  $('selected-sale-summary').textContent = `自行選定 ${preview.items.length} 件 · 合計 ${format(preview.total)} 金幣 · 出售後 ${format(preview.goldAfter)} 金幣${hidden ? `（含背包篩選外 ${hidden} 件，已全部列出）` : ''}`;
   $('selected-sale-feedback').textContent = '尚未出售。這是你自行挑選的裝備，不保證是劣化品，也可能包含稀有或更強裝備。確認後無法買回；只出售上述 ID，不加入其他物品。';
   $('selected-sale-confirm').textContent = `確認出售自選 ${preview.items.length} 件 · +${format(preview.total)} 金幣`;
   $('selected-sale-confirm').disabled = false;
@@ -459,8 +500,7 @@ function confirmSelectedSale() {
 }
 function renderSelectedSale() {
   const preview = previewSelectedSale(state, [...selectedSaleIds]);
-  const filter = $('slot-filter').value;
-  const hidden = state.inventory.filter(item => selectedSaleIds.has(item.id) && filter !== 'all' && item.slot !== filter).length;
+  const hidden = hiddenSelectedSaleCount();
   $('selected-sale-status').textContent = !tabOwner ? '唯讀分頁：接手後才能選取出售。' : state.mode !== 'town' ? '請先回營；出戰會清除自選清單。' : `已選 ${selectedSaleIds.size} 件 · ${format(preview.total)} 金幣${hidden ? `（另有 ${hidden} 件在目前篩選外，預覽會完整列出）` : ''}。未確認不會出售。`;
   $('review-selected-sale').disabled = !tabOwner || state.mode !== 'town' || !preview.available;
   $('clear-selected-sale').disabled = !selectedSaleIds.size;
@@ -675,9 +715,9 @@ function confirmWeaponCommission() {
   if (!purchased) { abortWeaponCommission('操作未確認完成，請核對金幣與背包後重新預覽。'); return; }
   closeWeaponCommission();
   selectedId = delivered.id; selectedSlot = null;
-  $('slot-filter').value = 'weapon'; $('sort-select').value = 'new';
+  resetInventoryFilters(); $('slot-filter').value = 'weapon'; $('sort-select').value = 'new';
   render(true);
-  showToast(`已委託「${delivered.name}」· 支付 ${format(consent.price)} 金幣；已鎖定送入背包，未自動裝備。`);
+  showToast(`已重設背包篩選，以武器／最新取得顯示。已委託「${delivered.name}」· 支付 ${format(consent.price)} 金幣；已鎖定送入背包，未自動裝備。`);
 }
 function renderWeaponCommission() {
   reconcileWeaponCommission();
@@ -1036,7 +1076,7 @@ function render(force = false) {
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = trial.active ? `目標：${trial.targetName} · 完成五回合才獲 IW1；結束必回營，不自動重刷。` : state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
-  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments, state.worldSeeds]);
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, inventoryFilters(), $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments, state.worldSeeds]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
@@ -1154,13 +1194,24 @@ function pinRecentExpeditionReport() {
 }
 function renderInventory() {
   selectedSaleCheckboxes.clear();
-  const filter = $('slot-filter').value, sort = $('sort-select').value;
-  const items = state.inventory.filter(item => filter === 'all' || item.slot === filter).slice().reverse();
+  const filters = inventoryFilters(), sort = $('sort-select').value;
+  const items = state.inventory.filter(item => inventoryMatchesFilters(item, filters)).slice().reverse();
+  const labels = inventoryFilterLabels(filters);
+  $('inventory-filter-status').textContent = `背包顯示 ${items.length}／${state.inventory.length} 件${labels.length ? ` · ${labels.join(' ＋ ')}` : ' · 全部裝備'}；已穿裝備另列於旅者面板。`;
+  $('reset-inventory-filters').disabled = labels.length === 0;
   if (sort === 'power') items.sort((a, b) => (b.power || 0) - (a.power || 0));
   if (sort === 'level') items.sort((a, b) => b.level - a.level);
-  if (!items.length) { const empty = node('div', 'empty-inventory'); empty.append(node('b', '', '◇'), node('span', '', state.inventory.length ? '這個部位還沒有戰利品。' : '背包還很輕。出發帶回第一件寶物吧。')); $('inventory-list').replaceChildren(empty); return; }
+  if (!items.length) {
+    const empty = node('div', 'empty-inventory');
+    empty.append(node('b', '', '◇'), node('span', '', labels.length ? '背包中沒有同時符合這些篩選的裝備；已穿裝備不在背包清單內。' : '背包還很輕。出發帶回第一件寶物吧；已穿裝備另列於旅者面板。'));
+    if (labels.length) {
+      const reset = node('button', 'secondary-button', '清除篩選，查看全部背包');
+      reset.addEventListener('click', resetInventoryFilterView); empty.append(reset);
+    }
+    $('inventory-list').replaceChildren(empty); return;
+  }
   $('inventory-list').replaceChildren(...items.map(item => {
-    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
+    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.dataset.inventoryId = item.id; button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
     if (Object.hasOwn(item, 'soulbound')) button.append(node('span', 'lock-indicator', '永久'));
     else if (isGearSetProtected(state,item.id)) button.append(node('span', 'lock-indicator', '配裝'));
     else if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
@@ -1222,6 +1273,7 @@ function renderItemDetail() {
     const lock = node('button', 'secondary-button', bound ? '永久綁定' : protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet || bound; lock.addEventListener('click', () => { if (!Object.hasOwn(item, 'soulbound')) dispatch('lock', item.id); });
     const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || bound || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { if (Object.hasOwn(item, 'soulbound')) return; dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
   }
+  if (!selectedSlot && !inventoryMatchesFilters(item, inventoryFilters())) explanation.append(node('span', 'inventory-detail-hidden', '正在比較的這件裝備位於背包篩選外；選取仍保留，篩選不會自動換裝或出售。'));
   if (bound) explanation.append(node('span', 'soulbind-protection', '永久綁定：不能解除、解鎖或出售（包含安全整理、自選出售）。清除配裝記錄也不會解除保護；可以正常換裝。'));
   else if (isGearSetProtected(state,item.id)) explanation.append(node('span','gear-set-protection','此裝備被配裝記錄使用，不能解鎖或出售。先清除或覆寫所有使用它的配裝，再手動解鎖；不會自動解鎖。'));
   const soulbind = node('div', 'soulbind-item-action');
@@ -1560,7 +1612,8 @@ $('auto-protection').addEventListener('change', event => {
 });
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
-$('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
+for (const id of ['slot-filter', 'family-filter', 'investment-filter', 'sort-select']) $(id).addEventListener('change', () => render(true));
+$('reset-inventory-filters').addEventListener('click', resetInventoryFilterView);
 $('item-world-confirm').addEventListener('click', confirmItemWorld);
 $('item-world-dialog').addEventListener('close', closeItemWorld);
 $('item-world-dialog').addEventListener('cancel', closeItemWorld);
@@ -1697,4 +1750,6 @@ if (!ownership.supported) {
   $('save-status').textContent = '暫存旅程 · 請匯出';
   notice('此瀏覽器沒有安全跨分頁鎖定：僅前景遊玩，不覆寫自動存檔。請匯出保留本次進度。');
 } else if (!storeAvailable) notice('此瀏覽器不允許儲存資料。請定期匯出存檔，避免關閉後遺失。');
+// Clear browser-restored native select values even before a writer lock is acquired.
+resetInventoryFilters();
 ownership.resume(); ownershipStatus(); updatePreferences(); render(true); resizeCanvas(); requestAnimationFrame(frame);

@@ -334,3 +334,18 @@
 .item-world-actions>button { flex: 1 1 220px; font-size: 12px; }
 #item-world-feedback, #item-world-item-meta { overflow-wrap: anywhere; }
 @media(max-width:680px) { .item-world-dialog { padding: 18px; } .item-world-item-name { font-size: 18px; } }
+
+/* Inventory workbench is a transient view, not an equipment/sale policy. */
+.loot-workbench { min-width: 0; }
+.loot-workbench .loot-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.loot-workbench .loot-tools select { width: 100%; min-width: 0; }
+.loot-investment-filters { margin-top: 9px; }
+.loot-investment-filters label { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 10px; color: var(--muted); }
+#inventory-filter-help, #inventory-filter-status { font-size: 10px; line-height: 1.75; margin: 8px 0; overflow-wrap: anywhere; }
+#inventory-filter-help { color: var(--muted); }
+#inventory-filter-status { color: var(--gold); }
+#reset-inventory-filters { width: 100%; }
+.empty-inventory .secondary-button { display: block; margin: 12px auto 0; max-width: 100%; white-space: normal; }
+.inventory-detail-hidden { display: block; margin-top: 8px; color: var(--gold); }
+@media (min-width:681px) and (max-width:1150px) { .loot-panel>.loot-workbench { grid-column: 1; } }
+@media (max-width:680px) { #inventory-filter-help, #inventory-filter-status, .loot-investment-filters label { font-size: 11px; } }

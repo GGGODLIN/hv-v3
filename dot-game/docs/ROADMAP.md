@@ -123,3 +123,7 @@ Make one complete resource-to-growth loop: earn explicitly adapted Soul Fragment
 ## v0.24 first-tier Item World slice
 
 Complete one explicit seed-to-challenge-to-permanent-upgrade loop. Normal clears earn one locally paced seed; Soulbound Fair/Average/Superior weapons can spend one for a five-round adapted challenge and IW1 only. Preserve original max10 as future work rather than illegal tiers, and keep unproven multi-tier arithmetic out of scope. Fixed entry difficulty, separate route records, no automatic retry, strict version3/immutable anchors and honest failure persistence precede natural measurements and browser acceptance. Do not bundle forge, salvage, CP, stamina, charms or unsupported equipment families.
+
+## v0.25 selected inventory workbench
+
+Address actual earned-play friction: the accepted v0.24 browser profile holds84backpack items, including28weapons across three known families and one legacy unidentified starter. Add AND-combined weapon-family/investment filters, truthful backpack-only matching counts, an explicit transient/reset/empty state, and full hidden selected-sale disclosure. Preserve item inspection, manual exact-ID consent and safe commission delivery discovery. No automatic best-gear decision, stat/economy/tier expansion or save migration belongs in this slice. Engine/loot/session byte parity and unchanged earned-profile evidence precede actual candidate play and promotion.

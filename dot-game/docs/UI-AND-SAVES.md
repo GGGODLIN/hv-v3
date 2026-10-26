@@ -32,3 +32,7 @@ v0.1 JSON 存檔仍可匯入，但 v0.2 使用全新存檔鍵 `hv-v3-dot-stable-
 ## v0.21 target policy
 
 Optional game field `targetPriority` accepts only `front`, `caster`, or `weakest`; canonical default `front` is omitted when saved. Missing legacy data retains first-alive behavior. Invalid explicitly supplied values are rejected rather than silently interpreted. Choice is camp-only and writer-only; the current target view is pure, transient derived information. No save namespace migration or enemy order change is required. Older readers may reject/drop unsupported policy; exporting before switching versions preserves progress, but an old build cannot execute a policy it lacks.
+
+## v0.25 transient inventory workbench
+
+Slot/family/investment controls affect only the current tab's backpack view. Reload, import and ownership/adopted-journey changes reset filters; no new persistent field, save namespace or format is added. They never modify item identity, missing legacy stats, equipped gear, seed/fragment balances or sale selection. A filtered-out inspected item remains clearly identified; hidden sale selections remain fully disclosed before exact-ID confirmation. Commission delivery explicitly reveals the purchased locked weapon without equipping it. Engine, loot and session modules remain byte-identical to accepted v0.24.
