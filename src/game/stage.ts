@@ -118,7 +118,8 @@ export class Stage extends Phaser.Scene {
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () => { if (m.hp > 0) this.onTarget(i); });
       const top = y - (kind === 'beast' ? 95 : 148) * scale;
       const ek = (Object.keys(m.spec) as (keyof Monster['spec'])[]);
-      const elemTag = [...ek.filter((k) => m.spec[k] < 0).map((k) => `弱${STAGE_ELEM_ZH[k] ?? k}`), ...ek.filter((k) => m.spec[k] > 0).map((k) => `抗${STAGE_ELEM_ZH[k] ?? k}`)].join(' ');
+      const wk = ek.filter((k) => m.spec[k] < 0).map((k) => STAGE_ELEM_ZH[k] ?? k).join(''), rs = ek.filter((k) => m.spec[k] > 0).map((k) => STAGE_ELEM_ZH[k] ?? k).join('');
+      const elemTag = [wk && `弱${wk}`, rs && `抗${rs}`].filter(Boolean).join('｜');
       const label = this.add.text(x, top - (elemTag ? 34 : 26), `${m.rank === 'elite' ? '☠' : ''}${m.name} Lv${m.level}${elemTag ? `\n${elemTag}` : ''}`, { fontFamily: 'monospace', fontSize: '13px', color: m.rank === 'normal' ? '#ffffff' : '#ffb060', stroke: '#000', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
       const bar = this.add.graphics().setDepth(20);
       const v: MonView = { m, sprite, kind, x, y, scale, bar, label, ring };
