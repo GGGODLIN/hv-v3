@@ -126,7 +126,7 @@ export type Action =
   | { kind: 'spirit' };
 
 export type BEvent =
-  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; spirit?: boolean }
+  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; resisted?: number; spirit?: boolean }
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
   | { t: 'status'; to: 'player' | number; text: string; phase?: boolean }
   | { t: 'death'; to: number }
@@ -496,7 +496,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
     critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: cp7SpellSpec(m.spec[def.element] / 100, specReduce),
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element) });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element), resisted: r.avoidMult > 0 && m.spec[def.element] > 0 ? m.spec[def.element] : undefined });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
     if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }

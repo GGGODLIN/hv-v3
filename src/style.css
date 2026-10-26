@@ -173,3 +173,4 @@ button.suggest { outline: 3px solid #ffb040; box-shadow: 0 0 14px #ffb040; backg
 .better { color: #6cff8c; }
 .loot-plain { opacity: .55; }
 .loot-plain:hover { opacity: 1; }
+.resisthit { color: #9aa8b8; } .enemyelem { color: #c0d8ff; }

@@ -833,6 +833,7 @@ export class App {
     const turnHits: { who: string; label?: string; dmg: number; charged: boolean }[] = [];
     for (const e of ev) {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
+      if (e.t === 'hit' && e.from === 'player' && e.resisted && e.dmg > 0) this.log.push(`<span class="resisthit" data-resisthit>抗性，傷害降低：${esc(b.monsters[e.to as number]!.name)} 抗${ENC_TZ[e.element ?? ''] ?? e.element} ${e.resisted}%，受到 ${e.dmg}</span>`);
       if (e.t === 'hit' && e.from === 'player' && e.weak && e.dmg > 0) this.log.push(`<span class="weakhit">弱點！${esc(b.monsters[e.to as number]!.name)} 受到 ${e.dmg}</span>`);
       if (e.t === 'hit' && e.to === 'player' && typeof e.from === 'number') {
         const who = esc(b.monsters[e.from]!.name);
