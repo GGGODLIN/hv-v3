@@ -286,7 +286,7 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   const coin = new Rng(run.floor * 7919 + run.kills * 131 + Math.round(run.hp)).chance(HUMAN_COMBAT_SHARE);
   const calm: NodeType[] = ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'];
   const lr = (RULES.cp8 && p.lean && LEAN_ROUTE[p.lean]) || { restBelow: 0.55, eliteAbove: 0 };
-  const pref: NodeType[] = strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : frac < lr.eliteAbove ? ['rest', 'chest', 'battle', 'shrine', 'merchant', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
+  const pref: NodeType[] = ENV?.SIM_ROUTE === 'battle' /* rc14 diag: QA-like route, fights 戰 not 菁英 */ ? (frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : frac < lr.eliteAbove ? ['rest', 'chest', 'battle', 'shrine', 'merchant', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
   for (const t of pref) { const i = opts.indexOf(t); if (i >= 0) return i; }
   return 0;
 }
@@ -367,7 +367,9 @@ const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
   // Town prep. CP8 naive: the 出發前整備 「全部處理」 button (prepAll: alloc → equip (slot by slot, no school layout) → potions).
-  if (SIM_AI.naive && !SIM_AI.add.has('equip')) { if (has(p, 'alloc')) autoAllocate(p); if (SIM_AI.add.has('townstyle')) autoEquip(p, [], gearStyle(strategy)); naivePrep.equip(p); if (has(p, 'shop')) (RULES.cp8 ? buyPotionsTo : buyHealthTo)(p, TOWN_HP_POTIONS); }
+  // rc14 diagnosis (sim only): SIM_NOPREP=1 = the player pressed 「忽略並出發」 (no alloc / equip / potion top-up).
+  if (ENV?.SIM_NOPREP === '1') { /* skip town prep */ }
+  else if (SIM_AI.naive && !SIM_AI.add.has('equip')) { if (has(p, 'alloc')) autoAllocate(p); if (SIM_AI.add.has('townstyle')) autoEquip(p, [], gearStyle(strategy)); naivePrep.equip(p); if (has(p, 'shop')) (RULES.cp8 ? buyPotionsTo : buyHealthTo)(p, TOWN_HP_POTIONS); }
   else {
   if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p, [], gearStyle(strategy));
