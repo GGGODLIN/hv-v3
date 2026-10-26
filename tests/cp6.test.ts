@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer } from '../src/core/player';
@@ -145,3 +145,9 @@ describe('CP6 r2 decisions', () => {
     expect(settle(p, run).credits).toBe(575); expect(p.credits - c0).toBe(575);
   });
 });
+
+// cp7-pass: RULES.cp7 is on by default; this file pins the pre-CP7 (cp6-pass) formulas, so it runs with cp7 off.
+// CP7 behaviour is covered by tests/cp7*.test.ts.
+let savedCp7 = false;
+beforeAll(() => { savedCp7 = RULES.cp7; RULES.cp7 = false; });
+afterAll(() => { RULES.cp7 = savedCp7; });

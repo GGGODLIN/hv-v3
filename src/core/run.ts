@@ -46,8 +46,8 @@ export const RULES = {
   cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
   /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
   cp6Abyss: true, // CP6 accepted (cp6-pass): default on
-  /** CP7 手感 feature flag (docs/cp7-feel.md). Off = identical to cp6-pass. `?cp7` in the URL turns it on. */
-  cp7: false,
+  /** CP7 手感 feature flag (docs/cp7-feel.md). Off = identical to cp6-pass. On by default since cp7-pass. */
+  cp7: true, // CP7 accepted (cp7-pass): default on
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { canUse, DEF, HEALTH_POTION_CD, SPIRIT_MIN_OC, startBattle, whyNot } from '../src/core/battle';
 import { autoRun, starterKit } from '../src/core/auto';
 import { CONSTANTS as C } from '../src/core/data/constants';
@@ -258,3 +258,9 @@ describe('CP3-fix 12: battle bar icons', () => {
     for (const k of ['c-attack', 'c-defend', 'c-focus', 'c-spirit', 'k-shieldBash', 'k-vitalStrike', 'k-mercifulBlow', 'p-health', 'p-mana', 'p-spirit']) expect(idx[k]).toBeTruthy();
   });
 });
+
+// cp7-pass: RULES.cp7 is on by default; this file pins the pre-CP7 (cp6-pass) formulas, so it runs with cp7 off.
+// CP7 behaviour is covered by tests/cp7*.test.ts.
+let savedCp7 = false;
+beforeAll(() => { savedCp7 = RULES.cp7; RULES.cp7 = false; });
+afterAll(() => { RULES.cp7 = savedCp7; });

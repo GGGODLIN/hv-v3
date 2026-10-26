@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { sortieLabel } from '../src/core/progress';
 import { CP5_TOWER, TOWER, towerRules } from '../src/core/tower';
@@ -82,3 +82,9 @@ describe('rc11 loot level (report only; flag stays OFF)', () => {
 describe('rc11 boss revive text', () => {
   it('says the revive clears status ailments', () => { expect(BOSS_PHASE_TEXT).toContain('復活清除異常狀態'); });
 });
+
+// cp7-pass: RULES.cp7 is on by default; this file pins the pre-CP7 (cp6-pass) formulas, so it runs with cp7 off.
+// CP7 behaviour is covered by tests/cp7*.test.ts.
+let savedCp7 = false;
+beforeAll(() => { savedCp7 = RULES.cp7; RULES.cp7 = false; });
+afterAll(() => { RULES.cp7 = savedCp7; });

@@ -1,0 +1,66 @@
+
+== strategy auto == seeds=16 maxRuns=8
+run-1 floor reached: mean 11.00  [11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11] (11 = clear)
+first clear run: median 1  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]  cleared 16/16
+unlock rate after trip 3 : mean 100%  min 100%
+deaths by floor: 
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 7.8 / 12.4 / 15.1  trip1 [9,9,7,7,6,6,6,7,9,10,7,8,10,6,10,8]
+spirit stance used (trips 1-3): 163/537 battles (30%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 8.8, spirit used 48
+boss F5: fights 16, won 16, mean turns 12.6, spirit used 16, mean potions 1.3
+boss F10 (all trips 1-3): fights 48, won 48 (100%), mean turns 9.8, spirit used 48
+boss F10: fights 16, won 16, mean turns 16.8, spirit used 16, mean potions 1.2
+boss F5 turns by trip 1-5: T1 12.6(n=16,won 16)  T2 6.7(n=16,won 16)  T3 7.2(n=16,won 16)  T4 6.1(n=16,won 16)  T5 6.7(n=16,won 16)
+boss F10 turns by trip 1-5: T1 16.8(n=16,won 16)  T2 5.8(n=16,won 16)  T3 6.8(n=16,won 16)  T4 6.9(n=16,won 16)  T5 6.6(n=16,won 16)
+
+== strategy human == seeds=16 maxRuns=8
+run-1 floor reached: mean 10.31  [9,11,11,11,9,11,9,10,10,11,11,11,10,9,11,11] (11 = clear)
+first clear run: median 1  [2,1,1,1,3,1,2,2,2,1,1,1,2,2,1,1]  cleared 16/16
+unlock rate after trip 3 : mean 100%  min 100%
+deaths by floor: F9:4 F10:4
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 5.5 / 8.7 / 10.9  trip1 [4,6,8,6,4,6,4,4,4,8,6,6,4,4,8,6]
+spirit stance used (trips 1-3): 142/472 battles (30%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 9.8, spirit used 48
+boss F5: fights 24, won 24, mean turns 12.1, spirit used 24, mean potions 0.9
+boss F10 (all trips 1-3): fights 44, won 40 (91%), mean turns 10.5, spirit used 44
+boss F10: fights 20, won 16, mean turns 13.4, spirit used 20, mean potions 1.3
+boss F5 turns by trip 1-5: T1 12.7(n=16,won 16)  T2 8.4(n=16,won 16)  T3 8.4(n=16,won 16)  T4 5.4(n=16,won 16)  T5 6.3(n=16,won 16)
+boss F10 turns by trip 1-5: T1 12.6(n=12,won 9)  T2 12.3(n=16,won 15)  T3 7.3(n=16,won 16)  T4 6.2(n=16,won 16)  T5 5.7(n=16,won 16)
+
+== strategy noweak == seeds=16 maxRuns=8
+run-1 floor reached: mean 8.50  [11,7,7,7,7,9,11,7,5,9,9,5,10,11,11,10] (11 = clear)
+first clear run: median 2  [1,2,-,2,2,2,1,6,2,2,3,5,2,1,1,-]  cleared 14/16
+unlock rate after trip 3 : mean 98%  min 90%
+deaths by floor: F5:2 F7:9 F9:25 F10:5
+trip-1 F5 boss win: 14/16
+level after trip 1/2/3 (mean): 4.3 / 6.0 / 6.9  trip1 [6,4,4,4,4,4,6,4,2,4,4,2,4,6,6,4]
+spirit stance used (trips 1-3): 81/324 battles (25%)
+boss F5 (all trips 1-3): fights 48, won 46 (96%), mean turns 21.2, spirit used 48
+boss F5: fights 48, won 46, mean turns 24.6, spirit used 48, mean potions 1.2
+boss F10 (all trips 1-3): fights 25, won 22 (88%), mean turns 21.5, spirit used 25
+boss F10: fights 19, won 14, mean turns 21.4, spirit used 19, mean potions 1.2
+boss F5 turns by trip 1-5: T1 27.0(n=16,won 14)  T2 16.3(n=16,won 16)  T3 20.2(n=16,won 16)  T4 20.8(n=16,won 16)  T5 23.9(n=16,won 16)
+boss F10 turns by trip 1-5: T1 19.7(n=6,won 4)  T2 21.2(n=10,won 10)  T3 23.0(n=9,won 8)  T4 22.0(n=10,won 10)  T5 24.5(n=11,won 9)
+
+== strategy avoid == seeds=16 maxRuns=8
+run-1 floor reached: mean 10.31  [9,11,11,11,9,10,9,10,10,11,11,11,11,9,11,11] (11 = clear)
+first clear run: median 1  [2,1,1,1,2,2,2,2,2,1,1,1,1,2,1,1]  cleared 16/16
+unlock rate after trip 3 : mean 100%  min 100%
+deaths by floor: F9:4 F10:3
+trip-1 F5 boss win: 16/16
+level after trip 1/2/3 (mean): 5.6 / 8.6 / 10.8  trip1 [4,6,8,6,4,4,4,4,4,8,6,8,6,4,8,6]
+spirit stance used (trips 1-3): 137/466 battles (29%)
+boss F5 (all trips 1-3): fights 48, won 48 (100%), mean turns 9.9, spirit used 48
+boss F5: fights 23, won 23, mean turns 12.0, spirit used 23, mean potions 0.9
+boss F10 (all trips 1-3): fights 44, won 41 (93%), mean turns 11.4, spirit used 44
+boss F10: fights 19, won 16, mean turns 14.7, spirit used 19, mean potions 1.5
+boss F5 turns by trip 1-5: T1 12.7(n=16,won 16)  T2 8.8(n=16,won 16)  T3 8.2(n=16,won 16)  T4 9.3(n=16,won 16)  T5 7.8(n=16,won 16)
+boss F10 turns by trip 1-5: T1 12.7(n=12,won 9)  T2 12.1(n=16,won 16)  T3 9.9(n=16,won 16)  T4 9.1(n=16,won 16)  T5 6.4(n=16,won 16)
+seeds=16 maxRuns=8 overrides=none
+流派 | 首次F10勝率 | 8趟內通關 | T1通關 | 首通趟中位 | F9菁英勝率 | F9菁英剩HP | F10首領回合 | 首通buff中位 | buff分佈
+blade | 100% (16/16) | 100% | 63% | 1 | 73% (16/22) | 60% | 13 | 4.5 | {"4":8,"5":3,"6":3,"8":1,"9":1} | 盾@首F10 none:16/16
+oc | 100% (16/16) | 100% | 50% | 1.5 | 70% (16/23) | 65% | 23 | 4.5 | {"4":8,"5":3,"6":3,"8":1,"9":1} | 盾@首F10 buckler:5/5 none:5/5 tower:4/4 kite:2/2
+arcane | 100% (16/16) | 100% | 75% | 1 | 73% (16/22) | 67% | 9 | 6 | {"4":1,"5":6,"6":4,"7":4,"8":1} | 盾@首F10 none:16/16
+bulwark | 100% (16/16) | 100% | 69% | 1 | 80% (16/20) | 54% | 19 | 6.5 | {"4":1,"5":3,"6":4,"7":6,"8":1,"10":1} | 盾@首F10 none:3/3 tower:5/5 buckler:3/3 kite:5/5
