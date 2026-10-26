@@ -9,7 +9,7 @@ const errs = [], fail = [], R = {};
 const idle = (pg) => pg.waitForFunction(() => !window.hv.busy, { timeout: 8000 }).catch(() => {});
 async function open(preset) {
   const pg = await b.newPage(); pg.on('dialog', (d) => d.accept().catch(() => {})); pg.on('pageerror', (e) => errs.push(preset + ': ' + String(e)));
-  await pg.goto(BASE + `?cp6&cp8&fresh&preset=${preset}`, { waitUntil: 'networkidle0' }); await w(500);
+  await pg.goto(BASE + `?cp6&cp8&debug&fresh&preset=${preset}`, { waitUntil: 'networkidle0' }); await w(500);
   return pg;
 }
 async function fight(pg) {

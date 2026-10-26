@@ -16,7 +16,7 @@ async function run(preset) {
   for (let k = 0; k < 3 && !(await pg.$('.cmdbar')); k++) { const c = await pg.$('[data-continue],[data-fight],[data-modal-ok]'); if (c) await c.click(); await w(400); }
   R.inBattle = !!(await pg.$('.cmdbar'));
   const step = async (spirit, forceStyle) => {
-    const sub = await pg.evaluate(([sp, fs]) => { const a = window.hv, s = a.battle; s.spirit = sp; if (fs) s.d.style = fs; s.mp = s.d.mp; s.hp = s.d.hp; s.oc = Math.max(s.oc, 200); a.render(); return document.querySelector('[data-act="attack"] [data-quick]')?.textContent ?? ''; }, [spirit, forceStyle]);
+    const sub = await pg.evaluate(([sp, fs]) => { const a = window.hv, s = a.battle; s.spirit = sp; if (fs) s.d.style = fs; s.mp = s.d.mp; s.hp = s.d.hp; s.oc = Math.max(s.oc, 200); for (const m of s.monsters) if (m.hp > 0) { m.hp = m.maxHp = 1e9; m.adb = 0; } a.render(); /* rc11: keep the battle alive so the off step is not a finished battle (flake) */ return document.querySelector('[data-act="attack"] [data-quick]')?.textContent ?? ''; }, [spirit, forceStyle]);
     const n0 = await pg.evaluate(() => window.hv.log.length);
     await pg.keyboard.press('KeyA'); await w(900);
     const did = await pg.evaluate((n0) => window.hv.log.slice(n0).join(' '), n0);
