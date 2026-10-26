@@ -215,6 +215,9 @@ export function profsOf(p: Player): Partial<Record<Prof, number>> {
   return { elemental: profValue(p, 'elemental'), divine: profValue(p, 'divine'), forbidden: profValue(p, 'forbidden') };
 }
 
+/** cp8 (b) (producer 2026-10-26, 暫定, our own AI knob, no source): per-lean route thresholds under cp8. restBelow = HP share below which
+ *  calm nodes (rest first) win; eliteAbove = HP share needed before an elite is preferred over chest/battle. Default = the old 0.55 / 0. */
+export const LEAN_ROUTE: Partial<Record<NonNullable<Player['lean']>, { restBelow: number; eliteAbove: number }>> = {};
 export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'): number {
   const opts = run.tower.floors[run.floor - 1]!.options;
   // CP6 rc2 (c): tutorial floors 2–4 now pair the taught node with a different one; the sim player follows the tutorial (taught node first), as when both routes were identical.
@@ -224,7 +227,8 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   // taking a normal battle and taking a non-combat node. A pure "never fight" route is printed separately as 'avoid'.
   const coin = new Rng(run.floor * 7919 + run.kills * 131 + Math.round(run.hp)).chance(HUMAN_COMBAT_SHARE);
   const calm: NodeType[] = ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'];
-  const pref: NodeType[] = strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < 0.55 ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
+  const lr = (RULES.cp8 && p.lean && LEAN_ROUTE[p.lean]) || { restBelow: 0.55, eliteAbove: 0 };
+  const pref: NodeType[] = strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : frac < lr.eliteAbove ? ['rest', 'chest', 'battle', 'shrine', 'merchant', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
   for (const t of pref) { const i = opts.indexOf(t); if (i >= 0) return i; }
   return 0;
 }
