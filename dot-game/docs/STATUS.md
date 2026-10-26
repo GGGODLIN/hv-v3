@@ -1,5 +1,13 @@
 # Current status
 
+## v0.11 desktop accepted; root promotion pending — 2026-10-26 04:26 UTC
+
+Real cloud-browser progression crossed level24→25 with ordinary earned XP, not injected resources. HP rank2 stayed locked before25, then consumed exactly2 additional AP while retaining its slot and raising HP1384→1493. Full refund returned3AP, not just the latest cost. Relearning and upgrading while inactive left HP1276 until separately slotted. Two actual rank2 victories, reload, readonly controls and explicit writer takeover retained rank2 and AP19/25. The final export records level25, gold18499, wins135, inventory116 and sparse HP rank2 metadata. See BROWSER-QA-V011.md for exact observations, the narrow desktop check and explicit MP/higher-rank/import/device/console-inspection limits.
+
+Source `98b74deb09e2165b8f6f31f27b07a72532c01beb`:106 files/105 payloads,23 exact changed readbacks plus83 prior-verified identities;409 outside blobs preserved. Candidate site `94607ad2a87734c44180cbd58f122fe5897ee478`:six new isolated files;3858 prior blobs unchanged. Exact Pages run40267785517 succeeded and HTTP6 returned all200 exact byte/hash matches. Existing839 tests and four syntax passes are reused for this docs-only acceptance receipt. This complete accepted-source checkpoint must be backed up/read back before root promotion. Keep public v0.10 and restore `26b01643d4a926fb7abb3669bd823e22dec78e6d` until promotion and root smoke pass.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.11 development candidate — 2026-10-26 04:00 UTC
 
 Research-confirmed complete ranks for the existing three AP nodes are implemented. 839 tests and four runtime syntax checks pass. Independent acceptance covers all20 upgrade gates,7158 eligible Tank level/rank floor cases, strict saves, cumulative refunds and rank0/1 equivalence. Three naturally engine-earned cohorts reach level30 with633 wins/6417 simulation steps;12 matched easy-route runs show larger pools but no speed or absolute incoming-damage benefit. See ACCEPTANCE-V011.md. Four old UI version-label assertions were narrowly updated to0.11; no frozen gameplay digest or golden result changed. Backup/browser acceptance are pending; do not call this published. Public v0.10 restore remains `26b01643d4a926fb7abb3669bd823e22dec78e6d`.
