@@ -14,9 +14,11 @@ export const CP7 = {
   /** 暫定（缺原版出處）: smart-loot pity. When a loot event of a trip has no better-than-worn piece and the trip has had fewer
    *  than `pityUntil` such pieces so far, one extra armour piece is rolled (up to `pityTries` times) until one beats the worn slot. */
   pityUntil: 2,
-  pityTries: 24,
+  pityTries: 32,
+  pityPasses: 3,
+  pityLevelStep: 3,
   /** 暫定: every `pityBumpEvery` failed pity rolls the quality floor rises one step (so late-game gear can still be beaten). */
-  pityBumpEvery: 4,
+  pityBumpEvery: 2,
   pityMinQuality: 'average' as Quality,
   pitySlots: ['head', 'body', 'hands', 'legs', 'feet'] as Slot[],
   /** 暫定（缺原版出處）: abyss only — after a won battle restore this fraction of max HP / MP / SP (P3). 0 = off. */
@@ -50,12 +52,13 @@ export const betterThanWorn = (p: Player, e: Equip): boolean => wearGain(p, e) >
 export function pityPiece(rng: Rng, p: Player, level: number): Equip | null {
   let best: Equip | null = null, bestGain = Infinity;
   const top = Math.max(level, ...Object.values(p.equipped).map((e) => e?.level ?? 0));
-  for (let i = 0; i < CP7.pityTries; i++) {
+  // pass 0 at the top worn level; if nothing beats the worn gear, later passes roll `pityLevelStep` levels higher (暫定).
+  for (let pass = 0; pass <= CP7.pityPasses && !best; pass++) for (let i = 0; i < CP7.pityTries; i++) {
     const slot = rng.pick(CP7.pitySlots);
     const w = p.equipped[slot];
     const group = w?.group === 'cloth' || w?.group === 'light' || w?.group === 'heavy' ? w.group : rng.pick<'cloth' | 'light' | 'heavy'>(['cloth', 'light', 'heavy']);
     const qi = Math.max(QUALITIES.indexOf(CP7.pityMinQuality), w ? QUALITIES.indexOf(w.quality) : 0) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0);
-    const e = generateEquip(rng, top, { group, slot, quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
+    const e = generateEquip(rng, top + pass * CP7.pityLevelStep, { group, slot, quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
     const g = wearGain(p, e);
     if (g > CP7.betterMargin && g < bestGain) { best = e; bestGain = g; }
   }

@@ -1,7 +1,7 @@
 /** CP7 report: reads JSON lines from scripts/cp7-sim.ts (4 schools × sets A/B) and prints CHECK lines for P1–P5 per set.
  * Usage: npx tsx scripts/cp7-report.ts /tmp/cp7/<name>.jsonl  (docs/cp7-feel.md §指標 defines every number) */
 import { readFileSync } from 'node:fs';
-type R = { sc: string; S0: number; N: number; cp7: boolean; knobs: unknown; built: number; deep: number; first: number[]; firstClear: number[]; upgMain: number[]; upgAbyss: number[]; depthClip: number[];
+type R = { sc: string; S0: number; N: number; cp7: boolean; knobs: unknown; built: number; deep: number; first: number[]; firstClear: number[]; upgMain: number[]; upgWon: number[]; upgAbyss: number[]; depthClip: number[];
   reach: Record<string, number>; endAt: Record<string, number>; p3: { rest: { n: number; full: number }; none: { n: number; full: number } }; win: Record<string, number | null> };
 const rows = readFileSync(process.argv[2]!, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as R);
 const q = (a: number[], k: number) => { const s = [...a].sort((x, y) => x - y); return s.length ? s[Math.min(s.length - 1, Math.floor(k * s.length))]! : NaN; };
@@ -19,6 +19,8 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   const ge1 = trips.filter((x) => x >= 1).length / trips.length;
   for (const sc of SCH) { const r = by(sc); const t = [...r.upgMain, ...r.upgAbyss]; console.log(`  P1 ${sc}: trips ${t.length} ≥1 better ${pct(t.filter((x) => x >= 1).length / t.length)} median ${q(t, 0.5)} (main median ${q(r.upgMain, 0.5)}, abyss median ${q(r.upgAbyss, 0.5)})`); }
   checks.push([`P1 every trip ≥1 better drop: ${pct(ge1)} of ${trips.length} trips (target 100%)`, ge1 >= 1]);
+  const won = set.flatMap((r) => r.upgWon); const wge1 = won.filter((x) => x >= 1).length / won.length;
+  console.log(`  P1 (info) trips that won ≥1 battle: ${pct(wge1)} of ${won.length} have ≥1 better drop; trips with no win ${trips.length - won.length}`);
   checks.push([`P1 median better drops per trip ${q(trips, 0.5)} ≥ 2`, q(trips, 0.5) >= 2]);
   // P2
   const md = SCH.map((sc) => mean(by(sc).depthClip)); const gap = Math.max(...md) / Math.min(...md);
