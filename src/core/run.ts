@@ -44,7 +44,7 @@ export const RULES = {
   /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. On by default since cp5-pass (2026-10-26). */
   cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
   /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
-  cp6Abyss: false,
+  cp6Abyss: true, // CP6 accepted (cp6-pass): default on
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }

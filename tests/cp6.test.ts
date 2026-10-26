@@ -70,7 +70,7 @@ describe('CP6 affixes', () => {
       const boss = encounter(b, pool, 'boss')[0] as unknown as Cp5Mon;
       expect(boss.sig).toBe('summon');
       expect(boss.affixes!.length).toBe(1);
-    } finally { RULES.cp6Abyss = false; }
+    } finally { RULES.cp6Abyss = true; }
   });
 });
 
@@ -97,9 +97,9 @@ describe('CP6 run flow', () => {
   });
   it('unlocks only with the flag on after a main-tower clear', () => {
     const p = newPlayer(); starterKit(p);
-    const r1 = startRun(p, 1); r1.cp5 = true; r1.done = 'clear'; settle(p, r1); expect(abyssOpen(p)).toBe(false);
-    RULES.cp6Abyss = true;
-    try { const r2 = startRun(p, 2); r2.cp5 = true; r2.done = 'clear'; settle(p, r2); expect(abyssOpen(p)).toBe(true); } finally { RULES.cp6Abyss = false; }
+    RULES.cp6Abyss = false; // default is on since cp6-pass
+    try { const r1 = startRun(p, 1); r1.cp5 = true; r1.done = 'clear'; settle(p, r1); expect(abyssOpen(p)).toBe(false); } finally { RULES.cp6Abyss = true; }
+    try { const r2 = startRun(p, 2); r2.cp5 = true; r2.done = 'clear'; settle(p, r2); expect(abyssOpen(p)).toBe(true); } finally { RULES.cp6Abyss = true; }
   });
 });
 
