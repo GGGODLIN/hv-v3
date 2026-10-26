@@ -3,6 +3,7 @@ import './style.css';
 import { makePool, type MonsterRow } from './core/monsters';
 import { App } from './game/app';
 import { RULES } from './core/run';
+import { applyPreset, stripPreset, type Preset } from './core/preset';
 import { H, Stage, W } from './game/stage';
 
 function buildBadge() {
@@ -14,9 +15,9 @@ function buildBadge() {
 }
 
 /** CP3-bugfix 8: retry a failed fetch (network error or non-2xx) with backoff. */
-async function fetchRetry(url: string, tries = 4): Promise<Response> {
+async function fetchRetry(url: string, tries = 4, init?: RequestInit): Promise<Response> {
   for (let i = 0; ; i++) {
-    try { const r = await fetch(i ? `${url}?retry=${i}` : url); if (r.ok) return r; if (i >= tries - 1) return r; } catch (e) { if (i >= tries - 1) throw e; }
+    try { const r = await fetch(i ? `${url}?retry=${i}` : url, init); if (r.ok) return r; if (i >= tries - 1) return r; } catch (e) { if (i >= tries - 1) throw e; }
     const w = window as unknown as { __assetRetries?: number }; w.__assetRetries = (w.__assetRetries ?? 0) + 1;
     await new Promise((res) => setTimeout(res, 300 * (i + 1)));
   }
@@ -35,11 +36,13 @@ async function boot() {
   const qs = new URLSearchParams(location.search), preset = qs.get('preset');
   // rc5 (b): `debug` is no longer required — without it the preset was silently ignored and the previous save (e.g. abyss15) stayed.
   if (RULES.cp6Abyss && preset) {
-    const all = (await fetchRetry('data/cp6-presets.json').then((r) => r.json())) as Record<string, { player: unknown; record: unknown }>;
+    // rc10: no-store so a browser never serves an older build's preset file.
+    const all = (await fetchRetry('data/cp6-presets.json', 4, { cache: 'no-store' }).then((r) => r.json())) as Record<string, Preset>;
     const pr = all[preset];
     if (pr) {
-      localStorage.setItem('hv-v3-save', JSON.stringify({ v: 1, player: pr.player, run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: 0, bestFloor: 20, clears: 1 } }));
-      localStorage.setItem('hv-v3-abyss', JSON.stringify(pr.record));
+      // rc10: full replacement (save + abyss record), then drop `preset` from the URL so reloading does not wipe progress.
+      applyPreset(localStorage, pr);
+      history.replaceState(null, '', location.pathname + stripPreset(location.search) + location.hash);
       (window as unknown as { hvPreset: string }).hvPreset = preset;
     } else console.warn(`unknown preset ${preset}; known: ${Object.keys(all).join(', ')}`);
   }

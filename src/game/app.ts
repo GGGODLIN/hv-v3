@@ -15,6 +15,7 @@ import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel
 import { ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
+import { GAME_KEYS } from '../core/preset';
 import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
 import type { Stage } from './stage';
 import { BULWARK_CP5_ZH, AFFIXES, dangerHint, BOSS_BY_FLOOR, ELEM_ZH, SIG_TEXT, themeOf, themeRaces, type AffixId, type Cp5Mon } from '../core/cp5';
@@ -71,6 +72,9 @@ export class App {
     // CP3-fix 6: capture on document so a focused button/canvas cannot swallow the key, and refocus the page on pointer use.
     document.addEventListener('keydown', (e) => this.key(e), { capture: true });
     window.addEventListener('pointerdown', () => { if (document.activeElement instanceof HTMLElement && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) document.activeElement.blur(); window.focus(); });
+    // rc10: another tab (or a preset load there) replaced the save. This tab's copy is stale: stop writing it back,
+    // otherwise its next save / abyss trip would overwrite the new save (the "preset shows the old character" report).
+    window.addEventListener('storage', (e) => { if (e.key === null || (GAME_KEYS as readonly string[]).includes(e.key)) this.markStale(); });
     if (this.data.run && !this.data.run.done) this.go('map');
     else { this.data.run = null; this.go('town'); }
   }
@@ -83,7 +87,17 @@ export class App {
 
   get p(): Player { return this.data.player; }
   get run(): RunState { return this.data.run!; }
-  save() { saveTo(localStorage, this.data); }
+  stale = false;
+  save() { if (!this.stale) saveTo(localStorage, this.data); }
+  markStale() {
+    if (this.stale) return;
+    this.stale = true;
+    const el = document.createElement('div'); el.dataset.stale = '';
+    el.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#000c;color:#fff;font:16px sans-serif';
+    el.innerHTML = '<div>存檔已在其他分頁被更換（例如載入了 preset）。這個分頁不再存檔。<br><button data-stalereload>重新載入</button></div>';
+    el.querySelector('button')!.addEventListener('click', () => location.reload());
+    document.body.appendChild(el);
+  }
 
   go(s: Screen) {
     this.screen = s;
@@ -689,7 +703,7 @@ export class App {
       const prevBest = rec.best; recordTrip(rec, abyssCleared(r), abyssSchool(r));
       if (rec.best > prevBest) newBest = rec.best;
       recordTitles(rec, r.abyss.ms ?? 0, r.abyss.titles ?? []);
-      localStorage.setItem(ABYSS_KEY, JSON.stringify(rec));
+      if (!this.stale) localStorage.setItem(ABYSS_KEY, JSON.stringify(rec));
     } else {
     const floor = r.done === 'clear' ? r.tower.floors.length : r.floor;
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
