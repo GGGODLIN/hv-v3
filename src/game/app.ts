@@ -273,7 +273,7 @@ export class App {
     return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${r.startPick && r.offer && !RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
-      <div class="cols"><div class="tower">${floors}</div><div>${r.startPick && r.offer && RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}<h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
+      <div class="cols"><div class="tower">${floors}</div><div>${r.startPick && r.offer && RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${RULES.cp8 && r.held && !r.startPick ? this.heldHtml() : ''}<h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。${r.abyss ? `<span data-bossnext>每 5 層是首領（下一個：深淵 ${Math.ceil(depthOf(r) / 5) * 5} 層）。</span>` : `第 ${towerRules(r.cp5).bossFloors.join('、')} 層是首領。`}</span></div></div>`;
   }
 
@@ -482,6 +482,8 @@ export class App {
     on('[data-shrine]', (el) => { this.pending.text = shrine(this.p, this.run, el.dataset.shrine as 'might'); this.save(); this.render(); this.root.querySelectorAll<HTMLButtonElement>('[data-shrine]').forEach((b) => (b.disabled = true)); });
     on('[data-mbuy]', (el) => this.merchantBuy(Number(el.dataset.mbuy)));
     on('[data-buff]', (el) => { const r = this.run; this.pending.text = takeBuff(this.p, r, el.dataset.buff!); r.risk = null; this.nextOffer(); });
+    on('[data-heldbuff]', (el) => this.heldResolve(el.dataset.heldbuff!));
+    on('[data-heldskip]', () => { if (confirm('確定不拿？這次的 buff 放棄後不能再選。')) this.heldResolve(null); });
     on('[data-buffskip]', () => { if (RULES.cp6Abyss && !confirm('確定不拿？這次的 buff 放棄後不能再選。')) return; skipOffer(this.run); this.run.risk = null; this.nextOffer(); });
     on('[data-risk]', (el) => { const [k, id] = el.dataset.risk!.split(':'); this.pending.text = takeRisk(this.p, this.run, k as RiskId, id); this.save(); this.render(); });
     on('[data-bbuy]', (el) => { const r = this.run; const i = Number(el.dataset.bbuy); const x = r.buffStock?.[i]; if (x && this.pay(x.price)) { this.pending.text = takeBuff(this.p, r, x.id); r.buffStock!.splice(i, 1); } this.save(); this.render(); });
@@ -656,7 +658,7 @@ export class App {
   enterNode(i: number) {
     const r = this.run;
     // cp8-rc4: nodes stay clickable during the start-buff picks; entering a node forgoes the picks still open.
-    if (RULES.cp8 && r.startPick) { r.offer = null; r.offersLeft = 0; r.startPick = false; }
+    if (RULES.cp8 && r.startPick) { r.held = r.offer ?? null; r.heldLeft = r.offersLeft ?? 0; r.offer = null; r.offersLeft = 0; r.startPick = false; } // rc5: keep as 待選
     const t = r.tower.floors[r.floor - 1]!.options[i]!;
     r.current = { type: t, option: i };
     this.pending = {};
@@ -773,6 +775,20 @@ export class App {
   }
 
   /** CP4: boss wins open a second offer after the first is resolved. */
+  /** cp8-rc5: 「待選」 start-pick buffs the player walked past; they stay pickable for the rest of the trip. */
+  heldHtml(): string {
+    const h = this.run.held!, left = this.run.heldLeft ?? 0;
+    return `<div class="offer held" data-heldpick><h3>待選 buff（本趟有效，隨時可選）${left ? `　之後還有 ${left} 次` : ''}</h3><div class="buffrow">${h.ids.map((id) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-heldbuff="${id}">選這個</button>`)).join('')}</div>
+      <div class="row"><button class="ghost" data-heldskip>不拿</button></div></div>`;
+  }
+  /** rc5: resolve the held offer (take `id` or skip), then roll the next owed one into 待選 without touching an open offer. */
+  heldResolve(id: string | null) {
+    const r = this.run, cur = r.offer ?? null;
+    if (id) this.pending.text = takeBuff(this.p, r, id);
+    r.held = null;
+    if (r.heldLeft) { r.heldLeft--; r.offer = null; openOffer(this.p, r, 'boss'); r.held = r.offer ?? null; }
+    r.offer = cur; this.save(); this.render();
+  }
   nextOffer() {
     const r = this.run;
     if (!r.offer && r.offersLeft) { r.offersLeft--; openOffer(this.p, r, 'boss'); }

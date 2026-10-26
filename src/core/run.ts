@@ -98,6 +98,9 @@ export interface RunState {
   offer?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
   offerN?: number;
   offersLeft?: number;
+  /** cp8-rc5: start-pick offer set aside when the player went into a node first (「待選」, pickable any time this trip) + offers still owed. */
+  held?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
+  heldLeft?: number;
   /** CP4: elite wins this trip (for winOffers) */
   eliteWins?: number;
   /** CP4 step 4: shrine risk shown, curse mitigation penalty, next battle opens at OC 0. */
