@@ -28,8 +28,8 @@ for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_BUFF1_${
 if (E.K_BW_ARMOR !== undefined) BULWARK_STYLE.armor = (E.K_BW_ARMOR || undefined) as 'heavy' | undefined;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;
-const strat = `buff:${sc}` as Strategy; const potDeath = [0, 0]; // cp8-rc9 P0-4: [trip deaths, deaths with HP potions left]
-const pd = (r: { end?: { why: string; hpPots?: number } }) => { if (r.end?.why === 'dead') { potDeath[0]++; if ((r.end.hpPots ?? 0) > 0) potDeath[1]++; } }; const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
+const strat = `buff:${sc}` as Strategy; const potDeath: [number, number] = [0, 0]; // cp8-rc9 P0-4: [trip deaths, deaths with HP potions left]
+const pd = (r: { end?: { why: string; hpPots?: number } }) => { if (r.end?.why === 'dead') { potDeath[0]++; if ((r.end!.hpPots ?? 0) > 0) potDeath[1]++; } }; const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
 function one(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): boolean {
   const p = clone(p0); const run = startAbyss(p, seed, depth);
   if (type === 'boss') run.tower.floors[0]!.options = ['boss'];

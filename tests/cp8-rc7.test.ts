@@ -13,7 +13,7 @@ describe('cp8-rc7 P0', () => {
   it('bug 1: 自動分配 is school-specific', () => {
     cp8();
     const b = alloc('blade'), o = alloc('oc'), a = alloc('arcane'), w = alloc('bulwark'), base = newPlayer().attrs;
-    for (const x of [b, w]) { expect(x.int).toBe(base.int); expect(x.wis).toBe(base.wis); }
+    for (const x of [b, w]) { expect(x.int).toBeLessThan(x.str); expect(x.wis).toBeLessThan(x.end); void base; } // rc9 P1-8: leftover EXP buys cheap off-school points (no EXP left unspent)
     expect(a.int).toBeGreaterThan(a.end); expect(a.int).toBeGreaterThan(a.str);
     expect(w.end).toBeGreaterThan(w.str);
     expect(b).not.toEqual(o);
@@ -21,7 +21,7 @@ describe('cp8-rc7 P0', () => {
   it('bug 2: armour class is school-locked (arcane no heavy, bulwark no cloth) and a disallowed worn piece is replaced', () => {
     cp8(); const rng = new Rng(5);
     const p = newPlayer(); p.lean = 'arcane';
-    const heavy = generateEquip(rng, 5, { group: 'heavy', slot: 'legs' }), cloth = generateEquip(rng, 1, { group: 'cloth', slot: 'legs' });
+    const heavy = generateEquip(rng, 5, { group: 'heavy', slot: 'legs' }), cloth = generateEquip(rng, 30, { group: 'cloth', slot: 'legs', quality: 'magnificent' }); // rc9 P1-7: the swap must not lower 戰力
     expect(leanAllows(p, heavy)).toBe(false); expect(leanAllows(p, cloth)).toBe(true);
     equip(p, heavy); p.inventory.push(cloth);
     expect(betterThanWorn(p, cloth)).toBe(true);

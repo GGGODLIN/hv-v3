@@ -39,3 +39,35 @@ describe('cp8-rc9 P0-2 potion hint uses HP − next hit estimate', () => {
     expect(potHint(b)).toBe(true);
   });
 });
+import { autoAllocate, autoEquip, leanStyle } from '../src/core/auto';
+import { attrCost } from '../src/core/formulas';
+import { powerScore, unspentExp } from '../src/core/player';
+import { ATTRS } from '../src/core/formulas';
+import { generateEquip } from '../src/core/items';
+import { applyPreset } from '../src/core/preset';
+const presets = JSON.parse(readFileSync('public/data/cp6-presets.json', 'utf8'));
+const kv = () => { const m = new Map<string, string>(); return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), removeItem: (k: string) => void m.delete(k) }; };
+describe('cp8-rc9 P1 bulwark', () => {
+  it('5. new bulwark and the postF20-bulwark preset wear heavy body armour, no cloth', () => {
+    cp8(); const p = newPlayer(); starterKit(p, 7, 'bulwark'); expect(p.equipped.body!.group).toBe('heavy');
+    const s = applyPreset(kv(), presets['postF20-bulwark']);
+    expect(Object.values(s.player.equipped).some((e) => e!.group === 'cloth')).toBe(false);
+  });
+  it('7. auto-equip never lowers 戰力 (school-lock swap of a disallowed piece for a weaker one is undone)', () => {
+    cp8(); const p = applyPreset(kv(), presets['postF20-bulwark']).player;
+    p.equipped.body = generateEquip(new Rng(1), 20, { group: 'cloth', base: 'gossamer', slot: 'body', quality: 'magnificent' });
+    p.inventory.push(generateEquip(new Rng(2), 1, { group: 'heavy', base: 'plate', slot: 'body', quality: 'crude' }));
+    const pw = powerScore(derive(p)); autoEquip(p, [], leanStyle(p));
+    expect(powerScore(derive(p))).toBeGreaterThanOrEqual(pw);
+    for (let s = 0; s < 30; s++) { const q = applyPreset(kv(), presets['postF20-bulwark']).player;
+      const bag = [0, 1, 2, 3].map((i) => generateEquip(new Rng(s * 10 + i), 14)); const w = powerScore(derive(q));
+      autoEquip(q, bag, leanStyle(q)); expect(powerScore(derive(q))).toBeGreaterThanOrEqual(w); }
+  });
+  it('8. 自動分配 leaves no affordable point unspent', () => {
+    cp8(); for (const lean of ['bulwark', 'blade', 'oc', 'arcane'] as const) for (const exp of [37, 2438, 2441, 5000]) {
+      const p = newPlayer(); p.lean = lean; p.exp = exp; autoAllocate(p);
+      const cheapest = Math.min(...ATTRS.map((a) => attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])));
+      expect(unspentExp(p)).toBeLessThan(cheapest);
+    }
+  });
+});

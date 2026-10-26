@@ -39,6 +39,12 @@ export function autoAllocate(p: Player): void {
     const best = ATTRS.map((a) => [a, (weights[a] ? (attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])) / weights[a]! : Infinity)] as const).sort((x, y) => x[1] - y[1])[0]!;
     if (allocate(p, best[0]) === 0) break;
   }
+  // cp8-rc9 P1-8: rc8 playtest left 3 points unspent after 「全部處理」 — the cheapest weighted attribute cost more than what was left,
+  // while a weight-0 attribute was still affordable. Spend the remainder on the cheapest affordable attribute so nothing is left over.
+  if (RULES.cp8) for (let guard = 0; guard < 2000; guard++) {
+    const c = ATTRS.map((a) => [a, attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])] as const).sort((x, y) => x[1] - y[1]);
+    if (!c.some(([a]) => allocate(p, a) > 0)) break;
+  }
 }
 
 /** 暫定（缺原版出處）: sim town prep buys health potions up to this stock (shared with the CP7 出發前整備 「買藥」). */
@@ -107,6 +113,15 @@ function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equi
 }
 
 export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = null): Equip[] {
+  if (!RULES.cp8) return autoEquip0(p, extra, style);
+  // cp8-rc9 P1-7: auto-equip never lowers 戰力 (rc8 playtest: preset bulwark 467 → 446 when the school-lock swapped a cloth robe for a weaker
+  // allowed piece). If the whole pass ends below the starting powerScore, it is undone (worn set and inventory restored, nothing taken).
+  const eq0 = { ...p.equipped }, inv0 = [...p.inventory], pw0 = powerScore(derive(p));
+  const used = autoEquip0(p, extra, style);
+  if (powerScore(derive(p)) < pw0) { p.equipped = eq0; p.inventory = inv0; return []; }
+  return used;
+}
+function autoEquip0(p: Player, extra: Equip[], style: GearStyle): Equip[] {
   const used: Equip[] = [];
   const cands = [...p.inventory, ...extra];
   if (style) used.push(...equipHands(p, cands, style));
@@ -463,8 +478,8 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
 export const LEAN_KIT: Partial<Record<NonNullable<Player['lean']>, { body?: 'cloth' | 'light'; mana?: number }>> = {};
 export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
   const rng = new Rng(seed);
-  if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5/rc6: bulwark start = 1H axe + buckler + light leather (rc6: heavy dropped, P1 1.318×); in-trip equip still prefers heavy
-    const kit = [generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' }), generateEquip(rng, 1, { group: 'shield', base: 'buckler', quality: 'fair' }), generateEquip(rng, 1, { group: 'light', base: 'leather', slot: 'body', quality: 'fair' })];
+  if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5/rc6: bulwark start = 1H axe + buckler + heavy plate body (rc9 P1-5; rc6 had light leather); in-trip equip still prefers heavy
+    const kit = [generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' }), generateEquip(rng, 1, { group: 'shield', base: 'buckler', quality: 'fair' }), generateEquip(rng, 1, { group: 'heavy', base: 'plate', slot: 'body', quality: 'fair' })]; // cp8-rc9 P1-5: producer — bulwark starts in heavy armour (layout only)
     for (const e of kit) { p.inventory.push(e); equip(p, e); } p.lean = 'bulwark'; return;
   }
   if (RULES.cp8 && lean) p.lean = lean; // cp8-rc6: every school keeps its lean (school-locked auto-equip, school-aware 自動分配)

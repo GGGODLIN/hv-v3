@@ -78,7 +78,7 @@ export const LEAN_ARMOR = { blade: ['light', 'heavy'], oc: ['light', 'heavy'], a
 /** CP7 P1 definition of a better drop (UI badge + sim metric). */
 export function betterThanWorn(p: Player, e: Equip): boolean {
   if (!leanAllows(p, e)) return false;
-  if (RULES.cp8 && p.lean && p.equipped[e.slot] && !leanAllows(p, p.equipped[e.slot]!)) return e.id !== p.equipped[e.slot]!.id; // cp8-rc7 P0 bug 2: replaces a disallowed worn piece
+  if (RULES.cp8 && p.lean && p.equipped[e.slot] && !leanAllows(p, p.equipped[e.slot]!)) return e.id !== p.equipped[e.slot]!.id && wearGain(p, e) >= 0; // cp8-rc9 P1-7: never a 戰力 drop // cp8-rc7 P0 bug 2: replaces a disallowed worn piece
   // cp8-rc6 item 5: school-locked weapon layout (badge, autoWear, 換上 all share this)
   if (RULES.cp8 && p.lean === 'bulwark') { // cp8-rc5 (layout only): a bulwark-leaning player keeps 1H + shield and heavy armour
     const w = p.equipped[e.slot], arm = ['cloth', 'light', 'heavy'].includes(e.group);
