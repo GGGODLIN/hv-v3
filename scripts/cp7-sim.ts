@@ -37,16 +37,18 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   firstClear.push(ok ? i : 99);
   if (!ok || !abyssOpen(p)) continue; built++;
   for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++; }
-  const rec = emptyRecord(); let snap: Player | null = null; let last: { start: number; cleared: number; dead: boolean } | null = null;
+  const rec = emptyRecord(); let snap: Player | null = null; let last = null as { start: number; cleared: number; dead: boolean } | null;
   for (let t = 1; t <= T; t++) {
-    const st = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
+    const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
     if (st < checkpointStart(rec.best)) shallow++;
     const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
     const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
+    if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
+    if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, JSON.stringify(p.equipped.body ?? null).slice(0, 200));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
     if (t === 1) first.push(cl);
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
-    if (st <= 60 && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && zero.abyssNoLoot < 15) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
+    if (st <= 60 && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && (E.DBG === 'all' || zero.abyssNoLoot < 15)) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
     if (dead) endAt[cl + 1] = (endAt[cl + 1] ?? 0) + 1;
     for (let d = st; d <= cl + (dead ? 1 : 0); d++) reach[d] = (reach[d] ?? 0) + 1;
     if (st <= 13 && cl >= 12) { const k = (r.rests ?? []).some((d) => d >= 13 && d < 20) ? 'rest' : 'none'; p3[k].n++; if (cl >= 20) p3[k].full++; }

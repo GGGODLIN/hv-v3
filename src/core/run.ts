@@ -6,7 +6,7 @@ import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from '.
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
-import { CP7, betterThanWorn, pityPiece } from './cp7';
+import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
@@ -389,7 +389,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
 function cp7Pity(rng: Rng, p: Player, run: RunState, loot: Loot, L: number): void {
   let u = loot.equips.filter((e) => betterThanWorn(p, e)).length;
   if (u === 0 && (run.upg ?? 0) < CP7.pityUntil) {
-    const e = pityPiece(rng, p, L);
+    const e = pityPiece(rng, p, L) ?? (run.abyss ? pityWeapon(rng, p, L) : null); // cp7-rc2: weapon fallback in the abyss only
     if (e) { loot.equips.push(e); (loot.better ??= []).push(e.id); u = 1; }
   }
   run.upg = (run.upg ?? 0) + u;

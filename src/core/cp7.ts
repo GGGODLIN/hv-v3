@@ -15,7 +15,7 @@ export const CP7 = {
    *  than `pityUntil` such pieces so far, one extra armour piece is rolled (up to `pityTries` times) until one beats the worn slot. */
   pityUntil: 2,
   pityTries: 32,
-  pityPasses: 3,
+  pityPasses: 8, // cp7-rc2: was 3 (暫定)
   pityLevelStep: 3,
   /** 暫定: every `pityBumpEvery` failed pity rolls the quality floor rises one step (so late-game gear can still be beaten). */
   pityBumpEvery: 2,
@@ -41,7 +41,7 @@ export const CP7 = {
   plScale: 1,
   /** 暫定（缺原版出處）decision 1: main-tower loot level under CP7 = player level at trip start + this (findings 003 §1.1 says
    *  player level; the offset compensates main-tower monsters that still follow floorLevel, which is what made P5 worse). */
-  lootLvAdd: 0,
+  lootLvAdd: 5,
 };
 /** CP7 depth damage factor (replaces 1 + ABYSS.dmgPerDepth·(d−1) when RULES.cp7). */
 export const cp7DepthDmg = (d: number): number =>
@@ -90,3 +90,18 @@ export const simPickStart = (best: number, last: { start: number; cleared: numbe
   if (last && last.dead && last.cleared < last.start) return Math.max(1, Math.min(deepest, last.start - step));
   return deepest;
 };
+
+/** cp7-rc2 (暫定): last-resort pity when no armour roll clears betterMargin (casters: armour alone can stay under 2%) —
+ *  a main hand of the worn base, rolled like pityPiece (smallest gain above margin). Only runs after pityPiece returned null. */
+export function pityWeapon(rng: Rng, p: Player, level: number): Equip | null {
+  const mh = p.equipped.mainHand; if (!mh) return null;
+  let best: Equip | null = null, bestGain = Infinity;
+  const top = Math.max(level, ...Object.values(p.equipped).map((e) => e?.level ?? 0));
+  for (let pass = 0; pass <= CP7.pityPasses && !best; pass++) for (let i = 0; i < CP7.pityTries; i++) {
+    const qi = QUALITIES.indexOf(mh.quality) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0);
+    const e = generateEquip(rng, top + pass * CP7.pityLevelStep, { group: mh.group, base: mh.base, slot: 'mainHand', quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
+    const g = wearGain(p, e);
+    if (g > CP7.betterMargin && g < bestGain) { best = e; bestGain = g; }
+  }
+  return best;
+}
