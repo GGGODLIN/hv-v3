@@ -106,7 +106,10 @@ button.node .ni { font-size: 30px; }
 @keyframes potblink { 50% { background: #7a2a10; box-shadow: 0 0 16px #ff6030; } }
 button.pothint { outline-color: #ff6030; animation: potblink 0.8s ease-in-out infinite; }
 button.castable { outline: 1px solid #ffb04099; } /* cp8-rc11 4(a): any skill castable now */
-button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
+button.suggest { outline: 3px solid #ffb040; box-shadow: 0 0 14px #ffb040; background: #4a3410; font-weight: bold; animation: sugpulse 1.2s ease-in-out infinite; }
+@keyframes sugpulse { 50% { box-shadow: 0 0 4px #ffb040; } }
+.sugtitle { color: #ffd070; font-size: 1.1em; font-weight: bold; margin-bottom: 4px; }
+.sugtitle b { color: #fff; background: #8a5a10; padding: 0 6px; border-radius: 3px; }
 .abtn button { padding: 2px 6px; }
 .unlocks { background: #2a2410; border: 1px solid #c9a227; color: #ffe070; padding: 6px 10px; margin: 6px 0; border-radius: 4px; }
 .log .unlock { color: #ffe070; }
