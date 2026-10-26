@@ -520,3 +520,17 @@ Selection for postF20-*: only characters whose gear follows the school rule. Amo
 | postF20-bulwark (1H+shield) | 47 | 15 | 794 | 29 | 5 | 100% | 13/728/27/5/100% |
 | abyss10 | 15 | 16 | 816 | 33 | 9 | 100% | — |
 | abyss15 | 27 | 14 | 778 | 39 | 0 | 100% | — |
+
+### rc8 → rc9 (256×2, worst of A/B; official sim for trip-1, rc9-tune for fresh fights)
+| metric | rc8 (c6D) | rc9 (set A) | rc9 target |
+|---|---|---|---|
+| knobs LPD/HS/DS/DPD/TR | 0/1.1/6/−0.01/5 | 0/0.9/2/0.08/3 | — |
+| d1–3 win blade/oc/arcane/bulwark | 71.5/95.5/90.9/70.8 | 99.2/100/99.7/99.3 | ≥95 |
+| trip-1 median (official A) blade/oc/arcane/bulwark | 5/10/12/10 | 22/20/22/27 | 10–30 |
+| trip-1 deaths at d1–3 (A+B, of 512) blade/bulwark | 168/127 | 2/0 | — |
+| d5 boss win (fresh, worst) | 90.9 | 99.3 | ≥75 |
+| d16 battle win blade/oc/arcane/bulwark | 53.2/87.3/87.8/61.8 | 70.8/95.5/87.7/75.6 | ≥60 |
+| d20 boss win (fresh, worst) | 80.5 | 85.7 | ≥35 |
+| never cleared F20 in 12 trips (blade worst) | 26/256 = 10.2% | 26/256 = 10.2% (main tower, unchanged) | ≤10 |
+| certain-death combos | 0 | 0 | 0 |
+- deploy: worktree /workspace/hv-v3-cp6rc9 @ cp6-rc9 built; rc8 preview on 5199 stopped; vite preview 127.0.0.1:5199 (setsid nohup) serves / 200, /data/cp6-presets.json 200 (byte-identical to the rc9 file); scripts/cp6-rc6-e2e.mjs ALL PASS. vitest single-threaded 221/221.
