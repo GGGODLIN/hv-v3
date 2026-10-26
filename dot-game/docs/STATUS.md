@@ -1,5 +1,15 @@
 # Current status
 
+## v0.9 desktop accepted; root promotion pending — 2026-10-26 02:22 UTC
+
+Bounded cloud-Chrome acceptance is recorded in BROWSER-QA-V09.md. Natural stage-1 play verified complete victory and partial-retreat reports, start-build/level context, actual damage/resource measurements, naturally equipped axe bleed, a stable pin surviving eviction from the newest-two list, narrow text wrapping, and reload clearing reports/pin while retaining level 4, gold 252, three wins and five items. This was not a controlled weapon comparison because progression and RNG differed. No app-origin errors appeared in inspected logs. Browser defeat/import-cancel/multi-tab-pin cases were not re-run; Node coverage and physical-device/lifecycle limitations remain explicitly separate.
+
+Complete source/runtime `d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6` is verified: 92 files, 91 manifest payloads, all exact Git blobs, 26 direct changed-file readbacks and 66 unchanged-file identities tied to the verified prior receipt. Existing 599 tests and four syntax passes are reused because this accepted-source checkpoint changes only docs/manifest. Independent paired acceptance measured 20 natural routes, 326 expeditions and 36591 steps with identical full gameplay/RNG and matching reports.
+
+Isolated site `6ed32468c73cfd4cbb9e0d2f589fe6bcda57ca20` passed exact Pages run `40258269362`; one HTTP6 pass returned six 200 responses with exact source bytes/SHA-256. All 3846 preceding website blobs, including concurrent other work and the v0.8.1 root, were preserved. This source acceptance checkpoint must be backed up and read back before promoting the same six frozen runtime files. Public-root promotion/final smoke are pending here. Previous accepted public recovery remains `c1530bc76aa06716443b9ccca8de6f616e9f5f47`. Source backup does not restore personal browser saves, credentials, Library content or schedules.
+
+### Earlier checkpoint timeline (historical statuses, superseded above)
+
 ## v0.9 development candidate — 2026-10-26 02:00 UTC
 
 New feedback feature: newest two immutable expedition reports, plus one optional locally pinned comparison. Start build context, actual basic/skill/bleed HP removal, incoming HP loss/minimum HP, actions/resources and successful proc applications make build trials readable without invented causal estimates. Session-only data is omitted from saves and cleared on load/import. See EXPEDITION-REPORTS.md and ACCEPTANCE-V09.md. Parent aggregate passes 599/599 tests with zero skips/failures, plus four runtime syntax checks. Independent paired acceptance covers 20 natural routes, 326 expeditions and 36591 sampled steps with identical full gameplay/RNG states and matching report measurements. No natural-route defeats occurred; separate fatal/retreat fixtures cover those outcomes. Exact-source backup and real-browser acceptance remain pending before publication. Public v0.8.1 remains the accepted restore target at c1530bc76aa06716443b9ccca8de6f616e9f5f47 until then.

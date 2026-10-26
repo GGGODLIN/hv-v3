@@ -1,11 +1,16 @@
 {
-  "checkpoint": "v0.9-source-candidate",
-  "status": "source-tested-not-browser-accepted",
+  "checkpoint": "v0.9-accepted-source",
+  "status": "bounded-desktop-accepted-root-promotion-pending",
   "base_accepted_recovery": "c1530bc76aa06716443b9ccca8de6f616e9f5f47",
+  "candidate_runtime_source": "d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6",
+  "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged",
+  "candidate_site_commit": "6ed32468c73cfd4cbb9e0d2f589fe6bcda57ca20",
+  "candidate_pages_run": 40258269362,
+  "browser_qa": "docs/BROWSER-QA-V09.md",
   "files": {
     "README.md": {
-      "bytes": 13031,
-      "sha256": "cc14ef7023c7c5c1940f3f7adb48f95eb2366bd7293c1318a9e86f4f05bc0534"
+      "bytes": 13986,
+      "sha256": "618914620df4091cf66368e9dd4a9423ff47fc352fd8a45325720f2d8b733f13"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -79,6 +84,10 @@
       "bytes": 3940,
       "sha256": "799025937139908ecd127bf2bf73d9574ecf4e29931101dc9a4495b7f996c44b"
     },
+    "docs/BROWSER-QA-V09.md": {
+      "bytes": 4175,
+      "sha256": "f16385dd0e9d9c3caf36609edb050486ba0988add735ee03545c83ad7cceb6ea"
+    },
     "docs/BROWSER-QA.md": {
       "bytes": 2596,
       "sha256": "092fa4fd5ae22fb195798b1b8d0a1b37678b68557367bdfa795e41275fa8fd6e"
@@ -128,8 +137,8 @@
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RELEASES.md": {
-      "bytes": 22175,
-      "sha256": "c60a8bd4d3c6f0202f6db3ff93e9d03820608fc001c025afe1c59a1f49b94c72"
+      "bytes": 23612,
+      "sha256": "4effb20a8775e5a33062fa913b98f44e943e4043c0ece5ffe00a50f52e8d8493"
     },
     "docs/ROADMAP.md": {
       "bytes": 9724,
@@ -140,8 +149,8 @@
       "sha256": "f1b5983b7954e85be88124b3a67c110cbd40eaf53b48dd0aa6a634aa02f681d3"
     },
     "docs/STATUS.md": {
-      "bytes": 30618,
-      "sha256": "6e6256d0b33e2a9a6c51d1cb30e9c36e5336adf3f9c7d5e9d3bf85ba2845b847"
+      "bytes": 32588,
+      "sha256": "7e171b7544821908e7cdd88c0540fa925329cab8ef48ce33d3b74ea088466218"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,

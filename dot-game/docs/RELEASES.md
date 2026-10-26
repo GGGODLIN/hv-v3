@@ -1,5 +1,12 @@
 # Published releases
 
+## v0.9 — desktop-accepted source, root promotion pending, 2026-10-26 02:22 UTC
+
+- Complete frozen source/runtime `d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6` on `GGGODLIN/hv-v3` branch `bot/dot`: 92 files / 91 manifest payloads, complete tree identity and exact changed-file readbacks verified. This accepted-source checkpoint adds BROWSER-QA-V09.md and updates docs/manifest only; 599 passing tests and four syntax checks are reused without redundant runtime reruns.
+- Candidate site `6ed32468c73cfd4cbb9e0d2f589fe6bcda57ca20` at `/play/hv-v3-dot/candidates/v0.9/`: exact Pages run `40258269362` succeeded, and all six public HTTP 200 bodies match frozen source bytes/SHA-256. All 3846 prior site blobs, including accepted root/concurrent other works, remain unchanged.
+- Actual browser acceptance observed victory/retreat reports, natural axe/bleed reporting, pinned-report retention after recent-list eviction, narrow report wrapping and reload clearing session-only reports while preserving durable progression. Different levels/RNG preclude a causal weapon-benefit comparison. BROWSER-QA-V09.md records exact values and browser/source/device limits.
+- Public-root promotion and final root smoke are pending in this pre-promotion checkpoint. Keep the accepted public v0.8.1 recovery `c1530bc76aa06716443b9ccca8de6f616e9f5f47` until those gates pass. Source backup does not restore personal browser saves or external account state.
+
 ## v0.8.1 — published, 2026-10-26 01:17 UTC
 
 - Accepted source before publication: `f1228ea6e2777c9469fd387c32f2ba312b725a75` on `GGGODLIN/hv-v3` branch `bot/dot`. Complete runtime source: `ff6bb071240deef5d86c34e80a1d514daeb9762d`; later acceptance/publication checkpoints change documentation/manifest only.
