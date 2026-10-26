@@ -22,13 +22,23 @@ export const CP7 = {
   pityMinQuality: 'average' as Quality,
   pitySlots: ['head', 'body', 'hands', 'legs', 'feet'] as Slot[],
   /** 暫定（缺原版出處）: abyss only — after a won battle restore this fraction of max HP / MP / SP (P3). 0 = off. */
-  winHeal: 0,
+  winHeal: 0.1,
   /** 暫定（缺原版出處）P4 curve: replaces ABYSS.dmgPerDepth. Damage grows `dmgMid` per depth up to `knee`, then `dmgLate`
    *  (low → mid rising → late flat). `dmgScale` multiplies ABYSS.dmgScale. */
-  dmgMid: 0.08,
-  dmgLate: 0.08,
+  dmgMid: 0.2,
+  dmgLate: 0,
   knee: 15,
   dmgScale: 1,
+  /** 暫定（缺原版出處）P4: the tier PL (The_Tower.md DIFF table) is phased in over `plRamp` depths (ABYSS.tierRamp otherwise)
+   *  and scaled by `plScale`, so the jump at d15–17 does not make d16/d18 a wall. */
+  plRamp: 3,
+  /** 暫定: tier HP/damage ramp length under CP7 (ABYSS.tierRamp = 3 otherwise); 5 spreads each tier jump over the whole tier. */
+  tierRamp: 3,
+  /** 暫定: non-boss abyss damage factor by CP5 theme floor (themeKey). Themes 16–19 pick ~12% stronger rows (sim: base adb 80→90), which made d16/d18 the death spike. */
+  themeDmg: { 16: 0.85, 17: 0.85, 18: 0.85, 19: 0.85 } as Record<number, number>,
+  /** sim knob: scales every themeDmg entry's distance from 1 (1 = as listed). */
+  themeK: 2,
+  plScale: 1,
 };
 /** CP7 depth damage factor (replaces 1 + ABYSS.dmgPerDepth·(d−1) when RULES.cp7). */
 export const cp7DepthDmg = (d: number): number =>
