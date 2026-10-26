@@ -207,3 +207,46 @@ test('equipped binding can raise HP capacity but never refills current HP/MP, ev
  const draws=[0,.9,.1,.3,.1];const item={...generateItem(()=>draws.length?draws.shift():.5,3,'weapon'),id:'loot-1'};assert.ok(item.stats.hp>0);
  const s=ready();s.inventory=[];s.equipment.weapon=item;s.hero.hp=42;s.hero.mp=3;const oldMax=game.stats(s).maxHp;const q=bind(s,'loot-1');assert.ok(game.stats(s).maxHp>oldMax);assert.equal(s.hero.hp,42);assert.equal(s.hero.mp,3);noChange(s,'soulbindWeapon',q);
 });
+
+function collection({bound=115,pending=0,equipped=true}={}){
+ const s=ready();s.inventory=[];s.pendingLoot=[];
+ const held=Array.from({length:bound},(_,i)=>createSoulboundItem(weapon(`bound-${i}`),s.hero.level));
+ if(equipped&&held.length)s.equipment.weapon=held.shift();
+ s.pendingLoot=held.splice(0,pending);s.inventory=held;
+ s.inventory.push({...weapon('target-a'),locked:false},{...weapon('target-b'),locked:false});
+ return s;
+}
+
+test('permanent collection limit accepts 115 to 116, refuses 117th and still permits five-space recovery',()=>{
+ assert.equal(game.SOULBOUND_WEAPON_LIMIT,game.INVENTORY_LIMIT-5+1);assert.equal(game.SOULBOUND_WEAPON_LIMIT,116);
+ const s=collection(),first=game.previewSoulbindWeapon(s,'target-a'),staleSecond=game.previewSoulbindWeapon(s,'target-b');
+ assert.equal(first.available,true);assert.equal(first.cost,100);assert.equal(staleSecond.available,true);
+ game.act(s,'soulbindWeapon',first);assert.equal(s.soulFragments,900);assert.ok(isSoulboundItem(s.inventory.find(i=>i.id==='target-a')));
+ const denied=game.previewSoulbindWeapon(s,'target-b');assert.equal(denied.available,false);assert.equal(denied.cost,null);assert.equal(denied.after,null);assert.match(denied.reason,/永久收藏.*116.*5 格/);
+ noChange(s,'soulbindWeapon',denied);noChange(s,'soulbindWeapon',staleSecond);
+ const loaded=game.validateSave(copy(s));assert.equal([...Object.values(loaded.equipment),...loaded.inventory,...loaded.pendingLoot].filter(isSoulboundItem).length,116);
+ // The only remaining extra weapon is ordinary, so an explicit sale recovers
+ // the unchanged start reserve without deleting/unbinding any permanent item.
+ game.act(s,'sell','target-b');assert.equal(s.inventory.length,115);assert.equal(s.pendingLoot.length,0);game.act(s,'start');assert.equal(s.mode,'battle');assert.equal(s.soulFragments,900);
+});
+
+test('permanent collection counting includes pending and equipped bound weapons, not only inventory',()=>{
+ for(const configuration of [{bound:116,pending:1,equipped:true},{bound:116,pending:8,equipped:true},{bound:116,pending:1,equipped:false},{bound:116,pending:0,equipped:false}]){
+  const s=collection(configuration),before=copy(s),q=game.previewSoulbindWeapon(s,'target-a');assert.equal(q.available,false);assert.match(q.reason,/永久收藏.*116.*5 格/);assert.deepEqual(s,before);noChange(s,'soulbindWeapon',q);assert.doesNotThrow(()=>game.validateSave(copy(s)));
+ }
+ const s=collection({bound:115,pending:8});const q=game.previewSoulbindWeapon(s,'target-a');assert.equal(q.available,true);game.act(s,'soulbindWeapon',q);assert.equal(s.soulFragments,900);assert.equal(game.previewSoulbindWeapon(s,'target-b').available,false);
+});
+
+test('over-limit v2 imports reject without repair/deletion or input mutation across all held layouts',()=>{
+ for(const configuration of [{bound:117,pending:0,equipped:true},{bound:117,pending:1,equipped:true},{bound:117,pending:8,equipped:true},{bound:117,pending:0,equipped:false},{bound:117,pending:8,equipped:false}]){
+  const s=collection(configuration),before=copy(s);assert.throws(()=>game.validateSave(s),/永久收藏 116.*5 格.*未載入/);assert.deepEqual(s,before);assert.equal(s.soulFragments,1000);
+ }
+});
+
+test('a valid quote becomes unusable if another held weapon reaches the permanent cap before confirmation',()=>{
+ const s=collection({bound:115,pending:1}),q=game.previewSoulbindWeapon(s,'target-a');assert.equal(q.available,true);
+ // This stands for a newly loaded/changed collection, not automatic binding:
+ // the action must re-read the present entire state rather than trust consent.
+ s.pendingLoot.push(createSoulboundItem(weapon('late-bound'),s.hero.level));const before=copy(s);
+ noChange(s,'soulbindWeapon',q);assert.deepEqual(s,before);assert.equal(game.previewSoulbindWeapon(s,'target-a').available,false);
+});

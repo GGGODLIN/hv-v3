@@ -1,6 +1,6 @@
 # v0.23 independent Soulbind acceptance
 
-Status: **GO — frozen-source acceptance**, 2026-10-26 17:55 UTC. This is **not** a publication or browser acceptance receipt. All production owners were frozen before the final independent rerun.
+Status: **GO — final guarded-source acceptance**, 2026-10-26 18:42 UTC. The earlier 17:55 GO was reopened for the specific inventory-recovery finding below; that blocker is now fixed and independently regression-tested. This is **not** a publication or browser acceptance receipt.
 
 Scope is the independent game's Soul Fragment / weapon Soulbind slice in `docs/SOULBIND-GUIDE.md`. Tests do not claim original HV Item World, forge, fusion, shop or drop-rate fidelity. Primary fact revisions are the guide's Items 67045 and Armory 67000; attack coefficient `50/3`, HP/defense factors, whole-prefix scaling, deterministic expedition rewards and conservative disposal rules are explicitly this game's adaptations.
 
@@ -50,22 +50,39 @@ A recognized, structurally legal imported level-1 weapon with attack 490,000 and
 
 Independently compared all pre-existing tests and fixture files against the accepted v0.22 snapshot. Twenty-six pre-existing test files changed; all prior fixture bytes and all ordered 64-hex oracle literals remain unchanged. The compatibility helper clones inert unbound test data, changes only root `version` and removes only root `soulFragments`. It rejects own/inherited bound metadata and accessors; version-chain tests explicitly verify actual frozen-v0.22 rejection of v2. Historical-envelope cases are identified as test-only, not a downgrade feature. The changed XP/death source-byte guard remains against the fixed accepted v0.22 fixture because current `gainXp` legitimately adds bound-item synchronization; the strict independent behavioral comparison above covers current ordinary progress.
 
-## Final frozen-source verification
+## Late recovery finding and repair — 18:35–18:39 UTC
 
-- Independent acceptance rerun: **15/15 passed**, 0 failures/skips, 703 ms. Log: `/tmp/hv-v023-independent-final.log`.
-- Root final aggregate log inspected: **1,426/1,426 passed**, 0 failures/skips, 32.846 s. Log: `/tmp/hv-v023-final-tests.log`. The independent reviewer did not duplicate that entire aggregate run.
+The permanent no-sale/no-unlock policy plus the existing 120-slot inventory and five-free-slot departure reserve previously permitted an irreversible deadlock at **117 unique bound weapons across all held locations**. Only one can be equipped, so at least 116 remain in inventory; `start` requires at most 115. Before the repair, all 117 could be bound with public preview/action calls using recognized generated Average weapons, and the resulting save validated successfully.
+
+Independent pre-repair bounded fixture reproduction (not an earned 1,170-win simulation):
+
+| Bound total | Minimum backpack occupancy | Fragment cost | Minimum normal wins funding that cost | Validates | Departure |
+| --- | ---: | ---: | ---: | --- | --- |
+| 116 | 115 | 11,600 | 1,160 | Yes | Starts battle |
+| 117 | 116 | 11,700 | 1,170 | Yes | Refused, remains in town |
+
+Equipping a different bound weapon, saving/applying/clearing presets A/B, attempted unlock, individual sale, common sale, safe sale and selected sale leave every bound weapon intact and cannot create the fifth free slot. Reload preserves the blocked state. The arithmetic is reachable in principle with ordinary rewards and retained eligible drops; this fixture proves the state/action failure, not that a long natural cohort was executed.
+
+Root approved and the engine owner implemented a permanent bound-ownership cap of **116**, counting valid unique bound weapons across equipment, inventory and pending loot. The preview/action refuses a new binding that would exceed it, and import fails closed on over-cap bound inventories without changing input. Inventory capacity, departure reserve, permanent protection and existing items remain unchanged; no unbinding, salvage or automatic deletion was added. The preview explains the 116-item / five-free-slot limit.
+
+Three added independent regression groups pass: 115→116 is allowed; the 117th and stale pre-cap consent refuse without debit; pending items count; over-cap imports in three pending layouts reject unchanged; unbound extras are retained. At 116, departure can still be temporarily blocked if an unbound weapon is equipped or ordinary spare items occupy inventory. **Wear a bound weapon and unlock/sell ordinary unbound spares to recover five free slots**; the test executes that recovery and starts a battle. A bound weapon is never secretly deleted or unlocked. Focused total is now **18/18**. This was the only reopened audit scope.
+
+## Final guarded-source verification
+
+- Independent post-freeze acceptance rerun: **18/18 passed**, 0 failures/skips, 1.023 s. Log: `/tmp/hv-v023-cap-independent-final.log`.
+- Root guarded-source final aggregate log inspected: **1,433/1,433 passed**, 0 failures/skips, 31.487 s. Log: `/tmp/hv-v023-cap-final-tests.log`. The independent reviewer did not duplicate that entire aggregate run.
 - Independently reran `node --check` for all four runtime JavaScript files: **4/4 passed**.
-- Read-only final review found no remaining source blocker within this slice. The future-overflow defect above is fixed and independently regression-tested.
+- Read-only final review found no remaining source blocker within this slice. Both the future-overflow and permanent-inventory recovery defects above are fixed and independently regression-tested. The final confirmation copy explicitly states the 116-total bound-weapon limit, and the guide identifies it as a storage-safety adaptation rather than original HV behavior.
 
 Frozen runtime SHA-256 values:
 
 | File | SHA-256 |
 | --- | --- |
-| `src/engine.js` | `8bf72aac0142a8e33346582678aeb2ee366f6c66c81a84a21594e31ffd3a61bc` |
+| `src/engine.js` | `8b89bc08955d504ab6dfe7b207db4f210053c4b0fd918b632c0b5db9220e77ae` |
 | `src/loot.js` | `46ff81d7167069607f7d0d2efc2d0cb2a4bcc90fd306397e6a9e02507bab3884` |
 | `src/ui.js` | `9fceff024d0362cf77342b7382807a639ed4ea5942ceb452ee2e6915e9d7d3d1` |
 | `src/session.js` | `821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a` |
-| `index.html` | `7b0b7dfecbf15ad4e0bc18dd7c5520be0074ea90c92aae558931a209e9c183a6` |
+| `index.html` | `a65264cc81557bfe3057c8eead0169a60ecd874f92d3111e3ba61db6e33f9eb0` |
 | `style.css` | `f8a8865c94a34715c3e5c96591f640a800bc0f00eda7786b31f43a83ca01130d` |
 
 Subsequent documentation/package-version metadata work does not alter this source verdict if these six runtime bytes remain unchanged. Any runtime change requires affected checks to be rerun.

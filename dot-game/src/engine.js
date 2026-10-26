@@ -6,6 +6,9 @@ export const SOUL_FRAGMENT_LIMIT = 1000000000;
 export const SOUL_FRAGMENTS_PER_WIN = 10;
 export const MAX_STAGE = 30;
 export const INVENTORY_LIMIT = 120;
+// Storage adaptation: permanent weapons must still fit with one equipped and
+// the unchanged five-slot expedition reserve recoverable in inventory.
+export const SOULBOUND_WEAPON_LIMIT = INVENTORY_LIMIT - 5 + 1;
 // Three original-HV Major ability lines and their researched rank progression.
 // The exported rank-one metadata stays compatible with existing callers.
 // Training and the separate Support category are outside this slice. Camp-only
@@ -787,6 +790,9 @@ export function previewSoulbindWeapon(s,id) {
     const item=held.get(id);
     if(!item||item.slot!=='weapon')return empty('僅可綁定背包或已裝備的支援武器；待領裝備不可綁定。');
     if(boundMetadata(item))return empty('這件武器已靈魂綁定，不會重複扣除碎片。');
+    // gearHeldItems already checked all items and unique IDs, including pending.
+    if([...held.values(),...context.pendingLoot].filter(isSoulboundItem).length>=SOULBOUND_WEAPON_LIMIT)
+      return empty(`永久收藏的靈魂綁定武器已達 ${SOULBOUND_WEAPON_LIMIT} 件上限；需保留出戰所需的 5 格背包空間。`);
     const cost=soulbindCost(item,context.hero.level),after=createSoulboundItem(item,context.hero.level);
     if(cost===null||!after)return empty(item.level>context.hero.level?'武器等級高於角色；達到所需等級後才能綁定。':'這件武器的類型、品質或屬性不支援靈魂綁定。');
     const fragmentsAfter=context.soulFragments-cost,before=detachedData(item);
@@ -1335,6 +1341,7 @@ export function validateSave(input) {
   if(input.pendingLoot!==undefined&&(!Array.isArray(input.pendingLoot)||input.pendingLoot.length>8))throw new Error('待領戰利品資料無效');
   s.pendingLoot=(input.pendingLoot||[]).map(i=>sanitizeForLoad(i));
   const items=[...Object.values(s.equipment),...s.inventory,...s.pendingLoot];if(new Set(items.map(i=>i.id)).size!==items.length)throw new Error('重複裝備識別碼');
+  if(items.filter(isSoulboundItem).length>SOULBOUND_WEAPON_LIMIT)throw new Error(`靈魂綁定武器超過永久收藏 ${SOULBOUND_WEAPON_LIMIT} 件上限；無法保留出戰所需的 5 格背包空間，未載入；請保留原存檔。`);
   const gearSets=readGearSets(input);if(Object.keys(gearSets).length)s.gearSets=gearSets;
   s._itemId=Math.max(integer(input._itemId,0,1e9),...items.map(i=>/^loot-\d+$/.test(i.id)?Number(i.id.slice(5)):0));
   s.unlocked=integer(input.unlocked,1,MAX_STAGE);s.stage=integer(input.stage,1,s.unlocked);s.kills=integer(input.kills,0,1e9);s.wins=integer(input.wins,0,1e9);s.autoAdvance=input.autoAdvance===true;s.strategy=validStrategy(input.strategy)?input.strategy:'balanced';s.battle.cleared=s.wins;

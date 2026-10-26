@@ -1,6 +1,6 @@
 # Soulbound weapon growth — v0.23 candidate
 
-Source implementation and 1,426 tests/four syntax checks pass. This guide is not a browser acceptance or publication receipt; see ACCEPTANCE-V023.md for independent evidence.
+Source implementation and 1,433 tests/four syntax checks pass. This guide is not a browser acceptance or publication receipt; see ACCEPTANCE-V023.md for independent evidence.
 
 ## Player loop
 
@@ -17,7 +17,7 @@ At camp, inspect an owned axe, rapier or club whose item level is no higher than
 
 A bound weapon matches character level immediately and follows later growth, including while held in the backpack. It preserves its ID, affixes, quality and rolls. Binding preserves current HP/MP rather than refilling them; extra maximum-HP capacity from a weapon affix is not a free heal. Ordinary later equipment changes retain their established camp-recovery behavior. It does not gain a missing legacy parry stat or reroll into a better item. Choosing a higher-quality future drop instead can still be worthwhile.
 
-Binding is a lasting virtual investment. Bound gear is locked and cannot be sold, automatically sold, bulk-sold or unlocked in this slice. Clearing a preset does not remove binding or unlock it. This conservative disposal policy is an adaptation beyond the original no-trading rule. There is no fragment refund, unbinding, salvage, IW or forge operation in this release.
+Binding is a lasting virtual investment. Bound gear is locked and cannot be sold, automatically sold, bulk-sold or unlocked in this slice. Clearing a preset does not remove binding or unlock it. This conservative disposal policy is an adaptation beyond the original no-trading rule. There is no fragment refund, unbinding, salvage, IW or forge operation in this release. To prevent permanent inventory deadlock, this slice permits at most 116 bound weapons in total across equipment, inventory and pending loot. With one equipped, at most 115 remain in the 120-slot backpack, leaving the required five expedition slots after ordinary unbound clutter is removed. At the limit, wear a bound weapon and remove unbound clutter if needed. The 117th binding and over-limit imports are refused without spending or deleting items. This is an explicit storage-safety adaptation, not an original HV binding cap.
 
 ## Original facts and deliberate limits
 

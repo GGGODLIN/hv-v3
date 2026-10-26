@@ -2,7 +2,7 @@
 
 ## v0.23 development candidate — not released
 
-Soulbound weapon growth is source-tested: final aggregate 1,426/1,426 tests (zero failures/skips), four runtime syntax checks, and independent earned-investment/compatibility review. Full source backup and bounded browser acceptance are the next gates; no public v0.23 release is claimed by this working copy. Accepted v0.22 recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644`; retain its playable site until the candidate is fully backed up and accepted.
+Soulbound weapon growth is source-tested: final aggregate 1,433/1,433 tests (zero failures/skips), four runtime syntax checks, and independent earned-investment/compatibility review. Full source backup and bounded browser acceptance are the next gates; no public v0.23 release is claimed by this working copy. Accepted v0.22 recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644`; retain its playable site until the candidate is fully backed up and accepted.
 
 ## Latest verified release — v0.22
 

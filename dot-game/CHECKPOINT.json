@@ -1,16 +1,17 @@
 {
-  "checkpoint": "107-v023-candidate",
-  "status": "source-tested-candidate-browser-pending",
+  "checkpoint": "108-v023-capacity-guard-candidate",
+  "status": "guarded-source-tested-candidate-browser-recheck-pending",
   "base_accepted_recovery": "cfc624debcecaa029deb95e437681d7c5a5b7644",
-  "source_tests_passed": 1426,
+  "previous_candidate_source": "71128cc44bfebf0b1b080a5b242974f4aa31ac47",
+  "source_tests_passed": 1433,
   "runtime_syntax_checks": 4,
-  "independent_acceptance_tests_passed": 15,
+  "independent_acceptance_tests_passed": 18,
   "ordinary_parity_expeditions": 30,
-  "frozen_utc": "2026-10-26T17:56:00Z",
+  "frozen_utc": "2026-10-26T18:44:00Z",
   "files": {
     "README.md": {
       "bytes": 4769,
-      "sha256": "342510ee1832ba89e5caf574432be733835656e93dcfaf54c37c8650e4741f85"
+      "sha256": "56019af52d55b0fed2bc781b6be90aa45b3fe601e58dc0233111b14b25de608a"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -69,8 +70,8 @@
       "sha256": "3d9e8cf4754e90c79bd73bc1120dfc20343cf36a506ee2aa6b28de80e97ae7f1"
     },
     "docs/ACCEPTANCE-V023.md": {
-      "bytes": 7627,
-      "sha256": "118ce482cc6fd20874eeed07992920efd15c08f1c7f9a2f37ef45d76b76216fd"
+      "bytes": 10476,
+      "sha256": "f6a57745497425fa3db4845696b8f4a06dfd9efb3901a5a196350d155296b39d"
     },
     "docs/ACCEPTANCE-V03.md": {
       "bytes": 7790,
@@ -173,8 +174,8 @@
       "sha256": "1d530223c660bf9f158c44f415da8d5466c4f8ef36132446376363b546f6a911"
     },
     "docs/BROWSER-QA-V023.md": {
-      "bytes": 1856,
-      "sha256": "d2092996adf73c3738839ddb7c3b3ed71855860c490ace8c0ed5a7e82341f7c8"
+      "bytes": 7327,
+      "sha256": "b1563de8cb75fd602cd3d4b66aeffd0e94857ee5ddf7416c99ce193d817c19a9"
     },
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
@@ -301,8 +302,8 @@
       "sha256": "8744c5ea817eeadd2319d53c4f958be8dff478658117800b01560ea0dbdf2c0e"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 44274,
-      "sha256": "bcfb433e0fd3d0e121bab75f68799217b4ca821e2047b0e1f713f72ec0653ee5"
+      "bytes": 44679,
+      "sha256": "aee8d33a11758292bb16b40e416d8c7ca4726ffb0e609d136f6cec2cef3db899"
     },
     "docs/PARRY-GEAR-GUIDE.md": {
       "bytes": 6825,
@@ -345,12 +346,12 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/SOULBIND-GUIDE.md": {
-      "bytes": 5318,
-      "sha256": "c7bd2d9e97eb0f929a1ec209be87d28687992a81e9ed99ef375ae732e9b2f75d"
+      "bytes": 5849,
+      "sha256": "8c3440b2d1249bfaa8e504e0c5fb51f9ecbe28b45e61f455a8d08a422a33e6b9"
     },
     "docs/STATUS.md": {
       "bytes": 3028,
-      "sha256": "3b0af7b24ce7fbf9c65766ff5c5d7dbd9366332507d26c7c0f40135ad5f21b00"
+      "sha256": "06e412961315a060e363a7398893f1b774aebbc89001e1fe662c06dc0f896df1"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -361,8 +362,8 @@
       "sha256": "df1e59fb4a019b2045e42a7a8ce31b9cc46405a0c2969b3d4eb949dedd41b4f5"
     },
     "index.html": {
-      "bytes": 37832,
-      "sha256": "7b0b7dfecbf15ad4e0bc18dd7c5520be0074ea90c92aae558931a209e9c183a6"
+      "bytes": 37936,
+      "sha256": "a65264cc81557bfe3057c8eead0169a60ecd874f92d3111e3ba61db6e33f9eb0"
     },
     "package.json": {
       "bytes": 207,
@@ -373,8 +374,8 @@
       "sha256": "b36cde785a9380f028d06f8d820069293978030a79bc77bc74a24bf8a779d365"
     },
     "src/engine.js": {
-      "bytes": 96533,
-      "sha256": "8bf72aac0142a8e33346582678aeb2ee366f6c66c81a84a21594e31ffd3a61bc"
+      "bytes": 97322,
+      "sha256": "8b89bc08955d504ab6dfe7b207db4f210053c4b0fd918b632c0b5db9220e77ae"
     },
     "src/loot.js": {
       "bytes": 28813,
@@ -753,12 +754,12 @@
       "sha256": "b1012db02391ec7b34cb1af484ebe7f071d33a64da97c65bb8bc0b498c162a63"
     },
     "tests/soulbind-acceptance.test.mjs": {
-      "bytes": 19648,
-      "sha256": "9c8e6ba594fa29d0f598a5bca84cd43235261eee447e9934f57ef10a670481b2"
+      "bytes": 23514,
+      "sha256": "ebffe80735abae832f0ecf1c136ef710d621e2a3f124b3455510d5a7ce613a53"
     },
     "tests/soulbind-engine.test.mjs": {
-      "bytes": 23962,
-      "sha256": "572b9852381e988374b1c5e416991d83e2e243fe3efe3b6656d3ac74852a269a"
+      "bytes": 27789,
+      "sha256": "4d370f4059484ee52e1b37b04c1c095f48242e2cb7e035c6de0a15e6bc35e98b"
     },
     "tests/soulbind-loot.test.mjs": {
       "bytes": 17673,

@@ -53,3 +53,54 @@ test('v023 independent: soulbound metadata remains disposal-protected even after
 test('v023 independent: every accepted bound anchor remains deliverable through the maximum supported character level',()=>{const s=game.createGame(42),stats={attack:490000},item={...weapon('unsafe-future',1,'axe'),stats,rolls:{attack:110},power:loot.scoreItem({stats})};s.inventory=[item];s.soulFragments=100;assert.doesNotThrow(()=>game.validateSave(clone(s)),'legacy unbound legal item remains readable');const before=clone(s),q=game.previewSoulbindWeapon(s,item.id);assert.equal(q.available,false,'must not debit for a future-unsavable anchor');refuse(s,'soulbindWeapon',q);assert.deepEqual(s,before);const unsafe=clone(s);unsafe.inventory[0].soulbound={version:1,level:1,stats:clone(stats)};assert.throws(()=>game.validateSave(unsafe),'unsafe future anchor must not enter canonical live state');assert.deepEqual(s,before);});
 
 test('v023 independent: all seven dominance dimensions and display rate/rating flags retain bound keepers but reject bound candidates',()=>{const base=loot.generateItem(()=>.4,1,'weapon');assert.equal(base.quality,'Average');const values={attack:40,defense:3,hp:12,crit:.02,evade:.01,block:.01,parry:8};for(const key of Object.keys(values)){const candidate={...base,id:'candidate',stats:clone(values),locked:false};delete candidate.rolls;candidate.power=loot.scoreItem(candidate);const better=clone(candidate);better.id='keeper';better.stats[key]+= ['crit','evade','block'].includes(key)?.001:1;better.power=loot.scoreItem(better);const keeper=loot.createSoulboundItem(better,1);assert.ok(keeper);const witness=loot.dominanceWitness(candidate,[keeper]);assert.deepEqual(witness.strictlyBetterKeys,[key]);assert.equal(loot.dominanceWitness(keeper,[candidate]),null);const s=game.createGame(42);s.equipment.weapon=keeper;s.inventory=[candidate];const view=game.previewSafeSale(s);assert.equal(view.items.length,1);assert.equal(view.items[0].keeperId,keeper.id);assert.deepEqual(view.items[0].strictlyBetterKeys,[key]);assert.equal(game.previewSelectedSale(s,[keeper.id]).available,false);const text=loot.describeItem(keeper);for(const label of ['攻擊','防禦','生命','暴擊','閃避','格擋','招架值'])assert.ok(text.includes(label));assert.match(text,/暴擊 \+[\d.]+%/);assert.match(text,/閃避 \+[\d.]+%/);assert.match(text,/格擋 \+[\d.]+%/);assert.match(text,/招架值 \+[\d.]+(?:$| · )/);}});
+
+// Bounded state fixtures isolate long-run permanent inventory safety. These are
+// valid known generated records, not a claim of simulating 1,170 earned wins.
+function recoveryFixture(boundCount,pendingCount=0){
+  const s=game.createGame(42);s.soulFragments=1000;
+  const items=Array.from({length:boundCount},(_,i)=>loot.createSoulboundItem({...loot.generateItem(()=>.4,1,'weapon'),id:`capacity-bound-${i}`},1));
+  assert.ok(items.every(loot.isSoulboundItem));
+  s.equipment.weapon=items.shift();s.pendingLoot=pendingCount?items.splice(-pendingCount):[];s.inventory=items;
+  assert.equal(new Set(held(s).map(i=>i.id)).size,held(s).length);
+  return s;
+}
+const boundCount=s=>held(s).filter(loot.isSoulboundItem).length;
+
+test('v023 independent: binding 115 to 116 remains recoverable with the unchanged five-slot departure reserve',()=>{
+  assert.equal(game.INVENTORY_LIMIT,120);
+  const s=recoveryFixture(115);s.inventory.push(weapon('capacity-target'));
+  const q=quote(s,'capacity-target');game.act(s,'soulbindWeapon',q);
+  assert.equal(boundCount(s),116);assert.equal(s.soulFragments,900);assert.equal(s.inventory.length,115);
+  const loaded=game.validateSave(clone(s));assert.equal(boundCount(loaded),116);
+  game.act(loaded,'start');assert.equal(loaded.mode,'battle');
+  // Even with an unbound weapon equipped, a supported recovery route exists:
+  // wear one bound weapon, unlock/sell the ordinary spare, then depart.
+  const recoverable=clone(s);recoverable.inventory.push(weapon('ordinary-spare'));
+  game.act(recoverable,'equip','ordinary-spare');game.act(recoverable,'start');
+  assert.equal(recoverable.mode,'town');assert.equal(recoverable.inventory.length,116);
+  game.act(recoverable,'equip','capacity-bound-0');game.act(recoverable,'lock','ordinary-spare');game.act(recoverable,'sell','ordinary-spare');
+  assert.equal(boundCount(recoverable),116);assert.equal(recoverable.inventory.length,115);
+  game.act(recoverable,'start');assert.equal(recoverable.mode,'battle');
+});
+
+test('v023 independent: the 117th permanent weapon and a stale pre-limit consent refuse without debit or deletion',()=>{
+  const s=recoveryFixture(115);s.inventory.push(weapon('capacity-target'),weapon('capacity-other'));
+  const earlier=quote(s,'capacity-target'),other=quote(s,'capacity-other');
+  game.act(s,'soulbindWeapon',other);assert.equal(boundCount(s),116);assert.equal(s.soulFragments,900);
+  refuse(s,'soulbindWeapon',earlier);
+  const unavailable=game.previewSoulbindWeapon(s,'capacity-target');assert.equal(unavailable.available,false);assert.match(unavailable.reason,/116/);
+  refuse(s,'soulbindWeapon',unavailable);assert.equal(boundCount(s),116);
+  assert.equal(Object.hasOwn(find(s,'capacity-target'),'soulbound'),false);
+  const before=clone(s);assert.equal(boundCount(game.validateSave(s)),116);assert.deepEqual(s,before);
+});
+
+test('v023 independent: permanent ownership limit includes pending weapons and over-cap imports fail closed',()=>{
+  const s=recoveryFixture(116,1);s.inventory.push(weapon('capacity-target'));
+  assert.equal(s.inventory.length,115);assert.equal(s.pendingLoot.length,1);
+  const q=game.previewSoulbindWeapon(s,'capacity-target');assert.equal(q.available,false);assert.match(q.reason,/116/);refuse(s,'soulbindWeapon',q);
+  const valid=game.validateSave(clone(s));assert.equal(boundCount(valid),116);assert.equal(valid.pendingLoot.length,1);
+  // Do not count unbound extras as permanent occupancy or erase them on load.
+  const ordinary=recoveryFixture(116);for(let n=0;n<3;n++)ordinary.inventory.push(weapon(`ordinary-${n}`));
+  const loaded=game.validateSave(clone(ordinary));assert.equal(boundCount(loaded),116);assert.equal(loaded.inventory.length,118);
+  for(const pending of [0,1,8]){const over=recoveryFixture(117,pending),before=clone(over);assert.throws(()=>game.validateSave(over));assert.deepEqual(over,before);}
+});

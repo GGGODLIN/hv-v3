@@ -6,7 +6,7 @@
 
 ## v0.23 development candidate
 
-Soul Fragments and explicitly confirmed weapon soulbinding are implemented with 1,426 passing source tests and four syntax checks. A bound weapon follows character level without rerolling its identity or affixes; fragment awards and conservative disposal protection are adaptations. This is not yet browser-accepted or published. Latest accepted complete recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644` (v0.22). See [Soulbind guide](docs/SOULBIND-GUIDE.md).
+Soul Fragments and explicitly confirmed weapon soulbinding are implemented with 1,433 passing source tests and four syntax checks. A bound weapon follows character level without rerolling its identity or affixes; fragment awards and conservative disposal protection are adaptations. This is not yet browser-accepted or published. Latest accepted complete recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644` (v0.22). See [Soulbind guide](docs/SOULBIND-GUIDE.md).
 
 ## Play
 
