@@ -1,16 +1,15 @@
 {
-  "checkpoint": "v0.18-publication-receipt",
-  "status": "published-bounded-desktop-accepted",
-  "base_accepted_recovery": "69c837f85c01b8352be4316874dc959d2462e0cb",
-  "runtime_source": "92bf6bc0528b0066d63beff10ce0e3d0aa32ed72",
-  "accepted_prepublication_source": "0c183aa010f77537ddb2cfe62b35236aa352bcf4",
-  "site_commit": "23d6b154f024d3c93b6ae0f9628bd5a76a11c373",
-  "source_tests_passed": 1253,
+  "checkpoint": "v0.19-source-candidate",
+  "status": "source-tested-not-browser-accepted-not-published",
+  "base_accepted_recovery": "b61a8ed67ea9c58260dab0bb98ea754a6ff33f0a",
+  "accepted_site": "23d6b154f024d3c93b6ae0f9628bd5a76a11c373",
+  "source_tests_passed": 1295,
   "runtime_syntax_checks": 4,
+  "independent_default_off_observations": 14400,
   "files": {
     "README.md": {
-      "bytes": 52867,
-      "sha256": "edf3150519f96abf7e4b3ad3f02f02b734ceb75c4da75a4a51e98aa18a742358"
+      "bytes": 3935,
+      "sha256": "19f2733f3867880ed51d52e41439979b97bc49a06fdea63053fa006267fd9315"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -47,6 +46,10 @@
     "docs/ACCEPTANCE-V018.md": {
       "bytes": 4905,
       "sha256": "715c3a69287a5198b66f515b5957cee25a007d8b2325395bf3a92d1091ef6a52"
+    },
+    "docs/ACCEPTANCE-V019.md": {
+      "bytes": 2431,
+      "sha256": "bde61444c56f7566cc149abc5e6d93b0ff2d77f7d048362810ebf19c93660c8f"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -216,6 +219,14 @@
       "bytes": 3704,
       "sha256": "fb782182dbba33f14a78c83df48acc71477165c4ae72bcaefc36466c585e8331"
     },
+    "docs/GROWTH-DISCOVERY-GUIDE.md": {
+      "bytes": 1695,
+      "sha256": "bda9b9ad022839b5e9dd69f0229530e06358e66eb2e2bad6422e4302e480b5f8"
+    },
+    "docs/HISTORY-READMES-STATUS.md": {
+      "bytes": 98666,
+      "sha256": "2e433f5e21b0ed393b53cbd9b112fef0df769de5255cd5e576a47958fd6aa158"
+    },
     "docs/INTERFACE.md": {
       "bytes": 2428,
       "sha256": "88506fe46627c24bebb634676b686b8e295bfa6952405b7263f10a377fcf995c"
@@ -265,24 +276,24 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 76429,
-      "sha256": "bd25ec089eb70ed5093b309fdb1f4f1fa55bfa4b9de8364e02d8e63fd93dc803"
+      "bytes": 4266,
+      "sha256": "da8a6905a99896056cc3f88b8c2fc09ef809456e4c964cd4092515820157a649"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
       "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 33605,
-      "sha256": "10540e3dfe5eeed86697e6e2b3434418fc7b31ba6c6251165960a4575c572ffa"
+      "bytes": 33958,
+      "sha256": "7b6bbd95ded6263620ffa98115e34806602f44beb3fd221517a32c90c8a80502"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "327e040bcad1369271ca41bf3e10e49b6ac9202d52d680473e9134947cdcec1d"
+      "sha256": "84e072044c0ef3b4b6bc89497b2aec73aa995e206e59123a846388130b43b875"
     },
     "src/engine.js": {
-      "bytes": 77916,
-      "sha256": "57bc344ebd1fa553f56394719fdf0712ce6b6461df5dae30a7bfbb365a2f2e79"
+      "bytes": 79849,
+      "sha256": "908bf5b7e63c4a8a5612499a2cc3c6707621157c0edb46e2087b858671f93a7e"
     },
     "src/loot.js": {
       "bytes": 23836,
@@ -293,12 +304,12 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 106876,
-      "sha256": "364df47f9204105029dd7f720cd6321c2a90f54e76225bbb2aa9cdfeb9a2706c"
+      "bytes": 109598,
+      "sha256": "2acd2c34063f27839cc8c7e10b449379d5abfb4e36f61075efb92f4ba6c172c8"
     },
     "style.css": {
-      "bytes": 39213,
-      "sha256": "970d22d41cd7ecd1f7bf9b8be1fb5914f815bc2c85fc3a819f8abf1a0cecd440"
+      "bytes": 39570,
+      "sha256": "7a0910412f9b9ad716c0c8c6ea8fdd1348865e41cd3833f6b114cfcdc03a2f6b"
     },
     "tests/ability-growth.test.mjs": {
       "bytes": 17142,
@@ -318,7 +329,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12121,
-      "sha256": "5fe3bb0bd899594603343ae6780dcd4511bc021e9a97b0b70a4106b2c09c4689"
+      "sha256": "585760ff80c3833e2444bc9a58ae1b07e156c2bc4b86846dd8e8d18d32a29343"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -374,7 +385,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18179,
-      "sha256": "f53eebce3d7263a9950af5a590bcdb7bd669ed18f74ef895e6a97f3e91dfc5e0"
+      "sha256": "7f746f9cca2a1c459bedb4ea63032b4916c30b8c66d2cc8f21b5c84ab11ce1de"
     },
     "tests/counterattack-acceptance.test.mjs": {
       "bytes": 12479,
@@ -382,7 +393,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "f655eb0e597a67515417361c8b9488ae786602879328ba611d0251dc851097c7"
+      "sha256": "13cb9d2632df267d9dbe9c08707d4c047d50920e904d36825987911ff1c155fe"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -508,6 +519,14 @@
       "bytes": 10962,
       "sha256": "9f5ab00ff4421760aa7b86e8f10bf85ac390b2a2e842942e61e991e184160f29"
     },
+    "tests/growth-discovery-ui.test.mjs": {
+      "bytes": 12501,
+      "sha256": "fdb18f46fc6d2ad6a33ba8a9f7e39926a017e5e1a40d49048c8ed9d767bef98f"
+    },
+    "tests/growth-readiness.test.mjs": {
+      "bytes": 7046,
+      "sha256": "70c8c1333457a5b764ba65ec0d407b4cb006dfd66c7a1cfef1416a14723015d7"
+    },
     "tests/loot.test.mjs": {
       "bytes": 4671,
       "sha256": "c3b863dba1f390fe11b39e0f87d05fb95fc1c97c702c4d6fc955d9e3d8310d75"
@@ -538,7 +557,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "02111132b41588b392b1a43b0e38ecc1b012af42b5472c73a19937d905ed53b0"
+      "sha256": "bb81157784811fa6057064930966b399c58cf324e0c154440825c34d473ac797"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15636,
@@ -554,7 +573,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9473,
-      "sha256": "0a668e07cddd3921360919d7815bdc0be2225a8d31c99652d2e8ab0c8621a2ec"
+      "sha256": "fd2eb579ea25daaee4aefad29e9a5b134ae6b05827367f136dc92958f9e96403"
     },
     "tests/safe-loot-actions.test.mjs": {
       "bytes": 17684,
@@ -658,7 +677,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 14910,
-      "sha256": "95cb5f9bcb4c54b093694d55dd305dc8857aa91026e60db282333a7bc4e14df2"
+      "sha256": "18a52177a3e2261affab818decdf20106c7fb727ef265be623d4638ac21bfddb"
     }
   }
 }

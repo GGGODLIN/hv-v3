@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -496,6 +496,32 @@ function changeAbility(action, id, expectedRank, expectedRenderVersion) {
   };
   $('ability-feedback').textContent = `${messages[action]} 營地生命與魔力已恢復。`;
 }
+function renderGrowthReadiness() {
+  const view = growthReadiness(state, claimLease());
+  const labels = {slot: '待裝配', learn: '可學習', upgrade: '可升階'};
+  const parts = Object.entries(view.counts).filter(([, count]) => count).map(([action, count]) => `${labels[action]} ${count}`);
+  const available = parts.join(' · ');
+  const optional = view.protectionAvailable ? '護盾可選' : '';
+  const blocked = {invalid: '能力資料需檢查', readonly: '唯讀檢視', away: '回營配置'}[view.status];
+  $('growth-tab-summary').textContent = blocked || available || optional || '暫無能力可配置';
+  if (available && optional) $('growth-tab-summary').textContent += ' · 護盾可選';
+  let detail = available ? `${available}。學習與裝配是分開的兩步。` : view.missingAp ? `目前沒有可配置能力；最近一項仍差 ${view.missingAp} AP。` : view.nextLevel ? `目前沒有可配置能力；下一個能力等級門檻 Lv.${view.nextLevel}。` : '目前沒有可配置能力；已裝配能力會繼續生效。';
+  if (view.choices.reduce((sum, choice) => sum + choice.cost, 0) > view.availableAp) detail += ' 各項分別可負擔，不代表能同時全選。';
+  if (blocked) detail = view.status === 'away' ? '回營後再學習、裝配或升階；戰鬥不會因查看這裡而暫停。' : view.status === 'readonly' ? '接手進度並回營後才能配置；目前不會修改進度。' : '請先核對能力資料；目前不提供配置操作。';
+  if (!blocked) detail += view.protectionAvailable ? ' Protection 已解鎖，可自行選擇減傷與施法回合的取捨；不是必選強化。' : !view.protectionUnlocked ? ` Protection 於 Lv.${view.protectionUnlockLevel} 解鎖，不需 AP。` : ' Protection 已啟用。';
+  $('growth-summary').textContent = `可用 AP ${view.availableAp} · ${detail}`;
+  const first = view.choices[0], button = $('growth-jump');
+  button.hidden = !first && !view.protectionAvailable;
+  button.disabled = !!blocked;
+  button.textContent = first ? `查看 ${first.label} · ${labels[first.action]}` : '查看 Protection 選項';
+}
+function focusGrowthChoice() {
+  // Recompute on activation: a stale shortcut never spends AP or triggers actions.
+  const view = growthReadiness(state, claimLease()), first = view.choices[0];
+  if (view.status !== 'ready') { renderGrowthReadiness(); return; }
+  const target = first ? document.querySelector(`[data-ability-id="${first.id}"][data-ability-action="${first.action}"]`) : view.protectionAvailable ? $('auto-protection') : null;
+  if (target && !target.disabled) target.focus();
+}
 function renderAbilities() {
   const view = abilityView(state), canEdit = claimLease() && state.mode === 'town';
   const signature = JSON.stringify([view, canEdit]);
@@ -981,6 +1007,7 @@ function render(force = false) {
   $('inventory-count').textContent = state.inventory.length;
   renderSafeLoot();
   renderAbilities();
+  renderGrowthReadiness();
   renderGearSets();
   renderSelectedSale();
   renderWeaponCommission();
@@ -1339,6 +1366,7 @@ window.addEventListener('storage', event => {
     try { state = validateSave(JSON.parse(event.newValue)); lastSavedRaw = event.newValue; syncSelection(); if (!document.hidden) render(true); } catch { /* invalid external state never imported */ }
   }
 });
+$('growth-jump').addEventListener('click', focusGrowthChoice);
 // Display-only navigation: deliberately independent of progress, preferences and simulation.
 function setupCampNavigation() {
   const names = ['battle', 'gear', 'growth'];

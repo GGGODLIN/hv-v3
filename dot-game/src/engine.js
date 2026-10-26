@@ -222,6 +222,26 @@ export function abilityView(s) {
   return {valid,earnedAp,spentAp,availableAp,majorCapacity:ABILITY_RULES.majorSlots,majorUsed:slotted.length,
     learned:[...learned],slotted:[...slotted],ranks:{...allocation.ranks},effects:abilityEffects(s,allocation),currentStats:statsWithAbilities(s,allocation),catalog};
 }
+/** Read-only camp discovery; delegates all eligibility to existing views.
+ * One useful action per ability, with unspent learned ranks offered for slotting
+ * before any further AP spend. Never changes allocation, RNG or save state. */
+export function growthReadiness(s, editable = true) {
+  const abilities = abilityView(s), protection = protectionView(s);
+  const status = !abilities.valid ? 'invalid' : !editable ? 'readonly' : s.mode !== 'town' ? 'away' : 'ready';
+  const choices = status === 'ready' ? abilities.catalog.flatMap(choice => {
+    const action = choice.canSlot ? 'slot' : choice.canLearn ? 'learn' : choice.slotted && choice.canUpgrade ? 'upgrade' : null;
+    return action ? [{id: choice.id, label: choice.label, action, cost: action === 'slot' ? 0 : action === 'learn' ? choice.apCost : choice.nextRank.apCost}] : [];
+  }).sort((a, b) => ({slot:0, learn:1, upgrade:2}[a.action] - {slot:0, learn:1, upgrade:2}[b.action])) : [];
+  const nextLevels = abilities.catalog.flatMap(choice => choice.nextRank && choice.nextRank.minLevel > s.hero.level ? [choice.nextRank.minLevel] : []);
+  const missingAp = abilities.catalog.flatMap(choice => choice.nextRank && choice.nextRank.minLevel <= s.hero.level && choice.nextRank.apCost > abilities.availableAp ? [choice.nextRank.apCost - abilities.availableAp] : []);
+  return {status, availableAp: abilities.availableAp, choices,
+    counts: {slot: choices.filter(c => c.action === 'slot').length, learn: choices.filter(c => c.action === 'learn').length, upgrade: choices.filter(c => c.action === 'upgrade').length},
+    protectionAvailable: status === 'ready' && protection.unlocked && !protection.enabled,
+    protectionUnlocked: protection.unlocked, protectionEnabled: protection.enabled, protectionUnlockLevel: protection.unlockLevel,
+    nextLevel: nextLevels.length ? Math.min(...nextLevels) : null,
+    missingAp: missingAp.length ? Math.min(...missingAp) : null};
+}
+
 function recover(s) { const p=stats(s); s.hero.hp=p.maxHp;s.hero.mp=p.maxMp; }
 
 const validTick = tick => Number.isSafeInteger(tick)&&tick>=0&&tick<=Number.MAX_SAFE_INTEGER-PENETRATED_ARMOR_RULES.durationTicks;

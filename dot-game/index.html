@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.18 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.19 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -52,7 +52,7 @@
         <div class="camp-navigation" role="tablist" aria-label="切換營地工具">
           <button type="button" id="camp-tab-battle" role="tab" aria-selected="true" aria-controls="camp-panel-battle" tabindex="0">戰況<span>反擊 · 戰報</span></button>
           <button type="button" id="camp-tab-gear" role="tab" aria-selected="false" aria-controls="camp-panel-gear" tabindex="-1">配裝<span>方案 · 委託</span></button>
-          <button type="button" id="camp-tab-growth" role="tab" aria-selected="false" aria-controls="camp-panel-growth" tabindex="-1">成長<span>AP · 能力</span></button>
+          <button type="button" id="camp-tab-growth" role="tab" aria-selected="false" aria-controls="camp-panel-growth" tabindex="-1">成長<span id="growth-tab-summary">AP · 能力</span></button>
         </div>
         <p class="camp-navigation-hint">出戰與背包常駐；切換工具不會暫停戰鬥。</p>
         <div id="camp-panel-battle" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-battle" tabindex="0">
@@ -95,6 +95,11 @@
 
         </div>
         <div id="camp-panel-growth" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-growth" tabindex="0" hidden>
+        <div class="growth-discovery">
+          <p id="growth-summary" class="ability-note"></p>
+          <button id="growth-jump" type="button" class="secondary-button" hidden>查看可配置能力</button>
+          <p class="muted">只帶你到操作位置，不會自動花 AP、裝配或開啟護盾。</p>
+        </div>
       <section class="protection-panel panel" aria-labelledby="protection-heading">
         <div class="section-heading"><h3 id="protection-heading">Protection · 護盾術</h3><span class="badge">防守與攻速的取捨</span></div>
         <label class="toggle protection-toggle"><input type="checkbox" id="auto-protection" aria-describedby="protection-cost protection-status"><span>自動護盾</span></label>

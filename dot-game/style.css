@@ -271,3 +271,9 @@
 .commission-affix label { color:var(--muted); font-size:11px; }
 .commission-affix select { width:100%; min-width:0; min-height:40px; padding:6px 3px; font-size:11px; }
 .commission-affixes + .commission-choices { margin-top:6px; }
+
+/* Growth discovery is a compact guide, not an automatic allocation policy. */
+.growth-discovery { padding: .75rem; margin-bottom: .8rem; border: 1px solid var(--line); border-radius: 10px; }
+.growth-discovery p { margin: .25rem 0 .55rem; }
+.growth-discovery .muted { font-size: .75rem; margin-bottom: 0; }
+#growth-tab-summary { overflow-wrap: anywhere; }
