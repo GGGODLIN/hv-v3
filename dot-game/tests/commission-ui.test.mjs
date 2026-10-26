@@ -27,7 +27,8 @@ function fixture() {
 function harness(state = fixture(), options = {}) {
   const dom = Object.fromEntries([...html.matchAll(/\bid="([^"]+)"/g)].map(match => [match[1], node('div')]));
   const window = node('window'), calls = [], toasts = [];
-  const context = { state, tabOwner: true, lease: true, window, node, $: id => dom[id], COMMISSION_WEAPON_FAMILIES,
+  // This partial controller harness does not load the independent manual-selection UI.
+  const context = { clearSelectedSale() {}, state, tabOwner: true, lease: true, window, node, $: id => dom[id], COMMISSION_WEAPON_FAMILIES,
     format: value => String(Math.round(value)), qualityName: quality => QUALITY_TIERS.find(tier => tier.name === quality)?.label || quality,
     itemTypeName: item => COMMISSION_WEAPON_FAMILIES.find(choice => choice.family === resolveWeaponFamily(item))?.label || '武器',
     statNames: { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' }, rateStats: new Set(['crit','evade','block']),
@@ -58,7 +59,7 @@ test('commission UI: distinct adaptation with first-clear/camp gate and no autom
   h.run("openWeaponCommission('axe'); confirmWeaponCommission();");
   assert.deepEqual(h.state, before); assert.equal(h.calls.length, 0);
   for (const text of ['本作獨立機制', '不是原版商店庫存、訓練或鍛造', '品質骰 R110', '屠戮（Slaughter）', '無前綴', '不會據此推薦購買', '刷寶仍可能取得更適合或更強的裝備', '不自動裝備、不自動出售', '遠征不收金幣', '委託可能用盡餘額', '不必購買才能繼續']) assert.ok(html.includes(text), text);
-  assert.match(html, /v0\.11 · 持續開發/);
+  assert.match(html, /v0\.12 · 持續開發/);
   for (const key of ['save','preferences','writer']) assert.ok(js.includes(`${key}-v3`));
   assert.doesNotMatch(controllers, /\.power|scoreItem|\.innerHTML|insertAdjacentHTML/);
 });

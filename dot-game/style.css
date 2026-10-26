@@ -181,3 +181,17 @@
 .ability-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .ability-rules p { margin-top: 7px; }
 @media(max-width:680px) { .ability-description, .ability-proficiency, .ability-cost, .ability-state, .ability-actions>button { font-size: 11px; } .ability-actions>button { min-height: 40px; } }
+
+/* Explicit manual selection stays visually distinct from safe downgrade disposal. */
+.selected-sale-tools { grid-column: 1; margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.selected-sale-tools p { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+.selected-sale-tools #selected-sale-status { margin: 6px 0; color: var(--gold); }
+.selected-sale-tools>div { display: flex; flex-wrap: wrap; gap: 6px; }
+.selected-sale-tools button { flex: 1 1 95px; padding: 8px; }
+.inventory-entry { display: flex; gap: 5px; align-items: stretch; min-width: 0; flex: none; }
+.inventory-entry .inventory-card { flex: 1; width: auto; }
+.selected-sale-check { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; flex: 0 0 34px; font-size: 10px; color: var(--muted); cursor: pointer; }
+.selected-sale-check input { margin: 0; }
+.selected-sale-warning { color: var(--gold) !important; }
+#selected-sale-list .compare-row { grid-template-columns: minmax(35px,1fr) auto minmax(55px,auto); }
+@media (min-width:681px) and (max-width:1150px) { .loot-panel>.item-detail { grid-row: 1/9; } }

@@ -1,25 +1,14 @@
 {
-  "checkpoint": "v0.11-publication-receipt",
-  "status": "published-bounded-desktop-accepted",
-  "base_accepted_recovery": "26b01643d4a926fb7abb3669bd823e22dec78e6d",
-  "candidate_runtime_source": "98b74deb09e2165b8f6f31f27b07a72532c01beb",
-  "base_source_receipt": "b8b3a696235210ae1e21a60c14c0379c459dd4ac",
-  "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged",
-  "source_tests_passed": 839,
+  "checkpoint": "v0.12-candidate",
+  "status": "source-tested-browser-pending",
+  "base_accepted_recovery": "61bd11e904e2aa1ea152e37deb461714df08e139",
+  "source_tests_passed": 921,
   "runtime_syntax_checks": 4,
-  "candidate_site_commit": "94607ad2a87734c44180cbd58f122fe5897ee478",
-  "candidate_pages_run": 40267785517,
-  "browser_qa": "docs/BROWSER-QA-V011.md",
-  "accepted_prepublication_source": "b8b3a696235210ae1e21a60c14c0379c459dd4ac",
-  "accepted_runtime_source": "98b74deb09e2165b8f6f31f27b07a72532c01beb",
-  "latest_accepted_recovery": "this exact verified publication-receipt commit",
-  "accepted_site_commit": "723b69d8f52a130d0a536544ba9dcabe6b5dfdf1",
-  "accepted_pages_run": 40269241579,
-  "root_smoke": "bounded-desktop-pass-2026-10-26T04:33Z",
+  "browser_qa": "pending",
   "files": {
     "README.md": {
-      "bytes": 21311,
-      "sha256": "5b2f411e1f81087702b57cdda5f8854e4455206f2c4868420931c48357878f63"
+      "bytes": 22037,
+      "sha256": "4d5a5fcdfca65855c8631c996cf6c7cacf49c1dd2784468e58f2a6b2fa5e3461"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -32,6 +21,10 @@
     "docs/ACCEPTANCE-V011.md": {
       "bytes": 9437,
       "sha256": "c00ecb32c485ce8b1ee017625c45110c4f4dd39794bb07bbc90f6730a41e1dda"
+    },
+    "docs/ACCEPTANCE-V012.md": {
+      "bytes": 6407,
+      "sha256": "8ae8cb593efd269fa0396dbcf6c01d429f64bbb92ba280394cdf427df24039b6"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -158,8 +151,8 @@
       "sha256": "2850f75da8fd2ccd2bff6edc0c41afc4c876154b43f0099e9095985ef9398f2b"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 34285,
-      "sha256": "4325194ffeeef8588103712a493328d160f56304d7de6f9da2224dfc5acbe5b9"
+      "bytes": 34964,
+      "sha256": "eb1ead12320b09767502c35e8cdd90f862c26c038ccf836e266409e1d7b2cb14"
     },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
@@ -170,32 +163,36 @@
       "sha256": "a7244c9d956588b098befec7e7e4c2fac9746704203e887f0946a5dea242bca8"
     },
     "docs/ROADMAP.md": {
-      "bytes": 10743,
-      "sha256": "c75f37e4a0d467f867b5c848d9d74850eefd246a7ea23ba02475f9d9fba4f2b7"
+      "bytes": 11171,
+      "sha256": "d24de5b6a5d20ebb98c378119f48c55dc552f0dd0b1b35c50137e19cfe7906f4"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
       "sha256": "f1b5983b7954e85be88124b3a67c110cbd40eaf53b48dd0aa6a634aa02f681d3"
     },
+    "docs/SELECTED-SALE.md": {
+      "bytes": 1739,
+      "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
+    },
     "docs/STATUS.md": {
-      "bytes": 44609,
-      "sha256": "37995c0c96d100e03d52cd31c5a05b098d7bd53e2cd6f5b04c94c00e8af0d354"
+      "bytes": 45335,
+      "sha256": "5a0ae0c537ae5cfcdee39aeb72e512aa765f961dd5539f60d5e4ea291e62857b"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
       "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 23451,
-      "sha256": "96b182174e059246deffae58f79033ed7122221cb04a95d63fcee1f24fe38995"
+      "bytes": 24679,
+      "sha256": "b22dbf0d07ae6bea54d73e3b5628d8202351d860829ce2a02a2e01dae1d23cce"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "522f9688700a61765a94856aa63830dfe1be1df02bf97e16815d71c6ff66b301"
+      "sha256": "9377289c5c92aa4e206a648bba1d0ad0cd6cf4db80466364a6a5f1da59ade10e"
     },
     "src/engine.js": {
-      "bytes": 56553,
-      "sha256": "f9ce98a168071a00f9f388fd8c3b90bd9f45ac8d650516cb374189a6f66c2602"
+      "bytes": 61870,
+      "sha256": "c9ce3c8ddd9c12b78cbcce8bbbb79109c4fd195ce7c0bec695de4195e12c6fde"
     },
     "src/loot.js": {
       "bytes": 22261,
@@ -206,12 +203,12 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 77690,
-      "sha256": "ca64cdcff83902d7fe223cde0ae3311f9c1d6f88b03a5daebdac3d5eceabc74a"
+      "bytes": 85705,
+      "sha256": "8699dc5b60b4b3becc15c571502d12038a1e5510e1ea066f8d30bd8fb475b4fc"
     },
     "style.css": {
-      "bytes": 31964,
-      "sha256": "41a68a6d80718770458af2eeba3aa1025fb1e7a70521dfa1b876d91580e0c0c1"
+      "bytes": 33136,
+      "sha256": "2978b0db1a98608567dcade6aca8da773bab7995c5c2c82cfca9f91ca3915594"
     },
     "tests/ability-growth.test.mjs": {
       "bytes": 16596,
@@ -231,7 +228,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12121,
-      "sha256": "9a879ac4bd92685874389c8464556528b752c63bad56c071daa8e91bc7200bf0"
+      "sha256": "153422386109c78683c0e17c60a87d4c33513cc2ed6ac21ad2971bccfaad0eae"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -270,8 +267,8 @@
       "sha256": "0c330f0295c1f0edb66753dd1070f1c090dad388cd5517c68daf7c6bd5b68a94"
     },
     "tests/commission-ui.test.mjs": {
-      "bytes": 17858,
-      "sha256": "29da6e758ca989a7f0a324de815e28fe69851e95230924431f1e2cd4df25148c"
+      "bytes": 17970,
+      "sha256": "351ca8e48d7733e3883a0f2720d7990e8cd5b72bc42f3d434d9ae4de0fa921d9"
     },
     "tests/enemy-roles.test.mjs": {
       "bytes": 13984,
@@ -294,6 +291,18 @@
       "sha256": "1d14482e3822c0336618d042f394be0c14eecafa0feeb6db7775a2922ebd68ee"
     },
     "tests/fixtures/v0.10/loot.js": {
+      "bytes": 22261,
+      "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
+    },
+    "tests/fixtures/v0.11/PROVENANCE.md": {
+      "bytes": 689,
+      "sha256": "fe4a5ed109e3bdf4031aedbb19efe04e940a241be330d7e4c7d343ce1d7a681d"
+    },
+    "tests/fixtures/v0.11/engine.js": {
+      "bytes": 56553,
+      "sha256": "f9ce98a168071a00f9f388fd8c3b90bd9f45ac8d650516cb374189a6f66c2602"
+    },
+    "tests/fixtures/v0.11/loot.js": {
       "bytes": 22261,
       "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
     },
@@ -335,7 +344,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "894e80378a915ca5b6bcbb456b98780a2bd4dbdfa49afcf0cd334d18ea352752"
+      "sha256": "60e2851cf4d5fe7272b323049d271c09c30fd6fb4a9a177ef13f29f5e90b60ed"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15343,
@@ -351,7 +360,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9473,
-      "sha256": "54fe2ea6dac05d4edf74760e94b14cd4420fb998d23d78e1821739555ba84295"
+      "sha256": "ce51838f5f95b1e74aabde0314252779d82a745d3722293892438b858a42f7bf"
     },
     "tests/safe-loot-actions.test.mjs": {
       "bytes": 17684,
@@ -372,6 +381,18 @@
     "tests/save-recovery.test.mjs": {
       "bytes": 18964,
       "sha256": "fc88f17bd60714cf803e53f1ad529716304a1e3efd57511baef8ce648a15d39f"
+    },
+    "tests/selected-sale-acceptance.test.mjs": {
+      "bytes": 9982,
+      "sha256": "1f0e8b634df4278a5f84db6c39470614a60237eccf46d35c89341d4364f22dac"
+    },
+    "tests/selected-sale-ui.test.mjs": {
+      "bytes": 11069,
+      "sha256": "5dc672283566ee7f42c71970a6111438bff908f2d3011cf71dcbf33816c385fa"
+    },
+    "tests/selected-sale.test.mjs": {
+      "bytes": 7205,
+      "sha256": "1b1a7071798b50107eb731ecb47613c999bbb29192904ee0309a42dce0ac4381"
     },
     "tests/session.test.mjs": {
       "bytes": 3820,
@@ -439,7 +460,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 14910,
-      "sha256": "13aeaad488aa6557c895077d25b2e88b83803cc4d1231e3266907218a8b3f99e"
+      "sha256": "f86baeff5e88e1cd3254a60d9ed4febbd8dc6348eb855175b36e5eb927e678e1"
     }
   }
 }

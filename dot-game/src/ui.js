@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -104,6 +104,9 @@ let prefs = { sound: false, backgroundIdle: true, reducedMotion: window.matchMed
 try { const saved = JSON.parse(readStorage(PREF_KEY) || '{}'); if (typeof saved.backgroundIdle === 'boolean') prefs.backgroundIdle = saved.backgroundIdle; if (typeof saved.reducedMotion === 'boolean') prefs.reducedMotion = saved.reducedMotion; } catch { /* optional preferences only */ }
 let selectedId = null;
 let selectedSlot = null;
+let selectedSaleIds = new Set();
+const selectedSaleCheckboxes = new Map();
+let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
 let lastCommissionSignature = '';
@@ -211,6 +214,7 @@ function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
   lastAbilitySignature = ''; $('ability-feedback').textContent = '';
+  clearSelectedSale(); // Local sale intent never crosses ownership, reload or import.
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
@@ -225,6 +229,100 @@ function dispatch(action, payload) {
     if ((action === 'start' || action === 'retreat') && state.mode !== previousMode) pump.reset();
     reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+}
+// Explicit personal selection is separate from the conservative downgrade filter.
+function closeSelectedSale() {
+  selectedSaleConsent = null;
+  $('selected-sale-confirm').disabled = true;
+  if ($('selected-sale-dialog').open) $('selected-sale-dialog').close();
+}
+function clearSelectedSale() {
+  closeSelectedSale(); selectedSaleIds.clear(); lastInventorySignature = '';
+}
+function abortSelectedSale(message) {
+  selectedSaleConsent = null; $('selected-sale-confirm').disabled = true;
+  $('selected-sale-feedback').textContent = `已取消，未出售任何裝備。${message}`;
+}
+function toggleSelectedSale(id, checked) {
+  const restoreFocus = document.activeElement === selectedSaleCheckboxes.get(id);
+  if (!claimLease() || state.mode !== 'town' || $('selected-sale-dialog').open) { render(true); return; }
+  if (checked) {
+    const preview = previewSelectedSale(state, [id]);
+    if (!preview.available) { showToast(`無法加入出售清單：${preview.reason}`); render(true); return; }
+    selectedSaleIds.add(id);
+  } else selectedSaleIds.delete(id);
+  render(true);
+  if (restoreFocus) selectedSaleCheckboxes.get(id)?.focus();
+}
+function selectedSaleComparison(entry) {
+  const table = node('div', 'compare-table');
+  for (const key of Object.keys(statNames)) {
+    const value = Number(entry.item.stats?.[key]) || 0, old = Number(entry.currentEquipment?.stats?.[key]) || 0;
+    const diff = value - old;
+    const number = amount => rateStats.has(key) ? `${Number((amount * 100).toFixed(4))}%` : String(Number(amount.toFixed(4)));
+    const delta = diff === 0 ? '相同' : `${diff > 0 ? '+' : ''}${number(diff)}${rateStats.has(key) ? ' 點' : ''}`;
+    const row = node('div', 'compare-row');
+    row.append(node('span', '', statNames[key]), node('strong', '', number(value)), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta));
+    table.append(row);
+  }
+  return table;
+}
+function openSelectedSale() {
+  if (!claimLease() || state.mode !== 'town') { showToast('請在持有進度的分頁回營後，確認自選出售。'); return; }
+  if ($('selected-sale-dialog').open) return;
+  const ids = [...selectedSaleIds];
+  const preview = previewSelectedSale(state, ids);
+  if (!preview.available) { showToast(`無法預覽：${preview.reason}`); render(true); return; }
+  selectedSaleConsent = { ids, ...preview };
+  $('selected-sale-list').replaceChildren(...preview.items.map(entry => {
+    const row = node('li', 'safe-sale-item');
+    row.append(node('strong', '', entry.name), node('span', 'safe-sale-meta', `${qualityName(entry.quality)} · ${slotNames[entry.slot]} · ${format(entry.value)} 金幣`), node('span', 'safe-sale-id', `出售 ID：${entry.id}`));
+    row.append(node('p', '', `保留目前裝備：${entry.currentEquipment?.name || '無'}。以下差值＝本件減目前同部位裝備；正值代表將出售的這項屬性較高。`), selectedSaleComparison(entry));
+    if (entry.slot === 'weapon') row.append(node('p', 'selected-sale-warning', `出售路線：${itemTypeName(entry.item)} · ${describeWeaponTrait(entry.item)}。目前路線：${entry.currentEquipment ? itemTypeName(entry.currentEquipment) : '無'}。武器特效不同，不能只看評分或單項差值。`));
+    return row;
+  }));
+  $('selected-sale-summary').textContent = `自行選定 ${preview.items.length} 件 · 合計 ${format(preview.total)} 金幣 · 出售後 ${format(preview.goldAfter)} 金幣`;
+  $('selected-sale-feedback').textContent = '尚未出售。這是你自行挑選的裝備，不保證是劣化品，也可能包含稀有或更強裝備。確認後無法買回；只出售上述 ID，不加入其他物品。';
+  $('selected-sale-confirm').textContent = `確認出售自選 ${preview.items.length} 件 · +${format(preview.total)} 金幣`;
+  $('selected-sale-confirm').disabled = false;
+  $('selected-sale-dialog').showModal();
+}
+function reconcileSelectedSale() {
+  if (!tabOwner || state.mode !== 'town') {
+    if (selectedSaleConsent) abortSelectedSale('進度控制權或營地狀態已改變，請重新選取。');
+    if (selectedSaleIds.size) { selectedSaleIds.clear(); lastInventorySignature = ''; }
+    return;
+  }
+  const preview = previewSelectedSale(state, [...selectedSaleIds]);
+  if (selectedSaleConsent && (!preview.available || preview.quoteBasis !== selectedSaleConsent.quoteBasis)) abortSelectedSale('裝備、比較對象或金幣已變更，請關閉後重新預覽。');
+  if (selectedSaleIds.size && !preview.available) {
+    selectedSaleIds.clear(); lastInventorySignature = '';
+    showToast('自選清單已失效，已清除選取；沒有出售任何裝備。');
+  }
+}
+function confirmSelectedSale() {
+  if (!selectedSaleConsent || !$('selected-sale-dialog').open) return;
+  if (!claimLease()) { abortSelectedSale('此分頁為唯讀，請接手後重新選取。'); return; }
+  reconcileSelectedSale();
+  const consent = selectedSaleConsent;
+  if (!consent) return;
+  const gold = state.hero.gold;
+  // Consume once before dispatch, including a rejected engine operation.
+  selectedSaleConsent = null; $('selected-sale-confirm').disabled = true;
+  selectedSaleIds.clear();
+  const completed = dispatch('sellSelected', { ids: consent.ids, quoteBasis: consent.quoteBasis });
+  const sold = completed && consent.ids.every(id => !state.inventory.some(item => item.id === id)) && state.hero.gold === gold + consent.total;
+  if (!sold) { abortSelectedSale('本次操作未確認完成，請核對背包與金幣後重新選取。'); return; }
+  closeSelectedSale(); render(true);
+  showToast(`已出售自行選定的 ${consent.items.length} 件 · +${format(consent.total)} 金幣；其餘裝備保留。`);
+}
+function renderSelectedSale() {
+  const preview = previewSelectedSale(state, [...selectedSaleIds]);
+  const filter = $('slot-filter').value;
+  const hidden = state.inventory.filter(item => selectedSaleIds.has(item.id) && filter !== 'all' && item.slot !== filter).length;
+  $('selected-sale-status').textContent = !tabOwner ? '唯讀分頁：接手後才能選取出售。' : state.mode !== 'town' ? '請先回營；出戰會清除自選清單。' : `已選 ${selectedSaleIds.size} 件 · ${format(preview.total)} 金幣${hidden ? `（另有 ${hidden} 件在目前篩選外，預覽會完整列出）` : ''}。未確認不會出售。`;
+  $('review-selected-sale').disabled = !tabOwner || state.mode !== 'town' || !preview.available;
+  $('clear-selected-sale').disabled = !selectedSaleIds.size;
 }
 function abilityNumber(value) {
   // Unlike the compact hero readout, ability previews never round sheet stats
@@ -653,7 +751,8 @@ function render(force = false) {
   $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat'; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : '自動戰鬥 · 不考手速 · 隨時回營換裝';
-  const inventorySignature = JSON.stringify([state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.mode]);
+  reconcileSelectedSale();
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.mode]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
@@ -662,6 +761,7 @@ function render(force = false) {
   $('inventory-count').textContent = state.inventory.length;
   renderSafeLoot();
   renderAbilities();
+  renderSelectedSale();
   renderWeaponCommission();
   renderEnemyStatuses();
   renderRoutePreview();
@@ -724,6 +824,7 @@ function pinRecentExpeditionReport() {
   renderExpeditionReports();
 }
 function renderInventory() {
+  selectedSaleCheckboxes.clear();
   const filter = $('slot-filter').value, sort = $('sort-select').value;
   const items = state.inventory.filter(item => filter === 'all' || item.slot === filter).slice().reverse();
   if (sort === 'power') items.sort((a, b) => (b.power || 0) - (a.power || 0));
@@ -742,7 +843,15 @@ function renderInventory() {
     }
     button.setAttribute('aria-label', `${item.name}，${qualityName(item.quality)}，等級 ${item.level}${item.locked ? '，已鎖定' : ''}`);
     button.setAttribute('aria-pressed', String(item.id === selectedId));
-    button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); }); return button;
+    button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
+    const row = node('div', 'inventory-entry');
+    const label = node('label', 'selected-sale-check');
+    const check = node('input'); check.type = 'checkbox'; check.checked = selectedSaleIds.has(item.id);
+    check.setAttribute('aria-label', `選取出售：${item.name}（ID：${item.id}）`);
+    check.disabled = !tabOwner || state.mode !== 'town' || !previewSelectedSale(state, [item.id]).available;
+    selectedSaleCheckboxes.set(item.id, check);
+    check.addEventListener('change', () => toggleSelectedSale(item.id, check.checked));
+    label.append(check, node('span', '', '選售')); row.append(label, button); return row;
   }));
 }
 function renderItemDetail() {
@@ -907,6 +1016,12 @@ $('strategy-select').addEventListener('change', event => dispatch('setStrategy',
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
 $('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
+$('review-selected-sale').addEventListener('click', openSelectedSale);
+$('clear-selected-sale').addEventListener('click', () => { clearSelectedSale(); render(true); });
+$('selected-sale-confirm').addEventListener('click', confirmSelectedSale);
+$('selected-sale-dialog').addEventListener('close', closeSelectedSale);
+$('selected-sale-dialog').addEventListener('cancel', closeSelectedSale);
+$('import-save').addEventListener('click', clearSelectedSale);
 $('sell-safe').addEventListener('click', openSafeSalePreview);
 $('safe-sale-confirm').addEventListener('click', confirmSafeSale);
 $('safe-sale-dialog').addEventListener('close', closeSafeSalePreview);
@@ -950,6 +1065,8 @@ window.addEventListener('popstate', closeSafeSalePreview);
 window.addEventListener('pagehide', () => { closeSafeSalePreview(); closeWeaponCommission(); pageActive = false; releaseLease(); pump.reset(); });
 window.addEventListener('pageshow', () => { pageActive = true; pump.reset(); if (!handoff) ownership.resume(); });
 window.addEventListener('popstate', closeWeaponCommission);
+window.addEventListener('popstate', clearSelectedSale);
+window.addEventListener('pagehide', clearSelectedSale);
 document.addEventListener('visibilitychange', () => {
   lastFrame = performance.now(); pump.reset();
   if (document.hidden) { save(true); if (!prefs.backgroundIdle) releaseLease(); }

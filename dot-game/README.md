@@ -13,6 +13,11 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
+
+## v0.12 development candidate — 2026-10-26 05:00 UTC
+
+Adds intentional exact-item multi-selection and reviewed batch sale, without changing conservative automatic cleanup, loot/combat rules, prices or saves. See docs/SELECTED-SALE.md (SELECTED-SALE.md from this docs directory). Final aggregate921/921 tests and four runtime syntax checks pass. Independent acceptance reproduces90 naturally earned baseline-identical victories and exact selected-batch/singleton proceeds. A checkbox keyboard-focus defect was corrected before this pass. Backup and browser acceptance remain pending. Public v0.11 remains accepted at recovery `61bd11e904e2aa1ea152e37deb461714df08e139`; do not treat this candidate as a published release.
+
 Version 0.11 is published and bounded-desktop accepted at https://gggodlin.github.io/play/hv-v3-dot/ . Complete accepted source `b8b3a696235210ae1e21a60c14c0379c459dd4ac` was backed up and exact-readback verified before website commit `723b69d8f52a130d0a536544ba9dcabe6b5dfdf1`. Exact Pages run `40269241579` succeeded; HTTP6 returned six200 responses with exact frozen runtime byte/SHA256 matches. Runtime remains unchanged from `98b74deb09e2165b8f6f31f27b07a72532c01beb`.
 
 The actual stable-root smoke retained the original level20/HP rank1 profile, displayed the locked level25 next rank correctly, completed three ordinary stage3 victories and safely returned to camp near inventory capacity. Reload retained AP19/20, HP1090,84 wins and inventory116. A normal exact-ID safe-sale preview sold two proven downgrades for152 credits; final reload left gold8880, inventory114 and Start enabled. Candidate level25/rank2 progress did not mix with the root profile. See docs/BROWSER-QA-V011.md for exact observations and limits.

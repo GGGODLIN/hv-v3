@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.11 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.12 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -77,6 +77,7 @@
       <div class="section-heading"><div><span class="eyebrow">THE SPOILS</span><h2>遠征戰利品</h2></div><span id="inventory-count" class="badge">0</span></div>
       <p class="panel-description">屬性評分不含特效效益；不同武器路線，各有取捨。</p>
       <div class="loot-tools"><select id="slot-filter" aria-label="篩選裝備部位"><option value="all">全部部位</option><option value="weapon">武器</option><option value="armor">護甲</option><option value="accessory">飾品</option></select><select id="sort-select" aria-label="排序戰利品（屬性評分不含特效）"><option value="new">最新取得</option><option value="power">屬性評分</option><option value="level">等級優先</option></select></div>
+      <section class="selected-sale-tools" aria-label="自行選取出售"><p>勾選要出售的裝備，再逐件預覽。鎖定品不會被選取；不會依評分自動挑選。</p><p id="selected-sale-status" role="status" aria-live="polite"></p><div><button id="review-selected-sale" class="secondary-button" disabled>預覽自選出售</button><button id="clear-selected-sale" class="secondary-button" disabled>清除選取</button></div></section>
       <div id="inventory-list" class="inventory-list"></div>
       <section class="safe-loot-controls" aria-label="安全戰利品整理">
         <label class="safe-loot-toggle" for="auto-sell-toggle"><input id="auto-sell-toggle" type="checkbox" aria-describedby="auto-sell-description"><span>安全自動出售</span><strong id="auto-sell-state">關 · 預設</strong></label>
@@ -91,6 +92,7 @@
   <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。支援背景線上掛機；關閉後不計離線收益。</span><span id="tab-status"></span></footer>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
+<dialog id="selected-sale-dialog" class="safe-sale-dialog" aria-labelledby="selected-sale-title" aria-describedby="selected-sale-summary"><div class="dialog-heading"><h2 id="selected-sale-title">確認自行選取出售</h2><button data-close="selected-sale-dialog" aria-label="關閉自選出售預覽">✕</button></div><p id="selected-sale-summary" class="safe-sale-summary"></p><ol id="selected-sale-list" class="safe-sale-list"></ol><p id="selected-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="selected-sale-dialog" class="secondary-button" autofocus>取消，保留裝備</button><button id="selected-sale-confirm" class="primary-button" disabled>確認自選出售</button></div></dialog>
 <dialog id="safe-sale-dialog" class="safe-sale-dialog" aria-labelledby="safe-sale-title" aria-describedby="safe-sale-summary"><div class="dialog-heading"><h2 id="safe-sale-title">確認安全整理</h2><button data-close="safe-sale-dialog" aria-label="關閉整理預覽">✕</button></div><p id="safe-sale-summary" class="safe-sale-summary"></p><ol id="safe-sale-list" class="safe-sale-list"></ol><p id="safe-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="safe-sale-dialog" class="secondary-button" autofocus>取消，返回背包</button><button id="safe-sale-confirm" class="primary-button" disabled>確認出售</button></div></dialog>
 <dialog id="commission-dialog" class="commission-dialog" aria-labelledby="commission-title" aria-describedby="commission-delivery">
   <div class="dialog-heading"><h2 id="commission-title">確認武器委託</h2><button data-close="commission-dialog" aria-label="關閉委託預覽">✕</button></div>

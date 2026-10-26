@@ -1,5 +1,10 @@
 # Current status
 
+## v0.12 development candidate — 2026-10-26 05:00 UTC
+
+Adds intentional exact-item multi-selection and reviewed batch sale, without changing conservative automatic cleanup, loot/combat rules, prices or saves. See docs/SELECTED-SALE.md (SELECTED-SALE.md from this docs directory). Final aggregate921/921 tests and four runtime syntax checks pass. Independent acceptance reproduces90 naturally earned baseline-identical victories and exact selected-batch/singleton proceeds. A checkbox keyboard-focus defect was corrected before this pass. Backup and browser acceptance remain pending. Public v0.11 remains accepted at recovery `61bd11e904e2aa1ea152e37deb461714df08e139`; do not treat this candidate as a published release.
+
+
 ## v0.11 published and stable-root accepted — 2026-10-26 04:32 UTC
 
 Version 0.11 is published and bounded-desktop accepted at https://gggodlin.github.io/play/hv-v3-dot/ . Complete accepted source `b8b3a696235210ae1e21a60c14c0379c459dd4ac` was backed up and exact-readback verified before website commit `723b69d8f52a130d0a536544ba9dcabe6b5dfdf1`. Exact Pages run `40269241579` succeeded; HTTP6 returned six200 responses with exact frozen runtime byte/SHA256 matches. Runtime remains unchanged from `98b74deb09e2165b8f6f31f27b07a72532c01beb`.

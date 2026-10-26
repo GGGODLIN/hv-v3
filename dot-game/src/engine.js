@@ -429,6 +429,62 @@ export function previewSafeSale(s) {
  * Pure exact-item preview: predicted ID is not allocated until an accepted buy.
  * Retain the original five-slot expedition reserve after immediate delivery.
  */
+// Explicit manual selection, not a safe-sale classifier. Quality, family and
+// score never choose a sale here; the UI must ask for these exact selected IDs.
+function selectedSaleIds(raw) {
+  if(!Array.isArray(raw)||Object.getPrototypeOf(raw)!==Array.prototype||!raw.length||raw.length>INVENTORY_LIMIT
+    ||Reflect.ownKeys(raw).length!==raw.length+1)return null;
+  const ids=[];
+  for(let i=0;i<raw.length;i++){
+    const entry=Object.getOwnPropertyDescriptor(raw,String(i));
+    if(!entry?.enumerable||!Object.hasOwn(entry,'value')||typeof entry.value!=='string'||!entry.value||entry.value.length>100)return null;
+    ids.push(entry.value);
+  }
+  return new Set(ids).size===ids.length?ids:null;
+}
+function selectedSaleItem(item) {
+  if(hasUnknownSaleMetadata(item))return false;
+  return ['id','name','slot','quality','level','power','stats','locked'].every(key=>Object.hasOwn(item,key))
+    &&typeof item.id==='string'&&item.id.length>0&&item.id.length<=100
+    &&typeof item.name==='string'&&item.name.length<=100
+    &&SLOTS.includes(item.slot)&&QUALITY.includes(item.quality)
+    &&Number.isInteger(item.level)&&item.level>=1&&item.level<=1000
+    &&Number.isFinite(item.power)&&item.power>=0&&item.power<=1000000
+    &&typeof item.locked==='boolean'&&item.stats&&typeof item.stats==='object';
+}
+/** Pure, detached quote for an intentional batch. Bind the full selected items,
+ * equipped comparison context and balance; stale consent is never refreshed by
+ * the action. Pending items are not selectable, but retain existing refill order.
+ */
+export function previewSelectedSale(s, requestedIds) {
+  const unavailable=reason=>({available:false,reason,items:[],total:0,goldAfter:finite(s?.hero?.gold),quoteBasis:null});
+  try {
+    const ids=selectedSaleIds(requestedIds);
+    if(!ids)return unavailable('請逐件選擇要出售的裝備；清單不可空白、重複或無效。');
+    if(s.mode!=='town')return unavailable('請先回營，再預覽勾選出售。');
+    if(!Array.isArray(s.inventory)||s.inventory.length>INVENTORY_LIMIT||!Array.isArray(s.pendingLoot)
+      ||!s.equipment||!s.hero||!Number.isFinite(s.hero.gold)||s.hero.gold<0||s.hero.gold>1e12)return unavailable('裝備或交易資料無效，未建立出售清單。');
+    const equipped=SLOTS.map(slot=>s.equipment[slot]);
+    if(equipped.some((item,index)=>!selectedSaleItem(item)||item.slot!==SLOTS[index]))return unavailable('比較裝備資料無效，未建立出售清單。');
+    const held=[...equipped,...s.inventory,...s.pendingLoot];
+    const heldIds=held.map(item=>item&&typeof item==='object'?Object.getOwnPropertyDescriptor(item,'id')?.value:undefined);
+    if(heldIds.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(heldIds).size!==heldIds.length)return unavailable('裝備識別資料無效，未建立出售清單。');
+    const items=[];
+    for(const id of ids){
+      const item=s.inventory.find(held=>Object.getOwnPropertyDescriptor(held,'id')?.value===id);
+      if(!selectedSaleItem(item)||item.locked)return unavailable('選擇包含已鎖定、已裝備、待領、遺失或不支援的裝備；整批未出售。');
+      const value=itemSalePrice(item);
+      if(!Number.isSafeInteger(value)||value<1)return unavailable('出售價格無效，未建立出售清單。');
+      const detached=JSON.parse(JSON.stringify(item)),currentEquipment=JSON.parse(JSON.stringify(s.equipment[item.slot]));
+      items.push({id:item.id,name:item.name,slot:item.slot,quality:item.quality,value,item:detached,currentEquipment});
+    }
+    const total=items.reduce((sum,item)=>sum+item.value,0),goldAfter=s.hero.gold+total;
+    if(!Number.isSafeInteger(total)||!Number.isFinite(goldAfter)||goldAfter>1e12)return unavailable('金幣超過可保存上限，整批未出售。');
+    const quoteBasis=JSON.stringify([ids,items.map(entry=>entry.item),equipped,s.hero.gold,total]);
+    if(quoteBasis.length>1048576)return unavailable('出售資料過長，未建立出售清單。');
+    return {available:true,reason:'',items,total,goldAfter,quoteBasis};
+  } catch {return unavailable('裝備或交易資料無效，未建立出售清單。');}
+}
 export function previewWeaponCommission(s, family) {
   const unavailable=reason=>({family:typeof family==='string'?family:null,item:null,price:null,goldAfter:null,available:false,reason,quoteBasis:null,currentWeapon:null});
   try {
@@ -721,6 +777,24 @@ export function act(s, action, payload) {
     if(typeof payload!=='boolean'){log(s,'自動出售設定無效，未變更。');return s;}
     if(payload)s.autoSell=true;else delete s.autoSell;
     log(s,payload?'已開啟安全自動出售：只檢查之後新掉落的低品質裝備；既有背包不變。':'已關閉自動出售；之後掉落保留。');
+    return s;
+  }
+  if(action==='sellSelected'){
+    // No externally supplied item/price/total is trusted. Even malformed or stale
+    // confirmation is a complete no-op, including logs, timing and RNG.
+    let ids,quoteBasis;
+    try {
+      if(!payload||typeof payload!=='object'||Array.isArray(payload)||![Object.prototype,null].includes(Object.getPrototypeOf(payload)))return s;
+      const fields=Object.getOwnPropertyDescriptors(payload),keys=Reflect.ownKeys(payload);
+      if(keys.length!==2||!['ids','quoteBasis'].every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value')))return s;
+      ids=selectedSaleIds(fields.ids.value);quoteBasis=fields.quoteBasis.value;
+      if(!ids||typeof quoteBasis!=='string'||quoteBasis.length>1048576)return s;
+    }catch{return s;}
+    const preview=previewSelectedSale(s,ids);
+    if(!preview.available||preview.quoteBasis!==quoteBasis)return s;
+    const selected=new Set(ids);
+    s.hero.gold=preview.goldAfter;s.inventory=s.inventory.filter(item=>!selected.has(item.id));refillPending(s);
+    log(s,`勾選出售 ${ids.length} 件裝備 · +${preview.total} 金幣；僅處理本次確認的裝備。`);
     return s;
   }
   if(action==='sellSafe'){

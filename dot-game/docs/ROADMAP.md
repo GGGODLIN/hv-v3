@@ -66,3 +66,6 @@ Introduce the first original-research-supported AP abilities: rank1 HP Tank, MP 
 
 ## v0.11 chosen slice
 Extend the three researched ability lines to their full original rank tables, giving visible level25/30 milestones and later gates without inventing more low-level scarcity. Show incremental next-rank cost separately from cumulative refund; upgrades retain slot state and never stack prior rank totals. Preserve exact rank0/1 gameplay, validate new optional rank data strictly and measure natural earned progression. This is three completed lines, not a complete HV tree; larger systems remain future work.
+
+## v0.12 chosen slice
+Actual browser progression repeatedly filled the inventory and required many singleton sales. Add deliberate per-item multi-selection with exact reviewed batch consent, clear comparison and atomic rejection of stale selections. Do not widen safe-sale heuristics or choose items by score. The player decides which tradeoffs to discard; quality, pricing, rewards, inventory limit and combat stay unchanged.
