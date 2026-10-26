@@ -1,6 +1,6 @@
 # v0.21 acceptance record
 
-Status: source-tested candidate; browser/public acceptance pending.
+Status: **bounded candidate browser accepted at2026-10-26 16:04UTC; root publication pending**.
 
 Three camp target policies, pure current target explanation and scene/card marker. Default first-alive preserves existing combat. No new damage formula, original-HV AI, enemy tuning, reward or economic rule.
 
@@ -10,4 +10,4 @@ Natural measurement:240 earned acquisition wins,720 paired test wins. Caster-fir
 
 Audit caught and repaired optimistic selector display on failed writer-lease dispatch. Historical UI harness changes only inject the new pure view, set explicit activefight fixtures and update displayedversion assertions; no behavioral assertion removed.
 
-Remaining gates: exact-source backup/readback, candidate CI/HTTP/browser, acceptance-source backup, root CI/HTTP/smoke and final receipt. Prior accepted v0.20 remains public until these gates complete.
+Source0e6a165a8814d1339b85bf2e10eee75cfe86c36b exactreadback preceded candidate4b13eeed2a4515009ea5151b1f18db27cd06ab79, Pages40354108762success and sixHTTP200 byte/hashmatches. Actual browser campselection/reload/readonly/battlelock/second-position caster targeting and three normal wins passed; see BROWSER-QA-V021.md. Remaining: acceptance-source backup, root CI/HTTP/smoke and final receipt. Prior acceptedv0.20 remains public until root gates complete.

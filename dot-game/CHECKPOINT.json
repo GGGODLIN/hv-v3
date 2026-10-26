@@ -1,6 +1,6 @@
 {
-  "checkpoint": "v0.21-source-tested-candidate",
-  "status": "source-tested-browser-pending",
+  "checkpoint": "v0.21-browser-accepted",
+  "status": "bounded-desktop-candidate-accepted-root-pending",
   "base_accepted_recovery": "ee44bf5b2e270e9f71dc62a5567fe7f82053e93b",
   "accepted_site": "816ed14836a62be992a8f75e7b29258cd03a2009",
   "source_tests_passed": 1341,
@@ -9,8 +9,8 @@
   "natural_policy_trials": 720,
   "files": {
     "README.md": {
-      "bytes": 4099,
-      "sha256": "c5609f79d825db8f8743b6103c56d2bf768a1e36dc5b6156568893057fb620f3"
+      "bytes": 4198,
+      "sha256": "a3358d23a779799ae764d9825b4a241c2e837f0971dca2543523966ea9b91f94"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -61,8 +61,8 @@
       "sha256": "1a43a215359650eec6b6bb295c305574e937b75aad9897e5dafc8fa565df07a8"
     },
     "docs/ACCEPTANCE-V021.md": {
-      "bytes": 1409,
-      "sha256": "719a763847a1439f73d7a6b69317e2dc2666f2e762633722d8417121b2349d06"
+      "bytes": 1693,
+      "sha256": "1ff34f354872064612d28078ef298b8a7ec64fbda42415460c4a202775498f32"
     },
     "docs/ACCEPTANCE-V03.md": {
       "bytes": 7790,
@@ -155,6 +155,10 @@
     "docs/BROWSER-QA-V020.md": {
       "bytes": 5506,
       "sha256": "309050738fe40d3bea1a97b7d6b05ec4e385b20641d4d9fdc9b9971b5c31ce99"
+    },
+    "docs/BROWSER-QA-V021.md": {
+      "bytes": 3953,
+      "sha256": "b1c6dd408f9ff1ad36e28349a023d55a9dd2764a4cad991c3583e4d8c146ede7"
     },
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
@@ -301,8 +305,8 @@
       "sha256": "3920b92b149e527c205c651eab1c3af54654d014e47ffc2d700c0ec24d96b2ef"
     },
     "docs/RELEASES.md": {
-      "bytes": 37719,
-      "sha256": "9a765296acc754387f6b203077f185fbd0802655f7a2665fc232fb9c218cbfae"
+      "bytes": 37878,
+      "sha256": "668b014adb3eed0bc85647df0b61bfba5e3c3420367969d3a66da9794fdb9ca3"
     },
     "docs/ROADMAP.md": {
       "bytes": 16682,
@@ -317,12 +321,12 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 1464,
-      "sha256": "161045c54991a693649097f8943d1cb2927d209902a883d298edcfde81da9ffc"
+      "bytes": 1662,
+      "sha256": "06055c6b7300997565a8f66cd30b8529883adb648cdb5ee5ba4e880d8318dd8b"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
-      "sha256": "a26e3c24821dc4e1655dd2d14ad2dfefb12fae0cebce7ae5f70c785aa149ab87"
+      "sha256": "7735ef4c3f672f231cb9f15d013d640ac70c892368d675acc96f025a59b7d175"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4754,
@@ -764,5 +768,9 @@
       "bytes": 15018,
       "sha256": "64e30821a397b1897f5a7f6fff8be5af21664bb771446b218525e078048d0d2d"
     }
-  }
+  },
+  "runtime_source": "0e6a165a8814d1339b85bf2e10eee75cfe86c36b",
+  "candidate_site": "4b13eeed2a4515009ea5151b1f18db27cd06ab79",
+  "candidate_ci_run": 40354108762,
+  "browser_acceptance_utc": "2026-10-26T16:04:00Z"
 }

@@ -2,7 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Development candidate: v0.21 — target priorities.** Camp choices keep the default first-alive order, or prioritize persistent caster identity / lowest current HP. These automatic policies are independent adaptations, not original-HV AI. See [target rules](docs/TARGET-PRIORITY-GUIDE.md). Tests and browser/public acceptance are recorded separately in [status](docs/STATUS.md). Latest accepted public release remains v0.20 until all release gates pass.
+**Browser-accepted candidate: v0.21 — target priorities; root publication pending.** Camp choices keep the default first-alive order, or prioritize persistent caster identity / lowest current HP. These automatic policies are independent adaptations, not original-HV AI. See [target rules](docs/TARGET-PRIORITY-GUIDE.md). Tests and browser/public acceptance are recorded separately in [status](docs/STATUS.md). Latest accepted public release remains v0.20 until all release gates pass.
 
 ## Play
 
@@ -16,7 +16,7 @@ Export saves periodically before clearing browser data. The game has no real-mon
 
 ## Restore and run
 
-For this development candidate, restore the exact verified v0.21 source checkpoint only after its backup receipt exists. Until candidate acceptance, the accepted recovery remains v0.20 **`ee44bf5b2e270e9f71dc62a5567fe7f82053e93b`**, `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. Source candidates and public test pages are not automatically accepted releases.
+Runtime source **`0e6a165a8814d1339b85bf2e10eee75cfe86c36b`** is exact-readback verified and candidatebrowser accepted. This acceptance receipt must also be backed up before rootpromotion. Until candidate acceptance, the accepted recovery remains v0.20 **`ee44bf5b2e270e9f71dc62a5567fe7f82053e93b`**, `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. Source candidates and public test pages are not automatically accepted releases.
 
 From the restored `dot-game/` directory (Node.js and Python 3 required):
 

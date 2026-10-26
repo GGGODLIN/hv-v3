@@ -6,7 +6,7 @@ v0.21 adds three **independently designed idle-game policies**, not a claim that
 
 - **依序集火** (default): attack the first living enemy in the existing encounter order. This preserves the previous targeting behavior exactly.
 - **施法者優先**: choose the first living enemy with the mixed physical/magical encounter identity; if none survive, use existing order. A caster still counts while its *next* action is physical. The policy does not forecast a cast or wait for a magic telegraph.
-- **低血量收尾**: choose the living enemy with the lowest **current absolute HP**, not lowest HP percentage or estimated hits to kill. Equal HP uses existing order. Enemy counters or damage-over-time may naturally change which enemy is lowest before the next player attack.
+- **低血量收尾**: choose the living enemy with the lowest **current absolute HP**, not lowest HP percentage or estimated hits to kill. Equal HP uses existing order. Counterattacks or damage-over-time may naturally change which enemy is lowest before the next player attack.
 
 Only the save-owning tab may change this choice, and only at camp. The chosen policy survives a normal save/reload. The default is omitted from saved data; older saves without the field retain their original behavior. Unknown explicitly supplied values are rejected rather than silently turned into a policy. This does not promise that older game builds can load newer saves; export a personal save before downgrading.
 
