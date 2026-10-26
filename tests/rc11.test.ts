@@ -36,11 +36,11 @@ describe('rc11 map scrolls to the current floor', () => {
 });
 
 describe('rc11 abyss15 preset', () => {
-  it('is not below abyss10 in level, best 15, rule-compliant blade', () => {
+  it('is not below abyss10 in level, best 15 (cp7-rc3 re-export: Lv13 bulwark)', () => {
     const a10 = presets.abyss10!, a15 = presets.abyss15!;
     expect(level(a15.player)).toBeGreaterThanOrEqual(level(a10.player));
     expect((a15.record as { best: number }).best).toBe(15);
-    expect(level(a15.player)).toBe(17);
+    expect(level(a15.player)).toBe(13);
   });
 });
 

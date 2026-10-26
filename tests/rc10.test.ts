@@ -12,7 +12,7 @@ const mem = (init: Record<string, string> = {}): KV & { m: Map<string, string> }
 };
 
 describe('rc10 preset load fully replaces the save', () => {
-  it('postF20-blade over an old save (abyss15 + bulwark 17 / 2 trips, mid-run, 9 main trips) → Lv12 HP740 potions 3, empty record', () => {
+  it('postF20-blade over an old save (abyss15 + bulwark 17 / 2 trips, mid-run, 9 main trips) → Lv14 HP784 potions 3 (cp7-rc3 re-export), empty record', () => {
     const old = presets.abyss15!;
     const kv = mem({
       [SAVE_KEY]: JSON.stringify({ v: 1, player: old.player, run: { floor: 3 }, settings: { speed: 4, skipAnim: true }, stats: { runs: 9, bestFloor: 20, clears: 3 } }),
@@ -20,8 +20,8 @@ describe('rc10 preset load fully replaces the save', () => {
     });
     applyPreset(kv, presets['postF20-blade']!);
     const s = loadFrom(kv)!;
-    expect(level(s.player)).toBe(12);
-    expect(derive(s.player).hp).toBe(740);
+    expect(level(s.player)).toBe(14);
+    expect(derive(s.player).hp).toBe(784);
     expect(Object.values(s.player.potions).reduce((a, b) => a + b, 0)).toBe(3);
     expect(s.run).toBeNull(); expect(s.stats.runs).toBe((presets['postF20-blade']!.player as { prog?: { trips?: number } }).prog?.trips ?? 0);
     const rec = loadRecord(kv.getItem(ABYSS_KEY));
@@ -33,7 +33,7 @@ describe('rc10 preset load fully replaces the save', () => {
   });
   it('playtest #4: town sortie count matches the banner trip number (runs = prog.trips)', () => {
     const pr = presets['postF20-oc']!; const s = applyPreset(mem(), pr);
-    expect(s.stats.runs).toBe((pr.player as { prog: { trips: number } }).prog.trips); expect(s.stats.runs).toBe(5);
+    expect(s.stats.runs).toBe((pr.player as { prog: { trips: number } }).prog.trips); expect(s.stats.runs).toBe(3); // cp7-rc3 re-export
   });
   it('stripPreset drops only preset, so a reload keeps progress', () => {
     expect(stripPreset('?cp6&debug&preset=postF20-blade')).toBe('?cp6&debug');
