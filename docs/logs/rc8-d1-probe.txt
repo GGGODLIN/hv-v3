@@ -1,0 +1,8 @@
+blade SIM N=64: lv med 13 HP med 742 MP med 27 potions med 3 | d1 battle win counter 73% attack-only 59% dmg taken/turn 197 | trip1 died at d1 7/64, trip1 median cleared 7
+blade PRESET seed 29: lv 12 HP 722 MP 27 potions {"health":0,"mana":0,"spirit":0} | d1 battle win counter 74% attack-only 80% dmg taken/turn 174
+oc SIM N=64: lv med 13 HP med 766 MP med 30 potions med 2 | d1 battle win counter 95% attack-only 70% dmg taken/turn 136 | trip1 died at d1 2/64, trip1 median cleared 9
+oc PRESET seed 43: lv 13 HP 816 MP 28 potions {"health":2,"mana":0,"spirit":1} | d1 battle win counter 100% attack-only 94% dmg taken/turn 98
+arcane SIM N=64: lv med 13 HP med 722 MP med 40 potions med 3 | d1 battle win counter 90% attack-only 0% dmg taken/turn 314 | trip1 died at d1 5/64, trip1 median cleared 12
+arcane PRESET seed 63: lv 12 HP 740 MP 39 potions {"health":1,"mana":0,"spirit":0} | d1 battle win counter 100% attack-only 4% dmg taken/turn 246
+bulwark SIM N=64: lv med 13 HP med 728 MP med 27 potions med 5 | d1 battle win counter 69% attack-only 56% dmg taken/turn 150 | trip1 died at d1 4/64, trip1 median cleared 20
+bulwark PRESET seed 39: lv 12 HP 722 MP 44 potions {"health":1,"mana":1,"spirit":0} | d1 battle win counter 34% attack-only 6% dmg taken/turn 197
