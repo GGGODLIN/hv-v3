@@ -1,5 +1,16 @@
 # Current status
 
+## v0.14 published and stable-root accepted — 2026-10-26 07:29 UTC
+
+Version0.14 is published at https://gggodlin.github.io/play/hv-v3-dot/ . Accepted source `cc26b628b97fcd665051c3410858ad93195fb27a` was backed up/readback verified before website `a8bc6a82da6f476c6a0b2e53320c95f7ff106fe8`. Exact Pages40285780632 succeeded; HTTP6 returned six200 exact frozen-runtime byte/SHA256 matches. Runtime remains `65e02542472fc4cf9eb9592f2eab1ababd777b39`. Only four root runtime files changed; loot/session and3876non-root website blobs were preserved.
+
+Actual candidate swaps retained all120 owned items with only the three explicitly saved lock changes; exact cancel/clear/overwrite, reload and takeover passed. Root preserved its own level20 profile, saved original A and owned defensive B, switched back through the exact preview, completed a normal stage3 win and reloaded atgold9973/items113/wins88/HP1090/AP19of20. See docs/BROWSER-QA-V014.md (BROWSER-QA-V014.md in docs) for actual versus Node evidence and explicit capacity/device/console limits.
+
+The exact verified source commit containing this publication receipt is the latest accepted full-source restore (134files/133payloads). Prior v0.13 recovery `f707a916e79cd8fbd87ba5dae2d90dc598047e23` remains available. This receipt changes docs/manifest only;1081tests/foursyntax are reused without runtime reruns or another deployment. Source backup does not restore personal browser saves, Library files, credentials or schedules.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.14 desktop accepted; root promotion pending — 2026-10-26 07:23 UTC
 
 Actual cloud-browser gear-only presets passed bounded acceptance: explicit save locks, exact three-item preview, cancel/apply, clear retaining locks, overwrite, shared references, import/reload and read-only takeover. A normal export proved all120 owned items retained with only three intended false→true locks, while hero/gold/RNG/abilities/tactics stayed unchanged. Two real victories followed ordinary inventory cleanup. See docs/BROWSER-QA-V014.md (BROWSER-QA-V014.md in docs) for measurements, capacity and device limits.

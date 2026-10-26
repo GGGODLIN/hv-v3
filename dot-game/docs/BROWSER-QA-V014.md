@@ -33,3 +33,11 @@ An actual desktop screenshot showed the three cards, exact item IDs, wrap-safe l
 Documented `tab.dev.logs` warn/error inspection returned no app-origin entries after explicitly excluding only known chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js metadata noise. This is bounded captured-log inspection, not an exhaustive console guarantee.
 
 Malformed imports, getters, missing references, full120inventory, all disposal paths and exhaustive stale mutations are Node coverage rather than automatically browser coverage. Actual takeover, cancel/clear/overwrite/apply, ID preservation, import/reload and combat were observed. No OS-suspension, exhaustive lifecycle or personal browser-save backup claim is made.
+
+## Final stable-root smoke — 2026-10-26 07:29 UTC
+
+Accepted-source checkpointcc26b628b97fcd665051c3410858ad93195fb27a was backed up/readback verified before root sitea8bc6a82da6f476c6a0b2e53320c95f7ff106fe8. Exact Pages40285780632 succeeded and HTTP6 returned six200 exact byte/SHA256 matches. Only four root runtime files changed; loot/session and3876non-root website blobs were preserved.
+
+Actual root tab26 loadedv0.14 while retaining its own original Lv20/gold9528/inventory117 and no candidate presets. Saved A from the original three items; manually equipped ownedarmor42/accessory8 while keeping club152 and saved B. Exact A preview showed same attack242.38, HP1140→1090, mitigation28.09%→8.98%, block10.83%→4%; confirmed swap retained itemcount and original activebuild. The same five deliberately selected ordinary test items were reviewed and sold for285credits, leaving112items/gold9813; preset references remained protected.
+
+A real stage3 win took11.6seconds:1097basic+451skill actualHPremoved,46HPlost/min97.5%, three stuns, no counter. Retreat/reload retained Lv20, gold9973, inventory113, wins88, HP1090, AP19/20, A and B with A active. Candidate A/C progress did not replace the root A/B profile. All candidate tabs38/39 were closed and root26 left atcamp as Deliverable. Bounded warn/error inspection again had no app-origin entries after the same explicit extension-noise exclusion. No extra narrow/device claim is made.

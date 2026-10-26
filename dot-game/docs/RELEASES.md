@@ -1,5 +1,13 @@
 # Published releases
 
+## v0.14 — published, 2026-10-26 07:29 UTC
+
+- Three gear-only camp presets store existing IDs; exact atomic preview/swap, explicit save-lock and referenced-item protection. Original broader Equipment Sets/Persona remain distinct; combat/loot/economy coefficients unchanged.
+- Runtime65e02542472fc4cf9eb9592f2eab1ababd777b39; accepted pre-publicationcc26b628b97fcd665051c3410858ad93195fb27a verified first.1081tests/foursyntax pass; independent31engine/16UI tests include90naturalwins, full120backpack and three post-swap matched wins.
+- Websitea8bc6a82da6f476c6a0b2e53320c95f7ff106fe8, exactPages40285780632SUCCESS/HTTP6exact. Candidatef3530c6b2e0bcc19b279dda4ad3bbbe5c54ea329 retained;3876non-root site blobs unchanged.
+- Actual UI export preserves all120owneditems except three intentional locks. Root separateprofile presetA/B, realwin and reload atLv20/gold9973/items113/wins88 passed. See BROWSER-QA-V014.md for explicit bounds.
+- Latest accepted restore is this verified receipt commit,134files/133payloads; priorv0.13f707a916e79cd8fbd87ba5dae2d90dc598047e23 preserved. No personal-save/Library/account recovery claim.
+
 ## v0.13 — published, 2026-10-26 06:30 UTC
 
 - Original-shaped1H Counter-Attack damage subset: conditional sourced chance/proficiency caps, shared reserved-player-turn budget, dedicated counter feedback/reporting and exact death/wave settlement. Partial-defense eligibility and current-family classification are explicit adaptations; counter-stun/OC/OS remain absent.
