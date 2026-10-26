@@ -55,4 +55,9 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
     const c1 = q(s2, 0.5) - q(f, 0.5) >= 2, c2 = b25(s2) - b25(f) >= 0.1, c3 = mean(s2) - mean(f) >= 2; ok &&= c1 || c2 || c3;
     console.log(`  P2 ${sc}: (1) median ${q(f, 0.5)}→${q(s2, 0.5)} ${c1 ? '✓' : '✗'} | (2) d25 boss beaten ${pct(b25(f))}→${pct(b25(s2))} (+${(100 * (b25(s2) - b25(f))).toFixed(1)}pp) ${c2 ? '✓' : '✗'} | (3) mean ${mean(f).toFixed(2)}→${mean(s2).toFixed(2)} (+${(mean(s2) - mean(f)).toFixed(2)}) ${c3 ? '✓' : '✗'}`); }
   console.log(`  CHECK P2 every school passes (1) median +2 or (2) d25 boss +10pp or (3) mean +2 (A+B pooled) ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
+// rc4 V (暫定, producer 2026-10-26): naive trip-1 cleared p25 ≥ 0.7 × median for every school, A+B pooled.
+{ let ok = true; const parts: string[] = [];
+  for (const sc of SCH) { const f = rows.filter((r) => r.sc === sc).flatMap((r) => r.first); const r = q(f, 0.25) / Math.max(1, q(f, 0.5)); ok &&= r >= 0.7; parts.push(`${sc} p10 ${q(f, 0.1)} p25 ${q(f, 0.25)} med ${q(f, 0.5)} ratio ${r.toFixed(2)}`); }
+  console.log(`  ${parts.join(' | ')}`);
+  console.log(`  CHECK V trip-1 p25 ≥ 0.7 × median every school (A+B pooled) ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 console.log(all ? '\nCP8 ALL PASS' : '\nCP8 SOME FAIL');
