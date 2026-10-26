@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.21 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.22 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -73,7 +73,7 @@
         <p id="report-empty" class="report-empty">先完成一場遠征，看看這套配裝實際打出了什麼。</p>
         <div id="pinned-report" class="pinned-report" hidden></div>
         <div id="expedition-report-list" class="expedition-report-list"></div>
-        <p id="report-caution" class="report-caution">這是實戰紀錄，不是配裝優劣判定。關卡、出發等級、裝備、戰術或隨機判定不同，都不能直接推論差異由換裝造成；同關也不是受控比較。能力配置不同也會影響結果；戰報未列完整能力配置或出發時反擊條件機率／格擋率，不能藉此識別所有差異成因。可先把最近一次設為基準，再換裝試跑。</p>
+        <p id="report-caution" class="report-caution">這是實戰紀錄，不是配裝優劣判定。關卡、出發等級、裝備、戰術或隨機判定不同，都不能直接推論差異由換裝造成；同關也不是受控比較。可展開出發配置查看實際裝備、啟用能力與政策；未列完整詞綴數值、熟練度或反擊條件機率／格擋率，仍不能識別所有差異成因。可先把最近一次設為基準，再換裝試跑。</p>
         <details class="report-rules"><summary>戰報數字怎麼讀</summary><p>只計遊戲已處理的戰鬥時間，不含營地與通關後休息，不是現實經過秒數。傷害記錄實際扣除的生命，超過剩餘生命的部分不計；承受生命損失是整場累計，不扣回治療量。最低生命比例使用各觀測時點當時的生命上限。</p><p>攻擊總數包含技能攻擊，不含另列的額外反擊；反擊次數包含發起後未造成傷害的嘗試，反擊傷害只計實際扣除生命。治療次數是治療技能，藥水另計，不代表額外回合；特效次數是成功施加／刷新，不是層數或命中率。沒有估算穿透護甲多打多少、暈眩擋下多少傷害，也不換算每秒傷害。中途回營是未完成遠征，不能直接與通關時間相比。</p><p>只保留最近兩次已結束遠征；自動重刷也會更新。比較基準保留一份當下的最近戰報，再按一次會取代基準，不改變戰鬥或存檔。</p></details>
       </section>
       <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>

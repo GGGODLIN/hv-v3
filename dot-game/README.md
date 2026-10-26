@@ -2,7 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Latest verified release: v0.21**, bounded-desktop accepted and published2026-10-26. Choose camp target priorities: preserve existing order, prioritize caster identity, or finish lowest-current-HP enemies. Live text/card/scene cues show the current target and why. These policies are independent idle adaptations, not original-HV AI or universal best choices. [Rules and tradeoffs](docs/TARGET-PRIORITY-GUIDE.md).
+**Development candidate: v0.22 — departure-build report context.** Latest verified public release remains v0.21 (`9998ac34176ab2bc0055e60ca340e7a86a602016`). The new compact policy row and collapsed actual slotted-ability/equipment details record start configuration without changing combat. [Report guide](docs/REPORT-BUILD-GUIDE.md). Browser acceptance and publication are pending; a source candidate is not a published release.
 
 ## Play
 
@@ -16,7 +16,7 @@ Export saves periodically before clearing browser data. The game has no real-mon
 
 ## Restore and run
 
-Accepted complete-source restore: `GGGODLIN/hv-v3`, branch `bot/dot`, pre-publication accepted commit **`0ec1b6ad742ce32d47a7a4619b57e2f19dec010a`**, directory `dot-game/`. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is the newer documentation checkpoint of the same accepted runtime and is preferred after its manifest verifies. Runtime source is `0e6a165a8814d1339b85bf2e10eee75cfe86c36b`, root website `764e43b6736dde7795340a69aa181bf31e2003e0`. A source candidate is not automatically a published game.
+Latest fully accepted complete-source restore is `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/` at **`9998ac34176ab2bc0055e60ca340e7a86a602016`** (v0.21). Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. This v0.22 candidate has a separate full-source snapshot and must not replace that accepted reference until its acceptance ledger passes. Stable website remains `764e43b6736dde7795340a69aa181bf31e2003e0`. A source candidate is not automatically a published game.
 
 From the restored `dot-game/` directory (Node.js and Python 3 required):
 

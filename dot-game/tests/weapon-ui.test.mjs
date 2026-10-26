@@ -221,5 +221,5 @@ test('v0.18 retains the v3 schema and candidate isolation, with version-neutral 
   assert.doesNotMatch(js, /v0\.3 已讀取|請在 v0\.3 繼續/);
   assert.doesNotMatch(js, /save-v4|writer-v4|preferences-v4/);
   assert.match(js, /candidate-\$\{candidatePath\[1\]/);
-  assert.match(html, /v0\.21 · 持續開發/);
+  assert.match(html, /v0\.22 · 持續開發/);
 });

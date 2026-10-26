@@ -252,3 +252,8 @@ Original monster normal attacks are physical (Monster Stats revision63858); Mons
 ## v0.21 automatic targeting boundary
 
 The optional camp target-priority policies are independently designed idle-game adaptations. No original-HV automatic enemy-selection rule, skill, probability or server AI is asserted. The underlying researched attack/proc/defense rules remain unchanged. Persistent caster identity (the existing alternating-pattern enemy), not its immediately upcoming action, drives caster-first; cleanup compares current absolute HP rather than percentages. Counter retaliation and existing damage-over-time retain their own recipients.
+
+
+## v0.22 observation-only adaptation
+
+Start-build report snapshots are independent session feedback, not an original-HV mechanic. Existing validated choices are observed without formula/effect/RNG/reward/save changes. Protection policy does not prove active buff; only slotted Major abilities are reported as enabled configuration.

@@ -283,3 +283,11 @@
 .target-priority-live[hidden] { display: none; }
 .target-priority-row { border-top: 1px solid var(--line); padding-top: .75rem; }
 .target-priority-row select { min-width: 0; width: 100%; }
+
+/* Departure context is compact; the actual loadout stays collapsed by default. */
+.report-build-policy { margin-top: 6px; font-size: 11px; color: #d4e3d8; }
+.report-build-note { margin-top: 4px; font-size: 10px; line-height: 1.6; color: var(--muted); }
+.report-build-details { margin-top: 6px; font-size: 11px; overflow-wrap: anywhere; }
+.report-build-details summary { cursor: pointer; padding: 4px 0; color: #bfd1c5; }
+.report-build-details summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.report-build-list { margin: 5px 0; padding-left: 18px; line-height: 1.7; }

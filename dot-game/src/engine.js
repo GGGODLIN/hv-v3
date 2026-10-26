@@ -292,8 +292,25 @@ const generalMitigation = defender => clamp(finite(defender.mitigation,Math.max(
 // supplied under invented report fields) is never restored or trusted.
 const expeditionFeedback = new WeakMap();
 const reportNumber = value => clamp(finite(value),0,Number.MAX_SAFE_INTEGER);
+// Start-only, bounded observation: retain identifiers, never item/stat graphs or
+// preset references. Freeze now so even the active report owns immutable context.
+function expeditionBuild(s) {
+  let allocation;try{allocation=readAbilityAllocation(s);}catch{allocation={learned:[],slotted:[]};}
+  const abilities=allocation.slotted.slice(0,ABILITY_RULES.majorSlots).map(id=>Object.freeze({id,rank:learnedRank(allocation,id)}));
+  const equipment=SLOTS.map(slot=>{
+    const item=s.equipment?.[slot];
+    return Object.freeze({slot,
+      id:typeof item?.id==='string'&&item.id.length>0&&item.id.length<=100?item.id:null,
+      name:typeof item?.name==='string'&&item.name.length>0?item.name.slice(0,100):'未知裝備',
+      level:Number.isInteger(item?.level)&&item.level>=1&&item.level<=1000?item.level:null,
+      quality:QUALITY.includes(item?.quality)?item.quality:null});
+  });
+  return Object.freeze({targetPriority:validTargetPriority(s.targetPriority)?s.targetPriority:'front',
+    autoProtection:s.autoProtection===true,abilities:Object.freeze(abilities),equipment:Object.freeze(equipment)});
+}
 function copyExpeditionReport(report) {
-  return {...report,weapon:{...report.weapon},startStats:{...report.startStats},
+  return {...report,build:{...report.build,abilities:report.build.abilities.map(entry=>({...entry})),equipment:report.build.equipment.map(entry=>({...entry}))},
+    weapon:{...report.weapon},startStats:{...report.startStats},
     ...(report.protection?{protection:{...report.protection}}:{}),actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
 }
 /** Detached newest-first completed expeditions, at most two for this state in
@@ -305,7 +322,7 @@ export function expeditionReports(s) {
 }
 function beginExpeditionReport(s) {
   const p=stats(s),feedback=expeditionFeedback.get(s)||{active:null,reports:[]};
-  feedback.active={stage:integer(s.stage,1,MAX_STAGE),level:integer(s.hero.level,1,500),
+  feedback.active={stage:integer(s.stage,1,MAX_STAGE),level:integer(s.hero.level,1,500),build:expeditionBuild(s),
     weapon:{family:resolveWeaponFamily(s.equipment.weapon),name:text(s.equipment.weapon?.name,'未知武器')},
     strategy:validStrategy(s.strategy)?s.strategy:'balanced',
     startStats:{attack:reportNumber(p.attack),maxHp:reportNumber(p.maxHp),mitigation:chance(p.mitigation)},

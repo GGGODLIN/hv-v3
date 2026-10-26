@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -1069,6 +1069,7 @@ function expeditionReportCard(report, label) {
   card.append(heading, node('p', 'report-start', `出發第 ${format(report.stage)} 層 · 等級 ${format(report.level)} → 結束 ${format(report.endLevel ?? report.level)} · ${strategy}`));
   card.append(node('p', 'report-weapon', `${family} · ${report.weapon.name}`));
   if (report.startStats) card.append(node('p', 'report-start-stats', `出發面板：攻擊 ${format(report.startStats.attack)} · 生命上限 ${format(report.startStats.maxHp)} · 一般減傷 ${defenseRate(report.startStats.mitigation)}`));
+  card.append(expeditionBuildContext(report.build));
   const metrics = node('dl', 'report-metrics');
   const row = (title, value) => { const entry = node('div', 'report-metric'); entry.append(node('dt', '', title), node('dd', '', value)); metrics.append(entry); };
   row('已處理時間', `${report.elapsed.toFixed(1)} 秒`);
@@ -1081,6 +1082,41 @@ function expeditionReportCard(report, label) {
   row('特效成功施加／刷新', `流血 ${format(report.procs.bleeding)} · 穿透護甲 ${format(report.procs.penetratedArmor)} · 暈眩 ${format(report.procs.stun)}`);
   card.append(metrics);
   return card;
+}
+// Read only the detached departure snapshot, never today's live loadout.
+function expeditionBuildContext(build) {
+  const section = node('div', 'report-build');
+  if (!build || typeof build !== 'object' || Array.isArray(build)) {
+    section.append(node('p', 'report-build-policy', '出發配置未記錄；不以目前配置推測。'));
+    return section;
+  }
+  const target = TARGET_PRIORITIES.find(entry => entry.id === build.targetPriority)?.label || '未記錄';
+  const protection = build.autoProtection === true ? 'ON' : build.autoProtection === false ? 'OFF' : '未記錄';
+  section.append(node('p', 'report-build-policy', `出發政策：${target} · Protection ${protection}`),
+    node('p', 'report-build-note', '政策不代表護盾已生效；有實際施放時另列護盾取捨。'));
+  const details = node('details', 'report-build-details');
+  details.append(node('summary', '', '出發配置詳情 · 已裝配能力／裝備'));
+  const abilities = node('ul', 'report-build-list');
+  if (!Array.isArray(build.abilities)) abilities.append(node('li', '', '已裝配能力：未記錄'));
+  else if (!build.abilities.length) abilities.append(node('li', '', '已裝配能力：無'));
+  else for (const ability of build.abilities.slice(0, 5)) {
+    const known = MAJOR_ABILITIES.find(entry => entry.id === ability?.id);
+    const name = known?.label || '未辨識能力';
+    const maxRank = ability?.id === 'one-handed-damage' ? 3 : 10;
+    const rank = known && Number.isInteger(ability?.rank) && ability.rank > 0 && ability.rank <= maxRank ? ability.rank : '未記錄';
+    abilities.append(node('li', '', `${name} · Rank ${rank} · ID：${known?.id || '未記錄'}`));
+  }
+  const equipment = node('ul', 'report-build-list');
+  const text = value => typeof value === 'string' && value.trim() ? value.slice(0, 160) : '未記錄';
+  for (const slot of ['weapon', 'armor', 'accessory']) {
+    const item = Array.isArray(build.equipment) ? build.equipment.find(entry => entry?.slot === slot) : null;
+    const level = Number.isInteger(item?.level) && item.level > 0 ? item.level : '未記錄';
+    const quality = QUALITY_TIERS.find(tier => tier.name === item?.quality)?.label || '未記錄';
+    equipment.append(node('li', '', `${slotNames[slot]}：${text(item?.name)} · ID：${text(item?.id)} · Lv.${level} · ${quality}`));
+  }
+  details.append(abilities, equipment, node('p', 'report-build-note', '僅記錄出發配置；層數、等級與遭遇不同，不代表最佳配裝或勝負原因。'));
+  section.append(details);
+  return section;
 }
 function renderExpeditionReports() {
   const reports = expeditionReports(state).slice(0, 2);

@@ -109,3 +109,8 @@ Add one clearly telegraphed mixed physical/magical-skill enemy pattern on stage5
 ## v0.21 chosen slice
 
 Give existing mixed-encounter roles a simple camp target-priority decision: default first-alive, caster identity first, or lowest-current-HP cleanup. Deterministic original-order ties, unchanged heal/buff priority, actual-attacker counters and recipient-bound bleed preserve understandable causality. Compare naturally earned profiles across routes without tuning a universal winner; source parity and actual browser choice/reload/ownership checks precede publication. This is an explicit idle adaptation, not a claim to original-HV AI.
+
+
+## v0.22 selected bounded improvement
+
+Close the v0.21 report-context gap: actual start targeting / Protection policies, slotted ability ranks, and equipped identities in collapsed session-only details. Combat and bounded storage unchanged. Observation only, not full loadout replay or causal ranking; browser acceptance and source backup precede promotion.
