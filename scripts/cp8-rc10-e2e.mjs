@@ -55,7 +55,7 @@ for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
   await pg.close(); }
 // P0-4 blade: skill comes off cooldown on a turn with no OC → prompt appears once OC is back
 { const pg = await open('postF20-blade'); await fight(pg);
-  await pg.evaluate(() => { const h = window.hv, s = h.battle, m = s.monsters.find((x) => x.hp > 0); s.monsters = [{ ...m, hp: 1e9, maxHp: 1e9, adb: 1 }]; s.oc = 0; s.cooldowns.vitalStrike = 1; h.target = 0; h.render(); });
+  await pg.evaluate(() => { const h = window.hv, s = h.battle, m = s.monsters.find((x) => x.hp > 0); s.monsters = [{ ...m, hp: 1e9, maxHp: 1e9, adb: 1 }]; s.oc = 0; for (const k of Object.keys(s.cooldowns)) s.cooldowns[k] = 1; /* rc12: kit-agnostic (blade preset is 2H → Great Cleave) */ h.target = 0; h.render(); });
   await w(300); await pg.keyboard.press('KeyF'); await w(1200); await idle(pg);
   R.b0 = await pg.evaluate(() => document.querySelector('[data-skillready]')?.textContent ?? '');
   await pg.evaluate(() => { const h = window.hv; h.battle.oc = 999; h.render(); }); await w(200);

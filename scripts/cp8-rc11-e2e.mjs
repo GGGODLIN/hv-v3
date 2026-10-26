@@ -22,8 +22,8 @@ async function fight(pg) {
   await pg.click(`button[data-node="${ni}"]`); await w(600);
   for (let k = 0; k < 3 && !(await pg.$('.cmdbar')); k++) { const c = await pg.$('[data-continue],[data-fight],[data-modal-ok]'); if (c) await c.click(); await w(400); }
 }
-const look = (pg) => pg.evaluate(() => {  const s = window.hv.battle; const q = document.querySelector('[data-act="skill:shieldBash"]');
-  return { oc: s?.oc ?? null, turn: s?.turn, ready: document.querySelector('[data-skillready]')?.dataset.skillready ?? (document.querySelector('[data-skillhint]')?.textContent.includes('Q·') ? 'shieldBash(hint)' : null), qbtn: !!q?.matches('[data-readybtn].suggest'), win: !!document.querySelector('[data-loot],[data-continue],.result') && !s }; });
+const look = (pg) => pg.evaluate(() => {  const s = window.hv.battle; const q = document.querySelector('[data-readybtn]');
+  return { oc: s?.oc ?? null, turn: s?.turn, ready: document.querySelector('[data-skillready]')?.dataset.skillready ?? (document.querySelector('[data-skillhint]')?.textContent.includes('Q·') ? 'hint' : null), qbtn: !!q?.matches('[data-readybtn].suggest'), win: !!document.querySelector('[data-loot],[data-continue],.result') && !s }; });
 for (const sc of ['blade', 'oc']) {
   const pg = await open('postF20-' + sc); const r = (R[sc] = { seen: null, trace: [] });
   // 4(b): character tab wording
@@ -47,11 +47,11 @@ for (const sc of ['blade', 'oc']) {
       if (!(await pg.evaluate(() => !!window.hv.battle))) break;
       continue;
     }
-    if (x.oc >= 25) { r.seen = x; break; }
+    if ((x.oc >= 25 && x.ready) || x.oc >= 50) { r.seen = x; break; } // rc12: kit cost 25 (1H Shield Bash) or 50 (2H Great Cleave / staff Concussive)
     await pg.keyboard.press('a'); await w(80); await idle(pg); await w(80);
   }
   if (!r.seen) fail.push(`${sc} 4(a) OC never reached 25 by pressing A (${r.trace.join(' ')})`);
-  else if (!r.seen.ready?.includes('shieldBash') || !r.seen.qbtn) fail.push(`${sc} 4(a) no prompt/button at OC ${r.seen.oc}`);
+  else if (!r.seen.ready || !r.seen.qbtn) fail.push(`${sc} 4(a) no prompt/button at OC ${r.seen.oc}`);
   // 4(c): drink until empty by pressing Z (only player input), check label never says 冷卻 while count is 0
   r.pot = [];
   for (let i = 0; i < 40; i++) {

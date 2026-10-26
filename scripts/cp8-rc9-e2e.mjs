@@ -61,7 +61,7 @@ const idle = (pg) => pg.waitForFunction(() => !window.hv.busy, { timeout: 5000 }
   await pg.close(); }
 // P2 blade: prompt when a skill comes off cooldown
 { const { pg } = await enter('postF20-blade');
-  await pg.evaluate(() => { const h = window.hv, s = h.battle, m = s.monsters.find((x) => x.hp > 0); s.monsters = [{ ...m, hp: 1e9, maxHp: 1e9, adb: 1 }]; s.oc = 999; s.cooldowns.mercifulBlow = 1; s.cooldowns.vitalStrike = 1; s.cooldowns.shieldBash = 1; h.target = 0; h.render(); });
+  await pg.evaluate(() => { const h = window.hv, s = h.battle, m = s.monsters.find((x) => x.hp > 0); s.monsters = [{ ...m, hp: 1e9, maxHp: 1e9, adb: 1 }]; s.oc = 999; for (const k of Object.keys(s.cooldowns)) s.cooldowns[k] = 1; /* rc12 kit-agnostic */ h.target = 0; h.render(); });
   await w(300); await pg.keyboard.press('KeyF'); await w(1500); await idle(pg);
   R.ready = await pg.evaluate(() => document.querySelector('[data-skillready]')?.textContent ?? '');
   if (!/冷卻結束/.test(R.ready)) fail.push('P2 skill ready');
