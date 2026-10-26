@@ -1,4 +1,4 @@
-# Soulbound weapon growth — v0.23
+# Soulbound weapon growth — v0.23 foundation / v0.24 extension
 
 Source implementation and 1,433 tests/four syntax checks pass. The release is published and bounded-desktop accepted. This guide explains rules; see ACCEPTANCE-V023.md and BROWSER-QA-V023.md for the separate source and actual-play evidence.
 
@@ -17,7 +17,7 @@ At camp, inspect an owned axe, rapier or club whose item level is no higher than
 
 A bound weapon matches character level immediately and follows later growth, including while held in the backpack. It preserves its ID, affixes, quality and rolls. Binding preserves current HP/MP rather than refilling them; extra maximum-HP capacity from a weapon affix is not a free heal. Ordinary later equipment changes retain their established camp-recovery behavior. It does not gain a missing legacy parry stat or reroll into a better item. Choosing a higher-quality future drop instead can still be worthwhile.
 
-Binding is a lasting virtual investment. Bound gear is locked and cannot be sold, automatically sold, bulk-sold or unlocked in this slice. Clearing a preset does not remove binding or unlock it. This conservative disposal policy is an adaptation beyond the original no-trading rule. There is no fragment refund, unbinding, salvage, IW or forge operation in this release. To prevent permanent inventory deadlock, this slice permits at most 116 bound weapons in total across equipment, inventory and pending loot. With one equipped, at most 115 remain in the 120-slot backpack, leaving the required five expedition slots after ordinary unbound clutter is removed. At the limit, wear a bound weapon and remove unbound clutter if needed. The 117th binding and over-limit imports are refused without spending or deleting items. This is an explicit storage-safety adaptation, not an original HV binding cap.
+Binding is a lasting virtual investment. Bound gear is locked and cannot be sold, automatically sold, bulk-sold or unlocked in this slice. Clearing a preset does not remove binding or unlock it. This conservative disposal policy is an adaptation beyond the original no-trading rule. There is no fragment refund, unbinding, salvage or forge operation. v0.24 separately adds the first-tier [Item World challenge](ITEM-WORLD-GUIDE.md) for bound Fair/Average/Superior weapons. To prevent permanent inventory deadlock, this slice permits at most 116 bound weapons in total across equipment, inventory and pending loot. With one equipped, at most 115 remain in the 120-slot backpack, leaving the required five expedition slots after ordinary unbound clutter is removed. At the limit, wear a bound weapon and remove unbound clutter if needed. The 117th binding and over-limit imports are refused without spending or deleting items. This is an explicit storage-safety adaptation, not an original HV binding cap.
 
 ## Original facts and deliberate limits
 
@@ -25,7 +25,7 @@ Current [Items revision 67045](https://ehwiki.org/index.php?title=Items&oldid=67
 
 The original upper level-gap boundary is inconsistent between sources (100 versus less than 100). This first slice accepts only itemLevel <= characterLevel, so the additional cost is zero and the disputed boundary is not used. Original fragment shop pricing is 1000 credits each; that shop is not implemented, and 100 fragments are not silently reinterpreted as 100 credits.
 
-The original IW/forge/fusion prerequisites remain separate future work. This game does not pretend ordinary free expeditions are original Item World challenges or award unimplemented World Seeds/materials.
+The original forge/fusion systems remain future work. v0.24 normal expeditions earn locally paced World Seeds, but only an explicitly paid separate trial can grant IW1; ordinary free expeditions are not mislabeled Item World.
 
 ## Stable numeric anchor
 
@@ -35,7 +35,7 @@ Attack uses this game's existing `50/3` scale; rate stats and parry use 2000. Cu
 
 ## Saves and safety
 
-Save version 2 protects new currency even before a weapon is bound. Valid version-1 saves migrate without changing existing progress and receive zero fragments. Older versions reject version 2; refresh old writer tabs and export a backup before updating. Source backups are not personal browser-save backups.
+Save version3 protects both currencies even before investment. Valid version1 receives zero fragments/seeds; version2 preserves fragments and bound anchors but receives zero seeds. Older versions reject version3; refresh old writer tabs and export a backup before updating. Source backups are not personal browser-save backups.
 
 Binding metadata, stat anchors and effective caches are validated before use. Unknown fields, malformed anchors, unsupported weapon records and stale confirmations must fail without spending resources or dropping existing progress. Repeated confirmation cannot charge twice. The resource cap is 1,000,000,000; reaching it must not invalidate an otherwise normal victory or save.
 

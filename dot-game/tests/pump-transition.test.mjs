@@ -20,7 +20,7 @@ function harness(state = createGame(42)) {
   const toasts = [], bleedNotice = { hidden: false };
   const context = createContext({
     state, act, advance, createPump, performance: { now: () => now },
-    claimLease: () => lease, reconcileWeaponCommission() {}, render() {}, save() {},
+    claimLease: () => lease, reconcileWeaponCommission() {}, reconcileItemWorld() {}, render() {}, save() {},
     $: () => bleedNotice, showToast: message => toasts.push(message), console,
   });
   const { dispatch, pump } = runInContext(`${pumpSource}\n${dispatchSource}\n({ dispatch, pump });`, context);

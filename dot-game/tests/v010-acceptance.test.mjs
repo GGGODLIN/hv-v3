@@ -53,7 +53,7 @@ test('v0.10 independent: accepted baseline/historical loot and current session r
     ['./fixtures/v0.14/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
     ['../src/session.js','821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a'],
   ])assert.equal(sha(readFileSync(new URL(path,import.meta.url))),digest,path);
-  assert.equal(current.VERSION,2);
+  assert.equal(current.VERSION,3);
 });
 
 test('v0.10 independent: rank-one source equations floor bases, exclude flat gear HP, cap proficiency and require both learning and slotting',()=>{

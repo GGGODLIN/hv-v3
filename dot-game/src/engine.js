@@ -1,6 +1,19 @@
-import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice, soulbindCost, createSoulboundItem, scaleSoulboundItem, isSoulboundItem } from './loot.js';
+import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice, soulbindCost, createSoulboundItem, scaleSoulboundItem, isSoulboundItem, createItemWorldUpgrade } from './loot.js';
 
-export const VERSION = 2;
+export const VERSION = 3;
+export const WORLD_SEED_LIMIT = 1000000000;
+export const WORLD_SEEDS_PER_WIN = 1;
+export const ITEM_WORLD_ROUNDS = 5;
+// Fixed local tier: deliberately not original monster Lv100 or hero-level scaling.
+export const ITEM_WORLD_STRENGTH_STAGE = 5;
+// Trial identity, spent-entry receipt and strength never enter durable state.
+const itemWorldSessions = new WeakMap();
+export function itemWorldView(s) {
+  const trial=s&&itemWorldSessions.get(s);
+  return trial ? {active:true,targetId:trial.targetId,targetName:trial.targetName,targetLevel:1,
+    entryLevel:trial.entryLevel,strengthStage:trial.strengthStage,rounds:ITEM_WORLD_ROUNDS,round:s.wave} : {active:false};
+}
+const encounterStage = s => itemWorldSessions.get(s)?.strengthStage ?? s.stage;
 // Independent expedition pacing, not original-HV fragment drop rates.
 export const SOUL_FRAGMENT_LIMIT = 1000000000;
 export const SOUL_FRAGMENTS_PER_WIN = 10;
@@ -91,7 +104,7 @@ const protectionSessions = new WeakMap();
 // One-shot idle UX adaptation, never an original-HV rule or saved preference.
 const finishThenCampSessions = new WeakSet();
 export function finishThenCampView(s) {
-  const available=s?.mode==='battle'&&['fight','intermission'].includes(s?._phase);
+  const available=!itemWorldSessions.has(s)&&s?.mode==='battle'&&['fight','intermission'].includes(s?._phase);
   return {available,queued:available&&finishThenCampSessions.has(s)};
 }
 export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); }
@@ -157,7 +170,7 @@ function starter(slot) {
   return {id:`starter-${slot}`,name,slot,quality:'Crude',rarityColor:'#8d9bb0',level:1,roll:10,power:1,stats:bonuses,locked:true,description:'獨立設計的入門裝備；換上戰利品即可改善戰力。'};
 }
 export function createGame(seed = 1) {
-  const s = {version:VERSION,soulFragments:0,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,strategy:'balanced',inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{},actions:freshActions()},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
+  const s = {version:VERSION,soulFragments:0,worldSeeds:0,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,strategy:'balanced',inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{},actions:freshActions()},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
   recover(s); return s;
 }
 function readAbilityAllocation(s) {
@@ -317,7 +330,7 @@ function expeditionBuild(s) {
 function copyExpeditionReport(report) {
   return {...report,build:{...report.build,abilities:report.build.abilities.map(entry=>({...entry})),equipment:report.build.equipment.map(entry=>({...entry}))},
     weapon:{...report.weapon},startStats:{...report.startStats},
-    ...(report.protection?{protection:{...report.protection}}:{}),actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
+    ...(report.protection?{protection:{...report.protection}}:{}),...(report.itemWorld?{itemWorld:{...report.itemWorld}}:{}),actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
 }
 /** Detached newest-first completed expeditions, at most two for this state in
  * this session. Reads never settle a fight, consume RNG, or change game state.
@@ -359,6 +372,9 @@ function settleExpeditionReport(s, outcome) {
   feedback.active=null;
   const report={...active,outcome,endLevel:integer(s.hero.level,1,500),elapsed:reportNumber(s.battle.elapsed),
     actions:Object.fromEntries([...Object.keys(freshActions()),...(s.battle.actions?.counters>0?['counters']:[])].map(key=>[key,reportNumber(s.battle.actions?.[key])]))};
+  const trial=itemWorldSessions.get(s);
+  if(trial)report.itemWorld={targetId:trial.targetId,targetName:trial.targetName,level:1,reward:trial.reward,cost:1,
+    entryLevel:trial.entryLevel,strengthStage:trial.strengthStage,rounds:ITEM_WORLD_ROUNDS};
   const protection=protectionSessions.get(s);
   if(protection?.casts>0)report.protection={casts:protection.casts,damagePrevented:protection.damagePrevented};
   for(const value of Object.values(report))if(value&&typeof value==='object')Object.freeze(value);
@@ -516,8 +532,8 @@ const ENEMY_ROLES = Object.freeze({
   armored:Object.freeze({roleLabel:'厚甲',defenseOffset:18,evade:.01,parry:.01}),
   agile:Object.freeze({roleLabel:'靈巧',defenseOffset:-3,evade:.10,parry:.07})
 });
-function waveDescriptor(stage, wave) {
-  const boss=wave===4, count=boss?1:wave===1?1:2;
+function waveDescriptor(stage, wave, lastWave = 4) {
+  const boss=wave===lastWave, count=boss?1:wave===1?1:2;
   const enemies=Array.from({length:count},(_,i)=>{
     const archetype=ENEMY_ARCHETYPES[(stage+wave+i)%ENEMY_ARCHETYPES.length];
     const roleId=stage<3?'baseline':boss?(stage%2?'armored':'agile'):archetype.roleId;
@@ -532,18 +548,20 @@ export function previewStage(stage) {
   return {stage,waves:Array.from({length:4},(_,i)=>waveDescriptor(stage,i+1))};
 }
 function enemiesFor(s) {
-  const stage=s.stage,wave=s.wave;
-  return waveDescriptor(stage,wave).enemies.map(({mitigation,...descriptor},i)=>{
+  const stage=encounterStage(s),wave=s.wave,trial=itemWorldSessions.has(s);
+  return waveDescriptor(stage,wave,trial?ITEM_WORLD_ROUNDS:4).enemies.map(({mitigation,...descriptor},i)=>{
     const hp=Math.round((descriptor.boss?340:114+wave*15)*Math.pow(1.20,stage-1));
     // Preview-only mitigation must not shadow the established defense fallback.
-    return {id:`e-${s.wins}-${stage}-${wave}-${i}`,...descriptor,hp,maxHp:hp,attack:round((descriptor.boss?27:16+wave*1.0)*Math.pow(1.16,stage-1)),resist:.04};
+    // Trial attack = round(underlying normal base × (1 + .02 × (wave - 1)), 2);
+    // apply the adapter before final rounding, not to a rounded normal cache.
+    return {id:`e-${s.wins}-${stage}-${wave}-${i}`,...descriptor,hp,maxHp:hp,attack:round((descriptor.boss?27:16+wave*1.0)*Math.pow(1.16,stage-1)*(trial?1+.02*(wave-1):1)),resist:.04};
   });
 }
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
   clearFinishThenCamp(s);protectionSessions.delete(s);
-  s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
-  resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
+  s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=itemWorldSessions.has(s)?ITEM_WORLD_ROUNDS:4;
+  resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,itemWorldSessions.has(s)?`進入裝備界 · ${itemWorldSessions.get(s).targetName} · IW1 · 5 回合；已消耗 1 世界之種。`:`進入第 ${s.stage} 層。`);
   beginExpeditionReport(s);
 }
 
@@ -757,8 +775,9 @@ function ownData(record,key,optional=false) {
   if(!field.enumerable||!Object.hasOwn(field,'value'))throw Error('invalid field');
   return field.value;
 }
+const seedBalance=value=>Number.isInteger(value)&&value>=0&&value<=WORLD_SEED_LIMIT;
 const fragmentBalance=value=>Number.isInteger(value)&&value>=0&&value<=SOUL_FRAGMENT_LIMIT;
-const boundMetadata=item=>!!item&&typeof item==='object'&&'soulbound' in item;
+const boundMetadata=item=>!!item&&typeof item==='object'&&('soulbound' in item||'itemWorld' in item);
 // Stable comparison is semantic: JSON serialization/reordering cannot alter the
 // quote, but no extra/missing field (including undefined) gains consent.
 function identicalData(a,b) {
@@ -802,6 +821,113 @@ export function previewSoulbindWeapon(s,id) {
     return {id,available:!reason,reason,cost,fragmentsAfter,before,after:detachedData(after),quoteBasis};
   }catch{return empty('靈魂綁定資料無效；未扣除碎片或變更裝備。');}
 }
+/** Pure exact-consent entry quote. No seed/RNG, recovery or combat mutations. */
+export function previewItemWorld(s,id) {
+  const empty=reason=>({id:typeof id==='string'?id:null,available:false,reason,cost:1,seedsAfter:null,
+    before:null,after:null,strengthStage:null,rounds:ITEM_WORLD_ROUNDS,quoteBasis:null});
+  try{
+    if(!dataRecord(s)||typeof id!=='string'||!id||id.length>100)return empty('裝備界資料無效。');
+    const context={};
+    for(const key of ['version','mode','_phase','hero','soulFragments','worldSeeds','equipment','inventory','pendingLoot',
+      'stage','unlocked','wins','autoAdvance','strategy','seed','timing','_itemId','kills'])context[key]=detachedData(ownData(s,key));
+    for(const key of ['gearSets','abilities','autoProtection','targetPriority','autoSell']){
+      const value=ownData(s,key,true);if(Object.hasOwn(s,key))context[key]=detachedData(value);
+    }
+    if(context.version!==VERSION||!seedBalance(context.worldSeeds)||!fragmentBalance(context.soulFragments)
+      ||!dataRecord(context.hero)||!Number.isInteger(context.hero.level)||context.hero.level<1||context.hero.level>500
+      ||!dataRecord(context.equipment)||Reflect.ownKeys(context.equipment).length!==SLOTS.length)return empty('角色、種子或裝備資料無效。');
+    const hero=context.hero;
+    if(['xp','hp','mp','gold','proficiency'].some(key=>!Number.isFinite(hero[key])||hero[key]<0)
+      ||hero.gold>1e12||hero.proficiency>1e6||!Number.isFinite(hero.xpNext)||hero.xpNext<=0
+      ||!dataRecord(hero.attributes)||Object.keys(hero.attributes).length!==6
+      ||['str','dex','agi','end','int','wis'].some(key=>!Number.isFinite(hero.attributes[key])||hero.attributes[key]<0))return empty('角色資料無效。');
+    if(!Number.isInteger(context.stage)||context.stage<1||context.stage>MAX_STAGE
+      ||!Number.isInteger(context.unlocked)||context.unlocked<context.stage||context.unlocked>MAX_STAGE
+      ||!Number.isInteger(context.wins)||context.wins<0||context.wins>1e9||typeof context.autoAdvance!=='boolean'
+      ||!validStrategy(context.strategy)||Object.hasOwn(context,'targetPriority')&&!validTargetPriority(context.targetPriority)
+      ||['autoProtection','autoSell'].some(key=>Object.hasOwn(context,key)&&typeof context[key]!=='boolean')
+      ||!Number.isInteger(context.seed)||context.seed<0||context.seed>0xffffffff
+      ||!Number.isInteger(context._itemId)||context._itemId<0||context._itemId>1e9
+      ||!Number.isInteger(context.kills)||context.kills<0||context.kills>1e9
+      ||!dataRecord(context.timing)||!Number.isSafeInteger(context.timing.turns)||context.timing.turns<0
+      ||!validTick(context.timing.ticks)||!Number.isFinite(context.timing.tu)||context.timing.tu<0)return empty('出戰設定無效。');
+    const held=gearHeldItems(context);if(!held)return empty('裝備識別或內容無效。');
+    readGearSets(context);readAbilityAllocation(context);
+    if([...held.values(),...context.pendingLoot].filter(isSoulboundItem).length>SOULBOUND_WEAPON_LIMIT)return empty('永久收藏超過安全上限。');
+    const item=held.get(id),after=createItemWorldUpgrade(item,hero.level);
+    if(!after)return empty('僅支援已綁定的尚可／普通／優良戰斧、刺劍、戰棍，且尚未完成 IW1；其他品質與後續階級尚未實作。');
+    const seedsAfter=context.worldSeeds-1,strengthStage=ITEM_WORLD_STRENGTH_STAGE;
+    const reason=context.mode!=='town'||context._phase!=='idle'?'請先回營，再進入裝備界。'
+      :context.pendingLoot.length?'請先整理待領戰利品，再進入裝備界。'
+      :context.inventory.length>INVENTORY_LIMIT-5?'背包需至少 5 格空位，才能進入裝備界。'
+      :seedsAfter<0?'世界之種不足：需要 1 個。':'';
+    const quoteBasis=JSON.stringify([id,context]);
+    if(quoteBasis.length>1048576)return empty('裝備界資料過長，未建立確認。');
+    return {id,available:!reason,reason,cost:1,seedsAfter,before:detachedData(item),after:detachedData(after),
+      strengthStage,rounds:ITEM_WORLD_ROUNDS,quoteBasis};
+  }catch{return empty('裝備界資料無效；未扣除種子或變更裝備。');}
+}
+// A trial will mutate these live graphs across turns. Reject immutable records
+// before spending, but retain the intentionally frozen source/IW metadata.
+function mutableTrialGraph(value,key='',seen=new Set()) {
+  if(value===null||typeof value!=='object')return true;
+  if(key==='soulbound'||key==='itemWorld')return true;
+  if(seen.has(value)||!Object.isExtensible(value))return false;
+  seen.add(value);
+  for(const name of Reflect.ownKeys(value)){
+    const descriptor=Object.getOwnPropertyDescriptor(value,name);
+    if(!Object.hasOwn(descriptor,'value')||!descriptor.writable||!mutableTrialGraph(descriptor.value,name,seen))return false;
+  }
+  seen.delete(value);return true;
+}
+function enterItemWorld(s,payload) {
+  try{
+    if(!dataRecord(payload))return;
+    const submitted=detachedData(payload);
+    if(typeof submitted.id!=='string'||typeof submitted.quoteBasis!=='string'||submitted.quoteBasis.length>1048576)return;
+    const offer=previewItemWorld(s,submitted.id);
+    if(!offer.available||!identicalData(submitted,offer)||itemWorldSessions.has(s))return;
+    // Build initialization on detached data; malformed clocks, getters or frozen
+    // live state cannot debit a seed and then throw halfway through departure.
+    const draft=detachedData(s);
+    if(!mutableTrialGraph(s)||!Number.isInteger(draft.seed)||draft.seed<0||draft.seed>0xffffffff
+      ||!Number.isInteger(draft._itemId)||draft._itemId<0||draft._itemId>1e9
+      ||!Number.isInteger(draft._eventId)||draft._eventId<0
+      ||!dataRecord(draft.battle)||!dataRecord(draft.battle.bestTimes)||!dataRecord(draft.timing)
+      ||!Number.isSafeInteger(draft.timing.turns)||draft.timing.turns<0||!validTick(draft.timing.ticks)
+      ||!Number.isFinite(draft.timing.tu)||draft.timing.tu<0
+      ||!Array.isArray(draft.logs)||draft.logs.length>30||draft.logs.some(line=>typeof line!=='string')
+      ||!Array.isArray(draft.events)||draft.events.length>30)return;
+    const trial={targetId:offer.id,targetName:offer.before.name,entryLevel:draft.hero.level,strengthStage:offer.strengthStage,reward:false};
+    itemWorldSessions.set(draft,trial);draft.worldSeeds=offer.seedsAfter;start(draft);
+    if(draft.mode!=='battle'||draft.totalWaves!==ITEM_WORLD_ROUNDS)return;
+    const changed=['worldSeeds','hero','mode','wave','totalWaves','battle','_clock','_enemyClock','_turns','_phase','_rest','potions','enemies','logs'];
+    if(changed.some(key=>!Object.getOwnPropertyDescriptor(s,key)?.writable))return;
+    for(const key of changed)s[key]=draft[key];
+    clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.set(s,{turn:s.timing.turns,used:0});
+    itemWorldSessions.set(s,trial);
+    const feedback=expeditionFeedback.get(s)||{active:null,reports:[]};
+    feedback.active=expeditionFeedback.get(draft).active;expeditionFeedback.set(s,feedback);
+  }catch{/* Invalid/stale entry is a completely silent, atomic refusal. */}
+}
+function leaveItemWorld(s) {
+  itemWorldSessions.delete(s);clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.delete(s);
+  s.mode='town';s._phase='idle';s._rest=0;s._clock=0;s._enemyClock=0;s.enemies=[];s.totalWaves=4;s.wave=0;
+  recover(s);refillPending(s);
+}
+function winItemWorld(s) {
+  const trial=itemWorldSessions.get(s);if(!trial)return;
+  const index=s.inventory.findIndex(item=>item.id===trial.targetId);
+  const owner=index>=0?s.inventory:s.equipment,key=index>=0?String(index):'weapon';
+  const item=owner[key],upgraded=item?.id===trial.targetId?createItemWorldUpgrade(item,s.hero.level):null;
+  if(upgraded&&Object.getOwnPropertyDescriptor(owner,key)?.writable){owner[key]=upgraded;trial.reward=true;}
+  // No normal clear count, stage unlock, best time, completion loot/XP/credits,
+  // fragments or seed is awarded. The shared per-kill settlement has run once.
+  event(s,'win',trial.reward?'裝備界通關 · IW1 強化完成':'裝備界結束 · 目標已變更，未強化',round(s.battle.elapsed));
+  log(s,trial.reward?`裝備界通關：${trial.targetName} 已完成 IW1；攻擊 +2%，其他已實作屬性 +1%。已回營。`
+    :'裝備界結束：目標資料已變更，未強化；擊殺收益保留，種子不退還。');
+  settleExpeditionReport(s,'win');leaveItemWorld(s);
+}
 function synchronizeSoulboundItems(s) {
   const synchronize=item=>boundMetadata(item)?scaleSoulboundItem(item,s.hero.level)??item:item;
   for(const slot of SLOTS)s.equipment[slot]=synchronize(s.equipment[slot]);
@@ -837,7 +963,7 @@ export function previewWeaponCommission(s, family, suffix = 'slaughter') {
   } catch { return unavailable('裝備或交易資料無效；未建立委託。'); }
 }
 function addLoot(s, slot) {
-  const item=generateItem(()=>random(s),Math.max(1,s.stage+2),slot);
+  const item=generateItem(()=>random(s),Math.max(1,encounterStage(s)+2),slot);
   const used=new Set([...Object.values(s.equipment),...s.inventory,...s.pendingLoot].map(i=>i.id));
   do{s._itemId=(s._itemId%999999999)+1;item.id=`loot-${s._itemId}`;}while(used.has(item.id));
   // Opt-in affects only this newly generated drop, after the unchanged RNG/ID
@@ -863,15 +989,19 @@ function gainXp(s, amount) {
   }
 }
 function defeatEnemy(s, e) {
-  s.kills++;s.hero.gold+=4+s.stage*2+(e.boss?15:0);gainXp(s,(e.boss?18:7)+s.stage*2);
+  const stage=encounterStage(s),credits=4+stage*2+(e.boss?15:0);
+  // Trial credits use an explicit floor per kill; XP and ordinary drops survive.
+  s.kills++;s.hero.gold+=itemWorldSessions.has(s)?Math.floor(credits/4):credits;gainXp(s,(e.boss?18:7)+stage*2);
   if(!e.boss&&random(s)<.14)addLoot(s);
 }
 function win(s) {
+  if(itemWorldSessions.has(s)){winItemWorld(s);return;}
   s.wins++;s.battle.cleared++;s.unlocked=Math.min(MAX_STAGE,Math.max(s.unlocked,s.stage+1));
   const previous=s.battle.bestTimes[s.stage];if(!previous||s.battle.elapsed<previous)s.battle.bestTimes[s.stage]=round(s.battle.elapsed);
   const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
   const fragments=fragmentBalance(s.soulFragments)?Math.min(SOUL_FRAGMENTS_PER_WIN,SOUL_FRAGMENT_LIMIT-s.soulFragments):0;
   s.soulFragments+=fragments;
+  if(seedBalance(s.worldSeeds))s.worldSeeds=Math.min(WORLD_SEED_LIMIT,s.worldSeeds+WORLD_SEEDS_PER_WIN);
   const capNotice=s.soulFragments===SOUL_FRAGMENT_LIMIT?' 靈魂碎片已達持有上限；本次增加 '+fragments+' 個。':'';
   event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,(sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`)+capNotice);
   // The live balance shows the reward; no synthetic event shifts combat IDs
@@ -945,6 +1075,7 @@ function enemyAttack(s, e) {
     settleExpeditionReport(s,'defeat');
     clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.delete(s);s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
     event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');
+    if(itemWorldSessions.has(s)){leaveItemWorld(s);log(s,'裝備界挑戰失敗：已回營；種子不退還，未強化武器，擊殺收益保留。');}
     return false;
   }
   // Only actually reached parry/block checks qualify. A generic glance may be
@@ -1081,6 +1212,7 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(action==='enterItemWorld'){enterItemWorld(s,payload);return s;}
   if(action==='finishThenCamp'){
     if(typeof payload!=='boolean'||!finishThenCampView(s).available)return s;
     if(!payload){clearFinishThenCamp(s);return s;}
@@ -1266,7 +1398,7 @@ export function act(s, action, payload) {
   }
   if(action==='setAutoAdvance'&&typeof payload==='boolean'){s.autoAdvance=payload;return s;}
   if(action==='retreat'&&s.mode==='battle'&&s._phase==='fight')settleExpeditionReport(s,'retreat');
-  if(action==='retreat') {clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
+  if(action==='retreat') {if(itemWorldSessions.has(s)){leaveItemWorld(s);log(s,'已離開裝備界：種子不退還，未強化武器，擊殺收益保留。');return s;}clearFinishThenCamp(s);protectionSessions.delete(s);counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
   if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
@@ -1293,9 +1425,9 @@ export function validateSave(input) {
   // Recognized fields are detached via descriptors before any value is consumed.
   if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('不支援或損壞的存檔');
   const saved={},labels={abilities:'能力配置',gearSets:'配裝',targetPriority:'集火設定',autoProtection:'自動護盾設定',
-    soulFragments:'靈魂碎片',equipment:'不支援的裝備',inventory:'不支援的裝備',pendingLoot:'不支援的裝備'};
+    soulFragments:'靈魂碎片',worldSeeds:'世界之種',equipment:'不支援的裝備',inventory:'不支援的裝備',pendingLoot:'不支援的裝備'};
   for(const key of ['version','seed','hero','equipment','inventory','pendingLoot','targetPriority','autoProtection','abilities','gearSets',
-    '_itemId','unlocked','stage','kills','wins','autoAdvance','strategy','autoSell','battle','soulFragments']){
+    '_itemId','unlocked','stage','kills','wins','autoAdvance','strategy','autoSell','battle','soulFragments','worldSeeds']){
     try{
       const field=Object.getOwnPropertyDescriptor(input,key);
       if(!field){if(key in input)throw Error('inherited field');continue;}
@@ -1305,11 +1437,12 @@ export function validateSave(input) {
   }
   if(!dataRecord(input))throw new Error('不支援或損壞的存檔格式');
   input=saved;
-  if(!input||typeof input!=='object'||Array.isArray(input)||![1,VERSION].includes(input.version)||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
-  const legacy=input.version===1;
+  if(!input||typeof input!=='object'||Array.isArray(input)||![1,2,VERSION].includes(input.version)||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
+  const legacy=input.version===1,preWorld=input.version<3;
   if(legacy?Object.hasOwn(input,'soulFragments'):!Object.hasOwn(input,'soulFragments')||!fragmentBalance(input.soulFragments))throw new Error('靈魂碎片資料或存檔版本無效；未載入，請保留原存檔。');
+  if(preWorld?Object.hasOwn(input,'worldSeeds'):!Object.hasOwn(input,'worldSeeds')||!seedBalance(input.worldSeeds))throw new Error('世界之種資料或存檔版本無效；未載入，請保留原存檔。');
   const h=input.hero;if(!Number.isInteger(h.level)||h.level<1||h.level>500||!Number.isFinite(h.xp)||h.xp<0||!Number.isFinite(h.gold)||h.gold<0)throw new Error('角色資料無效');
-  const s=createGame(input.seed);s.soulFragments=legacy?0:input.soulFragments;s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
+  const s=createGame(input.seed);s.soulFragments=legacy?0:input.soulFragments;s.worldSeeds=preWorld?0:input.worldSeeds;s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
   const targetField=Object.getOwnPropertyDescriptor(input,'targetPriority');
   if(targetField){if(!targetField.enumerable||!Object.hasOwn(targetField,'value')||!validTargetPriority(targetField.value))throw new Error('集火設定無效；未載入，請保留原存檔。');if(targetField.value!=='front')s.targetPriority=targetField.value;}
   else if('targetPriority' in input)throw new Error('集火設定無效；未載入，請保留原存檔。');
@@ -1323,6 +1456,7 @@ export function validateSave(input) {
   const sanitizeForLoad=(raw,slot)=>{
     // Refuse unknown item/stat/roll fields before the historical whitelist can
     // erase them. No auto-lock can silently become a trusted keeper witness.
+    if(preWorld&&raw&&typeof raw==='object'&&'itemWorld' in raw)throw new Error('舊版存檔不能包含裝備界資料；未載入，請保留原存檔。');
     if(legacy&&boundMetadata(raw))throw new Error('舊版存檔不能包含靈魂綁定資料；未載入，請保留原存檔。');
     if(hasUnknownSaleMetadata(raw))throw new Error('不支援的裝備欄位或格式，未載入；請保留原存檔。');
     if(boundMetadata(raw)){

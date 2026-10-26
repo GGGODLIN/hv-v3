@@ -30,7 +30,7 @@ test('historical compatibility projection changes only root version/currency, re
  const state=createGame(42);state.soulFragments=123;state.battle.unrelated={soulFragments:99,optional:undefined};
  const before=structuredClone(state),projected=legacyState(state);
  assert.equal(projected.version,1);assert.equal(Object.hasOwn(projected,'soulFragments'),false);
- assert.deepEqual({...projected,version:state.version,soulFragments:state.soulFragments},state);
+ assert.deepEqual({...projected,version:state.version,soulFragments:state.soulFragments,worldSeeds:state.worldSeeds},state);
  assert.deepEqual(state,before);assert.notEqual(projected.inventory,state.inventory);
  for(const placement of ['equipment','inventory','pendingLoot']){
   const bound=structuredClone(state),item=bound.equipment.weapon;
@@ -47,6 +47,6 @@ test('actual v2 export rejects in frozen v022; explicit unbound historical v1 in
  const state=createGame(73);state.hero.gold=4321;state.soulFragments=123;
  assert.throws(()=>previous.validateSave(JSON.parse(JSON.stringify(state))),/不支援/);
  const historical=legacyEnvelope(state),old=previous.validateSave(historical),migrated=validateSave(old);
- assert.equal(old.version,1);assert.equal(migrated.version,2);assert.equal(migrated.soulFragments,0);
+ assert.equal(old.version,1);assert.equal(migrated.version,3);assert.equal(migrated.soulFragments,0);
  assert.equal(migrated.hero.gold,4321);assert.deepEqual(migrated.inventory,old.inventory);assert.deepEqual(migrated.equipment,old.equipment);
 });

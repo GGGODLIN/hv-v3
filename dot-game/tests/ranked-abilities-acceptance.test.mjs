@@ -35,7 +35,7 @@ function ledger(s){const view=current.abilityView(s),spent=ids.reduce((n,id)=>n+
   assert.equal(view.majorCapacity,5);assert.equal(view.majorUsed,s.abilities?.slotted.length||0);return view;}
 
 test('ranked independent: all three complete ladders retain the rank-one API and expose honest unlearned/max-rank previews',()=>{
-  const s=fixture();assert.equal(current.VERSION,2);assert.deepEqual(current.ABILITY_RULES,{majorSlots:5});
+  const s=fixture();assert.equal(current.VERSION,3);assert.deepEqual(current.ABILITY_RULES,{majorSlots:5});
   assert.deepEqual(current.MAJOR_ABILITIES,accepted.MAJOR_ABILITIES);
   for(const id of ids){let entry=row(s,id);assert.equal(entry.currentRank,0);assert.equal(entry.maxRank,schedules[id].gates.length);assert.equal(entry.spentAp,0);
     assert.equal(entry.nextRank.rank,1);assert.equal(entry.nextRank.minLevel,0);assert.equal(entry.nextRank.apCost,schedules[id].costs[0]);

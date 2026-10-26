@@ -26,7 +26,7 @@ function run(s) {
 }
 
 test('ability growth: fixed three rank-one Major entries, original costs and five-slot capacity',()=>{
-  assert.equal(VERSION,2);assert.deepEqual(ABILITY_RULES,{majorSlots:5});
+  assert.equal(VERSION,3);assert.deepEqual(ABILITY_RULES,{majorSlots:5});
   assert.deepEqual(MAJOR_ABILITIES.map(({id,apCost,minLevel,rank})=>({id,apCost,minLevel,rank})),
     ids.map((id,i)=>({id,apCost:i===2?2:1,minLevel:0,rank:1})));
   assert.ok(Object.isFrozen(MAJOR_ABILITIES)&&Object.isFrozen(ABILITY_RULES));
@@ -173,7 +173,7 @@ test('ability growth: historical v1 imports stay allocation-free; old reader rej
   const old=baseline.validateSave(legacyEnvelope(active));
   assert.equal(Object.hasOwn(old,'abilities'),false);assert.equal(old.hero.gold,4321);
   assert.deepEqual(old.equipment,active.equipment);assert.deepEqual(old.inventory,active.inventory);
-  const migrated=validateSave(old);assert.equal(migrated.version,2);assert.equal(migrated.soulFragments,0);assert.equal(abilityView(migrated).availableAp,4);
+  const migrated=validateSave(old);assert.equal(migrated.version,3);assert.equal(migrated.soulFragments,0);assert.equal(abilityView(migrated).availableAp,4);
 });
 
 test('ability growth: roundtrip retains learned and separate slots, recovers exact pools, and does not replay AP grants',()=>{

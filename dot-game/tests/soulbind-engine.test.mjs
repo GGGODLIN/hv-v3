@@ -16,10 +16,10 @@ function earnWins(s,count){if(s.mode!=='battle')game.act(s,'start');pulseUntil(s
 function killForXp(s){game.act(s,'start');s.enemies=[{id:'level-test',name:'Level test',hp:1,maxHp:1,attack:0,defense:0,evade:0,parry:0,block:0}];pulseUntil(s,x=>x.kills>0,100);}
 
 test('schema v2 owns bounded fragments; old saves migrate zero without retrospective wins',()=>{
- assert.equal(game.VERSION,2);assert.equal(game.SOUL_FRAGMENT_LIMIT,1e9);assert.equal(game.SOUL_FRAGMENTS_PER_WIN,10);
- const fresh=game.createGame();assert.equal(fresh.soulFragments,0);assert.equal(fresh.version,2);
+ assert.equal(game.VERSION,3);assert.equal(game.SOUL_FRAGMENT_LIMIT,1e9);assert.equal(game.SOUL_FRAGMENTS_PER_WIN,10);
+ const fresh=game.createGame();assert.equal(fresh.soulFragments,0);assert.equal(fresh.version,3);
  const old=legacy.createGame(123);old.wins=500;old.kills=1234;const before=copy(old);
- const loaded=game.validateSave(old);assert.equal(loaded.version,2);assert.equal(loaded.soulFragments,0);assert.equal(loaded.wins,500);assert.deepEqual(old,before);
+ const loaded=game.validateSave(old);assert.equal(loaded.version,3);assert.equal(loaded.soulFragments,0);assert.equal(loaded.wins,500);assert.deepEqual(old,before);
  assert.throws(()=>legacy.validateSave(copy(fresh)),'even a fragment-only v2 save must not be accepted by v1');
  for(const value of [0,1,100,1e9]){const s=game.createGame();s.soulFragments=value;assert.equal(game.validateSave(copy(s)).soulFragments,value);}
 });
@@ -27,7 +27,7 @@ test('schema v2 owns bounded fragments; old saves migrate zero without retrospec
 test('version/currency descriptors, missing v2 currency, nonintegers and legacy new fields fail closed',()=>{
  for(const value of [undefined,null,false,'10',-1,1.5,NaN,Infinity,1e9+1]){const s=game.createGame();s.soulFragments=value;assert.throws(()=>game.validateSave(s));}
  const absent=game.createGame();delete absent.soulFragments;assert.throws(()=>game.validateSave(absent));
- for(const version of [0,3,'2',null]){const s=game.createGame();s.version=version;assert.throws(()=>game.validateSave(s));}
+ for(const version of [0,4,'2',null]){const s=game.createGame();s.version=version;assert.throws(()=>game.validateSave(s));}
  for(const fragments of [0,100]){const s=legacy.createGame();s.soulFragments=fragments;assert.throws(()=>game.validateSave(s));}
  let reads=0;
  for(const key of ['soulFragments','version','hero','inventory']){const s=game.createGame();Object.defineProperty(s,key,{enumerable:true,get(){reads++;throw Error('must not run');}});assert.throws(()=>game.validateSave(s));}
@@ -184,11 +184,11 @@ test('no-binding default and chosen-policy trajectories match legacy byte-for-by
   for(let i=0;i<6000&&a.wins<3;i++){
    // Opening/closing repeatedly, with no binding, must consume no RNG or state.
    const snapshot=copy(a);for(const item of [...a.inventory,a.equipment.weapon])game.previewSoulbindWeapon(a,item.id);assert.deepEqual(a,snapshot);
-   game.advance(a,.25);legacy.advance(b,.25);const normalized=copy(a);normalized.version=1;delete normalized.soulFragments;
+   game.advance(a,.25);legacy.advance(b,.25);const normalized=copy(a);normalized.version=1;delete normalized.soulFragments;delete normalized.worldSeeds;
    assert.deepEqual(normalized,b);assert.equal(JSON.stringify(normalized),JSON.stringify(b));assert.equal(a.soulFragments,a.wins*10);ticks++;
    if(a.mode==='defeat'){game.act(a,'start');legacy.act(b,'start');}
   }
-  wins+=a.wins;game.act(a,'retreat');legacy.act(b,'retreat');const loaded=game.validateSave(copy(a)),old=legacy.validateSave(copy(b));loaded.version=1;delete loaded.soulFragments;assert.deepEqual(loaded,old);
+  wins+=a.wins;game.act(a,'retreat');legacy.act(b,'retreat');const loaded=game.validateSave(copy(a)),old=legacy.validateSave(copy(b));loaded.version=1;delete loaded.soulFragments;delete loaded.worldSeeds;assert.deepEqual(loaded,old);
  }
  assert.equal(wins,27);assert.ok(ticks>1000);t.diagnostic(`${ticks} exact paired ticks across 27 natural clears and nine seed/policy routes`);
 });

@@ -118,3 +118,8 @@ Close the v0.21 report-context gap: actual start targeting / Protection policies
 ## v0.23 selected investment slice
 
 Make one complete resource-to-growth loop: earn explicitly adapted Soul Fragments from normal clears, confirm binding a known owned weapon, and keep its original identity/rolls while it follows character level. Preserve original quality-based fragment costs, restrict eligibility to weapons no higher than the character, and forbid automatic spending. Immutable anchors prevent cumulative rounding; strict versioned saves and disposal protection preserve invested gear. Do not simultaneously add IW, forging, salvage or unused materials. Those systems need their own complete prerequisites and earned-play acceptance.
+
+
+## v0.24 first-tier Item World slice
+
+Complete one explicit seed-to-challenge-to-permanent-upgrade loop. Normal clears earn one locally paced seed; Soulbound Fair/Average/Superior weapons can spend one for a five-round adapted challenge and IW1 only. Preserve original max10 as future work rather than illegal tiers, and keep unproven multi-tier arithmetic out of scope. Fixed entry difficulty, separate route records, no automatic retry, strict version3/immutable anchors and honest failure persistence precede natural measurements and browser acceptance. Do not bundle forge, salvage, CP, stamina, charms or unsupported equipment families.

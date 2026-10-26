@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -112,6 +112,7 @@ let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
 let soulbindConsent = null;
+let itemWorldConsent = null;
 let gearSetConsent = null;
 let lastGearSetSignature = "";
 let lastCommissionSignature = '';
@@ -227,6 +228,7 @@ function syncSelection() {
   clearSelectedSale(); // Local sale intent never crosses ownership, reload or import.
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   closeSoulbindWeapon(); // Permanent investment always needs fresh local consent.
+  closeItemWorld(); // A paid trial never inherits consent from another journey or owner.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
@@ -250,9 +252,9 @@ function dispatch(action, payload) {
     act(state, action, payload);
     // A successful lifecycle change cannot credit time from the previous mode.
     // Rejected/repeated starts and ordinary combat actions keep their interval.
-    if ((action === 'start' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
-    if (action === 'start' || action === 'retreat') finishCampCancelled = false;
-    reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
+    if ((action === 'start' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
+    if (action === 'start' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
+    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 // Gear-only plans reference owned items; they never copy items or save abilities.
@@ -996,6 +998,8 @@ function renderTargetPriority() {
 }
 function render(force = false) {
   renderSoulbindStatus();
+  renderItemWorldStatus();
+  const trial = itemWorldView(state);
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
   $('strategy-description').textContent = STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '';
@@ -1011,10 +1015,11 @@ function render(force = false) {
   $('xp-label').textContent = `${format(state.hero.xp)} / ${format(state.hero.xpNext)}`;
   setMeter('hp-bar', state.hero.hp, derived.maxHp); setMeter('mp-bar', state.hero.mp, derived.maxMp); setMeter('xp-bar', state.hero.xp, state.hero.xpNext);
   $('stat-attack').textContent = format(derived.attack); $('stat-defense').textContent = format(derived.defense); $('stat-crit').textContent = `${((derived.crit || 0) * 100).toFixed(1)}%`; $('stat-gold').textContent = format(state.hero.gold);
-  $('zone-title').textContent = stageName(state.stage); $('stage-label').textContent = `遠征 ${String(state.stage).padStart(2, '0')}`;
-  $('wave-label').textContent = state.mode === 'battle' ? `第 ${state.wave} / ${state.totalWaves} 波` : state.mode === 'defeat' ? '旅者倒下了' : '準備出發';
-  $('mode-badge').textContent = { town: '整備中', battle: '遠征進行中', defeat: '需要整備' }[state.mode] || '整備中'; $('mode-badge').className = `status-pill ${state.mode}`;
-  $('run-time').textContent = clock(state.battle?.elapsed); const best = state.battle?.bestTimes?.[state.stage]; $('best-time').textContent = best ? clock(best) : '尚無紀錄';
+  $('zone-title').textContent = trial.active ? 'Item World · 武器試煉' : stageName(state.stage);
+  $('stage-label').textContent = trial.active ? `IW1 · 本作強度 ${trial.strengthStage}` : `遠征 ${String(state.stage).padStart(2, '0')}`;
+  $('wave-label').textContent = trial.active ? `第 ${trial.round} / ${trial.rounds} 回合` : state.mode === 'battle' ? `第 ${state.wave} / ${state.totalWaves} 波` : state.mode === 'defeat' ? '旅者倒下了' : '準備出發';
+  $('mode-badge').textContent = trial.active ? '武器試煉進行中' : { town: '整備中', battle: '遠征進行中', defeat: '需要整備' }[state.mode] || '整備中'; $('mode-badge').className = `status-pill ${state.mode}`;
+  $('run-time').textContent = clock(state.battle?.elapsed); const best = state.battle?.bestTimes?.[state.stage]; $('best-time').textContent = trial.active ? '不計普通關卡' : best ? clock(best) : '尚無紀錄';
   $('kill-count').textContent = format(state.kills); $('win-count').textContent = format(state.wins); $('deepest-stage').textContent = String(state.unlocked).padStart(2, '0'); $('progress-label').textContent = `${Math.max(0, state.mode === 'town' ? 0 : state.wave - 1)} / ${state.totalWaves}`;
   $('scene-message').hidden = state.mode === 'battle';
   if (state.mode !== 'battle') {
@@ -1029,9 +1034,9 @@ function render(force = false) {
   $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat' || !departure.ready; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
   renderFinishCamp();
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
-  $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
+  $('control-hint').textContent = trial.active ? `目標：${trial.targetName} · 完成五回合才獲 IW1；結束必回營，不自動重刷。` : state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
-  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments]);
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments, state.worldSeeds]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
@@ -1053,6 +1058,7 @@ function itemContent(item) {
   const icon = node('span', 'item-icon', slotIcons[item.slot] || '◇');
   const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${itemTypeName(item)} · Lv.${item.level} · ${qualityName(item.quality)}`));
   if (Object.hasOwn(item, 'soulbound')) info.append(node('span', 'soulbound-badge', '靈魂綁定 · 隨等級成長'));
+  if (item.itemWorld?.level === 1) info.append(node('span', 'item-world-badge', 'IW1 · 永久成長'));
   return [icon, info];
 }
 function renderEquipment() {
@@ -1064,13 +1070,16 @@ function renderEquipment() {
 }
 function expeditionReportCard(report, label) {
   const outcomes = { win: '通關', defeat: '戰敗', retreat: '中途回營' };
-  const outcome = Object.hasOwn(outcomes, report.outcome) ? outcomes[report.outcome] : '已結束';
+  const trial = report.itemWorld;
+  const outcome = trial && report.outcome === 'win' ? '試煉通關' : Object.hasOwn(outcomes, report.outcome) ? outcomes[report.outcome] : '已結束';
   const family = Object.hasOwn(weaponFamilyNames, report.weapon.family) ? weaponFamilyNames[report.weapon.family] : '未辨識武器路線';
   const strategy = STRATEGIES.find(entry => entry.id === report.strategy)?.label || '未辨識戰術';
   const card = node('article', 'expedition-report-card');
   const heading = node('div', 'report-card-heading');
   heading.append(node('h4', '', label), node('span', 'report-outcome', outcome));
-  card.append(heading, node('p', 'report-start', `出發第 ${format(report.stage)} 層 · 等級 ${format(report.level)} → 結束 ${format(report.endLevel ?? report.level)} · ${strategy}`));
+  const route = trial ? `Item World · IW${format(trial.level)} · 本作強度 ${format(trial.strengthStage)}` : `出發第 ${format(report.stage)} 層`;
+  card.append(heading, node('p', 'report-start', `${route} · 等級 ${format(report.level)} → 結束 ${format(report.endLevel ?? report.level)} · ${strategy}`));
+  if (trial) card.append(node('p', 'report-item-world', `試煉目標：${trial.targetName}（ID：${trial.targetId}） · ${trial.reward ? '已獲永久 IW1' : '未獲 IW1'} · 已消耗 ${format(trial.cost)} 世界之種；不計普通通關或層數紀錄。`));
   card.append(node('p', 'report-weapon', `${family} · ${report.weapon.name}`));
   if (report.startStats) card.append(node('p', 'report-start-stats', `出發面板：攻擊 ${format(report.startStats.attack)} · 生命上限 ${format(report.startStats.maxHp)} · 一般減傷 ${defenseRate(report.startStats.mitigation)}`));
   card.append(expeditionBuildContext(report.build));
@@ -1133,7 +1142,7 @@ function renderExpeditionReports() {
   $('pinned-report').hidden = !pinnedExpeditionReport;
   $('pinned-report').replaceChildren(...(pinnedExpeditionReport ? [expeditionReportCard(pinnedExpeditionReport, '比較基準 · 手動保留')] : []));
   const latest = reports[0];
-  $('report-status').textContent = latest ? `已記錄第 ${format(latest.stage)} 層的最近一次遠征；新遠征開始後仍可查看。${pinnedExpeditionReport ? '比較基準已保留，不會隨新戰報替換。' : ''}` : '遠征通關、戰敗或中途回營後，戰報會自動出現在這裡。';
+  $('report-status').textContent = latest ? `${latest.itemWorld ? '已記錄最近一次 Item World 試煉' : `已記錄第 ${format(latest.stage)} 層的最近一次遠征`}；新遠征開始後仍可查看。${pinnedExpeditionReport ? '比較基準已保留，不會隨新戰報替換。' : ''}` : '遠征通關、戰敗或中途回營後，戰報會自動出現在這裡。';
 }
 function pinRecentExpeditionReport() {
   const latest = expeditionReports(state)[0];
@@ -1182,10 +1191,11 @@ function renderItemDetail() {
     const placeholder = node('div', 'detail-placeholder'); placeholder.append(node('span', '', '◇'), node('h3', '', '看看下一件好東西'), node('p', '', '選擇一件裝備，比較它會為旅者帶來什麼改變。')); $('item-detail').replaceChildren(placeholder); return;
   }
   const restoreSoulbindFocus = document.activeElement?.dataset?.soulbindId === item.id;
+  const restoreItemWorldFocus = document.activeElement?.dataset?.itemWorldId === item.id;
   const bound = Object.hasOwn(item, 'soulbound');
   const wrap = $('item-detail'); wrap.style.setProperty('--item-color', colorOf(item));
   const current = state.equipment[item.slot];
-  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}${bound ? ' · 靈魂綁定' : ''}`);
+  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}${bound ? ' · 靈魂綁定' : ''}${item.itemWorld?.level === 1 ? ' · IW1' : ''}`);
   const name = node('h3', 'detail-name', item.name); name.tabIndex = -1;
   const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}`);
   const description = node('p', 'detail-description', bound ? '已永久投入靈魂碎片；武器依原始綁定基準隨角色等級成長，沒有重新抽取屬性。' : describeItemFlavor(item) || '一件等待發揮力量的裝備。');
@@ -1226,8 +1236,21 @@ function renderItemDetail() {
     const reason = !tabOwner ? '唯讀分頁：接手後才能綁定。' : state.mode !== 'town' ? '請先回營；戰鬥與戰敗時不能綁定。' : !preview.available ? preview.reason : `品質費用 ${format(preview.cost)} 靈魂碎片；預覽不扣除、不自動綁定。`;
     soulbind.append(bindButton, node('p', 'muted', reason));
   }
-  wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions, soulbind);
+  const itemWorld = node('div', 'item-world-item-action');
+  let itemWorldButton;
+  if (item.slot === 'weapon' && resolveWeaponFamily(item)) {
+    const preview = previewItemWorld(state, item.id);
+    itemWorldButton = node('button', 'secondary-button', item.itemWorld?.level === 1 ? 'IW1 已完成' : '預覽 Item World · IW1');
+    itemWorldButton.dataset.itemWorldId = item.id;
+    itemWorldButton.setAttribute('aria-haspopup', 'dialog');
+    itemWorldButton.disabled = !tabOwner || state.mode !== 'town' || !preview.before || !preview.after || item.itemWorld?.level === 1;
+    itemWorldButton.addEventListener('click', () => openItemWorld(item.id));
+    const reason = !tabOwner ? '唯讀分頁：接手並回營後才能挑戰。' : state.mode !== 'town' ? '請先回營後預覽武器試煉。' : item.itemWorld?.level === 1 ? '原版 Fair／Average／Superior 上限 IW10；後續階段尚未實作。' : !preview.available ? preview.reason : '1 世界之種 · 五回合 · 通關才獲永久 IW1；不自動換裝。';
+    itemWorld.append(itemWorldButton, node('p', 'muted', reason));
+  }
+  wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions, soulbind, itemWorld);
   if (restoreSoulbindFocus && bindButton && !bindButton.disabled) bindButton.focus();
+  if (restoreItemWorldFocus && itemWorldButton && !itemWorldButton.disabled) itemWorldButton.focus();
 }
 
 // Soulbind is a one-item permanent investment, never an automatic policy.
@@ -1297,6 +1320,71 @@ function renderSoulbindStatus() {
   reconcileSoulbindWeapon();
   $('soul-fragment-balance').textContent = `${format(state.soulFragments)} 靈魂碎片`;
   $('soulbind-status').textContent = !tabOwner ? '唯讀分頁：可查看，接手並回營後才能綁定。' : state.mode !== 'town' ? '回營後選取已裝備或背包中的武器，再預覽綁定。' : '選取已裝備或背包中的戰斧、刺劍或戰棍，再按「預覽靈魂綁定」；不會自動花費。';
+}
+
+// A first-tier challenge is a manual paid departure, never an automatic upgrade.
+function itemWorldQuoteSignature(quote) {
+  return JSON.stringify([quote, state.mode, state.stage, state.hero.level, state.worldSeeds, state.equipment, state.inventory, state.pendingLoot, state.gearSets]);
+}
+function closeItemWorld() {
+  itemWorldConsent = null;
+  $('item-world-confirm').disabled = true;
+  if ($('item-world-dialog').open) $('item-world-dialog').close();
+}
+function abortItemWorld(message) {
+  itemWorldConsent = null;
+  $('item-world-confirm').disabled = true;
+  $('item-world-feedback').textContent = `本次確認已取消。${message} 請重新預覽後再確認。`;
+}
+function reconcileItemWorld() {
+  if (!itemWorldConsent) return;
+  if (!claimLease() || state.mode !== 'town') { abortItemWorld('控制權或營地狀態已改變，未進入試煉。'); return; }
+  const fresh = previewItemWorld(state, itemWorldConsent.quote.id);
+  if (!fresh.available || itemWorldConsent.signature !== itemWorldQuoteSignature(fresh)) abortItemWorld('報價、世界之種或裝備資料已改變，未進入試煉。');
+}
+function openItemWorld(id) {
+  if (!claimLease() || state.mode !== 'town') { showToast('請在持有進度的分頁回營後，再預覽 Item World。'); return; }
+  if ($('item-world-dialog').open) return;
+  const quote = previewItemWorld(state, id);
+  if (!quote.before || !quote.after) { showToast(quote.reason || '這件裝備目前沒有已實作的 Item World 挑戰。'); return; }
+  itemWorldConsent = quote.available ? { quote: JSON.parse(JSON.stringify(quote)), signature: itemWorldQuoteSignature(quote) } : null;
+  $('item-world-item-name').textContent = quote.before.name;
+  $('item-world-item-meta').textContent = `${qualityName(quote.before.quality)}（${quote.before.quality}） · ${itemTypeName(quote.before)} · ID：${quote.id}`;
+  $('item-world-route').textContent = `${quote.rounds} 回合 · 出發 Lv.${state.hero.level} → 本作固定強度 ${quote.strengthStage}；不是原版 Lv100／Hard。`;
+  const heading = node('div', 'soulbind-stat-row soulbind-stat-heading');
+  heading.append(...['武器屬性', '現在', '通關後 · IW1'].map(text => node('span', '', text)));
+  $('item-world-comparison').replaceChildren(heading, ...Object.entries(statNames).map(([key, label]) => {
+    const row = node('div', 'soulbind-stat-row');
+    row.append(node('span', '', label), node('span', '', soulbindStat(quote.before.stats?.[key], rateStats.has(key))), node('strong', '', soulbindStat(quote.after.stats?.[key], rateStats.has(key))));
+    return row;
+  }));
+  $('item-world-cost').textContent = `現有 ${format(state.worldSeeds)} − 入場費 ${format(quote.cost)} ＝ 入場後 ${format(quote.seedsAfter)} 世界之種`;
+  $('item-world-feedback').textContent = quote.available ? '尚未扣種子。取消不變更；確認後立即入場，不自動換裝。' : `目前不能入場：${quote.reason} 尚未扣種子。`;
+  $('item-world-confirm').textContent = `確認消耗 ${format(quote.cost)} 世界之種並入場`;
+  $('item-world-confirm').disabled = !quote.available;
+  $('item-world-dialog').showModal();
+}
+function confirmItemWorld() {
+  if (!itemWorldConsent || !$('item-world-dialog').open) { itemWorldConsent = null; $('item-world-confirm').disabled = true; return; }
+  reconcileItemWorld();
+  if (!itemWorldConsent) return;
+  const quote = itemWorldConsent.quote;
+  const equipmentIds = Object.values(state.equipment).map(item => item.id).join('|');
+  const inventoryIds = state.inventory.map(item => item.id).join('|');
+  itemWorldConsent = null; $('item-world-confirm').disabled = true;
+  const completed = dispatch('enterItemWorld', quote);
+  const trial = itemWorldView(state);
+  const succeeded = completed && state.mode === 'battle' && trial.active && trial.targetId === quote.id && state.worldSeeds === quote.seedsAfter && equipmentIds === Object.values(state.equipment).map(item => item.id).join('|') && inventoryIds === state.inventory.map(item => item.id).join('|');
+  if (!succeeded) { abortItemWorld('操作未確認完成，不能視為入場成功。'); return; }
+  closeItemWorld(); render(true);
+  $('retreat-button').focus();
+  showToast(`已進入「${quote.before.name}」IW1 試煉 · 消耗 ${format(quote.cost)} 世界之種；完成五回合才獲成長。`);
+}
+function renderItemWorldStatus() {
+  reconcileItemWorld();
+  $('world-seed-balance').textContent = `${format(state.worldSeeds)} 世界之種`;
+  const trial = itemWorldView(state);
+  $('item-world-status').textContent = trial.active ? `試煉中：${trial.targetName} · 第 ${trial.round}／${trial.rounds} 回合；結束必回營。` : '已綁定的 Fair／Average／Superior 戰斧／刺劍／戰棍可選取預覽 IW1；已裝備或背包皆可。';
 }
 
 // Entire scene is independently drawn with canvas primitives; no external assets.
@@ -1424,6 +1512,12 @@ function drawScene(t, dt) {
 
 // One-shot idle adaptation: not a saved policy or original HV mechanic.
 function renderFinishCamp() {
+  const trial = itemWorldView(state);
+  if (trial.active) {
+    const button = $('finish-camp-button'); button.disabled = true; button.setAttribute('aria-pressed', 'false'); button.textContent = '試煉結束必回營';
+    $('finish-camp-status').textContent = 'Item World 不自動重刷；立即回營視為撤退，不獲 IW1，種子不退還（本作適配）。';
+    return;
+  }
   const view = finishThenCampView(state);
   const button = $('finish-camp-button');
   button.disabled = !tabOwner || !view.available;
@@ -1440,6 +1534,7 @@ function renderFinishCamp() {
           : '單次回營預約不會保存；出戰後可設定，戰敗或重新載入即清除。';
 }
 $('finish-camp-button').addEventListener('click', () => {
+  if (itemWorldView(state).active) return;
   const view = finishThenCampView(state);
   if (!view.available) return;
   if (dispatch('finishThenCamp', !view.queued)) {
@@ -1466,6 +1561,10 @@ $('auto-protection').addEventListener('change', event => {
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
 $('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
+$('item-world-confirm').addEventListener('click', confirmItemWorld);
+$('item-world-dialog').addEventListener('close', closeItemWorld);
+$('item-world-dialog').addEventListener('cancel', closeItemWorld);
+$('import-save').addEventListener('click', closeItemWorld);
 $('soulbind-confirm').addEventListener('click', confirmSoulbindWeapon);
 $('soulbind-dialog').addEventListener('close', closeSoulbindWeapon);
 $('soulbind-dialog').addEventListener('cancel', closeSoulbindWeapon);
@@ -1527,6 +1626,9 @@ window.addEventListener('popstate', clearSelectedSale);
 window.addEventListener('pagehide', clearSelectedSale);
 window.addEventListener('pagehide', closeGearSetDialog);
 window.addEventListener('popstate', closeGearSetDialog);
+window.addEventListener('popstate', closeItemWorld);
+window.addEventListener('pagehide', closeItemWorld);
+$('save-file').addEventListener('change', closeItemWorld);
 window.addEventListener('popstate', closeSoulbindWeapon);
 window.addEventListener('pagehide', closeSoulbindWeapon);
 $('save-file').addEventListener('change', closeSoulbindWeapon);
@@ -1576,7 +1678,7 @@ setupCampNavigation();
 setInterval(() => {
   if (!pageActive) return;
   if (ownership.supported && !handoff && (!document.hidden || prefs.backgroundIdle)) ownership.request();
-  pump.tick(); reconcileWeaponCommission(); reconcileSoulbindWeapon();
+  pump.tick(); reconcileWeaponCommission(); reconcileSoulbindWeapon(); reconcileItemWorld();
   if (tabOwner) save();
 }, 250);
 function frame(now) {
@@ -1587,7 +1689,7 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-if (loaded.migrated) notice('已讀取舊版 v1／v2 儲存位置的進度，將另存至目前的 v3 儲存位置（資料格式 v2）；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在目前版本繼續遊玩或手動匯出。');
+if (loaded.migrated) notice('已讀取舊版 v1／v2 儲存位置的進度，將另存至目前的 v3 儲存位置（資料格式 v3）；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在目前版本繼續遊玩或手動匯出。');
 if (loadProblem) notice(loadProblem);
 if (!ownership.supported) {
   prefs.backgroundIdle = false;
