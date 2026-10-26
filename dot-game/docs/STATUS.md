@@ -1,5 +1,14 @@
 # Current status
 
+## v0.13 desktop accepted; root promotion pending — 2026-10-26 06:24 UTC
+
+Bounded actual cloud-browser acceptance passed. Fresh unknown starter weapon was inactive; the normal earned Lv20 import showed29.24% conditional counterchance and a1-per-turn cap. Manually equipping owned block gear and ordinary stage4 onward progression produced visible194/205counter notices and a stage7 report with2counterattempts/298actualHPremoved, distinct from basic/skill damage. Reload retained naturalLv21/gold10816/items109/wins91 and cleared session-only counter/report observations. No new narrow/mobile/takeover claim is made; see docs/BROWSER-QA-V013.md (BROWSER-QA-V013.md from docs/) for limits and separate source evidence.
+
+Full candidate source `c08de8e753edf690eff96066e3d9dbd7b385f968` is exact-readback verified (124files/123payloads). Site candidate `d121a67aad4ad41b65ca05deee77f5dd8c10b6f0` passed exact Pages40278750956/HTTP6. Existing978tests/foursyntax passes and final independent15test cohort are reused without runtime reruns for this docs-only acceptance. Public v0.12/recovery `9e84422bfc366fc1c526ff7f052f2dd8bd69d30d` remain accepted until promotion/rootsmoke; the accepted source receipt must be backed up first.
+
+### Earlier candidate timeline (historical)
+
+
 ## v0.13 development candidate — 2026-10-26 06:00 UTC
 
 A researched one-handed Counter-Attack damage subset adds retaliation after an actually successful parry/block check, including partial defenses as an explicit adaptation. Recognized one-handed weapon families use the original chance formula and proficiency-based per-player-turn attempt cap. Counter damage uses current sheet attack, benefits from existing armor penetration, cannot crit or apply weapon procs, and is reported separately. Original counter stun, Overcharge and Overwhelming Strikes remain unimplemented; this is not the full original fighting style. See docs/COUNTERATTACK-GUIDE.md (COUNTERATTACK-GUIDE.md from docs/) for source facts and integration choices.
