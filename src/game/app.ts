@@ -423,7 +423,7 @@ export class App {
 
   lastSettlement: Settlement | null = null;
   /** cp8-rc6 item 6: the last enemy hit that did damage this run (for the 死因 line on the death screen). */
-  lastHit: { who: string; label?: string; dmg: number; hp: number; maxHp: number; charged: boolean } | null = null;
+  lastHit: { who: string; label?: string; dmg: number; maxHp: number; charged: boolean } | null = null;
   /** cp8-rc6 items 3 + 6: estimated heavy-hit damage and, when the health potion is on cooldown, a hint to use 防禦 / 靈動 instead. */
   chargeExtra(b: BattleState, chargers: Monster[]): string {
     const est = Math.max(...chargers.map((m) => chargeEstimate(b, m)));
@@ -438,7 +438,7 @@ export class App {
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
     const hint = h.charged ? '首領蓄力（⚠）時先按 D·防禦，藥水冷卻中就別等藥。' : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
-    return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（受擊前 HP ${h.hp}/${h.maxHp}）<br><span class="hint">建議：${hint}</span></p>`;
+    return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（佔最大 HP ${Math.round((h.dmg / h.maxHp) * 100)}%）<br><span class="hint">建議：${hint}</span></p>`;
   }
   resultHtml(): string {
     const s = this.lastSettlement!;
@@ -744,7 +744,7 @@ export class App {
       if (e.t === 'hit' && e.to === 'player' && typeof e.from === 'number') {
         const who = esc(b.monsters[e.from]!.name);
         const how = e.avoided === 'evade' ? '（閃避）' : e.avoided === 'parry' ? '（招架）' : e.avoided === 'block' ? '（格擋）' : e.avoided ? '（未命中）' : '';
-        if (e.dmg > 0) this.lastHit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, hp: Math.round(b.hp + e.dmg), maxHp: Math.round(b.d.hp), charged: !!e.label && e.label.includes('重擊') };
+        if (e.dmg > 0) this.lastHit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, maxHp: Math.round(b.d.hp), charged: !!e.label && e.label.includes('重擊') };
         if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }
