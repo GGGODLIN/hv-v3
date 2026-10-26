@@ -100,3 +100,28 @@ P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 25
 
 ### P4 B 組「後段平」N=256 重跑（暫定）
 目前 AI、cp8 開、SEED0=256、N=256（docs/logs/cp8rc2/curB256.jsonl）：d16–20 5.6% ≤ 1.25 × d11–15 4.7% = 5.8% → PASS。N=128 時的 5.2% > 5.1% 判定為抽樣誤差。依製作人決定，d16–20 不做調整。
+
+## rc3（試玩回饋修正，未打 tag：P2 FAIL）
+
+### 1. 刀／秘法 simple play 早死
+- 已驗證（程式＋preset sim）：秘法拿法杖只按「攻擊」= 近戰普攻（adb 118、wprof 5），舊碼 preset sim trip1/2 中位 d7/d7。
+- 修正（RULES.cp8，暫定）：`CP8.staffQuickSpell='fiery'`，主手法杖且可施放時「A·攻擊」改放烈焰爆破（`quickAttack`，UI 與 naive 共用）。preset sim N=32：秘法 d15/d20、刀 d20/d25、OC d24/d25、磐石 d27/d27。
+- 刀：sim 中位 d20，約 25% 種子 trip1 ≤ d15，試玩 d13 在分佈內（推測：變異＋preset 鐮刀弱、0 血瓶）。未另調。
+- 副作用（已驗證）：naive 拿法杖的角色很多，naive trip1 中位由 rc2 d15 → rc3 d20–24（刀 A 組 N=32：關 14、開 22）。
+
+### 2. 整備提醒「裝備」列從不出現
+- 根因（已驗證）：CP8.autoWear 在趟中就把 ▲ 掉落穿上，回城時背包不會有 ▲。
+- 修正：settle 記 `lastWorn`，出發時新列 `data-prep-row="worn"` 告知已自動換上的裝備（顯示一次）；cp8 開時 betterInBag 以「自動分配」後角色判定（cp8 關不變，保住 cp7-rc5 測試）。e2e `cp8-rc3-prep-e2e.mjs`、vitest `tests/cp8-rc3.test.ts`。
+
+### 3. d25 首領跳階
+- 分解（已驗證，logs/cp8rc3/d20-25-breakdown.txt，目前 AI，每場滿血）：d21→24 一般戰 adb 1028→1415、勝率 79→61%；d25 首領同時疊 tier 3→4、pl 134→144、第一個首領詞綴，OC 單場勝率 d24 75.8% → d25 54.7%。
+- 修正（RULES.cp8，暫定）：`CP8.boss25Dmg=0.5`（取代 ABYSS.bossDmgAt[25]=0.6）。d25 首領勝率 ALL 71.9→78.7%、OC 54.7→59.4%。d21–24 themeTail 坡度未動（P4 PASS）。
+
+### 4. d21 選完 buff 後節點短暫點不到
+- 已驗證（puppeteer 量測）：DOM 上節點並未 disabled，但起始 buff 面板在塔上方，選完面板消失，節點 top 從 707px 跳到 ~310px，玩家游標落空 = 「點不到」（推測為試玩描述的成因；未能以時間鎖重現）。
+- 修正（RULES.cp8）：起始 buff 面板移到右欄（背包欄上方），選 buff 過程節點最大位移 15px。e2e `cp8-rc3-startpick-e2e.mjs`（從 d21 出發、位移 < 80px、第一次真實點擊即進戰鬥）。
+
+### 重跑結果（commit a2d89ad 程式碼）
+- vitest 255/255 PASS；cp4-on-check == baseline；e2e 13/13 PASS（5198，logs/cp8rc3/*.log）。
+- naive＋目前 AI（rc3F.txt）：P1 PASS（A 1.263×、B 1.200×）、P3 94.0%/95.6%、P4 全部 PASS（B 組後段平 N=128 5.2%>5.1% FAIL，N=256 重跑 5.6% ≤ 5.8% PASS）、P5 0.0%、磐石 d16 N=256 95.8%。
+- **P2 FAIL**：A+B 合併 trip1→trip2 中位 刀 20→25、OC 20→25、秘法 22→25、磐石 24→25（需 +2）。推測：staffQuickSpell 使 naive trip1 大幅變深，trip2 中位卡在 d25 首領／檢查點（cleared 值集中在 22/24/25/27），磐石只差 1。待製作人決定：調整 P2 定義、調整 staffQuickSpell，或再調 d25。
