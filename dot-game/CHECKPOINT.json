@@ -1,15 +1,15 @@
 {
-  "checkpoint": "v0.18-finish-camp-source-candidate",
-  "status": "source-tested-not-browser-accepted-not-published",
-  "base_source": "50d37a0eac4189bbdecd70ccd29dc06bee82c7af",
+  "checkpoint": "v0.18-desktop-accepted",
+  "status": "bounded-desktop-accepted-awaiting-root-publication",
   "base_accepted_recovery": "69c837f85c01b8352be4316874dc959d2462e0cb",
-  "accepted_site": "972f55df0b6951efdaa939c3bd7dba6331ace862",
+  "runtime_source": "92bf6bc0528b0066d63beff10ce0e3d0aa32ed72",
+  "candidate_site": "0a450355089637dcf95b6a528dea3388ecc5fea1",
   "source_tests_passed": 1253,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 49776,
-      "sha256": "d12f98a383c628d7130d522b14a6cc252ca9212adc63f1898d10d91a8ec19ca3"
+      "bytes": 51263,
+      "sha256": "8774aea370803ebf1606934e39258d5ab68dd2bef9442ecc1fb134822af7095d"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -124,8 +124,8 @@
       "sha256": "c2eaf2c75d2c970d608d3572c7ee3ffae1f2f5dcb058baa39cc8a888dbf3e461"
     },
     "docs/BROWSER-QA-V018.md": {
-      "bytes": 3293,
-      "sha256": "4cbfeedccf1a15e9ea93c9ccbaea72bd388dc7ec9e2dd689d6f2b69ff60f8878"
+      "bytes": 7257,
+      "sha256": "d51776e5d9396414e7bcf0c278fe04095925cb4d99549501e65f46a7b6da3f2b"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -208,8 +208,8 @@
       "sha256": "a4e1b046b3c017dedc5914738b2d32b37731deb26ece65b505c2707d73081f61"
     },
     "docs/FINISH-CAMP-GUIDE.md": {
-      "bytes": 1562,
-      "sha256": "a9ad77e9cbd6ab15f68d2d33730afd27110f2accae0b7af84e0d62e4ab617a3e"
+      "bytes": 1567,
+      "sha256": "2e0db95731613fe78001458bd9db675fcc7854046ce15b52cc20cf21959f472a"
     },
     "docs/GEAR-SETS.md": {
       "bytes": 3704,
@@ -264,8 +264,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 73338,
-      "sha256": "472812f5ff6886b969d50a0ed626560ed0f2a59776f9e7857dc5cf374276df50"
+      "bytes": 74825,
+      "sha256": "9d59ca4f476cba9a1c64aca1af42931e4b55302913a75ca332dcbe5572f29179"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,

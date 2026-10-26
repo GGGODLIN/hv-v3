@@ -1,5 +1,15 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.18 bounded desktop accepted; root promotion pending — 2026-10-26 14:02 UTC
+
+Two new player choices are now actually played: supported **commission suffix selection** and one-shot **通關後回營**. Natural Lv11 progress paid608 credits for Nimble (949→341), received locked without auto-equipping, then equipped for attack139→132 / parry15.15%→21.76%. A stage3 victory returned to camp at wins18/gold451 despite auto-advanceON. Queue/cancel, already-settled intermission (wins19/gold561 unchanged on camp return), reload reset and readonly controls passed. These are observed runs, not proof of universal build superiority.
+
+Combined source `92bf6bc0528b0066d63beff10ce0e3d0aa32ed72` passed1,253 tests/four syntax checks. After fresh explicit post-denial candidate authorization, rebuilt site candidate `0a450355089637dcf95b6a528dea3388ecc5fea1` passed exact Pages40334828295, six GitHub readbacks and six HTTP byte/SHA256 comparisons. See docs/BROWSER-QA-V018.md for bounded desktop evidence and limitations. Earlier blocked candidate021f was not used.
+
+This acceptance receipt changes documentation/manifest only; runtime checks are reused. Stable v0.17/restore `69c837f85c01b8352be4316874dc959d2462e0cb` remain until this full source is backed up, root promotion passes exact CI/HTTP and stable-root smoke completes. Candidate and stable saves stay separate; no user-save, account, Library or schedule restoration claim.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.18 combined source candidate — finish this expedition, then camp
 
 The existing suffix-choice commissions are now joined by a one-shot **通關後回營** control. During combat, queue it to collect the current expedition's full normal victory rewards and return before automatic repetition or stage advancement. Click again to cancel. During the already-settled victory intermission, the same control returns immediately without repeating rewards. Immediate **回營整備** remains available and retains its existing behavior.
