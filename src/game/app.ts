@@ -467,7 +467,7 @@ export class App {
     return `<br><span data-chargeest="${est}:${pct}">預估傷害 約 ${est}（佔最大 HP ${pct}%）· 防禦後約 ${estD}</span>`
       + (urgent ? `<br><b class="warn" data-urgent="${est}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：先喝藥或防禦</b>` : '')
       + this.chargePayoff(b, chargers, est, estD)
-      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
+      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${guardHint(b) === 'spirit' ? '這回合改用 <b>S·靈動架勢</b>' : '繼續攻擊、儘快收掉怪物'}（D·防禦 在 OC 不足 25 時只減傷不回血，又放棄攻擊，此時不建議）</b>` : '');
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
   /** cp8-rc10 P0-4 */

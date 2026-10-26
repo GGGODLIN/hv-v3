@@ -50,7 +50,7 @@ pg = await page('postF20-blade');
 R.inBattle = await toBattle(pg);
 R.charge = await pg.evaluate(() => { const a = window.hv, s = a.battle; s.itemCd.health = 7; s.potions.health = 2; const m = s.monsters.find((x) => x.hp > 0); m.charge = 1; a.render();
   return { est: document.querySelector('[data-chargeest]')?.textContent ?? null, cd: document.querySelector('[data-cdhint]')?.textContent ?? null }; });
-if (!/預估傷害 約 \d+（佔最大 HP \d+%）/.test(R.charge.est ?? '') || !/冷卻中.*D·防禦.*S·靈動架勢/.test(R.charge.cd ?? '')) fail.push('items3/6 charge box');
+if (!/預估傷害 約 \d+（佔最大 HP \d+%）/.test(R.charge.est ?? '') || !/冷卻中.*(S·靈動架勢|繼續攻擊).*不建議/.test(R.charge.cd ?? '')) fail.push('items3/6 charge box');
 R.noCd = await pg.evaluate(() => { const a = window.hv, s = a.battle; s.itemCd.health = 0; a.render(); return !!document.querySelector('[data-cdhint]'); });
 if (R.noCd) fail.push('cd hint shown without cooldown');
 // item 7: force blocks (evade/parry off, block 1), keep both sides alive
