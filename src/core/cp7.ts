@@ -16,7 +16,10 @@ export const CP7 = {
   pityUntil: 2,
   pityTries: 32,
   pityPasses: 8, // cp7-rc2: was 3 (暫定)
-  pityLevelStep: 3,
+  /** cp7-rc3: was 3 — each pass rolled 3 levels higher, so pity reached worn+24 (the Lv33/Lv39 drops in playtest). Now 0: pity
+   *  never rolls above max(drop level, worn level); later passes raise quality instead (`pityQualityPerPass`, 暫定). */
+  pityLevelStep: 0,
+  pityQualityPerPass: 1,
   /** 暫定: every `pityBumpEvery` failed pity rolls the quality floor rises one step (so late-game gear can still be beaten). */
   pityBumpEvery: 2,
   pityMinQuality: 'average' as Quality,
@@ -70,7 +73,7 @@ export function pityPiece(rng: Rng, p: Player, level: number): Equip | null {
     const slot = rng.pick(CP7.pitySlots);
     const w = p.equipped[slot];
     const group = w?.group === 'cloth' || w?.group === 'light' || w?.group === 'heavy' ? w.group : rng.pick<'cloth' | 'light' | 'heavy'>(['cloth', 'light', 'heavy']);
-    const qi = Math.max(QUALITIES.indexOf(CP7.pityMinQuality), w ? QUALITIES.indexOf(w.quality) : 0) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0);
+    const qi = Math.max(QUALITIES.indexOf(CP7.pityMinQuality), w ? QUALITIES.indexOf(w.quality) : 0) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0) + pass * CP7.pityQualityPerPass;
     const e = generateEquip(rng, top + pass * CP7.pityLevelStep, { group, slot, quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
     const g = wearGain(p, e);
     if (g > CP7.betterMargin && g < bestGain) { best = e; bestGain = g; }
@@ -98,7 +101,7 @@ export function pityWeapon(rng: Rng, p: Player, level: number): Equip | null {
   let best: Equip | null = null, bestGain = Infinity;
   const top = Math.max(level, ...Object.values(p.equipped).map((e) => e?.level ?? 0));
   for (let pass = 0; pass <= CP7.pityPasses && !best; pass++) for (let i = 0; i < CP7.pityTries; i++) {
-    const qi = QUALITIES.indexOf(mh.quality) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0);
+    const qi = QUALITIES.indexOf(mh.quality) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0) + pass * CP7.pityQualityPerPass;
     const e = generateEquip(rng, top + pass * CP7.pityLevelStep, { group: mh.group, base: mh.base, slot: 'mainHand', quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
     const g = wearGain(p, e);
     if (g > CP7.betterMargin && g < bestGain) { best = e; bestGain = g; }
