@@ -1,5 +1,16 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.15 desktop accepted; root promotion pending — 2026-10-26 11:59 UTC
+
+Latest runtime3f5b3cce2c1fdf3ddb98966bbd93ef2e8d761ceb is source-backed (1,155 tests/four syntax). Following explicit isolated-test-page approval, candidate1fa69a69d390123804e3aabd2d71079b00804025 passed exact Pages40318235306 and HTTP6; all3882 earlier website blobs stayed unchanged.
+
+Actual cloud play passed ordinary v0.14 save import, earned568gold rapier purchase, equipment input11.646→adapted15.15%parry, A/B exact preview/swap, reload and preset sale protection. Real victories and counter damage were observed; final normal export retained all13 legacy owned IDs and30 total items. See BROWSER-QA-V015.md for reset/new-profile explanation and explicit random-Nimble/capacity/device limits. Runtime/tests unchanged; results reused for this docs-only checkpoint.
+
+Public root remains v0.14 until this acceptance receipt is backed up and root promotion/smoke complete. Prior accepted restore22bdfca3068c7934921c2493eb40de624d684318 stays available. Source backup does not preserve personal browser saves or account/schedule permissions.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.15 source-only departure feedback correction — 2026-10-26 09:00 UTC
 
 This candidate fixes the existing camp control mismatch: departure requires at least five free inventory slots and no pending loot, exactly as the unchanged engine already enforces. The Start button now reflects that condition, and its adjacent hint states the remaining slot deficit or pending-loot reason. A rejected/repeated start no longer plays the successful-departure sound. Successful/manual lifecycle timing and rejected-action clock preservation are unchanged. See docs/DEPARTURE-FEEDBACK.md.

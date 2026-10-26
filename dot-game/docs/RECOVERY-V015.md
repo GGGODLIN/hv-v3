@@ -1,5 +1,8 @@
 # v0.15 source-backed candidate; staging blocked
 
+## Updated: prior staging blocker resolved, 2026-10-26 11:59 UTC
+Explicit user approval enabled isolated candidate1fa69a69 from newer corrected runtime3f5b3cce. Exact CI/HTTP and bounded browser acceptance now pass; see BROWSER-QA-V015.md. The earlier blocker below is historical. This acceptance receipt is the latest candidate-source restore after exact readback; root promotion remains pending and accepted public v0.14 is still valid. Never deploy stale71c68c26.
+
 ## v0.15 source-only departure feedback correction — 2026-10-26 09:00 UTC
 
 This candidate fixes the existing camp control mismatch: departure requires at least five free inventory slots and no pending loot, exactly as the unchanged engine already enforces. The Start button now reflects that condition, and its adjacent hint states the remaining slot deficit or pending-loot reason. A rejected/repeated start no longer plays the successful-departure sound. Successful/manual lifecycle timing and rejected-action clock preservation are unchanged. See docs/DEPARTURE-FEEDBACK.md.

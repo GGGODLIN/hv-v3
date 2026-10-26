@@ -1,15 +1,14 @@
 {
-  "checkpoint": "v0.15-departure-feedback",
-  "status": "source-tested-browser-pending-website-staging-blocked",
+  "checkpoint": "v0.15-browser-accepted",
+  "status": "bounded-desktop-accepted-root-promotion-pending",
   "base_accepted_recovery": "22bdfca3068c7934921c2493eb40de624d684318",
-  "base_runtime_source": "48776a2cac13eaf6842c46de7e26ef264c115bd1",
-  "source_parent": "23bb3837c11087a17e66599944af63114ac496f6",
+  "runtime_source": "3f5b3cce2c1fdf3ddb98966bbd93ef2e8d761ceb",
   "source_tests_passed": 1155,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 35856,
-      "sha256": "918ad50997b433c34049061be4db0fd7fd91fe15e73bc894aeeadf08a0474374"
+      "bytes": 37026,
+      "sha256": "0bdb452ae09f6e9daf00baa47505b1bdfbf25da5c989c2e389291ece23af3c82"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -102,6 +101,10 @@
     "docs/BROWSER-QA-V014.md": {
       "bytes": 7057,
       "sha256": "92be19accf60047d79a9ebd4ff3347551654c575c3d6d6ea463eee0f0bb219cd"
+    },
+    "docs/BROWSER-QA-V015.md": {
+      "bytes": 4832,
+      "sha256": "3c2bd3660b942b63b8c6a847bd7c5d1ab7d2ce43e23bdc4ffc5ba3e6b71698fc"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -200,8 +203,8 @@
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RECOVERY-V015.md": {
-      "bytes": 6175,
-      "sha256": "4ee7f5e6c4aa02154065a5a49be784814b909ec606d8893f9ab4b5e74a815038"
+      "bytes": 6643,
+      "sha256": "479d0046a6220b31dcbb87c475a587ad0fab214c9f0fcf85a101a56c395a12ce"
     },
     "docs/RELEASES.md": {
       "bytes": 33832,
@@ -220,8 +223,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 59418,
-      "sha256": "f51c6054d3670fc560da493fe32ce0c06412e49b43ceaca4d57311569ec52c4c"
+      "bytes": 60588,
+      "sha256": "7530441efdd47b4b73f31d5e247e94cfe1e772c1cecb7baa94976ef4cb392e7e"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
