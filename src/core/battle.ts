@@ -303,9 +303,9 @@ function stylePassive(s: BattleState, rng: Rng, t: number, dealt: number, ev: BE
 
 const COUNTER = { base: 25, attrK: 0.02, profDiv: 10, cap: 0.75 };
 /** rc7 (c): 1H Counter-Attack after a block or parry (Fighting_Styles.md:71-84): main-hand damage, no crit, cannot be evaded or parried; OC once per turn. */
-function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: BEvent[]): boolean {
+function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: BEvent[], extra = 0): boolean {
   const a = s.d.attrs, p = s.d.wprof, m = s.monsters[ti]!;
-  if (done >= (p >= 200 ? 3 : p >= 100 ? 2 : 1)) return false;
+  if (done >= (p >= 200 ? 3 : p >= 100 ? 2 : 1) + extra) return false;
   if (!rng.chance(Math.min(COUNTER.cap, (COUNTER.base + COUNTER.attrK * (a.str + a.dex) + p / COUNTER.profDiv) / 100))) return false;
   const raw = s.d.adb * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * (s.ow && s.ow.turns > 0 ? 1 + OVERWHELM.dmg : 1);
   const r = resolveHit(rng, { raw, magic: false, acc: s.d.physAcc, evade: 0, parry: 0, block: 0, resist: 0, critChance: 0, critMod: 0, mit: ironMit(m, m.physMit), spec: m.spec[s.d.damageType] / 100 });
@@ -604,6 +604,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   if (s.over) return;
   const defending = s.defendTurns > 0;
   let ripostes = 0, counters = 0;
+  const defBonus = RULES.cp8 && defending && s.mods?.combo.bulwark ? CP8.bulwarkDefCounter : 0; // cp8-rc8 P2-1 自訂，非原版
   // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
   const hp0 = s.hp, cap = RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity;
   s.monsters.forEach((m0, i) => {
@@ -650,9 +651,9 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
-    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev)) counters++;
+    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus)) counters++;
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
-    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
+    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
       physHit(s, rng, i, BULWARK_RIPOSTE.mult, ev, '反擊');
       s.mods.counterReady = keep;
