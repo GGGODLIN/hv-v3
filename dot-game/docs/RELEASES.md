@@ -223,6 +223,8 @@ Session-only recent expedition reports with an optional pinned comparison; no co
 ## v0.10 development candidate — 2026-10-26 03:12 UTC
 Three first-rank learned/slotted AP abilities (HP Tank, MP Tank,1H Damage), five starting Major slots and derived level AP; strict optional persistence with no default auto-allocation. Free camp refund and existing maxHP-based support remain explicit adaptations. Final694/694 tests and syntax4 pass; independent exactfloor/strictsave/31acquisition+15pairedrun evidence in ACCEPTANCE-V010.md. No universal benefit or complete ability-tree claim. Public v0.9 stays accepted until backup/browser/release gates complete.
 
-## v0.19 — growth discovery (bounded-desktop candidate accepted; root pending)
+## v0.19 — growth discovery (published, bounded-desktop accepted)
 
 Existing eligible learning, uninstalled learned ranks and active-line upgrades are visible from the growth tab. Focus-only shortcut never spends or configures; Protection remains a separate optional tradeoff. No rule/RNG/save change. 1,295 tests; four syntax checks; 14,400 paired baseline observations. Source `88907e42c728922a50038b219799a7baa6c74c4f`; candidate `7a424212937f61ce019662ee44389397fc562760`; Pages `40340421670` and six HTTP comparisons passed. [Browser acceptance](BROWSER-QA-V019.md). Current restore/publication evidence lives in STATUS; earlier README/status provenance in HISTORY-READMES-STATUS.
+
+Publication receipt: accepted source `deb39342a5ac84a85c9e898370a2acbf10b02432`; root `ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`; exact Pages `40342010206`, six HTTP hashes and stable-root learn/slot/victory/reload passed. See current STATUS and BROWSER-QA-V019 for full bounded evidence; no further v0.19 publication gate remains.

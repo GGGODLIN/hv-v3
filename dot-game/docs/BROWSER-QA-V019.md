@@ -1,6 +1,6 @@
 # v0.19 browser acceptance
 
-2026-10-26 14:34–14:37 UTC, supported cloud Chromium, actual desktop viewport 1188 × 761 (client width 1173). Candidate only at this checkpoint; root publication/smoke still pending.
+2026-10-26 14:34–14:37 UTC, supported cloud Chromium, actual desktop viewport 1188 × 761 (client width 1173). Candidate accepted first; root publication and smoke subsequently passed (14:44–14:45 UTC).
 
 - Runtime source: `88907e42c728922a50038b219799a7baa6c74c4f`.
 - Candidate website: `7a424212937f61ce019662ee44389397fc562760`, [isolated v0.19 page](https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.19/).
@@ -22,6 +22,8 @@
 
 Real higher-rank browser play was not fabricated: gate/max/upgrade focus cases are independent source/UI tests, not high-level browser progression. No hidden-state injection, forced RNG, free currency, edited save or automatic allocation. Candidate normal export/import is a temporary testing transport, not a backed-up personal save. No OS-suspend, physical-mobile, schema-negative browser import or universal background guarantee claimed. Existing inherited limits remain.
 
-## Root promotion
+## Root promotion — PASS
 
-Pending verified accepted-source backup, exact root Pages/HTTP, and actual stable-root smoke. Root remains v0.18 until those steps.
+Pre-publication accepted source `deb39342a5ac84a85c9e898370a2acbf10b02432` was backed up/read back before root `ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`. Exact Pages `40342010206` succeeded; six root HTTP payload hashes match accepted runtime.
+
+Actual stable-root reload showed v0.19 while retaining its own Lv9 / gold382 / wins11 / inventory20 / AP9, not the candidate Lv10 profile. End selected growth; focus-only shortcut left AP9 unchanged. Explicit HP Tank learning used 1 AP; separate slot activation increased HP751→824. One normal stage-1 victory with queued return gave gold458 / wins12 / inventory21. Reload retained HP Tank Rank1 slotted, AP8, HP824, MP43, attack127, ProtectionOFF, and reset selected tab to battle. No application-source errors were captured (only the same specifically identified extension source). Root tab2 remains the deliverable in camp; candidate and readonly tabs closed. No candidate save was imported to root.

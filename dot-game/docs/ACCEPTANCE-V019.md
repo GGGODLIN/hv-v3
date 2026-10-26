@@ -1,6 +1,6 @@
 # v0.19 source acceptance — growth discovery
 
-2026-10-26; bounded-desktop candidate accepted; root publication pending.
+2026-10-26; bounded-desktop candidate and root accepted; published.
 
 Base accepted full source: `b61a8ed67ea9c58260dab0bb98ea754a6ff33f0a` (v0.18).
 
@@ -17,6 +17,6 @@ Read-only `growthReadiness` composes existing ability and Protection views. UI a
 - Independent baseline check: engine source outside the added pure helper is byte-identical; 12 old/new runs (four seeds × three tactics), 1,200 ticks each, yielded **14,400 exact full-state/RNG/report comparisons**. Tests also retain 2,400 paired instrumentation observations.
 - Existing tab, ability, commission, sale, finish-camp, combat, timing, save and migration regression remains passing. Only current-version UI marker assertions were advanced from 0.18 to 0.19.
 
-## Browser acceptance and remaining release gates
+## Browser acceptance and publication
 
-Source88907e42c728922a50038b219799a7baa6c74c4f backup/readback verified. Candidate7a424212937f61ce019662ee44389397fc562760 exact Pages40340421670 and six HTTP hashes passed. Actual browser focus/learn/slot/fight/Protection/reload/readonly checks passed; see [BROWSER-QA-V019.md](BROWSER-QA-V019.md). Accepted-source receipt and root publication/stable smoke remain pending. Real higher-rank browser play is not claimed from level-gate unit fixtures. No narrow/physical-mobile or OS-suspend acceptance is claimed.
+Source88907e42c728922a50038b219799a7baa6c74c4f backup/readback verified. Candidate7a424212937f61ce019662ee44389397fc562760 exact Pages40340421670 and six HTTP hashes passed. Actual browser focus/learn/slot/fight/Protection/reload/readonly checks passed; see [BROWSER-QA-V019.md](BROWSER-QA-V019.md). Accepted-source `deb39342a5ac84a85c9e898370a2acbf10b02432` then root `ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5` were verified; exact Pages40342010206, six HTTP hashes and actual stable-root smoke passed. Real higher-rank browser play is not claimed from level-gate unit fixtures. No narrow/physical-mobile or OS-suspend acceptance is claimed.
