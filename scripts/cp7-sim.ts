@@ -14,7 +14,7 @@ import { CP7, simPickStart } from '../src/core/cp7';
 import { Rng } from '../src/core/rng';
 import { CP8 } from '../src/core/cp8';
 import { act, type BattleState } from '../src/core/battle';
-import { decide, prefBuff, LEAN_ALLOC, LEAN_ROUTE, LEAN_KIT, BULWARK_STYLE, type BuffStrategy } from '../src/core/auto';
+import { decide, prefBuff, LEAN_ALLOC, LEAN_ROUTE, LEAN_KIT, LEAN_BUFF_FIRST, BULWARK_STYLE, type BuffStrategy } from '../src/core/auto';
 import { openOffer, takeBuff } from '../src/core/buffoffer';
 import { derive } from '../src/core/player';
 const E = process.env;
@@ -24,6 +24,7 @@ for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typ
 for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_ALLOC_${l}`]) { const v = E[`K_ALLOC_${l}`]!.split(',').map(Number); LEAN_ALLOC[l] = Object.fromEntries(['str', 'dex', 'end', 'agi', 'int', 'wis'].map((k, i) => [k, v[i]!])); } // cp8-rc6 Part B tuning
 for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_ROUTE_${l}`]) { const [a, b] = E[`K_ROUTE_${l}`]!.split(',').map(Number); LEAN_ROUTE[l] = { restBelow: a!, eliteAbove: b! }; } // cp8 (b) tuning
 for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_KIT_${l}`]) { const [b, m] = E[`K_KIT_${l}`]!.split(','); LEAN_KIT[l] = { body: (b || undefined) as 'cloth' | undefined, mana: Number(m || 0) }; } // cp8 (b) tuning
+for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_BUFF1_${l}`]) LEAN_BUFF_FIRST[l] = E[`K_BUFF1_${l}`]!.split(','); // cp8 (b) tuning
 if (E.K_BW_ARMOR !== undefined) BULWARK_STYLE.armor = (E.K_BW_ARMOR || undefined) as 'heavy' | undefined;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;

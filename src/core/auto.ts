@@ -181,12 +181,15 @@ export type Strategy = 'auto' | 'human' | 'avoid' | 'noweak' | BuffStrategy;
 export type BuffStrategy = `buff:${'blade' | 'oc' | 'arcane' | 'bulwark'}${'' | '-nocore' | '-nocore-nofloor'}` | 'buff:random';
 export const buffSchool = (s: BuffStrategy) => s.slice(5).replace(/-nocore(-nofloor)?$/, '');
 export const isBuffStrat = (s: Strategy): s is BuffStrategy => s.startsWith('buff:');
+/** cp8 (b) (producer 2026-10-26, 暫定, our own AI knob, no source): per-school buff ids the cp8 auto-pick takes before its own school
+ *  (defensive / recovery first). Empty = old order. */
+export const LEAN_BUFF_FIRST: Partial<Record<string, string[]>> = {};
 export function prefBuff(ids: string[], strat: BuffStrategy, rng: Rng): string | undefined {
   if (!ids.length) return undefined;
   const school = buffSchool(strat);
   if (school === 'random') return ids[rng.int(0, ids.length - 1)];
-  const nocore = strat.includes('-nocore');
-  const score = (id: string) => { const b = BUFF[id]!; return b.school === school ? (b.core && !nocore ? 0 : 1) : b.school === 'none' ? 2 : 3; };
+  const nocore = strat.includes('-nocore'); const first = (RULES.cp8 && LEAN_BUFF_FIRST[school]) || [];
+  const score = (id: string) => { const b = BUFF[id]!; if (first.includes(id)) return -1 + first.indexOf(id) / 100; return b.school === school ? (b.core && !nocore ? 0 : 1) : b.school === 'none' ? 2 : 3; };
   return [...ids].sort((a, b) => score(a) - score(b) || ids.indexOf(a) - ids.indexOf(b))[0];
 }
 /** 暫定 (CP2b): chance the human model takes a battle when one is offered and HP is at least 55%. */
