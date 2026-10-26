@@ -1,7 +1,7 @@
 {
-  "checkpoint": "122-v026-exquisite-iw1-candidate",
+  "checkpoint": "124-v026-publication-blocker-receipt",
   "version": "0.26.0",
-  "status": "source-tested-candidate-browser-pending",
+  "status": "source-complete-candidate-staging-tool-blocked",
   "base_accepted_recovery": "e5962e728ae4c20db80172916f3e1a9b72815a91",
   "source_tests_passed": 1583,
   "runtime_syntax_checks": 4,
@@ -22,11 +22,11 @@
   ],
   "measurement_actual_export_independent_forks": 4,
   "measurement_final_sha256": "065333f0519d157aa5fad2632a4fcb34c2fc7013fbff49bd43da807994b38c38",
-  "frozen_utc": "2026-10-26T22:12:51Z",
+  "frozen_utc": "2026-10-26T22:21:41Z",
   "files": {
     "README.md": {
-      "bytes": 6350,
-      "sha256": "1b28c497f068ebf7e247ba677eb246f82e6bc17ea48f97e6e4903c529abfe488"
+      "bytes": 6506,
+      "sha256": "554dfb47f1a923b76237a4f6a0629c8e26da7ee0a82f2d2acfb893991b5baa4f"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -97,8 +97,8 @@
       "sha256": "ce8a40df775a86b86981156978cf2f9ceaa79ed86fcfa4b633cd86129b4555cb"
     },
     "docs/ACCEPTANCE-V026.md": {
-      "bytes": 4006,
-      "sha256": "0fb36d4ee982c08a81257989c4accc35b14a57a0c92bbcc7b56c67004c536df8"
+      "bytes": 4662,
+      "sha256": "326b1144336c350bfb9976000cfa786d2394965041f9f5c0de03bf35f983beba"
     },
     "docs/ACCEPTANCE-V03.md": {
       "bytes": 7790,
@@ -376,6 +376,10 @@
       "bytes": 4903,
       "sha256": "b08104c3bc5faf7978012281f0a9dc70aa16d3a58ba2171af67eb73ea358a0c2"
     },
+    "docs/PUBLICATION-BLOCKER-V026.md": {
+      "bytes": 3576,
+      "sha256": "0c1c60aabb1f96e0a7441a34be0c0959dec29237679e6bf8757087d3765da651"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -397,8 +401,8 @@
       "sha256": "0c32781babbf0865c24dfef75813f3e2f818f5c05ebc0692fb87a46a0137ef26"
     },
     "docs/RECOVERY-V026.md": {
-      "bytes": 2807,
-      "sha256": "db5f3cb6c8907427a42ffa57a956aa8f298f8137061c28fef462c6f2b8a06acd"
+      "bytes": 3463,
+      "sha256": "1e5721a7ba379d6edee5a7ddc3095e373b215c3cc91aa1bba226724814aafc44"
     },
     "docs/RELEASES.md": {
       "bytes": 41860,
@@ -425,8 +429,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 2666,
-      "sha256": "dab332a67e5d20e9aabb4a3fc0b4ba690ab9e6ab499d0a06b57e16185b17e585"
+      "bytes": 3181,
+      "sha256": "a88611b91c84e86e9a435c1e11d4bb47398e84e707a943e52310a1cf6fa6c5a5"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1008,5 +1012,19 @@
       "bytes": 15068,
       "sha256": "2d9f68a146b1acee79a80cded8952014d1196013af743865610acf145b93ce32"
     }
-  }
+  },
+  "verified_source_checkpoint": "0a2819a519b18e2ca6a403193a4931f509cae96f",
+  "prepared_unpublished_candidate": "14524044ee864ac9ac590ed933c9fd0ef5148680",
+  "accepted_site_unchanged": "f00fdfe1fcad529081057e99592a49466341bb08",
+  "candidate_ref_update": "rejected-unexecuted-reconciled",
+  "candidate_ci": "not-run",
+  "candidate_http": "not-run",
+  "candidate_browser": "not-run",
+  "root_promotion": "not-run",
+  "existing_user_candidate_consent": true,
+  "publication_blocker": "tool-review rejection despite existing explicit standing consent",
+  "retry_count": 0,
+  "receipt_runtime_tests_scripts_unchanged": true,
+  "receipt_test_rerun": false,
+  "receipt_redeploy": false
 }

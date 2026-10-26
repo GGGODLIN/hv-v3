@@ -22,3 +22,7 @@ An uncertain write requires reconciliation before retry. Preserve full denials; 
 ## Source gate passed
 
 1,583 tests and four syntax checks passed;138 runtime/test/fixture/script inputs unchanged across independent audit. Portable historical-reader protection and exact ordinary-play parity are included. Natural measurement final-freeze outcomes match the predeclared initial cohort, not additional samples. Candidate/browser/root gates remain pending until their exact evidence is recorded.
+
+## Candidate staging stopped at the authorization gate
+
+Source122 `0a2819a519b18e2ca6a403193a4931f509cae96f` is fully backed up/readback verified. Prepared website candidate14524044ee864ac9ac590ed933c9fd0ef5148680 adds only six isolated files, but its expected-HEAD main update was rejected; post-denial read proves main unchanged at f00fdfe1fcad529081057e99592a49466341bb08. No retry or alternate publication. Candidate CI/HTTP/browser and root gates were not run. See PUBLICATION-BLOCKER-V026.md for the full refusal and exact executed/unexecuted state. Source tests remain valid for unchanged runtime; do not relabel source simulations as actual play.

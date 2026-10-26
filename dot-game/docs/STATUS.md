@@ -1,6 +1,6 @@
 # 目前狀態
 
-## v0.26 Exquisite首階裝備界：來源通過，候選實玩待驗
+## v0.26 Exquisite首階裝備界：來源通過並備份；候選發布被審核阻擋
 
 正式版仍為已驗收v0.25：https://gggodlin.github.io/play/hv-v3-dot/
 
@@ -11,7 +11,10 @@
 - 1,583／1,583項測試與四項語法通過；138個驗收輸入檔前後不變，31個既有歷史fixtures保留。新增五檔exact v0.25來源及provenance作為可攜式相容性基準。
 - 36場普通來源模擬共2,194pulses的完整state／RNG／reports與v0.25完全一致，36組既有品質IW結果相同。只有Exquisite資格與相關顯示變更，session／style不變。
 - 10個固定新seed自然賺200勝，8個有Exquisite並全數IW1勝利；seed12／77在20勝時沒有，誠實保留。4個未改實際匯出存檔的獨立分支均勝利，legacy loot-9同級綁定71→IW73且不補招架。這些是來源模擬，不是瀏覽器實玩；詳見EXQUISITE-IW1-MEASUREMENTS.md。
-- 完整來源備份／讀回、候選CI／HTTP／實玩、已驗收來源備份、正式發布／原存檔smoke仍各自是後續門檻，尚未完成不提前聲稱發布。
+- 完整來源122：0a2819a519b18e2ca6a403193a4931f509cae96f，247檔／246manifest有效負載逐一驗證，409範圍外blob/mode保留。
+- 候選commit14524044ee864ac9ac590ed933c9fd0ef5148680已準備，只新增candidates/v0.26/下六檔，3,948既有網站blob/mode保留；但main ref update被auto-review拒絕。
+- 拒絕後只讀確認main仍f00fdfe1fcad529081057e99592a49466341bb08，該ref更新未執行、無不確定寫入。沒有重試或換工具／路徑繞過。
+- 候選CI／HTTP／瀏覽器實玩未開始，正式發布／新root smoke未到達；不是已驗收或已發布版本。完整拒絕訊息與恢復界線見PUBLICATION-BLOCKER-V026.md。
 
 ## 已驗收恢復點：v0.25
 

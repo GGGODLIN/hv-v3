@@ -21,3 +21,7 @@ Eleven new independent audit tests include36 ordinary runs (2,194pulses) with en
 Pending candidate URL public/play/hv-v3-dot/candidates/v0.26/ must first have fullsource backup/readback and exactCI/sixHTTP verification. Actual QA uses unchanged ordinaryv0.25 export through the file chooser, not state injection. Plan: select loot-9; bind-preview/cancel/confirm; IW-preview/cancel/confirm from backpack; inspect unchanged equipment and same-level before/after; naturalwin returnscamp; repeatdisabled; export/reload. Originaltab2 keeps its ownprofile and parent owns root smoke.
 
 No claim of phone/mobile, OSsleep, unlimitedoffline, completeconcurrency or originalfullIW. See RECOVERY-V026.md for publication order and denial boundaries.
+
+## Candidate staging stopped at the authorization gate
+
+Source122 `0a2819a519b18e2ca6a403193a4931f509cae96f` is fully backed up/readback verified. Prepared website candidate14524044ee864ac9ac590ed933c9fd0ef5148680 adds only six isolated files, but its expected-HEAD main update was rejected; post-denial read proves main unchanged at f00fdfe1fcad529081057e99592a49466341bb08. No retry or alternate publication. Candidate CI/HTTP/browser and root gates were not run. See PUBLICATION-BLOCKER-V026.md for the full refusal and exact executed/unexecuted state. Source tests remain valid for unchanged runtime; do not relabel source simulations as actual play.
