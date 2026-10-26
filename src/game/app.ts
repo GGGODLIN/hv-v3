@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, guardHint, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, guardHint, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -296,7 +296,8 @@ export class App {
     // cp8-rc10 P0-4: a skill that came off cooldown stays "pending" until it is castable (OC permitting) and has been shown
     // once, so the prompt is no longer lost when the turn it comes off cooldown is short on OC. Reset per battle.
     if (this.cdBattle !== b) { this.cdBattle = b; this.cdShown = []; this.cdPending = skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target })); } // cp8-rc11 4(a): opening OC (blade 50) can already pay a skill
-    const ready = RULES.cp8 && (lean === 'blade' || lean === 'oc') ? this.cdPending.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })) : [];
+    const sugSk = RULES.cp8 ? suggestSkill(b, this.target) : null; // rc13 item 3(b): only the skill whose expected damage beats A by > 10% lights
+    const ready = RULES.cp8 && (lean === 'blade' || lean === 'oc') ? this.cdPending.filter((id) => id === sugSk) : [];
     this.cdShown = ready;
     const spellSug = RULES.cp8 && lean === 'arcane' ? this.arcaneSpell(b) : null;
     const sk = skillKit(b).map((id, i) => {

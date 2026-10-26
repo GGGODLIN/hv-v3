@@ -289,6 +289,39 @@ export function suggestSpell(s: BattleState, target: number, mode: 'old' | 'new'
   if (qid && (best === qid || score(best) <= score(qid) * (1 + SPELL_HINT_EDGE))) return null;
   const el = SPELLS[best].element; return { id: best, type: el, pct: Math.max(0, -m.spec[el]) };
 }
+/** rc13 item 3(b)（自訂，非原版）: a skill is hinted only when its expected damage beats the quick attack by > SKILL_HINT_EDGE (same edge as the spell hint). */
+export const SKILL_HINT_EDGE = SPELL_HINT_EDGE;
+const physExp = (s: BattleState, m: Monster, mult: number, opts: { noMit?: boolean; crit?: boolean } = {}) => {
+  const ce = opts.crit ? 1 + s.d.critMod : 1 + Math.min(1, s.d.physCrit) * s.d.critMod;
+  const mit = opts.noMit ? 0 : ironMit(m, m.physMit);
+  return Math.min(m.hp, s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * ce * (1 - mit) * (1 - m.spec[s.d.damageType] / 100));
+};
+/** rc13 item 3(b): expected damage of one skill this turn (overkill capped at each target's HP; area skills sum their targets). */
+export function skillValue(s: BattleState, id: SkillId, target: number): number {
+  const t0 = s.monsters[target]?.hp ? target : s.monsters.findIndex((m) => m.hp > 0); if (t0 < 0) return 0;
+  const m = s.monsters[t0]!;
+  switch (id) {
+    case 'shieldBash': return physExp(s, m, SK.shieldBash.multiplier);
+    case 'vitalStrike': return physExp(s, m, m.status.stun > 0 ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier);
+    case 'mercifulBlow': return m.status.bleedTurns > 0 && m.status.bleed > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction ? m.hp : physExp(s, m, SK.mercifulBlow.multiplier);
+    case 'greatCleave': return physExp(s, m, SK.greatCleave.multiplier, { crit: true });
+    case 'rendingBlow': return areaOrder(s, t0, SK.rendingBlow.targets).reduce((a, i) => a + physExp(s, s.monsters[i]!, SK.rendingBlow.multiplier, { noMit: true }), 0);
+    case 'shatterStrike': return areaOrder(s, t0, SK.shatterStrike.targets).reduce((a, i) => a + physExp(s, s.monsters[i]!, SK.shatterStrike.multiplier), 0);
+    case 'concussiveStrike': return Math.min(m.hp, s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit));
+  }
+}
+/** Expected damage of the quick attack (A) on this target. */
+export function attackValue(s: BattleState, target: number): number {
+  const q = quickAttack(s, target);
+  if (q.kind === 'spell') return spellValue(s, q.id, target);
+  const m = s.monsters[target] ?? s.monsters.find((x) => x.hp > 0); return m ? physExp(s, m, 1) : 0;
+}
+/** rc13 item 3(b): the skill worth pressing now, or null when none beats A by more than the edge (e.g. A already kills the target). */
+export function suggestSkill(s: BattleState, target: number): SkillId | null {
+  const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target })); if (!ids.length) return null;
+  const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
+  return skillValue(s, best, target) > attackValue(s, target) * (1 + SKILL_HINT_EDGE) ? best : null;
+}
 const ELEM_OF: Record<string, true> = { fire: true, cold: true, elec: true, wind: true, holy: true, dark: true };
 export function canUse(s: BattleState, a: Action): boolean {
   if (s.over) return false;

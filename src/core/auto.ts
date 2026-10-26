@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, act, alive, armCp5, canUse, potHint, guardHint, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, act, alive, armCp5, canUse, potHint, guardHint, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -186,7 +186,9 @@ export function chooseNaive(b: BattleState): Action {
   const A = SIM_AI.add;
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
-  if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
+  // rc13 item 3(b): hinted mode presses the skill the UI hints (suggestSkill: beats A by > 10%). SIM_SKILLHINT=any = rc12 「first usable skill」.
+  if (A.has('skills') && ENV?.SIM_SKILLHINT !== 'any' && !ENV?.SIM_SKILLS) { const g = suggestSkill(b, target); if (g) return { kind: 'skill', id: g, target }; }
+  else if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
   const qa = quickAttack(b, target);
   // cp8-rc12 item 2: hinted mode follows the arcane 💡 element suggestion (app.ts arcaneSpell). SIM_SPELLHINT=old = rc11 rule, off = only A.
   if (A.has('skills') && qa.kind === 'spell' && ENV?.SIM_SPELLHINT !== 'off') { const g = suggestSpell(b, target, ENV?.SIM_SPELLHINT === 'old' ? 'old' : 'new'); if (g) return { kind: 'spell', id: g.id, target }; }
