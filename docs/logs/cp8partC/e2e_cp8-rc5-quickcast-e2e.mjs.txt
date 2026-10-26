@@ -1,0 +1,2 @@
+{"bw":{"preset":"postF20-bulwark","main":"oneHand","inBattle":true,"spirit":{"sub":"","fiery":false},"off":{"sub":"","fiery":false},"forced":{"sub":"","fiery":false},"errs":[]},"ar":{"preset":"postF20-arcane","main":"staff","inBattle":true,"spirit":{"sub":"烈焰爆破","fiery":true},"off":{"sub":"烈焰爆破","fiery":true},"errs":[]}}
+CP8 RC5 QUICKCAST E2E PASS

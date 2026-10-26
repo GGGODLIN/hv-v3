@@ -1,0 +1,14 @@
+{
+ "first": {
+  "worn": null,
+  "ids": []
+ },
+ "second": {
+  "worn": "上一趟已自動換上 1 件較好的裝備：身・優良・噬火者之秘銀鎖子胸鎧（不需處理）",
+  "ids": [
+   "emvoplpv2sfiae3c"
+  ]
+ },
+ "id": "emvoplpv2sfiae3c"
+}
+CP8-RC3 PREP E2E PASS
