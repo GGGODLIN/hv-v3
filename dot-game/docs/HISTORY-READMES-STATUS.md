@@ -601,3 +601,78 @@ Hourly iteration automation configured 2026-10-25 for every hour from 21:00 Asia
 The browser successfully imported its own exported natural v0.5 test save, including cancel/accept and manual sales. A synthetic unsupported-schema file in the executor-only /tmp was not readable by the browser (NotFoundError), so that attempt proves file-read-error preservation, not schema rejection. Two minimal synthetic fixtures under tests/browser-fixtures provide an authorized same-origin download path for the exact schema-negative browser check. They contain only generated Lv1 game data, are labeled non-checkpoints, and do not alter runtime.
 
 
+
+
+# v0.19 publication receipt preserved before v0.20 consolidation
+
+## README
+
+# hv-v3 dot — independent idle loot RPG
+
+[Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
+
+**Latest verified release: v0.19**, bounded-desktop accepted and published on 2026-10-26. The growth tab shows genuinely available learn/slot/upgrade choices and a focus-only shortcut; optional Protection is shown separately. No formulas, rewards, RNG or save schema changed.
+
+## Play
+
+1. Choose a stage and start an expedition. Combat and skills resolve automatically; return to camp to compare, equip, lock or sell earned loot.
+2. Choose **均衡 / 猛攻 / 持久** at camp for different automatic skill/healing policies. Replay or challenge a higher stage; failed expeditions can recover, and expeditions cost no credits.
+3. Use **戰況 / 配裝 / 成長** to browse secondary camp tools. Tabs support Left/Right/Home/End. Learn abilities with AP and activate them in Major slots; Protection is an optional, default-OFF choice at the selected level-10 gate.
+4. After your first clear, preview a weapon commission and its supported suffix tradeoff before spending earned credits. Delivery is locked and never auto-equipped; an offer is not necessarily an upgrade.
+5. **通關後回營** queues a one-shot stop after normal victory rewards; click again to cancel. During settled victory intermission it returns without awarding rewards again. **回營整備** retains immediate retreat behavior.
+
+Export saves periodically before clearing browser data. The game has no real-money purchases. See [growth discovery](docs/GROWTH-DISCOVERY-GUIDE.md), [abilities](docs/ABILITIES-GUIDE.md), [Protection](docs/PROTECTION-GUIDE.md), [commissions](docs/COMMISSION-AFFIXES-GUIDE.md) and [finish-then-camp](docs/FINISH-CAMP-GUIDE.md).
+
+## Restore and run
+
+Accepted complete-source restore: `GGGODLIN/hv-v3`, branch `bot/dot`, pre-publication accepted commit **`deb39342a5ac84a85c9e898370a2acbf10b02432`**, directory `dot-game/`. Retrieve that exact checkpoint, preserving source, tests, documentation and assets together; verify its `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is a newer documentation checkpoint of the same accepted runtime; verify its manifest too. Runtime source is `88907e42c728922a50038b219799a7baa6c74c4f`, root website commit `ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`. A working-tree candidate or source backup is not automatically a released game.
+
+From the restored `dot-game/` directory (Node.js and Python 3 required):
+
+```sh
+npm test
+npm start
+# Open http://localhost:8000
+```
+
+Browser saves are separate: source restoration does not restore personal progress, credentials, Library synchronization or schedules. Candidate and stable saves stay separate. Older tabs retain their loaded rules until refreshed; only the writer owns progress. Use explicit takeover when needed. See [save behavior](docs/UI-AND-SAVES.md) and [save recovery](docs/SAVE-RECOVERY.md).
+
+## Fidelity and known limits
+
+- Original HV facts, fitted research models and independent idle-game adaptations remain distinct; this is not the complete original HV system. See [source ledger](docs/ORIGINAL-HV.md), [combat](docs/COMBAT-DESIGN.md) and [loot](docs/LOOT-DESIGN.md).
+- No offline earnings or universal background guarantee. Long timer gaps are discarded; unsupported Web Locks use a foreground/export-only fallback.
+- Acceptance is bounded cloud-desktop evidence, not physical-mobile or OS-suspend validation. Narrow browser layouts are not physical-device tests. The historical foreground-only visibility anomaly and schema-negative browser-test gap remain disclosed.
+- Reports, tab selection and finish-then-camp intent are transient, not saved growth. Save migrations preserve older namespaces without merging later old-tab progress.
+
+[Current verification and remaining gates](docs/STATUS.md) · [v0.19 browser evidence](docs/BROWSER-QA-V019.md) · [Release ledger](docs/RELEASES.md). Earlier README/status checkpoints are preserved in the historical archive, not repeated as current pending work.
+
+## STATUS
+
+# Current status
+
+## Latest verified release — v0.19
+
+**Published and bounded-desktop accepted: 2026-10-26 14:45 UTC.** [Play](https://gggodlin.github.io/play/hv-v3-dot/).
+
+- Runtime source: `88907e42c728922a50038b219799a7baa6c74c4f`.
+- Pre-publication accepted complete-source backup: **`deb39342a5ac84a85c9e898370a2acbf10b02432`**, `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`, 170 files / 169 manifest payloads. The exact commit containing this publication receipt is the newer documentation checkpoint of that same runtime; all source, tests, assets and recovery documents must remain together.
+- Root website: **`ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`**, exact Pages **`40342010206` success**, six HTTP 200 byte/SHA-256 comparisons passed. Root actual growth→learn→slot→fight→victory→reload smoke passed.
+- Source **1,295/1,295 tests**, four runtime syntax checks and **14,400 exact baseline state/RNG/report comparisons** passed. Docs-only acceptance/publication receipts reuse these unchanged-runtime results.
+- Isolated candidate `7a424212937f61ce019662ee44389397fc562760`, Pages `40340421670`, six HTTP comparisons and actual browser acceptance passed before root promotion.
+
+### What changed
+
+Growth tab now exposes eligible **learn / slot / upgrade** choices instead of merely showing unspent AP. It prioritizes learned-but-uninstalled abilities and distinguishes optional Protection from growth upgrades. The shortcut only focuses an existing control; no automatic spending, allocation or casting. AP affordability, level gates and maximum ranks remain unchanged. No combat/loot formulas, rewards, RNG or saved-state changes.
+
+Actual candidate play covered AP1 individually affordable alternatives, AP0 pending slot, normal Lv9 import, explicit three-line configuration, three normal victories to natural Lv10, Protection choice, readonly behavior, keyboard focus and reload. Stable retained its separate profile; root smoke explicitly learned/slotted HP Tank and won once: Lv9 / gold458 / wins12 / inventory21 / HP824 / AP8 / one active slot / ProtectionOFF. It remains in camp with battle tab selected. Source backups do not recover personal browser progress.
+
+See [source acceptance](ACCEPTANCE-V019.md), [browser evidence](BROWSER-QA-V019.md) and [growth guide](GROWTH-DISCOVERY-GUIDE.md). No active v0.19 release blocker remains.
+
+## Recovery and retained limits
+
+- [README](../README.md) describes restore/run/play. Prior accepted v0.18 full-source receipt `b61a8ed67ea9c58260dab0bb98ea754a6ff33f0a` remains recoverable, not the preferred latest version.
+- README/STATUS consolidation is maintenance, not gameplay. Every earlier paragraph is preserved in [HISTORY-READMES-STATUS.md](HISTORY-READMES-STATUS.md); old pending/denied statements are historical, not current blockers. [RELEASES.md](RELEASES.md) links release evidence.
+- Bounded cloud desktop only; higher-rank gates/upgrades have source/UI-harness coverage, not fabricated high-level browser progress. Physical mobile, narrow viewport and OS suspension remain unverified.
+- No offline earnings or universal background guarantee; inherited foreground-only visibility anomaly remains unresolved. Schema-negative import rejection has source/UI-harness evidence, not the missing direct browser case.
+- Original facts, selected research models and independent adaptations remain explicit. No borrowed implementation, generated constants, pixels or other single-player design. Old HV stays paused.
+- Source writes remain limited to authorized `bot/dot` game paths; website exception only `public/play/hv-v3-dot/`. No dot-archive or other work touched. No claim of Library synchronization, credential, personal-save or schedule recovery.

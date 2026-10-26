@@ -1,35 +1,26 @@
 # Current status
 
-## v0.20 browser accepted — root publication pending
+## Latest verified release — v0.20
 
-- Runtime source `bb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1`; this exact receipt checkpoint preserves the accepted source, assets, tests and recovery docs together.
-- **1,318/1,318 tests**, four syntax checks,12,000 exact firstfour-route state/RNG/report comparisons; independent audit found no blockers. Natural180pairs retain limitedmagicexposure and worse outcomes, not universal benefit.
-- Corrected candidate site `7ed4e4df8c494baf4207afd7e4f77aa844408d8b`, exact Pages40348541936success and sixHTTP200 hash/byte matches. Actual normal UI progression reachedLv12; cast/telegraph/reducedmotion/Protection/drop/equip/repeat/reload passed at15:26UTC. See BROWSER-QA-V020.md.
-- Back up this acceptance receipt before root promotion. Current publicroot remains v0.19 below until exactrootCI/HTTP and smoke pass. No other project or branch touched.
+**Published and bounded-desktop accepted:2026-10-26 15:33UTC.** [Play](https://gggodlin.github.io/play/hv-v3-dot/).
 
-## Latest verified release — v0.19
-
-**Published and bounded-desktop accepted: 2026-10-26 14:45 UTC.** [Play](https://gggodlin.github.io/play/hv-v3-dot/).
-
-- Runtime source: `88907e42c728922a50038b219799a7baa6c74c4f`.
-- Pre-publication accepted complete-source backup: **`deb39342a5ac84a85c9e898370a2acbf10b02432`**, `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`, 170 files / 169 manifest payloads. The exact commit containing this publication receipt is the newer documentation checkpoint of that same runtime; all source, tests, assets and recovery documents must remain together.
-- Root website: **`ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`**, exact Pages **`40342010206` success**, six HTTP 200 byte/SHA-256 comparisons passed. Root actual growth→learn→slot→fight→victory→reload smoke passed.
-- Source **1,295/1,295 tests**, four runtime syntax checks and **14,400 exact baseline state/RNG/report comparisons** passed. Docs-only acceptance/publication receipts reuse these unchanged-runtime results.
-- Isolated candidate `7a424212937f61ce019662ee44389397fc562760`, Pages `40340421670`, six HTTP comparisons and actual browser acceptance passed before root promotion.
+- Runtime source: `bb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1`.
+- Pre-publication accepted complete-source backup: **`69a7f8e3ebda6c9a31bdfc8973343f266626ba65`**, `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`,181files /180manifestpayloads. The exact commit containing this publication receipt is the newer documentation checkpoint of the same runtime; preserve all source, assets, tests and recovery docs together.
+- Root website: **`816ed14836a62be992a8f75e7b29258cd03a2009`**, exact Pages **`40349899337` success**, sixHTTP200 byte/SHA256matches. Root normal start→win→camp→reload smoke passed, independent of candidateprogress.
+- Source **1,318/1,318 tests**, four runtime syntax checks, **12,000 exact firstfour-route state/RNG/report comparisons** and independent audit passed. Docs-only receipts reuse unchanged-runtime results.
+- Final candidate `7ed4e4df8c494baf4207afd7e4f77aa844408d8b`, Pages40348541936success, sixHTTPcomparisons and normal-progress browser acceptance passed before rootpromotion.
 
 ### What changed
 
-Growth tab now exposes eligible **learn / slot / upgrade** choices instead of merely showing unspent AP. It prioritizes learned-but-uninstalled abilities and distinguishes optional Protection from growth upgrades. The shortcut only focuses an existing control; no automatic spending, allocation or casting. AP affordability, level gates and maximum ranks remain unchanged. No combat/loot formulas, rewards, RNG or saved-state changes.
+Stage5+ nonboss 赤砂守衛 alternates physical attacks and named magical skill 赤砂術式. Route/live next-action cues explain armor/parry limits; a separate actual-cast notice stays readable with reducedmotion. Magic uses sourced END/WIS attribute mitigation, applicable Evade/Block/Resist chain and Protection; playerresist probability remains explicitly0/unimplemented. Magic-block counters follow a labelled inference from the general original rule. No MPcost/elemental system is falsely claimed.
 
-Actual candidate play covered AP1 individually affordable alternatives, AP0 pending slot, normal Lv9 import, explicit three-line configuration, three normal victories to natural Lv10, Protection choice, readonly behavior, keyboard focus and reload. Stable retained its separate profile; root smoke explicitly learned/slotted HP Tank and won once: Lv9 / gold458 / wins12 / inventory21 / HP824 / AP8 / one active slot / ProtectionOFF. It remains in camp with battle tab selected. Source backups do not recover personal browser progress.
+Actual candidate play naturally reachedLv12, observed realcast and nextmagiccue, enabledProtection, equipped earnedarmor and repeated/reloaded safely. Natural simulation180pairs retained limitedcast exposure and worse outcomes, not a universalbuff claim. Root smoke preserved the separate Lv9profile then wononce: gold534/wins13/items24/HP824/AP8/HP Tankrank1active/ProtectionOFF, in camp. Candidate20closed; only stabletab2retained. Source backups do not recover browserprogress.
 
-See [source acceptance](ACCEPTANCE-V019.md), [browser evidence](BROWSER-QA-V019.md) and [growth guide](GROWTH-DISCOVERY-GUIDE.md). No active v0.19 release blocker remains.
+See [source acceptance](ACCEPTANCE-V020.md), [browser evidence](BROWSER-QA-V020.md), [measurement](MEASUREMENT-V020.md) and [magic guide](MAGICAL-ENCOUNTERS-GUIDE.md). No active release blocker remains.
 
 ## Recovery and retained limits
 
-- [README](../README.md) describes restore/run/play. Prior accepted v0.18 full-source receipt `b61a8ed67ea9c58260dab0bb98ea754a6ff33f0a` remains recoverable, not the preferred latest version.
-- README/STATUS consolidation is maintenance, not gameplay. Every earlier paragraph is preserved in [HISTORY-READMES-STATUS.md](HISTORY-READMES-STATUS.md); old pending/denied statements are historical, not current blockers. [RELEASES.md](RELEASES.md) links release evidence.
-- Bounded cloud desktop only; higher-rank gates/upgrades have source/UI-harness coverage, not fabricated high-level browser progress. Physical mobile, narrow viewport and OS suspension remain unverified.
-- No offline earnings or universal background guarantee; inherited foreground-only visibility anomaly remains unresolved. Schema-negative import rejection has source/UI-harness evidence, not the missing direct browser case.
-- Original facts, selected research models and independent adaptations remain explicit. No borrowed implementation, generated constants, pixels or other single-player design. Old HV stays paused.
-- Source writes remain limited to authorized `bot/dot` game paths; website exception only `public/play/hv-v3-dot/`. No dot-archive or other work touched. No claim of Library synchronization, credential, personal-save or schedule recovery.
+- [README](../README.md) describes restore/run/play. Prior acceptedv0.19 `bab87bce00623391060c2b32124fb7a1e3e36f3f` remains recoverable, not preferred latest. Earlier README/STATUS content remains in HISTORY-READMES-STATUS.md and historical commits.
+- Bounded cloud desktop only, not physicalmobile/narrowviewport/OSsuspension acceptance. No offline earnings or universalbackground guarantee; inherited foregroundvisibility anomaly and schema-negative browser gap remain unresolved.
+- Originalfacts, researchmodels, inferences and independentadaptations stay distinct. No otherauthor'simplementation/constants/monsters/pixels/singleplayerdesign reused. OldHV remains paused.
+- Source only authorizedbot/dot gamepaths; website onlypublic/play/hv-v3-dot/. No dot-archive or other work touched. No claim of Librarysync, credential, personal-save or schedule restoration.

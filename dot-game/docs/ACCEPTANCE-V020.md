@@ -1,6 +1,6 @@
 # v0.20 acceptance record
 
-Status: **bounded candidate browser accepted at2026-10-26 15:26UTC; root publication pending**.
+Status: **bounded-desktop accepted and root published at2026-10-26 15:33UTC**.
 
 ## Scope
 
@@ -15,9 +15,9 @@ One stage5+ nonboss enemy archetype now alternates physical attacks and a named 
 - UI harness verifies isolatedcasterpreview grouping, nextaction updates evenwithoutHPchange, read-onlyviews and clear unimplementedplayerresist0.
 - Naturalpairedmeasurement described separately; not proof of universal improvement.
 
-## Release gates remaining
+## Release gates completed
 
-Source090 and corrected-label092 backups/readback, exact candidate CI/HTTP and actual normal-progress browser acceptance passed; see BROWSER-QA-V020.md. This acceptance receipt must be backed up/read back before root promotion, then exactrootCI/HTTP and publicsmoke remain.
+Source090 and corrected-label092 backups/readback, exact candidate CI/HTTP and actual normal-progress browser acceptance passed; see BROWSER-QA-V020.md. Acceptance source69a7f8e3ebda6c9a31bdfc8973343f266626ba65 was backedup/readverified before root816ed14836a62be992a8f75e7b29258cd03a2009; Pages40349899337success, sixHTTP200 byte/hashmatches and normal rootwin/reload smoke passed.
 
 ## Pre-browser feedback correction
 

@@ -2,11 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Latest verified release: v0.19**, bounded-desktop accepted and published on 2026-10-26. The growth tab shows genuinely available learn/slot/upgrade choices and a focus-only shortcut; optional Protection is shown separately. No formulas, rewards, RNG or save schema changed.
-
-## v0.20 browser-accepted candidate — root publication pending
-
-Stage5+ nonboss 赤砂守衛 alternates physical attacks with a telegraphed magical skill. Physical armor/parry no longer answer every attack; block, control, offense and Protection retain tradeoffs. [Rules and limitations](docs/MAGICAL-ENCOUNTERS-GUIDE.md). Firstfour routes and rewards remain unchanged. 1,318 source tests and actual normal-progress cloud-browser acceptance passed. [Browser evidence](docs/BROWSER-QA-V020.md). Runtime source is `bb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1`; the exact checkpoint containing this receipt adds acceptance evidence without runtime changes. Root promotion remains pending; the public root is still v0.19.
+**Latest verified release: v0.20**, bounded-desktop accepted and published2026-10-26. From stage5, nonboss 赤砂守衛 alternates physical attacks with a telegraphed magical skill. Physical armor/parry do not stop magic; block, control, offense and Protection retain tradeoffs. [Rules and limits](docs/MAGICAL-ENCOUNTERS-GUIDE.md). Firstfour routes, rewards and prices remain unchanged; playerresistgrowth and monsterMP are not implemented.
 
 ## Play
 
@@ -20,7 +16,7 @@ Export saves periodically before clearing browser data. The game has no real-mon
 
 ## Restore and run
 
-Accepted complete-source restore: `GGGODLIN/hv-v3`, branch `bot/dot`, pre-publication accepted commit **`deb39342a5ac84a85c9e898370a2acbf10b02432`**, directory `dot-game/`. Retrieve that exact checkpoint, preserving source, tests, documentation and assets together; verify its `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is a newer documentation checkpoint of the same accepted runtime; verify its manifest too. Runtime source is `88907e42c728922a50038b219799a7baa6c74c4f`, root website commit `ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5`. A working-tree candidate or source backup is not automatically a released game.
+Accepted complete-source restore: `GGGODLIN/hv-v3`, branch `bot/dot`, pre-publication accepted commit **`69a7f8e3ebda6c9a31bdfc8973343f266626ba65`**, directory `dot-game/`. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is the newer documentation checkpoint of the same accepted runtime and is preferred after its manifest verifies. Runtime source is `bb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1`, root website `816ed14836a62be992a8f75e7b29258cd03a2009`. A source candidate is not automatically a published game.
 
 From the restored `dot-game/` directory (Node.js and Python 3 required):
 
@@ -39,4 +35,4 @@ Browser saves are separate: source restoration does not restore personal progres
 - Acceptance is bounded cloud-desktop evidence, not physical-mobile or OS-suspend validation. Narrow browser layouts are not physical-device tests. The historical foreground-only visibility anomaly and schema-negative browser-test gap remain disclosed.
 - Reports, tab selection and finish-then-camp intent are transient, not saved growth. Save migrations preserve older namespaces without merging later old-tab progress.
 
-[Current verification and remaining gates](docs/STATUS.md) · [v0.19 browser evidence](docs/BROWSER-QA-V019.md) · [Release ledger](docs/RELEASES.md). Earlier README/status checkpoints are preserved in the historical archive, not repeated as current pending work.
+[Current verification and remaining gates](docs/STATUS.md) · [v0.20 browser evidence](docs/BROWSER-QA-V020.md) · [Release ledger](docs/RELEASES.md). Earlier README/status checkpoints are preserved in the historical archive, not repeated as current pending work.

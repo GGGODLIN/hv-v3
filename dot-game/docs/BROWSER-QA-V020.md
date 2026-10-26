@@ -28,3 +28,7 @@ Final candidate site `7ed4e4df8c494baf4207afd7e4f77aa844408d8b`, source `bb8c7ec
 Candidate's final armor run won again (wins20); ordinary export retained this test profile outside the repository. Stable root simultaneously remained Lv9/gold458/wins12/items21/HP824, demonstrating candidate isolation. Root publication is a separate remaining gate; no candidate save is imported into stable.
 
 **Bounded candidate browser acceptance passed at2026-10-26 15:26UTC.** Screenshots inspected the1188-class desktop layout and recent-cast notice; no claim of responsive/mobile acceptance.
+
+## Root publication smoke — 15:33UTC
+
+After accepted-source69a7f8e3ebda6c9a31bdfc8973343f266626ba65 was verified, root site816ed14836a62be992a8f75e7b29258cd03a2009 /Pages40349899337success and sixHTTP200 exacthashes passed. Stabletab2normalreload showedv0.20 and unchangedLv9/gold458/wins12/items21/HP824. Starteditsnormalstage1 andqueuedfinish-then-camp; wononce, thenreloaded: gold534/wins13/items24/HP824. Actualcastnoticehiddenincamp, no game-origin consoleerrors; onlysameexplicitextensionURLexcluded. Candidate12wasclosed, stable2leftcampandmarkedDeliverable. Candidate'sLv12profile was never imported into stable.
