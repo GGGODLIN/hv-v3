@@ -414,8 +414,8 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
 
 export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
   const rng = new Rng(seed);
-  if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5: bulwark start = 1H + shield + heavy (same fair L1 rolls as the default kit)
-    const kit = [generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' }), generateEquip(rng, 1, { group: 'shield', base: 'buckler', quality: 'fair' }), generateEquip(rng, 1, { group: 'heavy', base: 'plate', slot: 'body', quality: 'fair' })];
+  if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5/rc6: bulwark start = 1H axe + buckler + light leather (rc6: heavy dropped, P1 1.318×); in-trip equip still prefers heavy
+    const kit = [generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' }), generateEquip(rng, 1, { group: 'shield', base: 'buckler', quality: 'fair' }), generateEquip(rng, 1, { group: 'light', base: 'leather', slot: 'body', quality: 'fair' })];
     for (const e of kit) { p.inventory.push(e); equip(p, e); } p.lean = 'bulwark'; return;
   }
   const w = generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' });
