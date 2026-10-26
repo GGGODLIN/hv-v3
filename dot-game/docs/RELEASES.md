@@ -1,5 +1,12 @@
 # Published releases
 
+## v0.8.1 — desktop-accepted source, public-root promotion pending, 2026-10-26 01:11 UTC
+
+- Frozen complete runtime source `ff6bb071240deef5d86c34e80a1d514daeb9762d`; full source receipt `5a280428eb940d667ee3c2a63ecbc01c5dbe9643`. Existing evidence: 83 files / 82 manifest payloads exact-readback verified, 551 tests and four syntax checks passed. This checkpoint adds acceptance documentation/manifest only and retains all runtime/test bytes.
+- Isolated candidate site `57f7ab124852d9f0313c2f475ac43a09b069cb03`; exact Pages run `40252508863` success. All six public runtime HTTP 200 bodies match the frozen source bytes/SHA-256; all 3839 previous website blobs were preserved.
+- BROWSER-QA-V081.md records actual fresh/natural-import play, purchase/equip, visible bleed, reload/item preservation and explicit takeover. Clock/repair unit evidence is not relabeled browser proof; device/lifecycle limits remain. No controlled pure-buff claim is made.
+- Earlier HTTP-blocked notes are historical, superseded by normal permitted verification from 2026-10-26 01:03 UTC. Public-root promotion and final root smoke are not yet complete in this pre-promotion checkpoint. Previous accepted public runtime remains v0.7; retain recovery `e1b576ee2041bd2772f79587e859a80b5ab1f108`.
+
 ## v0.1 — desktop-first playable prototype, 2026-10-25
 
 - Play: https://gggodlin.github.io/play/hv-v3-dot/

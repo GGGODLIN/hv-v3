@@ -1,5 +1,15 @@
 # Current status
 
+## v0.8.1 desktop accepted; root promotion pending — 2026-10-26 01:11 UTC
+
+Actual cloud Chrome acceptance is recorded in BROWSER-QA-V081.md: fresh clear/loot, natural v0.7 UI import, paid axe/manual equip, visible 20-point bleed at 257 attack, progression/reload, preserved 105 original items plus eight new items, and explicit multi-tab writer takeover. Limits remain explicit: repaired-corrupt-save browser reproduction, exact wall-clock boundaries, physical mobile, OS suspend, universal foreground pause and every bleed timing were not established by this pass. No app-origin errors appeared in inspected logs.
+
+Source runtime is frozen at `ff6bb071240deef5d86c34e80a1d514daeb9762d`, with complete source receipt `5a280428eb940d667ee3c2a63ecbc01c5dbe9643` already verifying all 83 files, 551 tests and four syntax checks. This accepted-source checkpoint adds browser documentation and updates its manifest only; no runtime/tests change or repeated full test run. The isolated site `57f7ab124852d9f0313c2f475ac43a09b069cb03` has successful exact Pages run `40252508863` and six HTTP 200 exact byte/SHA-256 matches. All 3839 preceding site blobs, including v0.7 root and v0.8 candidate, remained unchanged.
+
+The historical HTTP block was resolved through normal permitted execution at 01:03 UTC on 2026-10-26; old v0.8 HTTP6 completed with exit 0 and all hashes matching. The v0.8.1 candidate ref update initially lacked the separate deployment-test authorization in review context; after readback proved it unexecuted, one reassessment supplied the user's explicit approval and succeeded. No restriction was bypassed. Historical sections below retain what was known then and are superseded for current status by this section.
+
+Public-root promotion remains pending in this checkpoint: accepted public play is still v0.7 until exact deployment/HTTP verification and the parent's root smoke. Preserve the previous accepted recovery `e1b576ee2041bd2772f79587e859a80b5ab1f108`. Source backups do not contain personal browser saves, credentials, Library content or schedules.
+
 ## v0.8.1 repaired-save takeover — 2026-10-25 23:00 UTC iteration
 
 Fixed a reproduced progress-loss edge: a follower opened on corrupt shared data adopted another owner’s valid repair but retained preventOverwrite forever. Taking the actual writer lock now reads current durable bytes even when protected, validates before clearing protection, and does not trust a queued storage event alone. Missing/invalid/unknown-schema/unreadable records remain protected. Existing empty first-save and valid migration behavior remain supported. Runtime changes only refreshSavedState in ui.js; engine, loot, session and other UI bytes are unchanged.
@@ -105,7 +115,7 @@ Bounded desktop acceptance only: inactive-tab progress, follower/takeover and 38
 55 Node tests and JavaScript syntax checks pass. Dedicated cloud Chrome verified combat → loot → equip → faster replay and save export/import/reload. Final public-root smoke at 13:15 UTC passed: independent fresh save, first clear in 31.5 seconds, two loot items, stage 2 unlocked, consistent quality labels, successful return to camp, and no application-origin console errors in inspected entries. This documentation checkpoint does not change runtime files or republish the game. Candidate v0.1 remains separately available, uses separate localStorage keys, and is not the accepted root URL.
 
 ## Next priority
-Safe loot management is complete within its conservative limits; credits still have no meaningful sink. Next research a transparent source-informed shop/commission or investment loop, keeping original facts and adaptations separate, no arbitrage, quote/RNG/reload safety and conservative saves. Do not call direct credit-for-damage original training without its AP/mastery requirements. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
+Safe loot management and the fixed-spec weapon commission are complete within their documented limits; commissions now provide a credit sink, but not a validated long-term economy. Next research further source-informed progression or investment while keeping original facts and adaptations separate, avoiding arbitrage, and preserving quote/RNG/reload safety and conservative saves. Do not call direct credit-for-damage original training without its AP/mastery requirements. Continue coverage of real visibility transitions, mobile and OS suspend without letting infrastructure replace gameplay iteration. Preserve accepted releases and source backups before promotion.
 
 ## Work allocation
 - Research: original HV source evidence and explicit uncertainty.

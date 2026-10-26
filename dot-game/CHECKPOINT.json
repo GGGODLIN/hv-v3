@@ -1,12 +1,11 @@
 {
-  "checkpoint": "v0.8.1-save-recovery-source-receipt",
-  "status": "candidate-source-backup-exact-readback-verified-unpublished",
-  "base_candidate_recovery": "50b3462ca7bd5d4c90991adc6a22f0939cef9f30",
-  "latest_accepted_recovery": "e1b576ee2041bd2772f79587e859a80b5ab1f108",
+  "checkpoint": "v0.8.1-desktop-accepted-source",
+  "status": "desktop-browser-accepted-source-root-promotion-pending",
+  "base_candidate_recovery": "5a280428eb940d667ee3c2a63ecbc01c5dbe9643",
   "files": {
     "README.md": {
-      "bytes": 10309,
-      "sha256": "09d2159493d70259a4dcca8672c05bc3d3546803711959a21aa8f5264ae030fb"
+      "bytes": 11532,
+      "sha256": "c23b874dc347225c5bf1393b315eba573cf5a2909912a6d76f041879a36bd6a4"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -72,6 +71,10 @@
       "bytes": 5443,
       "sha256": "1442c27a360bc549c88c610be1184c5f0cb05fff101dccef81829ff3bddf59ce"
     },
+    "docs/BROWSER-QA-V081.md": {
+      "bytes": 2788,
+      "sha256": "86133a2a9cff83aeeec1f92a2c02b81257e321b69e58f7e7e9e4f913d619048f"
+    },
     "docs/BROWSER-QA.md": {
       "bytes": 2596,
       "sha256": "092fa4fd5ae22fb195798b1b8d0a1b37678b68557367bdfa795e41275fa8fd6e"
@@ -117,8 +120,8 @@
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RELEASES.md": {
-      "bytes": 18981,
-      "sha256": "177f022fbcfb54a7d651c53b6642a937763bed6ddcd7fb94ef3e194c25206feb"
+      "bytes": 20256,
+      "sha256": "4692ccfbc10d8ccd2aec81b73c5e955f6a9999532614906526131642e2d011ce"
     },
     "docs/ROADMAP.md": {
       "bytes": 9221,
@@ -129,8 +132,8 @@
       "sha256": "f1b5983b7954e85be88124b3a67c110cbd40eaf53b48dd0aa6a634aa02f681d3"
     },
     "docs/STATUS.md": {
-      "bytes": 25297,
-      "sha256": "68c062472ce3bedb66580639127c5d155a41036684987d6ea8035c23cc22f3bd"
+      "bytes": 27462,
+      "sha256": "867b77d9ba5a5a5ba0190aba59841678615a6b4bea6fd0a9425ed438c4214c10"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
@@ -334,5 +337,9 @@
     }
   },
   "candidate_runtime_source": "ff6bb071240deef5d86c34e80a1d514daeb9762d",
-  "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged"
+  "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged",
+  "previous_accepted_recovery": "e1b576ee2041bd2772f79587e859a80b5ab1f108",
+  "candidate_site_commit": "57f7ab124852d9f0313c2f475ac43a09b069cb03",
+  "candidate_pages_run": 40252508863,
+  "browser_qa": "docs/BROWSER-QA-V081.md"
 }
