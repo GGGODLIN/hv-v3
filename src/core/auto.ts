@@ -238,7 +238,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
   if (a.kind === 'spell' && b.hp < b.d.hp * 0.5 && (b.monsters[a.target] as CM | undefined)?.affixes?.includes('antimagic')) return { kind: 'attack', target: a.target };
   return a;
 }
-export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP7 P1: better-than-worn drops this trip. */ upg?: number; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP7 P1: better-than-worn drops this trip. */ upg?: number; /** CP7 P3: depths (abyss) / floors of rest nodes visited. */ rests?: number[]; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
   /** rc4 diagnostics (sim-only, read by scripts/rc4-noclear.ts): why the run stopped early. */
   end?: { why: 'dead' | 'retreat'; floor: number; type: string; foes: { name: string; rank: string; affixes?: string[]; sig?: string }[] };
   /** CP4 (buff strategies only) */
@@ -295,6 +295,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   const elites: { floor: number; won: boolean; hpPct: number }[] = [];
   let end: RunReport['end'];
   let battles = 0, spiritBattles = 0;
+  const rests: number[] = [];
   while (!run.done) {
     if (run.abyss && depthOf(run) > (cp5?.cap ?? 60)) { run.done = 'retreat'; break; }
     const opt = pickOption(p, run, strategy);
@@ -347,6 +348,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         takeBuff(p, run, x.id); cp4.sources.merchant = (cp4.sources.merchant ?? 0) + 1;
       }
     } else if (type === 'rest') {
+      rests.push(depthOf(run) || run.floor);
       const d = runDerived(p, run);
       if (run.hp < d.hp * 0.8 || !p.equipped.mainHand) rest(p, run, 'heal');
       else rest(p, run, 'upgrade', 'mainHand');
@@ -365,7 +367,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { upg: run.upg ?? 0, trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
+  return { upg: run.upg ?? 0, rests, trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
 export function starterKit(p: Player, seed = 7): void {
