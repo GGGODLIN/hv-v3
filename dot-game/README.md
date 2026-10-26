@@ -1,42 +1,43 @@
-# hv-v3 dot — independent idle loot RPG
+# 霧境遠征 · hv-v3 dot
 
-[Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
+[開啟遊戲](https://gggodlin.github.io/play/hv-v3-dot/) · [目前狀態](docs/STATUS.md) · [原版依據與改編](docs/ORIGINAL-HV.md)
 
-**Latest verified release: v0.22**, bounded-desktop accepted and published2026-10-26. Reports now remember the actual departure target/Protection policies, active ability ranks and equipped identities. Expand configuration details to understand which build produced a result; changing camp later does not rewrite history. No combat changes or claim of a best build. [Report guide](docs/REPORT-BUILD-GUIDE.md).
+**v0.23 已發布，通過限定範圍的桌面瀏覽器驗收。** 這是獨立、配裝驅動的單機自動戰鬥 RPG；不使用 repo 其他作者的遊戲程式、常數表、怪物資料或素材。
 
-## v0.23 desktop-accepted candidate, root promotion pending
+## 怎麼玩
 
-Soul Fragments and explicitly confirmed weapon soulbinding are implemented with 1,433 passing source tests and four syntax checks. A bound weapon follows character level without rerolling its identity or affixes; fragment awards and conservative disposal protection are adaptations. Normal browser investment, level growth and reload passed on the final guarded candidate; formal-root publication is still pending. Latest accepted complete recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644` (v0.22). See [Soulbind guide](docs/SOULBIND-GUIDE.md).
+1. 選路線開始遠征，攻擊與技能自動進行。可立即回營，也可按「通關後回營」完整領獎再停止連戰。
+2. 比較掉落、換裝、鎖定及自行選取出售；武器特效不同，不只看分數。營地有三組配裝記錄及可預覽確切費用的武器委託。
+3. 用「戰況／配裝／成長」分頁找工具；鍵盤左右鍵、Home／End 也可切換。AP 必須先學習再裝入能力槽，提示只帶到按鈕，不替你花點。
+4. 選戰術與集火策略。Protection 是預設關閉的可選自動防護，耗魔及行動，並非免費增益。
+5. **每次正常通關獲得10靈魂碎片（本作節奏改編）**。累積後可預覽、確認綁定一把已擁有的戰斧／刺劍／戰棍；原武器立即對齊角色等級，並隨後續升級成長，不重抽詞綴。
 
-## Play
+綁定花費依品質為100／250／500／1000碎片；先看確切預覽。這是永久投資，本版不能解除、解鎖或出售已綁武器，並有116把的持有保護上限。沒有自動綁定、Item World、鍛造或拆解。見[靈魂綁定說明](docs/SOULBIND-GUIDE.md)。
 
-1. Choose a stage and start an expedition. Combat and skills resolve automatically; return to camp to compare, equip, lock or sell earned loot.
-2. Choose **均衡 / 猛攻 / 持久** at camp for different automatic skill/healing policies, and **依序集火 / 施法者優先 / 低血量收尾** for attack targets. Replay or challenge a higher stage; failed expeditions can recover, and expeditions cost no credits.
-3. Use **戰況 / 配裝 / 成長** to browse secondary camp tools. Tabs support Left/Right/Home/End. Learn abilities with AP and activate them in Major slots; Protection is an optional, default-OFF choice at the selected level-10 gate.
-4. After your first clear, preview a weapon commission and its supported suffix tradeoff before spending earned credits. Delivery is locked and never auto-equipped; an offer is not necessarily an upgrade.
-5. **通關後回營** queues a one-shot stop after normal victory rewards; click again to cancel. During settled victory intermission it returns without awarding rewards again. **回營整備** retains immediate retreat behavior.
+## 啟動與測試
 
-Export saves periodically before clearing browser data. The game has no real-money purchases. See [growth discovery](docs/GROWTH-DISCOVERY-GUIDE.md), [abilities](docs/ABILITIES-GUIDE.md), [Protection](docs/PROTECTION-GUIDE.md), [commissions](docs/COMMISSION-AFFIXES-GUIDE.md) and [finish-then-camp](docs/FINISH-CAMP-GUIDE.md).
-
-## Restore and run
-
-Accepted complete-source restore: `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`, prepublication accepted commit **`aa6cd6166d9424745ce9b82bb7e58d73e4bc5b21`**. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is a newer documentation checkpoint of the same accepted runtime and is preferred after its manifest/readback verifies. Runtime source `6e0614dd199c958a4d3ce7c84592936d61d2e822`; root site `0abefbcc311d68f37c56751e3c45f94a2812e39f`. A source candidate is not automatically published.
-
-From the restored `dot-game/` directory (Node.js and Python 3 required):
+完整取回這個 `dot-game/` 目錄，不需安裝依賴或建置。需 Python3；開發測試需 Node20以上。
 
 ```sh
-npm test
-npm start
-# Open http://localhost:8000
+cd dot-game
+python3 -m http.server 8000
+# 瀏覽 http://localhost:8000/
+node --test tests/*.test.mjs
 ```
 
-Browser saves are separate: source restoration does not restore personal progress, credentials, Library synchronization or schedules. Candidate and stable saves stay separate. Older tabs retain their loaded rules until refreshed; only the writer owns progress. Use explicit takeover when needed. See [save behavior](docs/UI-AND-SAVES.md) and [save recovery](docs/SAVE-RECOVERY.md).
+不要以 file:// 直接開 ES modules。遊戲進度存在瀏覽器本機；清除網站資料前，先用遊戲內「匯出存檔」。
 
-## Fidelity and known limits
+## 版本、備份與恢復
 
-- Original HV facts, fitted research models and independent idle-game adaptations remain distinct; this is not the complete original HV system. See [source ledger](docs/ORIGINAL-HV.md), [combat](docs/COMBAT-DESIGN.md) and [loot](docs/LOOT-DESIGN.md).
-- No offline earnings or universal background guarantee. Long timer gaps are discarded; unsupported Web Locks use a foreground/export-only fallback.
-- Acceptance is bounded cloud-desktop evidence, not physical-mobile or OS-suspend validation. Narrow browser layouts are not physical-device tests. The historical foreground-only visibility anomaly and schema-negative browser-test gap remain disclosed.
-- Reports, tab selection and finish-then-camp intent are transient, not saved growth. Save migrations preserve older namespaces without merging later old-tab progress.
+只開發 `GGGODLIN/hv-v3` 的 `bot/dot` 分支、自己的 `dot-game/`。發布前已驗收完整來源：`5ae96a2f4e951ca70e432ef03db81555755a01f0`；網站：`161e7e30a98fce095dd0adb8b3d22f1a7b9a1810`，exact Pages40383270135成功，六檔HTTP內容／雜湊吻合，正式頁正常勝利與重載通過。
 
-[Current verification and remaining gates](docs/STATUS.md) · [v0.22 browser evidence](docs/BROWSER-QA-V022.md) · [Release ledger](docs/RELEASES.md). Earlier README/status checkpoints are preserved in the historical archive, not repeated as current pending work.
+包含本發布收據的確切 commit 是更新的文件 checkpoint，執行程式與上述已驗收來源相同；恢復時核對該 commit 的 `CHECKPOINT.json`，保留原碼、測試、素材及文件，不把只有網頁執行檔當完整來源。上一版已驗收恢復點：`cfc624debcecaa029deb95e437681d7c5a5b7644`。較新的未驗收候選不自動等於可玩的最新版。
+
+新資料格式v2會讀取有效v1進度，碎片從0開始、不補發過去獎勵；舊版不能讀取v2，請先匯出並重新整理舊分頁。仍使用既有v3儲存命名空間，候選與正式版分開。**原碼備份不包含個人瀏覽器存檔、GPT檔案庫同步、登入、權限或排程還原。**
+
+## 已驗證與限制
+
+- 1,433項測試及四項語法檢查通過；實際完成普通舊存檔匯入、賺碎片、綁定、自然升級、換裝、配裝記錄、保護與重載。見[實玩證據](docs/BROWSER-QA-V023.md)、[獨立驗收](docs/ACCEPTANCE-V023.md)。
+- 原版事實、研究模型及本作改編分開記錄。品質曲線是研究擬合；綁定的既有數值縮放模型、碎片獎勵與保護上限不是完整原版復刻。
+- 無離線收益或通用背景執行保證；長時間停頓不補算。只聲稱限定桌面驗收，未聲稱實體手機、OS休眠或所有跨分頁情境都測過。
+- 戰報、釘選、導覽分頁及單次回營預約是暫存狀態；重新載入不恢復。原始歷史紀錄保留在[歷史文件](docs/HISTORY-READMES-STATUS.md)與 Git。

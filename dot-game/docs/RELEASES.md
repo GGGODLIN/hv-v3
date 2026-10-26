@@ -1,3 +1,9 @@
+## v0.23 — 靈魂綁定投資（2026-10-26）
+
+正式網站`161e7e30a98fce095dd0adb8b3d22f1a7b9a1810`在完整來源`5ae96a2f4e951ca70e432ef03db81555755a01f0`備份驗證後發布。Pages40383270135、六檔HTTP及正式頁實玩通過；1,433項測試與四項語法檢查通過。
+
+正常賺碎片、明確綁定、自然升級、配裝與重載形成完整循環。不可累乘的數值錨點、v2資料格式及116把容量保護已驗證；原版成本與本作節奏／縮放適配分開記錄。最後發布收據commit是相同執行程式的更新文件checkpoint。參見STATUS、SOULBIND-GUIDE與BROWSER-QA-V023。前版恢復點`cfc624debcecaa029deb95e437681d7c5a5b7644`保留。
+
 # Published releases
 
 ## v0.17 — published, 2026-10-26 13:14 UTC

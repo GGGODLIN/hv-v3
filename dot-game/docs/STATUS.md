@@ -1,31 +1,28 @@
-# Current status
+# 目前狀態
 
-## v0.23 desktop accepted; root promotion pending — 18:58UTC
+## v0.23 已發布並通過限定桌面驗收
 
-Guarded source `cfaf3e791a89f9485535ad68b5ad936b8116188c` is fully backed up/readback verified (211files/210payloads). Final1,433tests/four syntax and18independent acceptance groups passed. Candidate `e95036ddfd7599c1879d7442b4027d9380ba023e` passed exactPages40381424542 andsixHTTP200 byte/hash matches. Actual normal legacy import, earned fragments, explicit equipped/inventory binding, absolute level growth, no old parry refill, protection, presets and reload passed; see BROWSER-QA-V023.md.
+時間：2026-10-26 19:08 UTC。遊戲：https://gggodlin.github.io/play/hv-v3-dot/
 
-The initially discovered future-overflow and permanent-inventory deadlock defects are corrected before acceptance.116-total bound storage guard is explicitly adapted, not originalHV. No further runtime changes are pending. This acceptance documentation must be fully backed up before root promotion; until then the live accepted v0.22 remains below.
+- 發布前完整來源：`5ae96a2f4e951ca70e432ef03db81555755a01f0`，211檔／210個manifest有效負載，已先備份並讀回驗證。
+- 正式網站：`161e7e30a98fce095dd0adb8b3d22f1a7b9a1810`；exact Pages40383270135成功，六檔HTTP200內容與SHA256吻合，正式頁正常通關／重載通過。
+- 只改五個正式頁執行檔；session及其餘3931個網站blob（包含候選頁）保留。
+- 最終執行程式來源：`cfaf3e791a89f9485535ad68b5ad936b8116188c`；最終候選網站`e95036ddfd7599c1879d7442b4027d9380ba023e`／Pages40381424542及實際遊玩通過後，才更新正式頁。
 
-## Latest verified release — v0.22
+## 本版功能與保護
 
-**Published and bounded-desktop accepted:2026-10-26T16:46Z.** [Play](https://gggodlin.github.io/play/hv-v3-dot/).
+正常通關固定給10靈魂碎片，不使用隨機數、不補發歷史獎勵（本作節奏改編）。明確確認後，可依品質原版碎片費用綁定已擁有的武器。原始錨點保留ID／骰值／詞綴，武器有效等級與數值隨角色成長，不補造舊裝缺少的招架。
 
-- Runtime source `6e0614dd199c958a4d3ce7c84592936d61d2e822`.
-- Accepted complete-source prepublication backup **`aa6cd6166d9424745ce9b82bb7e58d73e4bc5b21`**,200files/199manifestpayloads. Exact commit containing this publication receipt is a newer documentation-only checkpoint of the same accepted runtime; prefer it once its manifest/readback verifies.
-- Root site **`0abefbcc311d68f37c56751e3c45f94a2812e39f`**, exact Pages **40361672425 success**, six HTTP200 byte/SHA256 matches, real ordinary stable-profile win and reload smoke passed.
-- Source **1,358/1,358 tests**, four syntax checks,60 independent parity cohorts. Docs-only receipts reuse unchanged-runtime results.
-- Candidate `569f46099afa5b1031b655b527a38f1001e5ce66`, exact Pages40360095580 success, sixHTTP matches and real two-build/pin/camp-change/eviction/reload acceptance preceded promotion.
+綁定武器禁止出售／解鎖，並有116把總持有上限；這些是防止誤失與永久背包死鎖的本作適配。資料格式v2可讀有效v1並給零碎片；舊版本拒絕新格式。沒有宣稱完成Item World、鍛造或拆解。
 
-### What changed
+**1,433／1,433測試、四項語法檢查、18組獨立驗收通過。** 已修復超大錨點未來升級後無法保存，以及117把永久武器造成無法再出戰的缺陷。舊測試原始golden與fixture未改寫；相容性比對只排除明確新增的版本／貨幣欄位。
 
-Report captures actual start target/Protection policies, slotted ability ranks and equipped item identities once before action. Compact policy row and collapsed details preserve readable camp tabs. Later camp changes cannot rewrite reports; no preset-label inference. Protection ON is policy, not proof of active buff. Still only latest two reports plus one session pin; reload/import/ownership changes clear them. No combat/save/RNG/reward changes or causal best-build claim.
+實際候選從正常Lv10舊存檔賺得140碎片，支付100將原Lv7刺劍綁至Lv13，再自然成長至Lv15。59件原物品身份保留，其餘58件紀錄不變；配裝／保護／重載通過。最終修正版另綁定舊Lv3、無招架欄位的背包刺劍，確認不自動換裝、不補招架，再通關重載。最後候選Lv15／2662金幣／41勝／75件／60碎片。
 
-See [report guide](REPORT-BUILD-GUIDE.md), [acceptance](ACCEPTANCE-V022.md), [browser evidence](BROWSER-QA-V022.md), [audit](INDEPENDENT-AUDIT-V022.md). No active release blocker remains.
+正式頁保持自己的Lv10／686金幣／15勝／29件進度，不匯入候選存檔；升級格式時零碎片，普通一勝後為762金幣／16勝／31件／10碎片，重載保留。正式tab2留營地，候選tab16關閉。詳見BROWSER-QA-V023.md與ACCEPTANCE-V023.md。
 
-## Recovery and limits
+## 恢復與限制
 
-Prior accepted v0.21 `9998ac34176ab2bc0055e60ca340e7a86a602016` remains recoverable, not preferred latest. Earlier README/status retained in HISTORY-READMES-STATUS.md. Source restoration does not restore personal browser progress, GPT Library synchronization, credentials or schedules.
+最後發布收據只更新文件與manifest；讀回成功後，以該確切commit作為更新的完整來源恢復點，執行程式與已驗收來源相同，不重複部署或重測。前一版已驗收來源`cfc624debcecaa029deb95e437681d7c5a5b7644`保留。409個來源範圍外blob未變。
 
-Bounded cloud desktop only; not physical mobile/narrow viewport/OS suspension acceptance. Highest ranks and malformed report fallback were source-tested, not forced in browser. No offline earnings or universal background guarantee. Report is not full affix/proficiency/RNG replay state.
-
-Only own source dot-game bot/dot and authorized sitepath changed; outside content preserved. No excluded implementation/constants/monsterdata/art, oldHV, dot-archive, company data or credentials.
+原碼備份不等於個人瀏覽器進度、GPT檔案庫、登入權限或排程備份。未聲稱實體手機、窄視窗、OS休眠、強制117把武器的瀏覽器測試或全面平衡；極端邊界有獨立程式測試。數值縮放、碎片節奏與保護適配見SOULBIND-GUIDE.md及ORIGINAL-HV.md。

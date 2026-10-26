@@ -1,6 +1,6 @@
-# Soulbound weapon growth — v0.23 candidate
+# Soulbound weapon growth — v0.23
 
-Source implementation and 1,433 tests/four syntax checks pass. This guide is not a browser acceptance or publication receipt; see ACCEPTANCE-V023.md for independent evidence.
+Source implementation and 1,433 tests/four syntax checks pass. The release is published and bounded-desktop accepted. This guide explains rules; see ACCEPTANCE-V023.md and BROWSER-QA-V023.md for the separate source and actual-play evidence.
 
 ## Player loop
 

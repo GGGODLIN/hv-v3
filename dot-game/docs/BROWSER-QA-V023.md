@@ -1,6 +1,6 @@
 # v0.23 browser acceptance
 
-Status: **bounded desktop candidate acceptance passed at2026-10-26T18:58Z**, including the final capacity guard. Formal-root publication and its independent smoke remain pending; public v0.22 is unchanged. Source-only edge tests remain distinguished from the actual interactions below.
+Status: **bounded desktop candidate acceptance passed at2026-10-26T18:58Z**, including the final capacity guard. Formal-root publication and independent smoke subsequently passed; see the final section. Source-only edge tests remain distinguished from the actual interactions below.
 
 ## Preserved starting profile
 
@@ -61,3 +61,11 @@ One ordinary stage1 victory with queued camp return then producedLv15/gold2662/w
 Captured120 warn/error entries were all the explicitly identified `chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js` metadata source. No remaining app-origin entry appeared. This is bounded log inspection, not an exhaustive guarantee. No physical mobile/narrow viewport, forced117-weapon browser collection, malformed browser import, fragment-cap browser simulation or exact speed advantage is claimed. Those boundary cases have independent source coverage.
 
 **GO for final accepted-source backup, then formal-root promotion of these same six runtime bytes.** Keep the candidate's temporary save separate from the stable profile; source backups do not restore personal browser progress.
+
+## Stable-root publication and smoke — 19:06–19:08UTC
+
+Fullaccepted source `5ae96a2f4e951ca70e432ef03db81555755a01f0` was verified before formalroot `161e7e30a98fce095dd0adb8b3d22f1a7b9a1810`. ExactPages40383270135 succeeded andallsixHTTP200 runtime bodies matched acceptedsource. Five root fileschanged; sessionand3931other websiteblobs/candidates remainedunchanged.
+
+Normal stabletab2 reload showedv0.23 and its own originalLv10/gold686/wins15/items29/HP848/unboundLv7weapon, withzero fragments despiteoldwins. It didnotimport candidateLv15/twoboundweapons. Afterordinary ownershipsettled, a normalstage1 expedition withqueuedreturnwononce:gold762/wins16/items31/fragments10,HP848,Lv10. Reloadretained10fragments/16wins andexistinggear/progress. Captured19warn/errorentrieswereonlytheexactknownextensionmetadatasource; noapp-origin errorremained. Stable2wasmarkedDeliverableatcampandcandidate16closed.
+
+Rootsmoke validatesnormalmigration/reward/save behavior; bindingandgrowthwereactuallytestedonbyte-identicalfinalcandidate, notforcedonstable. Finalpublicationreceipt isdocs/manifestonly, reusing1433tests/foursyntax andtheunchangedruntimeevidence.
