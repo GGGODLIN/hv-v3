@@ -1,5 +1,17 @@
 # Current status
 
+## v0.10 published and stable-root smoke accepted — 2026-10-26 03:30 UTC
+
+Live: https://gggodlin.github.io/play/hv-v3-dot/ . Accepted pre-promotion source `19f9b9fb3583caec8a910bbff57454d78d896b65` was backed up/readback verified first. Website `176842ae81cd90d55bac5f96f3bbb772dc4f27e4` passed exact Pages run `40264171858`, followed by one HTTP6 pass with six 200 responses and exact frozen source byte/SHA-256 matches. Only index/style/engine/UI root blobs changed; loot/session and all 3852 non-root site blobs, candidates and other works remained unchanged. No additions/removals.
+
+Actual stable-root Chrome smoke retained the original level 19, gold 8238, 80 wins and 109 inventory items, with no allocation (AP 19/19; 0/5 slots), rather than isolated candidate progress. Learning and slotting HP Tank gave AP 18/19 and maximum HP 1066 from 971. A stage-3 win displayed 10.5 seconds; its report recorded level 19→20, start attack 237/maxHP 1066, 1138 basic + 410 skill HP removal, incoming loss 65, minimum HP 96% and two stun applications. Retreat/reload retained level 20, gold 8398, 81 wins, 110 inventory items, maxHP 1090, AP 19/20 and 1/5 slots. The earned level thus added one derived AP while the spent point and active ability persisted.
+
+No app-origin errors appeared in inspected logs; known extension noise was separate. Candidate tabs 30/31 were closed; stable tab 26 was left at camp. BROWSER-QA-V010.md distinguishes these real observations from Node-only malformed-import/corruption/downgrade coverage and unverified physical-device/lifecycle behavior.
+
+The exact verified commit containing this publication receipt is the latest accepted full-source restore point: 99 files / 98 manifest payloads. Runtime/tests remain byte-identical to `a2406ee8ae7dfeeb0edeed268c59fd728dba1833`; 694 passing tests and four syntax checks are reused without redundant reruns. Prior v0.9 recovery `83a973bcf2586ed5994e707cfc5faaeb519873cd` remains historical. Source backups do not restore personal browser saves, credentials, Library content or schedules.
+
+### Earlier checkpoint timeline (historical statuses, superseded above)
+
 ## v0.10 desktop accepted; root promotion pending — 2026-10-26 03:24 UTC
 
 Bounded cloud-Chrome acceptance is recorded in BROWSER-QA-V010.md. Fresh learning did not apply HP until slotting; unslot/refund AP semantics and zero-proficiency 1H preview were correct. A natural older profile imported without allocation, then spent four of 19 AP on three active abilities: HP 971→1066, MP 73→80, attack 236.6→282.2. Battle controls were disabled, a stage-3 victory produced a report at attack 282/maxHP 1066, and natural level-20 growth raised the AP budget to 20 without changing spent points. Reload and explicit two-tab takeover retained AP 16/20 and all three allocations. Normal UI-export comparison preserved all 105 original items (102 inventory plus three equipped); final 111 inventory plus three equipped means nine newly earned items. Narrow desktop wrapping and inspected app logs passed. Real malformed/corrupt/old-writer downgrade browser cases, physical mobile and OS suspension are not claimed.

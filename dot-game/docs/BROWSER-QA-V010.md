@@ -31,6 +31,19 @@ No application-origin errors appeared in inspected logs. Explicit extension nois
 
 The parent gave bounded desktop candidate GO. Actual malformed imports, specific repaired-corrupt-save reproduction and old-writer ability downgrade remain source/Node coverage rather than browser proof in this slice. The prior universal foreground-pause, physical mobile and OS-suspension limitations remain. No offline earnings or universal lifecycle guarantee is claimed. Existing v3 saves remain compatible; old running versions should be refreshed before taking ownership, and may otherwise omit optional ability allocation.
 
-This pre-promotion checkpoint adds this report and updates documentation/manifest only. It must be backed up and exact-readback verified before the same frozen six runtime files are promoted. Public-root promotion and final stable-save smoke are pending here; accepted public v0.9 recovery remains `83a973bcf2586ed5994e707cfc5faaeb519873cd` until those gates pass.
+This pre-promotion checkpoint adds this report and updates documentation/manifest only. It must be backed up and exact-readback verified before the same frozen six runtime files are promoted. Public-root promotion and final stable-save smoke were pending at this pre-promotion observation; both are completed by the publication record below. Previous accepted v0.9 recovery `83a973bcf2586ed5994e707cfc5faaeb519873cd` remains historical; the exact verified publication-receipt commit is now the latest accepted restore.
 
 Source backups restore source, tests, documentation and available assets, not personal browser saves, credentials, Library content or schedules.
+
+## Public-root publication and smoke — 2026-10-26 03:29–03:30 UTC
+
+Accepted source `19f9b9fb3583caec8a910bbff57454d78d896b65` was backed up and exact-readback verified before promotion. Website `176842ae81cd90d55bac5f96f3bbb772dc4f27e4` passed exact Pages run `40264171858`; one HTTP6 pass returned six 200 responses with exact byte/SHA-256 identity to the same frozen runtime. Four root blobs changed; loot/session and all 3852 non-root website blobs were preserved, with no additions/removals.
+
+Parent observations in stable cloud-Chrome tab 26:
+
+- Reload of the v0.10 root retained the original level 19, gold 8238, 80 wins and 109 inventory items. There were no allocated abilities: AP 19/19 and 0/5 slots, maximum HP 971. The isolated candidate's allocation/progress had not mixed with the stable profile.
+- Learning and slotting HP Tank spent one AP: AP 18/19, maximum HP 1066. A normal stage-3 victory displayed 10.5 seconds; report context showed start level 19 → end level 20, start attack 237 and maximum HP 1066. Measured HP removal was 1138 basic + 410 skill = 1548, incoming loss 65, minimum HP 96%, and two stun applications.
+- Retreat/reload retained level 20, gold 8398, 81 wins, 110 inventory items, maximum HP 1090, AP 19/20 and 1/5 occupied slots. The natural level-up added one derived AP, while the one spent point and enabled HP ability persisted.
+- No app-origin errors appeared in inspected logs; explicitly identified extension noise was filtered separately. Candidate tabs 30 and 31 were closed; stable tab 26 was left at camp.
+
+This is bounded stable-save/root smoke, not exhaustive device/lifecycle testing, a browser re-test of every malformed-import/corruption/old-writer downgrade case, or a controlled comparison of ability effectiveness. Runtime and tests remain unchanged from the fully tested source; this final publication receipt changes only documentation and manifest.

@@ -1,5 +1,12 @@
 # Published releases
 
+## v0.10 — published, 2026-10-26 03:30 UTC
+
+- Accepted source before publication: `19f9b9fb3583caec8a910bbff57454d78d896b65` on `GGGODLIN/hv-v3` branch `bot/dot`. Runtime source: `a2406ee8ae7dfeeb0edeed268c59fd728dba1833`; later acceptance/publication checkpoints change only docs/manifest.
+- Public website: `176842ae81cd90d55bac5f96f3bbb772dc4f27e4`; exact Pages run `40264171858` succeeded and one HTTP6 pass returned six 200 exact byte/SHA-256 matches. Four root blobs changed; loot/session and all 3852 non-root site blobs were preserved. Isolated candidate `7ae873625722522e4980e754d944ae8b0fdefaa3` remains at `/play/hv-v3-dot/candidates/v0.10/`.
+- Candidate acceptance and actual stable-root smoke passed within BROWSER-QA-V010.md's explicit desktop limits. Root retained the original level-19 unallocated profile; HP Tank learning/slotting spent one AP, an actual stage-3 victory reached level 20, and retreat/reload retained AP 19/20, maximum HP 1090 and the active ability alongside gold 8398, 81 wins and 110 inventory items. No app-origin errors appeared in inspected logs; candidate tabs were closed.
+- Latest accepted restore is the exact verified commit containing this publication receipt: 99 complete files / 98 manifest payloads. Previous v0.9 receipt `83a973bcf2586ed5994e707cfc5faaeb519873cd` remains historical. The existing 694 tests/four syntax passes are reused because runtime/tests are unchanged. No personal browser-save or external-account restoration claim.
+
 ## v0.10 — desktop-accepted source, root promotion pending, 2026-10-26 03:24 UTC
 
 - Complete runtime/source `a2406ee8ae7dfeeb0edeed268c59fd728dba1833` on `GGGODLIN/hv-v3` branch `bot/dot`: 98 files / 97 manifest payloads, complete tree and exact changed-file readbacks verified. This acceptance checkpoint adds BROWSER-QA-V010.md and updates only documentation/manifest; 694 passing tests and four syntax checks are reused.
