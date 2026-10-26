@@ -4,10 +4,11 @@ import puppeteer from 'puppeteer-core';
 const BASE = process.argv[2] ?? 'http://localhost:5198/';
 const br = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 const w = (ms) => new Promise((r) => setTimeout(r, ms)); const fail = []; const errs = []; const res = {};
+const okPrep = async (pg) => { await w(150); if (await pg.$('.modal [data-modal-ok]')) { const t = await pg.$eval('.modal [data-modal-ok]', (x) => x.textContent); if (t.includes('出發')) { await pg.click('.modal [data-modal-ok]'); await w(300); } } }; // cp8-rc2: dismiss the prep reminder
 for (const [k, type] of [['abyss15', 'battle'], ['abyss15', 'elite'], ['postF20-blade', 'boss']]) {
   const pg = await br.newPage(); await pg.setViewport({ width: 1280, height: 900 }); pg.on('pageerror', (e) => errs.push(k + ' ' + e));
   await pg.goto(BASE + `?cp6&debug&preset=${k}`, { waitUntil: 'networkidle0' }); await pg.waitForFunction(() => window.hv);
-  await pg.click('[data-abyss]'); await w(400);
+  await pg.click('[data-abyss]'); await okPrep(pg); await w(400);
   await pg.evaluate((t) => window.hv.startBattle(t), type); await w(600);
   const r = await pg.evaluate(() => {
     const hv = window.hv, out = [];
