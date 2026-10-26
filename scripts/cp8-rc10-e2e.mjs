@@ -69,7 +69,8 @@ for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
 { const pg = await open('postF20-arcane'); await fight(pg);
   R.arc = await pg.evaluate(() => ({ hint: document.querySelector('[data-spellhint]')?.getAttribute('data-spellhint') ?? '', btn: document.querySelector('[data-sugbtn]')?.getAttribute('data-act') ?? '', weak: [...document.querySelectorAll('[data-wk]')].map((x) => x.getAttribute('data-wk')) }));
   const elw = R.arc.weak.some((x) => /^(fire|cold|elec|wind|holy|dark):/.test(x));
-  if (elw && (!R.arc.hint || R.arc.btn !== 'spell:' + R.arc.hint)) fail.push('P0-4 arcane hint/button');
+  // rc13: since rc12 item 2 suggestSpell returns null when the quick attack is already within 10% of the best spell, so an empty hint is legal; hint and button must agree.
+  if (elw && (R.arc.hint ? R.arc.btn !== 'spell:' + R.arc.hint : R.arc.btn)) fail.push('P0-4 arcane hint/button');
   await pg.close(); }
 // P1-9: an animation that never resolves (hidden tab / destroyed tween target) no longer blocks 繼續前進
 { const pg = await open('postF20-oc'); await fight(pg);
