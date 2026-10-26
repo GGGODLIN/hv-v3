@@ -394,7 +394,8 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
   return mode ? chooseCp5(b, mode, base) : base();
 }
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
-  while (!b.over && b.turn < 400) act(b, decide(b, strategy, mode), rng, profs);
+  const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
+  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } const h0 = b.hp; act(b, a, rng, profs); if (dbg && b.hp < h0) dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; }
   if (!b.over) b.over = 'lose';
 }
 const potCount = (b: BattleState) => b.potions.health + b.potions.mana + b.potions.spirit;
@@ -449,6 +450,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       turns += b.turn;
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
+      if (ENV?.DBGFIGHT && run.abyss) console.error('BF ' + JSON.stringify({ st: strategy, d: depthOf(run), type, won: b.over === 'win', turns: b.turn, hp0: +hp0Pct.toFixed(2), maxHp: Math.round(d.hp), adb: Math.round(d.adb), pmit: +d.physMit.toFixed(3), ev: +(d.evade ?? 0).toFixed(3), blk: +(d.block ?? 0).toFixed(3), mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group ?? '-', body: p.equipped.body?.group, lv: Math.round(powerScore(d)), ...(b as unknown as { dbg: object }).dbg }));
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);

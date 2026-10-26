@@ -36,7 +36,9 @@ function one(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): 
   const ms = encounter(run, pool, type);
   const b = startBattle(runDerived(p, run), { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
   b.locked = battleLocks(p); armBattle(b, run); b.oc += openingOc(p, type, run); armCp5(b, run.pdot);
-  fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter'); return b.over === 'win';
+  fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter');
+  if (E.DBGFRESH) { const d = b.d; console.error('FR ' + JSON.stringify({ depth, type, won: b.over === 'win', turns: b.turn, maxHp: Math.round(d.hp), adb: Math.round(d.adb), pmit: +d.physMit.toFixed(3), blk: +d.block.toFixed(3), ev: +d.evade.toFixed(3), mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group ?? '-', body: p.equipped.body?.group, foes: ms.map((m) => m.name + ':' + m.rank), mhp: Math.round(ms.reduce((a, m) => a + m.maxHp, 0)), oc: Math.round(b.oc), ...(b as unknown as { dbg?: object }).dbg })); }
+  return b.over === 'win';
 }
 /** CP8 P3: first battle of a trip that starts at `depth` (start buffs picked by the school preference, as autoRun does). */
 function first21(p0: Player, depth: number, seed: number): boolean {
@@ -46,7 +48,9 @@ function first21(p0: Player, depth: number, seed: number): boolean {
   const ms = encounter(run, pool, type);
   const b = startBattle(runDerived(p, run), { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
   b.locked = battleLocks(p); armBattle(b, run); b.oc += openingOc(p, type, run); armCp5(b, run.pdot);
-  fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter'); return b.over === 'win';
+  fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter');
+  if (E.DBGFRESH) { const d = b.d; console.error('FR ' + JSON.stringify({ depth, type, won: b.over === 'win', turns: b.turn, maxHp: Math.round(d.hp), adb: Math.round(d.adb), pmit: +d.physMit.toFixed(3), blk: +d.block.toFixed(3), ev: +d.evade.toFixed(3), mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group ?? '-', body: p.equipped.body?.group, foes: ms.map((m) => m.name + ':' + m.rank), mhp: Math.round(ms.reduce((a, m) => a + m.maxHp, 0)), oc: Math.round(b.oc), ...(b as unknown as { dbg?: object }).dbg })); }
+  return b.over === 'win';
 }
 /** CP8 P5: over a whole fight at `depth`, every turn is replayed once from full HP; counts turns where that full-HP replay dies. */
 function oneTurnKills(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): { n: number; k: number; maxHit: number } {
