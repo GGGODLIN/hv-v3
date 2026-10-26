@@ -26,7 +26,7 @@ export interface Player {
   prog?: Progress;
   /** CP8 rc3: ids of the pieces CP8.autoWear put on in the last trip (shown once by the 出發前整備 reminder). */
   lastWorn?: string[];
-  /** cp8-rc5: the school the player leans to (dominant buff school of the last trip, or the preset's); bulwark → town 換上 prefers 1H + shield + heavy. */
+  /** cp8-rc5: the school the player starts as (bulwark starter kit / preset school; trips do not change it — rc5: drifting on a formed school cost blade p25 17→15); bulwark → town 換上 prefers 1H + shield + heavy. */
   lean?: 'blade' | 'oc' | 'arcane' | 'bulwark';
 }
 
