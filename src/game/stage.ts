@@ -261,7 +261,9 @@ export class Stage extends Phaser.Scene {
       if (e.dmg > 0) { this.heroPlay('hurt'); this.flash(this.hero, 0xff8080); }
       const big = e.label === '重擊！' || e.crits > 0;
       this.popup(this.hero.x, this.hero.y - 220, e.dmg > 0 ? `-${e.dmg}` : '', big ? '#ff3030' : '#ff8080', big ? 30 : 22);
-      if (avoidTxt) this.popup(this.hero.x, this.hero.y - 245, avoidTxt, '#cccccc', 15, 40);
+      // cp8-rc6 item 7: block / parry get a clear 「格擋！-N」 popup (bigger, shield blue); other avoidances unchanged.
+      if (e.avoided === 'block' || e.avoided === 'parry') this.popup(this.hero.x, this.hero.y - 250, `${avoidTxt}！-${e.dmg}`, '#7fd0ff', 22, 40);
+      else if (avoidTxt) this.popup(this.hero.x, this.hero.y - 245, avoidTxt, '#cccccc', 15, 40);
       if (e.label === '重擊！') this.shake(0.018, 320);
       else if (e.dmg > 0) this.shake(0.003, 120);
       await this.wait(220);

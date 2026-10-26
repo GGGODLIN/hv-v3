@@ -2,7 +2,7 @@ import { RULES } from './run';
 import { CP8 } from './cp8';
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
-import { resolveHit, type Avoid } from './damage';
+import { meanHit, resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
 import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
@@ -194,6 +194,15 @@ export function quickAttack(s: BattleState, target: number, main?: string): Acti
 }
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
 export const POT_HINT = { hp: 0.5, charging: 0.75 };
+/** cp8-rc6 item 6: estimate of a charging monster's next heavy hit (mult as enemyTurn: drain → CP5.drainMult else BOSS_CHARGE_MULT,
+ *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance, crits and the per-turn cap. */
+export function chargeEstimate(s: BattleState, m0: Monster, defending = false): number {
+  const m = m0 as CM;
+  const mult = m.drainNext ? CP5.drainMult : BOSS_CHARGE_MULT;
+  const el = m.elemAttack;
+  const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
+  return meanHit(m.adb * mult * (el ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
+}
 export function potHint(s: BattleState): boolean {
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th && canUse(s, { kind: 'item', id: 'health' });

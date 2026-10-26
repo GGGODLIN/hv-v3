@@ -40,6 +40,8 @@ function rolls(rng: Rng, n: number, p: number): number {
  * The damage chain (findings 002 5.1): evade -> parry (phys) -> block -> resist (spells) -> crit (full hits only)
  * -> mitigation -> specific mitigation -> uniform 0.80..1.20 roll.
  */
+/** cp8-rc6 item 6: expected damage of a hit that lands in full — mean damage roll, no crit, no avoidance (same formula as below). */
+export const meanHit = (raw: number, mit: number, spec: number): number => Math.max(1, Math.floor(raw * (1 - mit) * (1 - spec) * ((ROLL.min + ROLL.max) / 200)));
 export function resolveHit(rng: Rng, h: HitInput): HitResult {
   let mult = 1;
   let avoided: Avoid = null;

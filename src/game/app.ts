@@ -1,5 +1,5 @@
 import { iconKey } from './icons';
-import { act, alive, armCp5, type BEvent, canUse, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -291,7 +291,7 @@ export class App {
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
     const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：<span data-wkl>${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}" data-wk="${w.type}:${w.pct}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</span> <span class="res" data-resl>抗：${resistances(m).map((r) => `<i class="${r.type === b.d.damageType ? 'mine' : ''}" data-res="${r.type}:${r.pct}">${TZ[r.type]} ${r.pct}%</i>`).join(' ') || '<span class="hint">無</span>'}</span></div>`).join('');
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
@@ -422,13 +422,31 @@ export class App {
   }
 
   lastSettlement: Settlement | null = null;
+  /** cp8-rc6 item 6: the last enemy hit that did damage this run (for the 死因 line on the death screen). */
+  lastHit: { who: string; label?: string; dmg: number; hp: number; maxHp: number; charged: boolean } | null = null;
+  /** cp8-rc6 items 3 + 6: estimated heavy-hit damage and, when the health potion is on cooldown, a hint to use 防禦 / 靈動 instead. */
+  chargeExtra(b: BattleState, chargers: Monster[]): string {
+    const est = Math.max(...chargers.map((m) => chargeEstimate(b, m)));
+    const estD = Math.max(...chargers.map((m) => chargeEstimate(b, m, true)));
+    const pct = Math.round((est / b.d.hp) * 100);
+    const cd = b.itemCd.health;
+    return `<br><span data-chargeest="${est}:${pct}">預估傷害 約 ${est}（佔最大 HP ${pct}%）· 防禦後約 ${estD}</span>`
+      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${cd > 0 ? `生命藥水冷卻中（還要 ${cd} 回合）` : '生命藥水已用完'}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
+  }
+  /** cp8-rc6 item 6: 死因 line — source of the last hit, its damage, and one hint. */
+  deathCause(): string {
+    const h = this.lastHit;
+    if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
+    const hint = h.charged ? '首領蓄力（⚠）時先按 D·防禦，藥水冷卻中就別等藥。' : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+    return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（受擊前 HP ${h.hp}/${h.maxHp}）<br><span class="hint">建議：${hint}</span></p>`;
+  }
   resultHtml(): string {
     const s = this.lastSettlement!;
     const title = s.outcome === 'clear' ? '♛ 通關試煉之塔！' : s.outcome === 'dead' ? '☠ 倒下了……' : '撤退回城';
     // rc10: the 50% is multiplied again by the carry-back multiplier shown below; say so instead of a bare 50%.
     const carryNote = s.mult !== 1 ? `，再乘下方帶回倍率 ×${s.mult}（合計約 ${Math.round(RULES.death.exp * s.mult * 100)}%）` : '';
     const rule = s.outcome === 'dead' ? `死亡：EXP、熟練度與 Credits 保留 50%${carryNote}，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。` : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
-    return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>${s.abyss ? `到達深淵第 <b data-reached>${s.floor}</b> 層。` : `到達第 ${s.floor} 層。`}${rule}</p>
+    return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>${s.abyss ? `到達深淵第 <b data-reached>${s.floor}</b> 層。` : `到達第 ${s.floor} 層。`}${rule}</p>${s.outcome === 'dead' && RULES.cp8 ? this.deathCause() : ''}
       <div class="hint" data-carry="${s.mult}">${s.abyss ? '深淵帶回倍率（1＋0.05×難度階）' : s.mult > 1 ? '新手帶回加成' : '帶回倍率'} ×${s.mult}</div>${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>${s.cp8 ? `<div class="gain" data-cp8carry><b>這趟帶回：</b>等級 Lv${s.levelBefore} → Lv${s.levelAfter}${s.levelAfter > s.levelBefore ? ` <b>(+${s.levelAfter - s.levelBefore})</b>` : '（不變）'} · 裝備戰力 ${s.cp8.pw0.toLocaleString()} → <b>${s.cp8.pw1.toLocaleString()}</b>${s.cp8.pw1 > s.cp8.pw0 ? ` (+${Math.round((s.cp8.pw1 / Math.max(1, s.cp8.pw0) - 1) * 100)}%)` : ''}${s.cp8.worn.length ? ` · 途中自動換上 ${s.cp8.worn.length} 件` : ''}${s.cp8.attrPts ? ` · <b>可加 ${s.cp8.attrPts} 點屬性</b>（城鎮「全部處理」）` : ''}</div>` : ''}
       <h3 class="kept-h">保留（${s.kept.length} 件，已放入倉庫）</h3>
@@ -623,6 +641,7 @@ export class App {
   }
 
   startRun() {
+    this.lastHit = null;
     this.data.run = startRun(this.p, randomSeed());
     this.notice = [...(this.data.run.notes ?? [])];
     this.data.stats.runs++;
@@ -647,6 +666,7 @@ export class App {
     return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}${rec.titles.length ? `<br>稱號：${rec.titles.map((t) => `<b data-title>${esc(t)}</b>`).join('、')}` : ''}</div>`;
   }
   startAbyss() {
+    this.lastHit = null;
     const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
     let st = checkpointStart(rec.best);
     if (RULES.cp7) { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value ?? st); if (checkpointOptions(rec.best, ABYSS.checkpoint).includes(v)) st = v; this.abyssStart = st; }
@@ -722,6 +742,8 @@ export class App {
       if (e.t === 'hit' && e.to === 'player' && typeof e.from === 'number') {
         const who = esc(b.monsters[e.from]!.name);
         const how = e.avoided === 'evade' ? '（閃避）' : e.avoided === 'parry' ? '（招架）' : e.avoided === 'block' ? '（格擋）' : e.avoided ? '（未命中）' : '';
+        if (e.dmg > 0) this.lastHit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, hp: Math.round(b.hp + e.dmg), maxHp: Math.round(b.d.hp), charged: !!e.label && e.label.includes('重擊') };
+        if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }
       if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，蓄力變快）</span>`);
