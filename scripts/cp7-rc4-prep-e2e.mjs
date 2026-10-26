@@ -1,6 +1,6 @@
 // cp7-rc4 e2e: 出發前整備提醒 on the real build. Save = postF20-blade preset + huge unspent EXP, 0 HP potions, worn body armour moved
 // to the inventory (so the bag holds a 「▲ 比身上好」 piece). Checks: reminder shows all 3 rows; 全部處理 fixes all three; 忽略並出發
-// departs untouched (main + abyss); no issues → no reminder; cp7 off → no reminder. Usage: node scripts/cp7-rc4-prep-e2e.mjs [baseUrl]
+// departs untouched (main + abyss); no issues → no reminder. Usage: node scripts/cp7-rc4-prep-e2e.mjs [baseUrl]
 import puppeteer from 'puppeteer-core';
 const BASE = process.argv[2] ?? 'http://localhost:5199/';
 const br = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
@@ -47,9 +47,7 @@ for (const [kind, btn] of [['main', '[data-start]'], ['abyss', '[data-abyss]']])
   await pg.click('[data-start]'); await w(300); const s = await st(pg);
   check('all fixed → no reminder, departs at once', !s.modal && s.run === 'main', s);
   await pg.close(); }
-// 4. cp7 off → no reminder
-{ const pg = await page('cp6'); await pg.click('[data-start]'); await w(300); const s = await st(pg);
-  check('cp7 off: no reminder, departs at once', !s.modal && s.run === 'main', s); await pg.close(); }
+// cp8-rc2: removed check 4 ('cp7 off → no reminder') — cp7 is on by default and main.ts has no switch to turn it off, so '?cp6' alone still loads cp7.
 await br.close();
 console.log(JSON.stringify(log, null, 1));
 if (errs.length) fail.push('pageerror: ' + errs.join(' | '));
