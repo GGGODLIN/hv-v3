@@ -222,7 +222,7 @@ export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; r
 type CM = Monster & Cp5Mon;
 const ELEMS: SpellId[] = ['fiery', 'freeze', 'shock', 'gale'];
 /** prepEquip (prep.ts imports auto.ts; injected there to avoid a cycle). */
-export const naivePrep = { equip: (p: Player): void => { autoEquip(p, []); } };
+export const naivePrep = { equip: (p: Player): void => { autoEquip(p, [], leanStyle(p)); } }; // rc5: leanStyle = null unless cp8 + bulwark lean
 let PHYS = false; // set by fight(): the current strategy plays physically (no offensive spells)
 function bestSpell(b: BattleState, t: number, only?: SpellId[]): Action | null {
   if (PHYS) return null;

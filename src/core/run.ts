@@ -13,7 +13,7 @@ import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
-import { combos, formed, SCHOOLS, schoolCounts, sumMods } from './buffs';
+import { combos, formed, schoolCounts, sumMods } from './buffs';
 import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
@@ -526,7 +526,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const mult = run.abyss ? abyssCarryAt(run) : carryMult(run.trip ?? g.trips + 1);
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
-  if (RULES.cp8) { const c = schoolCounts(run.buffs ?? []); const top = SCHOOLS.reduce((a, s) => (c[s] > c[a] ? s : a), SCHOOLS[0]!); if (c[top] > 0) p.lean = top; } // cp8-rc5
+  if (RULES.cp8) { const f = formed(run.buffs ?? []); if (f.length && !(p.lean && f.includes(p.lean))) p.lean = f[0]; } // cp8-rc5: lean follows a formed school
   if (RULES.cp8) p.lastWorn = (run.worn ?? []).filter((id) => Object.values(p.equipped).some((e) => e?.id === id)); // cp8-rc3 item 2
   let kept = run.bag;
   let lostPotions: Partial<Record<PotionId, number>> = {};
