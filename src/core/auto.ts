@@ -205,10 +205,12 @@ export function chooseAction(b: BattleState): Action {
   if (b.hp < b.d.hp * 0.35 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
   if (b.monsters.some((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0))) return b.hp < b.d.hp * 0.6 && canUse(b, { kind: 'item', id: 'health' }) ? { kind: 'item', id: 'health' } : { kind: 'defend' };
   if (b.hp < b.d.hp * 0.3 && b.oc >= 25) return { kind: 'defend' };
-  if (canUse(b, { kind: 'skill', id: 'mercifulBlow', target })) return { kind: 'skill', id: 'mercifulBlow', target };
-  if (tm.status.stun > 0 && canUse(b, { kind: 'skill', id: 'vitalStrike', target })) return { kind: 'skill', id: 'vitalStrike', target };
+  // rc13 item 3(c): the current AI presses the hinted skill (suggestSkill covers Merciful execute, Rending, Shatter, Vital-vs-stun). SIM_P4SKILL=old = rc12 lines.
+  if (ENV?.SIM_P4SKILL !== 'old') { const g = suggestSkill(b, target); if (g) return { kind: 'skill', id: g, target }; }
+  else if (canUse(b, { kind: 'skill', id: 'mercifulBlow', target }) && tm.status.bleedTurns > 0 && tm.hp < tm.maxHp * 0.25) return { kind: 'skill', id: 'mercifulBlow', target };
+  if (ENV?.SIM_P4SKILL === 'old' && tm.status.stun > 0 && canUse(b, { kind: 'skill', id: 'vitalStrike', target })) return { kind: 'skill', id: 'vitalStrike', target };
   const big = b.monsters.indexOf(live.reduce((a, m) => (m.hp > a.hp ? m : a)));
-  if (canUse(b, { kind: 'skill', id: 'shieldBash', target: big }) && b.oc >= 75) return { kind: 'skill', id: 'shieldBash', target: big };
+  if (ENV?.SIM_P4SKILL === 'old' && canUse(b, { kind: 'skill', id: 'shieldBash', target: big }) && b.oc >= 75) return { kind: 'skill', id: 'shieldBash', target: big };
   const boss = live.some((m) => m.rank === 'boss');
   if (!b.spirit && (b.oc >= 120 || boss) && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (b.d.mdb * 4 > b.d.adb * 1.2) {
