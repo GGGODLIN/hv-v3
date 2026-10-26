@@ -1,0 +1,52 @@
+# CP5 death-combo sweep  N=96 seeds, snapshots from counter runs (≤12 trips), 85 combos × F3/F8/F13/F18 × 5 schools
+# 必死 = counter win < 50%, 警告 = < 70%. Elite fought at full HP/MP/SP from the snapshot.
+auto F3: snapshots 96, no-affix control 100%, worst  100%
+auto F8: snapshots 96, no-affix control 100%, worst hard+leech 84%
+auto F13: snapshots 96, no-affix control 96%, worst warded+spikes 63%
+auto F18: snapshots 96, no-affix control 92%, worst warded 69%
+buff:blade F3: snapshots 96, no-affix control 100%, worst  100%
+buff:blade F8: snapshots 96, no-affix control 89%, worst split 70%
+buff:blade F13: snapshots 96, no-affix control 92%, worst split 78%
+buff:blade F18: snapshots 96, no-affix control 90%, worst split 66%
+buff:oc F3: snapshots 96, no-affix control 100%, worst  100%
+buff:oc F8: snapshots 96, no-affix control 95%, worst warded 67%
+buff:oc F13: snapshots 96, no-affix control 95%, worst leech+warded 59%
+buff:oc F18: snapshots 96, no-affix control 86%, worst warded 60%
+buff:arcane F3: snapshots 96, no-affix control 100%, worst  100%
+buff:arcane F8: snapshots 96, no-affix control 99%, worst warded 78%
+buff:arcane F13: snapshots 96, no-affix control 90%, worst leech+warded 74%
+buff:arcane F18: snapshots 96, no-affix control 93%, worst split+antimagic 57%
+buff:bulwark F3: snapshots 96, no-affix control 100%, worst  100%
+buff:bulwark F8: snapshots 96, no-affix control 90%, worst leech 69%
+buff:bulwark F13: snapshots 96, no-affix control 90%, worst split 74%
+buff:bulwark F18: snapshots 96, no-affix control 84%, worst leech 74%
+相對 auto F13 leech+warded 70% vs 無詞綴 96%
+警告 auto F13 leech+warded 70% (n=96)
+相對 auto F13 warded+spikes 63% vs 無詞綴 96%
+警告 auto F13 warded+spikes 63% (n=96)
+警告 auto F18 warded 69% (n=96)
+警告 buff:blade F8 split 70% (n=96)
+警告 buff:blade F18 split 66% (n=96)
+警告 buff:blade F18 flame+split 70% (n=96)
+警告 buff:blade F18 split+guard 70% (n=96)
+警告 buff:blade F18 split+iron 69% (n=96)
+相對 buff:oc F8 warded 67% vs 無詞綴 95%
+警告 buff:oc F8 warded 67% (n=96)
+相對 buff:oc F13 warded 69% vs 無詞綴 95%
+警告 buff:oc F13 warded 69% (n=96)
+相對 buff:oc F13 split+warded 69% vs 無詞綴 95%
+警告 buff:oc F13 split+warded 69% (n=96)
+相對 buff:oc F13 leech+warded 59% vs 無詞綴 95%
+警告 buff:oc F13 leech+warded 59% (n=96)
+相對 buff:oc F18 warded 60% vs 無詞綴 86%
+警告 buff:oc F18 warded 60% (n=96)
+警告 buff:oc F18 frost+warded 69% (n=96)
+警告 buff:oc F18 guard+warded 67% (n=96)
+警告 buff:oc F18 warded+iron 64% (n=96)
+相對 buff:arcane F18 split+antimagic 57% vs 無詞綴 93%
+警告 buff:arcane F18 split+antimagic 57% (n=96)
+警告 buff:bulwark F8 leech 69% (n=96)
+警告 buff:bulwark F8 hard+leech 69% (n=96)
+警告 buff:bulwark F8 flame+split 70% (n=96)
+警告 buff:bulwark F8 leech+guard 69% (n=96)
+必死 0  警告 21  相對必死(比無詞綴對照低 >25pp) 8
