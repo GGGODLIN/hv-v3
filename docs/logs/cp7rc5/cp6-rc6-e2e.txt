@@ -1,0 +1,145 @@
+{
+ "res": {
+  "abyss15/battle": [
+   {
+    "i": 0,
+    "name": "霜影幻靈",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:25",
+     "crushing:-25",
+     "dark:-50",
+     "elec:25",
+     "fire:25",
+     "holy:25",
+     "piercing:25",
+     "wind:25"
+    ],
+    "want": [
+     "cold:25",
+     "crushing:-25",
+     "dark:-50",
+     "elec:25",
+     "fire:25",
+     "holy:25",
+     "piercing:25",
+     "wind:25"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "霜尾屍鬼",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:35",
+     "crushing:25",
+     "dark:35",
+     "elec:35",
+     "fire:-33",
+     "holy:-33",
+     "piercing:25",
+     "wind:35"
+    ],
+    "want": [
+     "cold:35",
+     "crushing:25",
+     "dark:35",
+     "elec:35",
+     "fire:-33",
+     "holy:-33",
+     "piercing:25",
+     "wind:35"
+    ]
+   }
+  ],
+  "abyss15/elite": [
+   {
+    "i": 0,
+    "name": "銳眼嗜血・雷翼甲蟲",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:-15",
+     "crushing:-25",
+     "dark:8",
+     "elec:40",
+     "fire:40",
+     "holy:8",
+     "slashing:25",
+     "wind:32"
+    ],
+    "want": [
+     "cold:-15",
+     "crushing:-25",
+     "dark:8",
+     "elec:40",
+     "fire:40",
+     "holy:8",
+     "slashing:25",
+     "wind:32"
+    ]
+   }
+  ],
+  "postF20-blade/boss": [
+   {
+    "i": 0,
+    "name": "守門者・霜影騎士",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:37",
+     "crushing:25",
+     "dark:13",
+     "elec:-7",
+     "fire:37",
+     "holy:13",
+     "piercing:-25",
+     "wind:-7"
+    ],
+    "want": [
+     "cold:37",
+     "crushing:25",
+     "dark:13",
+     "elec:-7",
+     "fire:37",
+     "holy:13",
+     "piercing:-25",
+     "wind:-7"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "雷鐮鶴",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:5",
+     "dark:8",
+     "elec:32",
+     "fire:-15",
+     "holy:6",
+     "piercing:25",
+     "wind:-40"
+    ],
+    "want": [
+     "cold:5",
+     "dark:8",
+     "elec:32",
+     "fire:-15",
+     "holy:6",
+     "piercing:25",
+     "wind:-40"
+    ]
+   }
+  ]
+ },
+ "errs": []
+}
+ALL PASS
