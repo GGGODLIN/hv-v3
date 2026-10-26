@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.13 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.14 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -53,6 +53,13 @@
         <p id="counterattack-budget" class="counterattack-value"></p>
         <p class="counterattack-note">招架或格擋成功後才擲反擊機率，不是每次受擊機率；純閃避不觸發。增加格擋可增加符合條件的機會，但不保證更快通關。</p>
         <details class="counterattack-rules"><summary>觸發條件與本版範圍</summary><p>裝備可辨識的戰斧、刺劍或戰棍時，敵方物理攻擊確實出現至少一次招架／格擋成功、我方與攻擊者仍存活，且本回合尚有次數，才有機會反擊該敵人。本作把部分招架／格擋也列為資格，這是雙判定鏈的整合改編，不是已考證的原版部分防禦規則。純閃避、盲擊落空或僅有零傷害不算。</p><p>條件機率參考原版：min(75, 25 + 0.02 × (STR + DEX) + 有效單手熟練度 / 10)%；本作沿用有效熟練度上限 1.2 × 等級。每個我方回合最多 1 次；有效熟練度達 100／200 時改為 2／3 次。回合不是全域 Tick，也不是每個敵人的回合；已發起但被擋下的反擊仍佔次數。</p><p>反擊使用當前面板一般攻擊，不花 MP、不額外增加熟練度，也不佔正常攻擊行動。不能暴擊；繞過閃避與招架，但仍受格擋、減傷與傷害亂數影響。已有穿透護甲可改善反擊傷害，反擊不施加或刷新穿透護甲、流血、暈眩或其他武器特效。</p><p>目前只實作單手反擊的傷害部分，尚無原版反擊暈眩、Overcharge／Overwhelming Strikes；不是完整原版單手流派。回營及載入不保留反擊次數；候選版與正式版存檔仍分開。戰報反擊傷害另列，不算普攻或技能傷害。</p></details>
+      </section>
+      <section class="camp-gear-sets panel" aria-labelledby="gear-set-heading" aria-describedby="gear-set-intro">
+        <div class="section-heading"><h3 id="gear-set-heading">營地配裝方案</h3><span class="badge">3 份裝備記錄</span></div>
+        <p id="gear-set-intro" class="gear-set-note">先穿好裝備，再按「鎖定並儲存目前配裝」。方案引用原有裝備，不複製物品；下次預覽後即可一次換上三件。</p>
+        <p id="gear-set-status" class="gear-set-note"></p><div id="gear-set-choices" class="gear-set-choices"></div>
+        <p id="gear-set-feedback" class="gear-set-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+        <details class="gear-set-rules"><summary>鎖定保護與本版範圍</summary><p>方案中的裝備不能解鎖或出售，包含安全整理與自選出售。覆寫或清除方案只修改記錄，舊裝備仍鎖定；不再被任何方案使用後，才可自行解鎖。不會自動丟棄舊裝。</p><p>三份裝備方案參考原版起始配裝數量，但這裡只儲存武器、護甲與飾品的 ID，是本作適配；不是完整原版 Equipment Sets 或 Personas。能力、戰術、屬性與道具不隨方案切換。遺失或不符的裝備不會被補造，整套都不會套用；背包滿時仍可交換原有裝備。</p><p>請更新舊分頁再接手。v0.13 等舊版可能丟棄配裝記錄，但原有裝備鎖定仍保留；來源備份不代替瀏覽器存檔，請定期匯出。</p></details>
       </section>
       <section class="camp-abilities panel" aria-labelledby="ability-heading" aria-describedby="ability-intro">
         <div class="section-heading ability-heading"><h3 id="ability-heading">營地能力</h3><span class="badge">3 條能力成長線</span></div>
@@ -101,6 +108,7 @@
   <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。支援背景線上掛機；關閉後不計離線收益。</span><span id="tab-status"></span></footer>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
+<dialog id="gear-set-dialog" class="gear-set-dialog" aria-labelledby="gear-set-title" aria-describedby="gear-set-summary"><div class="dialog-heading"><h2 id="gear-set-title">預覽配裝</h2><button data-close="gear-set-dialog" aria-label="關閉配裝預覽">✕</button></div><p id="gear-set-summary"></p><ol id="gear-set-items"></ol><div id="gear-set-stats"></div><p id="gear-set-dialog-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="gear-set-dialog-actions"><button data-close="gear-set-dialog" class="secondary-button" autofocus>取消，不變更</button><button id="gear-set-confirm" class="primary-button" disabled>確認套用配裝</button></div></dialog>
 <dialog id="selected-sale-dialog" class="safe-sale-dialog" aria-labelledby="selected-sale-title" aria-describedby="selected-sale-summary"><div class="dialog-heading"><h2 id="selected-sale-title">確認自行選取出售</h2><button data-close="selected-sale-dialog" aria-label="關閉自選出售預覽">✕</button></div><p id="selected-sale-summary" class="safe-sale-summary"></p><ol id="selected-sale-list" class="safe-sale-list"></ol><p id="selected-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="selected-sale-dialog" class="secondary-button" autofocus>取消，保留裝備</button><button id="selected-sale-confirm" class="primary-button" disabled>確認自選出售</button></div></dialog>
 <dialog id="safe-sale-dialog" class="safe-sale-dialog" aria-labelledby="safe-sale-title" aria-describedby="safe-sale-summary"><div class="dialog-heading"><h2 id="safe-sale-title">確認安全整理</h2><button data-close="safe-sale-dialog" aria-label="關閉整理預覽">✕</button></div><p id="safe-sale-summary" class="safe-sale-summary"></p><ol id="safe-sale-list" class="safe-sale-list"></ol><p id="safe-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="safe-sale-dialog" class="secondary-button" autofocus>取消，返回背包</button><button id="safe-sale-confirm" class="primary-button" disabled>確認出售</button></div></dialog>
 <dialog id="commission-dialog" class="commission-dialog" aria-labelledby="commission-title" aria-describedby="commission-delivery">

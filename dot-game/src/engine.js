@@ -432,6 +432,86 @@ function start(s) {
   resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
   beginExpeditionReport(s);
 }
+
+// Three researched starting equipment-set slots; this implementation stores
+// gear references only, not original Personas/abilities/quickbars/battle items.
+const GEAR_SET_IDS = ['a','b','c'];
+const gearSetLabel = id => `配裝 ${id.toUpperCase()}`;
+const plainRecord = value => value&&typeof value==='object'&&!Array.isArray(value)&&[Object.prototype,null].includes(Object.getPrototypeOf(value));
+function readGearSets(s, validateHeld=true) {
+  const invalid=()=>{throw new Error('配裝資料無效、裝備遺失或未鎖定；未載入，請保留原存檔。');};
+  const descriptor=Object.getOwnPropertyDescriptor(s,'gearSets');
+  if(!descriptor){if('gearSets' in s)invalid();return {};}
+  if(!descriptor.enumerable||!Object.hasOwn(descriptor,'value')||!plainRecord(descriptor.value))invalid();
+  const raw=descriptor.value,keys=Reflect.ownKeys(raw),sets={};
+  if(!keys.length||keys.length>GEAR_SET_IDS.length)invalid();
+  for(const id of keys){
+    const field=Object.getOwnPropertyDescriptor(raw,id);
+    if(!GEAR_SET_IDS.includes(id)||!field?.enumerable||!Object.hasOwn(field,'value')||!plainRecord(field.value))invalid();
+    const entry=field.value,slotKeys=Reflect.ownKeys(entry),ids={};
+    if(slotKeys.length!==SLOTS.length||slotKeys.some(slot=>!SLOTS.includes(slot)))invalid();
+    for(const slot of SLOTS){
+      const ref=Object.getOwnPropertyDescriptor(entry,slot);
+      if(!ref?.enumerable||!Object.hasOwn(ref,'value')||typeof ref.value!=='string'||!ref.value||ref.value.length>100)invalid();
+      ids[slot]=ref.value;
+    }
+    if(new Set(Object.values(ids)).size!==SLOTS.length)invalid();
+    sets[id]=ids;
+  }
+  if(validateHeld){
+    const held=gearHeldItems(s);
+    if(!held)invalid();
+    for(const ids of Object.values(sets))for(const slot of SLOTS){
+      const item=held.get(ids[slot]);
+      if(!item||item.slot!==slot||!item.locked)invalid();
+    }
+  }
+  return sets;
+}
+function gearHeldItems(s) {
+  if(!s.equipment||!Array.isArray(s.inventory)||s.inventory.length>INVENTORY_LIMIT||!Array.isArray(s.pendingLoot)||s.pendingLoot.length>8)return null;
+  const equipped=SLOTS.map(slot=>s.equipment[slot]);
+  if(equipped.some((item,index)=>!selectedSaleItem(item)||item.slot!==SLOTS[index])||s.inventory.some(item=>!selectedSaleItem(item))||s.pendingLoot.some(item=>!selectedSaleItem(item)))return null;
+  const owned=[...equipped,...s.inventory],all=[...owned,...s.pendingLoot];
+  const ids=all.map(item=>item&&typeof item==='object'?Object.getOwnPropertyDescriptor(item,'id')?.value:undefined);
+  if(ids.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(ids).size!==ids.length)return null;
+  return new Map(owned.map(item=>[item.id,item]));
+}
+/** Protect reference membership even if a live record's lock was corrupted.
+ * Malformed metadata fails closed for destructive actions rather than erasing it.
+ */
+export function isGearSetProtected(s,id) {
+  if(typeof id!=='string')return false;
+  try{return Object.values(readGearSets(s,false)).some(ids=>Object.values(ids).includes(id));}catch{return true;}
+}
+/** Detached exact-ID/stats comparison. The quote includes current inventory and
+ * build inputs so consent cannot silently follow a different item or build.
+ */
+export function previewGearSet(s,id) {
+  const empty=reason=>({available:false,reason,id:GEAR_SET_IDS.includes(id)?id:null,label:GEAR_SET_IDS.includes(id)?gearSetLabel(id):'',active:false,ids:null,items:[],currentStats:null,nextStats:null,currentCounter:null,nextCounter:null,quoteBasis:null});
+  try{
+    if(typeof id!=='string'||!GEAR_SET_IDS.includes(id))return empty('配裝欄位無效。');
+    const sets=readGearSets(s),ids=sets[id];
+    if(!ids)return empty('尚未儲存這組配裝。');
+    const held=gearHeldItems(s);if(!held)return empty('裝備資料無效。');
+    const nextEquipment=Object.fromEntries(SLOTS.map(slot=>[slot,held.get(ids[slot])])),next={...s,equipment:nextEquipment};
+    const copy=value=>JSON.parse(JSON.stringify(value));
+    const items=SLOTS.map(slot=>({slot,current:copy(s.equipment[slot]),item:copy(nextEquipment[slot]),changed:s.equipment[slot].id!==ids[slot]}));
+    const active=items.every(row=>!row.changed),camp=s.mode==='town';
+    const quoteBasis=JSON.stringify([id,sets,s.equipment,s.inventory,s.pendingLoot,s.hero,s.abilities??null,s.strategy]);
+    if(quoteBasis.length>1048576)return empty('配裝資料過長，無法套用。');
+    return {available:camp&&!active,reason:!camp?'請先回營，再套用配裝。':active?'目前已穿戴這組配裝。':'',id,label:gearSetLabel(id),active,ids:{...ids},items,currentStats:stats(s),nextStats:stats(next),currentCounter:counterattackView(s),nextCounter:counterattackView(next),quoteBasis};
+  }catch{return empty('配裝資料無效、裝備遺失或未鎖定；未套用。');}
+}
+export function gearSetsView(s) {
+  let sets={},valid=true;try{sets=readGearSets(s);if(!gearHeldItems(s))valid=false;}catch{valid=false;}
+  return {valid,capacity:GEAR_SET_IDS.length,sets:GEAR_SET_IDS.map(id=>{
+    const preview=previewGearSet(s,id),saved=Object.hasOwn(sets,id);
+    return {id,label:gearSetLabel(id),saved,active:preview.active,available:preview.available,reason:preview.reason,ids:saved?{...sets[id]}:null,
+      canSave:valid&&s.mode==='town',canClear:valid&&s.mode==='town'&&saved};
+  })};
+}
+
 function protectedLootKeepers(s) {
   // Reject unsupported item descriptors before reading lock/name/ID fields.
   return [...SLOTS.map(slot=>s.equipment?.[slot]).filter(item=>!hasUnknownSaleMetadata(item)),...s.inventory.filter(item=>!hasUnknownSaleMetadata(item)&&item.locked===true)];
@@ -453,7 +533,7 @@ export function previewSafeSale(s) {
     const ids=live.map(item=>item&&typeof item==='object'?Object.getOwnPropertyDescriptor(item,'id')?.value:undefined);
     if(ids.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(ids).size!==ids.length)return empty;
     const keepers=protectedLootKeepers(s),items=[];
-    for(const item of s.inventory){const entry=safeSaleEntry(item,keepers);if(entry)items.push(entry);}
+    for(const item of s.inventory){if(isGearSetProtected(s,item.id))continue;const entry=safeSaleEntry(item,keepers);if(entry)items.push(entry);}
     return {items,total:items.reduce((sum,item)=>sum+item.value,0)};
   } catch { return empty; }
 }
@@ -504,7 +584,7 @@ export function previewSelectedSale(s, requestedIds) {
     const items=[];
     for(const id of ids){
       const item=s.inventory.find(held=>Object.getOwnPropertyDescriptor(held,'id')?.value===id);
-      if(!selectedSaleItem(item)||item.locked)return unavailable('選擇包含已鎖定、已裝備、待領、遺失或不支援的裝備；整批未出售。');
+      if(!selectedSaleItem(item)||item.locked||isGearSetProtected(s,id))return unavailable('選擇包含已鎖定、已裝備、待領、遺失或不支援的裝備；整批未出售。');
       const value=itemSalePrice(item);
       if(!Number.isSafeInteger(value)||value<1)return unavailable('出售價格無效，未建立出售清單。');
       const detached=JSON.parse(JSON.stringify(item)),currentEquipment=JSON.parse(JSON.stringify(s.equipment[item.slot]));
@@ -552,7 +632,7 @@ function addLoot(s, slot) {
   do{s._itemId=(s._itemId%999999999)+1;item.id=`loot-${s._itemId}`;}while(used.has(item.id));
   // Opt-in affects only this newly generated drop, after the unchanged RNG/ID
   // path. It never sweeps inventory/pending items or bypasses the start guard.
-  const sale=s.autoSell===true?safeSaleEntry(item,protectedLootKeepers(s)):null;
+  const sale=s.autoSell===true&&!isGearSetProtected(s,item.id)?safeSaleEntry(item,protectedLootKeepers(s)):null;
   if(sale){
     s.hero.gold+=sale.value;
     event(s,'loot',`自動出售 ${item.name} · +${sale.value} 金幣`,sale.value,item.id);
@@ -769,6 +849,49 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+
+  if(['saveGearSet','clearGearSet','applyGearSet'].includes(action)){
+    if(s.mode!=='town')return s;
+    let sets,held;try{sets=readGearSets(s);held=gearHeldItems(s);}catch{return s;}
+    if(!held)return s;
+    if(action==='applyGearSet'){
+      let id,quoteBasis;
+      try{
+        if(!plainRecord(payload)||Reflect.ownKeys(payload).length!==2)return s;
+        const fields=Object.getOwnPropertyDescriptors(payload);
+        if(!['id','quoteBasis'].every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value')))return s;
+        id=fields.id.value;quoteBasis=fields.quoteBasis.value;
+        if(typeof id!=='string'||!GEAR_SET_IDS.includes(id)||typeof quoteBasis!=='string'||quoteBasis.length>1048576)return s;
+      }catch{return s;}
+      const preview=previewGearSet(s,id);
+      if(!preview.available||preview.quoteBasis!==quoteBasis)return s;
+      // Construct the entire replacement before committing. Each changed slot
+      // exchanges one owned inventory object for its former equipped object.
+      const inventory=[...s.inventory],equipment={...s.equipment};
+      for(const slot of SLOTS){
+        if(equipment[slot].id===sets[id][slot])continue;
+        const index=inventory.findIndex(item=>item.id===sets[id][slot]);
+        if(index<0)return s;
+        [equipment[slot],inventory[index]]=[inventory[index],equipment[slot]];
+      }
+      s.inventory=inventory;s.equipment=equipment;recover(s);
+      log(s,`已套用${gearSetLabel(id)}；僅更換裝備，能力與戰術不變。`);return s;
+    }
+    if(typeof payload!=='string'||!GEAR_SET_IDS.includes(payload))return s;
+    if(action==='clearGearSet'){
+      if(!Object.hasOwn(sets,payload))return s;
+      delete sets[payload];if(Object.keys(sets).length)s.gearSets=sets;else delete s.gearSets;
+      log(s,`已清除${gearSetLabel(payload)}記錄；裝備仍保留鎖定，未出售或換裝。`);return s;
+    }
+    const ids=Object.fromEntries(SLOTS.map(slot=>[slot,s.equipment[slot].id]));
+    if(sets[payload]&&SLOTS.every(slot=>sets[payload][slot]===ids[slot]))return s;
+    // Lock only the three explicitly saved objects. Old preset items remain
+    // locked after overwrite so replacing a label never silently permits sales.
+    for(const slot of SLOTS)s.equipment[slot].locked=true;
+    s.gearSets={...sets,[payload]:ids};
+    log(s,`已儲存${gearSetLabel(payload)}並鎖定三件裝備；不儲存能力或戰術。`);return s;
+  }
+
   if(['learnAbility','upgradeAbility','slotAbility','unslotAbility','refundAbility'].includes(action)){
     // Validate the entire allocation before changing it. Exact ID payloads only;
     // refused/no-op commands do not heal, log, draw RNG, or touch any clock/item.
@@ -879,10 +1002,10 @@ export function act(s, action, payload) {
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
   if(action==='start'){start(s);return s;}
   const item=s.inventory.find(i=>i.id===payload);
-  if(action==='lock'&&item){item.locked=!item.locked;return s;}
+  if(action==='lock'&&item){if(isGearSetProtected(s,item.id))return s;item.locked=!item.locked;return s;}
   if(action==='equip'&&item){const old=s.equipment[item.slot];s.inventory.splice(s.inventory.indexOf(item),1,old);s.equipment[item.slot]=item;recover(s);event(s,'loot',`已裝備 ${item.name}`);return s;}
-  if(action==='sell'&&item&&!item.locked){s.hero.gold+=Math.max(1,Math.round(item.level*3+item.power));s.inventory.splice(s.inventory.indexOf(item),1);refillPending(s);return s;}
-  if(action==='sellCommon'){const sold=s.inventory.filter(i=>!i.locked&&['Crude','Fair','Average'].includes(i.quality));s.hero.gold+=sold.reduce((n,i)=>n+Math.max(1,Math.round(i.level*3+i.power)),0);s.inventory=s.inventory.filter(i=>!sold.includes(i));refillPending(s);log(s,`整理了 ${sold.length} 件普通裝備；鎖定裝備均保留。`);}
+  if(action==='sell'&&item&&!item.locked&&!isGearSetProtected(s,item.id)){s.hero.gold+=Math.max(1,Math.round(item.level*3+item.power));s.inventory.splice(s.inventory.indexOf(item),1);refillPending(s);return s;}
+  if(action==='sellCommon'){const sold=s.inventory.filter(i=>!i.locked&&!isGearSetProtected(s,i.id)&&['Crude','Fair','Average'].includes(i.quality));s.hero.gold+=sold.reduce((n,i)=>n+Math.max(1,Math.round(i.level*3+i.power)),0);s.inventory=s.inventory.filter(i=>!sold.includes(i));refillPending(s);log(s,`整理了 ${sold.length} 件普通裝備；鎖定裝備均保留。`);}
   return s;
 }
 function sanitizeItem(raw, expectedSlot) {
@@ -913,6 +1036,7 @@ export function validateSave(input) {
   if(input.pendingLoot!==undefined&&(!Array.isArray(input.pendingLoot)||input.pendingLoot.length>8))throw new Error('待領戰利品資料無效');
   s.pendingLoot=(input.pendingLoot||[]).map(i=>sanitizeForLoad(i));
   const items=[...Object.values(s.equipment),...s.inventory,...s.pendingLoot];if(new Set(items.map(i=>i.id)).size!==items.length)throw new Error('重複裝備識別碼');
+  const gearSets=readGearSets(input);if(Object.keys(gearSets).length)s.gearSets=gearSets;
   s._itemId=Math.max(integer(input._itemId,0,1e9),...items.map(i=>/^loot-\d+$/.test(i.id)?Number(i.id.slice(5)):0));
   s.unlocked=integer(input.unlocked,1,MAX_STAGE);s.stage=integer(input.stage,1,s.unlocked);s.kills=integer(input.kills,0,1e9);s.wins=integer(input.wins,0,1e9);s.autoAdvance=input.autoAdvance===true;s.strategy=validStrategy(input.strategy)?input.strategy:'balanced';s.battle.cleared=s.wins;
   if(input.autoSell===true)s.autoSell=true;

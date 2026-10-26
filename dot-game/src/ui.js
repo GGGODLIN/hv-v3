@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, counterattackView } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -109,6 +109,8 @@ const selectedSaleCheckboxes = new Map();
 let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
+let gearSetConsent = null;
+let lastGearSetSignature = "";
 let lastCommissionSignature = '';
 let lastSafeLootSignature = '';
 let lastInventorySignature = '';
@@ -213,6 +215,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
+  closeGearSetDialog(); lastGearSetSignature = ''; $('gear-set-feedback').textContent = '';
   $('counter-notice').hidden = true; clearTimeout(counterTimer);
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
   lastAbilitySignature = ''; $('ability-feedback').textContent = '';
@@ -232,6 +235,120 @@ function dispatch(action, payload) {
     reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
+// Gear-only plans reference owned items; they never copy items or save abilities.
+function gearSetIntentSignature() {
+  return JSON.stringify([state.gearSets, state.equipment, state.inventory, state.pendingLoot, state.hero.level, state.hero.attributes, state.hero.proficiency, state.abilities, state.mode, tabOwner]);
+}
+function closeGearSetDialog() {
+  gearSetConsent = null;
+  $('gear-set-confirm').disabled = true;
+  if ($('gear-set-dialog').open) $('gear-set-dialog').close();
+}
+function reconcileGearSetConsent() {
+  if (!gearSetConsent) return;
+  if (!tabOwner || state.mode !== 'town' || gearSetConsent.signature !== gearSetIntentSignature()) {
+    gearSetConsent = null; $('gear-set-confirm').disabled = true;
+    $('gear-set-dialog-feedback').textContent = '資料或控制權已變更，確認已取消；請關閉後重新預覽。未套用、覆寫或清除配裝。';
+  }
+}
+function gearSetItemLine(slot, item, prefix = '') {
+  return `${prefix}${slotNames[slot]}：${item?.name || '遺失／無效裝備'}${item?.id ? `（ID：${item.id}）` : ''}`;
+}
+function gearSetStatText(value, rate = false) {
+  return rate ? `${(Number(value || 0) * 100).toFixed(2)}%` : Number(value || 0).toFixed(2).replace(/\.?0+$/, '') || '0';
+}
+function gearSetComparison(preview) {
+  const wrap = node('div', 'gear-set-comparison');
+  wrap.append(node('p', 'muted', '目前 → 套用後；保留目前能力與戰術。這是面板差異，不是勝率或速度保證。'));
+  for (const [key,label,rate] of [['attack','攻擊',false],['maxHp','生命上限',false],['maxMp','魔力上限',false],['mitigation','一般物理減傷',true],['crit','暴擊',true],['evade','閃避',true],['block','格擋',true]]) {
+    const row=node('p', 'gear-set-stat'); row.append(node('span','',label), node('strong','',`${gearSetStatText(preview.currentStats?.[key],rate)} → ${gearSetStatText(preview.nextStats?.[key],rate)}`)); wrap.append(row);
+  }
+  const counter = view => view?.eligible ? `${gearSetStatText(view.chance,true)}／回合最多 ${view.maxPerTurn} 次` : '未啟用';
+  wrap.append(node('p','gear-set-counter',`招架／格擋成功後的條件反擊：${counter(preview.currentCounter)} → ${counter(preview.nextCounter)}。不是每次受擊機率。`));
+  return wrap;
+}
+function requestGearSet(id, kind) {
+  if ($('gear-set-dialog').open || !claimLease() || state.mode !== 'town') return;
+  const view = gearSetsView(state), row = view.sets.find(entry => entry.id === id);
+  if (!view.valid || !row) return;
+  if (kind === 'save' && !row.saved) { performGearSetChange({id,kind,signature:gearSetIntentSignature()}); return; }
+  if (kind === 'clear' && !row.saved) return;
+  if (!['save','clear','apply'].includes(kind)) return;
+  const preview = kind === 'apply' ? previewGearSet(state,id) : null;
+  if (kind === 'apply' && (!preview.available || preview.active)) { $('gear-set-feedback').textContent = preview.reason || '目前已穿著此配裝，不必重複套用。'; return; }
+  gearSetConsent = {id,kind,signature:gearSetIntentSignature(),quoteBasis:preview?.quoteBasis};
+  $('gear-set-title').textContent = `${kind === 'apply' ? '預覽套用' : kind === 'save' ? '確認覆寫' : '確認清除'}${row.label}`;
+  $('gear-set-summary').textContent = kind === 'apply' ? '一次換上以下三件原有裝備；不花金幣、不複製物品、不改能力與戰術。回營資源會按新配裝恢復。' : kind === 'save' ? '以目前穿著的三件裝備覆寫這份配裝，並將這三件鎖定。原方案的裝備不會刪除或自動解鎖。' : '只清除此配裝記錄，不會卸下、出售、刪除或自動解鎖任何裝備。其他方案仍可能保護同一件裝備。';
+  const rows = [];
+  if (preview) {
+    for (const entry of preview.items) { const line=node('li','gear-set-item'); line.append(node('p','',gearSetItemLine(entry.slot,entry.current,'目前 ')),node('strong','',gearSetItemLine(entry.slot,entry.item,'套用 ')),node('span','muted',entry.changed?'會換裝':'維持原裝備')); rows.push(line); }
+  } else {
+    for (const slot of ['weapon','armor','accessory']) {
+      const oldId=row.ids?.[slot], old=[...Object.values(state.equipment),...state.inventory].find(item=>item.id===oldId);
+      const line=node('li','gear-set-item'); line.append(node('p','',gearSetItemLine(slot,old,'已儲存 ')));
+      if(kind==='save') line.append(node('strong','',gearSetItemLine(slot,state.equipment[slot],'改存 ')));
+      rows.push(line);
+    }
+  }
+  $('gear-set-items').replaceChildren(...rows);
+  $('gear-set-stats').replaceChildren(...(preview ? [gearSetComparison(preview)] : []));
+  $('gear-set-dialog-feedback').textContent = '取消不會改變裝備或記錄；確認只處理這份預覽。';
+  $('gear-set-confirm').textContent = kind === 'apply' ? '確認套用配裝' : kind === 'save' ? '確認鎖定並覆寫' : '確認清除記錄';
+  $('gear-set-confirm').disabled = false; $('gear-set-dialog').showModal();
+}
+function performGearSetChange(consent) {
+  if (!claimLease(true) || state.mode !== 'town' || consent.signature !== gearSetIntentSignature()) return false;
+  const before = gearSetsView(state).sets.find(row=>row.id===consent.id);
+  const expected = consent.kind === 'save' ? Object.fromEntries(Object.entries(state.equipment).map(([slot,item])=>[slot,item.id])) : before?.ids;
+  const action = {save:'saveGearSet',clear:'clearGearSet',apply:'applyGearSet'}[consent.kind];
+  const completed=dispatch(action,consent.kind==='apply'?{id:consent.id,quoteBasis:consent.quoteBasis}:consent.id);
+  const after=gearSetsView(state).sets.find(row=>row.id===consent.id);
+  const sameIds=(a,b)=>['weapon','armor','accessory'].every(slot=>a?.[slot]===b?.[slot]);
+  const succeeded=completed && (consent.kind==='clear' ? !after?.saved : consent.kind==='save' ? after?.saved && sameIds(after.ids,expected) && Object.values(state.equipment).every(item=>item.locked) : after?.active && sameIds(Object.fromEntries(Object.entries(state.equipment).map(([slot,item])=>[slot,item.id])),expected));
+  if (!succeeded) return false;
+  $('gear-set-feedback').textContent=consent.kind==='save'?`${after.label} 已儲存；三件裝備已鎖定。舊方案裝備不會自動解鎖。`:consent.kind==='clear'?`${before.label} 記錄已清除；裝備與鎖定狀態保留。`:`已套用${after.label}；能力與戰術未變更。`;
+  return true;
+}
+function confirmGearSet() {
+  reconcileGearSetConsent(); if (!gearSetConsent) return;
+  const consent=gearSetConsent; gearSetConsent=null; $('gear-set-confirm').disabled=true;
+  if (performGearSetChange(consent)) { closeGearSetDialog(); focusGearSetButton(consent.id,consent.kind); }
+  else $('gear-set-dialog-feedback').textContent='未確認完成，裝備或記錄可能已變更；請關閉後重新預覽。';
+}
+function focusGearSetButton(id, kind) {
+  const card = Array.from($('gear-set-choices').children).find(entry=>entry.dataset.gearSetId===id);
+  const actions = card && Array.from(card.children).find(entry=>entry.className==='gear-set-actions');
+  if (!actions) return;
+  const buttons = Array.from(actions.children);
+  const button = buttons.find(entry=>entry.dataset.gearSetAction===kind&&!entry.disabled) || buttons.find(entry=>!entry.disabled);
+  button?.focus();
+}
+function renderGearSets() {
+  reconcileGearSetConsent();
+  const signature=gearSetIntentSignature();
+  if(signature===lastGearSetSignature)return;
+  lastGearSetSignature=signature;
+  const focused = document.activeElement;
+  const focusTarget = focused?.dataset?.gearSetId ? {id:focused.dataset.gearSetId,kind:focused.dataset.gearSetAction} : null;
+  const view=gearSetsView(state), ready=tabOwner&&state.mode==='town'&&view.valid;
+  $('gear-set-status').textContent=!view.valid?'配裝資料無效，請保留存檔並重新載入有效備份。':!tabOwner?'唯讀分頁；接手後才能儲存或換裝。':state.mode!=='town'?'請先回營；戰鬥中不能儲存、清除或套用配裝。':'三份配裝只記錄裝備，不包含能力、戰術或角色屬性。';
+  $('gear-set-choices').replaceChildren(...view.sets.map(row=>{
+    const card=node('article','gear-set-card'); card.dataset.gearSetId=row.id;
+    card.append(node('h4','',`${row.label}${row.active?' · 目前穿著':''}`));
+    if(row.saved) {
+      const items=[...Object.values(state.equipment),...state.inventory];
+      for(const slot of ['weapon','armor','accessory'])card.append(node('p','gear-set-saved-item',gearSetItemLine(slot,items.find(item=>item.id===row.ids?.[slot]))));
+      if(!row.available&&!row.active)card.append(node('p','gear-set-warning',row.reason));
+    } else card.append(node('p','muted','尚未儲存；先穿好想保留的三件裝備。'));
+    const actions=node('div','gear-set-actions');
+    for(const [kind,label,enabled] of [['save',row.saved?'以目前裝備覆寫':'鎖定並儲存目前配裝',row.canSave],['apply','預覽套用',row.saved&&row.available&&!row.active],['clear','清除記錄',row.canClear]]) {
+      const button=node('button',kind==='apply'?'primary-button':'secondary-button',label);button.dataset.gearSetAction=kind;button.dataset.gearSetId=row.id;button.setAttribute('aria-label',`${row.label}：${label}`);button.disabled=!ready||!enabled;button.setAttribute('aria-haspopup',kind==='save'&&!row.saved?'false':'dialog');button.addEventListener('click',()=>requestGearSet(row.id,kind));actions.append(button);
+    }
+    card.append(actions);return card;
+  }));
+  if (focusTarget) focusGearSetButton(focusTarget.id,focusTarget.kind);
+}
+
 // Explicit personal selection is separate from the conservative downgrade filter.
 function closeSelectedSale() {
   selectedSaleConsent = null;
@@ -780,7 +897,7 @@ function render(force = false) {
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
-  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.mode]);
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
@@ -789,6 +906,7 @@ function render(force = false) {
   $('inventory-count').textContent = state.inventory.length;
   renderSafeLoot();
   renderAbilities();
+  renderGearSets();
   renderSelectedSale();
   renderWeaponCommission();
   renderEnemyStatuses();
@@ -861,7 +979,8 @@ function renderInventory() {
   if (!items.length) { const empty = node('div', 'empty-inventory'); empty.append(node('b', '', '◇'), node('span', '', state.inventory.length ? '這個部位還沒有戰利品。' : '背包還很輕。出發帶回第一件寶物吧。')); $('inventory-list').replaceChildren(empty); return; }
   $('inventory-list').replaceChildren(...items.map(item => {
     const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
-    if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
+    if (isGearSetProtected(state,item.id)) button.append(node('span', 'lock-indicator', '配裝'));
+    else if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
     else {
       const comparison = powerComparisonText(item, state.equipment[item.slot]);
       if (comparison) {
@@ -877,7 +996,7 @@ function renderInventory() {
     const label = node('label', 'selected-sale-check');
     const check = node('input'); check.type = 'checkbox'; check.checked = selectedSaleIds.has(item.id);
     check.setAttribute('aria-label', `選取出售：${item.name}（ID：${item.id}）`);
-    check.disabled = !tabOwner || state.mode !== 'town' || !previewSelectedSale(state, [item.id]).available;
+    check.disabled = !tabOwner || state.mode !== 'town' || isGearSetProtected(state,item.id) || !previewSelectedSale(state, [item.id]).available;
     selectedSaleCheckboxes.set(item.id, check);
     check.addEventListener('change', () => toggleSelectedSale(item.id, check.checked));
     label.append(check, node('span', '', '選售')); row.append(label, button); return row;
@@ -913,9 +1032,11 @@ function renderItemDetail() {
   const actions = node('div', 'detail-actions');
   if (!selectedSlot) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
-    const lock = node('button', 'secondary-button', item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner; lock.addEventListener('click', () => dispatch('lock', item.id));
-    const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || item.locked || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
+    const protectedBySet = isGearSetProtected(state,item.id);
+    const lock = node('button', 'secondary-button', protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet; lock.addEventListener('click', () => dispatch('lock', item.id));
+    const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
   }
+  if (isGearSetProtected(state,item.id)) explanation.append(node('span','gear-set-protection','此裝備被配裝記錄使用，不能解鎖或出售。先清除或覆寫所有使用它的配裝，再手動解鎖；不會自動解鎖。'));
   wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions);
 }
 
@@ -1045,6 +1166,10 @@ $('strategy-select').addEventListener('change', event => dispatch('setStrategy',
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
 $('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
+$('gear-set-confirm').addEventListener('click', confirmGearSet);
+$('gear-set-dialog').addEventListener('close', closeGearSetDialog);
+$('gear-set-dialog').addEventListener('cancel', closeGearSetDialog);
+$('import-save').addEventListener('click', closeGearSetDialog);
 $('review-selected-sale').addEventListener('click', openSelectedSale);
 $('clear-selected-sale').addEventListener('click', () => { clearSelectedSale(); render(true); });
 $('selected-sale-confirm').addEventListener('click', confirmSelectedSale);
@@ -1096,6 +1221,8 @@ window.addEventListener('pageshow', () => { pageActive = true; pump.reset(); if 
 window.addEventListener('popstate', closeWeaponCommission);
 window.addEventListener('popstate', clearSelectedSale);
 window.addEventListener('pagehide', clearSelectedSale);
+window.addEventListener('pagehide', closeGearSetDialog);
+window.addEventListener('popstate', closeGearSetDialog);
 document.addEventListener('visibilitychange', () => {
   lastFrame = performance.now(); pump.reset();
   if (document.hidden) { save(true); if (!prefs.backgroundIdle) releaseLease(); }

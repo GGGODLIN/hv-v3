@@ -59,5 +59,5 @@ test('rules name incomplete original subset and partial-defense adaptation',()=>
  for(const fragment of ['部分招架／格擋也列為資格','不是已考證的原版部分防禦規則','尚無原版反擊暈眩','Overcharge／Overwhelming Strikes','不施加或刷新穿透護甲、流血、暈眩','純閃避不觸發','不是每次受擊機率'])assert.ok(html.includes(fragment),fragment);
 });
 test('status/notice layout is semantic, wrap-safe, and version marked',()=>{
- assert.match(html,/aria-labelledby="counterattack-heading"/);assert.match(html,/id="counter-notice"[^>]*role="status"[^>]*aria-live="polite"/);assert.match(css,/\.counterattack-panel \{[^}]*min-width: 0/);assert.match(css,/\.counter-damage-notice \{[^}]*overflow-wrap: anywhere/);assert.match(html,/v0\.13 ·/);
+ assert.match(html,/aria-labelledby="counterattack-heading"/);assert.match(html,/id="counter-notice"[^>]*role="status"[^>]*aria-live="polite"/);assert.match(css,/\.counterattack-panel \{[^}]*min-width: 0/);assert.match(css,/\.counter-damage-notice \{[^}]*overflow-wrap: anywhere/);assert.match(html,/v0\.14 ·/);
 });

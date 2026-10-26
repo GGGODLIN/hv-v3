@@ -208,3 +208,27 @@
 .counter-damage-notice { margin: 10px 0; padding: 9px 12px; background: #193330; border: 1px solid #588e7d; border-radius: 7px; color: #c8f0d8; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
 .counter-damage-notice[hidden] { display: none; }
 .floating-number.counter { color: #b9f3d2; font-size: 23px; }
+
+/* Gear plans preserve owned identities, not invented copies or ability loadouts. */
+.camp-gear-sets { min-width: 0; margin-top: 17px; padding: 16px; }
+.camp-gear-sets .section-heading { flex-wrap: wrap; }
+.gear-set-note, .gear-set-rules { margin-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.gear-set-rules summary { cursor: pointer; color: #bfd1c5; }
+.gear-set-rules p { margin-top: 7px; }
+.gear-set-choices { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+.gear-set-card { min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #0e242b; overflow-wrap: anywhere; }
+.gear-set-card h4 { color: #d6e6d9; margin-bottom: 9px; }
+.gear-set-card p { font-size: 11px; line-height: 1.7; margin-bottom: 6px; }
+.gear-set-actions { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.gear-set-actions button { font-size: 11px; min-height: 40px; padding: 7px; white-space: normal; overflow-wrap: anywhere; }
+.gear-set-feedback, .gear-set-warning, .gear-set-protection { color: var(--gold); font-size: 11px; line-height: 1.8; margin-top: 8px; overflow-wrap: anywhere; }
+.gear-set-dialog { width: min(620px,calc(100vw - 30px)); max-height: calc(100dvh - 40px); overflow-y: auto; overflow-wrap: anywhere; }
+.gear-set-dialog p { line-height: 1.8; font-size: 12px; margin-top: 6px; }
+#gear-set-items { padding-left: 20px; }
+.gear-set-item { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.gear-set-item strong, .gear-set-item span { display: block; }
+.gear-set-stat { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.gear-set-counter { color: #bfe8d9; }
+.gear-set-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.gear-set-dialog-actions button { flex: 1 1 130px; min-height: 42px; white-space: normal; }
+@media(max-width:800px) { .gear-set-choices { grid-template-columns: minmax(0,1fr); } }

@@ -14,6 +14,10 @@ Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do 
 
 ## Current milestone
 
+Version0.14 is a development candidate adding three gear-only camp presets. Explicitly save and lock currently equipped items, preview an atomic swap, and retain referenced gear against accidental sale. Abilities and tactics are not part of these presets. See docs/GEAR-SETS.md. Public v0.13 and recovery `f707a916e79cd8fbd87ba5dae2d90dc598047e23` remain accepted until this candidate completes source backup and browser/release acceptance.
+
+### Earlier accepted timeline
+
 ## v0.13 published and stable-root accepted — 2026-10-26 06:30 UTC
 
 Version0.13 is published at https://gggodlin.github.io/play/hv-v3-dot/ . Accepted source `328d746f077b155e62a4c58c39279b778b45025e` was backed up and exact-readback verified before website `ce9a91f142fd10fd2dc8cfde7ce34dddae031a09`. Exact Pages40279841540 succeeded; HTTP6 returned six200 exact frozen-runtime byte/SHA256 matches. Runtime remains `c08de8e753edf690eff96066e3d9dbd7b385f968`. Only four root files changed; loot/session and3870non-root website blobs were preserved.

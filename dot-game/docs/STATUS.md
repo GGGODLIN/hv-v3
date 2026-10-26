@@ -1,5 +1,11 @@
 # Current status
 
+## v0.14 development candidate — 2026-10-26 07:00 UTC
+
+Three gear-only presets are source-tested:1081 tests and four runtime syntax checks pass. Independent acceptance covers natural earned gear, exact state/RNG preservation and whole-set conservation. An audit found a pending-item getter serialization gap; supported pending metadata is now validated before preview. No combat formula, loot or economy coefficients changed. Exact complete source backup, isolated browser acceptance and publication remain pending. Public v0.13 stays accepted at recovery f707a916e79cd8fbd87ba5dae2d90dc598047e23.
+
+### Earlier accepted timeline
+
 ## v0.13 published and stable-root accepted — 2026-10-26 06:30 UTC
 
 Version0.13 is published at https://gggodlin.github.io/play/hv-v3-dot/ . Accepted source `328d746f077b155e62a4c58c39279b778b45025e` was backed up and exact-readback verified before website `ce9a91f142fd10fd2dc8cfde7ce34dddae031a09`. Exact Pages40279841540 succeeded; HTTP6 returned six200 exact frozen-runtime byte/SHA256 matches. Runtime remains `c08de8e753edf690eff96066e3d9dbd7b385f968`. Only four root files changed; loot/session and3870non-root website blobs were preserved.

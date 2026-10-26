@@ -72,3 +72,6 @@ Actual browser progression repeatedly filled the inventory and required many sin
 
 ## v0.13 chosen slice
 Give block/parry equipment an offensive-defense interaction through the original-shaped one-handed Counter-Attack damage subset. Use sourced chance/proficiency caps, actual gate evidence, bounded player-turn budgets and exact death/wave settlement; partial-defense eligibility and current three-slot weapon classification are explicit integration choices. Keep original counter-stun/OC/OS deferred rather than invent their missing constants. Report actual counters separately and measure naturally earned outcomes without promising a universal buff.
+
+## v0.14 chosen slice
+Make offensive, defensive and weapon-family alternatives easier to revisit with three gear-only camp presets. Store existing item IDs, not copies or stat snapshots; switch the complete set atomically even with a full backpack. Explicit save locks and cross-preset protection prevent accidental disposal. Abilities/tactics remain separate, and original Equipment Sets/Personas have broader scope than this adaptation.
