@@ -113,7 +113,7 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
 export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
-  /** CP8 P1: SIM_AI=naive — a real first-time player: only normal attacks (lowest-HP target), a health potion below 40% HP; no skills,
+  /** CP8 P1: SIM_AI=naive — a real first-time player: only normal attacks (cp8-rc5: UI default target), a health potion below 40% HP; no skills,
    *  spells, Spirit Stance, defend or CP5 telegraph counters. Town prep = 「全部處理」 (prepAll); loot is worn only in town (docs/cp8-real-play.md). */
   naive: ENV?.SIM_AI === 'naive',
   /** CP8 diagnosis only (SIM_ADD=spirit,defend,equip,counter,spells,skills): give the naive AI back one piece of the old AI. */
@@ -121,7 +121,9 @@ export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
 /** CP8 naive battle choice. */
 export function chooseNaive(b: BattleState): Action {
   const live = alive(b);
-  const target = b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
+  // cp8-rc5 (blade sim d22 vs playtest d11–20): naive = what 「A」 hits with no clicking — the UI default target, the first live
+  // monster (app.ts command()). Lowest-HP targeting needs reading every HP bar + Tab; kept as SIM_TGT=low (diagnosis). Preset sim: blade trip-1 22→17.
+  const target = ENV?.SIM_TGT !== 'low' ? b.monsters.findIndex((m) => m.hp > 0) : b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
   if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
   const A = SIM_AI.add;
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
