@@ -12,11 +12,11 @@ import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { abyssBestMsg, abyssLvFollow, deathCarryMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
-import { ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
+import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
-import { betterThanWorn } from '../core/cp7';
+import { betterThanWorn, checkpointOptions } from '../core/cp7';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
 import { sortieLabel } from '../core/progress';
 import { scrollToCurrentFloor } from './mapscroll';
@@ -52,6 +52,8 @@ export class App {
   townTab: 'char' | 'gear' | 'shop' | 'iw' = 'char';
   /** CP3 unlock / tutorial notices shown on the current screen. */
   notice: string[] = [];
+  /** CP7: chosen abyss start checkpoint. */
+  abyssStart: number | null = null;
   noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
   battle: BattleState | null = null;
   battleType: NodeType = 'battle';
@@ -458,6 +460,7 @@ export class App {
     on('[data-modal-ok]', () => { const m = this.modal; this.modal = null; m?.onOk(); if (!this.modal) this.render(); });
     on('[data-start]', () => this.startRun());
     on('[data-abyss]', () => this.startAbyss());
+    document.querySelector('[data-abyss-start]')?.addEventListener('change', (ev) => { this.abyssStart = Number((ev.target as HTMLSelectElement).value); const b = document.querySelector('[data-abyss]'); if (b) b.textContent = `進入深淵塔（第 ${this.abyssStart} 層起）▶`; });
     on('[data-node]', (el) => this.enterNode(Number(el.dataset.node)));
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
@@ -574,7 +577,11 @@ export class App {
   abyssBtn(): string {
     if (!RULES.cp6Abyss || !abyssOpen(this.p)) return '';
     const st = checkpointStart(loadRecord(localStorage.getItem(ABYSS_KEY)).best);
-    return `<button data-abyss class="big">進入深淵塔（第 ${st} 層起）▶</button>`;
+    if (!RULES.cp7) return `<button data-abyss class="big">進入深淵塔（第 ${st} 層起）▶</button>`;
+    // CP7 decision 2: pick any unlocked checkpoint (default = deepest).
+    const opts = checkpointOptions(loadRecord(localStorage.getItem(ABYSS_KEY)).best, ABYSS.checkpoint);
+    const sel = opts.includes(this.abyssStart ?? 0) ? this.abyssStart! : st;
+    return `<label class="hint">出發檢查點 <select data-abyss-start>${opts.map((d) => `<option value="${d}"${d === sel ? ' selected' : ''}>第 ${d} 層</option>`).join('')}</select></label> <button data-abyss class="big">進入深淵塔（第 ${sel} 層起）▶</button>`;
   }
   abyssRecordHtml(): string {
     if (!RULES.cp6Abyss || !abyssOpen(this.p)) return '';
@@ -584,7 +591,9 @@ export class App {
     return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}${rec.titles.length ? `<br>稱號：${rec.titles.map((t) => `<b data-title>${esc(t)}</b>`).join('、')}` : ''}</div>`;
   }
   startAbyss() {
-    const rec = loadRecord(localStorage.getItem(ABYSS_KEY)), st = checkpointStart(rec.best);
+    const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
+    let st = checkpointStart(rec.best);
+    if (RULES.cp7) { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value ?? st); if (checkpointOptions(rec.best, ABYSS.checkpoint).includes(v)) st = v; this.abyssStart = st; }
     this.data.run = startAbyss(this.p, randomSeed(), st, rec.ms);
     this.notice = [`深淵塔第 ${st} 層：戰死帶回 50%，撤退保留全部。每 5 層一個檢查點。`];
     this.go('map');

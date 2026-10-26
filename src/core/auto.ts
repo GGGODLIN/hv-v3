@@ -54,7 +54,7 @@ function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equi
   let best: [Equip | undefined, Equip | undefined] = [p.equipped.mainHand, p.equipped.offHand];
   const legal = (m: Equip | undefined, o: Equip | undefined) => !(o && blocksOffHand(m)) && !(o && st.shield === 'no') && !(st.shield === 'yes' && offs.length && !o && !blocksOffHand(m));
   const curOk = (!best[0] || !st.main || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
-  let bestS = curOk ? score(best[0], best[1]) * (1 + AUTO_EQUIP_MARGIN) : -Infinity;
+  let bestS = curOk ? score(best[0], best[1]) * (1 + (RULES.cp7 ? CP7.betterMargin : AUTO_EQUIP_MARGIN)) : -Infinity; // CP7: same margin as the badge
   for (const m of pool.length ? pool : [undefined]) for (const o of [undefined, ...offs]) {
     if (!legal(m, o)) continue;
     const v = score(m, o); if (v > bestS) { bestS = v; best = [m, o]; }

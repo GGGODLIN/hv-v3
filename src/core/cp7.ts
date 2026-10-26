@@ -39,6 +39,9 @@ export const CP7 = {
   /** sim knob: scales every themeDmg entry's distance from 1 (1 = as listed). */
   themeK: 1,
   plScale: 1,
+  /** 暫定（缺原版出處）decision 1: main-tower loot level under CP7 = player level at trip start + this (findings 003 §1.1 says
+   *  player level; the offset compensates main-tower monsters that still follow floorLevel, which is what made P5 worse). */
+  lootLvAdd: 0,
 };
 /** CP7 depth damage factor (replaces 1 + ABYSS.dmgPerDepth·(d−1) when RULES.cp7). */
 export const cp7DepthDmg = (d: number): number =>
@@ -74,3 +77,16 @@ export function pityPiece(rng: Rng, p: Player, level: number): Equip | null {
   }
   return best;
 }
+
+/** CP7 decision 2: unlocked abyss start depths (1, 6, 11, … up to checkpointStart(best)); the UI lets the player pick a shallower one. */
+export const checkpointOptions = (best: number, step = 5): number[] => {
+  const top = step * Math.floor(best / step) + 1;
+  const out: number[] = []; for (let d = 1; d <= top; d += step) out.push(d); return out;
+};
+/** 暫定（缺原版出處）sim AI start pick: deepest unlocked checkpoint, except right after a trip that died without clearing a single
+ *  depth — then one checkpoint shallower than that trip's start (never below 1). */
+export const simPickStart = (best: number, last: { start: number; cleared: number; dead: boolean } | null, step = 5): number => {
+  const opts = checkpointOptions(best, step); const deepest = opts[opts.length - 1]!;
+  if (last && last.dead && last.cleared < last.start) return Math.max(1, Math.min(deepest, last.start - step));
+  return deepest;
+};

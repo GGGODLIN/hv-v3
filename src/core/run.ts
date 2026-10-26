@@ -336,7 +336,9 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
 /** rc11: main-tower loot level (see RULES.lootPlayerLevel). */
-export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
+/** CP7 decision 1: RULES.cp7 implies lootPlayerLevel (findings 003 §1.1), plus CP7.lootLvAdd (暫定) so main-tower gear keeps up with floor monsters. */
+export const lootLevel = (run: RunState): number =>
+  RULES.cp7 ? Math.max(1, (run.plv ?? 1) + CP7.lootLvAdd) : RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor);
 export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p?: Player): Loot {
   const ab = depthOf(run);
   const L = ab ? abyssLevel(run) : lootLevel(run);

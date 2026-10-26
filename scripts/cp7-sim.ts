@@ -10,7 +10,7 @@ import { newPlayer, type Player } from '../src/core/player';
 import { RULES, abyssOpen, armBattle, battleLocks, encounter, openingOc, runDerived, startAbyss } from '../src/core/run';
 import { checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssSchool } from '../src/core/abyss';
 import { armCp5, startBattle } from '../src/core/battle';
-import { CP7 } from '../src/core/cp7';
+import { CP7, simPickStart } from '../src/core/cp7';
 import { Rng } from '../src/core/rng';
 const E = process.env;
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0';
@@ -30,18 +30,20 @@ const W = () => ({ w: 0, n: 0 }); const c: Record<string, { w: number; n: number
 const upgWon: number[] = [], first: number[] = [], firstClear: number[] = [], upgMain: number[] = [], upgAbyss: number[] = [], depthClip: number[] = [];
 const reach: Record<number, number> = {}, endAt: Record<number, number> = {};
 const p3 = { rest: { n: 0, full: 0 }, none: { n: 0, full: 0 } };
-let built = 0, deep = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
+let built = 0, deep = 0, shallow = 0, cpTrips = 0, cpDeadFirst = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
 for (let s = S0 + 1; s <= S0 + N; s++) {
   const p = newPlayer(); starterKit(p, s); let ok = false, i = 1;
   for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);
   if (!ok || !abyssOpen(p)) continue; built++;
   for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++; }
-  const rec = emptyRecord(); let snap: Player | null = null;
+  const rec = emptyRecord(); let snap: Player | null = null; let last: { start: number; cleared: number; dead: boolean } | null = null;
   for (let t = 1; t <= T; t++) {
-    const st = checkpointStart(rec.best);
+    const st = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
+    if (st < checkpointStart(rec.best)) shallow++;
     const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
-    const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead';
+    const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
+    if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
     if (t === 1) first.push(cl);
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
     if (st <= 60 && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && zero.abyssNoLoot < 15) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
@@ -55,4 +57,4 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let f = 1; f <= F; f++) for (const [d, ty] of [[13, 'battle'], [18, 'battle'], [16, 'battle'], [20, 'boss']] as const) { c[`d${d}`]!.n++; if (one(snap, d, ty, s * 100 + f)) c[`d${d}`]!.w++; }
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
-console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win }));
+console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win }));
