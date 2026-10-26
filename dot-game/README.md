@@ -1,5 +1,13 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.16 desktop accepted; production promotion pending — 2026-10-26 12:33 UTC
+
+Secondary camp navigation now separates **戰況 / 配裝 / 成長** without changing combat, drops, saves or progression. Actual desktop navigation, keyboard focus, hidden-panel combat, equipment, growth, modal return focus, read-only browsing and normal import/reload passed. Same-viewport default document height fell3330→1986px; all existing functions remain. See docs/BROWSER-QA-V016.md for observations and limits.
+
+Source `bbe6c66619a9dd1942ce6b43e2d4a8d9eb729c73` passed1,162 tests/four syntax and full148-file readback. Candidate `162ecd57ab7a3c61157fd06b91bc855ceacbc20f` passed exact Pages40322461849 and HTTP6. This acceptance receipt changes docs/manifest only; runtime tests are reused. Public v0.15 and accepted restore `6d3141ddfc42ef8a52a5cdea09496c1de6af2c66` remain until this receipt is backed up and root promotion/smoke pass.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.16 development candidate — 2026-10-26 12:18 UTC
 
 Camp navigation groups the secondary panels into **戰況 / 配裝 / 成長** while keeping the hero, battlefield, expedition controls and inventory available. This is a presentation-only iteration: no combat, loot, progression or save-schema changes. Click a tab, or focus it and use Left/Right/Home/End. The selected tab is transient and resets to 戰況 on reload; it is not saved progress. Existing advanced rules remain available in their respective panels.

@@ -22,3 +22,6 @@ This directory is self-contained. With Node 20+ run `npm test`; with Python 3 ru
 
 ## Source acceptance — 2026-10-26 12:21 UTC
 1,162/1,162 Node tests pass (seven new focused navigation cases), zero failures/skips; engine/loot/session/ui syntax passes. Independent review confirmed all old IDs remain unique, all nine existing feature subtrees retain their content, all dialogs stay outside main, and engine/loot/session bytes equal accepted v0.15. Six current-version assertions were updated and the ability test now extracts its own closing section rather than depending on its old order before reports; no historical fixture changed. Actual browser acceptance is still pending.
+
+## Browser acceptance
+Isolated desktop acceptance passed; see BROWSER-QA-V016.md for exact source/site references, keyboard and lifecycle evidence, normal import and explicit device limits. Production smoke is pending.
