@@ -12,8 +12,14 @@ import { checkpointStart, emptyRecord, recordTitles, recordTrip, type AbyssSchoo
 import { armCp5, startBattle } from '../src/core/battle';
 import { CP7, simPickStart } from '../src/core/cp7';
 import { Rng } from '../src/core/rng';
+import { CP8 } from '../src/core/cp8';
+import { act, type BattleState } from '../src/core/battle';
+import { decide, prefBuff, type BuffStrategy } from '../src/core/auto';
+import { openOffer, takeBuff } from '../src/core/buffoffer';
+import { derive } from '../src/core/player';
 const E = process.env;
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0'; RULES.cp8 = E.CP8 === '1';
+for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as Record<string, number | boolean>)[k] = Number(E[`K8_${k}`]);
 for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typeof CP7[k] === "number") (CP7 as Record<string, unknown>)[k] = Number(E[`K_${k}`]);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;
@@ -26,6 +32,32 @@ function one(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): 
   b.locked = battleLocks(p); armBattle(b, run); b.oc += openingOc(p, type, run); armCp5(b, run.pdot);
   fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter'); return b.over === 'win';
 }
+/** CP8 P3: first battle of a trip that starts at `depth` (start buffs picked by the school preference, as autoRun does). */
+function first21(p0: Player, depth: number, seed: number): boolean {
+  const p = clone(p0); const run = startAbyss(p, seed, depth); const prng = new Rng(seed * 13 + 1);
+  if (run.startPick) { while (run.offer) { const id = prefBuff(run.offer.ids, strat as BuffStrategy, prng); if (id) takeBuff(p, run, id); else run.offer = null; if (run.offersLeft) { run.offersLeft--; openOffer(p, run, 'boss'); } } run.startPick = false; }
+  const type = run.tower.floors[0]!.options.includes('boss') ? 'boss' : 'battle';
+  const ms = encounter(run, pool, type);
+  const b = startBattle(runDerived(p, run), { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
+  b.locked = battleLocks(p); armBattle(b, run); b.oc += openingOc(p, type, run); armCp5(b, run.pdot);
+  fight(b, strat, new Rng(seed * 31 + 7), profsOf(p), 'counter'); return b.over === 'win';
+}
+/** CP8 P5: over a whole fight at `depth`, every turn is replayed once from full HP; counts turns where that full-HP replay dies. */
+function oneTurnKills(p0: Player, depth: number, type: 'boss' | 'battle', seed: number): { n: number; k: number; maxHit: number } {
+  const p = clone(p0); const run = startAbyss(p, seed, depth); run.startPick = false; run.offer = null;
+  if (type === 'boss') run.tower.floors[0]!.options = ['boss'];
+  const ms = encounter(run, pool, type);
+  const b = startBattle(runDerived(p, run), { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions);
+  b.locked = battleLocks(p); armBattle(b, run); b.oc += openingOc(p, type, run); armCp5(b, run.pdot);
+  const rng = new Rng(seed * 31 + 7), profs = profsOf(p); let n = 0, k = 0, maxHit = 0;
+  while (!b.over && b.turn < 200) {
+    const c = structuredClone(b) as BattleState; c.hp = c.d.hp; const r2 = new Rng(1); r2.state = rng.state;
+    act(c, decide(c, strat, 'counter'), r2, profs); n++; if (c.over === 'lose') k++; maxHit = Math.max(maxHit, c.d.hp - c.hp);
+    act(b, decide(b, strat, 'counter'), rng, profs);
+  }
+  return { n, k, maxHit: maxHit / b.d.hp };
+}
+const p5: { hp: number; d: Record<number, { n: number; k: number; mx: number }> }[] = []; const p3d21 = { n: 0, w: 0 }; const second: number[] = [];
 const W = () => ({ w: 0, n: 0 }); const c: Record<string, { w: number; n: number }> = { d1: W(), d2: W(), d3: W(), d5: W(), d10: W(), d10np: W(), d13: W(), d16: W(), d18: W(), d20: W() };
 const upgWon: number[] = [], first: number[] = [], firstClear: number[] = [], upgMain: number[] = [], upgAbyss: number[] = [], depthClip: number[] = [];
 const reach: Record<number, number> = {}, endAt: Record<number, number> = {};
@@ -39,7 +71,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++;
     // cp7-rc3: fresh d10 boss with the post-F20 character, and the same with no potions (a player who skipped the shop).
     c.d10!.n++; if (one(p, 10, 'boss', s * 100 + f)) c.d10!.w++; const np = clone(p); np.potions = { health: 0, mana: 0, spirit: 0 }; c.d10np!.n++; if (one(np, 10, 'boss', s * 100 + f)) c.d10np!.w++; }
-  const rec = emptyRecord(); let snap: Player | null = null; let last = null as { start: number; cleared: number; dead: boolean } | null;
+  const rec = emptyRecord(); let snap: Player | null = null; let snap20: Player | null = null; let last = null as { start: number; cleared: number; dead: boolean } | null;
   for (let t = 1; t <= T; t++) {
     const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
     if (st < checkpointStart(rec.best)) shallow++;
@@ -48,6 +80,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
     if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, level(p), Object.values(p.equipped).map((e) => e ? e.slot + ':' + e.quality[0] + e.roll + 'L' + e.level : '').join(' '));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
+    if (t === 2) second.push(cl);
     if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
     if (st <= 60 && !r.upg) { zero.abyss++; if (!r.kills) { zero.abyssNoLoot++; if (E.DBG && (E.DBG === 'all' || zero.abyssNoLoot < 15)) console.error(st, cl, r.settlement.outcome, r.floorReached, r.battles); } } depthClip.push(Math.min(20, Math.max(10, cl)));
@@ -56,9 +89,13 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     if (st <= 13 && cl >= 12) { const k = (r.rests ?? []).some((d) => d >= 13 && d < 20) ? 'rest' : 'none'; p3[k].n++; if (cl >= 20) p3[k].full++; }
     recordTitles(rec, r.abyss!.ms, r.abyss!.titles); recordTrip(rec, cl, r.abyss!.school as AbyssSchool);
     if (!snap && rec.best >= 15) snap = clone(p);
+    if (RULES.cp8 && !snap20 && rec.best >= 20) snap20 = clone(p);
   }
+  if (RULES.cp8 && snap20) for (let f = 1; f <= F; f++) { p3d21.n++; if (first21(snap20, 21, s * 100 + f)) p3d21.w++; }
+  if (RULES.cp8 && E.P5 !== '0') { const row = { hp: derive(p).hp, d: {} as Record<number, { n: number; k: number; mx: number }> };
+    for (let d = 1; d <= 30; d++) { const o = oneTurnKills(p, d, d % 5 === 0 ? 'boss' : 'battle', s * 100 + d); row.d[d] = { n: o.n, k: o.k, mx: o.maxHit }; } p5.push(row); }
   if (!snap) continue; deep++;
   for (let f = 1; f <= F; f++) for (const [d, ty] of [[13, 'battle'], [18, 'battle'], [16, 'battle'], [20, 'boss']] as const) { c[`d${d}`]!.n++; if (one(snap, d, ty, s * 100 + f)) c[`d${d}`]!.w++; }
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
-console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10 }));
+console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10, cp8: RULES.cp8, naive: !!E.SIM_AI && E.SIM_AI === 'naive', second, p3d21, p5 }));
