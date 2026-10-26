@@ -4,6 +4,9 @@
  */
 import { CP7 } from './cp7';
 export const CP8 = {
+  /** 暫定（缺原版出處；rc3 試玩 d25 首領從滿血 936 被打死）: d25 abyss boss damage × (replaces ABYSS.bossDmgAt[25]=0.6 when cp8 is on).
+   *  d25 stacks tier 3→4, plevel +10 and the first boss affix on one fight; this softens only that boss. */
+  boss25Dmg: 0.5,
   /** 暫定（缺原版出處；產品規則）P1: a drop that the 「▲ 比身上好」 rule (CP7 betterThanWorn) badges is worn at once, in the run.
    *  Root cause of the naive gap: loot sits in the run bag, and on death only RULES.death.keepBestItems (=1) bag piece survives. */
   autoWear: true,

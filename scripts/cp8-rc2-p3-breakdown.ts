@@ -13,6 +13,8 @@ import { openOffer, takeBuff } from '../src/core/buffoffer';
 import { Rng } from '../src/core/rng';
 const E = process.env;
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = true; RULES.cp8 = E.CP8 !== '0';
+import { CP8 } from '../src/core/cp8';
+for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as unknown as Record<string, unknown>)[k] = Array.isArray(CP8[k]) ? E[`K8_${k}`]!.split(',').map(Number) : Number(E[`K8_${k}`]);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 32), F = Number(process.argv[3] ?? 4), S0 = Number(E.SEED0 ?? 0);
 const DEPTHS = (E.DEPTHS ?? '16,18,20,21,22,24').split(',').map(Number);

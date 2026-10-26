@@ -7,6 +7,7 @@ import { type Player, unspentExp } from './player';
 import { has } from './progress';
 import { autoAllocate, autoEquip, buyHealthTo, naivePrep, TOWN_HP_POTIONS } from './auto';
 import { betterThanWorn } from './cp7';
+import { RULES } from './run';
 import type { Equip } from './items';
 
 export type PrepIssue = 'alloc' | 'potion' | 'equip';
@@ -23,7 +24,7 @@ export const lacksPotion = (p: Player): boolean => has(p, 'shop') && p.potions.h
 /** (c) inventory pieces that beat the worn slot by CP7.betterMargin (the 「▲ 比身上好」 badge rule). */
 export const betterInBag = (p: Player): Equip[] => {
   // cp8-rc3: judge on the character after 「自動分配」 (prepAll runs alloc before equip), so the list matches what 換上 will do.
-  const t = canAllocate(p) ? { ...p, attrs: { ...p.attrs } } : p; if (t !== p) autoAllocate(t);
+  const t = RULES.cp8 && canAllocate(p) ? { ...p, attrs: { ...p.attrs } } : p; if (t !== p) autoAllocate(t);
   return p.inventory.filter((e) => betterThanWorn(t, e));
 };
 /** cp8-rc3: pieces CP8.autoWear put on during the last trip that are still worn (the reminder names them once). */
