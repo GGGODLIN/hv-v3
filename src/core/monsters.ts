@@ -85,7 +85,7 @@ export interface Monster {
   evade: number; parry: number; resist: number;
   physMit: number; magMit: number;
   spec: Record<DmgType | Element, number>;
-  status: { stun: number; bleed: number; bleedTurns: number };
+  status: { stun: number; bleed: number; bleedTurns: number; pa?: number; paTurns?: number };
   charge: number;
   /** CP3-fix 8 (暫定): extra boss phases left; at 0 HP the boss rises again instead of dying. */
   phases?: number;

@@ -36,7 +36,7 @@ function iwGain(e: Equip): string {
 
 type Screen = 'town' | 'map' | 'battle' | 'node' | 'result';
 /** cp8-rc12: placeholder icons for the style skills (no art yet). */
-const SKILL_ICON: Partial<Record<SkillId, string>> = { greatCleave: 'mercifulBlow', concussiveStrike: 'shieldBash' };
+const SKILL_ICON: Partial<Record<SkillId, string>> = { greatCleave: 'mercifulBlow', concussiveStrike: 'shieldBash', rendingBlow: 'vitalStrike', shatterStrike: 'shieldBash' };
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 const hex = (n: number) => `#${n.toString(16).padStart(6, '0')}`;
 const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;

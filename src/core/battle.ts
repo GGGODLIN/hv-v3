@@ -8,7 +8,7 @@ import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
 
-export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow' | 'greatCleave' | 'concussiveStrike';
+export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow' | 'greatCleave' | 'concussiveStrike' | 'rendingBlow' | 'shatterStrike';
 export type SpellId = 'fiery' | 'freeze' | 'shock' | 'gale' | 'smite' | 'corruption';
 export type PotionId = 'health' | 'mana' | 'spirit';
 
@@ -25,17 +25,19 @@ const SK = C['F-002-4.2-skills'].value;
 export const SKILLS: Record<SkillId, { id: SkillId; zh: string; oc: number; cd: number; desc: string }> = {
   shieldBash: { id: 'shieldBash', zh: '盾擊', oc: SK.shieldBash.ocCost, cd: SK.shieldBash.cooldown, desc: `x${SK.shieldBash.multiplier} 打擊並暈眩 ${SK.shieldBash.stunTicks} 回合` },
   vitalStrike: { id: 'vitalStrike', zh: '要害打擊', oc: SK.vitalStrike.ocCost, cd: SK.vitalStrike.cooldown, desc: `x${SK.vitalStrike.multiplier}（對暈眩 x${SK.vitalStrike.multiplierVsStunned}）並流血` },
-  mercifulBlow: { id: 'mercifulBlow', zh: '慈悲一擊', oc: SK.mercifulBlow.ocCost, cd: SK.mercifulBlow.cooldown, desc: `目標 HP<${SK.mercifulBlow.executeBelowHpFraction * 100}% 時 x${SK.mercifulBlow.multiplier}` },
+  mercifulBlow: { id: 'mercifulBlow', zh: '慈悲一擊', oc: SK.mercifulBlow.ocCost, cd: SK.mercifulBlow.cooldown, desc: `x${SK.mercifulBlow.multiplier}；目標流血且 HP<${SK.mercifulBlow.executeBelowHpFraction * 100}% 時直接擊殺` },
   greatCleave: { id: 'greatCleave', zh: '巨力劈砍', oc: SK.greatCleave.ocCost, cd: SK.greatCleave.cooldown, desc: `x${SK.greatCleave.multiplier} 必定暴擊（可觸發骨牌）` },
+  rendingBlow: { id: 'rendingBlow', zh: '撕裂擊', oc: SK.rendingBlow.ocCost, cd: SK.rendingBlow.cooldown, desc: `x${SK.rendingBlow.multiplier} 最多 ${SK.rendingBlow.targets} 目標，無視物理減傷，命中後破甲 ${SK.rendingBlow.paStacks} 層` },
+  shatterStrike: { id: 'shatterStrike', zh: '粉碎擊', oc: SK.shatterStrike.ocCost, cd: SK.shatterStrike.cooldown, desc: `x${SK.shatterStrike.multiplier} 最多 ${SK.shatterStrike.targets} 目標，破甲目標暈眩 ${SK.shatterStrike.stunTicks} 回合` },
   concussiveStrike: { id: 'concussiveStrike', zh: '震盪打擊', oc: SK.concussiveStrike.ocCost, cd: SK.concussiveStrike.cooldown, desc: `x${SK.concussiveStrike.multiplier} 魔法傷害並暈眩 ${SK.concussiveStrike.stunTicks} 回合` },
 };
 /** cp8-rc12 (sourced, Skills.md:55-79): each fighting style has its own skill set. rc11 gave every style the One-Handed set, so a
  *  2H fighter spent 25-100 OC on Shield Bash / Vital Strike (x4, no Domino) instead of Great Cleave (x10, always crits), and a staff
  *  caster traded its fiery quick-cast for a physical x4 staff hit. Unarmed has no style row in the source: keeps the 1H set (暫定).
- *  2H T2/T3 (Rending Blow, Shatter Strike) are not built yet. */
+ *  rc13: 2H T2/T3 Rending Blow / Shatter Strike built (Skills.md:73-75, 109-111); profRequired not enforced yet (CP9). */
 export const KITS: Record<Derived['style'], SkillId[]> = {
   oneHand: ['shieldBash', 'vitalStrike', 'mercifulBlow'], unarmed: ['shieldBash', 'vitalStrike', 'mercifulBlow'],
-  twoHand: ['greatCleave'], staff: ['concussiveStrike'],
+  twoHand: ['greatCleave', 'rendingBlow', 'shatterStrike'], staff: ['concussiveStrike'],
 };
 export const skillKit = (s: BattleState): SkillId[] => KITS[s.d.style] ?? KITS.oneHand;
 const OC = C['F-002-overcharge'].value;
@@ -82,7 +84,12 @@ function cp5Split(s: BattleState, ev: BEvent[]): void {
   });
 }
 /** CP5 鐵壁: damage halved on the elite's first turns. Returns mit unchanged otherwise. */
-const ironMit = (m: Monster, mit: number) => ((m as CM).ironTurns ? 1 - (1 - mit) * CP5.ironMit : mit);
+const PA = C['F-penetrated-armor'].value, PA_TURNS = C['P-penetrated-armor-turns'].value.turns;
+/** rc13: Penetrated Armor (Equipment_Procs.md) multiplies the monster's physical mitigation by 1 − 25% × stacks. */
+const paMit = (m: Monster, mit: number) => ((m.status.pa ?? 0) > 0 && (m.status.paTurns ?? 0) > 0 ? mit * (1 - PA.perStack * Math.min(PA.maxStacks, m.status.pa!)) : mit);
+const ironMit = (m: Monster, mit0: number) => { const mit = paMit(m, mit0); return (m as CM).ironTurns ? 1 - (1 - mit) * CP5.ironMit : mit; };
+/** rc13: the up-to-N target order shared by spells and the 2H area skills (target first, then neighbours). */
+const areaOrder = (s: BattleState, t0: number, n: number) => [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2, t0 - 3, t0 + 3, t0 - 4, t0 + 4].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)].slice(0, n);
 /** CP5 反傷 (守門者 stance / 尖刺 affix): reflect a share of physical damage through player physMit, spec and defend. */
 function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   const m = s.monsters[ti] as CM;
@@ -173,7 +180,7 @@ export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: nu
   return {
     d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: C['P-oc-start'].value.initial,
     monsters, turn: 0, spirit: false, defendTurns: 0, focusTurn: false,
-    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0, greatCleave: 0, concussiveStrike: 0 },
+    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0, greatCleave: 0, concussiveStrike: 0, rendingBlow: 0, shatterStrike: 0 },
     itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0, regen: { hp: 0, mp: 0, sp: 0 },
   };
 }
@@ -290,10 +297,6 @@ export function canUse(s: BattleState, a: Action): boolean {
     case 'skill': {
       if (s.locked?.skill || !skillKit(s).includes(a.id)) return false;
       if (s.cooldowns[a.id] > 0 || s.oc < skillOc(s, a.id)) return false;
-      if (a.id === 'mercifulBlow') {
-        const m = s.monsters[a.target];
-        return !!m && m.hp > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction;
-      }
       return true;
     }
     case 'spell': return !s.locked?.spell && s.mp >= spellCost(s, a.id);
@@ -389,7 +392,7 @@ function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: B
   return true;
 }
 
-function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType, critOverride?: number): number {
+function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType, critOverride?: number, noMit = false): number {
   const m = s.monsters[ti]!;
   const M = s.mods;
   let raw = s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (M?.ssDamage ?? 0) : 1);
@@ -405,7 +408,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   const r = resolveHit(rng, {
     raw, magic: false, acc: s.d.physAcc * (ow ? 1 + OVERWHELM.acc : 1),
     evade: m.status.stun > 0 ? 0 : m.evade, parry: m.status.stun > 0 ? 0 : m.parry * (ow ? Math.max(0, 1 - OVERWHELM.counterParry * ow.stacks) : 1), block: 0, resist: 0,
-    critChance, critMod: s.d.critMod, mit: ironMit(m, m.physMit), spec: m.spec[dtype] / 100,
+    critChance, critMod: s.d.critMod, mit: noMit ? 0 : ironMit(m, m.physMit), spec: m.spec[dtype] / 100,
   });
   if (r.avoidMult > 0) {
     m.hp = Math.max(0, m.hp - r.damage);
@@ -508,8 +511,27 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       } else if (a.id === 'concussiveStrike') {
         magicStrike(s, rng, t, SK.concussiveStrike.multiplier, ev);
         if (m.hp > 0 && m.status.stun <= 0) { m.status.stun = SK.concussiveStrike.stunTicks; ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
+      } else if (a.id === 'rendingBlow') {
+        // Skills.md:73: up to 5 targets, damage bypasses monster physical mitigation, then 3 stacks of Penetrated Armor (applied after the damage).
+        for (const ti of areaOrder(s, t, SK.rendingBlow.targets)) {
+          const mm = s.monsters[ti]!;
+          physHit(s, rng, ti, SK.rendingBlow.multiplier, ev, '撕裂擊', s.d.damageType, undefined, true);
+          if (mm.hp > 0) { mm.status.pa = Math.min(PA.maxStacks, (mm.status.pa ?? 0) + SK.rendingBlow.paStacks); mm.status.paTurns = PA_TURNS; ev.push({ t: 'status', to: ti, text: `破甲 ${mm.status.pa} 層（物理減傷 ×${1 - PA.perStack * mm.status.pa}，${PA_TURNS} 回合）` }); }
+        }
+      } else if (a.id === 'shatterStrike') {
+        // Skills.md:75: up to 5 targets; a target with Penetrated Armor is stunned 5 ticks (an existing stun is not refreshed).
+        for (const ti of areaOrder(s, t, SK.shatterStrike.targets)) {
+          const mm = s.monsters[ti]!;
+          const had = (mm.status.pa ?? 0) > 0 && (mm.status.paTurns ?? 0) > 0;
+          physHit(s, rng, ti, SK.shatterStrike.multiplier, ev, '粉碎擊');
+          if (mm.hp > 0 && had && mm.status.stun <= 0) { mm.status.stun = SK.shatterStrike.stunTicks; ev.push({ t: 'status', to: ti, text: `暈眩 ${mm.status.stun} 回合（無法行動、無法迴避）` }); }
+        }
       } else {
-        physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');
+        // Skills.md:61 / 103: x10 damage; on a target with Bleeding Wound below 25% HP it kills instantly (rc13; rc12 wrongly gated the skill on HP < 25%).
+        if (m.status.bleedTurns > 0 && m.status.bleed > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction) {
+          const dmg = m.hp; m.hp = 0;
+          ev.push({ t: 'hit', from: 'player', to: t, dmg, crits: 0, avoided: null, label: '慈悲一擊・處決' }); ev.push({ t: 'death', to: t });
+        } else physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');
       }
       break;
     }
@@ -704,6 +726,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
     if (s.cp5) { if (m.thornTurns) m.thornTurns--; if (m.ironTurns) m.ironTurns--; }
+    if ((m.status.paTurns ?? 0) > 0 && --m.status.paTurns! <= 0) m.status.pa = 0;
     if (m.status.stun > 0) {
       m.status.stun--;
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
