@@ -45,7 +45,14 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   checks.push([`P5 full-HP one-round death, worst school×depth ${pct(worst)}${where ? ` (${where})` : ''} ≤ 2%`, worst <= 0.02]);
   for (const [t, ok] of checks) { console.log(`  CHECK ${t} ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 }
+// rc3 P2 (暫定, producer 2026-10-26): per school, any of (1) trip-2 median ≥ trip-1 median + 2, (2) d25-boss beaten share
+// (cleared ≥ 25) trip 2 − trip 1 ≥ 10 pp, (3) trip-2 mean cleared ≥ trip-1 mean + 2. A+B pooled.
 { const cat = (sc: string, k: 'first' | 'second') => rows.filter((r) => r.sc === sc).flatMap((r) => r[k]);
-  const a = SCH.map((sc) => q(cat(sc, 'first'), 0.5)), b = SCH.map((sc) => q(cat(sc, 'second'), 0.5)); const ok = SCH.every((_, i) => b[i]! >= a[i]! + 2);
-  console.log(`\n=== A+B pooled\n  CHECK P2 trip-2 median ≥ trip-1 median + 2 (A+B pooled): ${SCH.map((sc, i) => `${sc} ${a[i]}→${b[i]}`).join(' ')} ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
+  const mean = (x: number[]) => x.reduce((a, v) => a + v, 0) / Math.max(1, x.length), b25 = (x: number[]) => x.filter((v) => v >= 25).length / Math.max(1, x.length);
+  console.log('\n=== A+B pooled');
+  let ok = true;
+  for (const sc of SCH) { const f = cat(sc, 'first'), s2 = cat(sc, 'second');
+    const c1 = q(s2, 0.5) - q(f, 0.5) >= 2, c2 = b25(s2) - b25(f) >= 0.1, c3 = mean(s2) - mean(f) >= 2; ok &&= c1 || c2 || c3;
+    console.log(`  P2 ${sc}: (1) median ${q(f, 0.5)}→${q(s2, 0.5)} ${c1 ? '✓' : '✗'} | (2) d25 boss beaten ${pct(b25(f))}→${pct(b25(s2))} (+${(100 * (b25(s2) - b25(f))).toFixed(1)}pp) ${c2 ? '✓' : '✗'} | (3) mean ${mean(f).toFixed(2)}→${mean(s2).toFixed(2)} (+${(mean(s2) - mean(f)).toFixed(2)}) ${c3 ? '✓' : '✗'}`); }
+  console.log(`  CHECK P2 every school passes (1) median +2 or (2) d25 boss +10pp or (3) mean +2 (A+B pooled) ${ok ? 'PASS' : 'FAIL'}`); all &&= ok; }
 console.log(all ? '\nCP8 ALL PASS' : '\nCP8 SOME FAIL');
