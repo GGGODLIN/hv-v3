@@ -41,8 +41,10 @@ export function autoAllocate(p: Player): void {
   }
   // cp8-rc9 P1-8: rc8 playtest left 3 points unspent after 「全部處理」 — the cheapest weighted attribute cost more than what was left,
   // while a weight-0 attribute was still affordable. Spend the remainder on the cheapest affordable attribute so nothing is left over.
+  // cp8-rc10 P0-1: only attributes the school buys (weight > 0) — rc9 let blade / bulwark leftovers fall into INT/WIS.
+  // P1-8: keep buying (cheapest allowed first) until the remaining EXP cannot pay for any allowed point.
   if (RULES.cp8) for (let guard = 0; guard < 2000; guard++) {
-    const c = ATTRS.map((a) => [a, attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])] as const).sort((x, y) => x[1] - y[1]);
+    const c = ATTRS.filter((a) => (weights[a] ?? 0) > 0).map((a) => [a, attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])] as const).sort((x, y) => x[1] - y[1]);
     if (!c.some(([a]) => allocate(p, a) > 0)) break;
   }
 }

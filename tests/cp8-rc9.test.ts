@@ -39,7 +39,7 @@ describe('cp8-rc9 P0-2 potion hint uses HP − next hit estimate', () => {
     expect(potHint(b)).toBe(true);
   });
 });
-import { autoAllocate, autoEquip, leanStyle } from '../src/core/auto';
+import { autoAllocate, allocWeights, autoEquip, leanStyle } from '../src/core/auto';
 import { attrCost } from '../src/core/formulas';
 import { powerScore, unspentExp } from '../src/core/player';
 import { ATTRS } from '../src/core/formulas';
@@ -63,10 +63,10 @@ describe('cp8-rc9 P1 bulwark', () => {
       const bag = [0, 1, 2, 3].map((i) => generateEquip(new Rng(s * 10 + i), 14)); const w = powerScore(derive(q));
       autoEquip(q, bag, leanStyle(q)); expect(powerScore(derive(q))).toBeGreaterThanOrEqual(w); }
   });
-  it('8. 自動分配 leaves no affordable point unspent', () => {
+  it('8. 自動分配 leaves no affordable allowed point unspent (rc10 P0-1: allowed = school weight > 0)', () => {
     cp8(); for (const lean of ['bulwark', 'blade', 'oc', 'arcane'] as const) for (const exp of [37, 2438, 2441, 5000]) {
       const p = newPlayer(); p.lean = lean; p.exp = exp; autoAllocate(p);
-      const cheapest = Math.min(...ATTRS.map((a) => attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])));
+      const w = allocWeights(p); const cheapest = Math.min(...ATTRS.filter((a) => (w[a] ?? 0) > 0).map((a) => attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])));
       expect(unspentExp(p)).toBeLessThan(cheapest);
     }
   });

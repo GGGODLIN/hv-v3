@@ -1,7 +1,7 @@
 import { describe, expect, it, afterEach } from 'vitest';
-import { newPlayer, equip } from '../src/core/player';
+import { newPlayer, equip, allocate } from '../src/core/player';
 import { RULES } from '../src/core/run';
-import { autoAllocate, autoEquip, leanStyle } from '../src/core/auto';
+import { autoAllocate, allocWeights, autoEquip, leanStyle } from '../src/core/auto';
 import { betterThanWorn, leanAllows } from '../src/core/cp7';
 import { generateEquip } from '../src/core/items';
 import { Rng } from '../src/core/rng';
@@ -13,10 +13,18 @@ describe('cp8-rc7 P0', () => {
   it('bug 1: 自動分配 is school-specific', () => {
     cp8();
     const b = alloc('blade'), o = alloc('oc'), a = alloc('arcane'), w = alloc('bulwark'), base = newPlayer().attrs;
-    for (const x of [b, w]) { expect(x.int).toBeLessThan(x.str); expect(x.wis).toBeLessThan(x.end); void base; } // rc9 P1-8: leftover EXP buys cheap off-school points (no EXP left unspent)
+    for (const x of [b, w]) { expect(x.int).toBe(base.int); expect(x.wis).toBe(base.wis); } // cp8-rc10 P0-1: leftover EXP never buys blade / bulwark INT/WIS
     expect(a.int).toBeGreaterThan(a.end); expect(a.int).toBeGreaterThan(a.str);
     expect(w.end).toBeGreaterThan(w.str);
     expect(b).not.toEqual(o);
+  });
+  it('cp8-rc10 P1-8: after 自動分配 no allowed attribute is still affordable', () => {
+    cp8();
+    for (const lean of ['blade', 'oc', 'arcane', 'bulwark'] as const) for (const exp of [3000, 7777, 20000]) {
+      const p = newPlayer(); p.lean = lean; p.exp = exp; autoAllocate(p);
+      const w = allocWeights(p);
+      for (const k of Object.keys(p.attrs) as (keyof typeof p.attrs)[]) if ((w[k] ?? 0) > 0) { const q = structuredClone(p); expect(allocate(q, k)).toBe(0); }
+    }
   });
   it('bug 2: armour class is school-locked (arcane no heavy, bulwark no cloth) and a disallowed worn piece is replaced', () => {
     cp8(); const rng = new Rng(5);

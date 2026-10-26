@@ -21,7 +21,7 @@ for (const sc of ['blade', 'oc', 'bulwark', 'arcane']) {
   const has = !!(await pg.$('[data-prep="alloc"]')); if (has) { await pg.click('[data-prep="alloc"]'); await w(300); }
   const a = await pg.evaluate(() => ({ ...window.hv.p.attrs })); R[sc] = { has, base, a };
   if (!has) fail.push(`${sc} no alloc row`);
-  if (sc !== 'arcane' && sc !== 'oc' && (a.int >= a.str || a.wis >= a.end) /* cp8-rc9 P1-8: leftover EXP may go to the cheapest attr; INT/WIS must stay below STR/END */) fail.push(`${sc} bought INT/WIS`);
+  if (sc !== 'arcane' && sc !== 'oc' && (a.int !== base.int || a.wis !== base.wis) /* cp8-rc10 P0-1: leftovers never buy blade/bulwark INT/WIS */) fail.push(`${sc} bought INT/WIS`);
   if (sc === 'arcane' && !(a.int > a.end && a.int > a.str)) fail.push('arcane INT not top');
   if (sc === 'bulwark' && !(a.end > a.str)) fail.push('bulwark END<=STR');
   await pg.close();
