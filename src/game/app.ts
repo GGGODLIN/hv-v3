@@ -86,9 +86,10 @@ export class App {
     else { this.data.run = null; this.go('town'); }
   }
 
-  static fresh(): SaveData {
+  /** cp8-rc6 (Part A 1): a new character's school is passed to starterKit as its lean, so it gets that school's cp8 starter kit. */
+  static fresh(lean?: Player['lean']): SaveData {
     const p = newPlayer();
-    starterKit(p, randomSeed());
+    starterKit(p, randomSeed(), RULES.cp8 ? lean : undefined);
     return { v: SAVE_VERSION, player: p, run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: 0, bestFloor: 0, clears: 0 } };
   }
 
@@ -483,7 +484,7 @@ export class App {
     });
     on('[data-sellall]', () => { const n = this.p.inventory.length; const sum = this.p.inventory.reduce((t, e) => t + sellPrice(e), 0); this.ask('賣掉倉庫全部？', `<p class="warn">會賣掉倉庫裡全部 ${n} 件裝備，得到 ${sum}C。賣掉後無法買回。</p>`, `確定賣掉 ${n} 件`, () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); }); }); // CP3-bugfix 6: confirm
     on('[data-buy]', (el) => { const k = el.dataset.buy as PotionId; if (this.p.credits >= RULES.potionPrice[k]) { this.p.credits -= RULES.potionPrice[k]; this.p.potions[k]++; } this.go('town'); });
-    on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>`, '清空並建立新角色', () => { const settings = { ...this.data.settings }; this.data = App.fresh(); this.data.settings = settings; this.stage.speed = settings.speed; this.save(); this.go('town'); })); // CP4-rc-fix 5: speed / skip-anim are preferences, kept
+    on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>${RULES.cp8 ? `<p>流派：<select data-newlean>${(['', 'blade', 'oc', 'arcane', 'bulwark'] as const).map((k) => `<option value="${k}"${(this.p.lean ?? '') === k ? ' selected' : ''}>${k ? SCHOOL_ZH[k] : '不指定'}</option>`).join('')}</select></p>` : ''}`, '清空並建立新角色', () => { const settings = { ...this.data.settings }; const nl = (document.querySelector<HTMLSelectElement>('[data-newlean]')?.value || undefined) as Player['lean']; this.data = App.fresh(nl); this.data.settings = settings; this.stage.speed = settings.speed; this.save(); this.go('town'); })); // CP4-rc-fix 5: speed / skip-anim are preferences, kept
     on('[data-modal-cancel]', () => { this.modal = null; this.prepKind = null; this.render(); });
     on('[data-modal-ok]', () => { const m = this.modal; this.modal = null; m?.onOk(); if (!this.modal) this.render(); });
     on('[data-start]', () => this.depart('main'));
