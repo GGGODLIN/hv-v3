@@ -1,5 +1,5 @@
 {
-  "checkpoint": "v0.20-source-candidate-with-cast-feedback",
+  "checkpoint": "v0.20-version-labelled-candidate",
   "status": "source-tested-browser-pending",
   "base_accepted_recovery": "bab87bce00623391060c2b32124fb7a1e3e36f3f",
   "accepted_site": "ccaddf45ff38ad09263e65dbe3f5bd01fd8508f5",
@@ -56,8 +56,8 @@
       "sha256": "74b8cf9f34d20e5b32ccd510c1309d37f942e9177501d398b919c7582a0aa235"
     },
     "docs/ACCEPTANCE-V020.md": {
-      "bytes": 2270,
-      "sha256": "c4bd170f1429429c23c77e85d8a94f77cdd00b1d5f533805a0c7fb198c6cb008"
+      "bytes": 2578,
+      "sha256": "4f832858d2ebefc9d766dc77ab41204fd81c075a71d164917e8c0f22118a08c1"
     },
     "docs/ACCEPTANCE-V03.md": {
       "bytes": 7790,
@@ -305,7 +305,7 @@
     },
     "index.html": {
       "bytes": 34191,
-      "sha256": "4bd5204027fb83028e0aa802f772557d98c5c39f01b7bcd0bc5dfb933c2e1a0d"
+      "sha256": "66ebf37fd78275318115efc6fdcfc5f5f8a2ccad22de73472e6616c6da91235a"
     },
     "package.json": {
       "bytes": 207,
@@ -724,5 +724,5 @@
       "sha256": "18a52177a3e2261affab818decdf20106c7fb727ef265be623d4638ac21bfddb"
     }
   },
-  "previous_candidate_source": "af88c9ca3ccc2bc452ae345857e39809b44af2c5"
+  "previous_candidate_source": "0e165a96172ec016382d38ed71c95ff6ef655268"
 }

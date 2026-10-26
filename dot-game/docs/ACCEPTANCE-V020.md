@@ -22,3 +22,5 @@ Complete source checkpoint/readback; isolated publiccandidate exactCI/HTTP; actu
 ## Pre-browser feedback correction
 
 The first source-only v0.20 checkpoint `af88c9ca3ccc2bc452ae345857e39809b44af2c5` emitted a magic event but rendered only the next-action cue. Integration review caught the missing actual-cast feedback before any website write. A dedicated accessible recent-cast notice now records actual initiation, including reduced-motion mode; no fabricated hit claim. Independent UI review and two additional tests cover real/mismatched/historical events, ownership and reset. The earlier checkpoint stays recoverable but is not the candidate to accept or publish.
+
+Initial publiccandidate correctly isolated saves and gameplay but retained the old v0.19 header label. This literal version-label correction changes no game code; source tests from the unchanged runtime remain applicable. Final browser reload must confirm the corrected v0.20 label before root publication.
