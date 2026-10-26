@@ -173,17 +173,19 @@ export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
   naive: ENV?.SIM_AI === 'naive',
   /** CP8 diagnosis only (SIM_ADD=spirit,defend,equip,counter,spells,skills): give the naive AI back one piece of the old AI. */
   add: new Set((ENV?.SIM_ADD ?? '').split(',').filter(Boolean)) };
+type SkillIdN = 'mercifulBlow' | 'vitalStrike' | 'shieldBash';
 /** CP8 naive battle choice. */
 export function chooseNaive(b: BattleState): Action {
   const live = alive(b);
   // cp8-rc5 (blade sim d22 vs playtest d11–20): naive = what 「A」 hits with no clicking — the UI default target, the first live
   // monster (app.ts command()). Lowest-HP targeting needs reading every HP bar + Tab; kept as SIM_TGT=low (diagnosis). Preset sim: blade trip-1 22→17.
   const target = ENV?.SIM_TGT !== 'low' ? b.monsters.findIndex((m) => m.hp > 0) : b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
-  if (b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
+  // cp8-rc11 item 2 (diagnosis): SIM_NAIVE40=0 = the playtester pattern 「只按 A，pothint 亮才喝」 — no 40% HP drink of its own.
+  if (ENV?.SIM_NAIVE40 !== '0' && b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
   const A = SIM_AI.add;
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
-  if (A.has('skills')) for (const id of ['mercifulBlow', 'vitalStrike', 'shieldBash'] as const) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
+  if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? ['mercifulBlow', 'vitalStrike', 'shieldBash']) as SkillIdN[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
   return quickAttack(b, target);
 }
 const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
@@ -486,7 +488,9 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
 
 /** cp8 (b) (producer 2026-10-26, 暫定, our own kit knob, no source): per-lean starting kit tweaks under cp8. body = starting body armour
  *  group (default light leather); mana = extra starting mana potions. Empty = old kit. */
-export const LEAN_KIT: Partial<Record<NonNullable<Player['lean']>, { body?: 'cloth' | 'light'; mana?: number }>> = {};
+export const LEAN_KIT: Partial<Record<NonNullable<Player['lean']>, { body?: 'cloth' | 'light'; mana?: number; weapon?: { group: Equip['group']; base: string } }>> = {};
+// cp8-rc11 item 2 diagnosis: K_BLADE_KIT=<group>:<base> (e.g. twoHand:longsword) sets the blade starter weapon.
+{ const k = ENV?.K_BLADE_KIT; if (k) { const [group, base] = k.split(':'); LEAN_KIT.blade = { ...LEAN_KIT.blade, weapon: { group: group as Equip['group'], base: base! } }; } }
 export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
   const rng = new Rng(seed);
   if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5/rc6: bulwark start = 1H axe + buckler + heavy plate body (rc9 P1-5; rc6 had light leather); in-trip equip still prefers heavy
@@ -494,7 +498,8 @@ export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
     for (const e of kit) { p.inventory.push(e); equip(p, e); } p.lean = 'bulwark'; return;
   }
   if (RULES.cp8 && lean) p.lean = lean; // cp8-rc6: every school keeps its lean (school-locked auto-equip, school-aware 自動分配)
-  const w = generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' });
+  const lk0 = (RULES.cp8 && lean && LEAN_KIT[lean]) || {};
+  const w = generateEquip(rng, 1, lk0.weapon ? { group: lk0.weapon.group, base: lk0.weapon.base, quality: 'fair' } : { group: 'oneHand', base: 'axe', quality: 'fair' });
   const lk = (RULES.cp8 && lean && LEAN_KIT[lean]) || {};
   const a = generateEquip(rng, 1, lk.body === 'cloth' ? { group: 'cloth', base: 'cotton', slot: 'body', quality: 'fair' } : { group: 'light', base: 'leather', slot: 'body', quality: 'fair' });
   if (lk.mana) p.potions.mana += lk.mana;
