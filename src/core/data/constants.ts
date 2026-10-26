@@ -80,8 +80,10 @@ export const CONSTANTS = {
       shieldBash: { ocCost: 25, cooldown: 10, profRequired: 0, multiplier: 4, damageType: 'crushing', stunTicks: 5 },
       vitalStrike: { ocCost: 50, cooldown: 10, profRequired: 50, multiplier: 4, multiplierVsStunned: 20 },
       mercifulBlow: { ocCost: 100, cooldown: 10, profRequired: 100, multiplier: 10, executeBelowHpFraction: 0.25 },
+      greatCleave: { ocCost: 50, cooldown: 5, profRequired: 0, multiplier: 10, alwaysCrit: true },
+      concussiveStrike: { ocCost: 50, cooldown: 10, profRequired: 0, multiplier: 6, stunTicks: 5 },
     },
-    source: 'Skills.md Weapon Skills table (cost, cooldown, Prof. Required) and Damage table (x4, x4 / x20 on a Stunned target, x10); 005 uses no other source. Missing_Data.md:83 lists the multipliers as unknown to the wiki, so they are the best public values, not verified in-game. Merciful Blow executes a Bleeding Wound target "below 25% health" (Skills.md).',
+    source: 'Skills.md Weapon Skills table (cost, cooldown, Prof. Required) and Damage table (x4, x4 / x20 on a Stunned target, x10); 005 uses no other source. Missing_Data.md:83 lists the multipliers as unknown to the wiki, so they are the best public values, not verified in-game. cp8-rc12: skills are per fighting style (Skills.md:55-79 table rows "One-Handed / 2-Handed Weapon / Staff"; findings/002 4.2 table 1H T1-T3, 2H T1 2101, Staff 2501): Great Cleave 50 OC / cd 5 / x10 / always crits (Skills.md:73, 106), Concussive Strike 50 OC / cd 10 / x6 magic damage / stun 5 (Skills.md:79, 124). Merciful Blow executes a Bleeding Wound target "below 25% health" (Skills.md).',
   },
   'P-vital-strike-bleed': {
     value: { stacks: 5, dotPercent: 0.5, ticks: 5 },

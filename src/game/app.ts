@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -35,6 +35,8 @@ function iwGain(e: Equip): string {
 }
 
 type Screen = 'town' | 'map' | 'battle' | 'node' | 'result';
+/** cp8-rc12: placeholder icons for the style skills (no art yet). */
+const SKILL_ICON: Partial<Record<SkillId, string>> = { greatCleave: 'mercifulBlow', concussiveStrike: 'shieldBash' };
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 const hex = (n: number) => `#${n.toString(16).padStart(6, '0')}`;
 const pct = (v: number) => `${Math.round(v * 1000) / 10}%`;
@@ -293,14 +295,14 @@ export class App {
     const lean = this.p.lean;
     // cp8-rc10 P0-4: a skill that came off cooldown stays "pending" until it is castable (OC permitting) and has been shown
     // once, so the prompt is no longer lost when the turn it comes off cooldown is short on OC. Reset per battle.
-    if (this.cdBattle !== b) { this.cdBattle = b; this.cdShown = []; this.cdPending = (Object.keys(SKILLS) as SkillId[]).filter((id) => canUse(b, { kind: 'skill', id, target: this.target })); } // cp8-rc11 4(a): opening OC (blade 50) can already pay a skill
+    if (this.cdBattle !== b) { this.cdBattle = b; this.cdShown = []; this.cdPending = skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target })); } // cp8-rc11 4(a): opening OC (blade 50) can already pay a skill
     const ready = RULES.cp8 && (lean === 'blade' || lean === 'oc') ? this.cdPending.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })) : [];
     this.cdShown = ready;
     const spellSug = RULES.cp8 && lean === 'arcane' ? this.arcaneSpell(b) : null;
-    const sk = (Object.keys(SKILLS) as SkillId[]).map((id, i) => {
+    const sk = skillKit(b).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
-      return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : RULES.cp8 && (lean === 'blade' || lean === 'oc') && canUse(b, { kind: 'skill', id, target: this.target }) ? 'class="castable" data-castable ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
+      return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : RULES.cp8 && (lean === 'blade' || lean === 'oc') && canUse(b, { kind: 'skill', id, target: this.target }) ? 'class="castable" data-castable ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${SKILL_ICON[id] ?? id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}${spellSug?.id === id ? ' suggest" data-sugbtn="1' : ''}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
     const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.potions[id] <= 0 ? 'data-potempty' : b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.potions[id] <= 0 ? '用完' : b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
@@ -311,13 +313,13 @@ export class App {
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     // cp8-rc8 P2 item 2: blade / oc see which skills they can use (or what unlocks them) on turn 1 of every fight.
     const skillHint = RULES.cp8 && b.turn === 0 && (lean === 'blade' || lean === 'oc') ? (() => {
-      const ids = (Object.keys(SKILLS) as SkillId[]);
+      const ids = skillKit(b);
       const now = ids.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}`);
       const later = ids.filter((id) => !canUse(b, { kind: 'skill', id, target: this.target }) && b.cooldowns[id] <= 0 && /OC/.test(whyNot(b, { kind: 'skill', id, target: this.target }) ?? '')).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}（${SKILLS[id].oc}OC）`);
       const sp = canUse(b, { kind: 'spirit' }) ? '、S·靈動架勢' : '';
       return `<div class="hint" data-skillhint>💡 本場可用：${now.length ? now.join('、') + sp : `攻擊累積 OC 後可用 ${later.join('、') || '—'}${sp}`}</div>`;
     })() : '';
-    const ids0 = Object.keys(SKILLS) as SkillId[];
+    const ids0 = skillKit(b);
     const readyHint = ready.length && !skillHint ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 可以用了（冷卻結束／OC 已夠）（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
     const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
@@ -806,7 +808,7 @@ export class App {
     const hpBefore = b.hp, turnBefore = b.turn;
     const cd0 = { ...b.cooldowns };
     // cp8-rc11 4(a): a player who only presses A never puts a skill on cooldown, so also count a skill that just became castable (OC crossed its cost)
-    const castable = () => (Object.keys(SKILLS) as SkillId[]).filter((id) => canUse(b, { kind: 'skill', id, target: this.target }));
+    const castable = () => skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target }));
     const can0 = castable();
     const ev = act(b, a, this.rng, profsOf(this.p));
     { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4

@@ -8,7 +8,7 @@ import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
 
-export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow';
+export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow' | 'greatCleave' | 'concussiveStrike';
 export type SpellId = 'fiery' | 'freeze' | 'shock' | 'gale' | 'smite' | 'corruption';
 export type PotionId = 'health' | 'mana' | 'spirit';
 
@@ -26,7 +26,18 @@ export const SKILLS: Record<SkillId, { id: SkillId; zh: string; oc: number; cd: 
   shieldBash: { id: 'shieldBash', zh: '盾擊', oc: SK.shieldBash.ocCost, cd: SK.shieldBash.cooldown, desc: `x${SK.shieldBash.multiplier} 打擊並暈眩 ${SK.shieldBash.stunTicks} 回合` },
   vitalStrike: { id: 'vitalStrike', zh: '要害打擊', oc: SK.vitalStrike.ocCost, cd: SK.vitalStrike.cooldown, desc: `x${SK.vitalStrike.multiplier}（對暈眩 x${SK.vitalStrike.multiplierVsStunned}）並流血` },
   mercifulBlow: { id: 'mercifulBlow', zh: '慈悲一擊', oc: SK.mercifulBlow.ocCost, cd: SK.mercifulBlow.cooldown, desc: `目標 HP<${SK.mercifulBlow.executeBelowHpFraction * 100}% 時 x${SK.mercifulBlow.multiplier}` },
+  greatCleave: { id: 'greatCleave', zh: '巨力劈砍', oc: SK.greatCleave.ocCost, cd: SK.greatCleave.cooldown, desc: `x${SK.greatCleave.multiplier} 必定暴擊（可觸發骨牌）` },
+  concussiveStrike: { id: 'concussiveStrike', zh: '震盪打擊', oc: SK.concussiveStrike.ocCost, cd: SK.concussiveStrike.cooldown, desc: `x${SK.concussiveStrike.multiplier} 魔法傷害並暈眩 ${SK.concussiveStrike.stunTicks} 回合` },
 };
+/** cp8-rc12 (sourced, Skills.md:55-79): each fighting style has its own skill set. rc11 gave every style the One-Handed set, so a
+ *  2H fighter spent 25-100 OC on Shield Bash / Vital Strike (x4, no Domino) instead of Great Cleave (x10, always crits), and a staff
+ *  caster traded its fiery quick-cast for a physical x4 staff hit. Unarmed has no style row in the source: keeps the 1H set (暫定).
+ *  2H T2/T3 (Rending Blow, Shatter Strike) are not built yet. */
+export const KITS: Record<Derived['style'], SkillId[]> = {
+  oneHand: ['shieldBash', 'vitalStrike', 'mercifulBlow'], unarmed: ['shieldBash', 'vitalStrike', 'mercifulBlow'],
+  twoHand: ['greatCleave'], staff: ['concussiveStrike'],
+};
+export const skillKit = (s: BattleState): SkillId[] => KITS[s.d.style] ?? KITS.oneHand;
 const OC = C['F-002-overcharge'].value;
 const SS = C['F-002-spirit-stance'].value;
 export const DEF = C['002-07'].value;
@@ -162,7 +173,7 @@ export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: nu
   return {
     d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: C['P-oc-start'].value.initial,
     monsters, turn: 0, spirit: false, defendTurns: 0, focusTurn: false,
-    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0 },
+    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0, greatCleave: 0, concussiveStrike: 0 },
     itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0, regen: { hp: 0, mp: 0, sp: 0 },
   };
 }
@@ -227,7 +238,7 @@ export function canUse(s: BattleState, a: Action): boolean {
   switch (a.kind) {
     case 'attack': return true;
     case 'skill': {
-      if (s.locked?.skill) return false;
+      if (s.locked?.skill || !skillKit(s).includes(a.id)) return false;
       if (s.cooldowns[a.id] > 0 || s.oc < skillOc(s, a.id)) return false;
       if (a.id === 'mercifulBlow') {
         const m = s.monsters[a.target];
@@ -328,11 +339,11 @@ function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: B
   return true;
 }
 
-function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
+function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType, critOverride?: number): number {
   const m = s.monsters[ti]!;
   const M = s.mods;
   let raw = s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (M?.ssDamage ?? 0) : 1);
-  let critChance = s.d.physCrit;
+  let critChance = critOverride ?? s.d.physCrit;
   if (M) {
     if (M.weakMult && isWeak(m, dtype)) raw *= 1 + M.weakMult;
     if (M.counterReady) { M.counterReady = false; raw *= BULWARK_COUNTER_MULT; fire(s); }
@@ -360,6 +371,20 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   return r.avoidMult > 0 ? r.damage : 0;
 }
 
+/** cp8-rc12: Concussive Strike — MDB x6 magic damage (findings/002 4.2 "MDB x 6"). The source names no element: untyped here
+ *  (no element bonus / specific mitigation; 暫定). Magic mitigation and resist apply like a spell. Coalesced Mana proc not built. */
+function magicStrike(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[]): void {
+  const m = s.monsters[ti]!;
+  const r = resolveHit(rng, {
+    raw: s.d.mdb * mult, magic: true, acc: s.d.magAcc,
+    evade: m.status.stun > 0 ? 0 : m.evade, parry: 0, block: 0, resist: m.resist, counterResist: s.d.counterResist,
+    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: 0,
+  });
+  if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label: '震盪打擊' });
+  if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+  if (s.cp5 && r.avoidMult > 0) antimagic(s, ti, r.damage, ev);
+}
 /** CP7 P2 (sourced): Damage.md:63 — specific mitigation is reduced additively but "cannot be reduced below 0, or reduced further
  * if the mitigation is already negative". cp6 subtracted the proficiency reduction from a weakness too (amplifying it). */
 function cp7SpellSpec(spec: number, reduce: number): number {
@@ -427,6 +452,12 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
           m.status.bleedTurns = VSB.ticks;
           ev.push({ t: 'status', to: t, text: `流血：每回合 ${m.status.bleed}，持續 ${VSB.ticks} 回合` });
         }
+      } else if (a.id === 'greatCleave') {
+        // Skills.md:73 / findings/002 4.2: x10, always crits, can trigger Domino (the 2H style passive).
+        stylePassive(s, rng, t, physHit(s, rng, t, SK.greatCleave.multiplier, ev, '巨力劈砍', s.d.damageType, 1), ev);
+      } else if (a.id === 'concussiveStrike') {
+        magicStrike(s, rng, t, SK.concussiveStrike.multiplier, ev);
+        if (m.hp > 0 && m.status.stun <= 0) { m.status.stun = SK.concussiveStrike.stunTicks; ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
       } else {
         physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');
       }

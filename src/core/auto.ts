@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, armCp5, canUse, potHint, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, act, alive, armCp5, canUse, potHint, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -173,7 +173,6 @@ export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
   naive: ENV?.SIM_AI === 'naive',
   /** CP8 diagnosis only (SIM_ADD=spirit,defend,equip,counter,spells,skills): give the naive AI back one piece of the old AI. */
   add: new Set((ENV?.SIM_ADD ?? '').split(',').filter(Boolean)) };
-type SkillIdN = 'mercifulBlow' | 'vitalStrike' | 'shieldBash';
 /** CP8 naive battle choice. */
 export function chooseNaive(b: BattleState): Action {
   const live = alive(b);
@@ -185,7 +184,7 @@ export function chooseNaive(b: BattleState): Action {
   const A = SIM_AI.add;
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
-  if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? ['mercifulBlow', 'vitalStrike', 'shieldBash']) as SkillIdN[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
+  if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
   return quickAttack(b, target);
 }
 const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
