@@ -1,6 +1,6 @@
 # v0.16 browser acceptance
 
-Status: isolated candidate desktop acceptance passed, 2026-10-26 12:33 UTC. Production promotion and stable-root smoke remain pending.
+Status: isolated candidate and production-root desktop acceptance passed, 2026-10-26 12:39 UTC.
 
 ## Baseline and environment
 Cloud CUA Chrome/CDP, accepted v0.15 root tab 2; user computer is not used. At 1188 × 761, the old document height was3330px; abilities began y1808, reports y2536 and commission y2853. Actual screenshot showed the long secondary feature stack below departure controls.
@@ -17,7 +17,7 @@ Ordinary in-game export before testing:10564bytes, SHA-256 `1cbe27ef3150db258c9c
 - [x] Equipment action still works through always-present inventory.
 - [x] Read-only tab can navigate but cannot change progress; normal import refreshes data in selected pane.
 - [x] Reload resets navigation to 戰況, keeps saved progression.
-- [ ] Final production smoke after accepted-source backup and promotion.
+- [x] Final production smoke after accepted-source backup and promotion.
 
 ## Limits
 Physical mobile/device testing and actual narrow viewport are unverified unless supported browser controls establish them. No random-drop or combat-balance efficacy claim belongs to this presentation-only release. Engine/loot/session bytes are unchanged.
@@ -34,3 +34,8 @@ Runtime source `bbe6c66619a9dd1942ce6b43e2d4a8d9eb729c73` was backed up before c
 - Captured warn/error entries were browser-extension metadata noise at `chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js`; no app-origin error appeared in the inspected capture. This is not a guarantee of all possible errors.
 
 No actual narrow/mobile viewport was available through the documented browser controls used here; responsive CSS/source review is not device acceptance.
+
+## Published root smoke — 2026-10-26 12:39 UTC
+Accepted full source `9e7e4d78696d32e4daea84fc703dafda2344e35b` was backed up before root site `21fa61dee2b89e796b618eb1d2089ac50928cbc0`. Only index/style/ui changed at the root;3891 other site blobs were preserved. Exact Pages40323799627 succeeded and all six root HTTP files matched accepted source.
+
+Reloaded the original stable tab2, not the candidate namespace. It retained Lv7/gold124/wins8/inventory14/HP707 and showed v0.16 default 戰況. Actual End moved focus/selection to 成長. Starting while that page was selected left the battle tools hidden but completed a natural10.6s victory, with a visible report when returning to 戰況. Final camp/reload retained Lv8/gold200/wins9/inventory15/HP729/parry15.15%, AP8/8 unallocated; gear and abilities were not imported from the candidate. Reload from 配裝 returned navigation to 戰況, while game progress stayed saved. Root tab2 was marked deliverable; isolated QA tabs were closed. The inspected final capture had no non-extension warn/error entries.

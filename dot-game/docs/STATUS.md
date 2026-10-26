@@ -1,5 +1,15 @@
 # Current status
 
+## v0.16 published and stable-root accepted — 2026-10-26 12:39 UTC
+
+Play: https://gggodlin.github.io/play/hv-v3-dot/ . Camp tools are now grouped into **戰況 / 配裝 / 成長**, with keyboard navigation and only one secondary group visible. Hero, battle controls and inventory remain available; no combat, loot, growth or save rules changed. Default desktop page height dropped3330→1986px at1188×761 without removing existing features.
+
+Runtime source `bbe6c66619a9dd1942ce6b43e2d4a8d9eb729c73` passed1,162 tests/four syntax. Accepted full source `9e7e4d78696d32e4daea84fc703dafda2344e35b` was verified before root `21fa61dee2b89e796b618eb1d2089ac50928cbc0`; exact Pages40323799627 and HTTP6 passed. Actual candidate keyboard/focus/hidden-combat/import/readonly checks and stable-root victory/reload passed; see BROWSER-QA-V016.md for exact evidence and device limits.
+
+The stable cloud test profile retained its own progress and naturally reached Lv8/gold200/wins9/inventory15/HP729; candidate progress was not imported into production. This exact verified publication-receipt commit is the latest accepted full-source restore (149files/148payloads). Prior v0.15 restore `6d3141ddfc42ef8a52a5cdea09496c1de6af2c66` remains available. Only docs/manifest changed after acceptance; unchanged tests/syntax evidence is reused. Source backup does not restore personal browser saves, credentials, Library synchronization or schedules.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.16 desktop accepted; production promotion pending — 2026-10-26 12:33 UTC
 
 Secondary camp navigation now separates **戰況 / 配裝 / 成長** without changing combat, drops, saves or progression. Actual desktop navigation, keyboard focus, hidden-panel combat, equipment, growth, modal return focus, read-only browsing and normal import/reload passed. Same-viewport default document height fell3330→1986px; all existing functions remain. See docs/BROWSER-QA-V016.md for observations and limits.

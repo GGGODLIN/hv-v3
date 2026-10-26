@@ -1,15 +1,16 @@
 {
-  "checkpoint": "v0.16-browser-accepted",
-  "status": "desktop-accepted-production-pending",
+  "checkpoint": "v0.16-publication-receipt",
+  "status": "published-bounded-desktop-accepted",
   "base_accepted_recovery": "6d3141ddfc42ef8a52a5cdea09496c1de6af2c66",
   "runtime_source": "bbe6c66619a9dd1942ce6b43e2d4a8d9eb729c73",
-  "candidate_site_commit": "162ecd57ab7a3c61157fd06b91bc855ceacbc20f",
+  "accepted_prepublication_source": "9e7e4d78696d32e4daea84fc703dafda2344e35b",
+  "site_commit": "21fa61dee2b89e796b618eb1d2089ac50928cbc0",
   "source_tests_passed": 1162,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 40455,
-      "sha256": "beef4b7c806f9282fbe06d26499fa75903fb2fec5f2b940fb5dbecba2fc51c9f"
+      "bytes": 41938,
+      "sha256": "c52e8d40c9d713f0f4f1a9364d38b28f6a4c78707ad771fba3eb1e0e01fa48cc"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -108,8 +109,8 @@
       "sha256": "8204ca6711cb741659521169c70204aef3bc77a2e7aafed9e078f581e82c7a43"
     },
     "docs/BROWSER-QA-V016.md": {
-      "bytes": 5308,
-      "sha256": "9e123beca79e244a15892d4571fbc9b5ad6709537f7d984311107a6957a01db8"
+      "bytes": 6334,
+      "sha256": "bfc563527014302554ff5cac50ad57e140a242d33330e972959ee0460e70af26"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -152,8 +153,8 @@
       "sha256": "2ec741bdc4da9334797129de8366fb9b4fd2786657f8a8ec29e1659b29eddeaf"
     },
     "docs/CAMP-NAVIGATION.md": {
-      "bytes": 3292,
-      "sha256": "5c5ed1100d2e01f6cfaac3811fbddbe9e4487f4cb08df1f88194b5d0ae13a852"
+      "bytes": 3398,
+      "sha256": "daaf532a2f1bac54f792f5c1bca1380b8c0bc5b9c31742b0ee7abd5e166b8d90"
     },
     "docs/CLOCK-BALANCE.md": {
       "bytes": 14488,
@@ -232,8 +233,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 64017,
-      "sha256": "9d023879bcc24c174939112e37536a3580da8595c844fd739f534be2e31cdab8"
+      "bytes": 65500,
+      "sha256": "511fc69afbd0e2e00653cfeae753c3c6fe57b46923cabbd5d00f10864b951f1c"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
