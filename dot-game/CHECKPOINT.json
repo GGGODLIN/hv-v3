@@ -1,13 +1,15 @@
 {
-  "checkpoint": "v0.18-candidate",
-  "status": "candidate-tests-passed-awaiting-browser-acceptance",
+  "checkpoint": "v0.18-staging-blocked-receipt",
+  "status": "source-tested-publication-blocked-not-browser-accepted",
   "base_accepted_recovery": "69c837f85c01b8352be4316874dc959d2462e0cb",
+  "runtime_source": "c32a5a815e0634d62cc0c5fb00071498d25b2511",
+  "accepted_site": "972f55df0b6951efdaa939c3bd7dba6331ace862",
   "source_tests_passed": 1207,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 46406,
-      "sha256": "b358220080593f4863279ad8980a6610d7ffeb09bd35904a55231a37b3be9c03"
+      "bytes": 47827,
+      "sha256": "464cf68101df8b19dc66be11b269f32be302a0f907ece55ad49311821829728f"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -120,6 +122,10 @@
     "docs/BROWSER-QA-V017.md": {
       "bytes": 4144,
       "sha256": "c2eaf2c75d2c970d608d3572c7ee3ffae1f2f5dcb058baa39cc8a888dbf3e461"
+    },
+    "docs/BROWSER-QA-V018.md": {
+      "bytes": 2383,
+      "sha256": "38c2c30cb3016a6890f956dc9ddf5efcf409406278a79085c2adbdaab24dadae"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -250,8 +256,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 69968,
-      "sha256": "2d3757392c55307bfb75a6f165e2c3542bc9d924678152ecd26f34bc4b2bc9b7"
+      "bytes": 71389,
+      "sha256": "553d8845b4305784a0e9b8d5a74be7c6dcabf810dfac3d8af13904dfbae56eeb"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,

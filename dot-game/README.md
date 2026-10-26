@@ -1,5 +1,15 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.18 source-tested; isolated browser staging blocked — 2026-10-26 13:35 UTC
+
+New supported weapon-commission suffix choices are implemented and all **1,207 tests / four syntax checks pass**. Full runtime source `c32a5a815e0634d62cc0c5fb00071498d25b2511` was verified before attempted staging: 159 files, 23 exact-commit changed-file readbacks, 136 unchanged verified identities and 409 outside-path blobs preserved. This receipt only changes documentation/manifest; reuse unchanged runtime evidence.
+
+Isolated candidate publication was denied by the tool's authorization review, then denied again after one clarification with the original test-page approval. Both ref updates were reported unexecuted; website main readback remains `972f55df0b6951efdaa939c3bd7dba6331ace862`. No candidate URL, CI or browser acceptance is claimed. Stop this website action until fresh relevant authorization or an accepted prepublication workflow exists; do not retry blindly or route around the denial.
+
+Stable v0.17 and accepted full restore `69c837f85c01b8352be4316874dc959d2462e0cb` remain the latest **browser-accepted** version. v0.18 is a backed-up development candidate, not a completed release. See BROWSER-QA-V018.md, COMMISSION-AFFIXES-GUIDE.md and ACCEPTANCE-V018.md in docs. Source backups do not restore personal saves, credentials, Library synchronization or schedules.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.18 development candidate — 2026-10-26 13:26 UTC
 
 Weapon commissions now let earned credits buy a deliberate existing suffix choice: Axe Slaughter; Club Slaughter/Balance; Rapier Slaughter/Balance/Nimble. These six are a supported subset, not all original-HV legal combinations. Slaughter remains default; quality R110, current-level scaling and existing price formula are unchanged. Preview compares all seven stats, then explicit confirmation delivers a locked item without equipping it. Selection and live inventory changes invalidate the quote.
