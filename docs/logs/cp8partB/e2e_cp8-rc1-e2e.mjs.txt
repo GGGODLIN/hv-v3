@@ -1,0 +1,15 @@
+{
+ "opts": [
+  1,
+  6,
+  11,
+  16
+ ],
+ "startpick": true,
+ "nodesLocked": true,
+ "picks": 3,
+ "startpickGone": true,
+ "nodesFree": true,
+ "errs": []
+}
+CP8 E2E PASS

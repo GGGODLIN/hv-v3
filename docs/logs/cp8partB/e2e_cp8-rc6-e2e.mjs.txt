@@ -1,0 +1,56 @@
+{
+ "bulwark": {
+  "lean": "bulwark",
+  "main": "oneHand",
+  "off": "shield",
+  "mainBase": "axe",
+  "offBase": "tower"
+ },
+ "arcane": {
+  "lean": "arcane",
+  "attrs": {
+   "str": 5,
+   "dex": 5,
+   "agi": 8,
+   "end": 10,
+   "int": 10,
+   "wis": 7
+  },
+  "main": "staff"
+ },
+ "bladeBefore": {
+  "main": "twoHand"
+ },
+ "prepRow": "藥水不足（生命 1／魔力 0／靈力 0 瓶，100,000C）。 買藥（三種各補到 3 瓶）",
+ "staffListed": false,
+ "after": {
+  "pots": {
+   "health": 3,
+   "mana": 3,
+   "spirit": 3
+  },
+  "main": "twoHand"
+ },
+ "rest": [
+  [
+   "battle",
+   "elite",
+   "rest"
+  ],
+  [
+   "battle",
+   "elite",
+   "rest"
+  ]
+ ],
+ "inBattle": true,
+ "charge": {
+  "est": "預估傷害 約 26（佔最大 HP 3%）· 防禦後約 19",
+  "cd": "生命藥水冷卻中（還要 7 回合），這回合改用 D·防禦 或 S·靈動架勢"
+ },
+ "noCd": false,
+ "block": "格擋！-0",
+ "death": "死因：風鐮甲蟲 造成 10 傷害（佔最大 HP 1%）建議：HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。",
+ "errs": []
+}
+CP8 RC6 E2E PASS

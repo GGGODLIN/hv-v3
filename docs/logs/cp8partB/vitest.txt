@@ -1,0 +1,12 @@
+
+ RUN  v5.0.4 /workspace/hv-v3
+
+
+ Test Files  32 passed (32)
+      Tests  262 passed (262)
+   Start at  19:57:10
+   Duration  35.25s (tests 69%, import 29%, transform 1%, worker 1%)
+
+    Isolate  32 workers spawned · ~295ms startup each (spawn + environment, per file)
+             at least ~9.15s faster with isolate: false — reuses workers across files instead of one per file
+

@@ -1,0 +1,2 @@
+{"opts":[1,6,11,16,21],"ys":[283,283,283,283],"picks":4,"state":{"nodes":["false:⚔戰鬥","false:☠精英⚔危險，先備好藥"],"sp":false,"offer":false,"modal":false},"boxes":[[253,318.1484375,false]],"enteredMs":98,"errs":[],"afterTop":318,"maxJump":14.1484375}
+CP8 RC3 STARTPICK E2E PASS

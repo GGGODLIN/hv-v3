@@ -1,0 +1,30 @@
+
+ RUN  v5.0.4 /workspace/hv-v3
+
+ ❯ tests/cp8-rc6.test.ts (5 tests | 1 failed) 70ms
+   ❯ cp8-rc6 (5)
+     × bug 3: arcane lean allocates INT above STR; physical schools unchanged 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cp8-rc6.test.ts > cp8-rc6 > bug 3: arcane lean allocates INT above STR; physical schools unchanged
+AssertionError: expected 14 to be greater than 27
+ ❯ tests/cp8-rc6.test.ts:43:25
+     41|     cp8();
+     42|     const a = newPlayer(); a.lean = 'arcane'; a.exp = 20000; autoAlloc…
+     43|     expect(a.attrs.int).toBeGreaterThan(a.attrs.str);
+       |                         ^
+     44|     expect(a.attrs.wis).toBeGreaterThan(a.attrs.dex);
+     45|     const b = newPlayer(); b.lean = 'blade'; b.exp = 20000; autoAlloca…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 31 passed (32)
+      Tests  1 failed | 261 passed (262)
+   Start at  19:51:00
+   Duration  20.74s (tests 74%, import 24%, transform 1%, worker 1%)
+
+    Isolate  32 workers spawned · ~151ms startup each (spawn + environment, per file)
+             at least ~4.69s faster with isolate: false — reuses workers across files instead of one per file
+

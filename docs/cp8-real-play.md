@@ -226,3 +226,8 @@ P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 
 | V（arcane） | 「待調」 | 0.63 | ≥0.7 |
 | 受傷 CHECK | 「待調」 | 磐石 p50 0.55 > 0.47 | 見定義 |
 - 出貨檢查（docs/logs/cp8rc6-ship）：vitest（--no-file-parallelism）全過；19 支 e2e 在 5289 建置 PASS（cp7-rc5-bug1 的 /tmp 夾具需依新 preset 主手重產，`npx tsx scripts/cp7-rc5-bug1-save.ts` 後 PASS）；cp4-on-check 與 cp7-on baseline 一致。sim 不擋。
+
+## cp8 Part B（rc6 之後，未打 rc7 tag）
+- B1 調參（只動自家 暫定 參數）：arcane 自動分配 weights 試了 20 多組，另外也試了 bulwark weights 和 heavy armour 偏好。只有接近 phys 的 3,2,3,2,1,1 能讓 B256 的 P1 降到 1.227×，但這組會破壞 rc6 bug 3（arcane INT>STR）的測試，所以已經 revert，維持原值 1,1,3,2,3,2。P1 跟 V 仍然是 待調，要由 producer 決定 bug 3 的約束要不要放寬。
+- B2 受傷 新定義（暫定）：bulwark 全部 trip 的 p50 要是四派最低，而且 ≤ 四派平均 − 0.10；raw p95 的條件不變。目前結果是 0.55 和 0.62 − 0.10 比，FAIL。
+- B3 同一樓層區間比較：報表多了 受傷 start/cleared 分段。bulwark 在每個區間都是最低或並列最低（例外：naive 的 cleared d0-10 只有 13 筆樣本）。logs 在 docs/logs/cp8partB/。

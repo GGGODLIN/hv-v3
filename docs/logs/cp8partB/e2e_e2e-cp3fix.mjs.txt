@@ -1,0 +1,52 @@
+{
+ "retry": {
+  "hv": "object",
+  "retries": 2,
+  "bg": true,
+  "stageRetries": 1
+ },
+ "retryHit": {
+  "monsters": 1,
+  "manifest": 3,
+  "png": 5
+ },
+ "trip3": "第 3 趟：帶回 EXP／Credits ×2",
+ "trip4": "第 4 趟：帶回 EXP／Credits ×1（新手加成已結束）",
+ "deathRule": "⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）",
+ "names-battle": {
+  "n": 2,
+  "bad": 0,
+  "leaks": 0,
+  "labels": 2
+ },
+ "names-boss-f5": {
+  "n": 2,
+  "bad": 0,
+  "leaks": 0,
+  "labels": 2
+ },
+ "bossName": "塔主・雷鋼鷹",
+ "spiritLog": [
+  "☯ 靈動架勢開啟：物理傷害 ×2（+100%），每回合消耗 1 SP 與 10 OC；OC 或 SP 不足會自動解除"
+ ],
+ "statusLog": [
+  "深淵之王・霜甲自走甲 暈眩 5 回合（無法行動、無法迴避）"
+ ],
+ "skillLog": [
+  "盾擊 → 深淵之王・霜甲自走甲 288（架勢 ×2）"
+ ],
+ "phaseLog": [
+  "⚡ 深淵之王・霜甲自走甲 復活！第二階段・狂暴（復活清除異常狀態）（HP 回到 30%，蓄力變快）"
+ ],
+ "forge": [
+  "強化主手（+0 → +1） 尚可・斧：攻擊傷害 +36.2 → +37.6 攻擊命中 +5.7% → +5.9% 暴擊率 +2.1% → +2.2%",
+  "強化身（+0 → +1） 尚可・皮革胸甲：物理減傷 +7% → +7.3% 魔法減傷 +4.5% → +4.7% 抵抗 +5.6% → +5.8% 閃避 +1.2% → +1.3%"
+ ],
+ "inv0": 2,
+ "sellModal": "賣掉倉庫全部？會賣掉倉庫裡全部 2 件裝備，得到 2002C。賣掉後無法買回。 取消確定賣掉 2 件",
+ "invAfterOpen": 2,
+ "invAfterCancel": 2,
+ "invAfterOk": 0
+}
+R3 names {"b":{"n":2,"bad":0,"leaks":0,"labels":2},"f5":{"n":2,"bad":0,"leaks":0,"labels":2},"boss":"塔主・雷鋼鷹","death":"⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）"}
+E2E-CP3FIX PASS
