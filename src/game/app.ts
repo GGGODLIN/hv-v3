@@ -1,5 +1,5 @@
 import { iconKey } from './icons';
-import { act, alive, armCp5, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -48,6 +48,8 @@ function gate(b: BattleState, a: Action, desc = ''): string {
   return `aria-disabled="true" data-why="${esc(why)}" title="${esc(why + (desc ? `\n${desc}` : ''))}"`;
 }
 
+/** cp8-rc7: device-level speed / skip-animation preference. */
+export const SETTINGS_KEY = 'hv-v3-settings';
 export class App {
   data: SaveData;
   screen: Screen = 'town';
@@ -73,6 +75,9 @@ export class App {
     this.stage = stage; this.pool = pool; this.root = root;
     const loaded = loadFrom(localStorage);
     this.data = loaded ?? App.fresh();
+    // cp8-rc7: speed / 跳過動畫 are a device preference kept under their own key, so a preset / slot switch / &fresh (applyPreset writes
+    // default settings) no longer resets them on reload.
+    try { const st = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? 'null'); if (st && [1, 2, 4].includes(st.speed)) this.data.settings = { speed: st.speed, skipAnim: !!st.skipAnim }; } catch { /* ignore */ }
     stage.speed = this.data.settings.speed;
     stage.skip = this.data.settings.skipAnim;
     stage.onTarget = (i) => { this.target = i; stage.setTarget(i); };
@@ -96,7 +101,7 @@ export class App {
   get p(): Player { return this.data.player; }
   get run(): RunState { return this.data.run!; }
   stale = false;
-  save() { if (!this.stale) saveTo(localStorage, this.data); }
+  save() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.data.settings)); if (!this.stale) saveTo(localStorage, this.data); }
   markStale() {
     if (this.stale) return;
     this.stale = true;
@@ -287,12 +292,12 @@ export class App {
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
     const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
-    const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
+    const chargers = b.monsters.filter((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0)); // cp8-rc7 P1 item 3: 元素脈衝 too
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
     const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：<span data-wkl>${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}" data-wk="${w.type}:${w.pct}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</span> <span class="res" data-resl>抗：${resistances(m).map((r) => `<i class="${r.type === b.d.damageType ? 'mine' : ''}" data-res="${r.type}:${r.pct}">${TZ[r.type]} ${r.pct}%</i>`).join(' ') || '<span class="hint">無</span>'}</span></div>`).join('');
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : '準備放出元素脈衝（大招）！'}<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
@@ -425,17 +430,28 @@ export class App {
   lastSettlement: Settlement | null = null;
   /** cp8-rc6 item 6: the last enemy hit that did damage this run (for the 死因 line on the death screen). */
   lastHit: { who: string; label?: string; dmg: number; maxHp: number; charged: boolean } | null = null;
+  /** cp8-rc7 P1 item 5: damage taken in each of the last DEATH_TURNS enemy turns (biggest single hit + any charged / big-move hit). */
+  recent: { turn: number; taken: number; big?: { who: string; label?: string; dmg: number; charged: boolean } }[] = [];
   /** cp8-rc6 items 3 + 6: estimated heavy-hit damage and, when the health potion is on cooldown, a hint to use 防禦 / 靈動 instead. */
   chargeExtra(b: BattleState, chargers: Monster[]): string {
     const est = Math.max(...chargers.map((m) => chargeEstimate(b, m)));
     const estD = Math.max(...chargers.map((m) => chargeEstimate(b, m, true)));
     const pct = Math.round((est / b.d.hp) * 100);
     const cd = b.itemCd.health;
+    const urgent = est >= b.hp * 0.5; // cp8-rc7 P1 item 3: ≥ 50% of current HP
     return `<br><span data-chargeest="${est}:${pct}">預估傷害 約 ${est}（佔最大 HP ${pct}%）· 防禦後約 ${estD}</span>`
+      + (urgent ? `<br><b class="warn" data-urgent="${est}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：先喝藥或防禦</b>` : '')
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${cd > 0 ? `生命藥水冷卻中（還要 ${cd} 回合）` : '生命藥水已用完'}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
   }
   /** cp8-rc6 item 6: 死因 line — source of the last hit, its damage, and one hint. */
   deathCause(): string {
+    const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);
+    if (r.length) { // cp8-rc7 P1 item 5: the charged / big-move hit (if any) or the biggest single hit of the last turns, plus damage per turn
+      const ch = hb.find((x) => x.charged), top = ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), maxHp = this.lastHit?.maxHp ?? 1;
+      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招：看到 ⚠ 預告就先按 D·防禦或先喝藥，藥水冷卻中就別等藥。` : top.dmg >= maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+      const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
+      return `<p data-deathcause="${top.dmg}" ${ch ? `data-deathcharge="${ch.dmg}"` : ''}>死因：${ch ? '蓄力大招 ' : '最後幾回合最大單擊 '}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
+    }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
     const hint = h.charged ? '首領蓄力（⚠）時先按 D·防禦，藥水冷卻中就別等藥。' : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
@@ -460,8 +476,8 @@ export class App {
   // ---------- events ----------
   bind() {
     const on = (sel: string, f: (el: HTMLElement) => void) => this.root.querySelectorAll<HTMLElement>(sel).forEach((el) => el.addEventListener('click', () => f(el)));
-    on('[data-speed]', (el) => { this.data.settings.speed = Number(el.dataset.speed) as 1 | 2 | 4; this.stage.speed = this.data.settings.speed; this.save(); this.render(); });
-    this.root.querySelector<HTMLInputElement>('[data-skip]')?.addEventListener('change', (e) => { this.data.settings.skipAnim = (e.target as HTMLInputElement).checked; this.stage.skip = this.data.settings.skipAnim; this.save(); });
+    on('[data-speed]', (el) => { this.data.settings.speed = Number(el.dataset.speed) as 1 | 2 | 4; this.stage.speed = this.data.settings.speed; this.save(); this.render(); (document.activeElement as HTMLElement | null)?.blur?.(); });
+    this.root.querySelector<HTMLInputElement>('[data-skip]')?.addEventListener('change', (e) => { this.data.settings.skipAnim = (e.target as HTMLInputElement).checked; this.stage.skip = this.data.settings.skipAnim; this.save(); (e.target as HTMLInputElement).blur(); }); // cp8-rc7: blur so A / D hotkeys work right after
     on('[data-tab]', (el) => { this.townTab = el.dataset.tab as typeof this.townTab; this.render(); });
     const cnt = (el: HTMLElement) => (el.dataset.n === 'max' || el.dataset.n === 'all' ? 9999 : Number(el.dataset.n ?? 1));
     on('[data-add]', (el) => { allocate(this.p, el.dataset.add as keyof Player['attrs'], cnt(el)); this.save(); this.go('town'); });
@@ -516,7 +532,7 @@ export class App {
     if (this.screen !== 'battle' || !this.battle) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const tg = e.target as HTMLElement | null;
-    if (tg && /^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName)) return;
+    if (tg && /^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName) && !(tg instanceof HTMLInputElement && tg.type === 'checkbox')) return; // cp8-rc7: a focused checkbox (跳過動畫) no longer eats hotkeys
     // CP3-fix 6: use the physical key (e.code) so a Chinese IME (e.key = 'Process') or Caps Lock does not break hotkeys.
     const k = /^Key[A-Z]$/.test(e.code) ? e.code.slice(3).toLowerCase() : /^(Digit|Numpad)[0-9]$/.test(e.code) ? e.code.slice(-1) : e.key.toLowerCase();
     const map: Record<string, string> = { a: 'attack', d: 'defend', f: 'focus', s: 'spirit', q: 'skill:shieldBash', w: 'skill:vitalStrike', e: 'skill:mercifulBlow', z: 'item:health', x: 'item:mana', c: 'item:spirit' };
@@ -644,7 +660,7 @@ export class App {
   }
 
   startRun() {
-    this.lastHit = null;
+    this.lastHit = null; this.recent = [];
     this.data.run = startRun(this.p, randomSeed());
     this.notice = [...(this.data.run.notes ?? [])];
     this.data.stats.runs++;
@@ -669,7 +685,7 @@ export class App {
     return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}${rec.titles.length ? `<br>稱號：${rec.titles.map((t) => `<b data-title>${esc(t)}</b>`).join('、')}` : ''}</div>`;
   }
   startAbyss() {
-    this.lastHit = null;
+    this.lastHit = null; this.recent = [];
     const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
     let st = checkpointStart(rec.best);
     if (RULES.cp7) { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value ?? st); if (checkpointOptions(rec.best, ABYSS.checkpoint).includes(v)) st = v; this.abyssStart = st; }
@@ -697,6 +713,7 @@ export class App {
     const r = this.run;
     this.battleType = t;
     this.monsters = encounter(r, this.pool, t);
+    this.recent = [];
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);
     const oc0 = openingOc(this.p, t, r);
@@ -739,6 +756,7 @@ export class App {
       const w = window as unknown as { __turnLog?: (typeof rec)[] }; (w.__turnLog ??= []).push(rec);
       if (b.turn > turnBefore || taken) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}</span>`);
     }
+    const turnHits: { who: string; label?: string; dmg: number; charged: boolean }[] = [];
     for (const e of ev) {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
       if (e.t === 'hit' && e.from === 'player' && e.weak && e.dmg > 0) this.log.push(`<span class="weakhit">弱點！${esc(b.monsters[e.to as number]!.name)} 受到 ${e.dmg}</span>`);
@@ -746,6 +764,7 @@ export class App {
         const who = esc(b.monsters[e.from]!.name);
         const how = e.avoided === 'evade' ? '（閃避）' : e.avoided === 'parry' ? '（招架）' : e.avoided === 'block' ? '（格擋）' : e.avoided ? '（未命中）' : '';
         if (e.dmg > 0) this.lastHit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, maxHp: Math.round(b.d.hp), charged: !!e.label && e.label.includes('重擊') };
+        if (e.dmg > 0) { const hit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, charged: !!e.label && /重擊|脈衝/.test(e.label) }; turnHits.push(hit); }
         if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }
@@ -764,6 +783,7 @@ export class App {
     if (b.oc >= 50 && has(this.p, 'spirit') && !b.spirit) { const t = tip(this.p, 'spirit', TIPS.spirit); if (t) this.log.push(`<span class="unlock" data-unlock data-tip="spirit">${esc(t)}</span>`); }
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
+    if (turnHits.length) { const big = turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x); this.recent = [...this.recent, { turn: b.turn, taken: turnHits.reduce((t, h) => t + h.dmg, 0), big }].slice(-3); } // cp8-rc7 P1 item 5
     await this.stage.play(ev, b);
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;

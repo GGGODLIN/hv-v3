@@ -198,11 +198,14 @@ export const POT_HINT = { hp: 0.5, charging: 0.75 };
  *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance, crits and the per-turn cap. */
 export function chargeEstimate(s: BattleState, m0: Monster, defending = false): number {
   const m = m0 as CM;
-  const mult = m.drainNext ? CP5.drainMult : BOSS_CHARGE_MULT;
-  const el = m.elemAttack;
+  const pulse = m.rank === 'boss' && !!m.pulseNext && m.charge === 0; // cp8-rc7 P1 item 3: 元素脈衝 is a telegraphed big move too
+  const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : BOSS_CHARGE_MULT;
+  const el = pulse ? m.shieldEl : m.elemAttack;
   const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
-  return meanHit(m.adb * mult * (el ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
+  return meanHit(m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
 }
+/** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
+export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || (m.rank === 'boss' && !!(m as CM).pulseNext));
 export function potHint(s: BattleState): boolean {
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th && canUse(s, { kind: 'item', id: 'health' });

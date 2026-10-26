@@ -29,3 +29,14 @@ describe('cp8-rc7 P0', () => {
     const q = newPlayer(); q.lean = 'bulwark'; expect(leanAllows(q, cloth)).toBe(false);
   });
 });
+import { chargeEstimate, windingUp } from '../src/core/battle';
+describe('cp8-rc7 P1 item 3', () => {
+  const s = { d: { physMit: 0.2, magMit: 0.2, specMit: { fire: 0, cold: 0, crushing: 0, slashing: 0, piercing: 0 } } } as never;
+  it('元素脈衝 counts as a wind-up and is estimated with pulseMult', () => {
+    const m = { rank: 'boss', adb: 100, attackType: 'crushing', charge: 0, pulseNext: true, shieldEl: 'fire', hp: 10 } as never;
+    expect(windingUp(m)).toBe(true);
+    const plain = { ...(m as object), pulseNext: false } as never;
+    expect(windingUp(plain)).toBe(false);
+    expect(chargeEstimate(s, m)).toBeGreaterThan(0);
+  });
+});

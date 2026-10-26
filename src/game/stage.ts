@@ -145,11 +145,12 @@ export class Stage extends Phaser.Scene {
 
   refresh() { this.mons.forEach((v) => this.drawBar(v)); this.setTarget(this.target); }
 
-  popup(x: number, y: number, text: string, color: string, size = 22, rise = 70) {
+  popup(x: number, y: number, text: string, color: string, size = 22, rise = 70, sticky = false) {
     const t = this.add.text(x + Phaser.Math.Between(-18, 18), y, text, { fontFamily: 'monospace', fontSize: `${size}px`, fontStyle: 'bold', color, stroke: '#000', strokeThickness: 5 }).setOrigin(0.5).setDepth(40);
     t.setScale(0.4);
     this.tweens.add({ targets: t, scale: 1, duration: 120 / this.speed, ease: 'Back.Out' });
-    this.tweens.add({ targets: t, y: y - rise, alpha: 0, delay: 350 / this.speed, duration: 650 / this.speed, onComplete: () => t.destroy() });
+    if (sticky) t.setData('sticky', 1); // cp8-rc7 P2: block / parry text stays readable at 4x (fixed 900 ms hold, not divided by speed)
+    this.tweens.add({ targets: t, y: y - rise, alpha: 0, delay: sticky ? 900 : 350 / this.speed, duration: sticky ? 700 : 650 / this.speed, onComplete: () => t.destroy() });
   }
 
   private flash(s: Phaser.GameObjects.Sprite, color = 0xffffff) {
@@ -248,7 +249,9 @@ export class Stage extends Phaser.Scene {
         this.shake(0.006 + e.crits * 0.003);
       } else this.popup(v.x, top + 10, e.dmg > 0 ? `${e.dmg}` : '', magic ? '#9fd8ff' : '#ffffff', 24);
       if (avoidTxt) this.popup(v.x, top - 10, avoidTxt, '#bbbbbb', 15, 40);
-      if (e.label) this.popup(v.x, top - 34, e.label, '#ffb060', 15, 30);
+      // cp8-rc7 P2: block-counter / riposte (label 反擊…) is a big sticky banner so defending visibly pays off.
+      if (e.label?.startsWith('反擊')) this.popup(v.x, top - 40, `⚔ ${e.label} ${e.dmg}`, '#7fd0ff', 26, 50, true);
+      else if (e.label) this.popup(v.x, top - 34, e.label, '#ffb060', 15, 30);
       await this.wait(260);
     } else if (typeof e.from === 'number') {
       const v = this.mons[e.from];
@@ -262,7 +265,7 @@ export class Stage extends Phaser.Scene {
       const big = e.label === '重擊！' || e.crits > 0;
       this.popup(this.hero.x, this.hero.y - 220, e.dmg > 0 ? `-${e.dmg}` : '', big ? '#ff3030' : '#ff8080', big ? 30 : 22);
       // cp8-rc6 item 7: block / parry get a clear 「格擋！-N」 popup (bigger, shield blue); other avoidances unchanged.
-      if (e.avoided === 'block' || e.avoided === 'parry') this.popup(this.hero.x, this.hero.y - 250, `${avoidTxt}！-${e.dmg}`, '#7fd0ff', 22, 40);
+      if (e.avoided === 'block' || e.avoided === 'parry') this.popup(this.hero.x, this.hero.y - 300, `🛡 ${avoidTxt}！${e.dmg > 0 ? `-${e.dmg}` : ''}`, '#7fd0ff', 30, 50, true);
       else if (avoidTxt) this.popup(this.hero.x, this.hero.y - 245, avoidTxt, '#cccccc', 15, 40);
       if (e.label === '重擊！') this.shake(0.018, 320);
       else if (e.dmg > 0) this.shake(0.003, 120);
