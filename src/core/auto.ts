@@ -436,6 +436,9 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   return { upg: run.upg ?? 0, rests, trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
+/** cp8 (b) (producer 2026-10-26, 暫定, our own kit knob, no source): per-lean starting kit tweaks under cp8. body = starting body armour
+ *  group (default light leather); mana = extra starting mana potions. Empty = old kit. */
+export const LEAN_KIT: Partial<Record<NonNullable<Player['lean']>, { body?: 'cloth' | 'light'; mana?: number }>> = {};
 export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
   const rng = new Rng(seed);
   if (RULES.cp8 && lean === 'bulwark') { // cp8-rc5/rc6: bulwark start = 1H axe + buckler + light leather (rc6: heavy dropped, P1 1.318×); in-trip equip still prefers heavy
@@ -444,7 +447,9 @@ export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
   }
   if (RULES.cp8 && lean) p.lean = lean; // cp8-rc6: every school keeps its lean (school-locked auto-equip, school-aware 自動分配)
   const w = generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' });
-  const a = generateEquip(rng, 1, { group: 'light', base: 'leather', slot: 'body', quality: 'fair' });
+  const lk = (RULES.cp8 && lean && LEAN_KIT[lean]) || {};
+  const a = generateEquip(rng, 1, lk.body === 'cloth' ? { group: 'cloth', base: 'cotton', slot: 'body', quality: 'fair' } : { group: 'light', base: 'leather', slot: 'body', quality: 'fair' });
+  if (lk.mana) p.potions.mana += lk.mana;
   p.inventory.push(w, a);
   equip(p, w);
   equip(p, a);
