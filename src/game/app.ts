@@ -16,7 +16,7 @@ import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, 
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
-import { betterThanWorn, checkpointOptions } from '../core/cp7';
+import { CP7, betterThanWorn, checkpointOptions, gearVerdict } from '../core/cp7';
 import { betterInBag, prepAlloc, prepEquip, prepIssues, prepPotions, type PrepIssue } from '../core/prep';
 import { TOWN_HP_POTIONS } from '../core/auto';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
@@ -164,6 +164,14 @@ export class App {
     return up ? `<div class="loot-better">${card}${this.compare(e)}</div>` : `<div class="loot-plain" data-plain>${card}</div>`;
   }
 
+  /** cp7-rc5 bug 1: storage / run-bag badge from the same rule as 出發前整備 (gearVerdict). Off = '' (cp6 UI). */
+  betterTag(e: Equip): string {
+    if (!RULES.cp7) return '';
+    const v = gearVerdict(this.p, e);
+    return v === 'better' ? '<b class="better" data-better>▲ 比身上好</b> '
+      : v === 'small' ? `<small class="dim" data-small-gain title="戰力提升未超過 ${Math.round(CP7.betterMargin * 100)}%，不算「比身上好」，出發前整備不會提醒">小幅提升（≤${Math.round(CP7.betterMargin * 100)}%，不列入整備提醒）</small> ` : '';
+  }
+
   /** Derived-stat deltas if e were equipped. */
   compare(e: Equip): string {
     const clone: Player = JSON.parse(JSON.stringify(this.p));
@@ -224,7 +232,7 @@ export class App {
         const e = p.equipped[s];
         return `<div class="slot"><div class="slotname">${SLOT_ZH[s]}</div>${e ? this.itemCard(e, `<button data-unequip="${s}">卸下</button>`) : '<div class="empty">—</div>'}</div>`;
       }).join('');
-      const inv = [...p.inventory].sort((a, b) => a.slot.localeCompare(b.slot)).map((e) => this.itemCard(e, `<button data-equip="${e.id}">裝備</button>${has(p, 'shop') ? ` <button data-sell="${e.id}">賣 ${sellPrice(e)}C</button>` : ''}`) + this.compare(e)).join('');
+      const inv = [...p.inventory].sort((a, b) => a.slot.localeCompare(b.slot)).map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-equip="${e.id}">裝備</button>${has(p, 'shop') ? ` <button data-sell="${e.id}">賣 ${sellPrice(e)}C</button>` : ''}`) + this.compare(e)).join('');
       body = `<div class="cols"><div><h3>穿戴中</h3><div class="slots">${eq}</div></div><div><h3>倉庫（${p.inventory.length}）</h3><div class="inv">${inv || '<div class="empty">空</div>'}</div></div></div>`;
     } else {
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<tr><td>${POTION_ZH[k]}</td><td>持有 ${p.potions[k]}</td><td><button data-buy="${k}" ${p.credits < RULES.potionPrice[k] ? 'disabled' : ''}>買 ${RULES.potionPrice[k]}C</button></td></tr>`).join('');
@@ -261,7 +269,7 @@ export class App {
       const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
     }).join('');
-    const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
+    const bag = r.bag.map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}

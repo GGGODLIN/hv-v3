@@ -61,6 +61,12 @@ export function wearGain(p: Player, e: Equip): number {
 }
 /** CP7 P1 definition of a better drop (UI badge + sim metric). */
 export const betterThanWorn = (p: Player, e: Equip): boolean => wearGain(p, e) > CP7.betterMargin;
+/** cp7-rc5 bug 1: one verdict for every 「▲」 the UI shows (裝備欄 compare, 「▲ 比身上好」 badge, 出發前整備). `small` = 戰力 goes up
+ *  but by no more than CP7.betterMargin, so the badge / reminder do not list it (the UI says so instead of a bare ▲). */
+export function gearVerdict(p: Player, e: Equip): 'better' | 'small' | 'none' {
+  const g = wearGain(p, e);
+  return g > CP7.betterMargin ? 'better' : g > 0 ? 'small' : 'none';
+}
 
 /** Smart-loot pity piece (see CP7.pityUntil). Rolls `pityTries` armour pieces at max(loot level, highest worn level) in the worn
  *  piece's family and quality (or `pityMinQuality` if higher, one step up on every `pityBumpEvery`-th roll) and keeps the one
