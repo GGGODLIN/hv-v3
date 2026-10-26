@@ -474,3 +474,13 @@ Unmet: blade trip1 median (B=2), bulwark trip1 median (A=20), oc d16/d13 (A=1.76
 - vitest (single-threaded, --no-file-parallelism): 23 files, 221/221 passed; no test changes. Log: docs/logs/rc8-vitest.txt
 - presets re-exported (scripts/cp6-export-presets.ts): blade katana(2H) · oc wakizashi(1H)+kite · arcane willow(staff) · bulwark shortsword(1H)+tower; abyss10 wakizashi+buckler, abyss15 willow.
 - deploy: worktree /workspace/hv-v3-cp6rc8 @ cp6-rc8 built; rc7 preview on 5199 stopped; vite preview 127.0.0.1:5199 (setsid nohup) serves / 200, /data/cp6-presets.json 200; scripts/cp6-rc6-e2e.mjs ALL PASS.
+
+## rc9 — retune toward a low-start, depth-climbing damage curve (all values 暫定，無來源)
+Harness: `scripts/rc9-tune.ts` (one pass per school = cp6-abyss-sim trips T=10 + rc7-targets fresh fights + new d1/d2/d3 fresh normal fights; first-F20-clear characters cached; characters that never clear F20 in 60 trips are skipped, as in rc7-targets), `scripts/rc9-round.sh` (4 schools × A seeds 1..N / B SEED0=N), `scripts/rc9-sum.py`, `scripts/rc9-score.py` (worst school across A/B per target). UI-only AI, own school style, 4 fresh fights per char per depth.
+New target: d1–d3 normal fight win ≥95% per school.
+
+### Round 0: c6D at 256×2 (docs/logs/rc9/c6D-256.jsonl)
+d1–d3 win: blade 71–74, bulwark 71–73, arcane 91–92, oc 96. d16 battle: blade 55.6/53.2 (also below 60 at 256 seeds), bulwark 64.3/61.8. Trip-1 deaths at d1–3: blade 91+77 of 512, bulwark 65+62.
+
+### Round 1: grid at N=64×2 (docs/logs/rc9/grid1-64*.txt/jsonl)
+LPD {0,0.25} × HS {1.1,1.5} × DS {2.5,3,3.5,4} × DPD {0,0.03,0.06}, TR 5. No row meets all. LPD 0.25 is worse everywhere. Structural conflict: d1–3 ≥95% needs DS ≤ ~2.5 (HS 1.1), and at that start trip-1 median is ≥17 unless DPD is high, which then drops blade d16 below 60.
