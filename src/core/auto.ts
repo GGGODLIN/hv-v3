@@ -19,8 +19,12 @@ import {
 import { generateEquip } from './items';
 import type { NodeType } from './tower';
 
+/** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
+ *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
+export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
+export const allocWeights = (p: Player): Record<string, number> => (RULES.cp8 && p.lean === 'arcane' ? ALLOC_WEIGHTS.arcane : ALLOC_WEIGHTS.phys);
 export function autoAllocate(p: Player): void {
-  const weights: Record<string, number> = { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 };
+  const weights = allocWeights(p);
   for (let guard = 0; guard < 2000; guard++) {
     const best = ATTRS.map((a) => [a, (attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])) / weights[a]!] as const).sort((x, y) => x[1] - y[1])[0]!;
     if (allocate(p, best[0]) === 0) break;
@@ -36,16 +40,26 @@ export function buyHealthTo(p: Player, n: number): number {
   return k;
 }
 
+/** cp8-rc6 bug 2: 「全部處理」/「買藥」 also tops up mana and spirit potions. The source gives no stock quantity (findings 004: the
+ *  three base potions are unlimited shop items at 50 / 100 / 100 C), so the health-potion rule (TOWN_HP_POTIONS) is reused — 暫定.
+ *  Order health → mana → spirit while credits last. Returns potions bought. */
+export function buyPotionsTo(p: Player, n: number): number {
+  let k = buyHealthTo(p, n);
+  for (const id of ['mana', 'spirit'] as const) while (p.potions[id] < n && p.credits >= RULES.potionPrice[id]) { p.credits -= RULES.potionPrice[id]; p.potions[id]++; k++; }
+  return k;
+}
 /** 暫定 (round 5): auto-equip only swaps when the power score rises by at least this fraction, so IW-upgraded gear is not pushed out by a near-equal drop. */
 export const AUTO_EQUIP_MARGIN = 0.05;
 
 /** rc4 (sim only): weapon layout per play school. arcane = staff, bulwark = one-hand + shield (docs/cp4-run-buffs.md §2: W1 不動之盾 block/parry),
  * blade = one-hand, off-hand free (推定：B7 處刑者 buffs Merciful Blow, a One-Handed skill line in F-002-4.2-skills / Ticket 04),
  * oc = any main hand, shield free, best joint pair (推定：no doc names a weapon; a forced two-hander gave 97% never-clear in the sim, docs/logs/rc4-noclear-schoolgear-oc2h.txt). null = original slot-by-slot logic. */
-export type GearStyle = { main: Equip['group'] | null; shield: 'yes' | 'free' | 'no'; armor?: 'heavy' } | null;
+export type GearStyle = { main: Equip['group'] | null; shield: 'yes' | 'free' | 'no'; armor?: 'heavy'; lock?: boolean } | null;
 /** cp8-rc5 (producer 2026-10-26, layout only, no numbers): a bulwark-leaning player's town 換上 = 1H + shield, heavy armor preferred. */
 export const BULWARK_STYLE: NonNullable<GearStyle> = { main: 'oneHand', shield: 'yes', armor: 'heavy' };
-export const leanStyle = (p: Player): GearStyle => (RULES.cp8 && p.lean === 'bulwark' ? BULWARK_STYLE : null);
+/** cp8-rc6 item 5 (producer 2026-10-26, layout only, no numbers): auto-equip is locked to the lean school's weapon layout (gearStyle
+ *  of buff:<lean>: blade 2H, oc 1H, arcane staff, bulwark 1H + shield + heavy). No lean → null (original slot-by-slot logic). */
+export const leanStyle = (p: Player): GearStyle => { const g = RULES.cp8 && p.lean ? gearStyle(`buff:${p.lean}`) : null; return g ? { ...g, lock: true } : null; };
 export function gearStyle(strategy: string): GearStyle {
   if (strategy.startsWith('buff:arcane')) return { main: 'staff', shield: 'no' };
   if (strategy.startsWith('buff:bulwark')) return RULES.cp8 ? BULWARK_STYLE : { main: 'oneHand', shield: 'yes' };
@@ -61,11 +75,13 @@ function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equi
   const mains = [p.equipped.mainHand, ...cands.filter((x) => x.slot === 'mainHand')].filter((x): x is Equip => !!x);
   const offs = [p.equipped.offHand, ...cands.filter((x) => x.slot === 'offHand')].filter((x): x is Equip => !!x);
   const styled = st.main ? mains.filter((m) => m.group === st.main) : mains;
-  const pool = styled.length ? styled : mains;
+  // cp8-rc6 item 5: a locked (lean) style never falls back to an off-style weapon; with none of its group owned the worn main hand stays.
+  const pool = styled.length ? styled : st.lock ? [] : mains;
   const score = (m: Equip | undefined, o: Equip | undefined) => powerScore(derive({ ...p, equipped: { ...p.equipped, mainHand: m, offHand: o } as Player['equipped'] }));
   let best: [Equip | undefined, Equip | undefined] = [p.equipped.mainHand, p.equipped.offHand];
   const legal = (m: Equip | undefined, o: Equip | undefined) => !(o && blocksOffHand(m)) && !(o && st.shield === 'no') && !(st.shield === 'yes' && offs.length && !o && !blocksOffHand(m));
   const curOk = (!best[0] || !st.main || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
+  if (st.lock && !styled.length) return [];
   let bestS = curOk ? score(best[0], best[1]) * (1 + (RULES.cp7 ? CP7.betterMargin : AUTO_EQUIP_MARGIN)) : -Infinity; // CP7: same margin as the badge
   for (const m of pool.length ? pool : [undefined]) for (const o of [undefined, ...offs]) {
     if (!legal(m, o)) continue;
@@ -287,7 +303,7 @@ const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
   // Town prep. CP8 naive: the 出發前整備 「全部處理」 button (prepAll: alloc → equip (slot by slot, no school layout) → potions).
-  if (SIM_AI.naive && !SIM_AI.add.has('equip')) { if (has(p, 'alloc')) autoAllocate(p); if (SIM_AI.add.has('townstyle')) autoEquip(p, [], gearStyle(strategy)); naivePrep.equip(p); if (has(p, 'shop')) buyHealthTo(p, TOWN_HP_POTIONS); }
+  if (SIM_AI.naive && !SIM_AI.add.has('equip')) { if (has(p, 'alloc')) autoAllocate(p); if (SIM_AI.add.has('townstyle')) autoEquip(p, [], gearStyle(strategy)); naivePrep.equip(p); if (has(p, 'shop')) (RULES.cp8 ? buyPotionsTo : buyHealthTo)(p, TOWN_HP_POTIONS); }
   else {
   if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p, [], gearStyle(strategy));
@@ -420,6 +436,7 @@ export function starterKit(p: Player, seed = 7, lean?: Player['lean']): void {
     const kit = [generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' }), generateEquip(rng, 1, { group: 'shield', base: 'buckler', quality: 'fair' }), generateEquip(rng, 1, { group: 'light', base: 'leather', slot: 'body', quality: 'fair' })];
     for (const e of kit) { p.inventory.push(e); equip(p, e); } p.lean = 'bulwark'; return;
   }
+  if (RULES.cp8 && lean) p.lean = lean; // cp8-rc6: every school keeps its lean (school-locked auto-equip, school-aware 自動分配)
   const w = generateEquip(rng, 1, { group: 'oneHand', base: 'axe', quality: 'fair' });
   const a = generateEquip(rng, 1, { group: 'light', base: 'leather', slot: 'body', quality: 'fair' });
   p.inventory.push(w, a);

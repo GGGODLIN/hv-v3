@@ -65,7 +65,7 @@ const reach: Record<number, number> = {}, endAt: Record<number, number> = {};
 const p3 = { rest: { n: 0, full: 0 }, none: { n: 0, full: 0 } };
 const b10 = { n: 0, w: 0 }; let built = 0, deep = 0, shallow = 0, cpTrips = 0, cpDeadFirst = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
 for (let s = S0 + 1; s <= S0 + N; s++) {
-  const p = newPlayer(); starterKit(p, s, sc === 'bulwark' ? 'bulwark' : undefined); let ok = false, i = 1;
+  const p = newPlayer(); starterKit(p, s, (['blade', 'oc', 'arcane', 'bulwark'] as const).find((x) => x === sc)); let ok = false, i = 1;
   // debug only (stderr): kit / heavy-armor timing
   const kitS = (tag: string) => { const b = p.equipped.body, d = derive(p); return `${tag} ${s} ${b ? b.group + ':' + b.base + ':' + b.quality : '-'} hp ${d.hp} pm ${d.physMit.toFixed(3)} mh ${p.equipped.mainHand ? p.equipped.mainHand.group + ':' + p.equipped.mainHand.quality + ':L' + p.equipped.mainHand.level + ':ad' + Math.round(p.equipped.mainHand.stats.attackDamage ?? 0) : '-'} lv ${level(p)}`; }; let heavyAt = p.equipped.body?.group === 'heavy' ? 'kit' : '';
   if (E.DBGKIT) console.error(kitS('K0'));

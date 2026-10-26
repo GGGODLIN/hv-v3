@@ -60,8 +60,19 @@ export function wearGain(p: Player, e: Equip): number {
   if (blocksOffHand(e)) delete trial.equipped.offHand;
   return cur > 0 ? powerScore(derive(trial)) / cur - 1 : 1;
 }
+/** cp8-rc6 item 5: weapon layout per lean school (same as auto.ts gearStyle('buff:<school>'): blade 2H no shield, oc 1H shield free,
+ *  arcane staff no shield, bulwark 1H + shield). May `e` be worn by this player's lean school? Non-weapon slots / no lean: always. */
+export const LEAN_HANDS = { blade: ['twoHand', false], oc: ['oneHand', true], arcane: ['staff', false], bulwark: ['oneHand', true] } as const;
+export function leanAllows(p: Player, e: Equip): boolean {
+  if (!RULES.cp8 || !p.lean) return true;
+  const [main, shield] = LEAN_HANDS[p.lean];
+  if (e.slot === 'mainHand') return e.group === main;
+  if (e.slot === 'offHand') return shield;
+  return true;
+}
 /** CP7 P1 definition of a better drop (UI badge + sim metric). */
 export function betterThanWorn(p: Player, e: Equip): boolean {
+  if (!leanAllows(p, e)) return false; // cp8-rc6 item 5: school-locked weapon layout (badge, autoWear, 換上 all share this)
   if (RULES.cp8 && p.lean === 'bulwark') { // cp8-rc5 (layout only): a bulwark-leaning player keeps 1H + shield and heavy armour
     const w = p.equipped[e.slot], arm = ['cloth', 'light', 'heavy'].includes(e.group);
     if (e.slot === 'mainHand' && e.group !== 'oneHand') return false;

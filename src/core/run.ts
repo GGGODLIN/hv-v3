@@ -137,7 +137,7 @@ export function startRun(p: Player, seed: number): RunState {
   const locked: NodeType[] = [];
   if (!has(p, 'shrine')) locked.push('shrine');
   if (!has(p, 'merchant')) locked.push('merchant');
-  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}), ...(RULES.cp6Abyss ? { distinct: true } : {}) });
+  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}), ...(RULES.cp6Abyss ? { distinct: true } : {}), ...(RULES.cp8 ? { restBeforeBoss: true } : {}) });
   const d = derive(p);
   return {
     seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },

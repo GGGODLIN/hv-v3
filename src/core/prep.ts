@@ -5,7 +5,7 @@
 import { ATTRS } from './formulas';
 import { type Player, unspentExp } from './player';
 import { has } from './progress';
-import { autoAllocate, autoEquip, leanStyle, buyHealthTo, naivePrep, TOWN_HP_POTIONS } from './auto';
+import { autoAllocate, autoEquip, leanStyle, buyHealthTo, buyPotionsTo, naivePrep, TOWN_HP_POTIONS } from './auto';
 import { betterThanWorn } from './cp7';
 import { RULES } from './run';
 import type { Equip } from './items';
@@ -45,7 +45,7 @@ export function prepAlloc(p: Player): number {
   return ATTRS.reduce((s, a) => s + p.attrs[a], 0) - before;
 }
 /** 「買藥」: sim town prep (up to TOWN_HP_POTIONS, as many as credits allow). Returns potions bought. */
-export const prepPotions = (p: Player): number => buyHealthTo(p, TOWN_HP_POTIONS);
+export const prepPotions = (p: Player): number => (RULES.cp8 ? buyPotionsTo : buyHealthTo)(p, TOWN_HP_POTIONS); // cp8-rc6 bug 2: + mana / spirit
 /** 「換上」: the sim's autoEquip (no school in town → slot-by-slot, CP7.betterMargin), repeated until nothing in the bag
  *  is badged better any more (bounded). Returns the number of swaps. */
 export function prepEquip(p: Player): number {
