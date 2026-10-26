@@ -1,7 +1,21 @@
 # Rapier parry rating and Nimble — v0.15
 
+
+## Literal source labels and conversion boundary
+
+**The final equipment-input-to-probability conversion remains a game adaptation.** The original table labels the item attribute `Parry Chance`; it does not literally call that field a `rating`. This game calls its stored numeric input **招架值** to keep it distinct from the actual probability after character conversion. The original accuracy-dependent interception system is not implemented here; no example below implies full original avoidance fidelity.
+
+Pinned source commit `8e1ff32097d50ba8e1c30266653234506b98a5f4`, `.scratch/hv-v3/wayfinder/findings/003-equipment-armory-and-modes.md`, exact table header L361 and rapier row L382:
+
+```markdown
+| 基底 | 屬性名稱 | 詞綴條件 | Base Rolls `[Min, Max]` | `fluc` | Crude `[Min, Max]` ($R=0..40$) | Leg Min / Peerless Max ($R=170..200$) |
+| **Rapier** | `Parry Chance` | `Nimble` / `Others` | `[137, 301]` / `[75, 211]` | `0.0894` | `—` / `[6.72, 7.79]` | `[23.81, 26.94]` / `[16.29, 18.89]` |
+```
+
+This supports the equipment roll endpoints and fluctuation factor, not the game's independent `0.035 + input/100` mapping or50% cap. The displayed original equipment endpoints and the final per-check probability must not be conflated. [Original Damage revision66419](https://ehwiki.org/index.php?title=Damage&oldid=66419#Avoidance_Calculation) separately documents the attacker-Accuracy-dependent interception calculation.
+
 ## What changes
-Newly generated rapiers, including new fixed Slaughter commissions, now carry a numeric **Parry rating**. Random rapiers may have the legal Nimble (靈巧) suffix instead of Slaughter or Balance. Nimble uses stronger parry endpoints, not an extra multiplicative damage bonus. Existing weapons are preserved exactly: a saved rapier without this stat receives no retroactive rating.
+Newly generated rapiers, including new fixed Slaughter commissions, now carry a numeric **Parry equipment input** (named 招架值 in this game). Random rapiers may have the legal Nimble (靈巧) suffix instead of Slaughter or Balance. Nimble uses stronger parry endpoints, not an extra multiplicative damage bonus. Existing weapons are preserved exactly: a saved rapier without this stat receives no retroactive rating.
 
 The item displays **招架值**, a number, while the character and preset preview display **招架判定率**, the final chance used by this game. They are different units. More parry can prevent damage and create opportunities for the existing conditional counterattack; neither avoidance nor a counter is guaranteed.
 

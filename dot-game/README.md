@@ -1,8 +1,19 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.15 source backed up; isolated staging blocked — 2026-10-26 08:48 UTC
+
+New rapier equipment input and legal Nimble suffix are implemented, with1,140 tests and four syntax checks passing. Full source `48776a2cac13eaf6842c46de7e26ef264c115bd1` is verified142files/141payloads. The original source labels its equipment field `Parry Chance`; our stored 招架值 and final adapted probability are distinct, not a claim of full original accuracy-system fidelity. Literal source evidence and conversion limits are in PARRY-GEAR-GUIDE.md.
+
+Isolated test-page staging was denied, including one evidence-backed reassessment. Website HEAD remains `a8bc6a82da6f476c6a0b2e53320c95f7ff106fe8`; **public v0.14 remains accepted**. v0.15 has no browser acceptance, CI/HTTP publication verification or live version link. See docs/RECOVERY-V015.md (RECOVERY-V015.md from docs) for exact restore references, the unreferenced candidate, and specific staging permission needed. No further website writes or alternate routes are attempted.
+
+This source-only recovery receipt changes docs/manifest only; runtime and1,140 tests are unchanged. It is development-source backup, not a new accepted playable release.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.15 development candidate — 2026-10-26 08:00 UTC
 
-New rapier Parry rating and legal Nimble suffix connect gear tradeoffs to the existing counterattack system. Raw original rating and the game's adapted final probability are explicitly distinct; old items remain unchanged, while new rapier scores/prices and future RNG trajectories can change. See docs/PARRY-GEAR-GUIDE.md (PARRY-GEAR-GUIDE.md from docs). Source tests, backup and browser acceptance are pending. Public v0.14 and complete restore `22bdfca3068c7934921c2493eb40de624d684318` remain accepted until this candidate is verified.
+New rapier Parry rating and legal Nimble suffix connect gear tradeoffs to the existing counterattack system. Original equipment input (the source labels it `Parry Chance`) and the game's adapted final probability are explicitly distinct; old items remain unchanged, while new rapier scores/prices and future RNG trajectories can change. See docs/PARRY-GEAR-GUIDE.md (PARRY-GEAR-GUIDE.md from docs). Source tests, backup and browser acceptance are pending. Public v0.14 and complete restore `22bdfca3068c7934921c2493eb40de624d684318` remain accepted until this candidate is verified.
 
 ### Earlier checkpoint timeline (historical)
 

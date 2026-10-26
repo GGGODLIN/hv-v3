@@ -78,3 +78,6 @@ Make offensive, defensive and weapon-family alternatives easier to revisit with 
 
 ## v0.15 chosen slice
 Add original-supported raw rapier parry and legal Nimble affix with honest adapted rating-to-probability integration. Preserve old gear and expose the seventh tradeoff in all disposal/preset comparisons. Do not pretend the complete original Accuracy/interception model is implemented or alter quality weights to manufacture success.
+
+## v0.15 next action after staging decision
+Source is backed up; runtime development is complete for this slice. Do not start another feature to avoid the blocked acceptance step. Resolve the explicit isolated test-page permission recorded in RECOVERY-V015.md, then exact CI/HTTP and ordinary browser QA, acceptance source backup, and only then root promotion. Until then retain accepted v0.14.

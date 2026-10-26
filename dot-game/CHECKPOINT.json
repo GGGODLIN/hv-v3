@@ -1,13 +1,14 @@
 {
-  "checkpoint": "v0.15-candidate",
-  "status": "source-tested-browser-pending",
+  "checkpoint": "v0.15-staging-blocked-receipt",
+  "status": "source-tested-exact-backup-isolated-staging-denied-browser-pending",
   "base_accepted_recovery": "22bdfca3068c7934921c2493eb40de624d684318",
+  "runtime_source": "48776a2cac13eaf6842c46de7e26ef264c115bd1",
   "source_tests_passed": 1140,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 33083,
-      "sha256": "e28334b26bce60a3c701ecae5dd945cef8623b0f8739e3176114637d7b7804cc"
+      "bytes": 34370,
+      "sha256": "461bf87f39825a59f8f0f3dcb8716bd4e68349b693ae842c7ccbc2ea07066258"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -186,20 +187,24 @@
       "sha256": "aa4a8aa7826a574c2a521694274c951391c9326f3e533eff7714bf410d14df17"
     },
     "docs/PARRY-GEAR-GUIDE.md": {
-      "bytes": 5343,
-      "sha256": "19bb800e25caa98b5a014f598d221ada5e6586015f1ae667be8b8f5b3f53f967"
+      "bytes": 6825,
+      "sha256": "dbfbaedfa01b3ff27f9cf355985ebb4ceb65e7bbc63a971592e92e023436b3db"
     },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
+    },
+    "docs/RECOVERY-V015.md": {
+      "bytes": 4689,
+      "sha256": "e038df3fa03f01c2458a22c24d06e50791395390c7097364409b230b01245a26"
     },
     "docs/RELEASES.md": {
       "bytes": 33832,
       "sha256": "cbfc2490620aa11aafa51899765b3014324bac3a9d6e232dc46f18eec89ed0b5"
     },
     "docs/ROADMAP.md": {
-      "bytes": 12540,
-      "sha256": "5a224d43571b72c7bb66d43c7d03b018478f094b8bb55c8cbc21ebe497c688d9"
+      "bytes": 12936,
+      "sha256": "a2b46ae7a999650d968bcb2fa208c8e81ae97aafea6411b183e981a2f2479252"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
@@ -210,8 +215,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 56645,
-      "sha256": "1244320d12b8852fcdfcc36cd9fab6e05054d90fcf7153180ddab3b7e1850c92"
+      "bytes": 57932,
+      "sha256": "7fe38825270bf0fad4d7872ac93266812acc86812ebc4ae0374a010a48fc32f7"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
