@@ -225,7 +225,8 @@ test('ownership/adopted-state synchronization clears stale ability feedback and 
 });
 
 test('AP controls are accessible text with compact wrapping; rules distinguish original references from adaptations', () => {
-  const section = html.slice(html.indexOf('<section class="camp-abilities'), html.indexOf('<section class="expedition-reports'));
+  const sectionStart = html.indexOf('<section class="camp-abilities');
+  const section = html.slice(sectionStart, html.indexOf('</section>', sectionStart) + '</section>'.length);
   assert.match(section, /aria-labelledby="ability-heading"[^>]*aria-describedby="ability-intro"/);
   assert.match(section, /id="ability-feedback"[^>]*role="status"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
   assert.match(section, /<details class="ability-rules"><summary>/); assert.doesNotMatch(section, /<dialog|<details[^>]+\bopen\b/);

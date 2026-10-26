@@ -240,3 +240,15 @@
 .player-parry details { margin-top: 7px; font-size: 10px; color: var(--muted); }
 .player-parry summary { cursor: pointer; }
 .player-parry details p { margin-top: 7px; }
+
+/* v0.16: only the selected tool group takes space; simulation remains independent. */
+.camp-workspace { margin-top: 18px; min-width: 0; }
+.camp-navigation { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.camp-navigation [role="tab"] { min-height: 54px; padding: 7px 4px; font-weight: 700; }
+.camp-navigation [role="tab"] span { display: block; font-size: 10px; font-weight: 400; color: var(--muted); }
+.camp-navigation [aria-selected="true"] { border-color: var(--gold); color: var(--gold); background: #39382b; }
+.camp-navigation-hint { margin: 7px 0 0; font-size: 10px; color: var(--muted); }
+.camp-tab-panel { min-width: 0; }
+.camp-tab-panel[hidden] { display: none; }
+.camp-tab-panel:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: var(--radius); }
+@media(max-width:680px) { .camp-navigation [role="tab"] { min-height: 58px; } .camp-navigation-hint { font-size: 11px; } }

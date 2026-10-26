@@ -87,3 +87,6 @@ Correct the observed enabled-but-refused camp Start control while staging author
 
 ## v0.15 release loop closed — 2026-10-26 12:07 UTC
 Explicit staging authorization, exact candidate CI/HTTP, actual browser acceptance, acceptance-source backup, root publication, root smoke and final source receipt are complete when the final receipt readback is verified. The earlier staging blocker is historical. Future work may select the next supported gameplay improvement; do not repeat the old permission loop or replace the declared adapter with an unverified accuracy formula.
+
+## v0.16 chosen slice
+Reduce accumulated camp UI complexity without removing depth: put secondary battle reports, gear planning and abilities into three accessible transient tabs. Keep the core combat/loot loop visible and every original rule disclosure reachable. Verify live combat while secondary panels are hidden, keyboard navigation, dialogs, ownership and import/reload. This is an interface improvement, not a new game system or a final limit on expansion.

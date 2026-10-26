@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.15 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.16 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -47,6 +47,14 @@
       <p id="counter-notice" class="counter-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
       <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；流血須先打出傷害再觸發，之後每 Tick 的無類型傷害不受減傷影響，但需要時間累積，並非每次命中都會觸發。沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <section class="camp-workspace" aria-label="營地與遠征工具">
+        <div class="camp-navigation" role="tablist" aria-label="切換營地工具">
+          <button type="button" id="camp-tab-battle" role="tab" aria-selected="true" aria-controls="camp-panel-battle" tabindex="0">戰況<span>反擊 · 戰報</span></button>
+          <button type="button" id="camp-tab-gear" role="tab" aria-selected="false" aria-controls="camp-panel-gear" tabindex="-1">配裝<span>方案 · 委託</span></button>
+          <button type="button" id="camp-tab-growth" role="tab" aria-selected="false" aria-controls="camp-panel-growth" tabindex="-1">成長<span>AP · 能力</span></button>
+        </div>
+        <p class="camp-navigation-hint">出戰與背包常駐；切換工具不會暫停戰鬥。</p>
+        <div id="camp-panel-battle" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-battle" tabindex="0">
       <section class="counterattack-panel panel" aria-labelledby="counterattack-heading">
         <div class="section-heading"><h3 id="counterattack-heading">單手反擊</h3><span class="badge">防守轉為進攻</span></div>
         <p id="counterattack-status" class="counterattack-status"></p>
@@ -54,22 +62,6 @@
         <p id="counterattack-budget" class="counterattack-value"></p>
         <p class="counterattack-note">招架或格擋成功後才擲反擊機率，不是每次受擊機率；純閃避不觸發。增加招架判定率或格擋可增加符合條件的機會，但不保證更快通關。</p>
         <details class="counterattack-rules"><summary>觸發條件與本版範圍</summary><p>裝備可辨識的戰斧、刺劍或戰棍時，敵方物理攻擊確實出現至少一次招架／格擋成功、我方與攻擊者仍存活，且本回合尚有次數，才有機會反擊該敵人。本作把部分招架／格擋也列為資格，這是雙判定鏈的整合改編，不是已考證的原版部分防禦規則。純閃避、盲擊落空或僅有零傷害不算。</p><p>條件機率參考原版：min(75, 25 + 0.02 × (STR + DEX) + 有效單手熟練度 / 10)%；本作沿用有效熟練度上限 1.2 × 等級。每個我方回合最多 1 次；有效熟練度達 100／200 時改為 2／3 次。回合不是全域 Tick，也不是每個敵人的回合；已發起但被擋下的反擊仍佔次數。</p><p>反擊使用當前面板一般攻擊，不花 MP、不額外增加熟練度，也不佔正常攻擊行動。不能暴擊；繞過閃避與招架，但仍受格擋、減傷與傷害亂數影響。已有穿透護甲可改善反擊傷害，反擊不施加或刷新穿透護甲、流血、暈眩或其他武器特效。</p><p>目前只實作單手反擊的傷害部分，尚無原版反擊暈眩、Overcharge／Overwhelming Strikes；不是完整原版單手流派。回營及載入不保留反擊次數；候選版與正式版存檔仍分開。戰報反擊傷害另列，不算普攻或技能傷害。</p></details>
-      </section>
-      <section class="camp-gear-sets panel" aria-labelledby="gear-set-heading" aria-describedby="gear-set-intro">
-        <div class="section-heading"><h3 id="gear-set-heading">營地配裝方案</h3><span class="badge">3 份裝備記錄</span></div>
-        <p id="gear-set-intro" class="gear-set-note">先穿好裝備，再按「鎖定並儲存目前配裝」。方案引用原有裝備，不複製物品；下次預覽後即可一次換上三件。</p>
-        <p id="gear-set-status" class="gear-set-note"></p><div id="gear-set-choices" class="gear-set-choices"></div>
-        <p id="gear-set-feedback" class="gear-set-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-        <details class="gear-set-rules"><summary>鎖定保護與本版範圍</summary><p>方案中的裝備不能解鎖或出售，包含安全整理與自選出售。覆寫或清除方案只修改記錄，舊裝備仍鎖定；不再被任何方案使用後，才可自行解鎖。不會自動丟棄舊裝。</p><p>三份裝備方案參考原版起始配裝數量，但這裡只儲存武器、護甲與飾品的 ID，是本作適配；不是完整原版 Equipment Sets 或 Personas。能力、戰術、屬性與道具不隨方案切換。遺失或不符的裝備不會被補造，整套都不會套用；背包滿時仍可交換原有裝備。</p><p>請更新舊分頁再接手。v0.13 等舊版可能丟棄配裝記錄，但原有裝備鎖定仍保留；來源備份不代替瀏覽器存檔，請定期匯出。</p></details>
-      </section>
-      <section class="camp-abilities panel" aria-labelledby="ability-heading" aria-describedby="ability-intro">
-        <div class="section-heading ability-heading"><h3 id="ability-heading">營地能力</h3><span class="badge">3 條能力成長線</span></div>
-        <div class="ability-budget"><strong id="ability-ap">可用 AP — / 累計 —</strong><span id="ability-slots">Major 槽 — / 5</span></div>
-        <p id="ability-intro" class="ability-note">先用 AP 學習，再另外裝入能力槽才生效；升階保留原裝配狀態，未裝配仍不生效。5 格皆免費，不必只選一項；預設不分配、不自動學習或裝配。</p>
-        <p id="ability-status" class="ability-note">回營後可調整；不花金幣、不抽取隨機結果。</p>
-        <div id="ability-choices" class="ability-choices"></div>
-        <p id="ability-feedback" class="ability-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-        <details class="ability-rules"><summary>AP、升階與改編規則</summary><p>參考原版 AP 表：Lv.1 累計 1 AP，之後每升 1 級加 1 AP；原版起始提供 5 格 Major 槽。目前實作 HP Tank（10 階）、MP Tank（10 階）與 1H Damage（3 階）三條能力成長線，沿用各階等級門檻、AP 費用與效果；仍不是完整能力樹，後續繼續擴充。Lv.4 的 4 AP 就能學齊目前三項的 Rank 1，但 Rank 1 非原版最高階，也不是永久分支專精。本版沒有付費加槽、Mastery 能力或自動分配。</p><p>起始 Rank 1：HP Tank／MP Tank 各花 1 AP，1H Damage 花 2 AP。升階必須已學會前一階、達等級門檻並有足夠 AP；卡片「額外 AP」只收下一階費用，不會再收已花的 AP。升階取代前階效果，保留裝配狀態；學會但未裝配時沒有加成。卸下只空出能力槽，不退 AP；「免費遺忘」會同時卸下，清除全部階級並退還累計已用 AP。營地免費重配是本作改編，不是原版重置價格；可直接重學，不需額外確認。</p><p>HP Tank／MP Tank 依已裝配階級提高基礎 HP／MP，向下取整後才加裝備固定 HP；Rank 1 為基礎值 × 1.10。先算能力、再加固定裝備生命的順序為本作整合規則。1H Damage 依目前有效單手熟練度與階級係數加入面板攻擊（ADB）；Rank 1 的係數為 2，熟練度為 0 時加成也是 0，並非固定 +2 攻擊。本階預覽與下一階預覽都假設已學習並裝配，保留其他已裝能力；下一階預覽不是只升階但未裝配的現況，也不是傷害或勝率保證。</p><p>本作的自動治癒、補給藥水與換波恢復仍按最大 HP 的 27%／40%／10% 計算，所以 HP Tank 也會提高這些恢復量。這是既有掛機改編，不是原版常以基礎 HP 計算的 Cure；沒有藉能力新增原版治療法術。</p><p>新旅程及沒有能力資料的舊存檔都從未學習、未裝配開始，累計 AP 依目前等級計算；有效的 Rank 1 配置會保留。v0.9 等舊版分頁可能不保留能力配置；請重新整理再接手。v0.10 分頁會拒絕含 Rank 2 以上資料的存檔：請先匯出備份、重新整理所有舊版分頁，再接手進度，不要用舊分頁覆寫。存檔仍使用 v3 命名空間，候選版與正式版分開。可保留 AP 之後再用；戰鬥、戰敗與唯讀分頁不能改能力，回營並取得進度控制權後再調整。</p></details>
       </section>
       <section class="expedition-reports panel" aria-labelledby="report-heading" aria-describedby="report-session report-caution">
         <div class="section-heading report-heading"><h3 id="report-heading">最近兩次遠征戰報</h3><button id="pin-report" class="secondary-button" disabled>設為比較基準</button></div>
@@ -81,6 +73,16 @@
         <p id="report-caution" class="report-caution">這是實戰紀錄，不是配裝優劣判定。關卡、出發等級、裝備、戰術或隨機判定不同，都不能直接推論差異由換裝造成；同關也不是受控比較。能力配置不同也會影響結果；戰報未列完整能力配置或出發時反擊條件機率／格擋率，不能藉此識別所有差異成因。可先把最近一次設為基準，再換裝試跑。</p>
         <details class="report-rules"><summary>戰報數字怎麼讀</summary><p>只計遊戲已處理的戰鬥時間，不含營地與通關後休息，不是現實經過秒數。傷害記錄實際扣除的生命，超過剩餘生命的部分不計；承受生命損失是整場累計，不扣回治療量。最低生命比例使用各觀測時點當時的生命上限。</p><p>攻擊總數包含技能攻擊，不含另列的額外反擊；反擊次數包含發起後未造成傷害的嘗試，反擊傷害只計實際扣除生命。治療次數是治療技能，藥水另計，不代表額外回合；特效次數是成功施加／刷新，不是層數或命中率。沒有估算穿透護甲多打多少、暈眩擋下多少傷害，也不換算每秒傷害。中途回營是未完成遠征，不能直接與通關時間相比。</p><p>只保留最近兩次已結束遠征；自動重刷也會更新。比較基準保留一份當下的最近戰報，再按一次會取代基準，不改變戰鬥或存檔。</p></details>
       </section>
+      <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
+        </div>
+        <div id="camp-panel-gear" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-gear" tabindex="0" hidden>
+      <section class="camp-gear-sets panel" aria-labelledby="gear-set-heading" aria-describedby="gear-set-intro">
+        <div class="section-heading"><h3 id="gear-set-heading">營地配裝方案</h3><span class="badge">3 份裝備記錄</span></div>
+        <p id="gear-set-intro" class="gear-set-note">先穿好裝備，再按「鎖定並儲存目前配裝」。方案引用原有裝備，不複製物品；下次預覽後即可一次換上三件。</p>
+        <p id="gear-set-status" class="gear-set-note"></p><div id="gear-set-choices" class="gear-set-choices"></div>
+        <p id="gear-set-feedback" class="gear-set-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+        <details class="gear-set-rules"><summary>鎖定保護與本版範圍</summary><p>方案中的裝備不能解鎖或出售，包含安全整理與自選出售。覆寫或清除方案只修改記錄，舊裝備仍鎖定；不再被任何方案使用後，才可自行解鎖。不會自動丟棄舊裝。</p><p>三份裝備方案參考原版起始配裝數量，但這裡只儲存武器、護甲與飾品的 ID，是本作適配；不是完整原版 Equipment Sets 或 Personas。能力、戰術、屬性與道具不隨方案切換。遺失或不符的裝備不會被補造，整套都不會套用；背包滿時仍可交換原有裝備。</p><p>請更新舊分頁再接手。v0.13 等舊版可能丟棄配裝記錄，但原有裝備鎖定仍保留；來源備份不代替瀏覽器存檔，請定期匯出。</p></details>
+      </section>
       <section class="weapon-commission panel" aria-labelledby="commission-heading">
         <div class="section-heading"><h3 id="commission-heading">武器委託</h3><span class="badge">本作獨立機制</span></div>
         <p>首次通關後，以金幣取得目前等級的固定規格武器，試試不同路線；不會自動換裝。</p>
@@ -88,7 +90,21 @@
         <p id="commission-status" role="status" aria-live="polite">完成首次遠征後解鎖。</p>
         <details class="commission-rules"><summary>固定規格，不是最佳裝備保證</summary><p>優良（Superior）、品質骰 R110、屠戮（Slaughter）、無前綴。價格取 250 金幣與出售價四倍中的較高值；交付為已鎖定背包裝備。須無待領戰利品，且交付後仍保留 5 格出戰空間。</p><p>這是本作獨立單人金幣出口，不是原版商店庫存、訓練或鍛造。屬性評分不代表特效效益，不會據此推薦購買；刷寶仍可能取得更適合或更強的裝備。</p></details>
       </section>
-      <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
+
+        </div>
+        <div id="camp-panel-growth" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-growth" tabindex="0" hidden>
+      <section class="camp-abilities panel" aria-labelledby="ability-heading" aria-describedby="ability-intro">
+        <div class="section-heading ability-heading"><h3 id="ability-heading">營地能力</h3><span class="badge">3 條能力成長線</span></div>
+        <div class="ability-budget"><strong id="ability-ap">可用 AP — / 累計 —</strong><span id="ability-slots">Major 槽 — / 5</span></div>
+        <p id="ability-intro" class="ability-note">先用 AP 學習，再另外裝入能力槽才生效；升階保留原裝配狀態，未裝配仍不生效。5 格皆免費，不必只選一項；預設不分配、不自動學習或裝配。</p>
+        <p id="ability-status" class="ability-note">回營後可調整；不花金幣、不抽取隨機結果。</p>
+        <div id="ability-choices" class="ability-choices"></div>
+        <p id="ability-feedback" class="ability-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+        <details class="ability-rules"><summary>AP、升階與改編規則</summary><p>參考原版 AP 表：Lv.1 累計 1 AP，之後每升 1 級加 1 AP；原版起始提供 5 格 Major 槽。目前實作 HP Tank（10 階）、MP Tank（10 階）與 1H Damage（3 階）三條能力成長線，沿用各階等級門檻、AP 費用與效果；仍不是完整能力樹，後續繼續擴充。Lv.4 的 4 AP 就能學齊目前三項的 Rank 1，但 Rank 1 非原版最高階，也不是永久分支專精。本版沒有付費加槽、Mastery 能力或自動分配。</p><p>起始 Rank 1：HP Tank／MP Tank 各花 1 AP，1H Damage 花 2 AP。升階必須已學會前一階、達等級門檻並有足夠 AP；卡片「額外 AP」只收下一階費用，不會再收已花的 AP。升階取代前階效果，保留裝配狀態；學會但未裝配時沒有加成。卸下只空出能力槽，不退 AP；「免費遺忘」會同時卸下，清除全部階級並退還累計已用 AP。營地免費重配是本作改編，不是原版重置價格；可直接重學，不需額外確認。</p><p>HP Tank／MP Tank 依已裝配階級提高基礎 HP／MP，向下取整後才加裝備固定 HP；Rank 1 為基礎值 × 1.10。先算能力、再加固定裝備生命的順序為本作整合規則。1H Damage 依目前有效單手熟練度與階級係數加入面板攻擊（ADB）；Rank 1 的係數為 2，熟練度為 0 時加成也是 0，並非固定 +2 攻擊。本階預覽與下一階預覽都假設已學習並裝配，保留其他已裝能力；下一階預覽不是只升階但未裝配的現況，也不是傷害或勝率保證。</p><p>本作的自動治癒、補給藥水與換波恢復仍按最大 HP 的 27%／40%／10% 計算，所以 HP Tank 也會提高這些恢復量。這是既有掛機改編，不是原版常以基礎 HP 計算的 Cure；沒有藉能力新增原版治療法術。</p><p>新旅程及沒有能力資料的舊存檔都從未學習、未裝配開始，累計 AP 依目前等級計算；有效的 Rank 1 配置會保留。v0.9 等舊版分頁可能不保留能力配置；請重新整理再接手。v0.10 分頁會拒絕含 Rank 2 以上資料的存檔：請先匯出備份、重新整理所有舊版分頁，再接手進度，不要用舊分頁覆寫。存檔仍使用 v3 命名空間，候選版與正式版分開。可保留 AP 之後再用；戰鬥、戰敗與唯讀分頁不能改能力，回營並取得進度控制權後再調整。</p></details>
+      </section>
+
+        </div>
+      </section>
     </section>
     <aside class="loot-panel panel">
       <div class="section-heading"><div><span class="eyebrow">THE SPOILS</span><h2>遠征戰利品</h2></div><span id="inventory-count" class="badge">0</span></div>

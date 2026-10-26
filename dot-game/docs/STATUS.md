@@ -1,5 +1,13 @@
 # Current status
 
+## v0.16 development candidate — 2026-10-26 12:18 UTC
+
+Camp navigation groups the secondary panels into **戰況 / 配裝 / 成長** while keeping the hero, battlefield, expedition controls and inventory available. This is a presentation-only iteration: no combat, loot, progression or save-schema changes. Click a tab, or focus it and use Left/Right/Home/End. The selected tab is transient and resets to 戰況 on reload; it is not saved progress. Existing advanced rules remain available in their respective panels.
+
+Source regression passes 1,162/1,162 tests and four JS syntax checks; independent structural/lifecycle review passes. Source backup and actual isolated browser acceptance are pending. Public v0.15 and complete accepted restore `6d3141ddfc42ef8a52a5cdea09496c1de6af2c66` remain the accepted version until this candidate is verified. See `docs/CAMP-NAVIGATION.md` for the scope and acceptance plan.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.15 published and stable-root accepted — 2026-10-26 12:07 UTC
 
 Play: https://gggodlin.github.io/play/hv-v3-dot/ . New rapier equipment parry input/Nimble, consistent seven-stat equipment decisions, and camp departure feedback are now live. Original equipment inputs and our adapted final probabilities remain explicitly distinct; old owned gear is not retrofilled.

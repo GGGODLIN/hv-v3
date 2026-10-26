@@ -1251,6 +1251,37 @@ window.addEventListener('storage', event => {
     try { state = validateSave(JSON.parse(event.newValue)); lastSavedRaw = event.newValue; syncSelection(); if (!document.hidden) render(true); } catch { /* invalid external state never imported */ }
   }
 });
+// Display-only navigation: deliberately independent of progress, preferences and simulation.
+function setupCampNavigation() {
+  const names = ['battle', 'gear', 'growth'];
+  const tabs = names.map(name => $(`camp-tab-${name}`));
+  const panels = names.map(name => $(`camp-panel-${name}`));
+  function select(index, moveFocus = false) {
+    tabs.forEach((tab, position) => {
+      const selected = position === index;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      panels[position].hidden = !selected;
+    });
+    if (moveFocus) tabs[index].focus();
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => select(index, true));
+    tab.addEventListener('keydown', event => {
+      let next;
+      if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = tabs.length - 1;
+      else return;
+      event.preventDefault();
+      select(next, true);
+    });
+  });
+  select(0);
+}
+setupCampNavigation();
+
 // Simulation has exactly one clock: this timer. rAF never advances gameplay.
 setInterval(() => {
   if (!pageActive) return;

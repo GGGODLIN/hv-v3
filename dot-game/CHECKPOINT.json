@@ -1,16 +1,14 @@
 {
-  "checkpoint": "v0.15-publication-receipt",
-  "status": "published-bounded-desktop-accepted",
-  "base_accepted_recovery": "22bdfca3068c7934921c2493eb40de624d684318",
-  "runtime_source": "3f5b3cce2c1fdf3ddb98966bbd93ef2e8d761ceb",
-  "accepted_prepublication_source": "f791ea3f6cabbcfa27af61a5bb7ccdb5e7a6573b",
-  "site_commit": "663589608a78d5ccdd38dc0b9d30de85a7bc92a2",
-  "source_tests_passed": 1155,
+  "checkpoint": "v0.16-navigation-candidate",
+  "status": "source-tested-browser-acceptance-pending",
+  "base_accepted_recovery": "6d3141ddfc42ef8a52a5cdea09496c1de6af2c66",
+  "source_tests_passed": 1162,
   "runtime_syntax_checks": 4,
+  "scope": "Presentation-only camp navigation; engine/loot/session unchanged.",
   "files": {
     "README.md": {
-      "bytes": 38511,
-      "sha256": "2ae1490006d165cadc6ceebdbd226e41afaf59d2201dccb092c918611f305c56"
+      "bytes": 39476,
+      "sha256": "35b616bf1e7ff39ca6bc7b98c0edb7450822a7150ee5e8f14db1a0a2167fb7cc"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -148,6 +146,10 @@
       "bytes": 5042,
       "sha256": "2ec741bdc4da9334797129de8366fb9b4fd2786657f8a8ec29e1659b29eddeaf"
     },
+    "docs/CAMP-NAVIGATION.md": {
+      "bytes": 3072,
+      "sha256": "6a8cf4ca07cd3a1fcb55870ad8ebd98a25df7d89d49ba0c9d70461ce2c05cdf2"
+    },
     "docs/CLOCK-BALANCE.md": {
       "bytes": 14488,
       "sha256": "e47af92d7ed883d2a492610bebc2d196c109ed4dcd2ae39a1d50260a7b1ce022"
@@ -213,8 +215,8 @@
       "sha256": "038bc3906c7a2cf295d7580dabb5bb9307ae67375b864a206ac1868598decf15"
     },
     "docs/ROADMAP.md": {
-      "bytes": 13802,
-      "sha256": "e4306cbe6140625ad8047167fa135b7812d0261ff0b744aa04e30e2cfcadf5cd"
+      "bytes": 14268,
+      "sha256": "4baee08c1db19767dd02b096fdb4b63ca2edd1fc2b786cb98495e08b65a37a68"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
@@ -225,20 +227,20 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 62073,
-      "sha256": "9b61ceebad1d9cae258d219f8fc970286d9f54921a675c67826eab8b569f5e2a"
+      "bytes": 63038,
+      "sha256": "110d5cbecd918440c53b2a4d4847630cdefde2761f8adb4ed8034eea2fd347c4"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
       "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 30121,
-      "sha256": "262c865d2b20c053e45fcbe110f855a6fe5f7924dc6bcce7a744f7df8eb4d301"
+      "bytes": 31367,
+      "sha256": "d7974c5e7074ae9c330e2bb6ebbe283b3d66005bc624ecde944f67460ad67d61"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "09095de33283b75e4cab40ecc27d040bc1db3625f4f11e39ee625504cf7101a1"
+      "sha256": "cd0a5bd10c7f5e0d91d36296ad87739dcc7cac3698b5befb8cadad96b6ea2fcf"
     },
     "src/engine.js": {
       "bytes": 73758,
@@ -253,20 +255,20 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 99557,
-      "sha256": "08e4c5aa8c89301a1ca97bed79b6fa32ac9b578814b53373141dc833f38de2f1"
+      "bytes": 100724,
+      "sha256": "cea402e4b21f82aa6d9a6d1f4654ed5c9eaa4fa71d0e705ba76003462d6cd31c"
     },
     "style.css": {
-      "bytes": 36872,
-      "sha256": "a992f289d432759f7a109e74feb52d3684e8dffa7f04622dd7c62f712b56067a"
+      "bytes": 37817,
+      "sha256": "ea40d91a9c1c2d71b2fe0a90c4935c1e82e7dc8493113685f728ee2eb3dbc9c7"
     },
     "tests/ability-growth.test.mjs": {
       "bytes": 17142,
       "sha256": "3a3e008a5839e84e248b83fbcd4dddcd1125c29f5de4cb2ea9585f1713f4ff16"
     },
     "tests/ability-ui.test.mjs": {
-      "bytes": 18893,
-      "sha256": "6ce38a613cd843d1ccdb89a0eb7ef7501a3c30bc2fda602e8808250c26670cd3"
+      "bytes": 18942,
+      "sha256": "c6bcae00e6b71a6d2805efee614f396d1b1d1dbaaacdecb17b7415f74e22a1ba"
     },
     "tests/acceptance.test.mjs": {
       "bytes": 5964,
@@ -278,7 +280,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12121,
-      "sha256": "eedca347a6602eacf036c57ee6c70bf76d8db410c21856283efc1183e1e95e43"
+      "sha256": "c6ba822639b4b90c707c079d92b88e47e157065215c1312815826fdeefb93ad5"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -291,6 +293,10 @@
     "tests/browser-fixtures/unsupported-import.json": {
       "bytes": 2227,
       "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
+    },
+    "tests/camp-navigation.test.mjs": {
+      "bytes": 5537,
+      "sha256": "f764f831f372cded34336777297fba0366169664d53e850feafefcb111f8fb5a"
     },
     "tests/clock-balance.test.mjs": {
       "bytes": 16450,
@@ -318,7 +324,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18032,
-      "sha256": "d1f11c439c10681aa5505430263a08a7e95fd48a2e519b1c51dc787067ba4aa7"
+      "sha256": "6cb36c9ed321ad6bd2c3489eab4a001863b323cca222d2eed8c3258fb714bd70"
     },
     "tests/counterattack-acceptance.test.mjs": {
       "bytes": 12479,
@@ -326,7 +332,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "035527ae45fd04184021d41ad0ea9251142708dfce52828a9cb4414002881890"
+      "sha256": "82ba8d06de9055d7e77d9f78850c17bbc3e911a0fd35a94a49432c604398bf2d"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -470,7 +476,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "16d1f7296a7f229075224bcca2dddc324f4abf0c373e3c429c6e6e9997167b8a"
+      "sha256": "f17442698e5e246f8908bd667cee921279aa2a4d6da735d2e20185e292c3b0c9"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15636,
@@ -486,7 +492,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9473,
-      "sha256": "8782dc77cdb784c023143753045466945f04e46ce595bff0b0e0c5bce23f856d"
+      "sha256": "b318cc64e102113627ba585944c24f51fe940cca0d001c69bd8d6b2b8d7c8f12"
     },
     "tests/safe-loot-actions.test.mjs": {
       "bytes": 17684,
@@ -586,7 +592,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 14910,
-      "sha256": "517544f5af841d9182ce599250a7a77eb9992e97e9214b2b70d3d3b9d54f6a2d"
+      "sha256": "5ac089a0c9bab4480e463e0ce97eb380278c2d168c6b312272bc045a711689b7"
     }
   }
 }
