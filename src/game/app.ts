@@ -257,7 +257,7 @@ export class App {
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         // CP5 rc2 fix 3: the death-combo ⚔ warning sits on the elite node itself (the floor banner stays).
         const ew = r.abyss && RULES.cp6Abyss && t === 'elite' ? `<b class="ewarn warn" data-elitemark title="深淵精英可能帶 3 個詞綴，或克制物理的【尖刺】【堅硬】">⚔</b>` : r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
-        return cur ? `<button class="node n-${t}" data-node="${i}"${r.startPick && r.offer ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
+        return cur ? `<button class="node n-${t}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
@@ -355,7 +355,7 @@ export class App {
     if (!RULES.cp4RunBuffs || !ids) return '';
     const f = formed(ids), c = combos(ids);
     const on = (Object.keys(c) as (keyof Combos)[]).filter((k) => c[k]);
-    return `<div class="buffs" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
+    return `<div class="buffs${RULES.cp8 ? ' fixh' : ''}" data-buffs="${ids.length}">${ids.map((id) => `<span class="bf r-${BUFF[id]!.rarity}" title="${esc(BUFF[id]!.desc)}">${BUFF[id]!.zh}</span>`).join('') || '<span class="hint">尚無 buff</span>'}
       ${f.length ? `<span class="hint">流派成形：${f.map((s) => SCHOOL_ZH[s]).join('、')}</span>` : ''}${on.length ? `<span class="hint">組合：${on.map((k) => comboZh(k)).join('；')}</span>` : ''}</div>`;
   }
   /** CP4 rc #3: held buffs in battle — one icon per buff, hover for name/desc; combo progress.
@@ -655,6 +655,8 @@ export class App {
 
   enterNode(i: number) {
     const r = this.run;
+    // cp8-rc4: nodes stay clickable during the start-buff picks; entering a node forgoes the picks still open.
+    if (RULES.cp8 && r.startPick) { r.offer = null; r.offersLeft = 0; r.startPick = false; }
     const t = r.tower.floors[r.floor - 1]!.options[i]!;
     r.current = { type: t, option: i };
     this.pending = {};
