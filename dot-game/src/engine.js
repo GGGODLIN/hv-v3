@@ -37,6 +37,18 @@ export const AXE_BLEED_RULES = Object.freeze({chance:.25,durationTicks:7,maxStac
 // eligibility are explicit adaptations. Counter stun/OC/OS are not implemented.
 export const COUNTERATTACK_RULES = Object.freeze({baseChance:.25,attributeChance:.0002,proficiencyChance:.001,maxChance:.75});
 const counterBudgets = new WeakMap();
+// Protection's 25% independent reduction and level-based MP cost are original
+// facts. Lv10 / 15 ticks select uncertain research values (10? / 15?). This
+// full-action automatic recast is an adaptation, not original Auto-cast Slots.
+export const PROTECTION_RULES = Object.freeze({unlockLevel:10,durationTicks:15,reduction:.25});
+const protectionSessions = new WeakMap();
+export function protectionView(s) {
+  const session=s&&protectionSessions.get(s);
+  const level=Math.max(0,finite(s?.hero?.level));
+  const remainingTicks=s?.mode==='battle'&&s?._phase==='fight'?Math.max(0,(session?.expiresAtTick??0)-finite(s?.timing?.ticks)):0;
+  return {enabled:s?.autoProtection===true,unlocked:level>=10,unlockLevel:10,manaCost:Math.ceil(level*.25),durationTicks:15,
+    active:remainingTicks>0,remainingTicks,casts:session?.casts??0,damagePrevented:session?.damagePrevented??0};
+}
 /** Detached session-only view. Chance is conditional on a reached successful
  * block/parry check, not the chance per incoming attack. */
 export function counterattackView(s) {
@@ -210,7 +222,7 @@ const expeditionFeedback = new WeakMap();
 const reportNumber = value => clamp(finite(value),0,Number.MAX_SAFE_INTEGER);
 function copyExpeditionReport(report) {
   return {...report,weapon:{...report.weapon},startStats:{...report.startStats},
-    actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
+    ...(report.protection?{protection:{...report.protection}}:{}),actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
 }
 /** Detached newest-first completed expeditions, at most two for this state in
  * this session. Reads never settle a fight, consume RNG, or change game state.
@@ -252,6 +264,8 @@ function settleExpeditionReport(s, outcome) {
   feedback.active=null;
   const report={...active,outcome,endLevel:integer(s.hero.level,1,500),elapsed:reportNumber(s.battle.elapsed),
     actions:Object.fromEntries([...Object.keys(freshActions()),...(s.battle.actions?.counters>0?['counters']:[])].map(key=>[key,reportNumber(s.battle.actions?.[key])]))};
+  const protection=protectionSessions.get(s);
+  if(protection?.casts>0)report.protection={casts:protection.casts,damagePrevented:protection.damagePrevented};
   for(const value of Object.values(report))if(value&&typeof value==='object')Object.freeze(value);
   feedback.reports.unshift(Object.freeze(report));feedback.reports.length=Math.min(2,feedback.reports.length);
 }
@@ -342,7 +356,9 @@ export function resolveAttack(attacker, defender, rng = Math.random) {
   const mitigation=generalMitigation(defender);
   const specificMit=attacker.void?0:clamp(finite(defender.specificMit),0,.95);
   trace.push('DamageRoll'); const die=80+Math.floor(roll()*41);
-  result.damage=Math.max(0,Math.floor(Math.max(0,finite(attacker.attack))*factor*critFactor*(1-mitigation)*(1-specificMit)*die/100+1e-9));
+  const rolledDamage=Math.max(0,finite(attacker.attack))*factor*critFactor*(1-mitigation)*(1-specificMit)*die/100;
+  result.damage=Math.max(0,Math.floor(rolledDamage+1e-9));
+  if(defender.protection===true){result.unprotectedDamage=result.damage;result.damage=Math.max(0,Math.floor(rolledDamage*.75+1e-9));}
   result.outcome=result.crit?'crit':factor<1?'glance':'hit';return result;
 }
 /** Resolves damage first, then mutates only the defender's bounded proc status.
@@ -430,6 +446,7 @@ function enemiesFor(s) {
 }
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
+  protectionSessions.delete(s);
   s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
   resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
   beginExpeditionReport(s);
@@ -663,7 +680,7 @@ function win(s) {
   const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
   event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
   settleExpeditionReport(s,'win');
-  counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
+  protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 // Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
@@ -681,16 +698,24 @@ function finishWave(s, maxHp) {
 }
 function playerTurn(s) {
   const p=stats(s), target=s.enemies.find(e=>e.hp>0);if(!target)return;
-  s._turns++;s.timing.turns++;s.hero.proficiency=round(Math.min(1.2*s.hero.level,s.hero.proficiency+.08));s.hero.mp=Math.min(p.maxMp,s.hero.mp+.6);
+  s._turns++;s.timing.turns++;s.hero.mp=Math.min(p.maxMp,s.hero.mp+.6);
   const policy=POLICIES[validStrategy(s.strategy)?s.strategy:'balanced'];
-  const actions=s.battle.actions;
+  const actions=s.battle.actions;let healed=false;
   if(s.hero.hp<p.maxHp*policy.healAt&&s.hero.mp>=6){
-    s.hero.mp-=6;actions.heals++;actions.manaSpent+=6;
+    healed=true;s.hero.mp-=6;actions.heals++;actions.manaSpent+=6;
     s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.27);event(s,'heal','自動治癒',Math.round(p.maxHp*.27),'hero');
   }
   // Existing v0.1 support actions do not replace the attack. Policies alter
   // eligibility only: no extra turns, free stats, or altered damage formulas.
   if(policy.potionAt&&s.hero.hp<p.maxHp*policy.potionAt)usePotion(s);
+  const protection=protectionView(s);
+  if(!healed&&protection.enabled&&protection.unlocked&&!protection.active&&s.hero.mp>=protection.manaCost){
+    const session=protectionSessions.get(s)||{expiresAtTick:0,casts:0,damagePrevented:0};
+    session.expiresAtTick=s.timing.ticks+15;session.casts++;protectionSessions.set(s,session);
+    s.hero.mp-=protection.manaCost;actions.manaSpent+=protection.manaCost;actions.protectionCasts=(actions.protectionCasts||0)+1;
+    event(s,'protection','護盾術 · 減傷 25% · 15 Tick',protection.manaCost,'hero');return;
+  }
+  s.hero.proficiency=round(Math.min(1.2*s.hero.level,s.hero.proficiency+.08));
   const skill=s._turns%policy.cadence===0&&s.hero.mp>=3+policy.reserve;
   actions.attacks++;
   if(skill){s.hero.mp-=3;actions.skills++;actions.manaSpent+=3;}
@@ -707,13 +732,14 @@ function playerTurn(s) {
 function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
   const p=stats(s);
-  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true},p,()=>random(s));
+  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true},protectionView(s).active?{...p,protection:true}:p,()=>random(s));
   const previousHp=s.hero.hp;
+  if(attack.unprotectedDamage!==undefined){const session=protectionSessions.get(s);session.damagePrevented+=Math.max(0,Math.min(previousHp,attack.unprotectedDamage)-Math.min(previousHp,attack.damage));}
   s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');
   observeExpeditionLoss(s,previousHp-s.hero.hp,p.maxHp);
   if(s.hero.hp<=0){
     settleExpeditionReport(s,'defeat');
-    counterBudgets.delete(s);s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
+    protectionSessions.delete(s);counterBudgets.delete(s);s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
     event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');
     return false;
   }
@@ -851,6 +877,7 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(action==='autoProtection'){if(s.mode==='town'&&typeof payload==='boolean'){if(payload)s.autoProtection=true;else delete s.autoProtection;}return s;}
 
   if(['saveGearSet','clearGearSet','applyGearSet'].includes(action)){
     if(s.mode!=='town')return s;
@@ -998,7 +1025,7 @@ export function act(s, action, payload) {
   }
   if(action==='setAutoAdvance'&&typeof payload==='boolean'){s.autoAdvance=payload;return s;}
   if(action==='retreat'&&s.mode==='battle'&&s._phase==='fight')settleExpeditionReport(s,'retreat');
-  if(action==='retreat') {counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
+  if(action==='retreat') {protectionSessions.delete(s);counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
   if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
@@ -1023,6 +1050,9 @@ export function validateSave(input) {
   if(!input||typeof input!=='object'||Array.isArray(input)||input.version!==VERSION||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
   const h=input.hero;if(!Number.isInteger(h.level)||h.level<1||h.level>500||!Number.isFinite(h.xp)||h.xp<0||!Number.isFinite(h.gold)||h.gold<0)throw new Error('角色資料無效');
   const s=createGame(input.seed);s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
+  const protectionField=Object.getOwnPropertyDescriptor(input,'autoProtection');
+  if(protectionField){if(!protectionField.enumerable||!Object.hasOwn(protectionField,'value')||typeof protectionField.value!=='boolean')throw new Error('自動護盾設定無效；未載入，請保留原存檔。');if(protectionField.value)s.autoProtection=true;}
+  else if('autoProtection' in input)throw new Error('自動護盾設定無效；未載入，請保留原存檔。');
   const allocation=readAbilityAllocation(input);
   if(allocation.learned.length)s.abilities=allocation;
   // Rebuild allocated growth rather than trusting imported attribute multipliers.

@@ -90,3 +90,6 @@ Explicit staging authorization, exact candidate CI/HTTP, actual browser acceptan
 
 ## v0.16 chosen slice
 Reduce accumulated camp UI complexity without removing depth: put secondary battle reports, gear planning and abilities into three accessible transient tabs. Keep the core combat/loot loop visible and every original rule disclosure reachable. Verify live combat while secondary panels are hidden, keyboard navigation, dialogs, ownership and import/reload. This is an interface improvement, not a new game system or a final limit on expansion.
+
+## v0.17 chosen slice
+Add the first supported defensive spell decision: optional Protection, with independent25% damage reduction but an MP and attack-turn cost. Keep one understandable switch instead of a scripting/configuration system. Preserve uncertain source unlock/duration labels and the distinction from original Auto-cast Slots. Test legacy OFF equivalence and active timing/ownership before source backup and isolated actual play; do not expand the spell tree until this integration is accepted.

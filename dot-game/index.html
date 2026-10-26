@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.16 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.17 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -44,6 +44,7 @@
         <p class="enemy-status-hint">目前數字已計入穿透護甲／暈眩。閃＝閃避、招＝招架、擋＝格擋，皆為單次判定機率；暈眩不取消格擋，到期後可再行動。流血另列每 Tick 傷害，不改變防線數字。</p>
       </section>
       <p id="bleed-notice" class="bleed-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+      <p id="protection-live" class="protection-live" hidden></p>
       <p id="counter-notice" class="counter-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
       <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；流血須先打出傷害再觸發，之後每 Tick 的無類型傷害不受減傷影響，但需要時間累積，並非每次命中都會觸發。沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
@@ -93,6 +94,14 @@
 
         </div>
         <div id="camp-panel-growth" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-growth" tabindex="0" hidden>
+      <section class="protection-panel panel" aria-labelledby="protection-heading">
+        <div class="section-heading"><h3 id="protection-heading">Protection · 護盾術</h3><span class="badge">防守與攻速的取捨</span></div>
+        <label class="toggle protection-toggle"><input type="checkbox" id="auto-protection" aria-describedby="protection-cost protection-status"><span>自動護盾</span></label>
+        <p id="protection-cost" class="protection-cost"></p>
+        <p id="protection-status" class="protection-note"></p>
+        <p class="protection-note">護盾讓減傷後的剩餘傷害再減少 25%，不是減傷率直接 +25 百分點。到期才重施，不疊加；回營或遠征結束清除。</p>
+        <details class="protection-rules"><summary>原版依據與本作適配</summary><p>原版 Protection 的基礎減傷效果為 25%，基礎 MP 費為角色等級 × 25% 後向上取整，不是最大 MP 的 25%；本版採零 supportive 熟練度、零施法干涉、無其他折扣的基礎費用。原版資料的解鎖等級 10?、基礎時長 15? 尚有問號，本版選用 Lv.10／15 Tick 作研究模型，並非已確證的原版值。</p><p>預設關閉的自動重施政策、施放取代一個攻擊行動、本回合已治癒時不施盾均為本作適配，不是原版 Innate Arcana 的維持費機制。未實作 supportive 熟練度與 Better Protection 增幅；先採基礎時長。Tick 跟隨全域戰鬥時間，不是點擊次數。施法本身不造成武器傷害；不足施盾費用時照常攻擊；低血但不足治癒費用時仍可能施盾，不保留治療用 MP。</p></details>
+      </section>
       <section class="camp-abilities panel" aria-labelledby="ability-heading" aria-describedby="ability-intro">
         <div class="section-heading ability-heading"><h3 id="ability-heading">營地能力</h3><span class="badge">3 條能力成長線</span></div>
         <div class="ability-budget"><strong id="ability-ap">可用 AP — / 累計 —</strong><span id="ability-slots">Major 槽 — / 5</span></div>

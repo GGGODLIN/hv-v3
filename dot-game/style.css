@@ -252,3 +252,15 @@
 .camp-tab-panel[hidden] { display: none; }
 .camp-tab-panel:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: var(--radius); }
 @media(max-width:680px) { .camp-navigation [role="tab"] { min-height: 58px; } .camp-navigation-hint { font-size: 11px; } }
+
+.protection-panel { min-width: 0; padding: 16px; margin-top: 17px; }
+.protection-panel .section-heading { flex-wrap: wrap; }
+.protection-toggle { margin-top: 12px; }
+.protection-cost { margin-top: 8px; color: var(--gold); font-size: 12px; overflow-wrap: anywhere; }
+.protection-note, .protection-rules { margin-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.protection-rules summary { cursor: pointer; color: #bfd1c5; padding: 3px 0; }
+.protection-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.protection-rules p { margin-top: 7px; }
+.protection-live { padding: 7px 12px; color: #bfe8d9; background: #172e2b; border: 1px solid #3d5e52; border-radius: 8px; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+
+.floating-number.protection { color: #bfe8d9; }

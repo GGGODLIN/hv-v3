@@ -1,5 +1,13 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.17 development candidate — 2026-10-26 12:54 UTC
+
+Protection adds one optional defensive choice: at level10 enable 自動護盾, spend a base `ceil(level × .25)` MP and one attack turn for25% independent damage reduction. Insufficient MP retains the normal attack; a successful heal takes priority. Source level10?/duration15? remain explicitly selected research models; full-turn auto-recasting is an adaptation, not original Innate Arcana. See docs/PROTECTION-GUIDE.md for exact sources and limitations.
+
+Full source tests **1,188/1,188** and four syntax checks pass. Independent review additionally compared18,000 default-OFF complete-state/RNG/report samples against accepted v0.16 and350 same-RNG damage cases. Browser acceptance and publication remain pending; accepted root v0.16 and complete restore `b32d52af8558c15e907a77cbf1da9bbda866e666` remain unchanged. No user save, Library or schedule recovery claim.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.16 published and stable-root accepted — 2026-10-26 12:39 UTC
 
 Play: https://gggodlin.github.io/play/hv-v3-dot/ . Camp tools are now grouped into **戰況 / 配裝 / 成長**, with keyboard navigation and only one secondary group visible. Hero, battle controls and inventory remain available; no combat, loot, growth or save rules changed. Default desktop page height dropped3330→1986px at1188×761 without removing existing features.

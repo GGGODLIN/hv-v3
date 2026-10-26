@@ -1,16 +1,13 @@
 {
-  "checkpoint": "v0.16-publication-receipt",
-  "status": "published-bounded-desktop-accepted",
-  "base_accepted_recovery": "6d3141ddfc42ef8a52a5cdea09496c1de6af2c66",
-  "runtime_source": "bbe6c66619a9dd1942ce6b43e2d4a8d9eb729c73",
-  "accepted_prepublication_source": "9e7e4d78696d32e4daea84fc703dafda2344e35b",
-  "site_commit": "21fa61dee2b89e796b618eb1d2089ac50928cbc0",
-  "source_tests_passed": 1162,
+  "checkpoint": "v0.17-protection-candidate",
+  "status": "source-tested-browser-pending",
+  "base_accepted_recovery": "b32d52af8558c15e907a77cbf1da9bbda866e666",
+  "source_tests_passed": 1188,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 41938,
-      "sha256": "c52e8d40c9d713f0f4f1a9364d38b28f6a4c78707ad771fba3eb1e0e01fa48cc"
+      "bytes": 42912,
+      "sha256": "3b69a0ef62d74f9061ef20eb7d6dc9aa5e7b0b015c704b076e68f777c0a6f7c8"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -39,6 +36,10 @@
     "docs/ACCEPTANCE-V015.md": {
       "bytes": 9080,
       "sha256": "29b80ed7efab1e0653b00e66f73f1f51139d26073a21fa24999dbd98afa77476"
+    },
+    "docs/ACCEPTANCE-V017.md": {
+      "bytes": 1482,
+      "sha256": "b3351e9a5c1bfbaa1d43750ef089b8a06eaabfa4a3b797e043b41efae19a5145"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -201,12 +202,16 @@
       "sha256": "2850f75da8fd2ccd2bff6edc0c41afc4c876154b43f0099e9095985ef9398f2b"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 39038,
-      "sha256": "aa4a8aa7826a574c2a521694274c951391c9326f3e533eff7714bf410d14df17"
+      "bytes": 39813,
+      "sha256": "ee205bdd52daf6eab80b03123a147d0ab92c64fd147dbd3e93f4865bd100c422"
     },
     "docs/PARRY-GEAR-GUIDE.md": {
       "bytes": 6825,
       "sha256": "dbfbaedfa01b3ff27f9cf355985ebb4ceb65e7bbc63a971592e92e023436b3db"
+    },
+    "docs/PROTECTION-GUIDE.md": {
+      "bytes": 4787,
+      "sha256": "590e12fa0eb7e352f1a47a692440046ff33b3fc977a04a0ed41d304137889ed7"
     },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
@@ -221,8 +226,8 @@
       "sha256": "038bc3906c7a2cf295d7580dabb5bb9307ae67375b864a206ac1868598decf15"
     },
     "docs/ROADMAP.md": {
-      "bytes": 14268,
-      "sha256": "4baee08c1db19767dd02b096fdb4b63ca2edd1fc2b786cb98495e08b65a37a68"
+      "bytes": 14775,
+      "sha256": "d8bbe2e44130a8e876d693bb7ca1b34a3692e646bb07e96117cdc1e3d8faf1a5"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
@@ -233,24 +238,24 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 65500,
-      "sha256": "511fc69afbd0e2e00653cfeae753c3c6fe57b46923cabbd5d00f10864b951f1c"
+      "bytes": 66474,
+      "sha256": "60da39ee7ae80bf7e674cf229b051bd10c5b47c5ef4c227a2199a31c1cf8d5fb"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
       "sha256": "a39cc182dac96b7878f7eaca726204e0d4c880fb274466daead2726a3daffe30"
     },
     "index.html": {
-      "bytes": 31367,
-      "sha256": "d7974c5e7074ae9c330e2bb6ebbe283b3d66005bc624ecde944f67460ad67d61"
+      "bytes": 33094,
+      "sha256": "df21481b0bb2274c963a199fe464041e825ddffcc47bc271745ce94df0c658e4"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "cd0a5bd10c7f5e0d91d36296ad87739dcc7cac3698b5befb8cadad96b6ea2fcf"
+      "sha256": "509612db29cf792bd7197a6e9c05ee07a1b377e5b2edf1dfc3c6390f014bc578"
     },
     "src/engine.js": {
-      "bytes": 73758,
-      "sha256": "f51424a3224b84dc34f3c5ee58501370af37aedee96cf2abe0743e22d8cff7a8"
+      "bytes": 76606,
+      "sha256": "215ad7e9c48c16e7daa900a02349187f828dca982095a6a5fea2cde4ff99987a"
     },
     "src/loot.js": {
       "bytes": 22961,
@@ -261,12 +266,12 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 100724,
-      "sha256": "cea402e4b21f82aa6d9a6d1f4654ed5c9eaa4fa71d0e705ba76003462d6cd31c"
+      "bytes": 102700,
+      "sha256": "3d16c2bb8bb35a99b254dbc39d26e8614ebe54fa0737dfd69e23c0ad2fb0b7dd"
     },
     "style.css": {
-      "bytes": 37817,
-      "sha256": "ea40d91a9c1c2d71b2fe0a90c4935c1e82e7dc8493113685f728ee2eb3dbc9c7"
+      "bytes": 38708,
+      "sha256": "15bff69a1d079840dd49ad01f7e04f4e65b7ccde4842eeb1d3e7bc10cfbfd9d4"
     },
     "tests/ability-growth.test.mjs": {
       "bytes": 17142,
@@ -286,7 +291,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12121,
-      "sha256": "c6ba822639b4b90c707c079d92b88e47e157065215c1312815826fdeefb93ad5"
+      "sha256": "688437fcb8c93623cc820f2cfcbda5922d9143acfbbdefb29de5d134a3685105"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -330,7 +335,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18032,
-      "sha256": "6cb36c9ed321ad6bd2c3489eab4a001863b323cca222d2eed8c3258fb714bd70"
+      "sha256": "8c8c3a36be060e741af8d2861904fa5a96bf79c8b2aa7b8afea2b861eaa868fa"
     },
     "tests/counterattack-acceptance.test.mjs": {
       "bytes": 12479,
@@ -338,7 +343,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "82ba8d06de9055d7e77d9f78850c17bbc3e911a0fd35a94a49432c604398bf2d"
+      "sha256": "76a9366534290786d3ddcbbd42b517fa50be516611038d48640d1bfc6cd54660"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -472,6 +477,10 @@
       "bytes": 11547,
       "sha256": "e0c8893d80b796f189df7fcba8dcc287cf77327edf90fb964a35998e678bfa57"
     },
+    "tests/protection.test.mjs": {
+      "bytes": 7353,
+      "sha256": "a0b2cfb27ed6d7c435e48e7a0fb5af1a000d41e56973ec3fe1084a145d02c0d9"
+    },
     "tests/pump-transition.test.mjs": {
       "bytes": 12384,
       "sha256": "ac37a3661e3ca0357b8ada26dae4a8aa7b8009282268d87c083b5ba627b5ede1"
@@ -482,7 +491,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "f17442698e5e246f8908bd667cee921279aa2a4d6da735d2e20185e292c3b0c9"
+      "sha256": "852f5b3c0e7073def9637a97d85eb4c175c37c583ef740f7586a5a99a562ae4f"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15636,
@@ -498,7 +507,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9473,
-      "sha256": "b318cc64e102113627ba585944c24f51fe940cca0d001c69bd8d6b2b8d7c8f12"
+      "sha256": "8246ad47b31c6769648aca0758f27b85c87124dfb25dd524ce2ff3be491c8f01"
     },
     "tests/safe-loot-actions.test.mjs": {
       "bytes": 17684,
@@ -539,6 +548,10 @@
     "tests/tactics.test.mjs": {
       "bytes": 5693,
       "sha256": "25ce8f3574189ac3666aaa1c0aee7e349afbc8dae172b0f96d3b2644de94715b"
+    },
+    "tests/ui-protection.test.mjs": {
+      "bytes": 5529,
+      "sha256": "7f8cd0b67251fbaf6cd1f2b4395249f9572c9638afb7768485a5c50e604c2dc2"
     },
     "tests/ui.test.mjs": {
       "bytes": 3025,
@@ -598,7 +611,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 14910,
-      "sha256": "5ac089a0c9bab4480e463e0ce97eb380278c2d168c6b312272bc045a711689b7"
+      "sha256": "2ff62c81436214da0688be329ea5047b07bf5ff74070e4c30f88ebe64b850a9c"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -780,6 +780,10 @@ function eventEffects() {
       }
       playSound('crit');
     }
+    if (type === 'protection' && !prefs.reducedMotion) {
+      const number = node('span', 'floating-number protection', '護盾');
+      $('floating-layer').append(number); setTimeout(() => number.remove(), 950);
+    }
     if (type === 'counter' && event.effect === 'counter') {
       // An action notice survives a lethal target/wave change, unlike live statuses.
       const counterNotice = $('counter-notice');
@@ -882,12 +886,30 @@ function renderCounterattack() {
 function renderPlayerParry(derived) {
   $('stat-parry').textContent = `${((Number(derived.parry) || 0) * 100).toFixed(2)}%`;
 }
+function renderProtection() {
+  const view = protectionView(state);
+  const toggle = $('auto-protection');
+  toggle.checked = view.enabled;
+  toggle.disabled = !tabOwner || state.mode !== 'town' || !view.unlocked;
+  $('protection-cost').textContent = `每次 ${format(view.manaCost)} MP · 持續 ${format(view.durationTicks)} Tick · 取代一次攻擊`;
+  $('protection-status').textContent = !view.unlocked ? `Lv.${view.unlockLevel} 解鎖；不需 AP。`
+    : !tabOwner ? '唯讀分頁；取得進度控制權並回營後可調整。'
+    : state.mode !== 'town' ? '回營後可調整；本回合已治癒時不施盾；不足施盾費用就照常攻擊。'
+    : view.enabled ? '已啟用：沒有護盾時自動施放；本回合已治癒時不施盾；不足施盾費用就照常攻擊。'
+    : '尚未啟用：省下魔力與施法回合，維持原本攻擊節奏。';
+  const live = $('protection-live');
+  live.hidden = !view.enabled && !view.active;
+  live.textContent = view.active
+    ? `護盾生效 · 剩 ${format(view.remainingTicks)} Tick · 本場施放 ${format(view.casts)} 次 · 減免 ${format(view.damagePrevented)} 傷害`
+    : `自動護盾待命 · ${format(view.manaCost)} MP／次 · 本場施放 ${format(view.casts)} 次 · 減免 ${format(view.damagePrevented)} 傷害`;
+}
 function render(force = false) {
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
   $('strategy-description').textContent = STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '';
 
   renderCounterattack();
+  renderProtection();
   const derived = stats(state);
   renderPlayerParry(derived);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
@@ -963,6 +985,7 @@ function expeditionReportCard(report, label) {
   row('行動次數', `攻擊總數 ${format(report.actions.attacks)}（含技能 ${format(report.actions.skills)}） · 治療 ${format(report.actions.heals)} · 藥水 ${format(report.actions.potions)}`);
   row('額外反擊次數', `${format(report.actions.counters ?? 0)}（含未造成傷害；不佔上述攻擊回合）`);
   row('魔力消耗', format(report.actions.manaSpent));
+  if (report.protection) row('護盾取捨', `施放 ${format(report.protection.casts)} 次（各取代一次攻擊） · 減免 ${format(report.protection.damagePrevented)} 傷害`);
   row('特效成功施加／刷新', `流血 ${format(report.procs.bleeding)} · 穿透護甲 ${format(report.procs.penetratedArmor)} · 暈眩 ${format(report.procs.stun)}`);
   card.append(metrics);
   return card;
@@ -1181,6 +1204,10 @@ $('heal-button').addEventListener('click',()=>dispatch('heal'));
 $('pin-report').addEventListener('click', pinRecentExpeditionReport);
 for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
 $('strategy-select').addEventListener('change', event => dispatch('setStrategy', event.target.value));
+$('auto-protection').addEventListener('change', event => {
+  if (!tabOwner || state.mode !== 'town' || !protectionView(state).unlocked) { renderProtection(); return; }
+  dispatch('autoProtection', event.target.checked);
+});
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
 $('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
