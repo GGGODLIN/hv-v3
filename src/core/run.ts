@@ -314,7 +314,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the abyss boss's guaranteed pieces (UI label only). */ guaranteed?: string[] }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -351,13 +351,15 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
       for (let i = 0; i < n; i++) loot.equips.push(generateEquip(rng, L, { minQuality: C['F-003-clear-bonus'].value.minQuality as Quality, qualityBump: i === 0 ? 1 : 0 }));
       loot.credits += 40 * run.floor;
       // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
-      if (ab) loot.equips.push(generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }));
+      if (ab) { const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); }
       // CP6 r2 decision 9 (暫定): first clear of every 10th depth → 1 more guaranteed piece + a title.
       if (ab && ab % ABYSS.milestoneEvery === 0 && ab > (run.abyss!.ms ?? 0)) {
-        loot.equips.push(generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }));
+        const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id);
         run.abyss!.ms = ab; (run.abyss!.titles ??= []).push(titleFor(ab));
         (run.notes ??= []).push(`里程碑：深淵 ${ab} 層，獲得稱號「${titleFor(ab)}」與 1 件保底裝備`);
       }
+      // rc10: tell the player a checkpoint was passed (next trip may start right after it).
+      if (ab && ab % ABYSS.checkpoint === 0) (run.notes ??= []).push(`檢查點：已通過深淵 ${ab} 層，回城後下一趟可從第 ${ab + 1} 層出發`);
     }
     loot.credits += RULES.floorCredits * run.floor;
     // 暫定 early-loot guarantee (round 5): the first won battle on floors 1-4 with no equipment found yet this run drops one.

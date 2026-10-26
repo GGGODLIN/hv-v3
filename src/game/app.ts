@@ -215,7 +215,7 @@ export class App {
         <h3>出售</h3><button data-sellall ${p.inventory.length ? '' : 'disabled'}>賣掉倉庫全部（${p.inventory.length} 件，${junk}C）</button>`;
     }
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
-      <span class="spacer"></span><span class="hint">出擊 ${st.runs} 次 · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
+      <span class="spacer"></span><span class="hint" data-runs>主塔出擊 ${st.runs} 次${RULES.cp6Abyss && abyssOpen(this.p) ? `（深淵 ${loadRecord(localStorage.getItem(ABYSS_KEY)).trips} 趟另計）` : ''} · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
       ${this.noticeHtml()}<div class="tabs">${tabs}</div>${lockedHint ? `<div class="hint locks">🔒 ${lockedHint}</div>` : ''}<div class="body">${body}</div>
       <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span><button data-start class="big">進入試煉之塔 ▶</button>${this.abyssBtn()}</div>${this.abyssRecordHtml()}</div>`;
   }
@@ -280,7 +280,7 @@ export class App {
   themeHtml(): string {
     const r = this.run;
     if (!r?.cp5) return '';
-    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${tierZh(dn)}</b> · 怪物 HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%</div>`; }
+    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${tierZh(dn)}</b> · 怪物 HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%（再乘帶回倍率）</div>`; }
     const t = themeOf(r.floor);
     return `<div class="theme" data-theme="${esc(t.zh)}"><b>${esc(t.zh)}</b>（第 ${Math.floor((r.floor - 1) / 5) * 5 + 1}–${Math.floor((r.floor - 1) / 5) * 5 + 5} 層）· 常見：${themeRaces(t).join('、')} · 多抗：${t.elems.map((e) => ELEM_ZH[e]).join('、')}${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5] ? ` · 首領：${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5]!.title}` : ''}</div>`;
   }
@@ -373,7 +373,7 @@ export class App {
       const l = this.pending.loot;
       const pots = Object.entries(l.potions).filter(([, v]) => v).map(([k, v]) => `${POTION_ZH[k as PotionId]} ×${v}`).join('、');
       body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>
-        <div class="inv">${l.equips.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
+        <div class="inv">${l.equips.map((e) => this.itemCard(e, `${l.guaranteed?.includes(e.id) ? '<b class="warn" data-guar>保底</b> ' : ''}<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
@@ -399,7 +399,9 @@ export class App {
   resultHtml(): string {
     const s = this.lastSettlement!;
     const title = s.outcome === 'clear' ? '♛ 通關試煉之塔！' : s.outcome === 'dead' ? '☠ 倒下了……' : '撤退回城';
-    const rule = s.outcome === 'dead' ? '死亡：EXP、熟練度與 Credits 保留 50%，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。' : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
+    // rc10: the 50% is multiplied again by the carry-back multiplier shown below; say so instead of a bare 50%.
+    const carryNote = s.mult !== 1 ? `，再乘下方帶回倍率 ×${s.mult}（合計約 ${Math.round(RULES.death.exp * s.mult * 100)}%）` : '';
+    const rule = s.outcome === 'dead' ? `死亡：EXP、熟練度與 Credits 保留 50%${carryNote}，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。` : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
     return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>${s.abyss ? `到達深淵第 <b data-reached>${s.floor}</b> 層。` : `到達第 ${s.floor} 層。`}${rule}</p>
       <div class="hint" data-carry="${s.mult}">${s.abyss ? '深淵帶回倍率（1＋0.05×難度階）' : s.mult > 1 ? '新手帶回加成' : '帶回倍率'} ×${s.mult}</div>${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>
@@ -659,7 +661,10 @@ export class App {
   async endBattle() {
     const b = this.battle!;
     const r = this.run;
+    const nNotes = r.notes?.length ?? 0;
     const loot = finishBattle(this.p, r, b, this.monsters, this.battleType);
+    // rc10: milestone / checkpoint notes added by this win are shown on the loot screen.
+    const fresh = (r.notes ?? []).slice(nNotes); if (fresh.length) this.notice = fresh;
     this.save();
     if (!loot) {
       this.stage.heroPlay('hurt');
