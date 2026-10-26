@@ -1,5 +1,6 @@
 import { SAVE_KEY, SAVE_VERSION, type KV, type SaveData } from './save';
 import { ABYSS_KEY } from './abyss';
+import { RULES } from './run';
 
 export interface Preset { player: SaveData['player']; record: unknown }
 /** Every localStorage key the game owns. A preset must replace all of them, not merge into an old save. */
@@ -12,7 +13,7 @@ export const GAME_KEYS = [SAVE_KEY, ABYSS_KEY] as const;
 export function applyPreset(kv: KV, pr: Preset): SaveData {
   for (const k of GAME_KEYS) kv.removeItem(k);
   const player = structuredClone(pr.player) as SaveData['player']; const sc = (pr as { school?: string }).school;
-  if (sc === 'blade' || sc === 'oc' || sc === 'arcane' || sc === 'bulwark') player.lean = sc; // cp8-rc5 (read only under RULES.cp8)
+  if (RULES.cp8 && (sc === 'blade' || sc === 'oc' || sc === 'arcane' || sc === 'bulwark')) player.lean = sc; // cp8-rc5
   const save: SaveData = { v: SAVE_VERSION, player, run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: (pr.player as { prog?: { trips?: number } }).prog?.trips ?? 0, bestFloor: 20, clears: 1 } }; // cp7 fix: town sortie count = the character's trip count (banner 第 N 趟 = trips+1)
   kv.setItem(SAVE_KEY, JSON.stringify(save));
   kv.setItem(ABYSS_KEY, JSON.stringify(pr.record));
