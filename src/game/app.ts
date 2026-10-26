@@ -1,7 +1,7 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
 import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
-import { profsOf, starterKit } from '../core/auto';
+import { nextPointCosts, profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
 import type { Monster, MonsterPool } from '../core/monsters';
@@ -235,7 +235,7 @@ export class App {
           <td class="abtn"><button data-ref="${a}" data-n="all" ${p.attrs[a] <= 0 ? 'disabled' : ''} title="全部退回">全退</button> <button data-ref="${a}" data-n="10" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−10</button> <button data-ref="${a}" data-n="1" ${p.attrs[a] <= 0 ? 'disabled' : ''}>−1</button> <button data-add="${a}" data-n="1" ${free < next ? 'disabled' : ''}>+1</button> <button data-add="${a}" data-n="10" ${free < next ? 'disabled' : ''}>+10</button> <button data-add="${a}" data-n="max" ${free < next ? 'disabled' : ''} title="用掉所有可用 EXP">+最大</button></td><td class="hint">下一點 ${next} EXP</td></tr>`;
       }).join('');
       const profs = PROFS.map((k) => `<span class="prof">${PROF_ZH[k]} ${profValue(p, k)}</span>`).join('');
-      body = `<div class="cols"><div><h3>屬性（可自由重置） <button data-resetall ${ATTRS.every((a) => p.attrs[a] <= 0) ? 'disabled' : ''} title="所有屬性歸零，EXP 全數退回">一鍵全部重置</button></h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>　下一級需 ${Math.ceil(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP</div>
+      body = `<div class="cols"><div><h3>屬性（可自由重置） <button data-resetall ${ATTRS.every((a) => p.attrs[a] <= 0) ? 'disabled' : ''} title="所有屬性歸零，EXP 全數退回">一鍵全部重置</button></h3><div>未分配 EXP：<b>${free.toLocaleString()}</b>${(() => { const nc = nextPointCosts(p); return `<div class="hint" data-nextpoint="${nc.auto?.cost ?? ''}:${nc.any.cost}">屬性 +1 最便宜：${ATTR_ZH[nc.any.attr as keyof typeof ATTR_ZH]} ${nc.any.cost.toLocaleString()} EXP${nc.auto && nc.auto.attr !== nc.any.attr ? `（全部處理只買本流派屬性，最便宜為 ${ATTR_ZH[nc.auto.attr as keyof typeof ATTR_ZH]} ${nc.auto.cost.toLocaleString()} EXP）` : ''}</div>`; })()}<div data-lvgap="${Math.ceil(expForLevel(lv + 1) - p.exp)}">角色升到 Lv ${lv + 1}：還要再<b>獲得</b> ${Math.ceil(expForLevel(lv + 1) - p.exp).toLocaleString()} EXP（等級看累積 EXP；未分配 EXP 已算在內，不能拿來升級）</div></div>
         <table class="attrs">${attrs}</table><h3>熟練度</h3><div class="profs">${profs}</div></div>
         <div><h3>能力值</h3>${this.statsPanel()}</div></div>`;
     } else if (this.townTab === 'gear') {

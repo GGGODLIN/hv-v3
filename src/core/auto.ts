@@ -49,6 +49,15 @@ export function autoAllocate(p: Player): void {
   }
 }
 
+/** cp8-rc11 bug 4(b): what the character tab shows next to 未分配 EXP. Character level comes from total EXP (levelForExp(p.exp)),
+ *  so 「下一級」 is EXP still to earn; unspent EXP is already counted and cannot buy it. `auto` = cheapest point 全部處理 would buy
+ *  (weight > 0), `any` = cheapest point overall (a weight-0 one can still be bought by hand). */
+export function nextPointCosts(p: Player): { auto: { attr: string; cost: number } | null; any: { attr: string; cost: number } } {
+  const w = allocWeights(p);
+  const c = ATTRS.map((a) => ({ attr: a as string, cost: Math.ceil(attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])) })).sort((x, y) => x.cost - y.cost);
+  return { auto: c.find((x) => (w[x.attr] ?? 0) > 0) ?? null, any: c[0]! };
+}
+
 /** 暫定（缺原版出處）: sim town prep buys health potions up to this stock (shared with the CP7 出發前整備 「買藥」). */
 export const TOWN_HP_POTIONS = 3;
 /** Buy health potions up to `n` while credits last (sim town prep; UI 「買藥」). Returns potions bought. */
