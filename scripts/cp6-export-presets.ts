@@ -6,6 +6,9 @@
  * abyss15 (rc11): among characters at the moment their record best first reaches >= 15 (four schools) whose level >= the abyss10 preset's
  *   level, the one closest to the at15 median in d1 normal-fight win rate and total potions (same score as postF20); record best = 15.
  *   (rc3..rc10 used plain power median, which picked a Lv14 / 0-potion oc character below abyss10's Lv16.)
+ * abyss20 (cp7, playtest #3): a character snapshotted at the START of an abyss trip that began at d16 (record best 15) and in the sim
+ *   went on to clear d20 (the d20 boss). Among rule-compliant ones, closest to the median power; record best = 15 → entry d16. Lets a
+ *   playtester reach and verify d20 (abyss15's Lv17 blade dies at d18 in playtests).
  * Usage: npx tsx scripts/cp6-export-presets.ts > public/data/cp6-presets.json   (do not hand-edit the output). */
 import { readFileSync } from 'node:fs';
 import { autoRun, starterKit, type Strategy } from '../src/core/auto';
@@ -31,7 +34,7 @@ const mid = (a: number[]) => { const x = [...a].sort((u, v) => u - v); return x[
 export const sumMed: Record<string, { d1: number; pot: number; n: number; ok: number; lv: number; hp: number; mp: number }> = {};
 const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
 const med = (a: Snap[]) => [...a].sort((x, y) => x.power - y.power || x.seed - y.seed)[Math.floor((a.length - 1) / 2)]!;
-const out: Record<string, Snap & { note: string }> = {}; const at15: Snap[] = [], at10: Snap[] = [];
+const out: Record<string, Snap & { note: string }> = {}; const at15: Snap[] = [], at10: Snap[] = [], d20: Snap[] = [];
 const capRec = (rec: AbyssRecord, n: number): AbyssRecord => { const rr = clone(rec); rr.best = n; for (const v of Object.values(rr.bySchool)) if (v) v.best = Math.min(v.best, n); return rr; };
 for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
   const strat = `buff:${sc}` as Strategy; const snaps: Snap[] = [];
@@ -43,8 +46,10 @@ for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
     snaps.push({ seed: s, school: sc, level: level(p), power: powerScore(derive(p)), player: clone(p), record: emptyRecord(), d1: d1win(p, strat), pot: pots(p) });
     const rec = emptyRecord();
     for (let t = 1; t <= T; t++) {
+      const pre = checkpointStart(rec.best) === 16 ? { player: clone(p), record: capRec(rec, 15) } : null;
       const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: checkpointStart(rec.best), cap: 60, ms: rec.ms });
       recordTitles(rec, r.abyss!.ms, r.abyss!.titles);
+      if (pre && r.abyss!.cleared >= 20) d20.push({ seed: s, school: sc, level: level(pre.player), power: powerScore(derive(pre.player)), player: pre.player, record: pre.record });
       const was = rec.best; recordTrip(rec, r.abyss!.cleared, r.abyss!.school as AbyssSchool);
       if (was < 10 && rec.best >= 10) at10.push({ seed: s, school: sc, level: level(p), power: powerScore(derive(p)), player: clone(p), record: capRec(rec, 10) });
       if (was < 15 && rec.best >= 15) { const rr = clone(rec); rr.best = 15; for (const v of Object.values(rr.bySchool)) if (v) v.best = Math.min(v.best, 15); at15.push({ seed: s, school: sc, level: level(p), power: powerScore(derive(p)), player: clone(p), record: rr }); }
@@ -64,6 +69,9 @@ const sco15 = (x: Snap) => Math.abs(x.d1! - md15) / 0.1 + Math.abs(x.pot! - mp15
 const m = [...el15].sort((a, b) => sco15(a) - sco15(b) || Math.abs(a.power - pw15) - Math.abs(b.power - pw15) || a.seed - b.seed)[0]!;
 sumMed.abyss15 = { d1: md15, pot: mp15, n: at15.length, ok: el15.length, lv: mid(at15.map((x) => x.level)), hp: 0, mp: 0 };
 out.abyss15 = { ...m, note: `closest to at15 median d1 win ${(md15 * 100).toFixed(0)}% / potions ${mp15} among ${el15.length} rule-compliant Lv>=${m10.level} of ${at15.length} characters when best first reached >=15 (four schools, seeds 1..${N}, ${T} trips)` };
+const d20ok = d20.filter((x) => ruleOk(x.school, x.player)); const pw20 = mid(d20ok.map((x) => x.power));
+const m20 = [...d20ok].sort((a, b) => Math.abs(a.power - pw20) - Math.abs(b.power - pw20) || a.seed - b.seed)[0]!;
+out.abyss20 = { ...m20, note: `median power of ${d20ok.length} rule-compliant characters (of ${d20.length}) whose sim trip from d16 (best 15) cleared d20 (four schools, seeds 1..${N}, ${T} trips)` };
 process.stdout.write(JSON.stringify(out) + '\n');
 for (const [k, v] of Object.entries(out)) { const sc = v.school; const d = runDerived(v.player, startAbyss(clone(v.player), 1, 1)); console.error(k, 'seed', v.seed, 'Lv', v.level, 'HP', d.hp, 'MP', d.mp, 'potions', JSON.stringify(v.player.potions), 'd1', v.d1 ?? d1win(v.player, `buff:${sc}` as Strategy), 'main', v.player.equipped.mainHand?.group, 'off', v.player.equipped.offHand?.group ?? '-', 'rule', ruleOk(sc, v.player), '|', v.note); }
 console.error('sim medians', JSON.stringify(sumMed));
