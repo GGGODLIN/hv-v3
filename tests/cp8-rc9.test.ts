@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, afterEach } from 'vitest';
-import { act, chargeEstimate, potHint, startBattle, windingUp } from '../src/core/battle';
+import { act, chargeEstimate, potHint, startBattle, windingUp, worstHit } from '../src/core/battle';
 import { starterKit } from '../src/core/auto';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
 import { derive, newPlayer } from '../src/core/player';
@@ -26,9 +26,20 @@ describe('cp8-rc9 P0-1 big single hit is wound up first (自訂，非原版)', (
     act(b, { kind: 'focus' }, new Rng(3), {});
     expect(windingUp(m)).toBe(false);
   });
-  it('small elite hit and normal monsters are not wound up', () => {
+  it('small elite hit is not wound up; a big normal-monster hit is (cp8-rc10 P0-3: every rank)', () => {
     cp8(); const b = setup('elite', 1); act(b, { kind: 'focus' }, new Rng(3), {}); expect(windingUp(b.monsters[0]!)).toBe(false);
-    const c = setup('normal', 1e5); act(c, { kind: 'focus' }, new Rng(3), {}); expect(windingUp(c.monsters[0]!)).toBe(false);
+    const c = setup('normal', 1e5); act(c, { kind: 'focus' }, new Rng(3), {}); expect(windingUp(c.monsters[0]!)).toBe(true);
+  });
+  it('cp8-rc10 P0-3: worstHit boundary is ≥, and no unannounced hit reaches bigTele × max HP (400 seeds)', () => {
+    cp8(); const b0 = setup('normal', 1); const m0 = b0.monsters[0]!; const lim = CP8.bigTele * b0.d.hp;
+    let adb = 1; while (worstHit(b0, { ...m0, adb } as never) < lim) adb += 1; // smallest integer adb reaching the limit
+    for (const [a, wind] of [[adb, true], [adb - 1, false]] as const) {
+      const b = setup('normal', a); act(b, { kind: 'focus' }, new Rng(5), {}); expect(windingUp(b.monsters[0]!)).toBe(wind);
+    }
+    for (let seed = 1; seed <= 400; seed++) {
+      const b = setup('normal', adb - 1); const hp0 = b.hp; act(b, { kind: 'focus' }, new Rng(seed), {});
+      expect(hp0 - b.hp).toBeLessThan(lim);
+    }
   });
 });
 describe('cp8-rc9 P0-2 potion hint uses HP − next hit estimate', () => {

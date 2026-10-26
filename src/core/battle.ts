@@ -2,7 +2,7 @@ import { RULES } from './run';
 import { CP8 } from './cp8';
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
-import { meanHit, resolveHit, type Avoid } from './damage';
+import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
 import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
@@ -203,6 +203,12 @@ export function chargeEstimate(s: BattleState, m0: Monster, defending = false): 
   const el = pulse ? m.shieldEl : m.elemAttack;
   const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
   return meanHit(m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
+}
+/** cp8-rc10 P0-3: the biggest plain (×1) hit this monster can land now: top roll, monster crit (+ its crit bonus damage), current mitigation. */
+export function worstHit(s: BattleState, m0: Monster, defending = false): number {
+  const m = m0 as CM; const el = m.elemAttack;
+  const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
+  return maxHit(m.adb * (el ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0, 1 + MCRIT.critDamageBonus);
 }
 /** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
 export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
@@ -646,9 +652,11 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       }
     }
     // rc9 P0-1（自訂，非原版，暫定）: a boss / elite plain hit estimated ≥ CP8.bigTele × max HP winds up for 1 round first.
-    if (RULES.cp8 && CP8.bigTele > 0 && (m.rank === 'boss' || m.rank === 'elite') && mult === 1 && !label) {
+    // cp8-rc10 P0-3: every rank (rc9 skipped normal monsters — the d26 frost caster hit 462 ≈ 50% unannounced), and judged on the
+    // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
+    if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
-      else if (chargeEstimate(s, m) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+      else if (worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
     const zero = s.focusTurn;
     const r = resolveHit(rng, {
