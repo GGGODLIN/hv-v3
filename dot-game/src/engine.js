@@ -3,6 +3,16 @@ import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSa
 export const VERSION = 1;
 export const MAX_STAGE = 30;
 export const INVENTORY_LIMIT = 120;
+// The first rank of three original-HV Major abilities, not a complete tree.
+// Training and the separate Support category are outside this slice. Camp-only
+// free refunds/reslotting are an explicit adaptation; no permanent gold cost.
+export const ABILITY_RULES = Object.freeze({majorSlots:5});
+export const MAJOR_ABILITIES = Object.freeze([
+  Object.freeze({id:'hp-tank',label:'HP Tank',rank:1,apCost:1,minLevel:0,description:'基礎 HP +10%；裝備的固定 HP 不放大。'}),
+  Object.freeze({id:'mp-tank',label:'MP Tank',rank:1,apCost:1,minLevel:0,description:'基礎 MP +10%。'}),
+  Object.freeze({id:'one-handed-damage',label:'1H Damage',rank:1,apCost:2,minLevel:0,description:'每點有效單手熟練度 +2 ADB；使用既有的 1.2 × 等級上限。'})
+]);
+const abilityById = new Map(MAJOR_ABILITIES.map(ability=>[ability.id,ability]));
 // The pinned historical PA model; fixed maximum rate/duration and shared refresh
 // are this game's adaptations, not a claim about current original-HV coefficients.
 export const PENETRATED_ARMOR_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:3,mitigationReductionPerStack:.25});
@@ -45,11 +55,81 @@ export function createGame(seed = 1) {
   const s = {version:VERSION,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,strategy:'balanced',inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{},actions:freshActions()},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
   recover(s); return s;
 }
+function readAbilityAllocation(s) {
+  const descriptor=Object.getOwnPropertyDescriptor(s,'abilities');
+  if(!descriptor){
+    if('abilities' in s)throw new Error('能力配置格式無效；未載入，請保留原存檔。');
+    return {learned:[],slotted:[]};
+  }
+  const invalid=()=>{throw new Error('能力配置格式或 AP 預算無效；未載入，請保留原存檔。');};
+  if(!descriptor.enumerable||!Object.hasOwn(descriptor,'value'))invalid();
+  const raw=descriptor.value;
+  if(!raw||typeof raw!=='object'||Array.isArray(raw)
+    ||![Object.prototype,null].includes(Object.getPrototypeOf(raw)))invalid();
+  const fields=Object.getOwnPropertyDescriptors(raw);
+  if(Reflect.ownKeys(raw).length!==2||!['learned','slotted'].every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value')))invalid();
+  const readList=key=>{
+    const values=fields[key].value;
+    if(!Array.isArray(values)||Object.getPrototypeOf(values)!==Array.prototype||values.length>MAJOR_ABILITIES.length
+      ||Reflect.ownKeys(values).length!==values.length+1)invalid();
+    const ids=[];
+    for(let i=0;i<values.length;i++){
+      const entry=Object.getOwnPropertyDescriptor(values,String(i));
+      if(!entry?.enumerable||!Object.hasOwn(entry,'value')||typeof entry.value!=='string'||!abilityById.has(entry.value))invalid();
+      ids.push(entry.value);
+    }
+    if(new Set(ids).size!==ids.length)invalid();
+    return ids;
+  };
+  const learned=readList('learned'),slotted=readList('slotted'),level=s.hero?.level;
+  if(!Number.isInteger(level)||level<1||level>500||slotted.length>ABILITY_RULES.majorSlots
+    ||slotted.some(id=>!learned.includes(id))||learned.some(id=>abilityById.get(id).minLevel>level)
+    ||learned.reduce((spent,id)=>spent+abilityById.get(id).apCost,0)>level)invalid();
+  return {learned,slotted};
+}
+function abilityEffects(s, allocation) {
+  const effectiveProficiency=Math.max(0,Math.min(finite(s.hero.proficiency),1.2*s.hero.level));
+  const active=id=>allocation.learned.includes(id)&&allocation.slotted.includes(id);
+  return {hpBonusPercent:active('hp-tank')?10:0,mpBonusPercent:active('mp-tank')?10:0,
+    attackBonus:active('one-handed-damage')?2*effectiveProficiency:0,effectiveProficiency};
+}
 export function stats(s) {
+  let allocation;try{allocation=readAbilityAllocation(s);}catch{allocation={learned:[],slotted:[]};}
+  return statsWithAbilities(s,allocation);
+}
+function statsWithAbilities(s, allocation) {
   const h=s.hero, a=h.attributes, sum=key=>SLOTS.reduce((v,slot)=>v+finite(s.equipment[slot]?.stats?.[key]),0);
   const attributeMit=Math.min(.8,1-900/(900+a.end+a.agi/2));
   const equipmentMit=1-SLOTS.reduce((left,slot)=>left*(1-clamp(finite(s.equipment[slot]?.stats?.defense)/100,0,.8)),1);
-  return {maxHp:Math.round(500+10*h.level+6*a.end+sum('hp')), maxMp:Math.round(10+h.level+a.wis),attack:round(Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+sum('attack')), defense:round(sum('defense')),mitigation:1-(1-equipmentMit)*(1-attributeMit),crit:clamp(.05+a.dex*.0015+sum('crit'),0,.8),evade:clamp(.02+a.agi*.001+sum('evade'),0,.5),block:clamp(.04+sum('block'),0,.6)};
+  const effects=abilityEffects(s,allocation),baseHp=500+10*h.level+6*a.end,baseMp=10+h.level+a.wis;
+  // Preserve rank-zero arithmetic exactly. Tanks floor only the original base;
+  // this game's existing flat equipment HP and final rounding remain separate.
+  const maxHp=Math.round((effects.hpBonusPercent?Math.floor(baseHp*(1+effects.hpBonusPercent/100)):baseHp)+sum('hp'));
+  const maxMp=effects.mpBonusPercent?Math.floor(baseMp*(1+effects.mpBonusPercent/100)):Math.round(baseMp);
+  return {maxHp,maxMp,attack:round(Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+sum('attack')+effects.attackBonus), defense:round(sum('defense')),mitigation:1-(1-equipmentMit)*(1-attributeMit),crit:clamp(.05+a.dex*.0015+sum('crit'),0,.8),evade:clamp(.02+a.agi*.001+sum('evade'),0,.5),block:clamp(.04+sum('block'),0,.6)};
+}
+/** Pure detached camp view. Earned AP is always level (one initially, then one
+ * per level); there is no grant counter to duplicate on reload or repeated wins.
+ * Row previews show the result IF learned and slotted, never auto-allocate AP.
+ */
+export function abilityView(s) {
+  let allocation,valid=true;
+  try{allocation=readAbilityAllocation(s);}catch{allocation={learned:[],slotted:[]};valid=false;}
+  const level=s.hero.level,earnedAp=Number.isInteger(level)&&level>=1&&level<=500?level:0;
+  if(!earnedAp)valid=false;
+  const {learned,slotted}=allocation,spentAp=learned.reduce((spent,id)=>spent+abilityById.get(id).apCost,0);
+  const availableAp=earnedAp-spentAp,camp=valid&&s.mode==='town';
+  const catalog=MAJOR_ABILITIES.map(ability=>{
+    const known=learned.includes(ability.id),active=slotted.includes(ability.id);
+    const previewAllocation={learned:known?learned:[...learned,ability.id],slotted:active?slotted:[...slotted,ability.id]};
+    return {...ability,learned:known,slotted:active,
+      canLearn:camp&&!known&&level>=ability.minLevel&&availableAp>=ability.apCost,
+      canSlot:camp&&known&&!active&&slotted.length<ABILITY_RULES.majorSlots,
+      canUnslot:camp&&active,canRefund:camp&&known,
+      previewStats:statsWithAbilities(s,previewAllocation),previewEffects:abilityEffects(s,previewAllocation)};
+  });
+  return {valid,earnedAp,spentAp,availableAp,majorCapacity:ABILITY_RULES.majorSlots,majorUsed:slotted.length,
+    learned:[...learned],slotted:[...slotted],effects:abilityEffects(s,allocation),currentStats:statsWithAbilities(s,allocation),catalog};
 }
 function recover(s) { const p=stats(s); s.hero.hp=p.maxHp;s.hero.mp=p.maxMp; }
 
@@ -540,6 +620,37 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(['learnAbility','slotAbility','unslotAbility','refundAbility'].includes(action)){
+    // Validate the entire allocation before changing it. Exact ID payloads only;
+    // refused/no-op commands do not heal, log, draw RNG, or touch any clock/item.
+    if(s.mode!=='town'||typeof payload!=='string'||!abilityById.has(payload))return s;
+    let allocation;try{allocation=readAbilityAllocation(s);}catch{return s;}
+    const ability=abilityById.get(payload),{learned,slotted}=allocation;
+    const known=learned.includes(payload),active=slotted.includes(payload);
+    const spent=learned.reduce((sum,id)=>sum+abilityById.get(id).apCost,0);
+    if(!Number.isInteger(s.hero.level)||s.hero.level<1||s.hero.level>500)return s;
+    if(action==='learnAbility'){
+      if(known||s.hero.level<ability.minLevel||s.hero.level-spent<ability.apCost)return s;
+      learned.push(payload);
+    }else if(action==='slotAbility'){
+      if(!known||active||slotted.length>=ABILITY_RULES.majorSlots)return s;
+      slotted.push(payload);
+    }else if(action==='unslotAbility'){
+      if(!active)return s;
+      slotted.splice(slotted.indexOf(payload),1);
+    }else{
+      if(!known)return s;
+      learned.splice(learned.indexOf(payload),1);
+      if(active)slotted.splice(slotted.indexOf(payload),1);
+    }
+    if(learned.length)s.abilities={learned,slotted};else delete s.abilities;
+    recover(s);
+    const messages={learnAbility:`已學習 ${ability.label} · 消耗 ${ability.apCost} AP；尚未裝入。`,
+      slotAbility:`已裝入 ${ability.label}；回營資源已恢復。`,
+      unslotAbility:`已移出 ${ability.label}；仍保留學習，AP 未退回。`,
+      refundAbility:`已退還 ${ability.label} · ${ability.apCost} AP；若已裝入亦一併移出。`};
+    log(s,messages[action]);return s;
+  }
   if(action==='commissionWeapon'){
     let family,quoteBasis;
     try {
@@ -616,6 +727,8 @@ export function validateSave(input) {
   if(!input||typeof input!=='object'||Array.isArray(input)||input.version!==VERSION||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
   const h=input.hero;if(!Number.isInteger(h.level)||h.level<1||h.level>500||!Number.isFinite(h.xp)||h.xp<0||!Number.isFinite(h.gold)||h.gold<0)throw new Error('角色資料無效');
   const s=createGame(input.seed);s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
+  const allocation=readAbilityAllocation(input);
+  if(allocation.learned.length)s.abilities=allocation;
   // Rebuild allocated growth rather than trusting imported attribute multipliers.
   for(const k of Object.keys(s.hero.attributes))s.hero.attributes[k]=8+(h.level-1)*2;
   const sanitizeForLoad=(raw,slot)=>{

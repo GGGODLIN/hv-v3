@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale, previewWeaponCommission, expeditionReports } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -113,6 +113,7 @@ let lastEquipmentSignature = '';
 let lastLogSignature = '';
 let lastEnemyStatusSignature = '';
 let lastReportSignature = '';
+let lastAbilitySignature = '';
 let pinnedExpeditionReport = null;
 let lastStageCount = 0;
 let lastPreviewStage = null;
@@ -208,6 +209,7 @@ if (!ownership.supported) tabOwner = true; // ephemeral memory only; never write
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
+  lastAbilitySignature = ''; $('ability-feedback').textContent = '';
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
@@ -222,6 +224,80 @@ function dispatch(action, payload) {
     if ((action === 'start' || action === 'retreat') && state.mode !== previousMode) pump.reset();
     reconcileWeaponCommission(); render(true); if (action === 'start' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
+}
+function abilityNumber(value) {
+  // Unlike the compact hero readout, ability previews never round sheet stats
+  // to whole numbers or turn a small/zero proficiency bonus into a fake +2.
+  return Number.isFinite(value) ? String(value) : '—';
+}
+function changeAbility(action, id) {
+  const capabilities = { learnAbility: 'canLearn', slotAbility: 'canSlot', unslotAbility: 'canUnslot', refundAbility: 'canRefund' };
+  if (!Object.hasOwn(capabilities, action)) return;
+  if (!claimLease()) { $('ability-feedback').textContent = '此分頁為唯讀；接手進度後才能調整能力。'; renderAbilities(); return; }
+  if (state.mode !== 'town') { $('ability-feedback').textContent = '請先回營，再學習、裝配或遺忘能力。'; renderAbilities(); return; }
+  // Recheck the live engine view, not the potentially stale card closure.
+  const before = abilityView(state), choice = before.catalog.find(entry => entry.id === id);
+  if (!choice?.[capabilities[action]]) { $('ability-feedback').textContent = '目前條件不符或已完成此操作，沒有變更能力。'; renderAbilities(); return; }
+  const dispatched = dispatch(action, id);
+  const after = abilityView(state), current = after.catalog.find(entry => entry.id === id);
+  const completed = dispatched && current && (
+    action === 'learnAbility' ? current.learned && !current.slotted && after.availableAp === before.availableAp - choice.apCost :
+    action === 'slotAbility' ? current.learned && current.slotted && after.availableAp === before.availableAp :
+    action === 'unslotAbility' ? current.learned && !current.slotted && after.availableAp === before.availableAp :
+    !current.learned && !current.slotted && after.availableAp === before.availableAp + choice.apCost);
+  if (!completed) { $('ability-feedback').textContent = '本次操作未確認完成，請核對能力狀態後再試。'; renderAbilities(); return; }
+  const messages = {
+    learnAbility: `已學習 ${choice.label}，花費 ${choice.apCost} AP；尚未裝配，請另按「裝入能力槽」才生效。`,
+    slotAbility: `已裝配 ${choice.label}，現在生效；未再花費 AP。`,
+    unslotAbility: `已卸下 ${choice.label}，加成停止；仍已學習，AP 不退還。`,
+    refundAbility: `已免費遺忘 ${choice.label}，同時卸下並退還 ${choice.apCost} AP；可重新學習。`
+  };
+  $('ability-feedback').textContent = `${messages[action]} 營地生命與魔力已恢復。`;
+}
+function renderAbilities() {
+  const view = abilityView(state), canEdit = claimLease() && state.mode === 'town';
+  const signature = JSON.stringify([view, canEdit]);
+  $('ability-ap').textContent = `可用 AP ${view.availableAp} / 累計 ${view.earnedAp}`;
+  $('ability-slots').textContent = `Major 槽 ${view.majorUsed} / ${view.majorCapacity} · 全部免費`;
+  $('ability-status').textContent = !claimLease() ? '唯讀檢視：接手進度後才能調整。' : state.mode !== 'town' ? '目前不能調整能力：請先回營。預覽不改變戰鬥。' : '只在營地調整 · 不花金幣、不抽取隨機結果 · 每次有效調整後回滿 HP／MP';
+  if (signature === lastAbilitySignature) return;
+  lastAbilitySignature = signature;
+  const focused = document.activeElement?.dataset;
+  const buttons = [];
+  $('ability-choices').replaceChildren(...view.catalog.map(choice => {
+    const card = node('article', `ability-card${choice.slotted ? ' is-slotted' : ''}`);
+    card.dataset.abilityId = choice.id;
+    const heading = node('div', 'ability-card-heading');
+    heading.append(node('h4', '', `${choice.label} · Rank ${choice.rank}`), node('span', 'ability-state', choice.slotted ? '已裝配 · 生效中' : choice.learned ? '已學習 · 未生效' : '尚未學習'));
+    card.append(heading, node('p', 'ability-description', choice.description));
+    const current = view.currentStats, preview = choice.previewStats;
+    const key = choice.id === 'hp-tank' ? 'maxHp' : choice.id === 'mp-tank' ? 'maxMp' : 'attack';
+    const label = { maxHp: '生命上限', maxMp: '魔力上限', attack: '面板攻擊 ADB' }[key];
+    card.append(node('p', 'ability-preview', `${label}：目前 ${abilityNumber(current[key])} → 裝配後 ${abilityNumber(preview[key])}${choice.slotted ? '（已包含此能力）' : ''}`));
+    if (choice.id === 'one-handed-damage') {
+      card.append(node('p', 'ability-proficiency', `有效單手熟練度 ${abilityNumber(view.effects.effectiveProficiency)} · 此能力 ADB 加成：目前 +${abilityNumber(view.effects.attackBonus)} → 裝配後 +${abilityNumber(choice.previewEffects.attackBonus)}`));
+    }
+    card.append(node('p', 'ability-cost', `學習費用 ${choice.apCost} AP${!choice.learned && view.availableAp < choice.apCost ? ' · 可用 AP 不足，可保留點數升級後再學' : ''}`));
+    const actions = node('div', 'ability-actions');
+    const addAction = (action, text, capability, kind) => {
+      const button = node('button', kind === 'slot' ? 'primary-button' : 'secondary-button', text);
+      button.disabled = !canEdit || !choice[capability];
+      button.dataset.abilityId = choice.id; button.dataset.abilityAction = kind;
+      button.setAttribute('aria-label', `${choice.label}：${text}`);
+      button.addEventListener('click', () => changeAbility(action, choice.id));
+      actions.append(button); buttons.push(button);
+    };
+    addAction('learnAbility', choice.learned ? `已學習 · ${choice.apCost} AP` : `學習 · ${choice.apCost} AP`, 'canLearn', 'learn');
+    addAction(choice.slotted ? 'unslotAbility' : 'slotAbility', choice.slotted ? '卸下能力' : '裝入能力槽', choice.slotted ? 'canUnslot' : 'canSlot', 'slot');
+    addAction('refundAbility', `免費遺忘 · 退 ${choice.apCost} AP`, 'canRefund', 'refund');
+    card.append(actions);
+    return card;
+  }));
+  // A keyboard action should not discard focus when the changed cards repaint.
+  if (focused?.abilityId) {
+    const available = buttons.filter(button => !button.disabled && button.dataset.abilityId === focused.abilityId);
+    (available.find(button => button.dataset.abilityAction === focused.abilityAction) || available[0])?.focus?.();
+  }
 }
 function commissionQuoteSignature(preview) {
   return JSON.stringify([preview.family, preview.item, preview.price, preview.goldAfter, preview.quoteBasis, preview.currentWeapon, state.mode, state.stage, state.unlocked, state.wins, state.inventory, state.pendingLoot]);
@@ -558,6 +634,7 @@ function render(force = false) {
   if (logSignature !== lastLogSignature) { lastLogSignature = logSignature; const logs = (state.logs || []).slice(0, 6); $('combat-log').replaceChildren(...(logs.length ? logs : ['營火已點亮。準備好後，開始第一場遠征。']).map(text => node('li', '', text))); }
   $('inventory-count').textContent = state.inventory.length;
   renderSafeLoot();
+  renderAbilities();
   renderWeaponCommission();
   renderEnemyStatuses();
   renderRoutePreview();

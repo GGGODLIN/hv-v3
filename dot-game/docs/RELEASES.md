@@ -156,3 +156,6 @@ Source-only persistence correction: protected followers re-read/validate durable
 
 ## v0.9 development candidate — 2026-10-26 02:12 UTC
 Session-only recent expedition reports with an optional pinned comparison; no combat/RNG/reward changes. Parent aggregate599/599 and runtime syntax4 pass. Independent natural paired326expeditions/36591steps preserve exact gameplay states; separate adversarial outcomes tested. See ACCEPTANCE-V09.md and EXPEDITION-REPORTS.md. Browser acceptance and publication are not yet claimed; accepted recovery remains c1530bc76aa06716443b9ccca8de6f616e9f5f47.
+
+## v0.10 development candidate — 2026-10-26 03:12 UTC
+Three first-rank learned/slotted AP abilities (HP Tank, MP Tank,1H Damage), five starting Major slots and derived level AP; strict optional persistence with no default auto-allocation. Free camp refund and existing maxHP-based support remain explicit adaptations. Final694/694 tests and syntax4 pass; independent exactfloor/strictsave/31acquisition+15pairedrun evidence in ACCEPTANCE-V010.md. No universal benefit or complete ability-tree claim. Public v0.9 stays accepted until backup/browser/release gates complete.

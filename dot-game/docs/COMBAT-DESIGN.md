@@ -1,4 +1,4 @@
-# Independent combat and progression: v0.8 candidate
+# Independent combat and progression: historical base and current additions
 
 > Version scope: the v0.1–v0.8 sections preserve the mechanics and measured evidence of those versions. The v0.8.1 numerical clock correction supersedes historical per-frame clock hashes, exact clear times and boundary-sensitive outcome claims; it does not change the underlying hit, proc, loot, reward or stat formulas. See CLOCK-CORRECTION.md, CLOCK-BALANCE.md and ACCEPTANCE-V081.md for current patch evidence. Publication is still gated separately.
 
@@ -286,3 +286,6 @@ Legacy equipment changes, individual/broad sale, and stage selection require cam
 `node --test tests/*.test.mjs` exercises the resolver's eligible/negative branches, deterministic rolls, progression, first clear, equip/faster replay, safe defeat, repeated auto runs, malformed saves, pending/cap safety, and bounded event queues. Browser integration is an independent acceptance step; unit test success alone is not a playable-game claim.
 
 Original active stat allocation, armor families, full proficiency abilities, overcharge, original Shield Bash, stun's magical resist reduction, exact current-server proc scaling, spell schools, the rest of the original status/cooldown inventory, and broader encounter systems remain future self-iteration work. They are not silently claimed implemented. See ROADMAP.md for evolving next slices.
+
+## v0.10 learned and slotted abilities
+The first rank1 Major nodes add researched base-pool Tank scaling and an additive1H proficiency bonus only when both learned and slotted. See ORIGINAL-HV.md and ABILITIES-GUIDE.md for AP, source, rounding and lifecycle details. Rank-zero/default gameplay is unchanged. Existing automatic heal/potion/wave restoration stays maxHP-based adaptation and therefore grows with Tank; it is not relabeled as original Cure. This changes enabled builds deliberately, not the ordinary unallocated combat baseline.

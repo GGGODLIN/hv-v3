@@ -150,3 +150,30 @@
 .report-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .report-rules p { margin-top: 7px; }
 @media(max-width:680px) { .expedition-report-list { grid-template-columns: minmax(0, 1fr); } .report-metric dt, .report-start-stats { font-size: 11px; } .report-metric dd { font-size: 12px; } }
+
+/* AP choices stay in ordinary camp content; detailed research/adaptation rules collapse. */
+.camp-abilities { min-width: 0; padding: 16px; margin-top: 17px; }
+.ability-heading { flex-wrap: wrap; }
+.ability-budget { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 5px 12px; margin-top: 10px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.ability-budget strong { color: var(--gold); font-weight: 600; }
+.ability-budget span { color: #bad8cb; font-size: 11px; }
+.ability-note, .ability-rules { margin-top: 7px; color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.ability-choices { display: grid; gap: 8px; margin-top: 10px; }
+.ability-card { min-width: 0; padding: 10px 11px; border: 1px solid #38514e; border-radius: 8px; background: #102027; overflow-wrap: anywhere; }
+.ability-card.is-slotted { border-color: #598e7f; box-shadow: inset 3px 0 #6ea990; }
+.ability-card-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 8px; }
+.ability-card-heading h4 { margin: 0; color: #d4e3d8; font-size: 12px; font-weight: 600; }
+.ability-state { color: var(--muted); font-size: 10px; }
+.is-slotted .ability-state { color: #abe4cc; }
+.ability-description, .ability-proficiency, .ability-cost { margin-top: 4px; font-size: 10px; line-height: 1.7; color: var(--muted); }
+.ability-preview { margin-top: 6px; color: #d9e6cd; font-size: 11px; line-height: 1.7; font-variant-numeric: tabular-nums; }
+.ability-proficiency, .ability-cost { font-variant-numeric: tabular-nums; }
+.ability-cost { color: var(--gold); }
+.ability-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ability-actions>button { flex: 1 1 110px; padding: 7px 8px; min-height: 36px; font-size: 10px; }
+.ability-feedback { margin-top: 8px; color: #bfe8d9; font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.ability-feedback:empty { display: none; }
+.ability-rules summary { color: #bfd1c5; cursor: pointer; padding: 3px 0; }
+.ability-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.ability-rules p { margin-top: 7px; }
+@media(max-width:680px) { .ability-description, .ability-proficiency, .ability-cost, .ability-state, .ability-actions>button { font-size: 11px; } .ability-actions>button { min-height: 40px; } }

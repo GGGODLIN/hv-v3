@@ -11,6 +11,7 @@ const jsonClone=value=>JSON.parse(JSON.stringify(value));
 const sha256=value=>createHash('sha256').update(value).digest('hex');
 const families=['axe','rapier','club'];
 const source=readFileSync(new URL('../src/engine.js',import.meta.url),'utf8');
+const historicalEngineSource=readFileSync(new URL('./fixtures/v0.8.1/engine.js',import.meta.url),'utf8');
 const lootSource=readFileSync(new URL('../src/loot.js',import.meta.url),'utf8');
 const region=(s,start,end)=>{const a=s.indexOf(start),b=end?s.indexOf(end,a):s.length;assert.ok(a>=0&&b>a);return s.slice(a,b);};
 const durable=s=>{const copy=clone(s);delete copy.logs;return copy;};
@@ -218,10 +219,13 @@ const log=(s,message)=>{s.logs.unshift(message);s.logs.length=Math.min(30,s.logs
 ${oldV06ValidatorSource.replace('export function validateSave','function validateSave')}
 validateSave;`,{createGame,stats,resolveWeaponFamily,hasUnknownSaleMetadata});
 
-test('v0.7 independent: strict import/ordinary state helpers remain frozen and the actual old validator fixture is exact',()=>{
+test('v0.7 historical: strict import/ordinary state helpers and the actual old validator fixture remain exact',()=>{
+  // v0.10 intentionally adds optional ability validation and sheet growth.
+  // Preserve these historical hashes against the already frozen own-v0.8.1
+  // source; all behavioral tests still exercise the current runtime.
   assert.equal(sha256(oldV06ValidatorSource),'8c3110caeccd48bb103800f615b5c50a90a02bdac0ee86b1742fd4acebc3475b');
-  assert.equal(sha256(region(source,'function sanitizeItem')),'8c3110caeccd48bb103800f615b5c50a90a02bdac0ee86b1742fd4acebc3475b','v3 strict validator unchanged');
-  assert.equal(sha256(region(source,'export const STRATEGIES','const validTick')),'92c3b09c2f4c00d71d53d4c08905bfc4ec006742454ce54aec13fcf998885a05','old validator support createGame/stats/helpers unchanged');
+  assert.equal(sha256(region(historicalEngineSource,'function sanitizeItem')),'8c3110caeccd48bb103800f615b5c50a90a02bdac0ee86b1742fd4acebc3475b','historical v3 strict validator unchanged');
+  assert.equal(sha256(region(historicalEngineSource,'export const STRATEGIES','const validTick')),'92c3b09c2f4c00d71d53d4c08905bfc4ec006742454ce54aec13fcf998885a05','historical old-validator support createGame/stats/helpers unchanged');
   assert.equal(sha256(region(lootSource,'export function resolveWeaponFamily','// Safe-sale identity')),'3f1099b173e7cca96840559fcc0093887bf873444d3a26fd14e24305d3fc0959','old validator family resolver unchanged');
   assert.equal(sha256(region(lootSource,'const STAT_KEYS','/** Pure fail-closed classification')),'ec9c5e2b9d9ac3def55c71ae4359576d1c77ed538d3c6de3ad287a524aff591e','old validator strict descriptor guard unchanged');
 });

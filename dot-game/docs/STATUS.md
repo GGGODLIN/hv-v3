@@ -1,5 +1,11 @@
 # Current status
 
+## v0.10 development candidate — 2026-10-26 03:00 UTC
+
+First rank-1 AP abilities add original-research-based pool/proficiency growth with separate learning and slotting, five Major slots, and strictly validated optional allocation. No default auto-allocation or credit/item spending; camp refunds are an explicit free adaptation. The original initial AP balance and skill costs are sourced in ORIGINAL-HV.md; ABILITIES-GUIDE.md distinguishes the existing adapted healing from original restorative rules. Parent final aggregate passes 694/694 tests with zero skips/failures and four syntax checks. The initial aggregate exposed one historical validator-byte guard; only its source target was labeled historical and old digest retained before the successful rerun. Independent acceptance covers exact Tank floors at levels1–500, 31 naturally earned baseline-matched acquisition runs and 15 paired ability runs across axe/rapier/club. All paired runs won; axe was not faster and MP Tank did not change the easy encounter outcomes. Exact backup and browser acceptance remain pending. Public v0.9 remains the accepted recovery target 83a973bcf2586ed5994e707cfc5faaeb519873cd.
+
+### Earlier release timeline
+
 ## v0.9 published and stable-root smoke accepted — 2026-10-26 02:28 UTC
 
 Live: https://gggodlin.github.io/play/hv-v3-dot/ . Accepted pre-promotion source `8d6be5b3c3735021aea8e94570ee88b0efe5eea9` was backed up and verified first. Website commit `08d5066a74c93a69260f384fbd02a02bbf68f81e` passed exact Pages run `40259045608`, followed by one HTTP6 pass with six 200 responses and exact frozen source byte/SHA-256 matches. Only index/style/engine/UI root blobs changed; loot/session and all 3846 non-root site blobs, candidates and concurrent other work remained unchanged. No additions/removals.

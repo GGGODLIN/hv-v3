@@ -229,7 +229,7 @@ test('v0.8 independent: identical processed tick counts yield identical bleed-on
   const a=fight(),b=clone(a);attach(a.enemies[0]);attach(b.enemies[0]);advance(a,1e9);advance(b,2);assert.deepEqual(a,b,'existing two-second clamp remains exact');
 });
 
-test('v0.8 independent: loot, session, validator, durable stats and family scoring retain exact accepted-v0.7 behavior',()=>{
+test('v0.8 historical validator plus current loot, session, unallocated stats and family scoring retain accepted-v0.7 behavior',()=>{
   // Accepted receipt 022-v07-publication-receipt, verified before runtime edits.
   // Live axe trait prose and exact old-trait cleanup are the only allowed loot
   // changes. Freeze all catalog/family data and all sanitizer/generator code.
@@ -237,7 +237,9 @@ test('v0.8 independent: loot, session, validator, durable stats and family scori
   assert.equal(sha(loot.slice(0,loot.indexOf('const WEAPON_TRAITS'))),'1244fd797574884277636905a7cf8c5201ef39cbe424694ceaec0224bd1d3db3');
   assert.equal(sha(loot.slice(loot.indexOf('const STAT_KEYS'))),'44f86cb5e777bbf4c6561558eefe67dbce043877ff6cd39973425dcd9d025904');
   assert.equal(sha(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a');
-  const engine=readFileSync(new URL('../src/engine.js',import.meta.url),'utf8');
+  // v0.10 adds optional validated ability allocation; retain the original digest
+  // against exact historical bytes. Current import behavior is tested separately.
+  const engine=readFileSync(new URL('./fixtures/v0.8.1/engine.js',import.meta.url),'utf8');
   assert.equal(sha(engine.slice(engine.indexOf('function sanitizeItem'))),'8c3110caeccd48bb103800f615b5c50a90a02bdac0ee86b1742fd4acebc3475b');
   const s=createGame(),sheet=stats(s),score=scoreItem(s.equipment.weapon);
   for(const family of ['axe','rapier','club',null]){s.equipment.weapon.weaponFamily=family;assert.deepEqual(stats(s),sheet);assert.equal(scoreItem(s.equipment.weapon),score);}

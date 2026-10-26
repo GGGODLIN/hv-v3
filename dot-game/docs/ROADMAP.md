@@ -60,3 +60,6 @@ Prioritize a reproduced lost-progress defect over new breadth: a protected follo
 
 ## v0.9 chosen slice
 Make the three weapon routes easier to evaluate: show bounded recent expedition reports with start build context, actual basic/skill/bleed HP removal, incoming HP loss/minimum HP, action/resource counts and proc applications. A local pinned baseline survives the automatic loop until replaced; it is observation, not a causal best-build ranking. Preserve combat/RNG/rewards exactly and show session-only lifetime. This is a gameplay feedback feature, not a backup巡檢 milestone.
+
+## v0.10 chosen slice
+Introduce the first original-research-supported AP abilities: rank1 HP Tank, MP Tank and1H Damage. Preserve five Major slots and separate learning/equipping; show actual current effects and one-time AP costs. Initial1AP plus level growth, strict optional save data, free camp refund adaptation and legacy behavior must be explicit. This is the foundation for later ranks/ability breadth, not the entire original tree or a fabricated permanent specialization system.
