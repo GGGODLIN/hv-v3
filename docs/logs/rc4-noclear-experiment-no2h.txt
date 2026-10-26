@@ -1,0 +1,13 @@
+# Experiment only (not committed code): autoEquip forbidden from two-handers/staffs via a throwaway env switch, otherwise = rc4 after-fix. npx tsx scripts/rc4-noclear.ts 32 12
+== buff:blade  N=32 M=12  never full-clear: 10 (31%)
+stuck floor (best reached): F20:8 F19:2
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F15 boss[thorns]:19 boss@F20 boss[drain]:19 boss@F10 boss[shield]:7 elite@F17 elite{warded}:6 battle@F17 normal:3 elite@F19 elite{antimagic}:3 elite@F13 elite{warded}:3 battle@F13 normal:3 elite@F9 elite{warded}:2 elite@F19 elite{warded}:2 battle@F11 normal:2 elite@F11 elite{warded}:2
+== buff:oc  N=32 M=12  never full-clear: 10 (31%)
+stuck floor (best reached): F20:8 F19:2
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F15 boss[thorns]:18 boss@F20 boss[drain]:12 boss@F10 boss[shield]:8 battle@F13 normal:4 battle@F17 normal:4 elite@F13 elite{leech}:2 elite@F11 elite{warded}:2 elite@F7 elite{warded+leech}:2 elite@F13 elite{antimagic}:2 elite@F13 elite{warded}:2 elite@F19 elite{warded}:2 elite@F9 elite{antimagic}:2
+== buff:arcane  N=32 M=12  never full-clear: 5 (16%)
+stuck floor (best reached): F19:3 F20:2
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): boss@F15 boss[thorns]:6 boss@F20 boss[drain]:5 boss@F10 boss[shield]:4 elite@F19 elite{warded}:4 elite@F17 elite{warded}:3 battle@F19 normal:2 elite@F19 elite{guard}:2 elite@F13 elite{warded}:2 battle@F13 normal:2 elite@F9 elite{warded}:2 boss@F5 boss[summon]:2 battle@F17 normal:2
+== buff:bulwark  N=32 M=12  never full-clear: 0 (0%)
+stuck floor (best reached): 
+deaths, never-clear seeds (node, lead foe [boss sig] {elite affixes}): 

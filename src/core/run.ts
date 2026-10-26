@@ -11,7 +11,7 @@ import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } 
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
 import { combos, formed, schoolCounts, sumMods } from './buffs';
-import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
+import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
@@ -23,6 +23,9 @@ export const RULES = {
   bossPhases: 1,
   /** 暫定 (CP3-bugfix 4, gameplay layer): monster level follows the player: + round(k × max(0, playerLv − free)). No source. */
   monLvFollow: { k: 0.8, free: 4, bossHp: 0.18 },
+  /** rc11 (OFF, producer decision): findings 003 §1.1 — Crude/Fair/Average drop "Level Unassigned" (synced to the player's level when first worn),
+   *  Superior+ get the player's current level at drop. ON = main-tower loot level = player level at run start. OFF = floorLevel(floor) (rc10). */
+  lootPlayerLevel: false,
   /** 暫定 (CP3-fix 10): boss battles open with this much OC once Spirit Stance is unlocked (sourced start OC 0 and entry 50 unchanged). */
   bossOpenOc: 50,
   rankExp: { boss: 8, elite: 3, normal: 1 },
@@ -41,7 +44,7 @@ export const RULES = {
   /** CP5 feature flag (docs/cp5-bosses-floors.md). Off = identical to the CP4 baseline. On by default since cp5-pass (2026-10-26). */
   cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
   /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
-  cp6Abyss: false,
+  cp6Abyss: true, // CP6 accepted (cp6-pass): default on
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -116,7 +119,7 @@ export function startRun(p: Player, seed: number): RunState {
   const locked: NodeType[] = [];
   if (!has(p, 'shrine')) locked.push('shrine');
   if (!has(p, 'merchant')) locked.push('merchant');
-  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}) });
+  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}), ...(RULES.cp6Abyss ? { distinct: true } : {}) });
   const d = derive(p);
   return {
     seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
@@ -142,7 +145,17 @@ export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState
   };
 }
 /** CP6: monster / item / merchant / chest level at the current depth (r2 decision 7: one formula). */
-export const abyssLevel = (run: RunState): number => abyssBaseLevel(depthOf(run)) + Math.round(RULES.monLvFollow.k * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
+/** CP6: carry-back multiplier an abyss run would get if it ended now (same as settle). */
+/** rc5 (a): floor number shown in titles — absolute abyss depth in the abyss, tower floor otherwise. */
+export const floorLabel = (run: RunState): number => (run.abyss ? depthOf(run) : run.floor);
+/** rc5 (c): new-record notice; the record counts depths cleared. */
+export const abyssBestMsg = (n: number): string => `深淵新紀錄：已通過 ${n} 層`;
+/** rc5 (d): on death, say what the run had so a +0 result (died before any reward) is explained. */
+export const deathCarryMsg = (exp: number, credits: number): string => `戰死：本趟累積 ${exp} EXP、${credits} C，帶回 ${Math.round(RULES.death.exp * 100)}%${exp || credits ? '' : '（本趟尚未獲得任何獎勵）'}`;
+export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
+/** rc5: monster-level follow added on top of the depth base (the map used to show the base only: d16 'Lv71' while the fight is Lv80 for a Lv15 player). */
+export const abyssLvFollow = (run: RunState): number => Math.round(ABYSS.lvFollowK * Math.max(0, (run.plv ?? 0) - RULES.monLvFollow.free));
+export const abyssLevel = (run: RunState): number => abyssMonLevel(depthOf(run), run.plv ?? 0, abyssLvFollow(run));
 /** CP6: deepest depth cleared by a finished abyss run. */
 export function abyssCleared(run: RunState): number {
   if (!run.abyss) return 0;
@@ -266,7 +279,8 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w, ab);
       if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
-      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg; }
+      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? ABYSS.bossDmgAt[ab] ?? 1 : 1);
+        if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
       return m;
     });
     if (type === 'elite') run.weakNext = false;
@@ -295,7 +309,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   else if (ab) ids = pickAffixes(rng, affixCount(rng, ab));
   else {
     ids = [rng.weighted(AFFIX_IDS.map((a) => [a, affixWeight(a)] as [AffixId, number]))];
-    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.weighted(AFFIX_IDS.filter((b) => compatible(ids[0]!, b)).map((a) => [a, affixWeight(a)] as [AffixId, number])));
+    if (f >= CP5.eliteDoubleFloor && rng.chance(CP5.eliteDoubleChance)) ids.push(rng.weighted(AFFIX_IDS.filter((b) => compatible(ids[0]!, b, f)).map((a) => [a, affixWeight(a)] as [AffixId, number])));
   }
   if (ids.length > 1 && CP5.doubleHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * CP5.doubleHp));
   if (ab && ids.length > 2) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * ABYSS.tripleHp));
@@ -303,7 +317,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[] }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -315,9 +329,11 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 // 暫定 (round 5): floors 1-5 raised from crude to fair to speed early progression.
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
+/** rc11: main-tower loot level (see RULES.lootPlayerLevel). */
+export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
 export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): Loot {
   const ab = depthOf(run);
-  const L = ab ? abyssLevel(run) : floorLevel(run.floor);
+  const L = ab ? abyssLevel(run) : lootLevel(run);
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
     // CP5 r3 (暫定): a solo elite rolls the drop table once more for the missing normal add (producer decision 1).
@@ -338,15 +354,19 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
       for (let i = 0; i < n; i++) loot.equips.push(generateEquip(rng, L, { minQuality: C['F-003-clear-bonus'].value.minQuality as Quality, qualityBump: i === 0 ? 1 : 0 }));
+      // rc11: main tower — the first piece is the sourced clear-bonus guarantee (F-003-clear-bonus: 1 drop, Average+); label it 保底. Extra pieces are 暫定.
+      if (!ab) (loot.guaranteed ??= []).push(loot.equips[loot.equips.length - n]!.id);
       loot.credits += 40 * run.floor;
       // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
-      if (ab) loot.equips.push(generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }));
+      if (ab) { const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); }
       // CP6 r2 decision 9 (暫定): first clear of every 10th depth → 1 more guaranteed piece + a title.
       if (ab && ab % ABYSS.milestoneEvery === 0 && ab > (run.abyss!.ms ?? 0)) {
-        loot.equips.push(generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }));
+        const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id);
         run.abyss!.ms = ab; (run.abyss!.titles ??= []).push(titleFor(ab));
         (run.notes ??= []).push(`里程碑：深淵 ${ab} 層，獲得稱號「${titleFor(ab)}」與 1 件保底裝備`);
       }
+      // rc10: tell the player a checkpoint was passed (next trip may start right after it).
+      if (ab && ab % ABYSS.checkpoint === 0) (run.notes ??= []).push(`檢查點：已通過深淵 ${ab} 層，回城後下一趟可從第 ${ab + 1} 層出發`);
     }
     loot.credits += RULES.floorCredits * run.floor;
     // 暫定 early-loot guarantee (round 5): the first won battle on floors 1-4 with no equipment found yet this run drops one.
@@ -357,7 +377,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
 }
 
 export function chestLoot(run: RunState): Loot {
-  const L = run.abyss ? abyssLevel(run) : floorLevel(run.floor); // CP6 r2 decision 7
+  const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
   // design §5: chests drop 2-3 items (暫定 single-player acceleration).
   return withRng(run, (rng) => ({
     equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
@@ -391,7 +411,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
 }
 
 export function merchantStock(run: RunState): MerchantStock {
-  const L = run.abyss ? abyssLevel(run) : floorLevel(run.floor); // CP6 r2 decision 7
+  const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
   return withRng(run, (rng) => ({
     equips: [0, 1, 2].map((i) => {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
@@ -441,6 +461,8 @@ export interface Settlement {
   floor: number;
   /** CP3: carry-back multiplier applied and systems opened by this return. */
   mult: number; unlocks: string[];
+  /** CP6 (abyss runs only): `floor` is then the abyss depth reached. */
+  abyss?: boolean;
 }
 
 /** Apply the run result to the persistent character (design §8 death rules). */
@@ -449,7 +471,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const dead = outcome === 'dead';
   const before = level(p);
   const g = prog(p);
-  const mult = run.abyss ? abyssCarry(depthOf(run)) : carryMult(run.trip ?? g.trips + 1);
+  const mult = run.abyss ? abyssCarryAt(run) : carryMult(run.trip ?? g.trips + 1);
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
   let kept = run.bag;
@@ -468,7 +490,7 @@ export function settle(p: Player, run: RunState): Settlement {
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
   if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
-  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.floor };
+  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, ...(run.abyss ? { abyss: true } : {}) };
 }
 
 export function score(e: Equip): number {

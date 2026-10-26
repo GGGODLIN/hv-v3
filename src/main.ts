@@ -3,6 +3,7 @@ import './style.css';
 import { makePool, type MonsterRow } from './core/monsters';
 import { App } from './game/app';
 import { RULES } from './core/run';
+import { applyPreset, stripPreset, type Preset } from './core/preset';
 import { H, Stage, W } from './game/stage';
 
 function buildBadge() {
@@ -14,9 +15,9 @@ function buildBadge() {
 }
 
 /** CP3-bugfix 8: retry a failed fetch (network error or non-2xx) with backoff. */
-async function fetchRetry(url: string, tries = 4): Promise<Response> {
+async function fetchRetry(url: string, tries = 4, init?: RequestInit): Promise<Response> {
   for (let i = 0; ; i++) {
-    try { const r = await fetch(i ? `${url}?retry=${i}` : url); if (r.ok) return r; if (i >= tries - 1) return r; } catch (e) { if (i >= tries - 1) throw e; }
+    try { const r = await fetch(i ? `${url}?retry=${i}` : url, init); if (r.ok) return r; if (i >= tries - 1) return r; } catch (e) { if (i >= tries - 1) throw e; }
     const w = window as unknown as { __assetRetries?: number }; w.__assetRetries = (w.__assetRetries ?? 0) + 1;
     await new Promise((res) => setTimeout(res, 300 * (i + 1)));
   }
@@ -30,6 +31,21 @@ async function boot() {
   if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;
   // CP6 abyss tower is off by default; `?cp6` turns it on (and the CP5 bosses / affixes it reuses).
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
+  // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss10|abyss15` (rc5: `debug` no longer required)
+  // overwrites the local save with a sim-exported character (public/data/cp6-presets.json) before the game boots.
+  const qs = new URLSearchParams(location.search), preset = qs.get('preset');
+  // rc5 (b): `debug` is no longer required — without it the preset was silently ignored and the previous save (e.g. abyss15) stayed.
+  if (RULES.cp6Abyss && preset) {
+    // rc10: no-store so a browser never serves an older build's preset file.
+    const all = (await fetchRetry('data/cp6-presets.json', 4, { cache: 'no-store' }).then((r) => r.json())) as Record<string, Preset>;
+    const pr = all[preset];
+    if (pr) {
+      // rc10: full replacement (save + abyss record), then drop `preset` from the URL so reloading does not wipe progress.
+      applyPreset(localStorage, pr);
+      history.replaceState(null, '', location.pathname + stripPreset(location.search) + location.hash);
+      (window as unknown as { hvPreset: string }).hvPreset = preset;
+    } else console.warn(`unknown preset ${preset}; known: ${Object.keys(all).join(', ')}`);
+  }
   buildBadge();
   const stage = new Stage();
   new Phaser.Game({ type: Phaser.AUTO, parent: 'stage', width: W, height: H, pixelArt: true, backgroundColor: '#120c18', scene: stage });

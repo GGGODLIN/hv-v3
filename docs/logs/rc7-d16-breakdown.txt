@@ -1,0 +1,17 @@
+== blade chars 13/16
+d13 tier 1 theme F13 pl 109 diff hp 1.10 dmg 1.20 mult hp 0.605 dmg 0.818 | win 42% n=52 turns 4.2 | mons 2.00 elite 0 affixed 0.00 | plv 14.7 mLv 73.5 monHP(sum) 1628 adb(sum) 558.7 pHP 823 mPhysMit 0.135 mEva+Par 0.010 | dmg/turn net 171.7: normalHit 179.5 | avoided 2%
+d16 tier 2 theme F16 pl 119 diff hp 1.17 dmg 1.33 mult hp 0.642 dmg 0.953 | win 4% n=52 turns 3.4 | mons 2.00 elite 0 affixed 0.00 | plv 14.7 mLv 79.5 monHP(sum) 1944 adb(sum) 770.5 pHP 823 mPhysMit 0.150 mEva+Par 0.009 | dmg/turn net 238.5: normalHit 262.8 | avoided 2%
+d18 tier 2 theme F18 pl 124 diff hp 1.20 dmg 1.40 mult hp 0.660 dmg 1.032 | win 2% n=52 turns 2.9 | mons 2.00 elite 0 affixed 0.00 | plv 14.7 mLv 83.5 monHP(sum) 2099 adb(sum) 878.6 pHP 823 mPhysMit 0.158 mEva+Par 0.010 | dmg/turn net 285.0: normalHit 320.1 | avoided 2%
+== oc chars 16/16
+d13 tier 1 theme F13 pl 109 diff hp 1.10 dmg 1.20 mult hp 0.605 dmg 0.818 | win 78% n=64 turns 5.8 | mons 2.00 elite 0 affixed 0.00 | plv 15.7 mLv 74.5 monHP(sum) 1640 adb(sum) 565.1 pHP 849 mPhysMit 0.136 mEva+Par 0.010 | dmg/turn net 97.4: normalHit 99.8 | avoided 15%
+d16 tier 2 theme F16 pl 119 diff hp 1.17 dmg 1.33 mult hp 0.642 dmg 0.953 | win 44% n=64 turns 5.1 | mons 2.00 elite 0 affixed 0.00 | plv 15.7 mLv 80.5 monHP(sum) 1969 adb(sum) 785.2 pHP 849 mPhysMit 0.152 mEva+Par 0.009 | dmg/turn net 138.0: normalHit 147.3 | avoided 14%
+d18 tier 2 theme F18 pl 124 diff hp 1.20 dmg 1.40 mult hp 0.660 dmg 1.032 | win 42% n=64 turns 4.6 | mons 2.00 elite 0 affixed 0.00 | plv 15.7 mLv 84.5 monHP(sum) 2119 adb(sum) 894.4 pHP 849 mPhysMit 0.159 mEva+Par 0.010 | dmg/turn net 156.1: normalHit 167.2 | avoided 17%
+== arcane chars 14/16
+d13 tier 1 theme F13 pl 109 diff hp 1.10 dmg 1.20 mult hp 0.605 dmg 0.818 | win 70% n=56 turns 2.1 | mons 2.00 elite 0 affixed 0.00 | plv 14.5 mLv 73.5 monHP(sum) 1616 adb(sum) 554.8 pHP 773 mPhysMit 0.134 mEva+Par 0.010 | dmg/turn net 206.1: normalHit 218.1 | avoided 1%
+d16 tier 2 theme F16 pl 119 diff hp 1.17 dmg 1.33 mult hp 0.642 dmg 0.953 | win 66% n=56 turns 1.9 | mons 2.00 elite 0 affixed 0.00 | plv 14.5 mLv 79.5 monHP(sum) 1931 adb(sum) 771.4 pHP 773 mPhysMit 0.149 mEva+Par 0.010 | dmg/turn net 263.8: normalHit 279.9 | avoided 2%
+d18 tier 2 theme F18 pl 124 diff hp 1.20 dmg 1.40 mult hp 0.660 dmg 1.032 | win 55% n=56 turns 1.9 | mons 2.00 elite 0 affixed 0.00 | plv 14.5 mLv 83.5 monHP(sum) 2107 adb(sum) 889.2 pHP 773 mPhysMit 0.159 mEva+Par 0.010 | dmg/turn net 311.7: normalHit 341.0 | avoided 1%
+== bulwark chars 10/16
+d13 tier 1 theme F13 pl 109 diff hp 1.10 dmg 1.20 mult hp 0.605 dmg 0.818 | win 63% n=40 turns 5.7 | mons 2.00 elite 0 affixed 0.00 | plv 14.4 mLv 73.4 monHP(sum) 1587 adb(sum) 543.9 pHP 820 mPhysMit 0.132 mEva+Par 0.010 | dmg/turn net 110.7: normalHit 114.8 | avoided 12%
+d16 tier 2 theme F16 pl 119 diff hp 1.17 dmg 1.33 mult hp 0.642 dmg 0.953 | win 18% n=40 turns 4.8 | mons 2.00 elite 0 affixed 0.00 | plv 14.4 mLv 79.4 monHP(sum) 1924 adb(sum) 762.9 pHP 820 mPhysMit 0.149 mEva+Par 0.010 | dmg/turn net 162.9: normalHit 177.2 | avoided 14%
+d18 tier 2 theme F18 pl 124 diff hp 1.20 dmg 1.40 mult hp 0.660 dmg 1.032 | win 8% n=40 turns 4.2 | mons 2.00 elite 0 affixed 0.00 | plv 14.4 mLv 83.4 monHP(sum) 2094 adb(sum) 892.1 pHP 820 mPhysMit 0.158 mEva+Par 0.011 | dmg/turn net 194.8: normalHit 218.3 | avoided 13%
+END

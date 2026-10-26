@@ -1,13 +1,13 @@
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, armCp5, canUse, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, act, alive, armCp5, canUse, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
 import { type Equip, SLOTS, blocksOffHand, sellPrice } from './items';
 import { has, unlockRate } from './progress';
 import type { MonsterPool } from './monsters';
-import { type Player, allocate, derive, equip, powerScore, profValue, unspentExp, type Prof } from './player';
+import { type Player, allocate, derive, equip, unequip, powerScore, profValue, unspentExp, type Prof } from './player';
 import { BUFF, formed } from './buffs';
 import { merchantBuffs, openOffer, openShrine, takeBuff, winOffers } from './buffoffer';
 import { Rng } from './rng';
@@ -29,14 +29,57 @@ export function autoAllocate(p: Player): void {
 /** 暫定 (round 5): auto-equip only swaps when the power score rises by at least this fraction, so IW-upgraded gear is not pushed out by a near-equal drop. */
 export const AUTO_EQUIP_MARGIN = 0.05;
 
-export function autoEquip(p: Player, extra: Equip[] = []): Equip[] {
+/** rc4 (sim only): weapon layout per play school. arcane = staff, bulwark = one-hand + shield (docs/cp4-run-buffs.md §2: W1 不動之盾 block/parry),
+ * blade = one-hand, off-hand free (推定：B7 處刑者 buffs Merciful Blow, a One-Handed skill line in F-002-4.2-skills / Ticket 04),
+ * oc = any main hand, shield free, best joint pair (推定：no doc names a weapon; a forced two-hander gave 97% never-clear in the sim, docs/logs/rc4-noclear-schoolgear-oc2h.txt). null = original slot-by-slot logic. */
+export type GearStyle = { main: Equip['group'] | null; shield: 'yes' | 'free' | 'no' } | null;
+export function gearStyle(strategy: string): GearStyle {
+  if (strategy.startsWith('buff:arcane')) return { main: 'staff', shield: 'no' };
+  if (strategy.startsWith('buff:bulwark')) return { main: 'oneHand', shield: 'yes' };
+  // rc6 item 3 (school→style mapping: producer decision, 暫定，無來源; style definitions: parsed_wiki/Fighting_Styles.md).
+  if (strategy.startsWith('buff:blade')) return { main: 'twoHand', shield: 'no' };
+  // OC = dual wield per producer; the game has no dual wield (offHand = shield group only, constants.ts F-003-base-groups) → 1H, no shield (暫定).
+  if (strategy.startsWith('buff:oc')) return { main: 'oneHand', shield: 'free' }; // rc7 item 2 (暫定): shield optional, joint pick decides
+  return null;
+}
+/** Pick main hand + off hand together (can go back from a two-hander to one-hand + shield). Off-style weapons are only used when no
+ * weapon of the school's group is owned. Returns the items taken from `extra`. */
+function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equip[] {
+  const mains = [p.equipped.mainHand, ...cands.filter((x) => x.slot === 'mainHand')].filter((x): x is Equip => !!x);
+  const offs = [p.equipped.offHand, ...cands.filter((x) => x.slot === 'offHand')].filter((x): x is Equip => !!x);
+  const styled = st.main ? mains.filter((m) => m.group === st.main) : mains;
+  const pool = styled.length ? styled : mains;
+  const score = (m: Equip | undefined, o: Equip | undefined) => powerScore(derive({ ...p, equipped: { ...p.equipped, mainHand: m, offHand: o } as Player['equipped'] }));
+  let best: [Equip | undefined, Equip | undefined] = [p.equipped.mainHand, p.equipped.offHand];
+  const legal = (m: Equip | undefined, o: Equip | undefined) => !(o && blocksOffHand(m)) && !(o && st.shield === 'no') && !(st.shield === 'yes' && offs.length && !o && !blocksOffHand(m));
+  const curOk = (!best[0] || !st.main || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
+  let bestS = curOk ? score(best[0], best[1]) * (1 + AUTO_EQUIP_MARGIN) : -Infinity;
+  for (const m of pool.length ? pool : [undefined]) for (const o of [undefined, ...offs]) {
+    if (!legal(m, o)) continue;
+    const v = score(m, o); if (v > bestS) { bestS = v; best = [m, o]; }
+  }
+  const used: Equip[] = [];
+  const take = (e: Equip) => { if (!p.inventory.includes(e) && !Object.values(p.equipped).includes(e)) { p.inventory.push(e); used.push(e); } };
+  const [m, o] = best;
+  if (p.equipped.offHand !== o) unequip(p, 'offHand');
+  if (m && p.equipped.mainHand !== m) { take(m); equip(p, m); }
+  if (o && p.equipped.offHand !== o) { take(o); equip(p, o); }
+  return used;
+}
+
+export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = null): Equip[] {
   const used: Equip[] = [];
   const cands = [...p.inventory, ...extra];
+  if (style) used.push(...equipHands(p, cands, style));
   for (const slot of SLOTS) {
+    if (style && (slot === 'mainHand' || slot === 'offHand')) continue;
     for (const e of cands.filter((x) => x.slot === slot)) {
       const cur = powerScore(derive(p));
       const trial: Player = { ...p, equipped: { ...p.equipped, [slot]: e } };
       if (blocksOffHand(e)) delete trial.equipped.offHand;
+      // rc4 fix: an off-hand cannot go next to a two-hander / staff. The old trial scored the illegal pair, then equip() pushed the
+      // weapon to the inventory and the town sell (keep = equipped only) sold it, leaving the sim character unarmed. Never trade the main hand away.
+      if (slot === 'offHand' && blocksOffHand(p.equipped.mainHand)) continue;
       if (powerScore(derive(trial)) > cur * (1 + AUTO_EQUIP_MARGIN)) {
         if (!p.inventory.includes(e)) { p.inventory.push(e); used.push(e); }
         equip(p, e);
@@ -45,6 +88,17 @@ export function autoEquip(p: Player, extra: Equip[] = []): Equip[] {
   }
   return used;
 }
+
+/** rc6 item 2: sim AI view. Default (baseline for every threshold) = UI-only: monster resistances / weaknesses are read through
+ * panelSpec(), the same data the battle weak panel renders. Everything else the AI reads is on screen too: HP bars, the charge
+ * warning (decide box), stun bar, affix plates, boss telegraphs, own HP/MP/OC/cooldowns. Physical schools (刃鋒、磐石, producer
+ * decision rc6) play physically: no offensive spells. SIM_AI=omni (env) = the pre-rc6 all-knowing AI (raw spec, every school
+ * aims spells at weaknesses), kept as a reference only. */
+const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+export const SIM_AI = { omni: ENV?.SIM_AI === 'omni' };
+const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
+export const PHYS_SCHOOLS = ['blade', 'bulwark'];
+const physPlay = (s: string) => !SIM_AI.omni && s.startsWith('buff:') && PHYS_SCHOOLS.includes(s.slice(5).replace(/-nocore(-nofloor)?$/, ''));
 
 export function chooseAction(b: BattleState): Action {
   const live = alive(b);
@@ -60,7 +114,7 @@ export function chooseAction(b: BattleState): Action {
   const boss = live.some((m) => m.rank === 'boss');
   if (!b.spirit && (b.oc >= 120 || boss) && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   if (b.d.mdb * 4 > b.d.adb * 1.2) {
-    const sp = (['fiery', 'freeze', 'shock', 'gale'] as SpellId[]).sort((x, y) => tm.spec[SPELLS[x].element] - tm.spec[SPELLS[y].element])[0]!;
+    const sp = (['fiery', 'freeze', 'shock', 'gale'] as SpellId[]).sort((x, y) => seen(tm)[SPELLS[x].element] - seen(tm)[SPELLS[y].element])[0]!;
     if (canUse(b, { kind: 'spell', id: sp, target })) return { kind: 'spell', id: sp, target };
   }
   return { kind: 'attack', target };
@@ -97,8 +151,8 @@ export function chooseHuman(b: BattleState, aimWeak = true): Action {
     if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
     return { kind: 'attack', target };
   }
-  const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => tm.spec[SPELLS[id].element as keyof typeof tm.spec] < 0)
-    .sort((x, y) => tm.spec[SPELLS[x].element as keyof typeof tm.spec] - tm.spec[SPELLS[y].element as keyof typeof tm.spec]);
+  const sp = (Object.keys(SPELLS) as SpellId[]).filter((id) => seen(tm)[SPELLS[id].element as keyof typeof tm.spec] < 0)
+    .sort((x, y) => seen(tm)[SPELLS[x].element as keyof typeof tm.spec] - seen(tm)[SPELLS[y].element as keyof typeof tm.spec]);
   for (const id of sp) if (canUse(b, { kind: 'spell', id, target })) return { kind: 'spell', id, target };
   if (b.mp < b.d.mp * 0.25 && canUse(b, { kind: 'item', id: 'mana' })) return { kind: 'item', id: 'mana' };
   return { kind: 'attack', target };
@@ -110,6 +164,8 @@ export function profsOf(p: Player): Partial<Record<Prof, number>> {
 
 export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'): number {
   const opts = run.tower.floors[run.floor - 1]!.options;
+  // CP6 rc2 (c): tutorial floors 2–4 now pair the taught node with a different one; the sim player follows the tutorial (taught node first), as when both routes were identical.
+  if (run.tutorial && run.floor >= 2 && run.floor <= 4) return 0;
   const frac = run.hp / runDerived(p, run).hp;
   // 暫定 (CP2b) human route: below 55% HP always a non-combat node; otherwise a coin flip (HUMAN_COMBAT_SHARE) between
   // taking a normal battle and taking a non-combat node. A pure "never fight" route is printed separately as 'avoid'.
@@ -132,10 +188,12 @@ export interface Cp5Sim { mode: 'counter' | 'ignore' | 'base'; pair?: boolean; r
   snap?: (p: Player, run: RunState) => void }
 type CM = Monster & Cp5Mon;
 const ELEMS: SpellId[] = ['fiery', 'freeze', 'shock', 'gale'];
+let PHYS = false; // set by fight(): the current strategy plays physically (no offensive spells)
 function bestSpell(b: BattleState, t: number, only?: SpellId[]): Action | null {
-  const m = b.monsters[t]!;
-  const ids = (only ?? (Object.keys(SPELLS) as SpellId[])).slice().sort((x, y) => m.spec[SPELLS[x].element] - m.spec[SPELLS[y].element]);
-  for (const id of ids) if (m.spec[SPELLS[id].element] < 50 && canUse(b, { kind: 'spell', id, target: t })) return { kind: 'spell', id, target: t };
+  if (PHYS) return null;
+  const m = b.monsters[t]!, sp = seen(m);
+  const ids = (only ?? (Object.keys(SPELLS) as SpellId[])).slice().sort((x, y) => sp[SPELLS[x].element] - sp[SPELLS[y].element]);
+  for (const id of ids) if (sp[SPELLS[id].element] < 50 && canUse(b, { kind: 'spell', id, target: t })) return { kind: 'spell', id, target: t };
   return null;
 }
 /** CP5 §4 counter / ignore play on top of a base AI. 'ignore' never reacts to a signature telegraph (normal charges still defended). */
@@ -166,7 +224,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
     if (boss.pulseNext && boss.charge === 0) return canUse(b, bash) ? bash : { kind: 'defend' };
     if (boss.sig === 'shield' && boss.breachEl && !low && boss.charge === 0) {
       const id = ELEMS.find((x) => SPELLS[x].element === boss.breachEl)!;
-      if (b.d.mdb * 4 > b.d.adb * 0.8 && canUse(b, { kind: 'spell', id, target: bi })) return { kind: 'spell', id, target: bi };
+      if (!PHYS && b.d.mdb * 4 > b.d.adb * 0.8 && canUse(b, { kind: 'spell', id, target: bi })) return { kind: 'spell', id, target: bi };
       const a = base(); if (a.kind === 'spell' && SPELLS[a.id].element === boss.shieldEl) return { kind: 'attack', target: bi };
       return a;
     }
@@ -181,6 +239,8 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
   return a;
 }
 export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
+  /** rc4 diagnostics (sim-only, read by scripts/rc4-noclear.ts): why the run stopped early. */
+  end?: { why: 'dead' | 'retreat'; floor: number; type: string; foes: { name: string; rank: string; affixes?: string[]; sig?: string }[] };
   /** CP4 (buff strategies only) */
   cp4?: { buffs: string[]; formed: string[]; sources: Record<string, number>; offered: Record<string, number>; picked: Record<string, number>; risks: number; offers: number; contests: number } }
 
@@ -191,7 +251,7 @@ const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
   // Town prep.
   if (has(p, 'alloc')) autoAllocate(p);
-  autoEquip(p);
+  autoEquip(p, [], gearStyle(strategy));
   while (has(p, 'shop') && p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
   const level = derive(p).level;
   const power = powerScore(derive(p));
@@ -203,9 +263,14 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   try { return autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); } finally { RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; }
 }
 /** Play one battle to the end with a strategy (+ CP5 layer). */
+/** One sim decision for a strategy (the same call fight() makes each turn). */
+export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
+  PHYS = physPlay(strategy);
+  const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy) && !PHYS) : chooseAction(b));
+  return mode ? chooseCp5(b, mode, base) : base();
+}
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
-  const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy)) : chooseAction(b));
-  while (!b.over && b.turn < 400) act(b, mode ? chooseCp5(b, mode, base) : base(), rng, profs);
+  while (!b.over && b.turn < 400) act(b, decide(b, strategy, mode), rng, profs);
   if (!b.over) b.over = 'lose';
 }
 const potCount = (b: BattleState) => b.potions.health + b.potions.mana + b.potions.spirit;
@@ -228,6 +293,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   let turns = 0;
   const bosses: BossFight[] = [];
   const elites: { floor: number; won: boolean; hpPct: number }[] = [];
+  let end: RunReport['end'];
   let battles = 0, spiritBattles = 0;
   while (!run.done) {
     if (run.abyss && depthOf(run) > (cp5?.cap ?? 60)) { run.done = 'retreat'; break; }
@@ -253,21 +319,21 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
       }
       if (cp5) fight(b, strategy, rng, profs, cp5.mode);
-      else while (!b.over && b.turn < 400) { act(b, strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy)) : chooseAction(b), rng, profs); }
+      else fight(b, strategy, rng, profs);
       turns += b.turn;
       battles++; if (b.spiritUsed) spiritBattles++;
       if (!b.over) b.over = 'lose';
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
-      if (!loot) break;
-      const used = autoEquip(p, run.bag);
+      if (!loot) { end = { why: 'dead', floor: run.floor, type, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
+      const used = autoEquip(p, run.bag, gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e));
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
-      if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; break; }
+      if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
       applyLoot(p, run, chestLoot(run));
-      const used = autoEquip(p, run.bag);
+      const used = autoEquip(p, run.bag, gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e));
     } else if (type === 'merchant') {
       const st = merchantStock(run);
@@ -299,7 +365,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
+  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
 export function starterKit(p: Player, seed = 7): void {

@@ -7,21 +7,45 @@ import { abyssLevel, chestLoot, merchantStock, RULES, advance, battleLoot, depth
 import { starterKit } from '../src/core/auto';
 import { prog } from '../src/core/progress';
 import { type Cp5Mon } from '../src/core/cp5';
-import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
+import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, diffAt, bossKey, checkpointStart, emptyRecord, abyssCarry, recordTitles, titleFor, guaranteeQuality, loadRecord, pickAffixes, recordTrip, tripleOk } from '../src/core/abyss';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 
 describe('CP6 abyss scaling', () => {
   it('tier follows The Tower table (The_Tower.md)', () => {
     expect([1, 9, 10, 14, 15, 20, 25, 30, 35, 39, 40, 80].map(abyssTier)).toEqual([0, 0, 1, 1, 2, 3, 4, 5, 6, 6, 6, 6]);
   });
-  it('level +2 per depth (decision 1, not ×10)', () => { expect(abyssBaseLevel(6) - abyssBaseLevel(5)).toBe(2); });
+  it('rc7 (a): monster level = player level + LPD×(d−1) (Monster_Stats.md:33, Battles.md:220)', () => {
+    expect(ABYSS.levelBase).toBe('player');
+    expect(abyssMonLevel(1, 15, 0)).toBe(15 + ABYSS.levelOffset);
+    expect(abyssMonLevel(17, 15, 0)).toBe(15 + ABYSS.levelOffset + Math.round(ABYSS.playerLevelPerDepth * 16));
+  });
+  it('r2b knob: d15/d20/d25 abyss bosses deal ×0.6 damage, d5/d10 untouched (暫定)', () => {
+    expect(ABYSS.bossDmgAt[15]).toBe(0.6); expect(ABYSS.bossDmgAt[10] ?? 1).toBe(1); expect(ABYSS.bossDmgAt[20]).toBe(0.6); expect(ABYSS.bossDmgAt[25]).toBe(0.6); expect(ABYSS.bossDmgAt[5] ?? 1).toBe(1);
+  });
+  it('r4 (c): tier jump phases in over its first 3 depths (hp/dmg/pl), 暫定', () => {
+    expect(ABYSS.tierRamp).toBe(3); // rc9 default; mechanism below is checked at ramp 3
+    const o0 = ABYSS.tierRamp; ABYSS.tierRamp = 3; try {
+    expect(diffAt(9, 'dmg')).toBeCloseTo(1.0);
+    expect(diffAt(15, 'dmg')).toBeCloseTo(1.2 + 0.2 / 3); expect(diffAt(16, 'dmg')).toBeCloseTo(1.2 + 0.4 / 3); expect(diffAt(17, 'dmg')).toBeCloseTo(1.4); expect(diffAt(19, 'dmg')).toBeCloseTo(1.4);
+    expect(diffAt(15, 'hp')).toBeCloseTo(1.1 + 0.1 / 3); expect(diffAt(16, 'pl')).toBeCloseTo(5 + 10);
+    const o = ABYSS.tierRamp; ABYSS.tierRamp = 1; try { expect(diffAt(15, 'dmg')).toBeCloseTo(1.4); expect(diffAt(14, 'dmg')).toBeCloseTo(1.2); } finally { ABYSS.tierRamp = o; }
+    } finally { ABYSS.tierRamp = o0; }
+  });
+  it('r2 knob: hpScale/dmgScale multiply every depth (rc9 暫定 0.9/2)', () => {
+    expect(ABYSS.hpScale).toBe(0.9); expect(ABYSS.dmgScale).toBe(2);
+    expect(abyssMult(1).hp).toBeCloseTo(0.9); expect(abyssMult(12).dmg).toBeCloseTo(2 * diffAt(12, 'dmg') * (1 + ABYSS.dmgPerDepth * 11));
+  });
   it('+2% damage per depth accumulates, past 40 adds +5% HP/dmg every 5', () => {
+    expect(ABYSS.dmgPerDepth).toBe(0.08); // rc9 default 暫定; mechanism checked at the sourced +2%
+    const k = [ABYSS.hpScale, ABYSS.dmgScale, ABYSS.dmgPerDepth]; ABYSS.hpScale = 1; ABYSS.dmgScale = 1; ABYSS.dmgPerDepth = 0.02; const tr = ABYSS.tierRamp; ABYSS.tierRamp = 3;
+    try {
     expect(abyssMult(1)).toEqual({ hp: 1, dmg: 1 });
     expect(abyssMult(6).dmg).toBeCloseTo(1.1);
-    expect(abyssMult(10).dmg).toBeCloseTo(1.2 * 1.18);
+    expect(abyssMult(12).dmg).toBeCloseTo(1.2 * 1.22);
     expect(abyssMult(44).hp).toBeCloseTo(2);
     expect(abyssMult(45).hp).toBeCloseTo(2.1);
     expect(abyssMult(45).dmg).toBeCloseTo(3 * 1.05 * 1.88);
+    } finally { [ABYSS.hpScale, ABYSS.dmgScale, ABYSS.dmgPerDepth] = k as [number, number, number]; ABYSS.tierRamp = tr; }
   });
   it('guarantee quality floors from the trophy table', () => {
     expect([5, 10, 15, 20, 25, 30, 35, 60].map(guaranteeQuality)).toEqual(['average', 'average', 'average', 'superior', 'superior', 'exquisite', 'magnificent', 'magnificent']);
@@ -46,7 +70,7 @@ describe('CP6 affixes', () => {
       const boss = encounter(b, pool, 'boss')[0] as unknown as Cp5Mon;
       expect(boss.sig).toBe('summon');
       expect(boss.affixes!.length).toBe(1);
-    } finally { RULES.cp6Abyss = false; }
+    } finally { RULES.cp6Abyss = true; }
   });
 });
 
@@ -73,9 +97,9 @@ describe('CP6 run flow', () => {
   });
   it('unlocks only with the flag on after a main-tower clear', () => {
     const p = newPlayer(); starterKit(p);
-    const r1 = startRun(p, 1); r1.cp5 = true; r1.done = 'clear'; settle(p, r1); expect(abyssOpen(p)).toBe(false);
-    RULES.cp6Abyss = true;
-    try { const r2 = startRun(p, 2); r2.cp5 = true; r2.done = 'clear'; settle(p, r2); expect(abyssOpen(p)).toBe(true); } finally { RULES.cp6Abyss = false; }
+    RULES.cp6Abyss = false; // default is on since cp6-pass
+    try { const r1 = startRun(p, 1); r1.cp5 = true; r1.done = 'clear'; settle(p, r1); expect(abyssOpen(p)).toBe(false); } finally { RULES.cp6Abyss = true; }
+    try { const r2 = startRun(p, 2); r2.cp5 = true; r2.done = 'clear'; settle(p, r2); expect(abyssOpen(p)).toBe(true); } finally { RULES.cp6Abyss = true; }
   });
 });
 
@@ -110,7 +134,7 @@ describe('CP6 r2 decisions', () => {
   });
   it('7: chest and merchant item level follow depth (monster formula)', () => {
     const { run } = at(30); const L = abyssLevel(run);
-    expect(L).toBeGreaterThan(abyssBaseLevel(30) - 1);
+    expect(L).toBe(abyssMonLevel(30, run.plv ?? 0, 0));
     expect(chestLoot(run).equips.every((e) => e.level === L)).toBe(true);
     expect(merchantStock(run).equips.every((x) => x.e.level === L)).toBe(true);
   });

@@ -26,6 +26,8 @@ export const TOWER = {
 
 /** CP5 decision 1 (暫定, flag RULES.cp5Bosses only): 20-floor tower. Boss every 5 floors, rest / combat pattern repeated. */
 export const CP5_TOWER = { floors: 20, bossFloors: [5, 10, 15, 20], restFloors: [4, 8, 14, 18], combatFloors: [1, 3, 7, 9, 11, 13, 17, 19] };
+/** The tower layout rules in effect (CP5 20-floor tower when long). Single source for UI text such as boss floors. */
+export const towerRules = (long?: boolean) => (long ? { ...TOWER, ...CP5_TOWER } : TOWER);
 export interface Floor { n: number; options: NodeType[] }
 export interface Tower { floors: Floor[] }
 
@@ -42,6 +44,8 @@ export interface TowerOpts {
   shrine?: boolean;
   /** CP5: 20 floors (flag on). */
   long?: boolean;
+  /** CP6 rc2 (c), flag cp6Abyss: no floor offers two routes of the same type. */
+  distinct?: boolean;
 }
 const COMBAT: NodeType[] = ['battle', 'elite'];
 export const isCombat = (t: NodeType) => t === 'battle' || t === 'elite' || t === 'boss';
@@ -55,17 +59,17 @@ export function generateTower(rng: Rng, opts: TowerOpts = {}): Tower {
   const floors: Floor[] = [];
   const has = (n: number, t: NodeType) => (floors[n - 1]?.options ?? []).includes(t);
   const locked = new Set(opts.locked ?? []);
-  const T = opts.long ? { ...TOWER, ...CP5_TOWER } : TOWER;
+  const T = towerRules(opts.long);
   for (let n = 1; n <= T.floors; n++) {
     if (T.bossFloors.includes(n)) { floors.push({ n, options: ['boss'] }); continue; }
     // CP5 rc2 fix 8 (flag on via long): tutorial floors still offer ≥2 routes (taught node first; no rng draw, 暫定).
-    if (opts.long && opts.tutorial && n >= 2 && n <= 4) { floors.push({ n, options: n === 2 ? ['battle', 'battle'] : n === 3 ? ['merchant', 'merchant'] : ['elite', 'elite'] }); continue; }
+    if (opts.long && opts.tutorial && n >= 2 && n <= 4) { floors.push({ n, options: opts.distinct ? (n === 2 ? ['battle', 'elite'] : n === 3 ? ['merchant', 'chest'] : ['elite', 'battle']) : n === 2 ? ['battle', 'battle'] : n === 3 ? ['merchant', 'merchant'] : ['elite', 'elite'] }); continue; } // CP6 rc2 (c): two different routes, taught node first (暫定（缺原版出處）)
     if (opts.tutorial && n === 2) { floors.push({ n, options: ['battle'] }); continue; }
     if (opts.tutorial && n === 3) { floors.push({ n, options: ['merchant'] }); continue; }
     if (opts.tutorial && n === 4) { floors.push({ n, options: ['elite'] }); continue; }
     const combatOnly = T.combatFloors.includes(n);
     const count = rng.chance(0.5) ? 3 : 2;
-    if (n === 1) { floors.push({ n, options: Array<NodeType>(count).fill('battle') }); continue; }
+    if (n === 1) { floors.push({ n, options: opts.long && opts.distinct ? ['battle', 'elite'] : Array<NodeType>(count).fill('battle') }); continue; } // CP6 rc2 (c): no same-type pair (count still drawn so the rng stream is unchanged; 暫定（缺原版出處）)
     const banned = (t: NodeType) => locked.has(t) || (has(n - 1, t) && has(n - 2, t));
     const options: NodeType[] = [];
     if (T.restFloors.includes(n)) options.push('rest');

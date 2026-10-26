@@ -60,6 +60,8 @@ export interface Derived {
   damageType: DmgType;
   style: 'unarmed' | 'oneHand' | 'twoHand' | 'staff';
   weaponProf: Prof | null;
+  /** rc7 (c): main-hand style proficiency value (style passives scale with it). */
+  wprof: number;
   armorProfs: Prof[];
 }
 
@@ -118,7 +120,7 @@ export function derive(p: Player): Derived {
     manaCons: Math.min(0.5, s('manaConservation') / 100),
     counterResist: s('counterResist') / 100,
     damageType: weapon?.damageType ?? (UNARMED.damageType as DmgType),
-    style, weaponProf, armorProfs,
+    style, weaponProf, wprof, armorProfs,
   };
 }
 

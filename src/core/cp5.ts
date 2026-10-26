@@ -77,11 +77,16 @@ export const AFFIXES: Record<AffixId, { zh: string; desc: string }> = {
 };
 export const AFFIX_IDS = Object.keys(AFFIXES) as AffixId[];
 export const EXCLUSIVE: [AffixId, AffixId][] = [['hard', 'guard'], ['hard', 'warded'], ['spikes', 'hard'], ['split', 'leech'], ['antimagic', 'warded'], ['antimagic', 'spikes']];
-export const compatible = (a: AffixId, b: AffixId) => a !== b && !EXCLUSIVE.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+/** rc6 item 4 (producer decision, 暫定，無來源): main-tower floors where 法抗 cannot pair with these (deadliest warded pairs in the rc5 death-combo scan). */
+export const WARDED_EXCL_FLOORS = [8, 18];
+export const WARDED_EXCL: AffixId[] = ['flame', 'split', 'leech', 'swift', 'spikes', 'keen'];
+const pairIs = (a: AffixId, b: AffixId, x: AffixId, y: AffixId) => (x === a && y === b) || (x === b && y === a);
+export const compatible = (a: AffixId, b: AffixId, floor?: number) => a !== b && !EXCLUSIVE.some(([x, y]) => pairIs(a, b, x, y))
+  && !(floor !== undefined && WARDED_EXCL_FLOORS.includes(floor) && WARDED_EXCL.some((y) => pairIs(a, b, 'warded', y)));
 /** Every legal 1- or 2-affix set (death-combo exhaustion). */
-export function affixCombos(): AffixId[][] {
+export function affixCombos(floor?: number): AffixId[][] {
   const out: AffixId[][] = AFFIX_IDS.map((a) => [a]);
-  AFFIX_IDS.forEach((a, i) => AFFIX_IDS.slice(i + 1).forEach((b) => { if (compatible(a, b)) out.push([a, b]); }));
+  AFFIX_IDS.forEach((a, i) => AFFIX_IDS.slice(i + 1).forEach((b) => { if (compatible(a, b, floor)) out.push([a, b]); }));
   return out;
 }
 
@@ -145,7 +150,7 @@ export const CP5_STAT = { reflect: 0, reflectN: 0, thornsOn: 0, drainHits: 0, dr
 
 /** CP5 r5 (暫定, producer: accept the death-combo list but every one needs a visible counter).
  *  Elites carrying 法抗 or 反魔 are the whole sim death-combo list (docs/cp5-bosses-floors.md §CP5 r5); shown every battle. */
-const DANGER_EXTRA: Partial<Record<AffixId, string>> = {
+export const DANGER_EXTRA: Partial<Record<AffixId, string>> = {
   leech: '嗜血會讓你流血：Z·生命藥水 或 D·防禦 解除，別讓它回血拖長戰鬥',
   split: '分裂死後會變 2 隻小怪：留一瓶生命藥水和範圍技能收尾',
   swift: '迅捷容易閃避：別急，穩定普攻、血量低於一半先喝藥',

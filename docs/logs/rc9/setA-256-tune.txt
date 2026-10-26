@@ -1,0 +1,9 @@
+## setA LPD0 HS0.9 DS2 DPD0.08 TR3 N=256
+blade   A t1 22 (19-27) end d1-3/4-10/11-20/21+ 1/10/51/181 ratio 2.20 | d1 99.4 d2 99.4 d3 99.2 d5B 99.3 d13 94.7 d16 76.7 d18 62.6 d20B 95 deep 238/243 | FAIL trip1,ratio
+blade   B t1 22 (19-27) end d1-3/4-10/11-20/21+ 1/8/54/184 ratio 2.48 | d1 99.8 d2 99.7 d3 99.7 d5B 99.8 d13 94.8 d16 70.8 d18 59.8 d20B 93.9 deep 243/247 | FAIL trip1,ratio
+oc      A t1 20 (17-24) end d1-3/4-10/11-20/21+ 1/1/102/152 ratio 3.22 | d1 100 d2 100 d3 100 d5B 100 d13 99.5 d16 95.8 d18 91.9 d20B 85.7 deep 256/256 | FAIL trip1,ratio
+oc      B t1 22 (17-24) end d1-3/4-10/11-20/21+ 0/2/98/156 ratio 3.01 | d1 100 d2 100 d3 100 d5B 99.9 d13 99.8 d16 95.5 d18 92.9 d20B 89.2 deep 256/256 | FAIL trip1,ratio
+arcane  A t1 22 (17-27) end d1-3/4-10/11-20/21+ 0/0/78/178 ratio 1.51 | d1 99.9 d2 99.7 d3 99.7 d5B 100 d13 90.4 d16 87.7 d18 88.9 d20B 96.8 deep 256/256 | FAIL trip1
+arcane  B t1 22 (19-27) end d1-3/4-10/11-20/21+ 0/2/74/180 ratio 1.96 | d1 100 d2 100 d3 100 d5B 100 d13 91.3 d16 92.4 d18 89.9 d20B 97.7 deep 256/256 | FAIL trip1,ratio
+bulwark A t1 27 (22-30) end d1-3/4-10/11-20/21+ 0/6/40/210 ratio 2.87 | d1 99.6 d2 99.8 d3 99.3 d5B 100 d13 92.1 d16 76.8 d18 67.2 d20B 93 deep 256/256 | FAIL trip1,ratio
+bulwark B t1 27 (22-29) end d1-3/4-10/11-20/21+ 0/4/39/213 ratio 3.54 | d1 99.9 d2 99.9 d3 99.7 d5B 100 d13 91.4 d16 75.6 d18 66 d20B 92.3 deep 256/256 | FAIL trip1,ratio

@@ -1,0 +1,31 @@
+
+ RUN  v5.0.4 /workspace/hv-v3
+
+ ❯ tests/cp3.test.ts (21 tests | 1 failed) 8431ms
+   ❯ CP3-B early unlocks (暫定 gameplay layer) (5)
+     × acceptance (16 seeds): >=90% unlocked after trip 3; F5 boss >=80% win, 10-15 turns; median first clear <= 3; avoid not faster 5498ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/cp3.test.ts > CP3-B early unlocks (暫定 gameplay layer) > acceptance (16 seeds): >=90% unlocked after trip 3; F5 boss >=80% win, 10-15 turns; median first clear <= 3; avoid not faster
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/cp3.test.ts:106:3
+    104|     }
+    105|   });
+    106|   it('acceptance (16 seeds): >=90% unlocked after trip 3; F5 boss >=80…
+       |   ^
+    107|     const firstMean: Record<string, number> = {};
+    108|     for (const strat of ['auto', 'human', 'avoid'] as const) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 22 passed (23)
+      Tests  1 failed | 220 passed (221)
+   Start at  05:52:45
+   Duration  10.86s (tests 60%, import 32%, transform 7%, worker 1%)
+
+    Isolate  23 workers spawned · ~466ms startup each (spawn + environment, per file)
+             at least ~1.06s faster with isolate: false — reuses workers across files instead of one per file
+

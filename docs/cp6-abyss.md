@@ -138,3 +138,409 @@
 
 - 深淵碎片抵城鎮道具界費用（Q7，製作人決定先不做）。
 - PFUDOR 怪物額外強化（行動速度等）沒有對應系統。
+
+## CP6 round 2 (2026-10-26)：決定 6–9 與調參（全部 暫定，缺原版出處）
+- (6) 深淵首領掉寶 2 件，另加 1 件保底（`ABYSS.bossDrops`）。(7) 商人和寶箱的物品等級隨深度，用怪物等級公式 `abyssLevel`。(8) 帶回倍率 = 1 + 0.05×tier（`abyssCarry`）。(9) 每 10 層里程碑只在第一次給：1 件保底裝備＋1 個稱號（存在 localStorage 紀錄的 `ms`/`titles`，UI 會顯示；稱號名稱暫定）。都有測試（tests/cp6.test.ts）。
+- sim：`scripts/cp6-abyss-sim.ts 24 5`。先在主塔打到第一次通關 F20，再進深淵 5 趟（撤退 0.3）→ docs/logs/cp6-abyss-sim.txt。進深淵時角色等級中位數 13（p10 11–12、p90 14–17），主塔通關所需趟數中位數 3–8。
+
+### 調參紀錄（只新增旋鈕，已接受的 1–5、10 不動）
+| 輪 | 變更 | 理由 / 結果 |
+|---|---|---|
+| 0 | 無 | 第 1 趟中位數 2、5 趟後最佳中位數 4、d5 首領勝率 37–44%：深淵 d1 怪物約 Lv 40，玩家 Lv 13，全部未達標 |
+| 1 | `levelOffset` −10 / −20 | −20：第 1 趟 7–9、最佳 9–12，最佳深度仍不足；等級差同時也壓低經驗值和掉寶等級，所以不採用 |
+| 2 | 新增 `hpScale`、`dmgScale`（深淵怪物 HP／傷害整體倍率）0.6 / 0.5 / 0.52 / 0.55 | 0.5：第 1 趟 10–14，超過 10；0.6：最佳只到 14 |
+| 定案 | `hpScale = dmgScale = 0.55`，`levelOffset = 0` | 見下方結果 |
+
+### 結果（0.55）
+- 第 1 趟深淵中位數：auto 10 / 刃鋒 10 / 奔流 10 / 秘術 9 / 磐石 9 → **達成**（5–10）
+- 5 趟後最佳深度中位數：17 / 14 / 14 / 14 / 15 → **未達成**（刃鋒、奔流、秘術是 14，差 1。卡在 d15 首領：checkpoint 從 d10 開始，到 d14 就死）
+- 流派最佳深度差：17/14 = 1.21× → 達成（≤1.5×）
+- d5 首領勝率：96 / 92 / 93 / 88 / 84% → 達成（≥60%）
+- 通膨：每趟深淵保留的裝備平均 1.2–1.8 件，中位數 1（死亡時只留 1 件，`RULES.death.keepBestItems`）。品質分布：一般 19–21%、普通 31–42%、精良 28–37%、精緻 4–11%、華麗 0–2%
+
+## CP6 round 2b (2026-10-26)：單獨調整 d15 首領（全部 暫定；hpScale/dmgScale 維持 0.55）
+- 先確認卡點（sim 新增每個深度的死亡分布，並固定印出 d5/d10/d15/d20/d25 首領）：d15 首領勝率只有 32–63%（刃鋒/秘術 32%），死亡集中在 d13（首領前的消耗）和 d15。卡在 d15 屬實。
+| 嘗試 | 結果 |
+|---|---|
+| d15 首領 HP ×0.7 / ×0.5 | d15 勝率升到 48–77%，但最佳中位數仍是 14（玩家抵達時已被消耗，問題在受到的傷害，不在打得慢）→ 不採用 |
+| **d15 首領傷害 ×0.6（`ABYSS.bossDmgAt[15]`）** | 採用，見下方 |
+| d15 首領傷害 ×0.4 | 更容易，但 ×0.6 已達標，取影響較小的值 |
+- 結果（×0.6，24 seeds × 5 趟；docs/logs/cp6-abyss-sim.txt）：
+  - 5 趟後最佳中位數：auto 17 / 刃鋒 15 / 奔流 17 / 秘術 15 / 磐石 17 → 達成，但刃鋒和秘術剛好卡在 15
+  - 第 1 趟中位數 10 / 10 / 10 / 9 / 9 → 達成；流派差 17/15 = 1.13× → 達成；d5 首領 96 / 92 / 93 / 88 / 84% → 達成
+  - d15 首領勝率 78 / 68 / 73 / 82 / 88%
+- **新的難度牆：d20 首領** 勝率 44 / 0 / 0 / 0 / 22%（樣本 n 只有 4–11）；d25 只有 auto 打到（n 4，勝率 0%）。另外死亡集中在 d16，也就是從 d15 checkpoint 出發後，進入 Nightmare 階的第一層。本輪不調整，待製作人決定。
+
+## CP6 round 3（2026-10-26）：64 seeds × 10 趟，逐個首領調 bossDmgAt（全部 暫定；hpScale/dmgScale 維持 0.55）
+驗收條件：5 趟後最佳中位數 ≥15；10 趟累計 d20 首領勝率每個流派 ≥25%（不得為 0）；第 1 趟 5–10 層；流派差 ≤1.5×；d5 勝率 ≥60%；曲線平滑，不能有單點難度牆。
+| 設定（只有 d15=0.6 時為 base） | d20 首領勝率 auto/刃鋒/奔流/秘術/磐石 |
+|---|---|
+| base | 29.8 / 8.3 / 18.9 / 13.7 / 19.1% → 未達標 |
+| **d20 ×0.6** | 38.9 / 34.7 / 47.1 / 41.7 / 41.5% → 採用 |
+| d20 ×0.45 / ×0.35 | 45–64%，在 d20 形成一個凹陷，不平滑，不採用 |
+- d25：在 d20 ×0.6 的條件下，d25 原本 0%（樣本 n 2–10），屬於單點牆，所以也加上 ×0.6。調整後 33 / 0 / 20 / 17 / 0%，但 **n 只有 2–9，統計上不可靠**。×0.4 和 ×0.6 的結果差不多，所以取影響較小的 ×0.6。
+- 最終設定 `bossDmgAt = {15: 0.6, 20: 0.6, 25: 0.6}`；d5 和 d10 不調。
+- 首領勝率曲線（n）：
+  - d5 98.5(67) / 91.5(71) / 95.7(70) / 90.8(76) / 92.0(75)
+  - d10 93.2(73) / 88.0(83) / 86.6(82) / 77.7(94) / 83.1(89)
+  - d15 84.1(88) / 70.3(101) / 63.3(109) / 68.1(94) / 71.6(88)
+  - d20 38.9(54) / 34.7(49) / 47.1(34) / 41.7(48) / 41.5(41)
+- 5 趟後最佳中位數 17 / 15 / 15 / 15 / 15；10 趟後 19 / 17 / 17 / 17 / 17；第 1 趟中位數皆為 10；流派差 1.13×。
+- 死亡深度：最集中在 d16（175–265 次，也就是從 d15 checkpoint 出發後進入 Nightmare 階的第一層，屬於一般怪），其次是 d18。這是階層門檻，不是首領；本輪按規則只調首領，留待製作人決定。完整數據見 docs/logs/cp6-abyss-sim.txt。
+- sim 預設改為 N=64、T=10，並額外印出「best after 5 trips」。
+
+## CP6 round 4（2026-10-26）：難度階跳升分 3 層漸進（決定 (c)，暫定）—— **未達標，不打 tag**
+- 實作：`diffAt(d, key)` 會把 DIFF 的 hp/dmg/pl 從上一階分成 `ABYSS.tierRamp = 3` 層漸進加上，分別是 1/3、2/3、全額。每一階都套用同一規則。只在 RULES.cp6Abyss 開啟時生效，因為深淵只在這個旗標下存在。
+- **難度階的起點和製作人範例不同**：程式中的難度階邊界來自 The_Tower.md:32-48，**Nightmare 從 d15 開始**，不是 d16（上一輪我回報「d16 是 Nightmare 第一層」是錯的；d16 其實是從 d15 checkpoint 出發後的第一層）。所以採用的版本是 d15 加 1/3、d16 加 2/3、d17 加全額。範例那種寫法（d16 加 1/3）我另外用 sim 參數 `tierRampOffset=1` 測過，結果見下方。
+- 驗收：**d16 的死亡數仍是全塔最高**，兩種做法都一樣；另外 auto 第 1 趟中位數是 14，超過 10。
+- 診斷（sim 新增每個深度的「進入次數與死亡率」）：
+  - 就算把每一階的跳升整個移除（`tierRampOffset=50`，整座塔都低一階），d16 的死亡數仍是最高，死亡率約 43–50%。
+  - 原因在於 d16 是每一趟從 checkpoint 15 出發時的第一層。卡在 best 15–19 的玩家會一再從 d16 重來，d16 的進入次數是 315–412，約為 d15 的 4–5 倍。
+  - 換句話說，死亡數高主要是因為進入次數多，不是難度階跳升造成的。光靠漸進加上無法滿足「d16 死亡數不是最高」這項驗收。
+- 64 × 10 的兩組種子（1–64 和 65–128；完整數據見 docs/logs/cp6-abyss-sim.txt 和 cp6-abyss-sim-seeds65-128.txt）：
+  - 5 趟後最佳中位數：seeds 1–64 是 17/17/17/15/17，seeds 65–128 是 17/17/17/17/17。
+  - d20 勝率：53–71% 與 37–74%。
+  - d5 勝率 ≥87%。
+  - 第 1 趟中位數 auto 14 ✗，其他流派 10。
+  - 流派差 ≤1.13×。
+- 漸進加上之後整體變簡單了（d20 最高到 74%），之後可能需要重新調 bossDmgAt。因為 d16 這項驗收不是 bossDmgAt 能處理的，本輪沒有重調。
+
+## CP6 round 5（2026-10-26）：改用每次進入的死亡率驗收（程式數值與 7559867 相同）—— **未達標，不打 tag**
+- 驗收定義（更新）：
+  - 5 趟後最佳中位數 ≥15
+  - d20 首領勝率 ≥25%
+  - 第 1 趟中位數 5–10，只看刃鋒、oc、秘術、磐石；auto 是 14，已接受
+  - 流派差 ≤1.5×
+  - d5 勝率 ≥60%
+  - d16 的「每次進入的死亡率」不能是全塔最高，且 ≤ 1.5 × d15、≤ 1.5 × d17
+- sim 會按深度印出「進入次數、死亡次數、死亡率」，並附自動判定（CHECK / VERDICT）。
+- 結果：A 組（seeds 1–64）和 B 組（seeds 65–128）都是 **FAIL**。只有以下兩項沒過，其餘全部 PASS：
+  - **d17 是非戰鬥層**（d%5==2，見 abyssFloor），兩組的死亡率都是 0%（進入 136–192 次，0 次死亡）。所以「d16 ≤ 1.5 × d17」在任何數值下都不可能成立。
+  - d16 ≤ 1.5 × d15 也沒過：d15 是首領層，但這裡只算從 d11 出發、一路打到 d15 的趟次，死亡率 14–25%；d16 是 49–61%。
+| 流派 | A：d15 / d16 / d17 / d18 % | B：d15 / d16 / d17 / d18 % |
+|---|---|---|
+| auto | 13.9 / 61.0 / 0 / 61.8 | 17.6 / 59.0 / 0 / 60.0 |
+| 刃鋒 | 25.3 / 50.6 / 0 / 73.1 | 18.4 / 53.5 / 0 / 76.2 |
+| oc | 24.7 / 57.7 / 0 / 73.2 | 22.4 / 49.3 / 0 / 77.0 |
+| 秘術 | 21.6 / 56.8 / 0 / 75.5 | 24.1 / 49.9 / 0 / 78.6 |
+| 磐石 | 16.4 / 59.8 / 0 / 70.7 | 17.1 / 55.8 / 0 / 74.7 |
+- d16 不是全塔最高：d18 和更深的層死亡率更高。完整的每層數據見 docs/logs/cp6-abyss-sim.txt 和 cp6-abyss-sim-seeds65-128.txt。
+
+### 驗收改版（製作人 2026-10-26 第二次決定）
+- d16 每次進入死亡率 ≤ 1.5 × d13 且 ≤ 1.5 × d18，且不得為全塔最高（d14 是休息層、d17 是非戰鬥層，都改掉）。
+- 第 1 趟中位數門檻放寬為 5–12（四個流派；auto 不列入）。
+- 數值未改動。重跑結果（A = seeds 1–64，B = 65–128），d13 / d16 / d18 %，d16/d13，d16/d18：
+
+| 流派 | A | B |
+|---|---|---|
+| auto | 31.9 / 64.0 / 58.1，**2.01**，1.10 | 25.5 / 58.4 / 54.4，**2.29**，1.07 |
+| 刃鋒 | 52.1 / 53.8 / 75.9，1.03，0.71 | 46.7 / 50.6 / 74.9，1.08，0.68 |
+| 奔流 | 48.5 / 52.5 / 72.6，1.08，0.72 | 40.3 / 53.6 / 78.1，1.33，0.69 |
+| 秘術 | 51.7 / 56.9 / 76.8，1.10，0.74 | 46.7 / 54.5 / 77.8，1.17，0.70 |
+| 磐石 | 53.6 / 55.2 / 76.1，1.03，0.73 | 46.3 / 58.4 / 70.1，1.26，0.83 |
+
+- 判定：只有 auto 的 d16 ≤ 1.5 × d13 不過（兩組皆然），其餘全過。依規則不硬調、不打 tag，待製作人決定 auto 是否列入此項。
+
+### 判定範圍（製作人 2026-10-26 第三次決定）
+- **所有平衡指標只看四個流派（刃鋒、奔流 oc、秘術、磐石）**；auto 只當參考，sim 中以 `INFO` 列出、不計入 VERDICT，也不計入流派差。
+- 重跑（數值未改）：A、B 兩組 VERDICT 皆為 **ALL PASS**。auto 的 d16/d13 為 2.01（A）/ 2.29（B），僅供參考。
+
+## rc4 備註
+
+- **四流派 buff 使用率規則：** 見 docs/cp4-run-buffs.md §7-4（核心 B1/O1/A1/W1 不設上限、其他 ≤80% 通關組合、本流派被選率 ≥5%），四流派一律適用。
+- **併回 main 時（尚未執行）：** `tests/buffcards.test.ts` 的 O4 韌魂門檻要改成 <1.25。原因：c7f60ec 的武器修正後實測值為 1.2308（=16/13），main 上舊的容差會失敗；bot/grok 已用 `tol = Math.max(0.02, 0.5 / a)`。現在不動 main。
+- **sim 依流派選裝（7fb8014）：** 秘術用法杖、磐石用單手＋盾（W1 格擋／招架）；刃鋒用單手、副手自由（推定：B7 強化的 Merciful Blow 屬單手技能線）；奔流不限主手、盾自由，取主副手最佳組合（推定：文件沒有指定武器；強制雙手版 sim 未通關 97%，見 docs/logs/rc4-noclear-schoolgear-oc2h.txt）。主副手一起評估。`auto`、`human`、`buff:random` 維持原本逐格邏輯。
+
+## rc6 項目 3：流派武器規則（sim 依流派選裝）
+
+| 流派 | 主手 | 副手 | 來源 |
+|---|---|---|---|
+| 刃鋒 blade | 雙手（twoHand） | 不帶盾 | 風格定義：parsed_wiki/Fighting_Styles.md L86–88（Two-Handed）；流派↔風格對應為製作人決定，「暫定，無來源」 |
+| OC | 單手（oneHand） | 不帶盾 | 製作人要求雙持；雙持定義見 Fighting_Styles.md L106–108（"two one-handed weapons"）。本遊戲無雙持：副手只收盾牌群組（src/core/constants.ts L255–264，F-003-base-groups）→ 改為單手無盾，「暫定，無來源」 |
+| 秘術 arcane | 法杖（staff） | 不帶盾 | Fighting_Styles.md L146（Staff）；findings/001:64 引用同頁；對應「暫定，無來源」 |
+| 磐石 bulwark | 單手（oneHand） | 盾 | Fighting_Styles.md L57–59（"single one-handed weapon (possibly in combination with a shield)"）；對應「暫定，無來源」 |
+
+實作：`gearStyle()`（src/core/auto.ts），測試 tests/rc6-ai.test.ts。若持有物中沒有該群組武器，sim 才退用其他主手（既有行為）。
+
+## rc6 項目 1：d16 牆調參紀錄（只動兩個旋鈕）
+
+旋鈕（皆深淵限定、暫定，無來源）：A = `ABYSS.lvFollowK`（怪物等級追蹤 k，rc5 = 0.8，free = 4 不動）；B = `ABYSS.physResScale`（怪物 physMit 與正值物理 spec 的倍率，rc5 = 1）。
+量測：`scripts/rc6-targets.ts 24 4`（四流派各 24 種子；首通 F20 時的角色打 d5 首領 ×4；深淵紀錄達 15 的角色打 d16 一般戰、d20 首領各 ×4；滿血、counter AI；新 UI-only AI）。目標（暫定）：d5 首領 ≥75%、d16 一般戰 ≥60%、d20 首領 ≥35%。原始輸出：docs/logs/rc6-targets-*.txt。
+
+| 輪 | K | PR | blade d5/d16/d20 | oc | arcane | bulwark |
+|---|---|---|---|---|---|---|
+| R0（rc5 值，omni 參考 AI） | 0.8 | 1 | 58/11/0 | 59/45/10 | 98/74/48 | 51/22/11 |
+| R0（rc5 值，UI-only AI） | 0.8 | 1 | 77/**3**/57 | 59/45/10 | 98/74/48 | 51/12/70 |
+| R1 | 0.4 | 1 | 81/9/55 | 72/30/11 | 98/76/54 | 56/13/84 |
+| R2 | 0.8 | 0.5 | 83/13/59 | 61/45/16 | 98/74/49 | 56/25/88 |
+| R3 | 0.4 | 0.5 | 89/9/58 | 72/31/13 | 98/79/58 | 59/32/82 |
+| R4 | 0 | 0.5 | 92/13/62 | 84/48/18 | 100/73/58 | 66/35/74 |
+| R5（兩旋鈕極限） | 0 | 0 | 95/**28**/70 | 84/52/**18** | 100/73/59 | **68**/52/80 |
+
+結論（已驗證）：兩旋鈕開到極限（怪物不追蹤等級、物理抗性全歸零）時，blade d16 仍只有 28%、oc d20 18%、bulwark d5 68%、bulwark/oc d16 52%，目標無法只用這兩個旋鈕達成。依指示停止，不硬調；旋鈕維持 rc5 值（K 0.8、PR 1）。
+推論（未驗證）：d16 一般戰的牆不是物理抗性或等級追蹤造成（PR 0 只讓 blade 3%→28%），而 d20 首領反而比 d16 一般戰容易，原因可能是 d16 的多隻怪／tier ramp 帶來的數量與傷害；需另查原因後才能決定新旋鈕。
+
+## rc6 項目 4：重新量測（前 = rc5，後 = rc6；新 UI-only AI）
+
+| 項目 | rc5 | rc6 | 來源 |
+|---|---|---|---|
+| 12 趟內從未全通 F20：auto / blade / oc / arcane / bulwark（目標每流派 ≤10%） | 0 / 25 / 13 / 0 / 0 % | 0 / **6** / **78** / 0 / **3** % | docs/logs/rc4-schoolgear-noclear.txt → rc6-noclear.txt |
+| 同上，omni 參考 AI（僅供對照） | — | 0 / 84 / 78 / 0 / 0 % | rc6-noclear-omni-reference.txt |
+| 死亡組合掃描 必死 / 警告 / 相對必死 | 18 / 70 / 48 | **13** / 71 / **30** | rc4-schoolgear-deathcombo.txt → rc6-deathcombo.txt |
+| CP4 使用率檢查 | PASS | PASS | rc6-cp4-buffs.txt |
+| CP6 abyss-sim A / B VERDICT | ALL PASS / ALL PASS | **FAIL / FAIL**（A：oc best5、d20、d5，bulwark d5；B：oc best5/d20/trip1，blade、bulwark d5 等） | rc6-A.txt、rc6-B.txt |
+| CP4+CP5 開、CP6 關 基線 | rc4-schoolgear 檔 | 改變（cp4-balance 的流派列），另存 docs/cp5-on-baseline-sim-rc6.txt；cp4-on-check.sh 指向新檔 | |
+| vitest | 全過 | 221/221 | |
+
+OC 退步原因（已驗證，診斷跑 rc4-noclear 32×12 只改 OC 選裝）：1H 無盾 78%；1H 可帶盾 25%；rc5 的自由選裝 13%（docs/logs/rc6-noclear-oc-diag-*.txt）。也就是項目 3「OC 雙持→本遊戲無雙持改單手、不帶盾」這條規則本身造成；未調任何數值，需製作人決定 OC 是否可帶盾或改其他武器。
+
+## rc7 項目 2：OC 可帶盾（暫定）
+
+製作人決定（暫定）：OC 用單手武器，可帶盾也可不帶，由 AI 依主手＋副手組合的戰力分數擇優（`gearStyle('buff:oc') = { main: 'oneHand', shield: 'free' }`，src/core/auto.ts）。取代 rc6 的「單手、不帶盾」。
+
+## rc7 — d16 fix: (a) monster level, (c) sourced formula deviations
+
+Harness: `scripts/rc7-targets.ts 16 4` (UI-only AI, N=16 chars × F=4 trips per school). Logs are in `docs/logs/rc7-*.txt`.
+Targets: d5 boss ≥75%, d16 normal battle ≥60%, d20 boss ≥35%.
+
+### (a) Monster level = player level
+Source: parsed_wiki/Monster_Stats.md:33 ("monster_level = monster's level when it is spawned, equal to player's level") and Battles.md:220 ("Monster Level: Equal to player's level"). The Tower's floor × 10 (The_Tower.md:9) is not used.
+The rc6 curve gave about Lv74–84 against a player around Lv15.
+Verification: with player level, LPD 0, and scales 0.55, every school wins 100% at every depth. Level was the dominant cause.
+
+Each tuning round below gives d16 battle win % for blade / oc / arcane / bulwark. LPD = 暫定，無來源 extra levels per depth; HS/DS = hpScale/dmgScale, 暫定，無來源.
+
+| round | LPD / HS / DS | blade | oc | arcane | bulwark |
+|---|---|---|---|---|---|
+| rc6 | floor curve, 0.55 | 4 | 44 | 66 | 18 |
+| a1 | 1 / 1 / 1 | 27 | 92 | 84 | 38 |
+| a2 | 1 / 1.5 / 1.5 | 0 | 33 | 41 | 6 |
+| a3 | 0.5 / 2 / 2 | 0 | 32 | 35 | 9 |
+| a4 | 1 / 2 / 1.5 | 0 | 19 | 18 | 3 |
+| a5 | 0.25 / 2 / 2 | 6 | 48 | 63 | 20 |
+| a6 | 0 / 2 / 2 | 31 | 83 | 81 | 38 |
+| a7 | 0 / 2.5 / 2.5 | 8 | 53 | 68 | 20 |
+| a8 | 0.25 / 1.5 / 1.5 | 32 | 92 | 83 | 45 |
+| c1 (+style passives) | 0.25 / 1.5 / 1.5 | 50 | 92 | 83 | 58 |
+| c1 | 0.25 / 2 / 2 | 15 | 50 | 67 | 22 |
+| c1 | 0.5 / 2 / 2 | 0 | 19 | 50 | 11 |
+| **c2 (+monster adb level term removed)** | **0.25 / 1.5 / 1.5** | **70** | **92** | **83** | **64** |
+| c2 | 0.25 / 2 / 2 | 22 | 58 | 68 | 35 |
+| c2 | 0.5 / 2 / 2 | 0 | 16 | 40 | 12 |
+
+After a8, oc and arcane met every target, while blade and bulwark still missed in d16 and d18 normal battles. That triggered (c). The theme-off diagnostic (LPD 1/1/1) gave blade 20% and bulwark 59%, so the theme is not the cause.
+
+### (c) Sourced deviations
+| # | deviation | source | code | action |
+|---|---|---|---|---|
+| 1 | Fighting-style passives not implemented: 2H Domino Strike, 1H Overwhelming Strikes, 1H Counter-Attack | parsed_wiki/Fighting_Styles.md:59-98; findings 002 lines 277-278 | src/core/battle.ts `stylePassive`, `counterAttack`, `STYLE_PASSIVES` | Implemented with the source formulas. The 4 ticks of Overwhelming Strikes are mapped to 4 player turns (暫定). Domino gives +1% OC per hit. Counter-Attack OC is once per turn. Its stun chance and weapon procs are not modelled. The bulwark riposte combo is kept on top. |
+| 2 | Monster base damage had `+ level * 0.5` | Monster_Stats.md:56 (STR*2+DEX only, no level term) | src/core/monsters.ts `MON_ADB.levelTerm` (was in 4a8aefa) | Set to 0 (source). This affects all schools and the main tower; the new baseline files are separate. |
+| 3 | 1H Block / 2H Parry proficiency bonuses (findings 002 (G)) | purchasable abilities in the original | player.ts `PROF_ADB` stand-in | Not changed: these are not innate in the original. |
+| 4 | Block skipped for magic | Battles.md (block covers magic) | damage.ts:55 | Not changed: monster attacks are all physical, so there is no practical effect. |
+
+Final row c2 0.25/1.5/1.5 in full (d5 boss / d13 / d16 / d18 / d20 boss):
+blade 100/97/70/66/100 · oc 100/100/92/88/78 · arcane 100/89/83/88/94 · bulwark 100/83/64/58/89. All schools meet the targets.
+
+### rc6 → rc7 (UI-only AI, rc7-targets 16 4; d5 boss / d13 / d16 / d18 / d20 boss win %)
+| school | rc6 | rc7 |
+|---|---|---|
+| blade | 82/42/4/2/54 | 100/97/70/66/100 |
+| oc | 81/78/44/42/30 | 100/100/92/88/78 |
+| arcane | 97/70/66/55/43 | 100/89/83/88/94 |
+| bulwark | 48/63/18/8/68 | 100/83/64/58/89 |
+
+Pre-tag suite results (logs in docs/logs/rc7-*.txt):
+- never-clear F20 within 12 trips, rc6 → rc7: blade 6→9%, oc 78→3%, arcane 0→0%, bulwark 3→3%, auto 0→0%.
+- death-combo scan: 必死 0, 警告 34. rc6 had 必死 lines.
+- CP4/CP5: the main-tower baseline changed (style passives and the adb term are shared). It is saved as the new file docs/cp5-on-baseline-sim-rc7.txt; the rc6 file is kept. First clear median went from 2 to 1, and the F10 boss win rate over trips 1-3 went from 84% to 98%.
+- CP6 A/B: both FAIL on "trip1 median 5-12" (trip-1 depth is now median 25) and on "d16 ≤ 1.5 × d13". rc6 also failed CP6 A/B, on other checks. Early depths are now too easy; this is a known open item and was not retuned (outside the producer's scope).
+- vitest: 221/221 passed when run alone. Under the parallel load of the suite, one cp3 acceptance test hit its 5 s timeout.
+
+## rc8 item 2: CP4/CP5 acceptance on rc7 (the easier main tower is accepted)
+The baseline is now `docs/cp5-on-baseline-sim-rc7.txt` (`scripts/cp4-on-check.sh`); the rc6 file is kept for history.
+Reason: rc7 fixed sourced original-game formulas: the fighting-style passives (Fighting_Styles.md:59-98) and monster base damage without a level term (Monster_Stats.md:56). The user also wants a fast early game.
+Key items in cp5-sim (counter AI, N=32 M=12), rc6 → rc7. Thresholds are in cp5-bosses-floors.md §4.2: counter ≥90%, ignore ≤ counter − 25pp and ≤70%.
+
+| item | rc6 | rc7 | change |
+|---|---|---|---|
+| auto F5 boss gap (counter/ignore) | 100/67.9 (32pp, pass) | 100/83.6 (16pp) | **pass → fail** |
+| blade F5 boss gap | 99.3/62.0 (37pp, pass) | 100/75.4 (25pp) | **pass → fail** (by 0.4pp) |
+| bulwark F15 boss gap | 94.4/66.7 (28pp, pass) | 96.5/77.2 (19pp) | **pass → fail** |
+| arcane F5 boss gap | 100/47.9 pass | 100/63.5 pass | still pass |
+| oc counter win F10/F15/F20 | 81/58/33 | 99/87/54 | better (below 90 → F10 now ≥90) |
+| blade counter win F15/F20 | 88/77 | 89/82 | better |
+| first clear median (auto/blade/oc/arcane/bulwark) | 1/2/3/2/2 | 1/2/2/2/2 | oc faster |
+| full clear median (auto/blade/oc/arcane/bulwark) | 3/4/—/4/3 | 2/4/6/4/3 | oc now clears |
+| death-combo 必死 | some (rc6 log) | 0 | pass |
+
+Every other gap item already failed at rc6 and is unchanged in kind. The three items that flipped from pass to fail do so because counter-play matters less once players hit harder (sourced passives). This follows from the accepted easier main tower and is not retuned.
+
+## rc8 item 1: first-trip pacing (all knobs 暫定，無來源)
+Allowed knobs only: LPD (levels per depth), HS/DS (HP/damage ×), TR (tier ramp), DPD (dmgPerDepth; the source is +2% per wave, Battles.md:261).
+Each round runs `scripts/rc8-round.sh` (rc7-targets 16 4 plus cp6-abyss-sim 32 4) and is summarised by `scripts/rc8-table.py`. Logs are in `docs/logs/rc8/`.
+Columns:
+- battle win % for blade/oc/arcane/bulwark: d5 boss, d16 normal battle, d20 boss.
+- abyss-sim trip-1 median depth for auto/blade/oc/arcane/bulwark (target 5-12).
+- d16/d13 per-entry death-rate ratio, same order (target ≤1.5).
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| rc7 | 0.25 / 1.5 / 1.5 / 0.02 / 3 | 100/100/100/100 | 70/92/83/64 | 100/78/94/89 | 25 (auto) | 3.11 (auto) |
+| r1A | 0 / 2 / 2 / 0 / 3 | 100/100/100/100 | 80/97/86/70 | 100/95/98/97 | 27/27/20/20/39 | —/0.45/0.82/0.29/0.71 |
+| r1B | 0 / 2 / 2 / 0 / 5 | 100/100/100/100 | 94/98/88/73 | 100/100/100/95 | 30/27/22/22/37 | —/0.31/0.33/0.00/0.00 |
+| r1C | 0 / 2.2 / 2.2 / -0.01 / 5 | 100/100/100/98 | 91/95/89/73 | 100/97/100/95 | 30/27/17/24/42 | 3.49/0.00/0.68/0.49/0.50 |
+| r1D | 0.25 / 1.8 / 1.8 / 0 / 5 | 100/100/100/100 | 75/94/88/63 | 100/91/98/89 | 22/22/17/19/29 | —/1.11/1.76/1.08/2.59 |
+| r2A | 0 / 2.5 / 2.5 / 0 / 5 | 100/98/100/94 | 59/83/86/69 | 98/81/95/96 | 20/15/10/14/20 | 1.81/0.73/0.36/0.59/0.35 |
+| r2B | 0 / 3 / 3 / 0 / 5 | 97/91/89/89 | 13/64/77/31 | 96/50/71/90 | 10/5/5/7/7 | 1.50/0.36/0.66/1.27/0.51 |
+| r2C | 0 / 3.5 / 3.5 / 0 / 5 | 83/69/77/78 | 0/40/58/15 | 96/35/40/83 | 5/0/4/4/2 | 0.96/2.14/1.55/1.07/0.78 |
+| r2D | 0 / 3 / 3 / -0.01 / 5 | 97/94/95/91 | 29/69/80/60 | 100/66/86/98 | 10/7/5/7/10 | 1.41/0.21/1.16/1.72/0.47 |
+| r3A | 0 / 2 / 3.5 / -0.01 / 5 | 100/98/97/86 | 61/89/88/75 | 100/83/94/100 | 20/10/9/15/17 | 2.52/0.74/0.66/1.55/2.10 |
+| r3B | 0 / 2.5 / 3.5 / -0.01 / 5 | 95/89/92/88 | 33/68/82/50 | 100/72/83/96 | 12/7/5/7/12 | 1.26/0.91/0.74/0.86/0.25 |
+| r3C | 0 / 2 / 3 / -0.01 / 5 | 100/100/100/92 | 75/94/86/81 | 100/95/97/100 | 25/19/14/12/27 | 6.70/0.00/1.68/0.82/0.46 |
+| r3D | 0 / 2.5 / 3 / -0.01 / 5 | 98/95/97/92 | 39/80/86/69 | 95/83/95/98 | 15/7/9/10/17 | 7.33/0.37/0.96/0.80/0.91 |
+| r4A | 0 / 1.5 / 4 / -0.01 / 5 | 100/98/100/88 | 86/92/86/67 | 100/92/97/93 | 27/17/12/15/22 | 4.74/—/0.54/0.51/0.85 |
+| r4B | 0 / 2 / 4 / -0.01 / 5 | 98/97/95/86 | 42/78/84/50 | 93/70/91/100 | 15/9/7/12/7 | 1.45/0.50/0.63/0.61/0.74 |
+| r4C | 0 / 1.5 / 4.5 / -0.01 / 5 | 100/97/98/88 | 69/89/86/68 | 94/89/97/96 | 22/12/9/15/17 | 3.24/0.30/0.92/1.03/0.30 |
+| r4D | 0 / 1.75 / 3.75 / -0.01 / 5 | 100/97/100/89 | 58/86/86/73 | 100/91/95/95 | 22/12/10/15/17 | 2.86/1.08/0.54/0.81/0.84 |
+
+Findings from rounds 1-4:
+- Abyss deaths occur only at fixed node depths (d1/3/6/8/11/13/16/18/…; elite or boss nodes). Normal battles almost never kill.
+- Monsters follow the player's level, so trip-1 depth is set mainly by the flat HS/DS.
+- A negative DPD moves pressure to shallow depths. It is capped at −0.01: at −0.0167 monster damage reaches 0 at d60.
+- Blade's d16 normal battle is the binding constraint. Every config that puts the trip-1 median ≤12 for all schools (r2B, r2D, r3B, r4B) drops blade d16 to 13-42%. Every config that keeps blade ≥60 (r3A, r3C, r4A, r4C) leaves auto/arcane/bulwark trip-1 at 15-27.
+- HP × hurts blade's d16 more than damage ×.
+
+Round 5 (low HS / high DS):
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| r5A | 0 / 1.25 / 5 / -0.01 / 5 | 100/98/98/89 | 67/89/88/75 | 95/92/98/95 | 25/17/9/17/17 | 0.92/0.84/1.21/0.59/0.49 |
+| r5B | 0 / 1 / 5.5 / -0.01 / 5 | 100/98/98/91 | 88/94/88/79 | 100/91/92/95 | 27/19/15/17/25 | 4.02/0.29/2.18/0.80/— |
+| r5C | 0 / 1.5 / 5 / -0.01 / 5 | 98/94/97/84 | 47/88/86/62 | 97/77/95/94 | 15/7/7/10/15 | 2.18/0.44/1.21/0.48/0.63 |
+| r5D | 0 / 1.25 / 6 / -0.01 / 5 | 97/92/95/84 | 58/82/88/63 | 97/83/91/94 | 12/9/9/12/12 | 0.99/0.41/0.36/1.03/0.90 |
+
+r5D comes closest: every trip-1 median is ≤12 and every ratio is ≤1.03. Blade's d16 battle is 58% (target 60, N=16x4, likely within noise; to be confirmed).
+
+Round 6 (around r5D):
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| r6A | 0 / 1 / 6 / -0.01 / 5 | 100/97/97/88 | 86/94/88/77 | 95/95/94/93 | 27/14/12/17/22 | 6.13/0.55/1.27/1.13/0.67 |
+| r6B | 0 / 1.25 / 6.5 / -0.01 / 5 | 97/92/94/83 | 45/75/88/50 | 93/73/80/96 | 10/5/5/10/7 | 2.41/0.61/1.16/1.46/1.09 |
+| r6C | 0 / 1 / 6.5 / -0.01 / 5 | 100/92/95/88 | 72/88/88/66 | 94/89/92/93 | 17/12/9/12/17 | 3.25/0.34/1.65/0.53/1.61 |
+| r6D | 0 / 1.1 / 6 / -0.01 / 5 | 98/95/97/86 | 77/88/88/64 | 94/86/95/95 | 27/12/9/12/20 | 1.05/0.26/1.54/0.81/0.53 |
+
+Round 6 does not improve on r5D. At N=32 the results move by about ±5 depths and ±10pp (for example, r5D vs r6D). Next step: confirm r5D at a larger N.
+
+Confirmation round (rc7-targets 48x4; abyss-sim on new seeds 33-64, SEED0=32):
+
+| round | LPD / HS / DS / DPD / TR | d5 boss | d16 battle | d20 boss | trip1 median | d16/d13 |
+|---|---|---|---|---|---|---|
+| c5D | 0 / 1.25 / 6 / -0.01 / 5 | 91/84/94/87 | 48/81/85/58 | 97/78/92/96 | 12/5/7/12/12 | 1.68/0.52/0.98/1.09/1.12 |
+| c6D | 0 / 1.1 / 6 / -0.01 / 5 | 94/92/96/89 | 61/86/86/66 | 94/83/96/96 | 20/7/7/12/20 | 0.89/0.56/1.80/0.53/— |
+
+Decision (暫定), reached at the tuning limit as the instructions allow:
+- The two goals cannot both be met. With trip-1 medians ≤12 for every school (c5D), blade's d16 normal battle falls to 48% and bulwark's to 58%. That breaks rc7 targets that rc7 already met.
+- Keeping what rc7 meets comes first, so rc8 adopts **c6D: LPD 0, HS 1.1, DS 6, DPD −0.01, TR 5**.
+- In c6D, every kept rc7 target holds.
+- Trip-1 medians:
+  - blade 7, oc 7, arcane 12 (pass).
+  - auto 20 and bulwark 20 (fail; rc7 auto was 25).
+- d16/d13 ratios: blade .56, arcane .53, auto .89 (pass). oc 1.80 (fail; at N=32 oc was 1.54 and 1.21 in earlier rounds, so this is noisy). Bulwark has no d13 deaths.
+- DPD −0.01 deviates from the sourced +2%/wave (Battles.md:261). It is a 暫定 game-feel value.
+
+## rc8 — c6D defaults confirmation (LPD0 HS1.1 DS6 DPD-0.01 TR5, all 暫定)
+Logs: docs/logs/rc8-{A,B,noclear,deathcombo,targets}.txt, all generated from bb89206 (A/B/noclear/deathcombo re-run and byte-identical).
+Judged on blade/oc/arcane/bulwark only; auto is reference.
+
+| school | metric | rc7 | rc8 | target |
+|---|---|---|---|---|
+| blade | trip1 median depth A/B | 22/22 | 7/**2** | 5–12 |
+| oc | trip1 median depth A/B | 20/20 | 9/12 | 5–12 |
+| arcane | trip1 median depth A/B | 22/20 | 12/12 | 5–12 |
+| bulwark | trip1 median depth A/B | 27/27 | **20**/7 | 5–12 |
+| blade | d16/d13 death ratio A/B | 3.11/2.85 | 0.93/0.68 | ≤1.5 |
+| oc | d16/d13 death ratio A/B | 5.41/2.81 | **1.76**/1.03 | ≤1.5 |
+| arcane | d16/d13 death ratio A/B | 1.41/0.54 | 0.69/0.81 | ≤1.5 |
+| bulwark | d16/d13 death ratio A/B | 6.33/— (d13 0 deaths) | **1.62**/0.99 | ≤1.5 |
+| blade | d5 boss / d16 battle / d20 boss (rc7-targets 16 4) | 100/70/100 | 98/77/94 | ≥75/≥60/≥35 |
+| oc | same | 100/92/78 | 95/88/86 | same |
+| arcane | same | 100/83/94 | 97/88/95 | same |
+| bulwark | same | 100/64/89 | 86/64/95 | same |
+| blade/oc/arcane/bulwark | never-clear F20 ≤12 trips | 9/3/0/3% | 9/3/0/3% | ≤10% |
+
+Death-combo scan rc8: 必死 0, 警告 34, 相對必死 16 (unchanged vs rc7 log; main tower unaffected by abyss knobs).
+Unmet: blade trip1 median (B=2), bulwark trip1 median (A=20), oc d16/d13 (A=1.76), bulwark d16/d13 (A=1.62). No retuning per producer instruction.
+- vitest (single-threaded, --no-file-parallelism): 23 files, 221/221 passed; no test changes. Log: docs/logs/rc8-vitest.txt
+- presets re-exported (scripts/cp6-export-presets.ts): blade katana(2H) · oc wakizashi(1H)+kite · arcane willow(staff) · bulwark shortsword(1H)+tower; abyss10 wakizashi+buckler, abyss15 willow.
+- deploy: worktree /workspace/hv-v3-cp6rc8 @ cp6-rc8 built; rc7 preview on 5199 stopped; vite preview 127.0.0.1:5199 (setsid nohup) serves / 200, /data/cp6-presets.json 200; scripts/cp6-rc6-e2e.mjs ALL PASS.
+
+## rc9 — retune toward a low-start, depth-climbing damage curve (all values 暫定，無來源)
+Harness: `scripts/rc9-tune.ts` (one pass per school = cp6-abyss-sim trips T=10 + rc7-targets fresh fights + new d1/d2/d3 fresh normal fights; first-F20-clear characters cached; characters that never clear F20 in 60 trips are skipped, as in rc7-targets), `scripts/rc9-round.sh` (4 schools × A seeds 1..N / B SEED0=N), `scripts/rc9-sum.py`, `scripts/rc9-score.py` (worst school across A/B per target). UI-only AI, own school style, 4 fresh fights per char per depth.
+New target: d1–d3 normal fight win ≥95% per school.
+
+### Round 0: c6D at 256×2 (docs/logs/rc9/c6D-256.jsonl)
+d1–d3 win: blade 71–74, bulwark 71–73, arcane 91–92, oc 96. d16 battle: blade 55.6/53.2 (also below 60 at 256 seeds), bulwark 64.3/61.8. Trip-1 deaths at d1–3: blade 91+77 of 512, bulwark 65+62.
+
+### Round 1: grid at N=64×2 (docs/logs/rc9/grid1-64*.txt/jsonl)
+LPD {0,0.25} × HS {1.1,1.5} × DS {2.5,3,3.5,4} × DPD {0,0.03,0.06}, TR 5. No row meets all. LPD 0.25 is worse everywhere. Structural conflict: d1–3 ≥95% needs DS ≤ ~2.5 (HS 1.1), and at that start trip-1 median is ≥17 unless DPD is high, which then drops blade d16 below 60.
+
+### Round 2: grid at N=64×2 (docs/logs/rc9/grid2-64*)
+LPD 0 × TR {1,3} × HS {0.9,1.1} × DS {2,2.5} × DPD {0.04,0.08,0.12}. Again no row meets all. Best (2 fails each: trip-1 median too deep, d16/d13 ratio): HS0.9 DS2–2.5 DPD0.04 TR1/3 gives d1–3 ≥97.5, d16 66–86, d20B 76–97, but trip-1 median 20–32. Over all 72 rows, every row with trip-1 median ≤14 has min d16 ≤24 and min d20B ≤37. Conclusion (暫定): with the linear DPD / tier-ramp shape, "trip-1 median 5–12" and "d16 fresh ≥60 / d20B ≥35" can't hold together once d1–3 ≥95 is required. Defaults unchanged (still c6D) pending a producer decision.
+
+### Producer decision 2026-10-26 (option 1, set A) — revised rc9 targets (暫定)
+| Target | Value | Reason |
+|---|---|---|
+| Trip-1 median depth | d10–30 | The user wants the early game to go fast, so a deeper first trip is accepted (grid1/2: no curve gets ≤14 with d1–3 ≥95 and d16 ≥60). |
+| d16/d13 death-rate ratio | **dropped** | d13 almost never kills under set A, so the ratio is noise (often ∞). |
+| d16 normal-fight win | ≥60% per school | Replaces the ratio as the mid-depth difficulty gate. |
+| d1–d3 normal-fight win | ≥95% per school | Unchanged (low start). |
+| d5 boss win | ≥75% | Unchanged. |
+| d20 boss win | ≥35% | Unchanged. |
+| Never fully cleared F20 within 12 trips | ≤10% | Unchanged. |
+| Certain-death affix combos | 0 | Unchanged. |
+
+### CP7 candidates
+- Change the curve shape (option 3): add mid-floor pressure (e.g. mid-depth elites or a d10 boss) or cap damage past d16, so a short trip 1 (≤14) can coexist with d1–3 ≥95 and d16 ≥60.
+
+### Round 3: set A defaults, 256×2 confirmation (docs/logs/rc9/setA-256-*)
+Defaults now LPD 0, HS 0.9, DS 2, DPD 0.08, TR 3 (all 暫定). cp6-abyss-sim CHECKs updated: trip1 10–30, d5 boss ≥75%, d20 boss ≥35%, d16/d13 ratio removed (d16 fresh ≥60 lives in rc9-tune / rc7-targets).
+- cp6-abyss-sim A and B: VERDICT ALL PASS. Trip-1 median: blade 22/22, oc 20/22, arcane 22/22, bulwark 27/27.
+- rc9-tune (fresh fights, worst of A/B): d1–3 ≥99.2, d5B ≥99.3, d16 blade 70.8 / bulwark 75.6 / arcane 87.7 / oc 95.5, d20B ≥85.7. (rc9-sum's FAIL labels use the old trip1/ratio targets and can be ignored.)
+- cp5-deathcombo: 必死 0 (34 warnings, 16 relative).
+- rc4-noclear 256: blade 26/256 = 10.2% (just over the ≤10% gate), oc 2.7%, arcane 0, bulwark 0.8%. This metric is main tower only. It came out identical with the rc8 defaults (re-run), so it is not caused by set A. Reported and not adjusted.
+
+### rc9 presets (public/data/cp6-presets.json, docs/logs/rc9/presets-export.txt)
+Selection for postF20-*: only characters whose gear follows the school rule. Among those, pick the one closest to the school's sim median in fresh d1 win (K=50) and potions; ties go to the one closest to median power. abyss10/abyss15 are still the power median.
+| preset | seed | Lv | HP | MP | potions | d1 win | sim median Lv/HP/MP/potions/d1 |
+|---|---|---|---|---|---|---|---|
+| postF20-blade (2H) | 50 | 12 | 740 | 26 | 3 | 100% | 13/742/27/3/100% |
+| postF20-oc (1H+shield) | 31 | 12 | 776 | 33 | 2 | 100% | 13/766/30/2/100% |
+| postF20-arcane (staff) | 61 | 15 | 722 | 54 | 3 | 100% | 13/722/40/3/100% |
+| postF20-bulwark (1H+shield) | 47 | 15 | 794 | 29 | 5 | 100% | 13/728/27/5/100% |
+| abyss10 | 15 | 16 | 816 | 33 | 9 | 100% | — |
+| abyss15 | 27 | 14 | 778 | 39 | 0 | 100% | — |
+
+### rc8 → rc9 (256×2, worst of A/B; official sim for trip-1, rc9-tune for fresh fights)
+| metric | rc8 (c6D) | rc9 (set A) | rc9 target |
+|---|---|---|---|
+| knobs LPD/HS/DS/DPD/TR | 0/1.1/6/−0.01/5 | 0/0.9/2/0.08/3 | — |
+| d1–3 win blade/oc/arcane/bulwark | 71.5/95.5/90.9/70.8 | 99.2/100/99.7/99.3 | ≥95 |
+| trip-1 median (official A) blade/oc/arcane/bulwark | 5/10/12/10 | 22/20/22/27 | 10–30 |
+| trip-1 deaths at d1–3 (A+B, of 512) blade/bulwark | 168/127 | 2/0 | — |
+| d5 boss win (fresh, worst) | 90.9 | 99.3 | ≥75 |
+| d16 battle win blade/oc/arcane/bulwark | 53.2/87.3/87.8/61.8 | 70.8/95.5/87.7/75.6 | ≥60 |
+| d20 boss win (fresh, worst) | 80.5 | 85.7 | ≥35 |
+| never cleared F20 in 12 trips (blade worst) | 26/256 = 10.2% | 26/256 = 10.2% (main tower, unchanged) | ≤10 |
+| certain-death combos | 0 | 0 | 0 |
+- deploy: worktree /workspace/hv-v3-cp6rc9 @ cp6-rc9 built; rc8 preview on 5199 stopped; vite preview 127.0.0.1:5199 (setsid nohup) serves / 200, /data/cp6-presets.json 200 (byte-identical to the rc9 file); scripts/cp6-rc6-e2e.mjs ALL PASS. vitest single-threaded 221/221.
+
+### 接受紀錄：刃鋒「12 趟內從未全通 F20」10.2%（2026-10-26）
+- 製作人於 2026-10-26 接受 rc4-noclear 256 刃鋒 26/256 = 10.2%（門檻 ≤10%）不調整。
+- 理由：此指標只看主塔，深淵參數不影響；rc8 參數重跑同樣 10.2%；僅超門檻 0.2pp，屬抽樣邊界。
+- 主塔平衡留到 CP7 處理。
+
+### rc10（preset 載入 bug + 小修，未改任何數值）
+- preset 回報（HP 722／藥水 0、紀錄「共 2 趟 · 磐石 17 層」）：rc9 worktree 的 dist 與 5199 實際送出的 cp6-presets.json 與 git 版位元組一致（Lv12/HP740/藥水 3），headless 新 profile 與「先放舊存檔再載入」皆正確 → 無法在乾淨環境重現。程式面找到的漏洞並修補：(1) 另一個分頁開著舊遊戲時，它的下一次存檔／深淵結算會把 preset 寫的存檔和紀錄整個蓋回去（現在監聽 storage 事件，舊分頁停止存檔並提示重新載入）；(2) preset 留在網址，之後重新整理會再次覆蓋進度（現在載入後從網址移除）；(3) preset 檔改用 no-store 抓取；(4) 改為先刪除所有遊戲 key 再完整寫入（core/preset.ts applyPreset，tests/rc10.test.ts）。
+- 死亡結算文字說明 50% 再乘帶回倍率；城鎮「出擊」改為「主塔出擊 N 次（深淵 N 趟另計）」——深淵本來就不計主塔趟數；每 5 層首領後提示檢查點；首領掉落標示「保底」件。
+- d2 無戰鬥節點：abyssFloor 規則（d%5=1、3 戰鬥，2 非戰鬥，4 休息＋非戰鬥，0 首領）自 CP6 初版（3bd8787）即如此，屬程式設計預期；設計文件沒有寫出出處。

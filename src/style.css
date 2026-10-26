@@ -153,3 +153,7 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 /* CP5 rc2 fix 8: docked confirm (weaker-equip) — no blocking backdrop, sits at the top, leaves the page footer free. */
 #ui > .modal-back.dock, .modal-back.dock { pointer-events: none !important; background: transparent; align-items: flex-start; padding-top: 8px; }
 .modal-back.dock .modal { pointer-events: auto; max-height: 55vh; box-shadow: 0 6px 24px rgba(0,0,0,.7); }
+/* rc6 item 2: resistances on the weak panel */
+.weakbox .wk .res { color: #9aa4b8; margin-left: 6px; }
+.weakbox .wk .res i { font-style: normal; color: #c9b27a; margin-right: 4px; }
+.weakbox .wk .res i.mine { color: #ff8a6a; }

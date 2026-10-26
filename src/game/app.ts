@@ -1,5 +1,5 @@
 import { iconKey } from './icons';
-import { act, alive, armCp5, type BEvent, canUse, whyNot, weaknesses, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, type BEvent, canUse, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -10,11 +10,15 @@ import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
-import { abyssOpen, abyssCleared, abyssSchool, depthOf, startAbyss } from '../core/run';
-import { ABYSS_KEY, abyssBaseLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality } from '../core/abyss';
+import { abyssBestMsg, abyssLvFollow, deathCarryMsg } from '../core/run';
+import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
+import { ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
-import { floorLevel, NODE_ICON, NODE_ZH, TOWER, type NodeType } from '../core/tower';
+import { GAME_KEYS } from '../core/preset';
+import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
+import { sortieLabel } from '../core/progress';
+import { scrollToCurrentFloor } from './mapscroll';
 import type { Stage } from './stage';
 import { BULWARK_CP5_ZH, AFFIXES, dangerHint, BOSS_BY_FLOOR, ELEM_ZH, SIG_TEXT, themeOf, themeRaces, type AffixId, type Cp5Mon } from '../core/cp5';
 import { ATTR_HINT, ATTR_ZH, esc, fmtChange, fmtStat, STAT_ZH } from './text';
@@ -70,6 +74,9 @@ export class App {
     // CP3-fix 6: capture on document so a focused button/canvas cannot swallow the key, and refocus the page on pointer use.
     document.addEventListener('keydown', (e) => this.key(e), { capture: true });
     window.addEventListener('pointerdown', () => { if (document.activeElement instanceof HTMLElement && !/^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName)) document.activeElement.blur(); window.focus(); });
+    // rc10: another tab (or a preset load there) replaced the save. This tab's copy is stale: stop writing it back,
+    // otherwise its next save / abyss trip would overwrite the new save (the "preset shows the old character" report).
+    window.addEventListener('storage', (e) => { if (e.key === null || (GAME_KEYS as readonly string[]).includes(e.key)) this.markStale(); });
     if (this.data.run && !this.data.run.done) this.go('map');
     else { this.data.run = null; this.go('town'); }
   }
@@ -82,7 +89,17 @@ export class App {
 
   get p(): Player { return this.data.player; }
   get run(): RunState { return this.data.run!; }
-  save() { saveTo(localStorage, this.data); }
+  stale = false;
+  save() { if (!this.stale) saveTo(localStorage, this.data); }
+  markStale() {
+    if (this.stale) return;
+    this.stale = true;
+    const el = document.createElement('div'); el.dataset.stale = '';
+    el.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:#000c;color:#fff;font:16px sans-serif';
+    el.innerHTML = '<div>存檔已在其他分頁被更換（例如載入了 preset）。這個分頁不再存檔。<br><button data-stalereload>重新載入</button></div>';
+    el.querySelector('button')!.addEventListener('click', () => location.reload());
+    document.body.appendChild(el);
+  }
 
   go(s: Screen) {
     this.screen = s;
@@ -102,6 +119,7 @@ export class App {
     this.root.innerHTML = this.topBar() + html + this.modalHtml();
     this.root.className = `screen-${this.screen}`;
     this.bind();
+    if (this.screen === 'map') scrollToCurrentFloor(this.root);
   }
 
   topBar(): string {
@@ -200,7 +218,7 @@ export class App {
         <h3>出售</h3><button data-sellall ${p.inventory.length ? '' : 'disabled'}>賣掉倉庫全部（${p.inventory.length} 件，${junk}C）</button>`;
     }
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
-      <span class="spacer"></span><span class="hint">出擊 ${st.runs} 次 · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
+      <span class="spacer"></span><span class="hint" data-runs>${sortieLabel(st.runs, RULES.cp6Abyss && abyssOpen(this.p) ? loadRecord(localStorage.getItem(ABYSS_KEY)).trips : 0)} · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
       ${this.noticeHtml()}<div class="tabs">${tabs}</div>${lockedHint ? `<div class="hint locks">🔒 ${lockedHint}</div>` : ''}<div class="body">${body}</div>
       <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span><button data-start class="big">進入試煉之塔 ▶</button>${this.abyssBtn()}</div>${this.abyssRecordHtml()}</div>`;
   }
@@ -215,25 +233,25 @@ export class App {
         const chosen = past && r.path[f.n - 1] === i;
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         // CP5 rc2 fix 3: the death-combo ⚔ warning sits on the elite node itself (the floor banner stays).
-        const ew = r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
+        const ew = r.abyss && RULES.cp6Abyss && t === 'elite' ? `<b class="ewarn warn" data-elitemark title="深淵精英可能帶 3 個詞綴，或克制物理的【尖刺】【堅硬】">⚔</b>` : r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
         return cur ? `<button class="node n-${t}" data-node="${i}">${ic}${NODE_ZH[t]}${ew}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
         const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
-        const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${SIG_TEXT[bt.sig].icon}${bt.title}</small>` : '';
-        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small>Lv${abyssBaseLevel(dn)}</small>${bh}</span>${opts}</div>`;
+        const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${bt.title}</small>` : '';
+        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small data-mlv>Lv${abyssMonLevel(dn, r.plv ?? 0, abyssLvFollow(r))}</small>${bh}</span>${opts}</div>`;
       }
       const th = r.cp5 && f.n % 5 === 1 ? `<div class="theme-sep" data-themesep="${f.n}">▲ 第 ${f.n}–${f.n + 4} 層：${themeOf(f.n).zh}</div>` : '';
-      const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${SIG_TEXT[BOSS_BY_FLOOR[f.n]!.sig].icon}${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
+      const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.trip ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
+      ${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div><h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
-      <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。第 ${TOWER.bossFloors.join('、')} 層是首領。</span></div></div>`;
+      <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。${r.abyss ? `<span data-bossnext>每 5 層是首領（下一個：深淵 ${Math.ceil(depthOf(r) / 5) * 5} 層）。</span>` : `第 ${towerRules(r.cp5).bossFloors.join('、')} 層是首領。`}</span></div></div>`;
   }
 
   battleHtml(): string {
@@ -244,16 +262,16 @@ export class App {
       return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${id === 'health' && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻${b.itemCd[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
-    const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</div>`).join('');
+    const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：<span data-wkl>${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}" data-wk="${w.type}:${w.pct}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</span> <span class="res" data-resl>抗：${resistances(m).map((r) => `<i class="${r.type === b.d.damageType ? 'mine' : ''}" data-res="${r.type}:${r.pct}">${TZ[r.type]} ${r.pct}%</i>`).join(' ') || '<span class="hint">無</span>'}</span></div>`).join('');
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} 正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！<br>決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）· HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status">第 ${this.run.floor} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
-        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
+        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ' · <b class="warn">首領蓄力中！建議防禦或喝藥</b>' : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
+        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox"><span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}
         <div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
         <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊</button><button data-act="defend" class="${charging ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
@@ -265,7 +283,7 @@ export class App {
   themeHtml(): string {
     const r = this.run;
     if (!r?.cp5) return '';
-    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${DIFF[abyssTier(dn)]!.zh}</b> · 怪物 HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%</div>`; }
+    if (r.abyss) { const dn = depthOf(r), k = abyssMult(dn); return `<div class="theme" data-abyssinfo="${dn}"><b>深淵 · ${tierZh(dn)}</b> · 怪物 HP ×${k.hp.toFixed(2)}、傷害 ×${k.dmg.toFixed(2)} · 每 5 層首領保底 1 件${QUALITY_ZH[guaranteeQuality(dn)]}以上 · 戰死帶回 50%（再乘帶回倍率）</div>`; }
     const t = themeOf(r.floor);
     return `<div class="theme" data-theme="${esc(t.zh)}"><b>${esc(t.zh)}</b>（第 ${Math.floor((r.floor - 1) / 5) * 5 + 1}–${Math.floor((r.floor - 1) / 5) * 5 + 5} 層）· 常見：${themeRaces(t).join('、')} · 多抗：${t.elems.map((e) => ELEM_ZH[e]).join('、')}${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5] ? ` · 首領：${BOSS_BY_FLOOR[Math.ceil(r.floor / 5) * 5]!.title}` : ''}</div>`;
   }
@@ -304,7 +322,7 @@ export class App {
   cp5Tips(b: BattleState): void {
     for (const m of b.monsters as (Monster & Cp5Mon)[]) {
       if (m.sig) { const t = tip(this.p, `cp5sig:${m.sig}`, SIG_TEXT[m.sig].tip); if (t) this.cp5TipBox.push(`<div class="unlock" data-cp5tip="${m.sig}">💡 ${esc(t)}</div>`); }
-      { const h = m.affixes ? dangerHint(m.affixes) : null; if (h) this.cp5TipBox.push(`<div class="unlock warn" data-cp5danger>${esc(h)}</div>`); }
+      { const h = m.affixes ? (RULES.cp6Abyss && this.data.run?.abyss ? abyssDangerHint : dangerHint)(m.affixes) : null; if (h) this.cp5TipBox.push(`<div class="unlock warn" data-cp5danger>${esc(h)}</div>`); }
       for (const a of m.affixes ?? []) { const t = tip(this.p, `cp5aff:${a}`, `精英詞綴【${AFFIXES[a].zh}】：${AFFIXES[a].desc}${a === 'flame' || a === 'leech' ? '。中了可用生命藥水或防禦解除' : a === 'antimagic' || a === 'warded' ? '。改用普攻或技能比較划算' : a === 'spikes' || a === 'hard' ? '。改用法術比較划算' : ''}`); if (t) this.cp5TipBox.push(`<div class="unlock" data-cp5tip="${a}">💡 ${esc(t)}</div>`); }
     }
   }
@@ -358,7 +376,7 @@ export class App {
       const l = this.pending.loot;
       const pots = Object.entries(l.potions).filter(([, v]) => v).map(([k, v]) => `${POTION_ZH[k as PotionId]} ×${v}`).join('、');
       body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>
-        <div class="inv">${l.equips.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
+        <div class="inv">${l.equips.map((e) => this.itemCard(e, `${l.guaranteed?.includes(e.id) ? '<b class="warn" data-guar>保底</b> ' : ''}<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
@@ -377,16 +395,18 @@ export class App {
     }
     const done = !!this.pending.loot || !!this.pending.text;
     return `<div class="panel node">${this.noticeHtml()}${body}${this.offerHtml()}${this.pending.text ? `<div class="gain">${this.pending.text}</div>` : ''}
-      <div class="foot"><span class="spacer"></span><button class="big" data-continue>${done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
+      <div class="foot"><span class="spacer"></span><button class="big" data-continue${this.run.offer ? ' disabled data-needpick title="先選一個 buff 或按「不拿」"' : ''}>${this.run.offer ? '先選 buff 或「不拿」' : done || t === 'merchant' ? '繼續前進 ▲' : '略過 ▲'}</button></div></div>`;
   }
 
   lastSettlement: Settlement | null = null;
   resultHtml(): string {
     const s = this.lastSettlement!;
     const title = s.outcome === 'clear' ? '♛ 通關試煉之塔！' : s.outcome === 'dead' ? '☠ 倒下了……' : '撤退回城';
-    const rule = s.outcome === 'dead' ? '死亡：EXP、熟練度與 Credits 保留 50%，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。' : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
-    return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>到達第 ${s.floor} 層。${rule}</p>
-      <div class="hint" data-carry="${s.mult}">${s.mult > 1 ? '新手帶回加成' : '帶回倍率'} ×${s.mult}</div>${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
+    // rc10: the 50% is multiplied again by the carry-back multiplier shown below; say so instead of a bare 50%.
+    const carryNote = s.mult !== 1 ? `，再乘下方帶回倍率 ×${s.mult}（合計約 ${Math.round(RULES.death.exp * s.mult * 100)}%）` : '';
+    const rule = s.outcome === 'dead' ? `死亡：EXP、熟練度與 Credits 保留 50%${carryNote}，背包只留最好的一件，消耗品全失。穿戴中的裝備不會遺失。` : '全部戰利品、EXP 與 Credits 都帶回城鎮。';
+    return `<div class="panel result ${s.outcome}"><h2>${title}</h2><p>${s.abyss ? `到達深淵第 <b data-reached>${s.floor}</b> 層。` : `到達第 ${s.floor} 層。`}${rule}</p>
+      <div class="hint" data-carry="${s.mult}">${s.abyss ? '深淵帶回倍率（1＋0.05×難度階）' : s.mult > 1 ? '新手帶回加成' : '帶回倍率'} ×${s.mult}</div>${s.unlocks.length ? `<div class="unlocks" data-unlock>${s.unlocks.map((u) => `<div>${esc(u)}</div>`).join('')}</div>` : ''}
       <div class="gain">+${s.exp.toLocaleString()} EXP · +${s.credits} C${s.levelAfter > s.levelBefore ? ` · <b>升級！Lv${s.levelBefore} → Lv${s.levelAfter}</b>` : ''}</div>
       <h3 class="kept-h">保留（${s.kept.length} 件，已放入倉庫）</h3>
       <div class="inv kept">${s.kept.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>
@@ -431,13 +451,13 @@ export class App {
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
     on('[data-act]', (el) => this.command(el.dataset.act!));
-    on('[data-continue]', () => { this.modal = null; this.continueNode(); });
+    on('[data-continue]', () => { if (this.run.offer) return; this.modal = null; this.continueNode(); });
     on('[data-heal]', () => { this.pending.text = rest(this.p, this.run, 'heal'); this.save(); this.continueNode(); });
     on('[data-up]', (el) => { this.pending.text = rest(this.p, this.run, 'upgrade', el.dataset.up); this.save(); this.continueNode(); });
     on('[data-shrine]', (el) => { this.pending.text = shrine(this.p, this.run, el.dataset.shrine as 'might'); this.save(); this.render(); this.root.querySelectorAll<HTMLButtonElement>('[data-shrine]').forEach((b) => (b.disabled = true)); });
     on('[data-mbuy]', (el) => this.merchantBuy(Number(el.dataset.mbuy)));
     on('[data-buff]', (el) => { const r = this.run; this.pending.text = takeBuff(this.p, r, el.dataset.buff!); r.risk = null; this.nextOffer(); });
-    on('[data-buffskip]', () => { skipOffer(this.run); this.run.risk = null; this.nextOffer(); });
+    on('[data-buffskip]', () => { if (RULES.cp6Abyss && !confirm('確定不拿？這次的 buff 放棄後不能再選。')) return; skipOffer(this.run); this.run.risk = null; this.nextOffer(); });
     on('[data-risk]', (el) => { const [k, id] = el.dataset.risk!.split(':'); this.pending.text = takeRisk(this.p, this.run, k as RiskId, id); this.save(); this.render(); });
     on('[data-bbuy]', (el) => { const r = this.run; const i = Number(el.dataset.bbuy); const x = r.buffStock?.[i]; if (x && this.pay(x.price)) { this.pending.text = takeBuff(this.p, r, x.id); r.buffStock!.splice(i, 1); } this.save(); this.render(); });
     on('[data-mbuyp]', (el) => { const k = el.dataset.mbuyp as PotionId; if (this.pay(RULES.potionPrice[k])) this.p.potions[k]++; this.save(); this.render(); });
@@ -644,7 +664,10 @@ export class App {
   async endBattle() {
     const b = this.battle!;
     const r = this.run;
+    const nNotes = r.notes?.length ?? 0;
     const loot = finishBattle(this.p, r, b, this.monsters, this.battleType);
+    // rc10: milestone / checkpoint notes added by this win are shown on the loot screen.
+    const fresh = (r.notes ?? []).slice(nNotes); if (fresh.length) this.notice = fresh;
     this.save();
     if (!loot) {
       this.stage.heroPlay('hurt');
@@ -681,17 +704,23 @@ export class App {
 
   endRun() {
     const r = this.run;
+    let newBest = 0;
     if (r.abyss) {
       const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
-      if (recordTrip(rec, abyssCleared(r), abyssSchool(r))) this.notice = [`深淵新紀錄：${abyssCleared(r)} 層`];
+      // rc3 fix 3: the record notice used to go to this.notice, which is cleared below and never shown on the result screen.
+      const prevBest = rec.best; recordTrip(rec, abyssCleared(r), abyssSchool(r));
+      if (rec.best > prevBest) newBest = rec.best;
       recordTitles(rec, r.abyss.ms ?? 0, r.abyss.titles ?? []);
-      localStorage.setItem(ABYSS_KEY, JSON.stringify(rec));
+      if (!this.stale) localStorage.setItem(ABYSS_KEY, JSON.stringify(rec));
     } else {
     const floor = r.done === 'clear' ? r.tower.floors.length : r.floor;
     this.data.stats.bestFloor = Math.max(this.data.stats.bestFloor, floor);
     if (r.done === 'clear') this.data.stats.clears++;
     }
+    const raw = { exp: r.exp, credits: r.credits };
     this.lastSettlement = settle(this.p, r);
+    if (r.done === 'dead') this.lastSettlement.unlocks.push(deathCarryMsg(raw.exp, raw.credits));
+    if (newBest) this.lastSettlement.unlocks.unshift(abyssBestMsg(newBest));
     this.notice = [];
     this.data.run = null;
     this.battle = null;
@@ -700,3 +729,4 @@ export class App {
 }
 /** CP5 r4: the bulwark 3-set text gains the anti-turtle rule when the flag is on. */
 function comboZh(k: keyof Combos): string { return COMBO_ZH[k] + (k === 'bulwark' && RULES.cp5Bosses ? BULWARK_CP5_ZH : ''); }
+

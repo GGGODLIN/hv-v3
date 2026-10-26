@@ -63,8 +63,8 @@ describe('CP3-B early unlocks (暫定 gameplay layer)', () => {
   it('trip 1 tutorial tower: F2 battle, F3 shop, F4 lone elite with an elemental weakness', () => {
     const p = newPlayer();
     const r = startRun(p, 11);
-    // CP5 (on by default since cp5-pass) duplicates the tutorial route on each floor (rc2 fix 7); the node types are unchanged.
-    expect(r.tower.floors.map((f) => [...new Set(f.options)].sort().join('/')).slice(1, 4)).toEqual(['battle', 'merchant', 'elite']);
+    // CP5 (on by default) offers two routes; with CP6 on, rc2 (c) makes them different types; the taught node is always first.
+    expect(r.tower.floors.map((f) => f.options[0]).slice(1, 4)).toEqual(['battle', 'merchant', 'elite']);
     expect(battleLocks(p)).toEqual({ skill: true, spell: true, spirit: true });
     r.floor = 1; enterNode(p, r, 'battle'); expect(has(p, 'defend') && has(p, 'potion')).toBe(true);
     r.floor = 2; enterNode(p, r, 'battle'); expect(has(p, 'ocSkill')).toBe(true);
@@ -211,12 +211,12 @@ describe('CP3-fix 8/9: boss length and growth (16 seeds, trips 1-3)', () => {
     for (let s = 1; s <= 16; s++) { const p = np8(); sk8(p, s); for (let i = 1; i <= 3; i++) { const r = ar8(p, pool, s * 1000 + i, strat); bosses.push(...r.bosses); if (i === 3) lv.push(r.settlement.levelAfter); } }
     return { bosses, lv: lv.reduce((a, b) => a + b, 0) / lv.length };
   };
-  it('weakness play: F5 and F10 bosses average 10-15 turns; without weakness still >=60% win; level ~8-10 after trip 3', () => {
+  it('weakness play: F5 and F10 bosses average 7-15 turns; without weakness still >=60% win; level ~8-10 after trip 3', () => {
     const h = run('human'), n = run('noweak');
     for (const f of [5, 10]) {
       const xs = h.bosses.filter((b) => b.floor === f);
       const t = xs.reduce((a, b) => a + b.turns, 0) / xs.length;
-      expect(t).toBeGreaterThanOrEqual(10); expect(t).toBeLessThanOrEqual(16) /* CP3-bugfix 4: trip-1 F5 (~22t) now weighs more since trips 2-3 got harder; per-trip 10-15 is checked in the sim */;
+      expect(t).toBeGreaterThanOrEqual(7); expect(t).toBeLessThanOrEqual(15) /* rc4 (producer 2026-10-26): 7-15 after the sim weapon fix (armed sim kills faster, measured 9.39). Was 10-16. CP3-bugfix 4: trip-1 F5 (~22t) now weighs more since trips 2-3 got harder; per-trip 10-15 is checked in the sim */;
       const ys = n.bosses.filter((b) => b.floor === f);
       expect(ys.filter((b) => b.won).length / ys.length).toBeGreaterThanOrEqual(0.6);
       expect(ys.reduce((a, b) => a + b.turns, 0) / ys.length).toBeGreaterThan(t);

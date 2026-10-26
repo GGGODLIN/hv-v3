@@ -1,3 +1,5 @@
+import { cp4UsageCheck } from '../src/core/cp4check';
+import type { School } from '../src/core/buffs';
 /** Difficulty check (round 5): N fresh characters (seeds 1..N), each plays up to M runs.
  * Reports mean floor reached on run 1 and the median run of first clear. Usage: npx tsx scripts/difficulty.ts [N=20] [M=15]
  * CP2b: prints both strategies — 'auto' (uses Spirit Stance / OC skills, combat routes) and 'human' (see auto.ts chooseHuman), plus 'avoid' (human battle play, never picks a battle when anything else is offered) as a reference. */
@@ -90,6 +92,9 @@ if (C.runs) {
   const freq: Record<string, number> = {}; for (const set of clearSets) for (const k of new Set(set)) freq[k] = (freq[k] ?? 0) + 1;
   const hot = Object.entries(freq).filter(([, v]) => v / clearSets.length > 0.6).map(([k, v]) => `${k}:${pc(v, clearSets.length)}`);
   console.log(`[cp4] clear sets ${clearSets.length}; buffs in >60% of clear sets: ${hot.join(' ') || 'none'}`);
+  const sch = strat.startsWith('buff:') ? strat.slice(5).split(/[-:]/)[0]! : '';
+  const ck = cp4UsageCheck(clearSets, picked, offered, (['blade', 'oc', 'arcane', 'bulwark'].includes(sch) ? sch : null) as School | null);
+  console.log(`[cp4] usage check (core uncapped, others ≤80% of clear sets, own-school pick ≥5%): ${ck.pass ? 'PASS' : 'FAIL'} over80 [${ck.over.join(' ')}] dead [${ck.dead.join(' ')}]`);
 }
 for (const f of [5, 10]) console.log(`boss F${f} turns by trip 1-5: ${perTrip.map((xs, k) => { const ys = xs.filter((b) => b.floor === f); return `T${k + 1} ${(ys.reduce((a, b) => a + b.turns, 0) / Math.max(1, ys.length)).toFixed(1)}(n=${ys.length},won ${ys.filter((b) => b.won).length})`; }).join('  ')}`);
 }
