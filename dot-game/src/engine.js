@@ -45,6 +45,31 @@ export function enemyAttackView(enemy) {
   const nextKind=mixed&&(enemyAttackCounts.get(enemy)||0)%2===1?'magic':'physical';
   return {mixed,nextKind,nextLabel:nextKind==='magic'?'魔法技能 · 赤砂術式':'物理攻擊'};
 }
+// Camp-selected automatic targeting is an independent idle-game adaptation.
+// No random choice, enemy reordering or prediction of a caster's next action.
+export const TARGET_PRIORITIES = Object.freeze([
+  Object.freeze({id:'front',label:'依序集火'}),
+  Object.freeze({id:'caster',label:'施法者優先'}),
+  Object.freeze({id:'weakest',label:'低血量收尾'})
+]);
+const validTargetPriority = value => typeof value==='string'&&TARGET_PRIORITIES.some(option=>option.id===value);
+function playerTarget(s) {
+  const alive=s.enemies.filter(enemy=>enemy.hp>0);
+  if(s.targetPriority==='caster')return alive.find(enemy=>enemy.attackPattern==='alternating')||alive[0];
+  if(s.targetPriority==='weakest')return alive.reduce((best,enemy)=>!best||enemy.hp<best.hp?enemy:best,undefined);
+  return alive[0];
+}
+/** A detached view of the current fight, not a promised attack: healing and
+ * Protection retain their existing priority. Camp has no instantiated target. */
+export function targetPriorityView(s) {
+  const policy=validTargetPriority(s?.targetPriority)?s.targetPriority:'front';
+  const target=s?.mode==='battle'&&s?._phase==='fight'?playerTarget(s):undefined;
+  const reason=!target?'出戰後顯示目前集火目標':policy==='caster'?
+    target.attackPattern==='alternating'?'存活施法者優先；同類依原順序':'目前沒有存活施法者；依原順序':
+    policy==='weakest'?'目前 HP 最低；同血量依原順序':'第一個存活敵人';
+  return {policy,label:TARGET_PRIORITIES.find(option=>option.id===policy).label,
+    targetId:target?.id??null,targetName:target?.name??null,targetIndex:target?s.enemies.indexOf(target):-1,reason};
+}
 /** Original magical attribute mitigation; current equipment defense is physical.
  * No player resist rating/accuracy conversion is implemented: zero, not a
  * fabricated original chance. This view adds no durable stats or random draws. */
@@ -745,7 +770,7 @@ function finishWave(s, maxHp) {
   return true;
 }
 function playerTurn(s) {
-  const p=stats(s), target=s.enemies.find(e=>e.hp>0);if(!target)return;
+  const p=stats(s), target=playerTarget(s);if(!target)return;
   s._turns++;s.timing.turns++;s.hero.mp=Math.min(p.maxMp,s.hero.mp+.6);
   const policy=POLICIES[validStrategy(s.strategy)?s.strategy:'balanced'];
   const actions=s.battle.actions;let healed=false;
@@ -940,6 +965,8 @@ export function act(s, action, payload) {
     return s;
   }
 
+  if(action==='targetPriority'){if(s.mode==='town'&&validTargetPriority(payload)){if(payload==='front')delete s.targetPriority;else s.targetPriority=payload;}return s;}
+
   if(action==='autoProtection'){if(s.mode==='town'&&typeof payload==='boolean'){if(payload)s.autoProtection=true;else delete s.autoProtection;}return s;}
 
   if(['saveGearSet','clearGearSet','applyGearSet'].includes(action)){
@@ -1114,6 +1141,9 @@ export function validateSave(input) {
   if(!input||typeof input!=='object'||Array.isArray(input)||input.version!==VERSION||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
   const h=input.hero;if(!Number.isInteger(h.level)||h.level<1||h.level>500||!Number.isFinite(h.xp)||h.xp<0||!Number.isFinite(h.gold)||h.gold<0)throw new Error('角色資料無效');
   const s=createGame(input.seed);s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
+  const targetField=Object.getOwnPropertyDescriptor(input,'targetPriority');
+  if(targetField){if(!targetField.enumerable||!Object.hasOwn(targetField,'value')||!validTargetPriority(targetField.value))throw new Error('集火設定無效；未載入，請保留原存檔。');if(targetField.value!=='front')s.targetPriority=targetField.value;}
+  else if('targetPriority' in input)throw new Error('集火設定無效；未載入，請保留原存檔。');
   const protectionField=Object.getOwnPropertyDescriptor(input,'autoProtection');
   if(protectionField){if(!protectionField.enumerable||!Object.hasOwn(protectionField,'value')||typeof protectionField.value!=='boolean')throw new Error('自動護盾設定無效；未載入，請保留原存檔。');if(protectionField.value)s.autoProtection=true;}
   else if('autoProtection' in input)throw new Error('自動護盾設定無效；未載入，請保留原存檔。');

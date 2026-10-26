@@ -2,7 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Latest verified release: v0.20**, bounded-desktop accepted and published2026-10-26. From stage5, nonboss 赤砂守衛 alternates physical attacks with a telegraphed magical skill. Physical armor/parry do not stop magic; block, control, offense and Protection retain tradeoffs. [Rules and limits](docs/MAGICAL-ENCOUNTERS-GUIDE.md). Firstfour routes, rewards and prices remain unchanged; playerresistgrowth and monsterMP are not implemented.
+**Development candidate: v0.21 — target priorities.** Camp choices keep the default first-alive order, or prioritize persistent caster identity / lowest current HP. These automatic policies are independent adaptations, not original-HV AI. See [target rules](docs/TARGET-PRIORITY-GUIDE.md). Tests and browser/public acceptance are recorded separately in [status](docs/STATUS.md). Latest accepted public release remains v0.20 until all release gates pass.
 
 ## Play
 
@@ -16,7 +16,7 @@ Export saves periodically before clearing browser data. The game has no real-mon
 
 ## Restore and run
 
-Accepted complete-source restore: `GGGODLIN/hv-v3`, branch `bot/dot`, pre-publication accepted commit **`69a7f8e3ebda6c9a31bdfc8973343f266626ba65`**, directory `dot-game/`. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. The exact commit containing this publication receipt is the newer documentation checkpoint of the same accepted runtime and is preferred after its manifest verifies. Runtime source is `bb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1`, root website `816ed14836a62be992a8f75e7b29258cd03a2009`. A source candidate is not automatically a published game.
+For this development candidate, restore the exact verified v0.21 source checkpoint only after its backup receipt exists. Until candidate acceptance, the accepted recovery remains v0.20 **`ee44bf5b2e270e9f71dc62a5567fe7f82053e93b`**, `GGGODLIN/hv-v3` / `bot/dot` / `dot-game/`. Retrieve the entire directory and verify `CHECKPOINT.json` payload hashes. Source candidates and public test pages are not automatically accepted releases.
 
 From the restored `dot-game/` directory (Node.js and Python 3 required):
 

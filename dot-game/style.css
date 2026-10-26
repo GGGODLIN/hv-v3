@@ -277,3 +277,9 @@
 .growth-discovery p { margin: .25rem 0 .55rem; }
 .growth-discovery .muted { font-size: .75rem; margin-bottom: 0; }
 #growth-tab-summary { overflow-wrap: anywhere; }
+
+/* Target choice is readable without relying on color or motion. */
+.target-priority-live { margin: 8px 0; padding: 9px 12px; border-left: 3px solid var(--gold); background: #26332b; color: #e7dcc0; font-size: 11px; line-height: 1.65; }
+.target-priority-live[hidden] { display: none; }
+.target-priority-row { border-top: 1px solid var(--line); padding-top: .75rem; }
+.target-priority-row select { min-width: 0; width: 100%; }

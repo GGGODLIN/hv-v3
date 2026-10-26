@@ -28,3 +28,7 @@ v0.1 JSON 存檔仍可匯入，但 v0.2 使用全新存檔鍵 `hv-v3-dot-stable-
 
 ## 驗證
 `npm test` 包含注入時鐘/鎖的 session 測試：只計一次時間、無離線補算、長間隔丟棄、上限、暫停後重設、互斥、交接順序、未支援/拒絕與待取得鎖時取消。靜態 UI 測試驗證 IDs、rAF 無模擬、匯入邊界與相容模式不寫共享存檔。這些不等同真實瀏覽器多分頁、背景節流或發布環境驗收；另看驗收文件。
+
+## v0.21 target policy
+
+Optional game field `targetPriority` accepts only `front`, `caster`, or `weakest`; canonical default `front` is omitted when saved. Missing legacy data retains first-alive behavior. Invalid explicitly supplied values are rejected rather than silently interpreted. Choice is camp-only and writer-only; the current target view is pure, transient derived information. No save namespace migration or enemy order change is required. Older readers may reject/drop unsupported policy; exporting before switching versions preserves progress, but an old build cannot execute a policy it lacks.

@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from '../src/loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, enemyDefenseView } from '../src/engine.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, enemyDefenseView, targetPriorityView } from '../src/engine.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const extract = (name, next) => js.slice(js.indexOf(`function ${name}(`), js.indexOf(`function ${next}(`));
 const roleHelpers = runInNewContext(`${extract('enemyRolePresentation', 'renderRoutePreview')} ({ enemyRolePresentation, defenseRate, defenseLines })`);
 const helpers = {
-  ...roleHelpers, enemyDefenseView,
+  ...roleHelpers, enemyDefenseView, targetPriorityView,
   resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus,
   format: value => String(Math.round(value)),
 };
@@ -52,7 +52,7 @@ const elements = () => Object.fromEntries(['enemy-status-panel', 'enemy-status-l
 
 test('enemy cue shows correct target, independent stacks and Tick countdown; expiration and retreat clear it', () => {
   const dom = elements();
-  const state = { mode: 'battle', timing: { ticks: 12 }, enemies: [
+  const state = { mode: 'battle', _phase: 'fight', timing: { ticks: 12 }, enemies: [
     { id: 'first', name: '<img src=x onerror=bad()>', hp: 10, penetratedArmor: { stacks: 2, expiresAtTick: 15 } },
     { id: 'second', name: '第二個敵人', hp: 10 },
     { id: 'dead', name: '已擊敗', hp: 0, penetratedArmor: { stacks: 3, expiresAtTick: 19 } },
@@ -81,7 +81,7 @@ test('enemy cue shows correct target, independent stacks and Tick countdown; exp
 
 test('each enemy independently shows PA, active stun countdown, and recovery-ready risk without mutating combat state', () => {
   const dom = elements();
-  const state = { mode: 'battle', timing: { ticks: 12 }, enemies: [
+  const state = { mode: 'battle', _phase: 'fight', timing: { ticks: 12 }, enemies: [
     { id: 'first', name: '第一個敵人', hp: 10, penetratedArmor: { stacks: 2, expiresAtTick: 15 }, stun: { expiresAtTick: 16 } },
     { id: 'second', name: '第二個敵人', hp: 10, stunRecoveryPending: true },
     { id: 'third', name: '第三個敵人', hp: 10 },
@@ -126,7 +126,7 @@ test('each enemy independently shows PA, active stun countdown, and recovery-rea
 test('proc notice is text-only, survives reduced motion, refreshes once per event, and ignores dead targets', () => {
   const dom = elements();
   dom['proc-notice'].hidden = true;
-  const state = { mode: 'battle', enemies: [{ id: 'target', name: '守門者', hp: 10 }], events: [{ id: 1, type: 'proc', target: 'target', value: 1, text: '<b>穿透護甲 1/3 層 · 7 Tick</b>' }] };
+  const state = { mode: 'battle', _phase: 'fight', enemies: [{ id: 'target', name: '守門者', hp: 10 }], events: [{ id: 1, type: 'proc', target: 'target', value: 1, text: '<b>穿透護甲 1/3 層 · 7 Tick</b>' }] };
   let sounds = 0, timers = 0;
   const context = { state, $: id => dom[id], prefs: { reducedMotion: true }, playSound() { sounds++; }, clearTimeout() {}, setTimeout() { return ++timers; } };
   const source = `const seenEvents = new Set(); let lastProcessedEvent; let procTimer; let procTargetId = null; let recoveryTimer; let recoveryTargetId = null; ${extract('eventEffects', 'setMeter')}`;
@@ -150,7 +150,7 @@ test('proc notice is text-only, survives reduced motion, refreshes once per even
 
 test('stun and recovery notices stay distinct, text-only and readable with reduced motion', () => {
   const dom = elements();
-  const state = { mode: 'battle', enemies: [{ id: 'target', name: '守門者', hp: 10 }], events: [
+  const state = { mode: 'battle', _phase: 'fight', enemies: [{ id: 'target', name: '守門者', hp: 10 }], events: [
     { id: 1, type: 'proc', effect: 'stun', target: 'target', value: 4, text: '暈眩 · 4 Tick' },
   ] };
   let timers = 0;
@@ -221,5 +221,5 @@ test('v0.18 retains the v3 schema and candidate isolation, with version-neutral 
   assert.doesNotMatch(js, /v0\.3 已讀取|請在 v0\.3 繼續/);
   assert.doesNotMatch(js, /save-v4|writer-v4|preferences-v4/);
   assert.match(js, /candidate-\$\{candidatePath\[1\]/);
-  assert.match(html, /v0\.19 · 持續開發/);
+  assert.match(html, /v0\.21 · 持續開發/);
 });

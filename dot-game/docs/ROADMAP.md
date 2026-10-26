@@ -105,3 +105,7 @@ Implemented alongside suffix-choice commissions: a transient finish-current-expe
 ## v0.20 chosen slice
 
 Add one clearly telegraphed mixed physical/magical-skill enemy pattern on stage5+ without retuning firstfour routes or rewards. Make physicalarmor/parry limits legible while block, control, offense and Protection retain tradeoffs. Preserve original monster physical normal attacks; no invented original MP costs. Full player Resist/Accuracy, magical equipment and elemental systems remain separate researched expansions rather than fabricated completed features.
+
+## v0.21 chosen slice
+
+Give existing mixed-encounter roles a simple camp target-priority decision: default first-alive, caster identity first, or lowest-current-HP cleanup. Deterministic original-order ties, unchanged heal/buff priority, actual-attacker counters and recipient-bound bleed preserve understandable causality. Compare naturally earned profiles across routes without tuning a universal winner; source parity and actual browser choice/reload/ownership checks precede publication. This is an explicit idle adaptation, not a claim to original-HV AI.

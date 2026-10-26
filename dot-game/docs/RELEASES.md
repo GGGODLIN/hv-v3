@@ -232,3 +232,7 @@ Publication receipt: accepted source `deb39342a5ac84a85c9e898370a2acbf10b02432`;
 ## v0.20 — published and bounded-desktop accepted (2026-10-26 15:33UTC)
 
 One stage5+ enemy uses telegraphed alternating physical/magical skill; original-kind gates and explicit limits retained. Runtime sourcebb8c7ec2c070f9bb421d7b7b0a137c235b6aadf1; candidate7ed4e4df8c494baf4207afd7e4f77aa844408d8b /Pages40348541936success. 1,318tests and actualnormalprogress acceptance passed. [Evidence](BROWSER-QA-V020.md). Accepted source69a7f8e3ebda6c9a31bdfc8973343f266626ba65 preceded root816ed14836a62be992a8f75e7b29258cd03a2009; Pages40349899337success, sixHTTPbyte/hashmatches and actualrootwin/reloadsmoke passed. The publicationreceipt checkpoint retains the complete same-runtime source.
+
+## v0.21 — source-tested candidate (2026-10-26 15:48UTC)
+
+Camp target priorities add explicit choices without changing default targeting, damage formulas, counters or DoT recipients.1,341tests/foursyntax/12,000defaultparity observations passed; bounded natural720pairedtrials show mixed results. See ACCEPTANCE-V021.md; not yet browser accepted or publicroot.

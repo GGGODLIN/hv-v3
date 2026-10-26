@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
-import { AXE_BLEED_RULES, bleedStatus, resolveWeaponAttack, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, enemyDefenseView } from '../src/engine.js';
+import { AXE_BLEED_RULES, bleedStatus, resolveWeaponAttack, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, enemyDefenseView, targetPriorityView } from '../src/engine.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor } from '../src/loot.js';
 
 const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
@@ -10,7 +10,7 @@ const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../style.css', import.meta.url), 'utf8');
 const extract = (name, next) => js.slice(js.indexOf(`function ${name}(`), js.indexOf(`function ${next}(`));
 const roleHelpers = runInNewContext(`${extract('enemyRolePresentation', 'renderRoutePreview')} ({enemyRolePresentation, defenseRate, defenseLines})`);
-const helpers = { ...roleHelpers, AXE_BLEED_RULES, bleedStatus, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, enemyDefenseView, resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, format: value => String(Math.round(value)) };
+const helpers = { ...roleHelpers, AXE_BLEED_RULES, bleedStatus, PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, enemyDefenseView, targetPriorityView, resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, format: value => String(Math.round(value)) };
 const axe = { slot: 'weapon', weaponFamily: 'axe' };
 function target(id = 'first', stacks = 1, attack = 125, tick = 10) {
   const enemy = { id, name: `敵人 ${id}`, hp: 10000, maxHp: 10000, mitigation: .4, evade: 0, parry: 0, block: 0 };
@@ -51,7 +51,7 @@ test('every live enemy has its own accurate bleed stacks, remaining ticks and sn
   const first = target('first', 5), second = target('second', 2, 50), dead = target('dead'); dead.hp = 0;
   first.name = '<img src=x onerror=bad()>';
   first.penetratedArmor = {stacks: 2, expiresAtTick: 17}; first.stun = {expiresAtTick: 14};
-  const state = {mode: 'battle', timing: {ticks: 12}, enemies: [first, second, dead], events: []};
+  const state = {mode: 'battle', _phase: 'fight', timing: {ticks: 12}, enemies: [first, second, dead], events: []};
   const before = structuredClone(state), h = harness(state);
   h.run('renderEnemyStatuses();');
   const cards = h.dom['enemy-status-list'].children;
@@ -78,7 +78,7 @@ test('every live enemy has its own accurate bleed stacks, remaining ticks and sn
 });
 
 test('bleed proc and damage feedback coexist with reduced motion, remain text-only and deduplicate events', () => {
-  const state = {mode: 'battle', timing: {ticks: 10}, enemies: [target()], events: [
+  const state = {mode: 'battle', _phase: 'fight', timing: {ticks: 10}, enemies: [target()], events: [
     {id: 1, type: 'proc', effect: 'bleed', target: 'first', text: '流血傷口 1/5 層 · 7 Tick'},
     {id: 2, type: 'bleed', effect: 'bleed', target: 'first', value: 10, text: '<b>敵人 first 流血傷口造成 10 傷害</b>'},
   ]};
@@ -108,7 +108,7 @@ test('lethal and final-wave bleed ticks stay visible without a current target an
 });
 
 test('normal-motion bleeding has a separately labeled floating number and burst feedback is bounded', () => {
-  const state = {mode: 'battle', enemies: [], events: Array.from({length: 5}, (_, i) => ({id: i + 1, type: 'bleed', effect: 'bleed', target: `gone-${i}`, value: 10 + i, text: `目標${i}流血受到${10 + i}傷害`}))};
+  const state = {mode: 'battle', _phase: 'fight', enemies: [], events: Array.from({length: 5}, (_, i) => ({id: i + 1, type: 'bleed', effect: 'bleed', target: `gone-${i}`, value: 10 + i, text: `目標${i}流血受到${10 + i}傷害`}))};
   const h = harness(state, false); h.run('eventEffects();');
   const floats = h.dom['floating-layer'].children;
   assert.equal(floats.length, 3); assert.equal(floats[0].className, 'floating-number bleed');
@@ -148,6 +148,6 @@ test('bleeding readouts remain accessible, narrow-screen wrapping and separate f
   assert.match(css, /\.bleed-damage-notice\[hidden\] \{ display: none; \}/);
   assert.match(css, /@media\(max-width:680px\) \{ \.enemy-status-list \{ grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(css, /\.floating-number\.bleed/);
-  assert.match(html, /v0\.19 · 持續開發/);
+  assert.match(html, /v0\.21 · 持續開發/);
   assert.doesNotMatch(js, /\.innerHTML\s*=/);
 });

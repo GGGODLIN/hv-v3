@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -910,8 +910,9 @@ function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(
 function renderEnemyStatuses() {
   const enemies = state.mode === 'battle' ? state.enemies.filter(enemy => enemy.hp > 0) : [];
   const tick = state.timing?.ticks || 0;
+  const targetId = targetPriorityView(state).targetId;
   const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick), bleed: bleedStatus(enemy, tick), defense: enemyDefenseView(enemy, tick), attack: enemy.attackPattern === 'alternating' ? enemyAttackView(enemy) : null, magicDefense: enemy.attackPattern === 'alternating' ? playerMagicDefenseView(state) : null }));
-  const signature = JSON.stringify(rows.map(({ enemy, status, stun, bleed, defense, attack, magicDefense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, bleed, defense, attack, magicDefense]));
+  const signature = JSON.stringify([targetId, rows.map(({ enemy, status, stun, bleed, defense, attack, magicDefense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, bleed, defense, attack, magicDefense])]);
   $('enemy-status-panel').hidden = !rows.length;
   if (!rows.length || (procTargetId && !enemies.some(enemy => enemy.id === procTargetId))) {
     $('proc-notice').hidden = true; clearTimeout(procTimer); procTargetId = null;
@@ -924,7 +925,7 @@ function renderEnemyStatuses() {
   $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun, bleed, defense, attack, magicDefense }, index) => {
     const pending = stun?.recoveryPending;
     const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}${stun ? pending ? ' recovery-ready' : ' is-stunned' : ''}${bleed ? ' is-bleeding' : ''}`);
-    const name = node('strong', '', `${index === 0 ? '目標 · ' : ''}${enemy.name}`);
+    const name = node('strong', '', `${enemy.id === targetId ? '目標 · ' : ''}${enemy.name}`);
     const effect = node('span', 'enemy-effect penetration-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
     const control = node('span', 'enemy-effect stun-effect', pending ? '甦醒待行動 · 下次我方行動前可反擊' : stun ? `暈眩 · 剩 ${stun.ticksRemaining} Tick` : '暈眩：無');
     card.append(name);
@@ -981,6 +982,16 @@ function renderProtection() {
     ? `護盾生效 · 剩 ${format(view.remainingTicks)} Tick · 本場施放 ${format(view.casts)} 次 · 減免 ${format(view.damagePrevented)} 傷害`
     : `自動護盾待命 · ${format(view.manaCost)} MP／次 · 本場施放 ${format(view.casts)} 次 · 減免 ${format(view.damagePrevented)} 傷害`;
 }
+function renderTargetPriority() {
+  const view = targetPriorityView(state);
+  $('target-priority-select').value = view.policy;
+  $('target-priority-select').disabled = !tabOwner || state.mode !== 'town';
+  const rules = { front: '依存活敵人的既定順序集火；不改原有攻擊順序。', caster: '先集火會交替施法的敵人，即使下一動是物理攻擊；沒有施法者時依既定順序。', weakest: '選目前 HP 數字最低的存活敵人，不是血量百分比；同 HP 依既定順序。' };
+  $('target-priority-description').textContent = `${rules[view.policy]} ${!tabOwner ? '唯讀分頁；取得控制權並回營後可改。' : state.mode !== 'town' ? '回營後可改。' : '營地可調整，出戰後固定。'}`;
+  const live = $('target-priority-live');
+  live.hidden = state.mode !== 'battle' || view.targetId === null;
+  live.textContent = view.targetId === null ? '' : `目前集火：${view.targetName} · ${view.reason}。普攻與攻擊技能適用；治癒／護盾仍優先，反擊仍打攻擊者。`;
+}
 function render(force = false) {
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
@@ -988,6 +999,7 @@ function render(force = false) {
 
   renderCounterattack();
   renderProtection();
+  renderTargetPriority();
   const derived = stats(state);
   renderPlayerParry(derived);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
@@ -1215,6 +1227,12 @@ function drawEnemy(enemy, x, y, index, t) {
   ctx.restore();
   const width = boss ? 57 : 40;
   const sy = y - (boss ? 80 : 57);
+  if (enemy.hp > 0 && enemy.id === targetPriorityView(state).targetId) {
+    ctx.save(); ctx.strokeStyle = '#e8ca82'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(x, y + 6, boss ? 25 : 18, 5, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#f0dba4';
+    ctx.fillText('▼ 集火', x, sy - 39); ctx.restore();
+  }
   rect(x - width/2, sy, width, 3, '#10222a'); rect(x-width/2, sy, width * Math.max(0, enemy.hp) / Math.max(1,enemy.maxHp),3,boss?'#d29a76':'#b4a778');
   ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#d8ded0'; ctx.fillText(enemy.name,x,sy-5,width+25);
   if (enemy.hp > 0) {
@@ -1310,6 +1328,11 @@ $('heal-button').addEventListener('click',()=>dispatch('heal'));
 $('pin-report').addEventListener('click', pinRecentExpeditionReport);
 for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
 $('strategy-select').addEventListener('change', event => dispatch('setStrategy', event.target.value));
+for (const policy of TARGET_PRIORITIES) { const option = node('option', '', policy.label); option.value = policy.id; $('target-priority-select').append(option); }
+$('target-priority-select').addEventListener('change', event => {
+  if (!tabOwner || state.mode !== 'town') { renderTargetPriority(); return; }
+  if (!dispatch('targetPriority', event.target.value)) renderTargetPriority();
+});
 $('auto-protection').addEventListener('change', event => {
   if (!tabOwner || state.mode !== 'town' || !protectionView(state).unlocked) { renderProtection(); return; }
   dispatch('autoProtection', event.target.checked);
