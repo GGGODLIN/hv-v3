@@ -6,7 +6,7 @@ const BASE = process.argv[2] ?? 'http://127.0.0.1:5199/';
 const b = await p.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox', '--use-gl=swiftshader'], defaultViewport: { width: 1280, height: 900 } });
 const w = (ms) => new Promise((r) => setTimeout(r, ms));
 const errs = []; const R = {}; const fail = [];
-const KIT = { blade: { mainHand: 'oneHand:axe', body: 'light:leather' }, oc: { mainHand: 'oneHand:axe', body: 'light:leather' }, arcane: { mainHand: 'oneHand:axe', body: 'light:leather' }, bulwark: { mainHand: 'oneHand:axe', offHand: 'shield:buckler', body: 'light:leather' } };
+const KIT = { blade: { mainHand: 'oneHand:axe', body: 'light:leather' }, oc: { mainHand: 'oneHand:axe', body: 'light:leather' }, arcane: { mainHand: 'oneHand:axe', body: 'light:leather' }, bulwark: { mainHand: 'oneHand:axe', offHand: 'shield:buckler', body: 'heavy:plate' /* cp8-rc9 P1-5 */ } };
 for (const sc of Object.keys(KIT)) {
   const pg = await b.newPage(); pg.on('pageerror', (e) => errs.push(String(e)));
   await pg.goto(BASE + '?cp6&cp8&debug', { waitUntil: 'networkidle0' }); await pg.evaluate(() => localStorage.clear());
