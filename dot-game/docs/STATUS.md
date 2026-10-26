@@ -1,5 +1,15 @@
 # Current status
 
+## v0.9 published and stable-root smoke accepted — 2026-10-26 02:28 UTC
+
+Live: https://gggodlin.github.io/play/hv-v3-dot/ . Accepted pre-promotion source `8d6be5b3c3735021aea8e94570ee88b0efe5eea9` was backed up and verified first. Website commit `08d5066a74c93a69260f384fbd02a02bbf68f81e` passed exact Pages run `40259045608`, followed by one HTTP6 pass with six 200 responses and exact frozen source byte/SHA-256 matches. Only index/style/engine/UI root blobs changed; loot/session and all 3846 non-root site blobs, candidates and concurrent other work remained unchanged. No additions/removals.
+
+Actual stable-root Chrome smoke retained the original level 19, gold 8018, 78 wins and 105 items, with empty session reports rather than candidate progress. Two stage-3 club victories produced correct visible measurement reports; the latest was pinned. After retreat/reload, level 19, gold 8238, 80 wins and 109 items persisted while reports/pin cleared. Inspected logs had no app-origin errors; explicit extension noise was separate. Candidate tab 29 was closed; stable tab 26 was left at camp. See BROWSER-QA-V09.md for observed report numbers and bounded device/lifecycle/import/defeat coverage.
+
+The exact verified commit containing this publication receipt is the latest accepted full-source restore point: 93 files / 92 manifest payloads. Runtime/tests are byte-identical to verified candidate source `d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6`; 599 passing tests and four syntax checks are reused, not re-run for docs. Prior v0.8.1 recovery `c1530bc76aa06716443b9ccca8de6f616e9f5f47` remains available. No browser-save, credential, Library or schedule recovery claim is made.
+
+### Earlier checkpoint timeline (historical statuses, superseded above)
+
 ## v0.9 desktop accepted; root promotion pending — 2026-10-26 02:22 UTC
 
 Bounded cloud-Chrome acceptance is recorded in BROWSER-QA-V09.md. Natural stage-1 play verified complete victory and partial-retreat reports, start-build/level context, actual damage/resource measurements, naturally equipped axe bleed, a stable pin surviving eviction from the newest-two list, narrow text wrapping, and reload clearing reports/pin while retaining level 4, gold 252, three wins and five items. This was not a controlled weapon comparison because progression and RNG differed. No app-origin errors appeared in inspected logs. Browser defeat/import-cancel/multi-tab-pin cases were not re-run; Node coverage and physical-device/lifecycle limitations remain explicitly separate.

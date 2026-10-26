@@ -26,6 +26,20 @@ Inspected logs had no application-origin errors. Explicit extension noise was di
 
 ## Acceptance boundary
 
-Bounded desktop candidate GO was given after the observations above. Actual defeat, import cancellation and multi-tab pin behavior were not re-tested in the browser during this slice; relevant source/Node coverage is separate. Physical mobile, OS suspension and universal foreground-only pause behavior remain unverified inherited limits. No offline earnings or universal lifecycle guarantee is claimed. Public-root promotion and its final stable-save smoke are pending in this pre-promotion source checkpoint.
+Bounded desktop candidate GO was given after the observations above. Actual defeat, import cancellation and multi-tab pin behavior were not re-tested in the browser during this slice; relevant source/Node coverage is separate. Physical mobile, OS suspension and universal foreground-only pause behavior remain unverified inherited limits. No offline earnings or universal lifecycle guarantee is claimed. Public-root promotion and final stable-save smoke were pending at this pre-promotion observation; both are completed by the publication record below.
 
-Source backups restore source, tests, documentation and available assets; they do not restore personal browser saves, credentials, Library content or schedules. Previous accepted v0.8.1 recovery remains `c1530bc76aa06716443b9ccca8de6f616e9f5f47` until publication is verified.
+Source backups restore source, tests, documentation and available assets; they do not restore personal browser saves, credentials, Library content or schedules. Previous accepted v0.8.1 recovery `c1530bc76aa06716443b9ccca8de6f616e9f5f47` remains historical recovery; the exact verified publication-receipt commit is now the latest accepted restore.
+
+## Public-root publication and smoke — 2026-10-26 02:28 UTC
+
+Accepted source `8d6be5b3c3735021aea8e94570ee88b0efe5eea9` was backed up and verified before promotion. Website commit `08d5066a74c93a69260f384fbd02a02bbf68f81e` passed exact Pages run `40259045608`; one HTTP6 pass returned six 200 responses with byte/SHA-256 identity to the same frozen runtime. Four root blobs changed; loot/session and all 3846 non-root site blobs were preserved, with no additions/removals.
+
+Parent observations in stable cloud-Chrome tab 26:
+
+- Reload of the exact v0.9 public root retained level 19, gold 8018, 78 wins and 105 items. Reports were empty: isolated candidate progress had not mixed into the stable profile.
+- Actual stage-3 club victory displayed 11.6 seconds. Start context: attack 237, maximum HP 971, mitigation 8.7%. Report: 1149 basic + 399 skill = 1548 actual HP removal; incoming HP loss 140; minimum HP 90.6%; 11 attacks including two skills; MP spent 6; one stun application.
+- The following automatic victory displayed 10.5 seconds. Pinned the latest report: 1169 basic + 379 skill = 1548 actual HP removal; incoming HP loss 77; minimum HP 93.4%; ten attacks including two skills; one stun application.
+- Retreat and reload retained level 19, gold 8238, 80 wins and 109 items. Reports reset to zero and the pin was hidden, as documented for session-only data.
+- No app-origin errors appeared in inspected logs; only explicitly identified extension noise was present. Candidate tab 29 was closed. Stable tab 26 was left at camp for delivery.
+
+This is bounded root smoke, not exhaustive device/lifecycle testing, a re-test of every import/defeat/multi-tab edge, or a controlled comparison of weapon effectiveness. Runtime and tests remain unchanged from the already tested source; this final receipt updates only documentation and manifest.

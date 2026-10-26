@@ -1,5 +1,12 @@
 # Published releases
 
+## v0.9 — published, 2026-10-26 02:28 UTC
+
+- Accepted source before publication: `8d6be5b3c3735021aea8e94570ee88b0efe5eea9` on `GGGODLIN/hv-v3` branch `bot/dot`. Complete runtime source: `d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6`; acceptance/publication checkpoints change documentation/manifest only.
+- Public website: `08d5066a74c93a69260f384fbd02a02bbf68f81e`; exact Pages run `40259045608` succeeded and one HTTP6 pass returned six 200 exact byte/SHA-256 matches. Four root blobs changed; loot/session and all 3846 non-root site blobs were preserved. Isolated candidate `6ed32468c73cfd4cbb9e0d2f589fe6bcda57ca20` remains at `/play/hv-v3-dot/candidates/v0.9/`.
+- Candidate acceptance and actual stable-root smoke passed within BROWSER-QA-V09.md's explicit desktop limits. Stable root retained the original level-19 profile, not candidate progress; two stage-3 club victories, report values and pinning were observed. Retreat/reload retained level 19, gold 8238, 80 wins and 109 items while session-only reports/pin cleared. No app-origin errors appeared in inspected logs; candidate tab was closed.
+- Latest accepted restore is the exact verified commit containing this publication receipt: 93 complete source files / 92 manifest payloads. Previous v0.8.1 receipt `c1530bc76aa06716443b9ccca8de6f616e9f5f47` is retained historically. Existing 599 tests/four syntax passes are not repeated because runtime/tests are unchanged. This is not a browser-save or external-account backup.
+
 ## v0.9 — desktop-accepted source, root promotion pending, 2026-10-26 02:22 UTC
 
 - Complete frozen source/runtime `d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6` on `GGGODLIN/hv-v3` branch `bot/dot`: 92 files / 91 manifest payloads, complete tree identity and exact changed-file readbacks verified. This accepted-source checkpoint adds BROWSER-QA-V09.md and updates docs/manifest only; 599 passing tests and four syntax checks are reused without redundant runtime reruns.

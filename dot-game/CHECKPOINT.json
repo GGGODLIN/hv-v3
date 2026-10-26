@@ -1,16 +1,23 @@
 {
-  "checkpoint": "v0.9-accepted-source",
-  "status": "bounded-desktop-accepted-root-promotion-pending",
+  "checkpoint": "v0.9-publication-receipt",
+  "status": "published-bounded-desktop-accepted",
   "base_accepted_recovery": "c1530bc76aa06716443b9ccca8de6f616e9f5f47",
   "candidate_runtime_source": "d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6",
   "source_receipt_scope": "documentation-and-manifest-only-runtime-tests-unchanged",
   "candidate_site_commit": "6ed32468c73cfd4cbb9e0d2f589fe6bcda57ca20",
   "candidate_pages_run": 40258269362,
   "browser_qa": "docs/BROWSER-QA-V09.md",
+  "accepted_prepublication_source": "8d6be5b3c3735021aea8e94570ee88b0efe5eea9",
+  "accepted_runtime_source": "d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6",
+  "base_source_receipt": "8d6be5b3c3735021aea8e94570ee88b0efe5eea9",
+  "latest_accepted_recovery": "this exact verified publication-receipt commit",
+  "accepted_site_commit": "08d5066a74c93a69260f384fbd02a02bbf68f81e",
+  "accepted_pages_run": 40259045608,
+  "root_smoke": "bounded-desktop-pass-2026-10-26T02:28Z",
   "files": {
     "README.md": {
-      "bytes": 13986,
-      "sha256": "618914620df4091cf66368e9dd4a9423ff47fc352fd8a45325720f2d8b733f13"
+      "bytes": 15274,
+      "sha256": "c5edf3ed70d32f03e6bc364b7591653d6559de02ad7891a4801a27f94bf0a85e"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -85,8 +92,8 @@
       "sha256": "799025937139908ecd127bf2bf73d9574ecf4e29931101dc9a4495b7f996c44b"
     },
     "docs/BROWSER-QA-V09.md": {
-      "bytes": 4175,
-      "sha256": "f16385dd0e9d9c3caf36609edb050486ba0988add735ee03545c83ad7cceb6ea"
+      "bytes": 6140,
+      "sha256": "3165cded9b6bbded32c8a61a4561e2fa6856f980410dae7507dad69eb80b8703"
     },
     "docs/BROWSER-QA.md": {
       "bytes": 2596,
@@ -137,8 +144,8 @@
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
     },
     "docs/RELEASES.md": {
-      "bytes": 23612,
-      "sha256": "4effb20a8775e5a33062fa913b98f44e943e4043c0ece5ffe00a50f52e8d8493"
+      "bytes": 25098,
+      "sha256": "97d9cee95ef98e6f9dd4216d28fbe068753282a002d78e12c7dea7ab23a73e48"
     },
     "docs/ROADMAP.md": {
       "bytes": 9724,
@@ -149,8 +156,8 @@
       "sha256": "f1b5983b7954e85be88124b3a67c110cbd40eaf53b48dd0aa6a634aa02f681d3"
     },
     "docs/STATUS.md": {
-      "bytes": 32588,
-      "sha256": "7e171b7544821908e7cdd88c0540fa925329cab8ef48ce33d3b74ea088466218"
+      "bytes": 34344,
+      "sha256": "bb65cdb0a5cb467051b1c3364dda0cefb1efa7c14483585f877f654791ec2fce"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,
