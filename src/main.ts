@@ -3,7 +3,7 @@ import './style.css';
 import { makePool, type MonsterRow } from './core/monsters';
 import { App } from './game/app';
 import { RULES } from './core/run';
-import { applyPreset, stripPreset, type Preset } from './core/preset';
+import { switchSlot, stripPreset, type Preset } from './core/preset';
 import { H, Stage, W } from './game/stage';
 
 function buildBadge() {
@@ -45,7 +45,8 @@ async function boot() {
     const pr = all[preset];
     if (pr) {
       // rc10: full replacement (save + abyss record), then drop `preset` from the URL so reloading does not wipe progress.
-      applyPreset(localStorage, pr);
+      // cp8-rc5: one save slot per preset (switching presets parks / restores instead of overwriting).
+      (window as unknown as { hvSlot: string }).hvSlot = switchSlot(localStorage, preset, pr, qs.has('fresh'));
       history.replaceState(null, '', location.pathname + stripPreset(location.search) + location.hash);
       (window as unknown as { hvPreset: string }).hvPreset = preset;
     } else console.warn(`unknown preset ${preset}; known: ${Object.keys(all).join(', ')}`);
