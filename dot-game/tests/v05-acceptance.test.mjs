@@ -218,6 +218,9 @@ test('v0.5 independent: unchanged resolver/rewards and historical enemyAttack st
   // v06 acceptance still guards current behavior separately. The exact-clock
   // trajectories below are explicitly historical from v0.8.1 onward; current
   // v081 historical acceptance additionally freezes its bytes outside advance.
+  // v0.13 adds gate evidence and counter scheduling to resolveAttack/enemyTurn/
+  // recoverStunnedEnemies: their original digests now target the existing frozen
+  // historical source. Current resolver/counter tests cover the new behavior.
   // v0.9 adds enemyAttack observation hooks only: retain the accepted old body
   // and digest here; v09 acceptance checks current full-state/RNG equivalence.
   const region=(code,start,end)=>{const a=code.indexOf(start),b=end?code.indexOf(end,a):code.length;assert.ok(a>=0&&b>a);return code.slice(a,b);};
@@ -232,7 +235,7 @@ test('v0.5 independent: unchanged resolver/rewards and historical enemyAttack st
     ['enemyTurn','d52ac2e7b95ec9c00691851d3a3716a66e3f05a93e12fcb29d6a882a969a1f0b'],
     ['recoverStunnedEnemies','3793f627724f1f5063ada2aa8133bb666fa0304b8ec072fbba06800a94eb33c8'],
     ['usePotion','f206089133516eacdb5c692b555de6909acd22326248522db65ab34c846be842'],
-  ])assert.equal(sha256(region(name==='enemyAttack'?historicalV081Source:source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
+  ])assert.equal(sha256(region(['resolveAttack','enemyAttack','enemyTurn','recoverStunnedEnemies'].includes(name)?historicalV081Source:source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
   assert.equal(sha256(region(source,'function gainXp','function win')),'b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4','unchanged XP/death rewards');
   // v0.7 shares arithmetic between random drops and the fixed commission.
   // These complete-output/RNG baselines were independently rerun against the

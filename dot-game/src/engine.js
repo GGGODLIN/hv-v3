@@ -33,6 +33,29 @@ export const CLUB_STUN_RULES = Object.freeze({chance:.25,durationTicks:4});
 // Pinned historical shape; fixed maxima, shared refresh and integer snapshots
 // are explicit adaptations, not the current original-HV 200-stack model.
 export const AXE_BLEED_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:5,damageFractionPerStack:.08});
+// Original probability/cap shape; partial defensive checks and recognized-family
+// eligibility are explicit adaptations. Counter stun/OC/OS are not implemented.
+export const COUNTERATTACK_RULES = Object.freeze({baseChance:.25,attributeChance:.0002,proficiencyChance:.001,maxChance:.75});
+const counterBudgets = new WeakMap();
+/** Detached session-only view. Chance is conditional on a reached successful
+ * block/parry check, not the chance per incoming attack. */
+export function counterattackView(s) {
+  const eligible=!!resolveWeaponFamily(s?.equipment?.weapon);
+  const level=Math.max(0,finite(s?.hero?.level));
+  const effectiveProficiency=clamp(finite(s?.hero?.proficiency),0,1.2*level);
+  const attributes=s?.hero?.attributes;
+  const probability=clamp(.25+.0002*(Math.max(0,finite(attributes?.str))+Math.max(0,finite(attributes?.dex)))+.001*effectiveProficiency,0,.75);
+  const maxPerTurn=effectiveProficiency>=200?3:effectiveProficiency>=100?2:1;
+  const usedThisTurn=s?.mode==='battle'&&s?._phase==='fight'?counterBudgets.get(s)?.used??0:0;
+  return {eligible,chance:eligible?probability:0,maxPerTurn,usedThisTurn,remainingThisTurn:eligible?Math.max(0,maxPerTurn-usedThisTurn):0,effectiveProficiency};
+}
+function resetCounterBudget(s,turn=s.timing.turns,force=false){
+  // Reserve the upcoming player interval before recovery attacks. A terminal
+  // recovery counter can consume this boundary without running playerTurn;
+  // the next due boundary must retain that same reserved interval's budget.
+  if(force||counterBudgets.get(s)?.turn!==turn)counterBudgets.set(s,{turn,used:0});
+}
+
 export const STRATEGIES = Object.freeze([
   Object.freeze({id:'balanced',label:'均衡',description:'每 5 回合破勢斬；HP 低於 38% 時治癒，藥水手動使用。'}),
   Object.freeze({id:'assault',label:'猛攻',description:'每 3 回合破勢斬；HP 低於 22% 才治癒，較快消耗 MP，藥水手動使用。'}),
@@ -206,7 +229,7 @@ function beginExpeditionReport(s) {
 }
 function observeExpeditionHit(s, source, hpRemoved, proc) {
   const active=expeditionFeedback.get(s)?.active;if(!active)return;
-  active.damage[source]=reportNumber(active.damage[source]+reportNumber(hpRemoved));
+  active.damage[source]=reportNumber((active.damage[source]??0)+reportNumber(hpRemoved));
   if(Object.hasOwn(active.procs,proc))active.procs[proc]=reportNumber(active.procs[proc]+1);
 }
 function observeExpeditionLoss(s, hpLost, maxHp) {
@@ -226,7 +249,7 @@ function settleExpeditionReport(s, outcome) {
   // replace a completed win or record the same expedition a second time.
   feedback.active=null;
   const report={...active,outcome,endLevel:integer(s.hero.level,1,500),elapsed:reportNumber(s.battle.elapsed),
-    actions:Object.fromEntries(Object.keys(freshActions()).map(key=>[key,reportNumber(s.battle.actions?.[key])]))};
+    actions:Object.fromEntries([...Object.keys(freshActions()),...(s.battle.actions?.counters>0?['counters']:[])].map(key=>[key,reportNumber(s.battle.actions?.[key])]))};
   for(const value of Object.values(report))if(value&&typeof value==='object')Object.freeze(value);
   feedback.reports.unshift(Object.freeze(report));feedback.reports.length=Math.min(2,feedback.reports.length);
 }
@@ -292,6 +315,7 @@ function clearEnemyStatuses(enemy) {
 export function resolveAttack(attacker, defender, rng = Math.random) {
   const trace=[], roll=()=>clamp(finite(rng(),.5),0,.999999999);
   const result={damage:0,crit:0,outcome:'hit',trace};
+  if(attacker.trackDefense===true)result.defenses={parry:0,block:0};
   const stop=name=>{result.outcome=name;return result;};
   trace.push('Whiff'); if(chance(attacker.whiff)>0&&roll()<chance(attacker.whiff)) return stop('whiff');
   // Magic pre-samples critical eligibility only to enforce critical/Absorb incompatibility.
@@ -302,6 +326,7 @@ export function resolveAttack(attacker, defender, rng = Math.random) {
     trace.push(label);
     if(((attacker.skill||defender.stunned)&&(key==='evade'||key==='parry'))||(key==='parry'&&attacker.magical))continue;
     const successes=Number(roll()<chance(defender[key]))+Number(roll()<chance(defender[key]));
+    if(result.defenses&&Object.hasOwn(result.defenses,key))result.defenses[key]=successes;
     if(successes===2) return stop(key);
     if(successes===1){factor*=.5;if(key==='evade')glancing=true;}
   }
@@ -358,6 +383,13 @@ export function resolveWeaponAttack(attacker, defender, weapon, tick, rng = Math
   result.proc={type:'penetratedArmor',stacks,durationTicks:PENETRATED_ARMOR_RULES.durationTicks};
   return result;
 }
+/** Counter damage only: no weapon proc, crit, skill resource cost or status
+ * mutation. Existing historical PA affects physical mitigation normally. */
+export function resolveCounterAttack(attacker, defender, tick, rng = Math.random) {
+  const armor=penetratedArmorStatus(defender,tick);
+  const effective=armor?{...defender,mitigation:generalMitigation(defender)*armor.mitigationMultiplier}:defender;
+  return resolveAttack({attack:finite(attacker?.attack),crit:0,weakened:true,skill:true},effective,rng);
+}
 // Independently authored defense profiles, not original-HV monster classes/rates.
 // Identity is selected by the same stable archetype index as the original names.
 const ENEMY_ARCHETYPES = Object.freeze([
@@ -397,7 +429,7 @@ function enemiesFor(s) {
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
   s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=4;
-  recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
+  resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,`進入第 ${s.stage} 層。`);
   beginExpeditionReport(s);
 }
 function protectedLootKeepers(s) {
@@ -549,7 +581,7 @@ function win(s) {
   const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
   event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
   settleExpeditionReport(s,'win');
-  recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
+  counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 // Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
@@ -593,20 +625,37 @@ function playerTurn(s) {
 function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
   const p=stats(s);
-  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2},{...p,parry:.035},()=>random(s));
+  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true},{...p,parry:.035},()=>random(s));
   const previousHp=s.hero.hp;
   s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');
   observeExpeditionLoss(s,previousHp-s.hero.hp,p.maxHp);
   if(s.hero.hp<=0){
     settleExpeditionReport(s,'defeat');
-    s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
+    counterBudgets.delete(s);s.mode='defeat';s._phase='idle';for(const enemy of s.enemies)clearEnemyStatuses(enemy);
     event(s,'defeat','暫時撤退，成長與戰利品保留');log(s,'挑戰失利。不損失裝備與金幣，回營調整後再試。');
+    return false;
   }
+  // Only actually reached parry/block checks qualify. A generic glance may be
+  // evade-only, and full evade exits before either defensive gate is reached.
+  const counter=counterattackView(s);
+  if(!counter.eligible||counter.remainingThisTurn<=0||e.hp<=0
+    ||!(attack.defenses.parry>0||attack.defenses.block>0))return false;
+  if(random(s)>=counter.chance)return false;
+  const budget=counterBudgets.get(s)||{turn:s.timing.turns,used:0};budget.used++;counterBudgets.set(s,budget);
+  s.battle.actions.counters=(s.battle.actions.counters||0)+1;
+  const response=resolveCounterAttack({attack:stats(s).attack},e,s.timing.ticks,()=>random(s));
+  const before=e.hp;e.hp=Math.max(0,e.hp-response.damage);
+  observeExpeditionHit(s,'counter',before-e.hp);
+  event(s,'counter',response.damage?'反擊':'反擊未造成傷害',response.damage,e.id,'counter');
+  settleEnemyDeath(s,e,before);
+  // True means the captured old-wave action batch is terminal. Replacement
+  // enemies must never inherit a pending strike/recovery from that old batch.
+  return finishWave(s,stats(s).maxHp);
 }
 function enemyTurn(s) {
   for(const e of s.enemies){
     if(e.stunRecoveryTurn!==s.timing.turns)delete e.stunRecoveryTurn;
-    if(e.hp>0&&!stunStatus(e,s.timing.ticks)&&e.stunRecoveryTurn!==s.timing.turns)enemyAttack(s,e);
+    if(e.hp>0&&!stunStatus(e,s.timing.ticks)&&e.stunRecoveryTurn!==s.timing.turns&&enemyAttack(s,e))break;
     if(s.mode!=='battle')break;
   }
 }
@@ -657,9 +706,10 @@ function recoverStunnedEnemies(s) {
     enemy.stunRecoveryTurn=s.timing.turns+1;
     event(s,'recovery','暈眩結束 · 甦醒反擊',undefined,enemy.id,'stun');
     log(s,`${enemy.name||'敵人'} 暈眩結束，先行甦醒反擊。`);
-    enemyAttack(s,enemy);
+    if(enemyAttack(s,enemy))return true;
     if(s.mode!=='battle')break;
   }
+  return false;
 }
 export function advance(s, seconds) {
   if(s.mode!=='battle')return s;
@@ -701,7 +751,8 @@ export function advance(s, seconds) {
     if(s.timing.ticks!==previousTick&&tickEnemyStatuses(s,previousTick))continue;
     if(s.mode!=='battle'||s._phase!=='fight')continue;
     if(due(s._clock,1.05)){
-      s._clock-=1.05;recoverStunnedEnemies(s);
+      s._clock-=1.05;resetCounterBudget(s,s.timing.turns+1);
+      if(recoverStunnedEnemies(s))continue;
       if(s.mode==='battle'&&s._phase==='fight')playerTurn(s);
     }
     if(s.mode==='battle'&&s._phase==='fight'&&due(s._enemyClock,1.9)){s._enemyClock-=1.9;enemyTurn(s);}
@@ -822,7 +873,7 @@ export function act(s, action, payload) {
   }
   if(action==='setAutoAdvance'&&typeof payload==='boolean'){s.autoAdvance=payload;return s;}
   if(action==='retreat'&&s.mode==='battle'&&s._phase==='fight')settleExpeditionReport(s,'retreat');
-  if(action==='retreat') {s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
+  if(action==='retreat') {counterBudgets.delete(s);s.mode='town';s.enemies=[];s._phase='idle';s._clock=0;s._enemyClock=0;recover(s);refillPending(s);return s;}
   if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}

@@ -195,3 +195,16 @@
 .selected-sale-warning { color: var(--gold) !important; }
 #selected-sale-list .compare-row { grid-template-columns: minmax(35px,1fr) auto minmax(55px,auto); }
 @media (min-width:681px) and (max-width:1150px) { .loot-panel>.item-detail { grid-row: 1/9; } }
+
+/* Counter-attacks are a separate defensive action, never a critical-hit label. */
+.counterattack-panel { min-width: 0; margin-top: 17px; padding: 16px; }
+.counterattack-panel .section-heading { flex-wrap: wrap; }
+.counterattack-status { margin-top: 9px; color: #bfe8d9; font-size: 12px; overflow-wrap: anywhere; }
+.counterattack-value { margin-top: 5px; color: var(--gold); font-size: 12px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.counterattack-note, .counterattack-rules { margin-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.counterattack-rules summary { cursor: pointer; color: #bfd1c5; padding: 3px 0; }
+.counterattack-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.counterattack-rules p { margin-top: 7px; }
+.counter-damage-notice { margin: 10px 0; padding: 9px 12px; background: #193330; border: 1px solid #588e7d; border-radius: 7px; color: #c8f0d8; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.counter-damage-notice[hidden] { display: none; }
+.floating-number.counter { color: #b9f3d2; font-size: 23px; }

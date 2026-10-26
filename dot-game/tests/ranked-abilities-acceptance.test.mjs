@@ -1,3 +1,4 @@
+import * as historicalV012 from './fixtures/v0.12/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as current from '../src/engine.js';
@@ -174,7 +175,9 @@ test('ranked independent: max-rank Tank support remains the existing maxHP adapt
 
 // All natural growth below is produced by public engine actions. There is no
 // level/resource/proficiency injection and it is not browser-input coverage.
-test('ranked independent: three naturally earned Lv30 cohorts preserve v0.10 through both gates, then measure matched next-rank choices',t=>{
+// v0.13 changes eligible combat with counters. Freeze only this historical
+// acquisition-equality trajectory; upgrades and paired runs remain current.
+test('ranked independent: historical pre-counter acquisition preserves v0.10 through both gates, then current next-rank choices',t=>{
   const results=[];
   for(const seed of [29,42,77]){
     const s=current.createGame(seed),old=accepted.createGame(seed);let steps=0,runs=0;const gates={};
@@ -184,7 +187,7 @@ test('ranked independent: three naturally earned Lv30 cohorts preserve v0.10 thr
       if(s.hero.level>=4&&!s.abilities)for(const id of ids){action('learnAbility',id);action('slotAbility',id);}action('selectStage',Math.min(3,s.unlocked));}
     while(s.hero.level<30&&runs<1000){camp();const level=s.hero.level,wins=s.wins;
       if([24,29].includes(level)){const id=level===24?'hp-tank':'mp-tank';assert.equal(row(s,id).canUpgrade,false);gates[level]={xp:s.hero.xp,xpNext:s.hero.xpNext,wins:s.wins};}
-      action('start');for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){current.advance(s,1);accepted.advance(old,1);assert.deepEqual(s,old);steps++;}
+      action('start');for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){historicalV012.advance(s,1);accepted.advance(old,1);assert.deepEqual(s,old);steps++;}
       assert.equal(s.wins,wins+1,'natural cohort must win without fixture edits');runs++;action('retreat');ledger(s);
       if([24,29].includes(level)&&s.hero.level>level){const id=level===24?'hp-tank':'mp-tank';assert.equal(row(s,id).canUpgrade,true);const branch=clone(s),prior=ledger(branch);current.act(branch,'upgradeAbility',id);assert.equal(rank(branch,id),2);assert.equal(ledger(branch).availableAp,prior.availableAp-2);}
     }

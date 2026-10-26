@@ -212,7 +212,7 @@ test('gear detail uses flavor-only prose and one authoritative trait section', (
   assert.equal(item.description, '穩定的中量武器。 戰棍：本版尚未實作武器特效。');
 });
 
-test('v0.12 retains the v3 schema and candidate isolation, with version-neutral legacy migration copy', () => {
+test('v0.13 retains the v3 schema and candidate isolation, with version-neutral legacy migration copy', () => {
   for (const key of ['save', 'preferences', 'writer']) assert.ok(js.includes(`${key}-v3`));
   assert.match(js, /const LEGACY_SAVE_KEYS = \[`hv-v3-dot-\$\{storageScope\}-save-v2`, `hv-v3-dot-\$\{storageScope\}-save-v1`\]/);
   assert.match(js, /legacyKeys: LEGACY_SAVE_KEYS/);
@@ -221,5 +221,5 @@ test('v0.12 retains the v3 schema and candidate isolation, with version-neutral 
   assert.doesNotMatch(js, /v0\.3 已讀取|請在 v0\.3 繼續/);
   assert.doesNotMatch(js, /save-v4|writer-v4|preferences-v4/);
   assert.match(js, /candidate-\$\{candidatePath\[1\]/);
-  assert.match(html, /v0\.12 · 持續開發/);
+  assert.match(html, /v0\.13 · 持續開發/);
 });

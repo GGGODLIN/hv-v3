@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, counterattackView } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES } from './loot.js';
@@ -125,6 +125,7 @@ let toastTimer;
 let bannerTimer;
 let procTimer;
 let bleedTimer;
+let counterTimer;
 let procTargetId = null;
 let recoveryTimer;
 let recoveryTargetId = null;
@@ -212,6 +213,7 @@ if (channel) channel.onmessage = event => {
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
+  $('counter-notice').hidden = true; clearTimeout(counterTimer);
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
   lastAbilitySignature = ''; $('ability-feedback').textContent = '';
   clearSelectedSale(); // Local sale intent never crosses ownership, reload or import.
@@ -648,6 +650,19 @@ function eventEffects() {
       }
       playSound('crit');
     }
+    if (type === 'counter' && event.effect === 'counter') {
+      // An action notice survives a lethal target/wave change, unlike live statuses.
+      const counterNotice = $('counter-notice');
+      counterNotice.textContent = `最近反擊 · ${event.text || '反擊'} · ${format(event.value)} 傷害（反擊，不計入普攻／技能）`;
+      counterNotice.hidden = false;
+      clearTimeout(counterTimer); counterTimer = setTimeout(() => { counterNotice.hidden = true; }, 3200);
+      attackPulse = 1;
+      if (!prefs.reducedMotion) {
+        const number = node('span', 'floating-number counter', `反擊 ${format(event.value)}`);
+        $('floating-layer').append(number); setTimeout(() => number.remove(), 950);
+      }
+      playSound('hit');
+    }
     if (type === 'bleed' && event.effect === 'bleed') {
       // Damage is an event, not a live-target status: keep lethal/final-wave ticks readable.
       bleedEvents.push({ text: event.text || `流血傷口造成 ${format(event.value)} 傷害`, value: event.value });
@@ -722,11 +737,24 @@ function renderEnemyStatuses() {
     return card;
   }));
 }
+function renderCounterattack() {
+  const view = counterattackView(state);
+  $('counterattack-status').textContent = view.eligible
+    ? `已啟用 · ${weaponFamilyNames[resolveWeaponFamily(state.equipment.weapon)]} · 有效單手熟練度 ${Number(view.effectiveProficiency).toFixed(2).replace(/\.?0+$/, '')}`
+    : '未啟用 · 換上可辨識的戰斧、刺劍或戰棍後生效；入門鈍劍不適用。';
+  $('counterattack-chance').textContent = view.eligible
+    ? `符合招架／格擋條件後，${(view.chance * 100).toFixed(2).replace(/\.?0+$/, '')}% 機率反擊`
+    : '目前武器不會發起反擊';
+  $('counterattack-budget').textContent = view.eligible
+    ? `每個我方回合最多 ${format(view.maxPerTurn)} 次${state.mode === 'battle' ? ` · 本回合已發起 ${format(view.usedThisTurn)} 次，剩 ${format(view.remainingThisTurn)} 次` : ' · 出發時重新計數'}`
+    : '這不是每次敵人攻擊都會觸發的機率。';
+}
 function render(force = false) {
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
   $('strategy-description').textContent = STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '';
 
+  renderCounterattack();
   const derived = stats(state);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
   $('hp-label').textContent = `${format(state.hero.hp)} / ${format(derived.maxHp)}`;
@@ -794,9 +822,10 @@ function expeditionReportCard(report, label) {
   const metrics = node('dl', 'report-metrics');
   const row = (title, value) => { const entry = node('div', 'report-metric'); entry.append(node('dt', '', title), node('dd', '', value)); metrics.append(entry); };
   row('已處理時間', `${report.elapsed.toFixed(1)} 秒`);
-  row('實際扣除敵方生命', `普攻 ${format(report.damage.basic)} · 技能 ${format(report.damage.skill)} · 流血 ${format(report.damage.bleed)}`);
+  row('實際扣除敵方生命', `普攻 ${format(report.damage.basic)} · 技能 ${format(report.damage.skill)} · 流血 ${format(report.damage.bleed)} · 反擊 ${format(report.damage.counter ?? 0)}`);
   row('承受生命損失', `${format(report.survival.hpLost)} · 最低生命 ${report.survival.minHpPercent.toFixed(1).replace(/\.0$/, '')}%`);
   row('行動次數', `攻擊總數 ${format(report.actions.attacks)}（含技能 ${format(report.actions.skills)}） · 治療 ${format(report.actions.heals)} · 藥水 ${format(report.actions.potions)}`);
+  row('額外反擊次數', `${format(report.actions.counters ?? 0)}（含未造成傷害；不佔上述攻擊回合）`);
   row('魔力消耗', format(report.actions.manaSpent));
   row('特效成功施加／刷新', `流血 ${format(report.procs.bleeding)} · 穿透護甲 ${format(report.procs.penetratedArmor)} · 暈眩 ${format(report.procs.stun)}`);
   card.append(metrics);

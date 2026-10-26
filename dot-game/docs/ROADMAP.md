@@ -69,3 +69,6 @@ Extend the three researched ability lines to their full original rank tables, gi
 
 ## v0.12 chosen slice
 Actual browser progression repeatedly filled the inventory and required many singleton sales. Add deliberate per-item multi-selection with exact reviewed batch consent, clear comparison and atomic rejection of stale selections. Do not widen safe-sale heuristics or choose items by score. The player decides which tradeoffs to discard; quality, pricing, rewards, inventory limit and combat stay unchanged.
+
+## v0.13 chosen slice
+Give block/parry equipment an offensive-defense interaction through the original-shaped one-handed Counter-Attack damage subset. Use sourced chance/proficiency caps, actual gate evidence, bounded player-turn budgets and exact death/wave settlement; partial-defense eligibility and current three-slot weapon classification are explicit integration choices. Keep original counter-stun/OC/OS deferred rather than invent their missing constants. Report actual counters separately and measure naturally earned outcomes without promising a universal buff.

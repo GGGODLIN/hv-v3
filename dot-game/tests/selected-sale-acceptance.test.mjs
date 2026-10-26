@@ -1,3 +1,4 @@
+import * as historicalV012 from './fixtures/v0.12/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as game from '../src/engine.js';
@@ -82,7 +83,9 @@ test('selected independent: manual selection is transient and leaves existing sa
 // All acquisition uses normal public actions and simulation, not a level, loot,
 // resource or browser-save injection. Score-based equips are only a deterministic
 // cohort policy, never a new sale recommendation or universally best build claim.
-test('selected independent: three natural loot cohorts retain accepted gameplay then batch equals exact singleton sales',t=>{
+// Counterattacks intentionally change v0.13 combat. Only acquisition advances
+// use the accepted pre-counter fixture; actual batch sale remains current.
+test('selected independent: historical loot acquisition then current batch equals exact singleton sales',t=>{
   const results=[];
   for(const seed of [29,42,77]){
     const s=game.createGame(seed),old=previous.createGame(seed);let steps=0;
@@ -91,7 +94,7 @@ test('selected independent: three natural loot cohorts retain accepted gameplay 
       for(const slot of ['weapon','armor','accessory']){const best=[s.equipment[slot],...s.inventory.filter(i=>i.slot===slot)].reduce((a,b)=>scoreItem(a)>=scoreItem(b)?a:b);if(best.id!==s.equipment[slot].id)action('equip',best.id);}
       if(s.hero.level>=4&&!s.abilities)for(const id of ['hp-tank','mp-tank','one-handed-damage']){action('learnAbility',id);action('slotAbility',id);}
       action('selectStage',Math.min(3,s.unlocked));const wins=s.wins;action('start');
-      for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){game.advance(s,1);previous.advance(old,1);assert.deepEqual(s,old);steps++;}
+      for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){historicalV012.advance(s,1);previous.advance(old,1);assert.deepEqual(s,old);steps++;}
       assert.equal(s.wins,wins+1);action('retreat');
     }
     const ids=s.inventory.filter(i=>!i.locked).slice(0,12).map(i=>i.id);assert.equal(ids.length,12);const prices=ids.map(id=>itemSalePrice(s.inventory.find(i=>i.id===id))),before=clone(s),expected=clone(s);

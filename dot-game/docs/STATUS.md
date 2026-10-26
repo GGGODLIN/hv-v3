@@ -1,5 +1,14 @@
 # Current status
 
+## v0.13 development candidate — 2026-10-26 06:00 UTC
+
+A researched one-handed Counter-Attack damage subset adds retaliation after an actually successful parry/block check, including partial defenses as an explicit adaptation. Recognized one-handed weapon families use the original chance formula and proficiency-based per-player-turn attempt cap. Counter damage uses current sheet attack, benefits from existing armor penetration, cannot crit or apply weapon procs, and is reported separately. Original counter stun, Overcharge and Overwhelming Strikes remain unimplemented; this is not the full original fighting style. See docs/COUNTERATTACK-GUIDE.md (COUNTERATTACK-GUIDE.md from docs/) for source facts and integration choices.
+
+Source acceptance passes: integrated978/978 tests and four runtime syntax checks; the final expanded natural cohort inside the unchanged15-test independent suite also passes. The audit reproduced and fixed a recovery-counter wave-ending budget reset: a reserved player-turn token now retains spent attempts until that player action actually advances. Across120 naturally earned acquisition wins and54 matched trials, original-gear branches produced1 counter/181HP damage and owned block-heavy branches8/1554; all pairs won, but11 were faster,32 equal and11 slower, and total incoming loss rose6444→6628. Failed eligible proc rolls also shift RNG; no universal improvement is claimed. See docs/ACCEPTANCE-V013.md. Full-source backup and actual browser acceptance remain pending. Public v0.12 and recovery `9e84422bfc366fc1c526ff7f052f2dd8bd69d30d` remain the accepted version until the candidate completes release verification.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.12 published and stable-root accepted — 2026-10-26 05:18 UTC
 
 Version0.12 is published and bounded-desktop accepted at https://gggodlin.github.io/play/hv-v3-dot/ . Complete accepted source `26e96e6626dfc80e42492de9b3869e9d90eb8ec1` was backed up and exact-readback verified before website commit `02939222eed1789a235f343fd9e07a155ce80c8d`. Exact Pages run `40273174651` succeeded; HTTP6 returned six200 responses with exact frozen runtime bytes/SHA256. Runtime remains unchanged from `21247944ce2615847be37ae31f18b2b5c1e86841`.
