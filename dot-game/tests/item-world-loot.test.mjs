@@ -16,8 +16,8 @@ function expected(anchor,level){return Object.fromEntries(Object.entries(anchor.
   return [key,rate?Math.round(Math.min(.16,raw)*1e4)/1e4:key==='parry'?Math.round(raw*1e4)/1e4:Math.round(raw)];
 }));}
 
-test('IW loot: exactly Fair/Average/Superior recognized bound families support IW0 to IW1',()=>{
-  assert.deepEqual(ITEM_WORLD_QUALITIES,['Fair','Average','Superior']);
+test('IW loot: exactly Fair/Average/Superior/Exquisite recognized bound families support IW0 to IW1',()=>{
+  assert.deepEqual(ITEM_WORLD_QUALITIES,['Fair','Average','Superior','Exquisite']);
   for(const tier of QUALITY_TIERS)for(const family of ['axe','rapier','club'])for(const level of [3,15,500]){
     const item=tierWeapon(tier.name,family),bound=createSoulboundItem(item,level),upgraded=createItemWorldUpgrade(bound,level);
     assert.ok(isSoulboundItem(bound));
@@ -88,7 +88,7 @@ test('IW loot: sparse metadata is exact, bound-only, supported-quality-only and 
   for(const mutate of [i=>{delete i.soulbound;},i=>{i.stats.attack++;},i=>{i.power++;},i=>{i.locked=false;},i=>{delete i.itemWorld;}]){
     const invalid=clone(upgraded);mutate(invalid);assert.equal(isSoulboundItem(invalid),false);assert.equal(hasUnknownSaleMetadata(invalid),true);
   }
-  for(const quality of ['Crude','Exquisite','Legendary']){
+  for(const quality of ['Crude','Magnificent','Legendary','Peerless']){
     const bound=createSoulboundItem(tierWeapon(quality),15);bound.itemWorld={version:1,level:1};assert.equal(isSoulboundItem(bound),false);
   }
 });

@@ -92,8 +92,8 @@ test('v024 independent: v1/v2 migrations are lossless for supported items; old r
   for(const version of [0,4,'3',null]){const s=game.createGame();s.version=version;assert.throws(()=>game.validateSave(s));}
 });
 
-test('v024 independent: Fair/Average/Superior only; absolute seven-stat IW anchor and no invented old parry',()=>{
-  for(const [r,quality,allowed] of [[.01,'Crude',false],[.03,'Fair',true],[.4,'Average',true],[.5,'Superior',true],[.8,'Exquisite',false],[.95,'Magnificent',false],[.99,'Legendary',false],[.9999,'Peerless',false]]){
+test('v026 independent: Fair/Average/Superior/Exquisite only; absolute seven-stat IW anchor and no invented old parry',()=>{
+  for(const [r,quality,allowed] of [[.01,'Crude',false],[.03,'Fair',true],[.4,'Average',true],[.5,'Superior',true],[.8,'Exquisite',true],[.95,'Magnificent',false],[.99,'Legendary',false],[.9999,'Peerless',false]]){
     const raw={...loot.generateItem(()=>r,1,'weapon'),id:`quality-${quality}`};assert.equal(raw.quality,quality);
     const item=loot.createSoulboundItem(raw,7);assert.ok(item);
     assert.equal(Boolean(loot.createItemWorldUpgrade(item,7)),allowed,quality);

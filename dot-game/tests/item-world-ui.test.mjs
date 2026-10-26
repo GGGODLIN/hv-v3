@@ -86,7 +86,7 @@ test('IW1 UI: sidebar balances are always discoverable, unique and live without 
     assert.ok(aside.includes(`id="${id}"`)); assert.equal(html.match(new RegExp(`id="${id}"`, 'g')).length, 1);
   }
   for (const copy of ['普通遠征每次通關固定 +1 世界之種', '不是原版掉落率', '不補發', 'Fair／Average／Superior', 'IW2–10', '其他品質尚未實作', '不代表原版不合法', '沒有 CP、護符、鍛造或材料獎勵']) assert.ok(html.includes(copy), copy);
-  assert.match(html, /v0\.25 · 持續開發/); assert.match(html, /v0\.25 使用資料格式 v3/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
+  assert.match(html, /v0\.26 · 持續開發/); assert.match(html, /v0\.26 使用資料格式 v3/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
 });
 
 test('IW1 UI: full exact quote previews seven actual stats, cost and adapted five-round difficulty without mutation', () => {
@@ -122,8 +122,8 @@ test('IW1 UI: fractional values, missing old stats and untrusted names are exact
   assert.equal(h.calls.length, 0); assert.doesNotMatch(js, /\.innerHTML\s*=/);
 });
 
-for (const family of ['axe', 'rapier', 'club']) for (const equipped of [false, true]) test(`IW1 UI: ${family} ${equipped ? 'equipped' : 'backpack'} confirmation dispatches once without equipping or granting early growth`, () => {
-  const h = fullUI(fixture({ family, equipped })); h.inspect(equipped);
+for (const quality of ['Superior', 'Exquisite']) for (const family of ['axe', 'rapier', 'club']) for (const equipped of [false, true]) test(`IW1 UI: ${quality} ${family} ${equipped ? 'equipped' : 'backpack'} confirmation dispatches once without equipping or granting early growth`, () => {
+  const h = fullUI(fixture({ quality, family, equipped })); h.inspect(equipped);
   const quote = engine.previewItemWorld(h.state, 'ui-owned-weapon'), equipment = clone(h.state.equipment), inventory = clone(h.state.inventory);
   open(h); h.run('confirmItemWorld();confirmItemWorld();');
   assert.deepEqual(h.calls, [{ action: 'enterItemWorld', payload: quote }]);
@@ -135,11 +135,12 @@ for (const family of ['axe', 'rapier', 'club']) for (const equipped of [false, t
   assert.equal(h.document.activeElement, h.dom['retreat-button']); assert.equal(h.faults.length, 0);
 });
 
-for (const quality of ['Fair', 'Average', 'Superior']) test(`IW1 UI: ${quality} first-tier bound weapon is offered with original maximum disclosed`, () => {
+for (const quality of ['Fair', 'Average', 'Superior', 'Exquisite']) test(`IW1 UI: ${quality} first-tier bound weapon is offered with original maximum disclosed`, () => {
   const h = fullUI(fixture({ quality })); h.inspect(); open(h);
   assert.equal(trialButton(h).disabled, false); assert.equal(h.dom['item-world-confirm'].disabled, false);
   assert.match(h.dom['item-world-item-meta'].textContent, new RegExp(quality));
-  assert.ok(html.includes('這三種品質原版上限均為 IW10'));
+  assert.ok(html.includes('Fair／Average／Superior 原版上限 IW10')); assert.ok(html.includes('精良（Exquisite）原版上限 IW15'));
+  assert.match(h.dom['item-world-status'].textContent, /Fair／Average／Superior／Exquisite.*只實作首階/);
 });
 
 test('IW1 UI: zero seeds can inspect costs but cannot enter or invent another payment', () => {
@@ -151,15 +152,15 @@ test('IW1 UI: zero seeds can inspect costs but cannot enter or invent another pa
 });
 
 test('IW1 UI: unbound, unimplemented quality, pending-only, armor and completed weapons cannot spend', () => {
-  for (const scenario of ['unbound', 'Crude', 'Exquisite', 'pending', 'armor', 'completed']) {
-    const state = fixture({ bound: scenario !== 'unbound', quality: ['Crude', 'Exquisite'].includes(scenario) ? scenario : 'Superior' });
+  for (const scenario of ['unbound', 'Crude', 'Magnificent', 'Legendary', 'Peerless', 'pending', 'armor', 'completed']) {
+    const state = fixture({ bound: scenario !== 'unbound', quality: ['Crude', 'Magnificent', 'Legendary', 'Peerless'].includes(scenario) ? scenario : 'Superior' });
     if (scenario === 'pending') state.pendingLoot = state.inventory.splice(0);
     if (scenario === 'armor') state.inventory = [{ ...state.equipment.armor, id: 'ui-owned-weapon' }];
     if (scenario === 'completed') state.inventory[0] = engine.previewItemWorld(state, 'ui-owned-weapon').after;
     const h = fullUI(state), before = clone(h.state); h.inspect(); open(h); h.run('confirmItemWorld();');
     assert.equal(h.dom['item-world-dialog'].open, false, scenario); assert.equal(h.calls.length, 0, scenario); assert.deepEqual(clone(h.state), before, scenario);
     if (scenario === 'completed') { assert.match(collect(h.dom['item-detail']), /IW1 已完成.*IW10.*尚未實作/); assert.equal(trialButton(h).disabled, true); }
-    if (['Crude', 'Exquisite'].includes(scenario)) assert.match(h.dom.toast.textContent, /尚未實作|未實作|未開放/);
+    if (['Crude', 'Magnificent', 'Legendary', 'Peerless'].includes(scenario)) assert.match(h.dom.toast.textContent, /尚未實作|未實作|未開放/);
   }
 });
 
@@ -275,14 +276,16 @@ test('IW1 UI: native accessible confirmation has safe autofocus, small-screen sc
   assert.match(css, /\.item-world-item-name \{[^}]*overflow-wrap: anywhere/);
 });
 
-test('IW1 UI: real five-round victory grants target badge and trial reward report once, then stays in camp', () => {
-  const state = fixture({ family: 'axe', equipped: true, level: 8 }); state.autoAdvance = true;
+for (const quality of ['Superior', 'Exquisite']) test(`IW1 UI: real ${quality} five-round victory grants target badge and trial reward report once, then stays in camp`, () => {
+  const state = fixture({ quality, family: 'axe', equipped: true, level: 8 }); state.autoAdvance = true;
   const h = fullUI(state), normal = { stage: h.state.stage, unlocked: h.state.unlocked, wins: h.state.wins, bestTimes: clone(h.state.battle.bestTimes), fragments: h.state.soulFragments };
   h.inspect(true); open(h); h.run('confirmItemWorld();');
   h.run("for(let i=0;i<2000&&state.mode==='battle';i++)advance(state,.25);render(true);");
   assert.equal(h.state.mode, 'town'); assert.equal(h.state.equipment.weapon.itemWorld.level, 1);
   assert.equal(h.state.worldSeeds, 2); assert.equal(engine.expeditionReports(h.state)[0].itemWorld.reward, true);
   assert.match(collect(h.dom['item-detail']), /IW1 已完成/); assert.match(collect(h.dom.equipment), /IW1 · 永久成長/);
+  assert.match(collect(h.dom['item-detail']), quality === 'Exquisite' ? /原版 Exquisite 上限 IW15.*只實作 IW1.*IW2–15 尚未實作/ : /Fair／Average／Superior 上限 IW10.*只實作 IW1.*IW2–10 尚未實作/);
+  assert.doesNotMatch(collect(h.dom['item-detail']), quality === 'Exquisite' ? /IW10/ : /IW15/);
   assert.match(collect(h.dom['expedition-report-list']), /試煉通關.*已獲永久 IW1/);
   assert.deepEqual({ stage: h.state.stage, unlocked: h.state.unlocked, wins: h.state.wins, bestTimes: clone(h.state.battle.bestTimes), fragments: h.state.soulFragments }, normal);
   const settled = clone(h.state); h.run('advance(state,30);render(true);'); assert.deepEqual(clone(h.state), settled);
@@ -298,4 +301,52 @@ test('IW1 UI: real defeat returns camp with explicit unrewarded trial report and
   assert.equal(h.state.worldSeeds, 2); assert.equal(h.state.inventory[0].itemWorld, undefined);
   assert.match(collect(h.dom['expedition-report-list']), /戰敗.*Item World.*未獲 IW1.*已消耗 1 世界之種/);
   assert.equal(h.dom['world-seed-balance'].textContent, '2 世界之種'); assert.equal(h.faults.length, 0);
+});
+
+
+for (const quality of ['Fair', 'Average', 'Superior', 'Exquisite']) test(`IW1 UI: completed ${quality} identifies only its original maximum and refuses repeat spending`, () => {
+  const state = fixture({ quality });
+  state.inventory[0] = engine.previewItemWorld(state, 'ui-owned-weapon').after;
+  const h = fullUI(state), before = clone(h.state); h.inspect();
+  assert.equal(trialButton(h).disabled, true);
+  const detail = collect(h.dom['item-detail']), maximum = quality === 'Exquisite' ? 15 : 10;
+  assert.match(detail, new RegExp(`原版 .*上限 IW${maximum}.*本版只實作 IW1，IW2–${maximum} 尚未實作`));
+  assert.doesNotMatch(detail, new RegExp(`IW${maximum === 15 ? 10 : 15}`));
+  open(h); h.run('confirmItemWorld();confirmItemWorld();');
+  assert.equal(h.dom['item-world-dialog'].open, false); assert.equal(h.calls.length, 0);
+  assert.deepEqual(clone(h.state), before);
+});
+
+test('IW1 UI: Exquisite legacy rapier preview, cancel and completed import preserve absent parry', async () => {
+  // Explicit legacy-shape source fixture; absent stats are not real-browser evidence.
+  const state = fixture({ quality: 'Exquisite', bound: false });
+  delete state.inventory[0].stats.parry; delete state.inventory[0].rolls.parry; state.inventory[0].power = loot.scoreItem(state.inventory[0]);
+  engine.act(state, 'soulbindWeapon', engine.previewSoulbindWeapon(state, 'ui-owned-weapon'));
+  const h = fullUI(state), before = clone(h.state), quote = engine.previewItemWorld(h.state, 'ui-owned-weapon');
+  h.inspect(); open(h);
+  assert.equal(quote.before.quality, 'Exquisite'); assert.equal(h.dom['item-world-confirm'].disabled, false);
+  assert.equal(Object.hasOwn(quote.before.stats, 'parry'), false); assert.equal(Object.hasOwn(quote.after.stats, 'parry'), false);
+  const row = h.dom['item-world-comparison'].children[7];
+  assert.equal(row.children[1].textContent, '0'); assert.equal(row.children[2].textContent, '0');
+  h.dom['item-world-dialog'].close(); h.run('confirmItemWorld();');
+  assert.equal(h.calls.length, 0); assert.deepEqual(clone(h.state), before);
+  const completed = clone(state); completed.inventory[0] = quote.after;
+  await h.import(completed); h.inspect();
+  assert.equal(Object.hasOwn(h.state.inventory[0].stats, 'parry'), false);
+  assert.equal(Object.hasOwn(h.state.inventory[0].soulbound.stats, 'parry'), false);
+  assert.equal(trialButton(h).disabled, true); assert.match(collect(h.dom['item-detail']), /IW15/);
+  assert.equal(h.faults.length, 0);
+});
+
+test('IW1 UI: current settings distinguish same-format Exquisite compatibility from v1/v2 migration', () => {
+  assert.match(html, /v0\.26 使用資料格式 v3/);
+  assert.match(html, /v0\.24／v0\.25 不能讀取含 Exquisite IW1 的進度，即使資料格式同為 v3/);
+  assert.match(html, /請先匯出備份並重新整理所有舊版分頁，再接手進度/);
+  assert.match(html, /仍沿用 v3 儲存命名空間，與資料格式版本不同/);
+  assert.doesNotMatch(html, /Crude 與 Exquisite 以上/);
+  assert.match(html, /格式 v1 舊存檔的碎片從 0 開始/);
+  assert.match(html, /v2／v3 保留既有碎片/);
+  assert.match(html, /格式 v1／v2 舊存檔的種子從 0 開始/);
+  assert.match(html, /v3 保留既有種子/);
+  assert.doesNotMatch(html, /[；。]舊存檔(?:種子)?從 0 開始/);
 });

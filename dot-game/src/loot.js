@@ -241,9 +241,9 @@ export function classifySafeLootItem(item) {
   return identity;
 }
 const SOULBOUND_KEYS = new Set(['version', 'level', 'stats']);
-export const ITEM_WORLD_QUALITIES = Object.freeze(['Fair', 'Average', 'Superior']);
+export const ITEM_WORLD_QUALITIES = Object.freeze(['Fair', 'Average', 'Superior', 'Exquisite']);
 const ITEM_WORLD_KEYS = new Set(['version', 'level']);
-// This bounded first slice supports only Fair/Average/Superior IW0 → IW1, not original max10.
+// IW0 → IW1 only: original maxima10 (Fair–Superior) and15 (Exquisite) are not implemented.
 function itemWorldLevel(item) {
   if (!Object.hasOwn(item, 'itemWorld')) return 0;
   const world = item.itemWorld;

@@ -65,11 +65,12 @@ const visibleIds=h=>[...h.run('selectedSaleCheckboxes.keys()')];
 const filter=(slot='all',family='all',investment='all')=>({slot,family,investment});
 const matches=(h,item,filters)=>h.run(`inventoryMatchesFilters(${JSON.stringify(item)},${JSON.stringify(filters)})`);
 
-test('v025 independent: gameplay/session bytes and all 31 historical fixtures remain accepted v024 identities',()=>{
-  for(const [name,expected] of Object.entries({'engine.js':'54dda1cf9982b4eab2336071d43cf398a1ad35fbe4397508f6fed5afedb5d974','loot.js':'8ca322c77ab265d88ebfdf1b64247e9170cbdd47fdb14f68b702903c368259cd','session.js':'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a'}))assert.equal(hash(readFileSync(new URL(`../src/${name}`,import.meta.url))),expected,name);
+test('v026 compatibility: frozen v025 gameplay/session preserve v024 identities; current session and prior31 fixtures stay exact',()=>{
+  for(const [name,expected] of Object.entries({'engine.js':'54dda1cf9982b4eab2336071d43cf398a1ad35fbe4397508f6fed5afedb5d974','loot.js':'8ca322c77ab265d88ebfdf1b64247e9170cbdd47fdb14f68b702903c368259cd','session.js':'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a'}))assert.equal(hash(readFileSync(new URL(`./fixtures/v0.25/src/${name}`,import.meta.url))),expected,name);
+  assert.equal(hash(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a','current session remains exact v025');
   const base=new URL('./fixtures/',import.meta.url);let count=0;
   const visit=(url,prefix='')=>readdirSync(url,{withFileTypes:true}).sort((a,b)=>a.name.localeCompare(b.name,'en')).flatMap(entry=>entry.isDirectory()?visit(new URL(`${entry.name}/`,url),`${prefix}${entry.name}/`):[{path:`${prefix}${entry.name}`,sha:hash(readFileSync(new URL(entry.name,url)))}]);
-  const rows=visit(base).sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0);count=rows.length;
+  const rows=visit(base).filter(row=>!row.path.startsWith('v0.25/')).sort((a,b)=>a.path<b.path?-1:a.path>b.path?1:0);count=rows.length;
   assert.equal(count,31);assert.equal(hash(rows.map(row=>`${row.path}\0${row.sha}\n`).join('')),'285b3af0981f7cb06c7e5a2bed8d6cf32f37847660e08b65e5ebc0ba62761b09');
 });
 

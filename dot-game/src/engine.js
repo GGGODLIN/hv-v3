@@ -855,7 +855,7 @@ export function previewItemWorld(s,id) {
     readGearSets(context);readAbilityAllocation(context);
     if([...held.values(),...context.pendingLoot].filter(isSoulboundItem).length>SOULBOUND_WEAPON_LIMIT)return empty('永久收藏超過安全上限。');
     const item=held.get(id),after=createItemWorldUpgrade(item,hero.level);
-    if(!after)return empty('僅支援已綁定的尚可／普通／優良戰斧、刺劍、戰棍，且尚未完成 IW1；其他品質與後續階級尚未實作。');
+    if(!after)return empty('僅支援已綁定的尚可／普通／優良／精良戰斧、刺劍、戰棍，且尚未完成 IW1；其他品質與後續階級尚未實作。');
     const seedsAfter=context.worldSeeds-1,strengthStage=ITEM_WORLD_STRENGTH_STAGE;
     const reason=context.mode!=='town'||context._phase!=='idle'?'請先回營，再進入裝備界。'
       :context.pendingLoot.length?'請先整理待領戰利品，再進入裝備界。'

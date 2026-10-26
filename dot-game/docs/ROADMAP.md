@@ -127,3 +127,10 @@ Complete one explicit seed-to-challenge-to-permanent-upgrade loop. Normal clears
 ## v0.25 selected inventory workbench
 
 Address actual earned-play friction: the accepted v0.24 browser profile holds84backpack items, including28weapons across three known families and one legacy unidentified starter. Add AND-combined weapon-family/investment filters, truthful backpack-only matching counts, an explicit transient/reset/empty state, and full hidden selected-sale disclosure. Preserve item inspection, manual exact-ID consent and safe commission delivery discovery. No automatic best-gear decision, stat/economy/tier expansion or save migration belongs in this slice. Engine/loot/session byte parity and unchanged earned-profile evidence precede actual candidate play and promotion.
+
+
+## v0.26 selected Exquisite IW1 access
+
+Open the already-earned Exquisite axe/rapier/club route to the existing first-tier trial, rather than inventing IW2 arithmetic or a forge-material economy. Preserve the original-anchor formula, fixed local strength5, one-seed explicit payment, existing rewards, no auto-equip and mandatory camp return. Distinguish original quality limits10/15 from this game's IW1-only implementation.
+
+Require all-family and cache/future-level500 validation, stale/changed-target atomic refusal, exact old-quality and ordinary-combat parity, missing-legacy-parry preservation, and explicit old-reader/protected-writer checks. Validate growth with earned items/resources and compare same-level bound-before versus IW1-after, not binding growth. Actual candidate UI play, complete source readback, CI/HTTP and stable-profile smoke remain publication gates; source simulations alone do not satisfy browser acceptance.

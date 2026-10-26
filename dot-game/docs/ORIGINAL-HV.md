@@ -280,3 +280,12 @@ Items67045 lists World Seeds from Hard+ random drops (unknown rate), Lv200+ Aren
 ## v0.25 inventory workbench boundary
 
 Family/investment filters, matching counts, hidden inspection/sale notices and commission reveal are independent interface conveniences, not original-HV mechanics. They classify existing owned data using the implemented family resolver and binding/IW metadata; they do not invent missing legacy stats, mutate items, score a best build or expand original legality. Selection still survives filtering and the complete exact-ID sale preview is authoritative. Engine/loot/session rules, save format3 and the existing IW1-only scope are unchanged. See INVENTORY-WORKBENCH-GUIDE.md for controls and limits.
+
+
+## v0.26 Exquisite first-tier access
+
+The [current Item World table](https://ehwiki.org/wiki/Item_World#Item_World_Level), revision67048, gives Exquisite the same IW1 entry row as the three previously supported qualities, but an original maximum15 instead of10. This supersedes pinned003's grouped Sup/Exq max10 claim for current scope; it is not inferred from forge-cost rows. The table remains WIP. [Items revision67045](https://ehwiki.org/wiki/Items#Soul_Fragments) retains the existing Exquisite100-fragment binding cost.
+
+v0.26 extends eligibility only. Five rounds, fixed local strength5, one paid seed, quarter kill credits, immutable-anchor1.02attack/1.01other-present-stats and no ordinary completion bonus are unchanged adaptations. No IW2+, new stat field, quality generator, forge or economy is added; legacy missing parry stays missing. Same-level pre/post IW observations must not misattribute Soulbind level growth to the trial. Historical v0.24/v0.25 scope descriptions remain historical.
+
+Same-shaped format3 data does not mean old v0.24/v0.25 readers understand Exquisite IW1. Refresh old tabs before loading new progress; the release acceptance evidence must establish old-reader refusal and protected persistence rather than asserting backward compatibility.

@@ -1297,7 +1297,7 @@ function renderItemDetail() {
     itemWorldButton.setAttribute('aria-haspopup', 'dialog');
     itemWorldButton.disabled = !tabOwner || state.mode !== 'town' || !preview.before || !preview.after || item.itemWorld?.level === 1;
     itemWorldButton.addEventListener('click', () => openItemWorld(item.id));
-    const reason = !tabOwner ? '唯讀分頁：接手並回營後才能挑戰。' : state.mode !== 'town' ? '請先回營後預覽武器試煉。' : item.itemWorld?.level === 1 ? '原版 Fair／Average／Superior 上限 IW10；後續階段尚未實作。' : !preview.available ? preview.reason : '1 世界之種 · 五回合 · 通關才獲永久 IW1；不自動換裝。';
+    const reason = !tabOwner ? '唯讀分頁：接手並回營後才能挑戰。' : state.mode !== 'town' ? '請先回營後預覽武器試煉。' : item.itemWorld?.level === 1 ? (item.quality === 'Exquisite' ? '原版 Exquisite 上限 IW15；本版只實作 IW1，IW2–15 尚未實作。' : '原版 Fair／Average／Superior 上限 IW10；本版只實作 IW1，IW2–10 尚未實作。') : !preview.available ? preview.reason : '1 世界之種 · 五回合 · 通關才獲永久 IW1；不自動換裝。';
     itemWorld.append(itemWorldButton, node('p', 'muted', reason));
   }
   wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions, soulbind, itemWorld);
@@ -1436,7 +1436,7 @@ function renderItemWorldStatus() {
   reconcileItemWorld();
   $('world-seed-balance').textContent = `${format(state.worldSeeds)} 世界之種`;
   const trial = itemWorldView(state);
-  $('item-world-status').textContent = trial.active ? `試煉中：${trial.targetName} · 第 ${trial.round}／${trial.rounds} 回合；結束必回營。` : '已綁定的 Fair／Average／Superior 戰斧／刺劍／戰棍可選取預覽 IW1；已裝備或背包皆可。';
+  $('item-world-status').textContent = trial.active ? `試煉中：${trial.targetName} · 第 ${trial.round}／${trial.rounds} 回合；結束必回營。` : '已綁定的 Fair／Average／Superior／Exquisite 戰斧／刺劍／戰棍可預覽 IW1；已裝備或背包皆可，本版只實作首階。';
 }
 
 // Entire scene is independently drawn with canvas primitives; no external assets.
