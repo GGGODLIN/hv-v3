@@ -101,3 +101,7 @@ Expose existing supported weapon suffixes as intentional paid commission choices
 ## v0.18 bounded quality-of-life follow-through
 
 Implemented alongside suffix-choice commissions: a transient finish-current-expedition-and-camp intent, avoiding timing the three-second intermission to keep all victory rewards. It adds no offline progression or original-HV rule. Source tests and exact backup precede a rebuilt isolated candidate and actual browser acceptance; stable v0.17 remains separate. No further gameplay expansion is bundled into this checkpoint.
+
+## v0.20 chosen slice
+
+Add one clearly telegraphed mixed physical/magical-skill enemy pattern on stage5+ without retuning firstfour routes or rewards. Make physicalarmor/parry limits legible while block, control, offense and Protection retain tradeoffs. Preserve original monster physical normal attacks; no invented original MP costs. Full player Resist/Accuracy, magical equipment and elemental systems remain separate researched expansions rather than fabricated completed features.

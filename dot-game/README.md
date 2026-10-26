@@ -4,6 +4,10 @@
 
 **Latest verified release: v0.19**, bounded-desktop accepted and published on 2026-10-26. The growth tab shows genuinely available learn/slot/upgrade choices and a focus-only shortcut; optional Protection is shown separately. No formulas, rewards, RNG or save schema changed.
 
+## v0.20 development candidate — not yet released
+
+Stage5+ nonboss 赤砂守衛 alternates physical attacks with a telegraphed magical skill. Physical armor/parry no longer answer every attack; block, control, offense and Protection retain tradeoffs. [Rules and limitations](docs/MAGICAL-ENCOUNTERS-GUIDE.md). Firstfour routes and rewards remain unchanged. Source tests pass; actual browser acceptance and root promotion remain pending. Restore the accepted v0.19 below until those gates pass.
+
 ## Play
 
 1. Choose a stage and start an expedition. Combat and skills resolve automatically; return to camp to compare, equip, lock or sell earned loot.

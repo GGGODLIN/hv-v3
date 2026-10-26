@@ -1,0 +1,4879 @@
+{
+  "kind": "engine-earned, not browser-earned; same saved seed/items before each paired run; zero tuning; v0.19 versus v0.20",
+  "acquisitionRuns": 160,
+  "acquisitionDefeats": 0,
+  "rows": [
+    {
+      "seed": 1,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 192,
+        "minHpPercent": 93.3695652173913,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 192,
+        "minHpPercent": 93.3695652173913,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 298,
+        "minHpPercent": 92.17391304347827,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 298,
+        "minHpPercent": 92.17391304347827,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 257,
+        "minHpPercent": 89.13043478260869,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 257,
+        "minHpPercent": 89.13043478260869,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 230,
+        "minHpPercent": 92.47881355932203,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 230,
+        "minHpPercent": 92.47881355932203,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 228,
+        "minHpPercent": 92.17391304347827,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 228,
+        "minHpPercent": 92.17391304347827,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 226,
+        "minHpPercent": 91.52173913043478,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 226,
+        "minHpPercent": 91.52173913043478,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 160,
+        "minHpPercent": 94.67391304347827,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 160,
+        "minHpPercent": 94.67391304347827,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 19.4,
+        "hpLost": 156,
+        "minHpPercent": 93.00847457627118,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 19.4,
+        "hpLost": 156,
+        "minHpPercent": 93.00847457627118,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 1,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.07050000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 27.3,
+        "hpLost": 368,
+        "minHpPercent": 86.22881355932203,
+        "counters": 1,
+        "manaSpent": 15,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 27.3,
+        "hpLost": 368,
+        "minHpPercent": 86.22881355932203,
+        "counters": 1,
+        "manaSpent": 15,
+        "magicCasts": 1
+      }
+    },
+    {
+      "seed": 2,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 143,
+        "minHpPercent": 95.55125725338492,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 143,
+        "minHpPercent": 95.55125725338492,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 218,
+        "minHpPercent": 94.45544554455445,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 218,
+        "minHpPercent": 94.45544554455445,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 319,
+        "minHpPercent": 91.00580270793037,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 319,
+        "minHpPercent": 91.00580270793037,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 84,
+        "minHpPercent": 96.42166344294004,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 84,
+        "minHpPercent": 96.42166344294004,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 198,
+        "minHpPercent": 93.81044487427465,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 198,
+        "minHpPercent": 93.81044487427465,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 187,
+        "minHpPercent": 95.64796905222437,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 187,
+        "minHpPercent": 95.64796905222437,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 198,
+        "minHpPercent": 94.58413926499033,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 198,
+        "minHpPercent": 94.58413926499033,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 197,
+        "minHpPercent": 93.42359767891682,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 197,
+        "minHpPercent": 93.42359767891682,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 2,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0487,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 327,
+        "minHpPercent": 89.9009900990099,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 327,
+        "minHpPercent": 89.9009900990099,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 140,
+        "minHpPercent": 93.04556354916068,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 140,
+        "minHpPercent": 93.04556354916068,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 222,
+        "minHpPercent": 90.9090909090909,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 222,
+        "minHpPercent": 90.9090909090909,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 260,
+        "minHpPercent": 88.48920863309353,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 260,
+        "minHpPercent": 88.48920863309353,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 120,
+        "minHpPercent": 93.64508393285371,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 120,
+        "minHpPercent": 93.64508393285371,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 127,
+        "minHpPercent": 92.56594724220624,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 127,
+        "minHpPercent": 92.56594724220624,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 181,
+        "minHpPercent": 91.36690647482014,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 181,
+        "minHpPercent": 91.36690647482014,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 200,
+        "minHpPercent": 91.4918414918415,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 200,
+        "minHpPercent": 91.4918414918415,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 269,
+        "minHpPercent": 91.72661870503596,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 269,
+        "minHpPercent": 91.72661870503596,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 3,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0545,
+      "before": {
+        "outcome": "win",
+        "seconds": 25.2,
+        "hpLost": 350,
+        "minHpPercent": 82.13429256594725,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 25.2,
+        "hpLost": 350,
+        "minHpPercent": 82.13429256594725,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 156,
+        "minHpPercent": 91.17330462863293,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 156,
+        "minHpPercent": 91.17330462863293,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 210,
+        "minHpPercent": 90.41980624327233,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 210,
+        "minHpPercent": 90.41980624327233,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 247,
+        "minHpPercent": 91.71151776103336,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 247,
+        "minHpPercent": 91.71151776103336,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 100,
+        "minHpPercent": 94.94079655543595,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 100,
+        "minHpPercent": 94.94079655543595,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 142,
+        "minHpPercent": 94.9171270718232,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 142,
+        "minHpPercent": 94.9171270718232,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 160,
+        "minHpPercent": 91.71270718232044,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 160,
+        "minHpPercent": 91.71270718232044,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 225,
+        "minHpPercent": 92.68030139935415,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 225,
+        "minHpPercent": 92.68030139935415,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 277,
+        "minHpPercent": 91.06566200215285,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 277,
+        "minHpPercent": 91.06566200215285,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 4,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 417,
+        "minHpPercent": 85.95263724434876,
+        "counters": 3,
+        "manaSpent": 15,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 408,
+        "minHpPercent": 86.54467168998924,
+        "counters": 2,
+        "manaSpent": 15,
+        "magicCasts": 1
+      }
+    },
+    {
+      "seed": 5,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 13.4,
+        "hpLost": 141,
+        "minHpPercent": 95.53014553014553,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 13.4,
+        "hpLost": 141,
+        "minHpPercent": 95.53014553014553,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 185,
+        "minHpPercent": 93.91480730223124,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 185,
+        "minHpPercent": 93.91480730223124,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 223,
+        "minHpPercent": 89.1891891891892,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 223,
+        "minHpPercent": 89.1891891891892,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 142,
+        "minHpPercent": 95.53014553014553,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 142,
+        "minHpPercent": 95.53014553014553,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 202,
+        "minHpPercent": 92.19066937119675,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 202,
+        "minHpPercent": 92.19066937119675,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 223,
+        "minHpPercent": 89.1891891891892,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 223,
+        "minHpPercent": 89.1891891891892,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 158,
+        "minHpPercent": 93.6105476673428,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 158,
+        "minHpPercent": 93.6105476673428,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 262,
+        "minHpPercent": 88.84381338742394,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 262,
+        "minHpPercent": 88.84381338742394,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 5,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0587,
+      "before": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 238,
+        "minHpPercent": 92.72349272349273,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 238,
+        "minHpPercent": 92.72349272349273,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 147,
+        "minHpPercent": 93.14903846153845,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 147,
+        "minHpPercent": 93.14903846153845,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 206,
+        "minHpPercent": 91.00467289719626,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 206,
+        "minHpPercent": 91.00467289719626,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 339,
+        "minHpPercent": 81.97115384615384,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 339,
+        "minHpPercent": 81.97115384615384,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 134,
+        "minHpPercent": 93.14903846153845,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 11.6,
+        "hpLost": 134,
+        "minHpPercent": 93.14903846153845,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 166,
+        "minHpPercent": 94.47115384615384,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 166,
+        "minHpPercent": 94.47115384615384,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 351,
+        "minHpPercent": 85.69711538461539,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 351,
+        "minHpPercent": 85.69711538461539,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 156,
+        "minHpPercent": 94.95192307692307,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 156,
+        "minHpPercent": 94.95192307692307,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 255,
+        "minHpPercent": 89.01869158878505,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 255,
+        "minHpPercent": 89.01869158878505,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 6,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0743,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 336,
+        "minHpPercent": 89.78365384615384,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 372,
+        "minHpPercent": 84.22897196261682,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 1
+      }
+    },
+    {
+      "seed": 7,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 191,
+        "minHpPercent": 92.88969917958067,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 191,
+        "minHpPercent": 92.88969917958067,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 232,
+        "minHpPercent": 94.5945945945946,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 232,
+        "minHpPercent": 94.5945945945946,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 179,
+        "minHpPercent": 95.52656104380243,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 179,
+        "minHpPercent": 95.52656104380243,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 106,
+        "minHpPercent": 96.64492078285181,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 106,
+        "minHpPercent": 96.64492078285181,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 166,
+        "minHpPercent": 96.1789375582479,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 166,
+        "minHpPercent": 96.1789375582479,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 212,
+        "minHpPercent": 89.74836905871388,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 212,
+        "minHpPercent": 89.74836905871388,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 115,
+        "minHpPercent": 95.71295433364398,
+        "counters": 4,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 115,
+        "minHpPercent": 95.71295433364398,
+        "counters": 4,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 243,
+        "minHpPercent": 92.7073837739289,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 243,
+        "minHpPercent": 92.7073837739289,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 7,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 309,
+        "minHpPercent": 87.51139471285325,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 386,
+        "minHpPercent": 85.14129443938013,
+        "counters": 2,
+        "manaSpent": 15,
+        "magicCasts": 1
+      }
+    },
+    {
+      "seed": 8,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 171,
+        "minHpPercent": 92.51559251559252,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 171,
+        "minHpPercent": 92.51559251559252,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 233,
+        "minHpPercent": 91.995841995842,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 233,
+        "minHpPercent": 91.995841995842,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 247,
+        "minHpPercent": 92.53731343283582,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 247,
+        "minHpPercent": 92.53731343283582,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 99,
+        "minHpPercent": 95.84221748400853,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 99,
+        "minHpPercent": 95.84221748400853,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 164,
+        "minHpPercent": 92.3076923076923,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 164,
+        "minHpPercent": 92.3076923076923,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 119,
+        "minHpPercent": 93.17697228144989,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 119,
+        "minHpPercent": 93.17697228144989,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 154,
+        "minHpPercent": 92.75053304904051,
+        "counters": 3,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 154,
+        "minHpPercent": 92.75053304904051,
+        "counters": 3,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 204,
+        "minHpPercent": 92.32409381663112,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 204,
+        "minHpPercent": 92.32409381663112,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 8,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.07730000000000001,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 297,
+        "minHpPercent": 87.52665245202559,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 297,
+        "minHpPercent": 87.52665245202559,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 129,
+        "minHpPercent": 96.50565262076053,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 129,
+        "minHpPercent": 96.50565262076053,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 254,
+        "minHpPercent": 91.97592778335006,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 254,
+        "minHpPercent": 91.97592778335006,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 308,
+        "minHpPercent": 91.57245632065776,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 308,
+        "minHpPercent": 91.57245632065776,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 126,
+        "minHpPercent": 96.38916750250752,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 126,
+        "minHpPercent": 96.38916750250752,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 195,
+        "minHpPercent": 94.86125385405961,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 195,
+        "minHpPercent": 94.86125385405961,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 217,
+        "minHpPercent": 92.97893681043129,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 217,
+        "minHpPercent": 92.97893681043129,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 203,
+        "minHpPercent": 92.97893681043129,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 203,
+        "minHpPercent": 92.97893681043129,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 231,
+        "minHpPercent": 92.5777331995988,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 231,
+        "minHpPercent": 92.5777331995988,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 9,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0475,
+      "before": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 242,
+        "minHpPercent": 92.08633093525181,
+        "counters": 4,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 242,
+        "minHpPercent": 92.08633093525181,
+        "counters": 4,
+        "manaSpent": 12,
+        "magicCasts": 1
+      }
+    },
+    {
+      "seed": 10,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 180,
+        "minHpPercent": 92.43353783231085,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 180,
+        "minHpPercent": 92.43353783231085,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 207,
+        "minHpPercent": 91.20654396728017,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 207,
+        "minHpPercent": 91.20654396728017,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 293,
+        "minHpPercent": 92.12678936605317,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 293,
+        "minHpPercent": 92.12678936605317,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 124,
+        "minHpPercent": 94.9685534591195,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 124,
+        "minHpPercent": 94.9685534591195,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 201,
+        "minHpPercent": 93.71069182389937,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 201,
+        "minHpPercent": 93.71069182389937,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 278,
+        "minHpPercent": 92.87211740041928,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 278,
+        "minHpPercent": 92.87211740041928,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 248,
+        "minHpPercent": 92.12678936605317,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 248,
+        "minHpPercent": 92.12678936605317,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 255,
+        "minHpPercent": 91.00204498977506,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 255,
+        "minHpPercent": 91.00204498977506,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 10,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0597,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 265,
+        "minHpPercent": 91.29979035639413,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 265,
+        "minHpPercent": 91.29979035639413,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 106,
+        "minHpPercent": 96.86192468619247,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 106,
+        "minHpPercent": 96.86192468619247,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 167,
+        "minHpPercent": 92.24489795918367,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 167,
+        "minHpPercent": 92.24489795918367,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 285,
+        "minHpPercent": 86.73469387755102,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 285,
+        "minHpPercent": 86.73469387755102,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 75,
+        "minHpPercent": 97.14285714285714,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 75,
+        "minHpPercent": 97.14285714285714,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 201,
+        "minHpPercent": 93.51464435146444,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 201,
+        "minHpPercent": 93.51464435146444,
+        "counters": 2,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 163,
+        "minHpPercent": 94.0376569037657,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 163,
+        "minHpPercent": 94.0376569037657,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 108,
+        "minHpPercent": 95.20408163265306,
+        "counters": 3,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 108,
+        "minHpPercent": 95.20408163265306,
+        "counters": 3,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 147,
+        "minHpPercent": 92.46861924686193,
+        "counters": 4,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 147,
+        "minHpPercent": 92.46861924686193,
+        "counters": 4,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 11,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0633,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 187,
+        "minHpPercent": 91.3265306122449,
+        "counters": 5,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 187,
+        "minHpPercent": 91.3265306122449,
+        "counters": 5,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 190,
+        "minHpPercent": 92.3076923076923,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 190,
+        "minHpPercent": 92.3076923076923,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 237,
+        "minHpPercent": 93.4065934065934,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 237,
+        "minHpPercent": 93.4065934065934,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 335,
+        "minHpPercent": 86.81318681318682,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 335,
+        "minHpPercent": 86.81318681318682,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 112,
+        "minHpPercent": 95.41463414634146,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 112,
+        "minHpPercent": 95.41463414634146,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 162,
+        "minHpPercent": 93.8061938061938,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 162,
+        "minHpPercent": 93.8061938061938,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 127,
+        "minHpPercent": 93.7062937062937,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 127,
+        "minHpPercent": 93.7062937062937,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 238,
+        "minHpPercent": 89.95121951219512,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 238,
+        "minHpPercent": 89.95121951219512,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 231,
+        "minHpPercent": 93.65853658536587,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 231,
+        "minHpPercent": 93.65853658536587,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 12,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 279,
+        "minHpPercent": 93.00699300699301,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 279,
+        "minHpPercent": 93.00699300699301,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 144,
+        "minHpPercent": 92.9718875502008,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 144,
+        "minHpPercent": 92.9718875502008,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 169,
+        "minHpPercent": 93.67469879518072,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 169,
+        "minHpPercent": 93.67469879518072,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 323,
+        "minHpPercent": 89.19753086419753,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 323,
+        "minHpPercent": 89.19753086419753,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 101,
+        "minHpPercent": 96.81069958847736,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 101,
+        "minHpPercent": 96.81069958847736,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 221,
+        "minHpPercent": 92.06827309236948,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 221,
+        "minHpPercent": 92.06827309236948,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 177,
+        "minHpPercent": 92.6954732510288,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 177,
+        "minHpPercent": 92.6954732510288,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 154,
+        "minHpPercent": 93.72427983539094,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 154,
+        "minHpPercent": 93.72427983539094,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 251,
+        "minHpPercent": 89.65863453815261,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 251,
+        "minHpPercent": 89.65863453815261,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 13,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.069,
+      "before": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 260,
+        "minHpPercent": 90.74074074074075,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 260,
+        "minHpPercent": 90.74074074074075,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 169,
+        "minHpPercent": 93.38159255429163,
+        "counters": 2,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 169,
+        "minHpPercent": 93.38159255429163,
+        "counters": 2,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 208,
+        "minHpPercent": 92.3474663908997,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 208,
+        "minHpPercent": 92.3474663908997,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 255,
+        "minHpPercent": 91.62462159434914,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 255,
+        "minHpPercent": 91.62462159434914,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 135,
+        "minHpPercent": 94.6518668012109,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 135,
+        "minHpPercent": 94.6518668012109,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 140,
+        "minHpPercent": 94.93278179937953,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 140,
+        "minHpPercent": 94.93278179937953,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 220,
+        "minHpPercent": 88.39556004036328,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 220,
+        "minHpPercent": 88.39556004036328,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 123,
+        "minHpPercent": 96.38055842812823,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 123,
+        "minHpPercent": 96.38055842812823,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 156,
+        "minHpPercent": 95.76008273009307,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 156,
+        "minHpPercent": 95.76008273009307,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 14,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0615,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 227,
+        "minHpPercent": 93.17476732161325,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 227,
+        "minHpPercent": 93.17476732161325,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 157,
+        "minHpPercent": 94.08713692946058,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 157,
+        "minHpPercent": 94.08713692946058,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 219,
+        "minHpPercent": 91.38297872340425,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 219,
+        "minHpPercent": 91.38297872340425,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 294,
+        "minHpPercent": 90,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 294,
+        "minHpPercent": 90,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 148,
+        "minHpPercent": 95.63829787234043,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 148,
+        "minHpPercent": 95.63829787234043,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 161,
+        "minHpPercent": 95,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 161,
+        "minHpPercent": 95,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 191,
+        "minHpPercent": 92.76595744680851,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 191,
+        "minHpPercent": 92.76595744680851,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 173,
+        "minHpPercent": 92.5531914893617,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 173,
+        "minHpPercent": 92.5531914893617,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 260,
+        "minHpPercent": 91.38297872340425,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 260,
+        "minHpPercent": 91.38297872340425,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 15,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.049,
+      "before": {
+        "outcome": "win",
+        "seconds": 23.1,
+        "hpLost": 252,
+        "minHpPercent": 92.63485477178423,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 24.6,
+        "hpLost": 403,
+        "minHpPercent": 88.17427385892115,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 1
+      }
+    },
+    {
+      "seed": 16,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 10.5,
+        "hpLost": 97,
+        "minHpPercent": 96.27539503386005,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 10.5,
+        "hpLost": 97,
+        "minHpPercent": 96.27539503386005,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 228,
+        "minHpPercent": 89.34065934065934,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 228,
+        "minHpPercent": 89.34065934065934,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 263,
+        "minHpPercent": 87.58241758241758,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 263,
+        "minHpPercent": 87.58241758241758,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 121,
+        "minHpPercent": 94.61538461538461,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 121,
+        "minHpPercent": 94.61538461538461,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 167,
+        "minHpPercent": 93.90519187358916,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 167,
+        "minHpPercent": 93.90519187358916,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 81,
+        "minHpPercent": 94.24379232505643,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 81,
+        "minHpPercent": 94.24379232505643,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 127,
+        "minHpPercent": 95.14672686230247,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 127,
+        "minHpPercent": 95.14672686230247,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 299,
+        "minHpPercent": 86.92307692307692,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 299,
+        "minHpPercent": 86.92307692307692,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 16,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0575,
+      "before": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 294,
+        "minHpPercent": 89.61625282167043,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 294,
+        "minHpPercent": 89.61625282167043,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 111,
+        "minHpPercent": 95.25909592061743,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 111,
+        "minHpPercent": 95.25909592061743,
+        "counters": 1,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 224,
+        "minHpPercent": 88.64388092613011,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 224,
+        "minHpPercent": 88.64388092613011,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 194,
+        "minHpPercent": 93.27453142227122,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 194,
+        "minHpPercent": 93.27453142227122,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 53,
+        "minHpPercent": 97.90518191841234,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 53,
+        "minHpPercent": 97.90518191841234,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 168,
+        "minHpPercent": 91.6207276736494,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 168,
+        "minHpPercent": 91.6207276736494,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 206,
+        "minHpPercent": 92.61300992282249,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 206,
+        "minHpPercent": 92.61300992282249,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 91,
+        "minHpPercent": 96.45542427497314,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 91,
+        "minHpPercent": 96.45542427497314,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 162,
+        "minHpPercent": 92.9108485499463,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 162,
+        "minHpPercent": 92.9108485499463,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 17,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.0921,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 213,
+        "minHpPercent": 90.18743109151048,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 213,
+        "minHpPercent": 90.18743109151048,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 138,
+        "minHpPercent": 94.86203615604187,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 138,
+        "minHpPercent": 94.86203615604187,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 214,
+        "minHpPercent": 92.00761179828734,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 214,
+        "minHpPercent": 92.00761179828734,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 230,
+        "minHpPercent": 93.4348239771646,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.9,
+        "hpLost": 230,
+        "minHpPercent": 93.4348239771646,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 104,
+        "minHpPercent": 95.90865842055184,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 104,
+        "minHpPercent": 95.90865842055184,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 190,
+        "minHpPercent": 93.7682570593963,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 190,
+        "minHpPercent": 93.7682570593963,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 302,
+        "minHpPercent": 88.29686013320647,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 302,
+        "minHpPercent": 88.29686013320647,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 171,
+        "minHpPercent": 94.83933787731256,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 171,
+        "minHpPercent": 94.83933787731256,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 267,
+        "minHpPercent": 90.00951474785919,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 267,
+        "minHpPercent": 90.00951474785919,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 18,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 298,
+        "minHpPercent": 89.62892483349191,
+        "counters": 2,
+        "manaSpent": 15,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 298,
+        "minHpPercent": 89.62892483349191,
+        "counters": 2,
+        "manaSpent": 15,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 196,
+        "minHpPercent": 92.9460580912863,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 196,
+        "minHpPercent": 92.9460580912863,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 286,
+        "minHpPercent": 87.65957446808511,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 286,
+        "minHpPercent": 87.65957446808511,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 374,
+        "minHpPercent": 85.85106382978724,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 374,
+        "minHpPercent": 85.85106382978724,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 115,
+        "minHpPercent": 93.40425531914893,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 14.7,
+        "hpLost": 115,
+        "minHpPercent": 93.40425531914893,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 139,
+        "minHpPercent": 95.1063829787234,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 139,
+        "minHpPercent": 95.1063829787234,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 264,
+        "minHpPercent": 92.02127659574468,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 264,
+        "minHpPercent": 92.02127659574468,
+        "counters": 0,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 182,
+        "minHpPercent": 92.23404255319149,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 16.8,
+        "hpLost": 182,
+        "minHpPercent": 92.23404255319149,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 210,
+        "minHpPercent": 91.17021276595744,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 20,
+        "hpLost": 210,
+        "minHpPercent": 91.17021276595744,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 19,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 327,
+        "minHpPercent": 86.38297872340426,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 22.1,
+        "hpLost": 327,
+        "minHpPercent": 86.38297872340426,
+        "counters": 1,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 142,
+        "minHpPercent": 94.78079331941545,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 142,
+        "minHpPercent": 94.78079331941545,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 116,
+        "minHpPercent": 94.29735234215886,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 12.6,
+        "hpLost": 116,
+        "minHpPercent": 94.29735234215886,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "axe",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 18.7,
+        "hpLost": 318,
+        "minHpPercent": 88.59470468431772,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 18.7,
+        "hpLost": 318,
+        "minHpPercent": 88.59470468431772,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 150,
+        "minHpPercent": 94.78079331941545,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 150,
+        "minHpPercent": 94.78079331941545,
+        "counters": 0,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 167,
+        "minHpPercent": 93.84133611691024,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 15.8,
+        "hpLost": 167,
+        "minHpPercent": 93.84133611691024,
+        "counters": 0,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "club",
+      "suffix": "slaughter",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.035,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 180,
+        "minHpPercent": 90.29227557411274,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 17.9,
+        "hpLost": 180,
+        "minHpPercent": 90.29227557411274,
+        "counters": 1,
+        "manaSpent": 9,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 4,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 104,
+        "minHpPercent": 94.46764091858037,
+        "counters": 2,
+        "manaSpent": 6,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 13.7,
+        "hpLost": 104,
+        "minHpPercent": 94.46764091858037,
+        "counters": 2,
+        "manaSpent": 6,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 5,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 216,
+        "minHpPercent": 93.31941544885177,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 21,
+        "hpLost": 216,
+        "minHpPercent": 93.31941544885177,
+        "counters": 2,
+        "manaSpent": 12,
+        "magicCasts": 0
+      }
+    },
+    {
+      "seed": 20,
+      "family": "rapier",
+      "suffix": "nimble",
+      "level": 8,
+      "stage": 6,
+      "parry": 0.21729700000000002,
+      "block": 0.04,
+      "before": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 435,
+        "minHpPercent": 83.5030549898167,
+        "counters": 0,
+        "manaSpent": 15,
+        "magicCasts": 0
+      },
+      "after": {
+        "outcome": "win",
+        "seconds": 26.3,
+        "hpLost": 435,
+        "minHpPercent": 83.5030549898167,
+        "counters": 0,
+        "manaSpent": 15,
+        "magicCasts": 0
+      }
+    }
+  ],
+  "summary": {
+    "rows": 180,
+    "mixedRows": 120,
+    "magicObservedRows": 6,
+    "casts": 6,
+    "hpWorse": 3,
+    "hpBetter": 1,
+    "hpSame": 116,
+    "slower": 2,
+    "faster": 0,
+    "allWins": true
+  }
+}

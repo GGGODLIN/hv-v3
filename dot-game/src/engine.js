@@ -37,6 +37,21 @@ export const AXE_BLEED_RULES = Object.freeze({chance:.25,durationTicks:7,maxStac
 // eligibility are explicit adaptations. Counter stun/OC/OS are not implemented.
 export const COUNTERATTACK_RULES = Object.freeze({baseChance:.25,attributeChance:.0002,proficiencyChance:.001,maxChance:.75});
 const counterBudgets = new WeakMap();
+// Own encounter cadence, not original monster MP/skill selection. New actors
+// (including after save load) start with a physical strike. Skips spend nothing.
+const enemyAttackCounts = new WeakMap();
+export function enemyAttackView(enemy) {
+  const mixed=enemy?.attackPattern==='alternating';
+  const nextKind=mixed&&(enemyAttackCounts.get(enemy)||0)%2===1?'magic':'physical';
+  return {mixed,nextKind,nextLabel:nextKind==='magic'?'魔法技能 · 赤砂術式':'物理攻擊'};
+}
+/** Original magical attribute mitigation; current equipment defense is physical.
+ * No player resist rating/accuracy conversion is implemented: zero, not a
+ * fabricated original chance. This view adds no durable stats or random draws. */
+export function playerMagicDefenseView(s) {
+  const a=s?.hero?.attributes;
+  return {mitigation:Math.min(.8,1-900/(900+Math.max(0,finite(a?.end))+Math.max(0,finite(a?.wis))/2)),resist:0};
+}
 // Protection's 25% independent reduction and level-based MP cost are original
 // facts. Lv10 / 15 ticks select uncertain research values (10? / 15?). This
 // full-action automatic recast is an adaptation, not original Auto-cast Slots.
@@ -459,7 +474,7 @@ function waveDescriptor(stage, wave) {
     const archetype=ENEMY_ARCHETYPES[(stage+wave+i)%ENEMY_ARCHETYPES.length];
     const roleId=stage<3?'baseline':boss?(stage%2?'armored':'agile'):archetype.roleId;
     const role=ENEMY_ROLES[roleId],defense=Math.max(0,round(3+stage*1.3+(boss?3:0)+role.defenseOffset));
-    return {name:boss?`裂隙守門者 · ${stage}`:archetype.name,boss,roleId,roleLabel:role.roleLabel,defense,mitigation:generalMitigation({defense}),evade:role.evade,parry:role.parry,block:boss?.06:.015};
+    return {name:boss?`裂隙守門者 · ${stage}`:archetype.name,boss,roleId,roleLabel:role.roleLabel,defense,mitigation:generalMitigation({defense}),evade:role.evade,parry:role.parry,block:boss?.06:.015,...(stage>=5&&!boss&&archetype.name==='赤砂守衛'?{attackPattern:'alternating'}:{})};
   });
   return {wave,boss,enemies};
 }
@@ -765,7 +780,13 @@ function playerTurn(s) {
 function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
   const p=stats(s);
-  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true},protectionView(s).active?{...p,protection:true}:p,()=>random(s));
+  const attackView=enemyAttackView(e),magical=attackView.nextKind==='magic';
+  // Initiation, not damage or success, spends this actor's next action. Stunned
+  // skipped turns never reach here; an actual recovery attack does.
+  if(attackView.mixed)enemyAttackCounts.set(e,(enemyAttackCounts.get(e)||0)+1);
+  const defense=magical?{...p,...playerMagicDefenseView(s)}:p;
+  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true,...(magical?{magical:true}:{})},protectionView(s).active?{...defense,protection:true}:defense,()=>random(s));
+  if(magical)event(s,'cast','赤砂術式 · 魔法技能',undefined,e.id,'magic');
   const previousHp=s.hero.hp;
   if(attack.unprotectedDamage!==undefined){const session=protectionSessions.get(s);session.damagePrevented+=Math.max(0,Math.min(previousHp,attack.unprotectedDamage)-Math.min(previousHp,attack.damage));}
   s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');

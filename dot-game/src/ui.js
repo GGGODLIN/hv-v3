@@ -2,7 +2,7 @@ import { createGame, advance, act, stats, validateSave, STRATEGIES, INVENTORY_LI
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
-import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, previewStage, enemyDefenseView } from './engine.js';
+import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, previewStage, enemyDefenseView, enemyAttackView, playerMagicDefenseView } from './engine.js';
 
 // Candidate builds never share progress or tab leases with the accepted game.
 const candidatePath = location.pathname.match(/\/candidates\/([^/]+)/);
@@ -58,13 +58,13 @@ function renderRoutePreview() {
   lastPreviewStage = state.stage;
   const route = previewStage(state.stage);
   $('route-preview-title').textContent = `第 ${route.stage} 層 · 四波路線`;
-  $('route-preview-intro').textContent = route.stage < 3 ? '前 2 層維持原有防線；第 3 層起加入厚甲與靈巧。' : '厚甲重減傷，靈巧重閃避與招架；配裝仍須看實際屬性。';
+  $('route-preview-intro').textContent = route.stage >= 5 ? '赤砂守衛交替使用物理攻擊與魔法技能（本作節奏改編）。物理護甲、招架不防魔法；閃避、格擋仍有效，Protection 兩類皆減傷。玩家抵抗機率尚未實作（0%）。' : route.stage < 3 ? '前 2 層維持原有防線；第 3 層起加入厚甲與靈巧。' : '厚甲重減傷，靈巧重閃避與招架；配裝仍須看實際屬性。';
   $('route-preview-list').replaceChildren(...route.waves.map(wave => {
     const row = node('li', 'route-wave');
     row.append(node('span', 'route-wave-number', wave.boss ? `${wave.wave} · 首領` : `${wave.wave} · 波次`));
     const groups = new Map();
     for (const enemy of wave.enemies) {
-      const key = JSON.stringify([enemy.roleId, enemy.defense, enemy.mitigation, enemy.evade, enemy.parry, enemy.block]);
+      const key = JSON.stringify([enemy.roleId, enemy.defense, enemy.mitigation, enemy.evade, enemy.parry, enemy.block, enemy.attackPattern]);
       if (!groups.has(key)) groups.set(key, { enemy, names: [] });
       groups.get(key).names.push(enemy.name);
     }
@@ -76,6 +76,7 @@ function renderRoutePreview() {
       const values = node('span', 'route-defense');
       const [mitigation, avoidance] = defenseLines(enemy, '基礎');
       values.append(node('span', '', mitigation), node('span', '', avoidance));
+      if (enemy.attackPattern === 'alternating') values.append(node('span', 'enemy-effect', '赤砂守衛 · 物理 → 赤砂術式（魔法）→ 重複'));
       group.append(badge, values);
       group.title = `${names.join('、')}。基礎防禦 ${enemy.defense}；${mitigation}。閃＝閃避、招＝招架、擋＝格擋，各為單次判定機率，不是完全擋下攻擊的總機率。`;
       lineup.append(group);
@@ -899,8 +900,8 @@ function setMeter(id, value, max) { $(id).style.width = `${Math.max(0, Math.min(
 function renderEnemyStatuses() {
   const enemies = state.mode === 'battle' ? state.enemies.filter(enemy => enemy.hp > 0) : [];
   const tick = state.timing?.ticks || 0;
-  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick), bleed: bleedStatus(enemy, tick), defense: enemyDefenseView(enemy, tick) }));
-  const signature = JSON.stringify(rows.map(({ enemy, status, stun, bleed, defense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, bleed, defense]));
+  const rows = enemies.map(enemy => ({ enemy, status: penetratedArmorStatus(enemy, tick), stun: stunStatus(enemy, tick), bleed: bleedStatus(enemy, tick), defense: enemyDefenseView(enemy, tick), attack: enemy.attackPattern === 'alternating' ? enemyAttackView(enemy) : null, magicDefense: enemy.attackPattern === 'alternating' ? playerMagicDefenseView(state) : null }));
+  const signature = JSON.stringify(rows.map(({ enemy, status, stun, bleed, defense, attack, magicDefense }) => [enemy.id, enemy.name, enemy.roleId, enemy.hp, status, stun, bleed, defense, attack, magicDefense]));
   $('enemy-status-panel').hidden = !rows.length;
   if (!rows.length || (procTargetId && !enemies.some(enemy => enemy.id === procTargetId))) {
     $('proc-notice').hidden = true; clearTimeout(procTimer); procTargetId = null;
@@ -910,13 +911,19 @@ function renderEnemyStatuses() {
   }
   if (signature === lastEnemyStatusSignature) return;
   lastEnemyStatusSignature = signature;
-  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun, bleed, defense }, index) => {
+  $('enemy-status-list').replaceChildren(...rows.map(({ enemy, status, stun, bleed, defense, attack, magicDefense }, index) => {
     const pending = stun?.recoveryPending;
     const card = node('div', `enemy-status-card${status ? ' has-penetration' : ''}${stun ? pending ? ' recovery-ready' : ' is-stunned' : ''}${bleed ? ' is-bleeding' : ''}`);
     const name = node('strong', '', `${index === 0 ? '目標 · ' : ''}${enemy.name}`);
     const effect = node('span', 'enemy-effect penetration-effect', status ? `穿透護甲 ${status.stacks}/${PENETRATED_ARMOR_RULES.maxStacks} 層 · 剩 ${status.ticksRemaining} Tick` : '穿透護甲：無');
     const control = node('span', 'enemy-effect stun-effect', pending ? '甦醒待行動 · 下次我方行動前可反擊' : stun ? `暈眩 · 剩 ${stun.ticksRemaining} Tick` : '暈眩：無');
-    card.append(name, effect, control);
+    card.append(name);
+    if (attack?.mixed) {
+      card.append(node('strong', 'enemy-effect', `下一次行動：${attack.nextLabel}${stun && !pending ? ' · 暈眩中，暫不行動' : ''}`));
+      card.append(node('span', 'enemy-effect', `我方魔法屬性減傷 ${defenseRate(magicDefense.mitigation)} · 抵抗 0%（尚未實作）`));
+      card.append(node('span', 'enemy-effect', '魔法不吃物理護甲／招架；可閃避／格擋，Protection 仍有效。'));
+    }
+    card.append(effect, control);
     card.append(node('span', 'enemy-effect bleed-effect', bleed ? `流血傷口 ${bleed.stacks}/${AXE_BLEED_RULES.maxStacks} 層 · 剩 ${bleed.ticksRemaining} Tick · 每 Tick ${format(bleed.damagePerTick)} 傷害` : '流血傷口：無'));
     const role = enemyRolePresentation(enemy);
     card.append(node('span', `enemy-role role-${role.id}`, `${role.mark} ${role.label}${enemy.boss ? ' · 首領' : ''}`));
@@ -924,6 +931,7 @@ function renderEnemyStatuses() {
     currentDefense.append(...defenseLines(defense, '目前').map(line => node('span', '', line)));
     card.append(currentDefense);
     const details = [`基礎一般物理減傷 ${defenseRate(defense.baseMitigation)}；目前數字已計入穿透護甲與暈眩。閃＝閃避、招＝招架、擋＝格擋，各為單次判定機率，不是完全擋下攻擊的總機率。暈眩不取消格擋。`];
+    if (attack?.mixed) details.push('物理攻擊與赤砂術式交替為本作改編；只有實際發起行動才交替，被閃避或格擋仍算行動。暈眩跳過行動不推進。魔法不附加武器特效；格擋魔法後仍可依既有條件嘗試反擊，此為通用格擋規則推論。');
     if (status) details.push(`物理減傷為原本的 ${format(status.mitigationMultiplier * 100)}%；不是直接增加同等傷害。`);
     if (stun) details.push(pending ? '暈眩已結束，閃避與招架恢復；下一次我方行動前，敵人先行動。' : '暫停敵方行動，期間不能閃避或招架；到期後會恢復行動。');
     if (bleed) details.push(`流血每 Tick ${format(bleed.damagePerTick)} 點無類型傷害；以觸發時面板攻擊快照計算，不受減傷、閃避、招架與格擋影響；穿透護甲不增幅流血。`);
