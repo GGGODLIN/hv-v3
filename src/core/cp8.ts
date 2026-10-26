@@ -18,7 +18,7 @@ export const CP8 = {
   /** 暫定（缺原版出處）P3 (rc2): non-boss damage factor for abyss themes 1–3 from the 2nd rotation (d21–23, d41–43 …). CP7.themeDmg
    *  gives themes 16–19 ×0.7, so at d20→d21 the discount ended at once (adb +52% vs d18 while the tier multiplier is only +9.5%).
    *  The discount now fades out 0.7 → 1 over themes 1–3 (theme 20 is the boss floor, not affected). */
-  themeTail: [0.775, 0.85, 0.925] as number[],
+  themeTail: [0.7, 0.775, 0.85, 0.925] as number[],
 };
 /** CP8 rc2: theme damage factor at theme floor f (1..20) for abyss depth > 20. */
 export const cp8ThemeDmg = (f: number): number => (f >= 1 && f <= CP8.themeTail.length ? CP8.themeTail[f - 1]! : CP7.themeDmg[f] ?? 1);
