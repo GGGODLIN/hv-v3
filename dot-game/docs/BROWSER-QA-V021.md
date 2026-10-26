@@ -1,6 +1,6 @@
 # v0.21 bounded browser acceptance
 
-Status: **bounded cloud-desktop candidate accepted at2026-10-26 16:04UTC; root publication pending**. Runtime source `0e6a165a8814d1339b85bf2e10eee75cfe86c36b` was backed up and exact-read verified before isolated candidate staging (190files/189payloads). Candidate has its own save/lock namespace; the stable profile remains separate.
+Status: **bounded cloud-desktop accepted and root published at2026-10-26T16:11:00Z**. Runtime source `0e6a165a8814d1339b85bf2e10eee75cfe86c36b` was backed up and exact-read verified before isolated candidate staging (190files/189payloads). Candidate has its own save/lock namespace; the stable profile remains separate.
 
 Planned direct UI coverage: default legacy policy, camp choices and current-target explanation, actual caster-second fight, lowest-current-HP run, disabled battle/read-only controls, normal reload persistence, source-independent stable win smoke after acceptance. No forced live stats/RNG, hidden-state mutation, internal browser download pages, user computer or candidate-to-stable save copy.
 
@@ -21,3 +21,9 @@ Selected低血量收尾 normally at camp; live reason explicitly used absolute c
 Normal reload retainedweakest, Lv13/gold2127/items38/HP1066 and wins23. Normal UI export retained the unchanged QAprofile temporarily outside sourcebackup. Targetlive cleared atcamp/reload. No game-origin consoleerrors: only exactknown `chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js` metadataerrors excluded. No other console errors ignored. Browser waits and pressing a now-disabled finish control produced automationtimeouts, not game exceptions; fresh observedstate resolved these without settings changes.
 
 No source runtime edit followed this candidate acceptance. Stabletab2 remains separate and is only refreshed after accepted-source backup and root CI/HTTP.
+
+## Root publication smoke — 16:10UTC
+
+Accepted-source0ec1b6ad742ce32d47a7a4619b57e2f19dec010a was exactreadverified before root764e43b6736dde7795340a69aa181bf31e2003e0; Pages40356047960success and allsixHTTP200 exactbyte/hashmatches passed. Stabletab2 normalreload displayedv0.21 and retaineditsindependent Lv9/gold534/items24/HP824, defaultfront. No candidateprofile was imported into root. Started normalstage1 and queued finish-then-camp; currenttargettext showed第一個存活敵人 and selector was disabledduringbattle.
+
+Root stage1 won10.6s,79actualHP loss/min93.8%,two real counters/268counterdamage, level9→10. Normalcampreload retained Lv10/gold610/wins14/items26/HP848; defaultfront remained, targetlivehiddenincamp, Protection stillOFF. Game-origin error filter returnednone; only exactknownextensionURL excluded. Candidate13/follower14 closed; only stable2 retainedandmarkedDeliverable. Root sourceupgrade did not recover or copy candidateLv13progress.

@@ -1,16 +1,16 @@
 {
-  "checkpoint": "v0.21-browser-accepted",
-  "status": "bounded-desktop-candidate-accepted-root-pending",
+  "checkpoint": "v0.21-publication-receipt",
+  "status": "published-bounded-desktop-accepted",
   "base_accepted_recovery": "ee44bf5b2e270e9f71dc62a5567fe7f82053e93b",
-  "accepted_site": "816ed14836a62be992a8f75e7b29258cd03a2009",
+  "accepted_site": "764e43b6736dde7795340a69aa181bf31e2003e0",
   "source_tests_passed": 1341,
   "runtime_syntax_checks": 4,
   "default_state_rng_report_observations": 12000,
   "natural_policy_trials": 720,
   "files": {
     "README.md": {
-      "bytes": 4198,
-      "sha256": "a3358d23a779799ae764d9825b4a241c2e837f0971dca2543523966ea9b91f94"
+      "bytes": 4293,
+      "sha256": "3969b8ea425b5f533e38dd4157535f9a5c90cba815aa765bd61f70bb892b51c6"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -61,8 +61,8 @@
       "sha256": "1a43a215359650eec6b6bb295c305574e937b75aad9897e5dafc8fa565df07a8"
     },
     "docs/ACCEPTANCE-V021.md": {
-      "bytes": 1693,
-      "sha256": "1ff34f354872064612d28078ef298b8a7ec64fbda42415460c4a202775498f32"
+      "bytes": 1836,
+      "sha256": "e13d09b78ba8ddb2e7b7c275350d09c0c637c4da73f392f2827a9c932737feaf"
     },
     "docs/ACCEPTANCE-V03.md": {
       "bytes": 7790,
@@ -157,8 +157,8 @@
       "sha256": "309050738fe40d3bea1a97b7d6b05ec4e385b20641d4d9fdc9b9971b5c31ce99"
     },
     "docs/BROWSER-QA-V021.md": {
-      "bytes": 3953,
-      "sha256": "b1c6dd408f9ff1ad36e28349a023d55a9dd2764a4cad991c3583e4d8c146ede7"
+      "bytes": 4909,
+      "sha256": "eb487f298811cae4e7d6adde68660aa66f85c30dd10d55ee89dfb1900b3a169e"
     },
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
@@ -301,12 +301,12 @@
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
     },
     "docs/RECOVERY-V021.md": {
-      "bytes": 1931,
-      "sha256": "3920b92b149e527c205c651eab1c3af54654d014e47ffc2d700c0ec24d96b2ef"
+      "bytes": 2415,
+      "sha256": "8733f57e32ae90088e361ec8a5f5e00b382bf363e34d33962b172002190c3f7f"
     },
     "docs/RELEASES.md": {
-      "bytes": 37878,
-      "sha256": "668b014adb3eed0bc85647df0b61bfba5e3c3420367969d3a66da9794fdb9ca3"
+      "bytes": 38045,
+      "sha256": "ca13b1947c88fb0633af163d4b7b3e29626d12036bc967960f8207be688be2d8"
     },
     "docs/ROADMAP.md": {
       "bytes": 16682,
@@ -321,8 +321,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 1662,
-      "sha256": "06055c6b7300997565a8f66cd30b8529883adb648cdb5ee5ba4e880d8318dd8b"
+      "bytes": 3008,
+      "sha256": "f09c5ac0eae20b4de555b300f9c98084e4320e2f8d9e94ff71f7c139c47d4e02"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -772,5 +772,8 @@
   "runtime_source": "0e6a165a8814d1339b85bf2e10eee75cfe86c36b",
   "candidate_site": "4b13eeed2a4515009ea5151b1f18db27cd06ab79",
   "candidate_ci_run": 40354108762,
-  "browser_acceptance_utc": "2026-10-26T16:04:00Z"
+  "browser_acceptance_utc": "2026-10-26T16:04:00Z",
+  "accepted_source": "0ec1b6ad742ce32d47a7a4619b57e2f19dec010a",
+  "root_ci_run": 40356047960,
+  "root_smoke_utc": "2026-10-26T16:11:00Z"
 }
