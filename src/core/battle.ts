@@ -88,7 +88,7 @@ function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   const m = s.monsters[ti] as CM;
   const frac = (m.thornTurns ? CP5.thornsFrac : 0) + (m.affixes?.includes('spikes') ? CP5.spikesFrac : 0);
   if (!frac || dmg <= 0) return;
-  const out = Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
+  const out = Math.min(Math.round(s.d.hp * CP5.reflectCapHp), Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1)));
   if (out <= 0) return;
   s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
   ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });

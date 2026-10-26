@@ -4,7 +4,7 @@
  * from the snapshot at best ≥ 15). No character cache (CP7 changes the main tower too).
  * Env: SC=<school> SEED0 CP7=0|1 (default 1) PITY WINHEAL (CP7 knobs) ; Usage: npx tsx scripts/cp7-sim.ts [N=256] [F=4] */
 import { readFileSync } from 'node:fs';
-import { autoRun, fight, profsOf, starterKit, type Strategy } from '../src/core/auto';
+import { SIM_AI, autoRun, fight, profsOf, starterKit, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { level, newPlayer, type Player } from '../src/core/player';
 import { RULES, abyssOpen, armBattle, battleLocks, encounter, openingOc, runDerived, startAbyss } from '../src/core/run';
@@ -75,8 +75,11 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   // debug only (stderr): kit / heavy-armor timing
   const kitS = (tag: string) => { const b = p.equipped.body, d = derive(p); return `${tag} ${s} ${b ? b.group + ':' + b.base + ':' + b.quality : '-'} hp ${d.hp} pm ${d.physMit.toFixed(3)} mh ${p.equipped.mainHand ? p.equipped.mainHand.group + ':' + p.equipped.mainHand.quality + ':L' + p.equipped.mainHand.level + ':ad' + Math.round(p.equipped.mainHand.stats.attackDamage ?? 0) : '-'} lv ${level(p)}`; }; let heavyAt = p.equipped.body?.group === 'heavy' ? 'kit' : '';
   if (E.DBGKIT) console.error(kitS('K0'));
+  // cp8-rc12 diagnosis: SIM_SKILLS_FROM=abyss — the main-story trips run A-only (same F20 clear as SIM_NAIVE_AONLY), skills from the abyss on.
+  const skAb = E.SIM_SKILLS_FROM === 'abyss' && E.SIM_NAIVE_AONLY !== '1'; if (skAb) SIM_AI.add.delete('skills');
   for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); pd(r); if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') heavyAt = 'm' + i; upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);
+  if (skAb) SIM_AI.add.add('skills');
   if (!ok || !abyssOpen(p)) continue; built++;
   for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++;
     // cp7-rc3: fresh d10 boss with the post-F20 character, and the same with no potions (a player who skipped the shop).
