@@ -696,7 +696,17 @@ export class App {
     }
     this.busy = true;
     this.render();
+    const hpBefore = b.hp, turnBefore = b.turn;
     const ev = act(b, a, this.rng, profsOf(this.p));
+    // cp7-rc5 bug 3: per-turn damage record (display only, no effect on the battle): one line per monster phase, kept in full
+    // on window.__turnLog for playtest reports (the on-screen log shows the last 6 lines only).
+    if (RULES.cp7) {
+      const taken = ev.reduce((t, e) => t + (e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
+      const maxHit = ev.reduce((t, e) => Math.max(t, e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
+      const rec = { turn: b.turn, action: a.kind, hpBefore, hpAfter: b.hp, maxHp: b.d.hp, taken, maxHit };
+      const w = window as unknown as { __turnLog?: (typeof rec)[] }; (w.__turnLog ??= []).push(rec);
+      if (b.turn > turnBefore || taken) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}</span>`);
+    }
     for (const e of ev) {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
       if (e.t === 'hit' && e.from === 'player' && e.weak && e.dmg > 0) this.log.push(`<span class="weakhit">弱點！${esc(b.monsters[e.to as number]!.name)} 受到 ${e.dmg}</span>`);
