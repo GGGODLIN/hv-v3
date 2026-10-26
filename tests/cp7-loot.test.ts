@@ -30,11 +30,11 @@ describe('cp7-rc3 loot level', () => {
     for (let s = 1; s <= 40; s++) { const { p, run } = setup(s, 0, 9); battleLoot(run, encounter(run, pool, 'battle'), 'battle', p).equips.forEach((e) => lv.add(e.level)); chestLoot(run, p).equips.forEach((e) => lv.add(e.level)); }
     expect([...lv]).toEqual([9 + CP7.lootLvAdd]);
   });
-  it('pity never rolls above max(drop level, highest worn level)', () => {
+  it('pity never rolls above drop level + pityLevelCap (not relative to worn gear)', () => {
     RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp7 = true;
     for (let s = 1; s <= 40; s++) {
-      const { p, run } = setup(s, 18, 13); p.equipped.body = { ...p.equipped.body!, level: 17 };
-      const top = Math.max(13 + CP7.lootLvAdd, 17);
+      const { p, run } = setup(s, 18, 13); p.equipped.body = { ...p.equipped.body!, level: 30 };
+      const top = 13 + CP7.lootLvAdd + CP7.pityLevelCap; p.equipped.body = { ...p.equipped.body!, quality: 'legendary', roll: 200 } as never;
       for (let k = 0; k < 4; k++) for (const e of battleLoot(run, encounter(run, pool, 'battle'), 'battle', p).equips) expect(e.level).toBeLessThanOrEqual(top);
     }
   });

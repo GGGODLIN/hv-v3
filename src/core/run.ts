@@ -392,7 +392,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
 function cp7Pity(rng: Rng, p: Player, run: RunState, loot: Loot, L: number): void {
   let u = loot.equips.filter((e) => betterThanWorn(p, e)).length;
   if (u === 0 && (run.upg ?? 0) < CP7.pityUntil) {
-    const e = pityPiece(rng, p, L) ?? (run.abyss ? pityWeapon(rng, p, L) : null); // cp7-rc2: weapon fallback in the abyss only
+    const e = pityPiece(rng, p, L) ?? pityWeapon(rng, p, L); // cp7-rc3: weapon fallback everywhere (was abyss only)
     if (e) { loot.equips.push(e); (loot.better ??= []).push(e.id); u = 1; }
   }
   run.upg = (run.upg ?? 0) + u;

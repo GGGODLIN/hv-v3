@@ -16,9 +16,10 @@ export const CP7 = {
   pityUntil: 2,
   pityTries: 32,
   pityPasses: 8, // cp7-rc2: was 3 (暫定)
-  /** cp7-rc3: was 3 — each pass rolled 3 levels higher, so pity reached worn+24 (the Lv33/Lv39 drops in playtest). Now 0: pity
-   *  never rolls above max(drop level, worn level); later passes raise quality instead (`pityQualityPerPass`, 暫定). */
-  pityLevelStep: 0,
+  /** cp7-rc3: was 3 with no cap — pass 8 rolled worn+24 (the Lv33/Lv39 drops in playtest). Now each pass is +1 level, capped at
+   *  `pityLevelCap` above the drop level (player Lv + lootLvAdd), and later passes raise quality instead (`pityQualityPerPass`) (暫定). */
+  pityLevelStep: 1,
+  pityLevelCap: 3,
   pityQualityPerPass: 1,
   /** 暫定: every `pityBumpEvery` failed pity rolls the quality floor rises one step (so late-game gear can still be beaten). */
   pityBumpEvery: 2,
@@ -67,14 +68,15 @@ export const betterThanWorn = (p: Player, e: Equip): boolean => wearGain(p, e) >
  *  Returns null if no roll beats the worn gear. */
 export function pityPiece(rng: Rng, p: Player, level: number): Equip | null {
   let best: Equip | null = null, bestGain = Infinity;
-  const top = Math.max(level, ...Object.values(p.equipped).map((e) => e?.level ?? 0));
+  const top = level; // cp7-rc3: from the drop level, not the highest worn level (that ratcheted worn gear up +cap every pity: Lv38/51 in sim)
   // pass 0 at the top worn level; if nothing beats the worn gear, later passes roll `pityLevelStep` levels higher (暫定).
   for (let pass = 0; pass <= CP7.pityPasses && !best; pass++) for (let i = 0; i < CP7.pityTries; i++) {
     const slot = rng.pick(CP7.pitySlots);
     const w = p.equipped[slot];
-    const group = w?.group === 'cloth' || w?.group === 'light' || w?.group === 'heavy' ? w.group : rng.pick<'cloth' | 'light' | 'heavy'>(['cloth', 'light', 'heavy']);
+    const group = (pass < 2 || i % 2 === 0) && (w?.group === 'cloth' || w?.group === 'light' || w?.group === 'heavy') ? w.group : // cp7-rc3: from pass 2, odd tries may switch armour family (暫定)
+       rng.pick<'cloth' | 'light' | 'heavy'>(['cloth', 'light', 'heavy']);
     const qi = Math.max(QUALITIES.indexOf(CP7.pityMinQuality), w ? QUALITIES.indexOf(w.quality) : 0) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0) + pass * CP7.pityQualityPerPass;
-    const e = generateEquip(rng, top + pass * CP7.pityLevelStep, { group, slot, quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
+    const e = generateEquip(rng, top + Math.min(CP7.pityLevelCap, pass * CP7.pityLevelStep), { group, slot, quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
     const g = wearGain(p, e);
     if (g > CP7.betterMargin && g < bestGain) { best = e; bestGain = g; }
   }
@@ -99,10 +101,10 @@ export const simPickStart = (best: number, last: { start: number; cleared: numbe
 export function pityWeapon(rng: Rng, p: Player, level: number): Equip | null {
   const mh = p.equipped.mainHand; if (!mh) return null;
   let best: Equip | null = null, bestGain = Infinity;
-  const top = Math.max(level, ...Object.values(p.equipped).map((e) => e?.level ?? 0));
+  const top = level; // cp7-rc3: from the drop level, not the highest worn level (that ratcheted worn gear up +cap every pity: Lv38/51 in sim)
   for (let pass = 0; pass <= CP7.pityPasses && !best; pass++) for (let i = 0; i < CP7.pityTries; i++) {
     const qi = QUALITIES.indexOf(mh.quality) + ((i + 1) % CP7.pityBumpEvery === 0 ? 1 : 0) + pass * CP7.pityQualityPerPass;
-    const e = generateEquip(rng, top + pass * CP7.pityLevelStep, { group: mh.group, base: mh.base, slot: 'mainHand', quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
+    const e = generateEquip(rng, top + Math.min(CP7.pityLevelCap, pass * CP7.pityLevelStep), { group: mh.group, base: mh.base, slot: 'mainHand', quality: QUALITIES[Math.min(QUALITIES.length - 1, qi)] });
     const g = wearGain(p, e);
     if (g > CP7.betterMargin && g < bestGain) { best = e; bestGain = g; }
   }

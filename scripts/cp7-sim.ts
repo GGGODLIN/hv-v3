@@ -46,7 +46,7 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
     const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
     const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
-    if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, JSON.stringify(p.equipped.body ?? null).slice(0, 200));
+    if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, p.level, Object.values(p.equipped).map((e) => e ? e.slot + ':' + e.quality[0] + e.roll + 'L' + e.level : '').join(' '));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }
     if (t === 1) { first.push(cl); for (const b of r.bosses) if (b.floor === 10) { b10.n++; b10.w += +b.won; } } // cp7-rc3: trip-1 d10 boss
     if (st <= 60) upgAbyss.push(r.upg ?? 0); if (st <= 60 && r.kills) upgWon.push(r.upg ?? 0); // trips starting past the d60 sim cap retreat at once (not a real trip)
