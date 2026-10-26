@@ -1,0 +1,7 @@
+
+=== set A (seeds 1..128) cp8=true naive=true
+  blade: trip1 median d22 (p25 19) trip2 median d25  F20 clear median 6 trips  d21 first battle 497/512
+  oc: trip1 median d22 (p25 17) trip2 median d25  F20 clear median 6 trips  d21 first battle 503/512
+  arcane: trip1 median d22 (p25 17) trip2 median d25  F20 clear median 5 trips  d21 first battle 498/512
+  bulwark: trip1 median d25 (p25 19) trip2 median d27  F20 clear median 4 trips  d21 first battle 433/508
+  (info) trip-2 vs trip-1 median this set: blade 22→25 oc 22→25 arcane 22→25 bulwark 25→27 — P2 is judged on A+B pooled below

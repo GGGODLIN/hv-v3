@@ -207,3 +207,6 @@ postF20-blade 主手 fair L6 → superior L13 scythe（其他流派 preset 主�
 ### 為什麼從零 A/B sim 的 blade 仍到 d22
 - 已驗證（DBGKIT K1, SC=blade SEED0=0 N=64 naive）：從零 sim 的「blade」在 abyss trip 1 時主手 49/64 是 staff、6 oneHand、只有 9/64 是 twoHand；身體多為 cloth。換裝邏輯按分數挑裝備，不鎖流派武器，所以 A/B 的 blade 數字大部分量的不是 twoHand blade 配置。
 - 推測：這些 staff/cloth 配置在 trip 1 撐到 d22，和 preset 的 twoHand 配置不可比；原因未完全拆解，不阻擋 rc5。
+
+### rc8 全檢（turnCap 0.75）
+P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 PASS；B256 16/16 PASS；vitest 257/257；17 支 e2e PASS；cp4-on-check OK。logs: docs/logs/cp8rc8。
