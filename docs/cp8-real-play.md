@@ -251,3 +251,18 @@ P1–P5、P2、V、受傷（p50 實際 .55 ≤ .64；raw p95 .75 ≤ 1.05）全 
 - P2-2 blade / oc 每場第 1 回合顯示「💡 本場可用」技能提示（可用技能，或攻擊累積 OC 後可用的技能與所需 OC）。
 - 項目 4（blade 沒看過蓄力警告）sim 量測（N=64×F4，seed 0，docs/logs/cp8rc8/blade-charge.txt）：blade 首領戰中出現首領蓄力/元素脈衝預告的比例 現行 AI 73.3%（2195/2996；其中蓄力 46.7%）、naive 56.2%（1885/3352；蓄力 31.0%）。**高於 20%，不能當作「正常機率」結案**，需再查 UI 端（例如 4x＋跳過動畫時蓄力面板只停留一回合）。
 - oc 自動分配權重改為 3,3,3,2,1,1（候選 c3，暫定 AI 參數），數據見 docs/logs/cp8rc8/oc/。
+
+## cp8-rc9（自訂，非原版 — 全部為暫定）
+
+| 項目 | 規則 | 數值 / 位置 |
+|---|---|---|
+| P0-1 大單擊預告 | 首領／菁英的普通攻擊預估 ≥ 最大 HP × `CP8.bigTele` 時，先蓄力 1 回合（`heavyNext`，面板「正在蓄力一擊」＋預估傷害），下回合以 ×1 放出；暈眩可打斷。**自訂，非原版** | `bigTele = 0.5`（src/core/cp8.ts、battle.ts monstersAct0） |
+| P0-2 pothint | 亮燈條件：HP < 50% 或「HP − 下回合預估總傷害 < `potAfter` × 最大 HP」 | `potAfter = 0.25` |
+| P0-3 蓄力面板 | 新出現蓄力時，非防禦／藥水輸入暫停 `chargeHoldMs`，並丟棄排隊中的 A | `chargeHoldMs = 700`（僅 UI） |
+| P1-5 | 磐石起始裝：胸鎧（heavy plate）；postF20-bulwark 預設檔的布甲（長袍、褲）換成同等級同品質板甲（戰力 455 → 474） | auto.ts starterKit、cp6-presets.json |
+| P1-7 | 自動換裝整輪結束若戰力下降就整輪撤銷；學派鎖替換也要 wearGain ≥ 0 | auto.ts autoEquip、cp7.ts betterThanWorn |
+| P1-8 | 自動分配：加權屬性買不起時，剩餘 EXP 買最便宜的屬性，不留可用點數 | auto.ts autoAllocate |
+| P1-9 | 深淵倍率顯示改為「相對深淵第 1 層」，總倍率放在 title | app.ts themeHtml |
+| P1-10 | 統一用語「到達第 N 層（已通過 M 層）」 | run.ts reachedMsg |
+| P1-11 | 排隊中的 D／Z／X／C 不會被之後的 A／技能鍵蓋掉；無效按鍵在指令列上方顯示原因 | app.ts onKey / command |
+| P2 | 蓄力時顯示防禦的實際收益（少受多少、回 HP、反擊 ×1.5、盾擊可打斷）；刃鋒／OC 技能冷卻結束提示；祕法依目標元素弱點建議法術 | app.ts chargePayoff / readyHint / arcaneHint |
