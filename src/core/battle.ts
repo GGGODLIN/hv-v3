@@ -579,11 +579,13 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 }
 
 /** cp8-rc4 diagnostic: worst single monster round (fraction of max HP) since the last reset, with its hits. */
-export const RDMG = { max: 0, hits: [] as Record<string, unknown>[], av: {} as Record<string, number> };
+export const RDMG = { max: 0, raw: 0 /* cp8-rc5 injury p95: same round before CP8.turnCap */, clip: 0, hits: [] as Record<string, unknown>[], av: {} as Record<string, number> };
 function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
   const hits: Record<string, unknown>[] = [], h0 = s.hp;
+  RDMG.clip = 0;
   monstersAct0(s, rng, ev, hits);
   const f = (h0 - s.hp) / s.d.hp;
+  RDMG.raw = Math.max(RDMG.raw, f + RDMG.clip / s.d.hp);
   if (f > RDMG.max) { RDMG.max = f; RDMG.hits = hits; RDMG.av = { hp: s.d.hp, evade: s.d.evade, parry: s.d.parry, block: s.d.block, physMit: s.d.physMit, magMit: s.d.magMit }; }
 }
 function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<string, unknown>[]): void {
@@ -632,6 +634,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     });
     const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.round(cap - (hp0 - s.hp))));
     s.hp = Math.max(0, s.hp - dmg);
+    RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
