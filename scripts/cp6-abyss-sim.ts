@@ -11,7 +11,7 @@ import { ABYSS, checkpointStart, emptyRecord, recordTitles, recordTrip, type Aby
 import { QUALITIES } from '../src/core/items';
 import { powerScore } from '../src/core/player';
 RULES.cp6Abyss = true;
-const N = Number(process.argv[2] ?? 64), T = Number(process.argv[3] ?? 10);
+const N = Number(process.argv[2] ?? 128), T = Number(process.argv[3] ?? 10);
 const STRATS = (process.argv[4] ?? 'auto,buff:blade,buff:oc,buff:arcane,buff:bulwark').split(',') as Strategy[];
 for (const kv of process.argv.slice(5)) { const [k, v] = kv.split("="); const [a, b] = k!.split('.'); const o = ABYSS as unknown as Record<string, any>; if (b) o[a!][b] = Number(v); else o[a!] = Number(v); console.log(`override ${k}=${v}`); }
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);

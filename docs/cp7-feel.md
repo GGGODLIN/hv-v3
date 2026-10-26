@@ -46,3 +46,10 @@
 ## 未達標 / 邊緣
 - **cp6-abyss-sim（cp7 開，預設 N=64）刃鋒 FAIL**：`d16 rate <= 1.5 x d18`（19.3% 16/83 vs 7.5% 5/67）。cp7-rc1 為 PASS（10.4 vs 14.5）。N=128 時 PASS（18.1 vs 12.4，界線 18.6，邊緣）。lootLvAdd 0/3/4/6 在 N=64 都 PASS，但 6 讓 cp7-report A 組刃鋒 d16 59.1%、後段平 8.0>7.9 FAIL。判斷為小樣本雜訊＋邊緣（推測），未調參硬拉。**需製作人決定**。
 - 壁壘 d16 A 60.3%、刃鋒 B 60.6% 都貼著 60% 線。
+
+## 製作人決定（cp7-rc3，2026-10-26）
+1. 所有 CHECK 一律以 N=128 判定；`scripts/cp6-abyss-sim.ts` 預設 N 改為 128（原 64）。
+2. blade d16 ≤ 1.5 × d18 在 N=128 下成立即算通過（rc2：N=128 18.1 vs 12.4 PASS；N=64 的 FAIL 為抽樣雜訊）。
+3. `lootLvAdd` 維持 5；其餘暫定值（betterMargin、pity、winHeal、dmgMid、knee、themeDmg）照 rc2 接受，仍標「暫定」。
+4. 假說「從檢查點出發沒有 run buff → 第一戰容易死」需驗證；若成立只列為 CP8 候選（例如檢查點出發時給 N 次 buff 選擇），本輪不實作。
+5. postF20 預設只選第 1 層出發：正確，不改。
