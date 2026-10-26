@@ -23,7 +23,8 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   console.log(`  P1 (info) all trips ${trips.length}: ≥1 better ${pct(ge1)}, median ${q(trips, 0.5)}; trips with no win ${trips.length - won.length}`);
   const cpT = set.reduce((a, r) => a + (r.cpTrips ?? 0), 0), cpD = set.reduce((a, r) => a + (r.cpDeadFirst ?? 0), 0), sh = set.reduce((a, r) => a + (r.shallow ?? 0), 0);
   console.log(`  P1 (info) checkpoint (start>1) trips ${cpT}: died with 0 kills ${pct(cpD / Math.max(1, cpT))}; AI picked a shallower checkpoint ${sh}×`);
-  checks.push([`P1 every won trip ≥1 better drop: ${pct(wge1)} of ${won.length} trips (target 100%)`, wge1 >= 1]);
+  // cp7-rc4 producer decision: target ≥99% (trips already in top gear rarely have a better drop); compared at the printed precision (0.1pp).
+  checks.push([`P1 every won trip ≥1 better drop: ${pct(wge1)} of ${won.length} trips (target ≥99%)`, Math.round(wge1 * 1000) >= 990]);
   checks.push([`P1 median better drops per won trip ${q(won, 0.5)} ≥ 2`, q(won, 0.5) >= 2]);
   // P2
   const md = SCH.map((sc) => mean(by(sc).depthClip)); const gap = Math.max(...md) / Math.min(...md);
