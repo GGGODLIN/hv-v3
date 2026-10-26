@@ -66,7 +66,10 @@ const p3 = { rest: { n: 0, full: 0 }, none: { n: 0, full: 0 } };
 const b10 = { n: 0, w: 0 }; let built = 0, deep = 0, shallow = 0, cpTrips = 0, cpDeadFirst = 0; const zero = { main: 0, mainNoLoot: 0, abyss: 0, abyssNoLoot: 0 };
 for (let s = S0 + 1; s <= S0 + N; s++) {
   const p = newPlayer(); starterKit(p, s, sc === 'bulwark' ? 'bulwark' : undefined); let ok = false, i = 1;
-  for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
+  // debug only (stderr): kit / heavy-armor timing
+  const kitS = (tag: string) => { const b = p.equipped.body, d = derive(p); return `${tag} ${s} ${b ? b.group + ':' + b.base + ':' + b.quality : '-'} hp ${d.hp} pm ${d.physMit.toFixed(3)}`; }; let heavyAt = p.equipped.body?.group === 'heavy' ? 'kit' : '';
+  if (E.DBGKIT) console.error(kitS('K0'));
+  for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') heavyAt = 'm' + i; upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);
   if (!ok || !abyssOpen(p)) continue; built++;
   for (let f = 1; f <= F; f++) { for (const d of [1, 2, 3]) { c[`d${d}`]!.n++; if (one(p, d, 'battle', s * 100 + f)) c[`d${d}`]!.w++; } c.d5!.n++; if (one(p, 5, 'boss', s * 100 + f)) c.d5!.w++;
@@ -76,8 +79,10 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let t = 1; t <= T; t++) {
     const st: number = RULES.cp7 ? simPickStart(rec.best, last) : checkpointStart(rec.best); // CP7 decision 2 (暫定 AI rule)
     if (st < checkpointStart(rec.best)) shallow++;
+    if (E.DBGKIT && t === 1) console.error(kitS('K1') + ' heavyAt ' + (heavyAt || 'none'));
     RDMG.max = 0; const r = autoRun(p, pool, s * 1000 + 100 + t, strat, { mode: 'counter', retreat: 0.3, abyss: st, cap: 60, ms: rec.ms });
     const cl = r.abyss!.cleared, dead = r.settlement.outcome === 'dead'; last = { start: st, cleared: cl, dead };
+    if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') { heavyAt = 'a' + t; console.error('HA', s, t); }
     if (E.DBGST) console.error('ST', st, dead && !r.kills ? 1 : 0, cl - st + 1);
     if (E.DBGW && r.kills && !r.upg) console.error('WON0', s, t, st, cl, r.kills, r.battles, r.settlement.outcome, level(p), Object.values(p.equipped).map((e) => e ? e.slot + ':' + e.quality[0] + e.roll + 'L' + e.level : '').join(' '));
     if (st <= 60 && st > 1) { cpTrips++; if (dead && !r.kills) cpDeadFirst++; }

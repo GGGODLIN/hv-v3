@@ -1,0 +1,256 @@
+K0 1 heavy:plate:fair hp 510 pm 0.109
+K1 1 heavy:plate:exquisite hp 758 pm 0.402 heavyAt kit
+K0 2 heavy:plate:fair hp 510 pm 0.108
+K1 2 heavy:plate:exquisite hp 798 pm 0.422 heavyAt kit
+K0 3 heavy:plate:fair hp 510 pm 0.110
+K1 3 heavy:chain:superior hp 846 pm 0.400 heavyAt kit
+K0 4 heavy:plate:fair hp 510 pm 0.110
+K1 4 heavy:plate:fair hp 818 pm 0.404 heavyAt kit
+K0 5 heavy:plate:fair hp 510 pm 0.111
+K1 5 heavy:plate:average hp 790 pm 0.401 heavyAt kit
+K0 6 heavy:plate:fair hp 510 pm 0.140
+K1 6 heavy:plate:superior hp 778 pm 0.447 heavyAt kit
+K0 7 heavy:plate:fair hp 510 pm 0.108
+K1 7 heavy:plate:superior hp 912 pm 0.460 heavyAt kit
+K0 8 heavy:plate:fair hp 510 pm 0.107
+K1 8 heavy:plate:superior hp 780 pm 0.410 heavyAt kit
+K0 9 heavy:plate:fair hp 510 pm 0.118
+K1 9 heavy:plate:superior hp 722 pm 0.391 heavyAt kit
+K0 10 heavy:plate:fair hp 510 pm 0.107
+K1 10 heavy:plate:average hp 688 pm 0.383 heavyAt kit
+K0 11 heavy:plate:fair hp 510 pm 0.109
+K1 11 heavy:plate:superior hp 754 pm 0.417 heavyAt kit
+K0 12 heavy:plate:fair hp 510 pm 0.108
+K1 12 heavy:chain:average hp 744 pm 0.382 heavyAt kit
+K0 13 heavy:plate:fair hp 510 pm 0.111
+K1 13 heavy:plate:superior hp 706 pm 0.432 heavyAt kit
+K0 14 heavy:plate:fair hp 528 pm 0.111
+K1 14 heavy:plate:superior hp 766 pm 0.430 heavyAt kit
+K0 15 heavy:plate:fair hp 510 pm 0.107
+K1 15 heavy:chain:superior hp 782 pm 0.443 heavyAt kit
+K0 16 heavy:plate:fair hp 510 pm 0.110
+K1 16 heavy:plate:superior hp 828 pm 0.415 heavyAt kit
+K0 17 heavy:plate:fair hp 510 pm 0.111
+K1 17 heavy:chain:average hp 820 pm 0.379 heavyAt kit
+K0 18 heavy:plate:fair hp 510 pm 0.110
+K1 18 heavy:plate:average hp 798 pm 0.425 heavyAt kit
+K0 19 heavy:plate:fair hp 510 pm 0.110
+K1 19 heavy:chain:exquisite hp 754 pm 0.405 heavyAt kit
+K0 20 heavy:plate:fair hp 510 pm 0.109
+K1 20 heavy:chain:superior hp 874 pm 0.421 heavyAt kit
+K0 21 heavy:plate:fair hp 510 pm 0.110
+K1 21 heavy:plate:superior hp 812 pm 0.447 heavyAt kit
+K0 22 heavy:plate:fair hp 510 pm 0.108
+K1 22 heavy:plate:magnificent hp 778 pm 0.433 heavyAt kit
+K0 23 heavy:plate:fair hp 510 pm 0.139
+K1 23 heavy:plate:superior hp 814 pm 0.433 heavyAt kit
+K0 24 heavy:plate:fair hp 510 pm 0.109
+K1 24 heavy:chain:average hp 774 pm 0.404 heavyAt kit
+K0 25 heavy:plate:fair hp 510 pm 0.107
+K1 25 heavy:chain:average hp 852 pm 0.417 heavyAt kit
+K0 26 heavy:plate:fair hp 510 pm 0.109
+K1 26 heavy:plate:legendary hp 914 pm 0.461 heavyAt kit
+K0 27 heavy:plate:fair hp 510 pm 0.109
+K1 27 heavy:chain:superior hp 916 pm 0.436 heavyAt kit
+K0 28 heavy:plate:fair hp 522 pm 0.113
+K1 28 heavy:chain:average hp 760 pm 0.454 heavyAt kit
+K0 29 heavy:plate:fair hp 510 pm 0.110
+K1 29 heavy:plate:exquisite hp 920 pm 0.474 heavyAt kit
+K0 30 heavy:plate:fair hp 510 pm 0.109
+K1 30 heavy:chain:superior hp 844 pm 0.439 heavyAt kit
+K0 31 heavy:plate:fair hp 510 pm 0.108
+K1 31 heavy:chain:superior hp 868 pm 0.430 heavyAt kit
+K0 32 heavy:plate:fair hp 510 pm 0.108
+K1 32 heavy:plate:superior hp 796 pm 0.421 heavyAt kit
+K0 33 heavy:plate:fair hp 510 pm 0.108
+K1 33 heavy:chain:superior hp 756 pm 0.291 heavyAt kit
+K0 34 heavy:plate:fair hp 510 pm 0.135
+K1 34 heavy:plate:exquisite hp 842 pm 0.443 heavyAt kit
+K0 35 heavy:plate:fair hp 510 pm 0.110
+K1 35 heavy:plate:average hp 738 pm 0.375 heavyAt kit
+K0 36 heavy:plate:fair hp 510 pm 0.110
+K1 36 heavy:chain:superior hp 864 pm 0.458 heavyAt kit
+K0 37 heavy:plate:fair hp 510 pm 0.112
+K1 37 heavy:plate:superior hp 734 pm 0.397 heavyAt kit
+K0 38 heavy:plate:fair hp 510 pm 0.107
+K1 38 heavy:chain:superior hp 842 pm 0.413 heavyAt kit
+K0 39 heavy:plate:fair hp 522 pm 0.112
+K1 39 heavy:plate:superior hp 824 pm 0.435 heavyAt kit
+K0 40 heavy:plate:fair hp 510 pm 0.108
+K1 40 heavy:chain:average hp 690 pm 0.386 heavyAt kit
+K0 41 heavy:plate:fair hp 510 pm 0.109
+K1 41 heavy:chain:magnificent hp 798 pm 0.454 heavyAt kit
+K0 42 heavy:plate:fair hp 510 pm 0.108
+K1 42 heavy:plate:average hp 740 pm 0.372 heavyAt kit
+K0 43 heavy:plate:fair hp 522 pm 0.113
+K1 43 heavy:chain:exquisite hp 762 pm 0.433 heavyAt kit
+K0 44 heavy:plate:fair hp 510 pm 0.107
+K1 44 heavy:plate:magnificent hp 772 pm 0.413 heavyAt kit
+K0 45 heavy:plate:fair hp 510 pm 0.110
+K1 45 heavy:plate:superior hp 764 pm 0.396 heavyAt kit
+K0 46 heavy:plate:fair hp 510 pm 0.107
+K1 46 heavy:plate:fair hp 730 pm 0.399 heavyAt kit
+K0 47 heavy:plate:fair hp 510 pm 0.109
+K1 47 heavy:plate:fair hp 712 pm 0.390 heavyAt kit
+K0 48 heavy:plate:fair hp 510 pm 0.107
+K1 48 heavy:plate:average hp 742 pm 0.404 heavyAt kit
+K0 49 heavy:plate:fair hp 510 pm 0.110
+K1 49 heavy:chain:superior hp 784 pm 0.447 heavyAt kit
+K0 50 heavy:plate:fair hp 510 pm 0.107
+K1 50 heavy:chain:superior hp 788 pm 0.427 heavyAt kit
+K0 51 heavy:plate:fair hp 510 pm 0.112
+K1 51 heavy:plate:superior hp 778 pm 0.425 heavyAt kit
+K0 52 heavy:plate:fair hp 510 pm 0.110
+K1 52 heavy:plate:magnificent hp 958 pm 0.439 heavyAt kit
+K0 53 heavy:plate:fair hp 510 pm 0.113
+K1 53 heavy:plate:average hp 814 pm 0.396 heavyAt kit
+K0 54 heavy:plate:fair hp 510 pm 0.113
+K1 54 heavy:plate:average hp 732 pm 0.395 heavyAt kit
+K0 55 heavy:plate:fair hp 510 pm 0.136
+K1 55 heavy:chain:superior hp 788 pm 0.409 heavyAt kit
+K0 56 heavy:plate:fair hp 510 pm 0.109
+K1 56 heavy:plate:exquisite hp 908 pm 0.414 heavyAt kit
+K0 57 heavy:plate:fair hp 510 pm 0.109
+K1 57 heavy:plate:superior hp 854 pm 0.430 heavyAt kit
+K0 58 heavy:plate:fair hp 510 pm 0.112
+K1 58 heavy:plate:average hp 742 pm 0.339 heavyAt kit
+K0 59 heavy:plate:fair hp 510 pm 0.110
+K1 59 heavy:chain:superior hp 828 pm 0.311 heavyAt kit
+K0 60 heavy:plate:fair hp 510 pm 0.111
+K1 60 heavy:plate:exquisite hp 888 pm 0.450 heavyAt kit
+K0 61 heavy:plate:fair hp 510 pm 0.110
+K1 61 heavy:plate:superior hp 760 pm 0.311 heavyAt kit
+K0 62 heavy:plate:fair hp 510 pm 0.110
+K1 62 heavy:chain:superior hp 874 pm 0.422 heavyAt kit
+K0 63 heavy:plate:fair hp 510 pm 0.108
+K1 63 heavy:chain:exquisite hp 728 pm 0.447 heavyAt kit
+K0 64 heavy:plate:fair hp 528 pm 0.115
+K1 64 heavy:chain:superior hp 796 pm 0.424 heavyAt kit
+K0 65 heavy:plate:fair hp 510 pm 0.109
+K1 65 heavy:plate:superior hp 826 pm 0.435 heavyAt kit
+K0 66 heavy:plate:fair hp 510 pm 0.107
+K1 66 heavy:chain:magnificent hp 946 pm 0.457 heavyAt kit
+K0 67 heavy:plate:fair hp 510 pm 0.116
+K1 67 heavy:plate:superior hp 884 pm 0.438 heavyAt kit
+K0 68 heavy:plate:fair hp 510 pm 0.108
+K1 68 heavy:plate:exquisite hp 732 pm 0.415 heavyAt kit
+K0 69 heavy:plate:fair hp 510 pm 0.109
+K1 69 heavy:chain:superior hp 844 pm 0.414 heavyAt kit
+K0 70 heavy:plate:fair hp 510 pm 0.141
+K1 70 heavy:plate:exquisite hp 732 pm 0.400 heavyAt kit
+K0 71 heavy:plate:fair hp 510 pm 0.112
+K1 71 heavy:chain:superior hp 906 pm 0.431 heavyAt kit
+K0 72 heavy:plate:fair hp 510 pm 0.109
+K1 72 heavy:chain:average hp 704 pm 0.403 heavyAt kit
+K0 73 heavy:plate:fair hp 522 pm 0.111
+K1 73 heavy:plate:superior hp 832 pm 0.414 heavyAt kit
+K0 74 heavy:plate:fair hp 510 pm 0.112
+K1 74 heavy:plate:average hp 674 pm 0.401 heavyAt kit
+K0 75 heavy:plate:fair hp 510 pm 0.110
+K1 75 heavy:chain:superior hp 850 pm 0.444 heavyAt kit
+K0 76 heavy:plate:fair hp 510 pm 0.138
+K1 76 heavy:plate:exquisite hp 864 pm 0.362 heavyAt kit
+K0 77 heavy:plate:fair hp 510 pm 0.113
+K1 77 heavy:plate:superior hp 820 pm 0.416 heavyAt kit
+K0 78 heavy:plate:fair hp 510 pm 0.109
+K1 78 heavy:chain:exquisite hp 746 pm 0.463 heavyAt kit
+K0 79 heavy:plate:fair hp 510 pm 0.108
+K1 79 heavy:chain:average hp 726 pm 0.422 heavyAt kit
+K0 80 heavy:plate:fair hp 510 pm 0.110
+K1 80 heavy:plate:fair hp 696 pm 0.382 heavyAt kit
+K0 81 heavy:plate:fair hp 510 pm 0.111
+K1 81 heavy:plate:superior hp 794 pm 0.410 heavyAt kit
+K0 82 heavy:plate:fair hp 510 pm 0.113
+K1 82 heavy:plate:superior hp 844 pm 0.400 heavyAt kit
+K0 83 heavy:plate:fair hp 510 pm 0.111
+K1 83 heavy:chain:average hp 682 pm 0.377 heavyAt kit
+K0 84 heavy:plate:fair hp 510 pm 0.120
+K1 84 heavy:plate:exquisite hp 720 pm 0.412 heavyAt kit
+K0 85 heavy:plate:fair hp 510 pm 0.118
+K1 85 heavy:plate:magnificent hp 1034 pm 0.470 heavyAt kit
+K0 86 heavy:plate:fair hp 510 pm 0.107
+K1 86 heavy:plate:superior hp 860 pm 0.408 heavyAt kit
+K0 87 heavy:plate:fair hp 510 pm 0.109
+K1 87 heavy:chain:legendary hp 888 pm 0.431 heavyAt kit
+K0 88 heavy:plate:fair hp 510 pm 0.109
+K1 88 heavy:plate:superior hp 756 pm 0.421 heavyAt kit
+K0 89 heavy:plate:fair hp 510 pm 0.112
+K1 89 heavy:plate:superior hp 740 pm 0.305 heavyAt kit
+K0 90 heavy:plate:fair hp 510 pm 0.111
+K1 90 heavy:chain:superior hp 782 pm 0.386 heavyAt kit
+K0 91 heavy:plate:fair hp 510 pm 0.135
+K1 91 heavy:plate:exquisite hp 746 pm 0.397 heavyAt kit
+K0 92 heavy:plate:fair hp 510 pm 0.113
+K1 92 heavy:plate:superior hp 818 pm 0.418 heavyAt kit
+K0 93 heavy:plate:fair hp 510 pm 0.108
+K1 93 heavy:plate:average hp 786 pm 0.387 heavyAt kit
+K0 94 heavy:plate:fair hp 510 pm 0.109
+K1 94 heavy:chain:superior hp 840 pm 0.448 heavyAt kit
+K0 95 heavy:plate:fair hp 510 pm 0.108
+K1 95 heavy:plate:average hp 740 pm 0.376 heavyAt kit
+K0 96 heavy:plate:fair hp 510 pm 0.112
+K1 96 heavy:chain:superior hp 832 pm 0.409 heavyAt kit
+K0 97 heavy:plate:fair hp 510 pm 0.111
+K1 97 heavy:plate:superior hp 792 pm 0.416 heavyAt kit
+K0 98 heavy:plate:fair hp 510 pm 0.108
+K1 98 heavy:plate:superior hp 776 pm 0.375 heavyAt kit
+K0 99 heavy:plate:fair hp 510 pm 0.107
+K1 99 heavy:plate:average hp 824 pm 0.407 heavyAt kit
+K0 100 heavy:plate:fair hp 510 pm 0.109
+K1 100 heavy:plate:superior hp 788 pm 0.421 heavyAt kit
+K0 101 heavy:plate:fair hp 510 pm 0.109
+K1 101 heavy:chain:superior hp 748 pm 0.413 heavyAt kit
+K0 102 heavy:plate:fair hp 510 pm 0.110
+K1 102 heavy:chain:average hp 818 pm 0.419 heavyAt kit
+K0 103 heavy:plate:fair hp 510 pm 0.107
+K1 103 heavy:plate:legendary hp 758 pm 0.411 heavyAt kit
+K0 104 heavy:plate:fair hp 510 pm 0.113
+K1 104 heavy:chain:superior hp 760 pm 0.413 heavyAt kit
+K0 105 heavy:plate:fair hp 510 pm 0.112
+K1 105 heavy:chain:average hp 756 pm 0.357 heavyAt kit
+K0 106 heavy:plate:fair hp 510 pm 0.108
+K1 106 heavy:chain:superior hp 808 pm 0.403 heavyAt kit
+K0 107 heavy:plate:fair hp 510 pm 0.107
+K1 107 heavy:chain:superior hp 796 pm 0.406 heavyAt kit
+K0 108 heavy:plate:fair hp 510 pm 0.112
+K1 108 heavy:chain:average hp 784 pm 0.414 heavyAt kit
+K0 109 heavy:plate:fair hp 510 pm 0.108
+K1 109 heavy:plate:average hp 768 pm 0.413 heavyAt kit
+K0 110 heavy:plate:fair hp 510 pm 0.112
+K1 110 heavy:plate:superior hp 858 pm 0.429 heavyAt kit
+K0 111 heavy:plate:fair hp 510 pm 0.109
+K1 111 heavy:plate:superior hp 974 pm 0.489 heavyAt kit
+K0 112 heavy:plate:fair hp 510 pm 0.107
+K1 112 heavy:plate:superior hp 838 pm 0.419 heavyAt kit
+K0 113 heavy:plate:fair hp 510 pm 0.110
+K1 113 heavy:plate:exquisite hp 868 pm 0.453 heavyAt kit
+K0 114 heavy:plate:fair hp 510 pm 0.110
+K1 114 heavy:plate:superior hp 762 pm 0.358 heavyAt kit
+K0 115 heavy:plate:fair hp 510 pm 0.110
+K1 115 heavy:plate:superior hp 736 pm 0.385 heavyAt kit
+K0 116 heavy:plate:fair hp 510 pm 0.116
+K1 116 heavy:chain:exquisite hp 802 pm 0.405 heavyAt kit
+K0 117 heavy:plate:fair hp 510 pm 0.111
+K1 117 heavy:plate:exquisite hp 904 pm 0.441 heavyAt kit
+K0 118 heavy:plate:fair hp 510 pm 0.110
+K1 118 heavy:plate:superior hp 836 pm 0.493 heavyAt kit
+K0 119 heavy:plate:fair hp 510 pm 0.109
+K1 119 heavy:plate:fair hp 810 pm 0.424 heavyAt kit
+K0 120 heavy:plate:fair hp 510 pm 0.108
+K1 120 heavy:chain:average hp 804 pm 0.433 heavyAt kit
+K0 121 heavy:plate:fair hp 510 pm 0.108
+K1 121 heavy:plate:average hp 774 pm 0.433 heavyAt kit
+K0 122 heavy:plate:fair hp 510 pm 0.140
+K1 122 heavy:chain:superior hp 806 pm 0.405 heavyAt kit
+K0 123 heavy:plate:fair hp 510 pm 0.142
+K1 123 heavy:chain:superior hp 804 pm 0.442 heavyAt kit
+K0 124 heavy:plate:fair hp 510 pm 0.109
+K1 124 heavy:chain:superior hp 814 pm 0.400 heavyAt kit
+K0 125 heavy:plate:fair hp 510 pm 0.111
+K1 125 heavy:plate:average hp 698 pm 0.376 heavyAt kit
+K0 126 heavy:plate:fair hp 510 pm 0.112
+K1 126 heavy:plate:superior hp 806 pm 0.427 heavyAt kit
+K0 127 heavy:plate:fair hp 510 pm 0.110
+K1 127 heavy:plate:fair hp 792 pm 0.420 heavyAt kit
+K0 128 heavy:plate:fair hp 510 pm 0.112
+K1 128 heavy:plate:superior hp 756 pm 0.421 heavyAt kit
