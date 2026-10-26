@@ -1,5 +1,15 @@
 # Current status
 
+## v0.18 published and stable-root accepted — 2026-10-26 14:09 UTC
+
+Play: https://gggodlin.github.io/play/hv-v3-dot/ . **Weapon commission suffix choices** let you deliberately spend earned credits for supported attack/crit/parry tradeoffs. **通關後回營** finishes the current expedition and collects its normal rewards before stopping; it can be canceled and does not change saved auto-advance preferences. Both remain explicitly bounded original-research/model/idle adaptations, not universal best gear or complete original HV systems.
+
+Runtime source `92bf6bc0528b0066d63beff10ce0e3d0aa32ed72` passed1,253tests/four syntax. Actual candidate paid purchase/equip/fight, cancellation, intermission no-double-reward, transient reload and readonly checks passed. Accepted full source `0c183aa010f77537ddb2cfe62b35236aa352bcf4` was verified before root `23d6b154f024d3c93b6ae0f9628bd5a76a11c373`; exactPages40336345282/HTTP6 and actual stable-root victory/reload passed. See docs/BROWSER-QA-V018.md for evidence and limitations.
+
+This verified publication-receipt commit is the newest accepted complete-source restore (164files/163payloads); priorv0.17 `69c837f85c01b8352be4316874dc959d2462e0cb` remains recoverable. Only docs/manifest changed after acceptance; unchanged runtime test evidence is reused. Stable test profile stayed separate and naturally reachedLv9/gold382/wins11/inventory20/HP751; candidate progress was not imported into root. Source backup does not restore personal browser saves, credentials, Library synchronization or schedules.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.18 bounded desktop accepted; root promotion pending — 2026-10-26 14:02 UTC
 
 Two new player choices are now actually played: supported **commission suffix selection** and one-shot **通關後回營**. Natural Lv11 progress paid608 credits for Nimble (949→341), received locked without auto-equipping, then equipped for attack139→132 / parry15.15%→21.76%. A stage3 victory returned to camp at wins18/gold451 despite auto-advanceON. Queue/cancel, already-settled intermission (wins19/gold561 unchanged on camp return), reload reset and readonly controls passed. These are observed runs, not proof of universal build superiority.

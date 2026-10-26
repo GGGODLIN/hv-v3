@@ -1,5 +1,14 @@
 # v0.18 bounded desktop browser acceptance
 
+## Stable-root publication smoke — 2026-10-26 14:08–14:09 UTC
+
+Accepted full source0c183aa010f77537ddb2cfe62b35236aa352bcf4 was backed up first; root23d6b154f024d3c93b6ae0f9628bd5a76a11c373 then passed exact Pages40336345282 SUCCESS, six exact GitHub readbacks and six public HTTP200 byte/SHA256 matches. Only the six authorized root runtime files changed; other site blobs and candidate were preserved.
+
+Stable tab2 reloaded to visiblev0.18 with its own previousLv8/gold306/wins10/inventory19 profile unchanged. Startedstage1, queued finish, completed once into camp: Lv9/gold382/wins11/inventory20,HP751,attack127,crit11.6%,parry15.15%; autoAdvanceOFF preserved. Reload retained progress and cleared one-shot intent; three family suffix selectors/options rendered correctly. Queried error logs (limit1000) had no remaining entries after excluding only the known exact extension metadata-error source. Candidate tabs closed; stable tab2 kept as deliverable. Neither candidate save nor paid candidate weapon was imported into stable progress. Bounded desktop smoke passed; physical/mobile remains unclaimed.
+
+The latest verified publication-receipt commit, rather than the earlier blocked candidate or convenient old link, is the accepted recovery source. This final receipt only updates documentation/manifest, not tested runtime.
+
+
 2026-10-26 13:58–14:02 UTC. Actual cloud Chromium desktop; not physical/mobile acceptance.
 
 ## Version and source chain
