@@ -509,3 +509,14 @@ Defaults now LPD 0, HS 0.9, DS 2, DPD 0.08, TR 3 (all 暫定). cp6-abyss-sim CHE
 - rc9-tune (fresh fights, worst of A/B): d1–3 ≥99.2, d5B ≥99.3, d16 blade 70.8 / bulwark 75.6 / arcane 87.7 / oc 95.5, d20B ≥85.7. (rc9-sum's FAIL labels use the old trip1/ratio targets and can be ignored.)
 - cp5-deathcombo: 必死 0 (34 warnings, 16 relative).
 - rc4-noclear 256: blade 26/256 = 10.2% (just over the ≤10% gate), oc 2.7%, arcane 0, bulwark 0.8%. This metric is main tower only. It came out identical with the rc8 defaults (re-run), so it is not caused by set A. Reported and not adjusted.
+
+### rc9 presets (public/data/cp6-presets.json, docs/logs/rc9/presets-export.txt)
+Selection for postF20-*: only characters whose gear follows the school rule. Among those, pick the one closest to the school's sim median in fresh d1 win (K=50) and potions; ties go to the one closest to median power. abyss10/abyss15 are still the power median.
+| preset | seed | Lv | HP | MP | potions | d1 win | sim median Lv/HP/MP/potions/d1 |
+|---|---|---|---|---|---|---|---|
+| postF20-blade (2H) | 50 | 12 | 740 | 26 | 3 | 100% | 13/742/27/3/100% |
+| postF20-oc (1H+shield) | 31 | 12 | 776 | 33 | 2 | 100% | 13/766/30/2/100% |
+| postF20-arcane (staff) | 61 | 15 | 722 | 54 | 3 | 100% | 13/722/40/3/100% |
+| postF20-bulwark (1H+shield) | 47 | 15 | 794 | 29 | 5 | 100% | 13/728/27/5/100% |
+| abyss10 | 15 | 16 | 816 | 33 | 9 | 100% | — |
+| abyss15 | 27 | 14 | 778 | 39 | 0 | 100% | — |
