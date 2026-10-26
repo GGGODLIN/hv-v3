@@ -1,0 +1,4 @@
+blade hp 838 lv 14 trip1 median d19 trip2 median d24 potDeath [413,262] noPotShare 36.6%
+oc hp 816 lv 13 trip1 median d15 trip2 median d19 potDeath [422,256] noPotShare 39.3%
+arcane hp 778 lv 14 trip1 median d14 trip2 median d19 potDeath [397,225] noPotShare 43.3%
+bulwark hp 878 lv 12 trip1 median d29 trip2 median d29 potDeath [432,280] noPotShare 35.2%
