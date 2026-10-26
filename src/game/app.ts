@@ -1,5 +1,5 @@
 import { iconKey } from './icons';
-import { act, alive, armCp5, type BEvent, canUse, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, type BEvent, canUse, potHint, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 import { profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -257,7 +257,7 @@ export class App {
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         // CP5 rc2 fix 3: the death-combo ⚔ warning sits on the elite node itself (the floor banner stays).
         const ew = r.abyss && RULES.cp6Abyss && t === 'elite' ? `<b class="ewarn warn" data-elitemark title="深淵精英可能帶 3 個詞綴，或克制物理的【尖刺】【堅硬】">⚔</b>` : r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
-        return cur ? `<button class="node n-${t}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
+        return cur ? `<button class="node n-${t}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
@@ -285,7 +285,7 @@ export class App {
       return `<button data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => m.hp > 0 && m.charge > 0);
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };

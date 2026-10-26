@@ -1,7 +1,7 @@
 import { CP7 } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, act, alive, armCp5, canUse, quickAttack, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, act, alive, armCp5, canUse, potHint, quickAttack, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -297,6 +297,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
 /** Play one battle to the end with a strategy (+ CP5 layer). */
 /** One sim decision for a strategy (the same call fight() makes each turn). */
 export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
+  if (SIM_AI.naive && RULES.cp8 && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
   if (SIM_AI.naive) { PHYS = physPlay(strategy); return mode ? chooseCp5(b, mode, () => chooseNaive(b)) : chooseNaive(b); }
   PHYS = physPlay(strategy);

@@ -191,6 +191,12 @@ export function quickAttack(s: BattleState, target: number): Action {
   if (RULES.cp8 && id && s.d.style === 'staff' && SPELLS[id]) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
   return { kind: 'attack', target };
 }
+/** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
+export const POT_HINT = { hp: 0.5, charging: 0.75 };
+export function potHint(s: BattleState): boolean {
+  const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
+  return s.hp < s.d.hp * th && canUse(s, { kind: 'item', id: 'health' });
+}
 export function canUse(s: BattleState, a: Action): boolean {
   if (s.over) return false;
   switch (a.kind) {
