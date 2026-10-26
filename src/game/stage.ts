@@ -3,6 +3,8 @@ import type { BEvent, BattleState } from '../core/battle';
 import type { Monster } from '../core/monsters';
 import { QUALITY_COLOR, type Quality } from '../core/items';
 import { bodyOf } from '../core/bodies';
+/** rc15 (2): short element names for the enemy label (display only). */
+const STAGE_ELEM_ZH: Record<string, string> = { fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗', crushing: '打', slashing: '斬', piercing: '刺', void: '虛' };
 
 export const W = 1100;
 export const H = 620;
@@ -115,7 +117,9 @@ export class Stage extends Phaser.Scene {
       if (m.rank === 'boss') sprite.setTint(0xff8080);
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () => { if (m.hp > 0) this.onTarget(i); });
       const top = y - (kind === 'beast' ? 95 : 148) * scale;
-      const label = this.add.text(x, top - 26, `${m.rank === 'elite' ? '☠' : ''}${m.name} Lv${m.level}`, { fontFamily: 'monospace', fontSize: '13px', color: m.rank === 'normal' ? '#ffffff' : '#ffb060', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+      const ek = (Object.keys(m.spec) as (keyof Monster['spec'])[]);
+      const elemTag = [...ek.filter((k) => m.spec[k] < 0).map((k) => `弱${STAGE_ELEM_ZH[k] ?? k}`), ...ek.filter((k) => m.spec[k] > 0).map((k) => `抗${STAGE_ELEM_ZH[k] ?? k}`)].join(' ');
+      const label = this.add.text(x, top - (elemTag ? 34 : 26), `${m.rank === 'elite' ? '☠' : ''}${m.name} Lv${m.level}${elemTag ? `\n${elemTag}` : ''}`, { fontFamily: 'monospace', fontSize: '13px', color: m.rank === 'normal' ? '#ffffff' : '#ffb060', stroke: '#000', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
       const bar = this.add.graphics().setDepth(20);
       const v: MonView = { m, sprite, kind, x, y, scale, bar, label, ring };
       this.mons.push(v);

@@ -1,6 +1,8 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
 import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+/** rc15 (2): element names for the encounter log line (display only). */
+const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
 import { ATTRS, attrCost, expForLevel } from '../core/formulas';
 import { effectiveStats, equipName, QUALITY_COLOR, QUALITY_ZH, sellPrice, SLOT_ZH, SLOTS, type Equip } from '../core/items';
@@ -782,7 +784,7 @@ export class App {
     const oc0 = openingOc(this.p, t, r);
     armBattle(this.battle, r);
     this.battle.oc += oc0;
-    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`];
+    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`, ...this.monsters.map((m) => { const w = weaknesses(m), r = resistances(m); return w.length || r.length ? `<span class="enemyelem" data-enemyelem>${esc(m.name)}：${w.map((x) => `弱${ENC_TZ[x.type] ?? x.type} ${Math.abs(x.pct)}%`).join(' ')}${w.length && r.length ? '；' : ''}${r.map((x) => `抗${ENC_TZ[x.type] ?? x.type} ${x.pct}%`).join(' ')}</span>` : ''; }).filter(Boolean)];
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
     if (r.cp5) { this.cp5TipBox = []; const ev0 = armCp5(this.battle, r.pdot); this.cp5Tips(this.battle); this.cp5Log(ev0); }
     this.target = 0;
