@@ -52,3 +52,5 @@
 - cp6-abyss-sim（cp8 開，N=128）ALL PASS；必死組合（N=96）必死 0。
 - P3 敏感度（N=32）：開場 buff 4→6→10 個，勝率約 17%→20%→22%。buff 數量不是瓶頸（推測：d21 的怪物強度跳升，P5 資料中 d21+ 單回合最大傷害約達 0.6–0.9 HP）。
 - P5 備註：turnCap < 1 時，「滿血一回合死亡」在構造上不可能（DoT 等非怪物行動除外），所以 0% 是必然結果，不是調出來的數字。
+- vitest（單執行緒 `--no-file-parallelism --maxWorkers=1`）：29 個檔案全數通過（含 tests/cp8.test.ts）。
+- e2e：新增的 `scripts/cp8-rc1-e2e.mjs` PASS（preset abyss20 → 從 d16 出發 → 先選 3 個 buff，選完前地圖節點鎖住）。舊的 e2e.mjs、cp6-rc2-ui、cp6-rc3（「preset without cp6」）、cp6-rc6、cp7-rc4-prep（「cp7 off」）在 **cp7-main 的建置（5199）上一樣 FAIL**，失敗訊息相同，因此是既有問題，不是 cp8 造成的回歸。e2e-cp3fix、cp5-rc2、cp6-rc2-dot、cp7-rc5-bug1 PASS。
