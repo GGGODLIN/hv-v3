@@ -22,7 +22,9 @@ import type { NodeType } from './tower';
 /** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
 export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
-export const allocWeights = (p: Player): Record<string, number> => (RULES.cp8 && p.lean === 'arcane' ? ALLOC_WEIGHTS.arcane : ALLOC_WEIGHTS.phys);
+/** cp8-rc6 Part B (暫定，缺原版出處): per-lean 自動分配 weights under cp8; a lean missing here uses phys (arcane: ALLOC_WEIGHTS.arcane). Sim override: K_ALLOC_<lean>=str,dex,end,agi,int,wis. */
+export const LEAN_ALLOC: Partial<Record<NonNullable<Player['lean']>, Record<string, number>>> = { arcane: { ...ALLOC_WEIGHTS.arcane } };
+export const allocWeights = (p: Player): Record<string, number> => (RULES.cp8 && p.lean ? LEAN_ALLOC[p.lean] ?? ALLOC_WEIGHTS.phys : ALLOC_WEIGHTS.phys);
 export function autoAllocate(p: Player): void {
   const weights = allocWeights(p);
   for (let guard = 0; guard < 2000; guard++) {

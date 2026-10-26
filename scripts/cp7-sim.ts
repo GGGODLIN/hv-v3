@@ -14,13 +14,15 @@ import { CP7, simPickStart } from '../src/core/cp7';
 import { Rng } from '../src/core/rng';
 import { CP8 } from '../src/core/cp8';
 import { act, type BattleState } from '../src/core/battle';
-import { decide, prefBuff, type BuffStrategy } from '../src/core/auto';
+import { decide, prefBuff, LEAN_ALLOC, BULWARK_STYLE, type BuffStrategy } from '../src/core/auto';
 import { openOffer, takeBuff } from '../src/core/buffoffer';
 import { derive } from '../src/core/player';
 const E = process.env;
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = E.CP7 !== '0'; RULES.cp8 = E.CP8 === '1';
 for (const k of Object.keys(CP8) as (keyof typeof CP8)[]) if (E[`K8_${k}`] !== undefined) (CP8 as unknown as Record<string, unknown>)[k] = Array.isArray(CP8[k]) ? E[`K8_${k}`]!.split(",").map(Number) : Number(E[`K8_${k}`]);
 for (const k of Object.keys(CP7) as (keyof typeof CP7)[]) if (E[`K_${k}`] && typeof CP7[k] === "number") (CP7 as Record<string, unknown>)[k] = Number(E[`K_${k}`]);
+for (const l of ['blade', 'oc', 'arcane', 'bulwark'] as const) if (E[`K_ALLOC_${l}`]) { const v = E[`K_ALLOC_${l}`]!.split(',').map(Number); LEAN_ALLOC[l] = Object.fromEntries(['str', 'dex', 'end', 'agi', 'int', 'wis'].map((k, i) => [k, v[i]!])); } // cp8-rc6 Part B tuning
+if (E.K_BW_ARMOR !== undefined) BULWARK_STYLE.armor = (E.K_BW_ARMOR || undefined) as 'heavy' | undefined;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const N = Number(process.argv[2] ?? 256), F = Number(process.argv[3] ?? 4), T = 10, S0 = Number(E.SEED0 ?? 0), sc = E.SC!;
 const strat = `buff:${sc}` as Strategy; const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
