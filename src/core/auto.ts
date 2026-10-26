@@ -191,6 +191,10 @@ export function chooseNaive(b: BattleState): Action {
   if (ENV?.SIM_SKILLHINT === 'off') { /* skills off */ } else if (A.has('skills') && ENV?.SIM_SKILLHINT !== 'any' && !ENV?.SIM_SKILLS) { const g = suggestSkill(b, target); if (g) return { kind: 'skill', id: g, target }; }
   else if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
   const qa = quickAttack(b, target);
+  // rc15 arcane diag (sim only): SIM_ARC_MELEE=1 = staff A is a plain melee hit (no fiery quick-cast); SIM_ARC_FORCE=<spell> = the player
+  // presses that one spell key every turn when castable (e.g. freeze = 「2冰封」), else A.
+  if (ENV?.SIM_ARC_MELEE === '1' && qa.kind === 'spell') return { kind: 'attack', target };
+  if (ENV?.SIM_ARC_FORCE && qa.kind === 'spell') { const f: Action = { kind: 'spell', id: ENV.SIM_ARC_FORCE as SpellId, target }; if (canUse(b, f)) return f; }
   // cp8-rc12 item 2: hinted mode follows the arcane 💡 element suggestion (app.ts arcaneSpell). SIM_SPELLHINT=old = rc11 rule, off = only A.
   if (A.has('skills') && qa.kind === 'spell' && ENV?.SIM_SPELLHINT !== 'off') { const g = suggestSpell(b, target, ENV?.SIM_SPELLHINT === 'old' ? 'old' : 'new'); if (g) return { kind: 'spell', id: g.id, target }; }
   return qa;
@@ -387,7 +391,14 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
 }
 /** Play one battle to the end with a strategy (+ CP5 layer). */
 /** One sim decision for a strategy (the same call fight() makes each turn). */
+/** rc15 arcane diag (sim only): SIM_LAG=1 = reaction delay — the player presses what the UI suggested one turn earlier (if still usable). */
 export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
+  if (ENV?.SIM_LAG !== '1') return decide0(b, strategy, mode);
+  const cur = decide0(b, strategy, mode), L = b as unknown as { lag?: Action }; const prev = L.lag; L.lag = cur;
+  if (prev && prev.kind !== 'item' && canUse(b, 'target' in prev && b.monsters[prev.target as number]?.hp! > 0 ? prev : { ...prev, target: (cur as { target?: number }).target } as Action)) return 'target' in prev && b.monsters[prev.target as number]?.hp! > 0 ? prev : ({ ...prev, target: (cur as { target?: number }).target } as Action);
+  return cur;
+}
+function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
   if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP
   if (SIM_AI.naive && RULES.cp8 && SIM_AI.add.has('skills') && ENV?.SIM_GUARDHINT !== '0') { const g = guardHint(b); if (g) return { kind: g }; } // cp8-rc12 item 5: hinted mode follows the D hint (HP danger, potion unusable)
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
@@ -396,9 +407,12 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
   const base = () => (strategy !== 'auto' ? chooseHuman(b, aimWeak(strategy) && !PHYS) : chooseAction(b));
   return mode ? chooseCp5(b, mode, base) : base();
 }
+/** rc15 arcane diag (DBGFIGHT=1, sim only): one row per fight — action counts, MP-starved turns (staff A fell back to melee), HP taken, biggest hit. */
+export const FIGHT_LOG: Record<string, number | string | boolean>[] = []; export const FIGHT_CTX = { depth: 0, type: '' };
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
   const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
-  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } const h0 = b.hp; act(b, a, rng, profs); if (dbg && b.hp < h0) dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; }
+  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; act(b, a, rng, profs); if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
+  if (dbg) FIGHT_LOG.push({ ...dbg, depth: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: b.turn, won: b.over === 'win', maxHp: Math.round(b.d.hp), maxMp: Math.round(b.d.mp ?? 0), mpEnd: Math.round(b.mp), hpEnd: Math.round(b.hp) });
   if (!b.over) b.over = 'lose';
 }
 const potCount = (b: BattleState) => b.potions.health + b.potions.mana + b.potions.spirit;
@@ -448,6 +462,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         fight(c, strategy, r2, profs, 'ignore');
         alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
       }
+      FIGHT_CTX.depth = depthOf(run) || run.floor; FIGHT_CTX.type = type;
       if (cp5) fight(b, strategy, rng, profs, cp5.mode);
       else fight(b, strategy, rng, profs);
       turns += b.turn;
