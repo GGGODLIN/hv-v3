@@ -28,7 +28,7 @@ export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, w
  *  Weight 0 = never buy. Each school's main stats now lead: blade STR/DEX, oc STR/AGI, bulwark END, arcane INT/WIS (INT > STR kept). */
 export const LEAN_ALLOC: Partial<Record<NonNullable<Player['lean']>, Record<string, number>>> = {
   blade: { str: 3, dex: 3, end: 2, agi: 2, int: 0, wis: 0 },
-  oc: { str: 3, dex: 2, end: 2, agi: 3, int: 0, wis: 0 },
+  oc: { str: 3, dex: 3, end: 3, agi: 2, int: 1, wis: 1 }, // cp8-rc8 item 1 candidate c3 (old phys 3,2,3,2,1,1 + dex 3); 暫定 AI knob
   bulwark: { str: 2, dex: 1, end: 3, agi: 1, int: 0, wis: 0 },
   arcane: { str: 0, dex: 0, end: 2, agi: 1, int: 3, wis: 2 },
 };

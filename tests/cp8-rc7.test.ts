@@ -13,7 +13,7 @@ describe('cp8-rc7 P0', () => {
   it('bug 1: 自動分配 is school-specific', () => {
     cp8();
     const b = alloc('blade'), o = alloc('oc'), a = alloc('arcane'), w = alloc('bulwark'), base = newPlayer().attrs;
-    for (const x of [b, o, w]) { expect(x.int).toBe(base.int); expect(x.wis).toBe(base.wis); }
+    for (const x of [b, w]) { expect(x.int).toBe(base.int); expect(x.wis).toBe(base.wis); }
     expect(a.int).toBeGreaterThan(a.end); expect(a.int).toBeGreaterThan(a.str);
     expect(w.end).toBeGreaterThan(w.str);
     expect(b).not.toEqual(o);

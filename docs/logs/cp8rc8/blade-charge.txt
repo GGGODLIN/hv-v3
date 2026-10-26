@@ -1,0 +1,8 @@
+chg_cur_arcane CHG {"boss":3065,"seen":1333,"seenCharge":801}
+chg_cur_blade CHG {"boss":2996,"seen":2195,"seenCharge":1398}
+chg_cur_bulwark CHG {"boss":2927,"seen":2235,"seenCharge":1330}
+chg_cur_oc CHG {"boss":3861,"seen":3639,"seenCharge":2309}
+chg_naive_arcane CHG {"boss":3564,"seen":2048,"seenCharge":868}
+chg_naive_blade CHG {"boss":3352,"seen":1885,"seenCharge":1038}
+chg_naive_bulwark CHG {"boss":3447,"seen":2313,"seenCharge":1458}
+chg_naive_oc CHG {"boss":3841,"seen":2491,"seenCharge":1477}
