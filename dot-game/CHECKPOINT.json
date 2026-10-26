@@ -1,13 +1,15 @@
 {
-  "checkpoint": "v0.17-protection-candidate",
-  "status": "source-tested-browser-pending",
+  "checkpoint": "v0.17-desktop-accepted",
+  "status": "desktop-accepted-root-pending",
   "base_accepted_recovery": "b32d52af8558c15e907a77cbf1da9bbda866e666",
+  "runtime_source": "842ba0d13aab01ac5d75937667d144d31c7a72a4",
+  "candidate_site": "bec9b0042a4244d7785895cb386301eefe836cf6",
   "source_tests_passed": 1188,
   "runtime_syntax_checks": 4,
   "files": {
     "README.md": {
-      "bytes": 42912,
-      "sha256": "3b69a0ef62d74f9061ef20eb7d6dc9aa5e7b0b015c704b076e68f777c0a6f7c8"
+      "bytes": 43923,
+      "sha256": "637f32db4b02965f62974da8867b8d962eefe976f62b98453f7e075fc3ea2c45"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -38,8 +40,8 @@
       "sha256": "29b80ed7efab1e0653b00e66f73f1f51139d26073a21fa24999dbd98afa77476"
     },
     "docs/ACCEPTANCE-V017.md": {
-      "bytes": 1482,
-      "sha256": "b3351e9a5c1bfbaa1d43750ef089b8a06eaabfa4a3b797e043b41efae19a5145"
+      "bytes": 1522,
+      "sha256": "003e2c75a687177e73917e2b1c40662e9600b6817a178f2de61eec2ef291d010"
     },
     "docs/ACCEPTANCE-V02.md": {
       "bytes": 7357,
@@ -112,6 +114,10 @@
     "docs/BROWSER-QA-V016.md": {
       "bytes": 6334,
       "sha256": "bfc563527014302554ff5cac50ad57e140a242d33330e972959ee0460e70af26"
+    },
+    "docs/BROWSER-QA-V017.md": {
+      "bytes": 3240,
+      "sha256": "e7276b6bb194e86958a935304ee5c6e5b521ddc75d022ef8929e8aa98836d1e9"
     },
     "docs/BROWSER-QA-V02.md": {
       "bytes": 3608,
@@ -210,8 +216,8 @@
       "sha256": "dbfbaedfa01b3ff27f9cf355985ebb4ceb65e7bbc63a971592e92e023436b3db"
     },
     "docs/PROTECTION-GUIDE.md": {
-      "bytes": 4787,
-      "sha256": "590e12fa0eb7e352f1a47a692440046ff33b3fc977a04a0ed41d304137889ed7"
+      "bytes": 4903,
+      "sha256": "b08104c3bc5faf7978012281f0a9dc70aa16d3a58ba2171af67eb73ea358a0c2"
     },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
@@ -238,8 +244,8 @@
       "sha256": "1bfc0c24a7bcd63cecf414de5d4356f5bf393c42641457a3b47ed34f76d3a05b"
     },
     "docs/STATUS.md": {
-      "bytes": 66474,
-      "sha256": "60da39ee7ae80bf7e674cf229b051bd10c5b47c5ef4c227a2199a31c1cf8d5fb"
+      "bytes": 67485,
+      "sha256": "fc2f09d3217f88caac6ec38a8ef94e3c0db656857739ac097c74b4a6c22d0867"
     },
     "docs/UI-AND-SAVES.md": {
       "bytes": 4144,

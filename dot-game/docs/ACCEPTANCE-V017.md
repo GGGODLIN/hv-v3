@@ -1,6 +1,6 @@
 # v0.17 source acceptance — 2026-10-26
 
-Candidate only: actual browser and publication are pending.
+Candidate desktop accepted; production promotion pending. Actual evidence is in BROWSER-QA-V017.md.
 
 - Full Node suite1,188/1,188; no failures/skips; four runtime syntax checks passed.
 -19 new engine Protection tests and7 UI tests cover spell turn/MP cost, globalTick lifecycle, same-roll independent damage reduction, HP-capped prevention, heal priority, shortage fallback, legacy saves and ownership/read-only behavior.

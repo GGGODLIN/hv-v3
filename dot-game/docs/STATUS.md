@@ -1,5 +1,13 @@
 # Current status
 
+## v0.17 desktop accepted; root promotion pending — 2026-10-26 13:07 UTC
+
+Optional Protection is now source-tested and actually played: normalLv8 import→naturalLv10 unlock,3MP cast/15Tick countdown, longer encounter expiry/recast, mitigation report, camp/readonly controls and ON/OFF save reload passed. Source `842ba0d13aab01ac5d75937667d144d31c7a72a4` passed1,188tests/four syntax; candidate `bec9b0042a4244d7785895cb386301eefe836cf6` passed exactPages40326848552/HTTP6. See docs/BROWSER-QA-V017.md for observations and limits.
+
+The spell's25% independent reduction/base level-based MP fee are sourced; Lv10/15Ticks remain questionmarked research-model choices, and full-turn auto-recast/no weapon proficiency duringcast are explicit adaptations. This receipt changes docs/manifest only; unchanged runtime tests are reused. Publicv0.16 and restore `b32d52af8558c15e907a77cbf1da9bbda866e666` remain accepted until backup-before-promotion and root smoke pass.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.17 development candidate — 2026-10-26 12:54 UTC
 
 Protection adds one optional defensive choice: at level10 enable 自動護盾, spend a base `ceil(level × .25)` MP and one attack turn for25% independent damage reduction. Insufficient MP retains the normal attack; a successful heal takes priority. Source level10?/duration15? remain explicitly selected research models; full-turn auto-recasting is an adaptation, not original Innate Arcana. See docs/PROTECTION-GUIDE.md for exact sources and limitations.
