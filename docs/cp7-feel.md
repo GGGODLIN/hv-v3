@@ -77,3 +77,15 @@
 - cp7-report A/B：ALL PASS（`docs/cp7-final-sim.txt`；P1 99.6% / 99.4% ≥ 99%）。
 - cp6-abyss-sim（cp7 開，N=128）：ALL PASS（`docs/logs/cp7rc4/cp6-abyss-sim-N128.txt`）。
 - 必死組合（N=96）：必死 0、警告 17、相對必死 8（rc2 同為 8）（`docs/logs/cp7rc4/deathcombo-N96.txt`）。
+
+## cp7-rc5 試玩 bug
+### bug 1（中）整備提醒沒列「倉庫有更好裝備」
+- 根因（已驗證，postF20-bulwark preset：戰力 474、脇差＋盾）：裝備欄的「戰力 ▲」是 `compare()` 的**絕對差值，任何 >0 都顯示 ▲**；整備提醒 (c) 與「▲ 比身上好」用 `betterThanWorn`＝**相對增益 > CP7.betterMargin（2%）**。優良・浣熊之棍棒 ▲9 ＝ 9/474 ＝ 1.90% ≤ 2% → 不提醒。棍棒是單手武器，不會拿掉盾；流派武器限制、只檢查防具都不是原因（`wearGain` 已含主手）。
+- 修正（不改數值）：`gearVerdict()`（cp7.ts）一個判定供全部 UI 使用。cp7 下倉庫與背包的每件裝備：>2% 顯示「▲ 比身上好」（與提醒一致）；0–2% 顯示「小幅提升（≤2%，不列入整備提醒）」說明原因。
+- 驗證：`tests/cp7-rc5-prep-bulwark.test.ts`（bulwark 主塔到 F6 撤退存檔＋優良棍棒）；`scripts/cp7-rc5-bug1-e2e.mjs`（真 build：▲9 顯示小幅提升且不提醒；▲36 提醒「換上」按下即換上、盾保留）。
+### bug 2（低）版本字樣：cp7 開啟時加「· CP7」。
+### bug 3（低）疑似一擊必死（`scripts/cp7-rc5-boss-hits.ts`，log：`docs/logs/cp7rc5/boss-hits.txt`，N=128）
+- 先手規則（已驗證，battle.ts `act`）：玩家每回合先行動，之後 `monstersAct` 每隻怪各打一次；靈動架勢切換不耗回合。行動前死亡 = 0；首領不會在玩家行動前連續攻擊 → 不是先手 bug。
+- 首領單擊最大（滿血比例）：abyss20(oc) d20 389（45.0%）、d23 458（53.0%）；postF20-arcane d20 516（62.6%）、d23 650（78.9%）。≥80% 滿血的單擊 = 0 → 依製作人規則**不加**單擊上限／蓄力預警。
+- 單回合（含小怪）最大：abyss20 d20 442 / d23 647；arcane d20 724 / d23 1034（> 滿血 824）。arcane 以 HP 540 進 d20 首領，首個怪物回合死亡 28/128；d23 57/128。abyss20 以 465 起的 448 掉血落在 d23 單回合範圍內。→ 數值問題，只回報。
+- 戰鬥紀錄：原本只有逐擊、畫面只留 6 行。cp7 下新增每回合一行「第 N 回合：受到 X（單擊最大 Y）HP a → b」，完整紀錄在 `window.__turnLog`（只顯示，不影響數值）。
