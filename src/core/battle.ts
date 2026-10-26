@@ -1,3 +1,4 @@
+import { RULES } from './run';
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { resolveHit, type Avoid } from './damage';
@@ -321,6 +322,12 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   return r.avoidMult > 0 ? r.damage : 0;
 }
 
+/** CP7 P2 (sourced): Damage.md:63 — specific mitigation is reduced additively but "cannot be reduced below 0, or reduced further
+ * if the mitigation is already negative". cp6 subtracted the proficiency reduction from a weakness too (amplifying it). */
+function cp7SpellSpec(spec: number, reduce: number): number {
+  if (!RULES.cp7) return spec - reduce;
+  return spec < 0 ? spec : Math.max(0, spec - reduce);
+}
 function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: number, ev: BEvent[]): void {
   const m = s.monsters[ti]!;
   const pf = Math.max(0, Math.min(1, (profVal - m.level) / Math.max(1, m.level)));
@@ -334,7 +341,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   const r = resolveHit(rng, {
     raw, magic: true, acc: s.d.magAcc,
     evade: m.status.stun > 0 ? 0 : m.evade, parry: 0, block: 0, resist: m.resist, counterResist: 0.5 * pf + s.d.counterResist,
-    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: m.spec[def.element] / 100 - specReduce,
+    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: cp7SpellSpec(m.spec[def.element] / 100, specReduce),
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element) });

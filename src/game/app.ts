@@ -16,6 +16,7 @@ import { ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
+import { betterThanWorn } from '../core/cp7';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
 import { sortieLabel } from '../core/progress';
 import { scrollToCurrentFloor } from './mapscroll';
@@ -147,6 +148,16 @@ export class App {
       <div class="iname">${App.icon(e)}${esc(equipName(e))}</div>
       <div class="imeta">${QUALITY_ZH[e.quality]} · ${SLOT_ZH[e.slot]} · Lv${e.level}${e.iw ? ` · 強化+${e.iw}` : ''}</div>
       <ul class="istats">${st}</ul>${actions ? `<div class="iact">${actions}</div>` : ''}</div>`;
+  }
+
+  /** Battle / chest loot card. CP7 P1: a drop that beats the worn piece (betterThanWorn, +5% 戰力) gets a green frame and a
+   *  「▲ 比身上好」 badge; other drops are shown dimmed without the stat-delta row so they do not distract. Off = cp6 card. */
+  lootCard(e: Equip, l: Loot): string {
+    const guar = l.guaranteed?.includes(e.id) ? '<b class="warn" data-guar>保底</b> ' : '';
+    if (!RULES.cp7) return this.itemCard(e, `${guar}<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e);
+    const up = betterThanWorn(this.p, e);
+    const card = this.itemCard(e, `${up ? '<b class="better" data-better>▲ 比身上好</b> ' : ''}${guar}<button data-bequip="${e.id}">立刻換上</button>`);
+    return up ? `<div class="loot-better">${card}${this.compare(e)}</div>` : `<div class="loot-plain" data-plain>${card}</div>`;
   }
 
   /** Derived-stat deltas if e were equipped. */
@@ -376,7 +387,7 @@ export class App {
       const l = this.pending.loot;
       const pots = Object.entries(l.potions).filter(([, v]) => v).map(([k, v]) => `${POTION_ZH[k as PotionId]} ×${v}`).join('、');
       body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>
-        <div class="inv">${l.equips.map((e) => this.itemCard(e, `${l.guaranteed?.includes(e.id) ? '<b class="warn" data-guar>保底</b> ' : ''}<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
+        <div class="inv">${l.equips.map((e) => this.lootCard(e, l)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
@@ -586,7 +597,7 @@ export class App {
     this.pending = {};
     this.notice = coreEnterNode(this.p, r, t);
     if (t === 'battle' || t === 'elite' || t === 'boss') return this.startBattle(t);
-    if (t === 'chest') { this.pending.loot = chestLoot(r); applyLoot(this.p, r, this.pending.loot); }
+    if (t === 'chest') { this.pending.loot = chestLoot(r, this.p); applyLoot(this.p, r, this.pending.loot); }
     if (t === 'merchant') { r.merchant = merchantStock(r); if (RULES.cp4RunBuffs) r.buffStock = merchantBuffs(this.p, r); }
     if (t === 'shrine' && RULES.cp4RunBuffs) openShrine(this.p, r);
     this.go('node');

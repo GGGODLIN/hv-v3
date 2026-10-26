@@ -6,6 +6,7 @@ import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from '.
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
+import { CP7, betterThanWorn, pityPiece } from './cp7';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
@@ -45,6 +46,8 @@ export const RULES = {
   cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
   /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
   cp6Abyss: true, // CP6 accepted (cp6-pass): default on
+  /** CP7 手感 feature flag (docs/cp7-feel.md). Off = identical to cp6-pass. `?cp7` in the URL turns it on. */
+  cp7: false,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -79,6 +82,8 @@ export interface RunState {
   foundEquip?: boolean;
   /** CP3: 1-based trip number (carry-back multiplier) and pending unlock / tutorial messages for the UI. */
   trip?: number;
+  /** CP7 P1: better-than-worn drops this trip (counted at drop time). */
+  upg?: number;
   tutorial?: boolean;
   /** Next elite is picked with an elemental weakness (CP3-7 grimoire lesson). */
   weakNext?: boolean;
@@ -317,7 +322,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[] }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[] }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -330,8 +335,8 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
 /** rc11: main-tower loot level (see RULES.lootPlayerLevel). */
-export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
-export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): Loot {
+export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel || RULES.cp7 ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
+export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p?: Player): Loot {
   const ab = depthOf(run);
   const L = ab ? abyssLevel(run) : lootLevel(run);
   return withRng(run, (rng) => {
@@ -372,17 +377,32 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
     // 暫定 early-loot guarantee (round 5): the first won battle on floors 1-4 with no equipment found yet this run drops one.
     if (run.floor <= RULES.earlyEquipByFloor && !run.foundEquip && loot.equips.length === 0) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
     if (loot.equips.length) run.foundEquip = true;
+    if (RULES.cp7 && p) cp7Pity(rng, p, run, loot, L);
     return loot;
   });
 }
 
-export function chestLoot(run: RunState): Loot {
+/** CP7 P1: count better-than-worn drops this trip; add the smart-loot pity piece when needed (CP7.pityUntil). */
+function cp7Pity(rng: Rng, p: Player, run: RunState, loot: Loot, L: number): void {
+  let u = loot.equips.filter((e) => betterThanWorn(p, e)).length;
+  if (u === 0 && (run.upg ?? 0) < CP7.pityUntil) {
+    const e = pityPiece(rng, p, L);
+    if (e) { loot.equips.push(e); (loot.better ??= []).push(e.id); u = 1; }
+  }
+  run.upg = (run.upg ?? 0) + u;
+}
+
+export function chestLoot(run: RunState, p?: Player): Loot {
   const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
   // design §5: chests drop 2-3 items (暫定 single-player acceleration).
-  return withRng(run, (rng) => ({
-    equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
-    credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
-  }));
+  return withRng(run, (rng) => {
+    const loot: Loot = {
+      equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
+      credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
+    };
+    if (RULES.cp7 && p) { cp7Pity(rng, p, run, loot, L); }
+    return loot;
+  });
 }
 
 export function applyLoot(p: Player, run: RunState, loot: Loot): void {
@@ -399,7 +419,8 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
   if (b.over !== 'win') { run.done = 'dead'; return null; }
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
-  const loot = battleLoot(run, monsters, type);
+  const loot = battleLoot(run, monsters, type, p);
+  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * CP7.winHeal)); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
   const total = Object.values(b.used).reduce((a, c) => a + (c ?? 0), 0) || 1;
   for (const k of PROFS) {
