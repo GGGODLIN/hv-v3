@@ -13,19 +13,15 @@ v0.18 adds supported weapon-commission suffix choices and cancellable one-shot *
 
 The stable test profile stayed separate and naturally reached Lv9 / gold382 / wins11 / inventory20 / HP751; candidate progress was not imported. Prior v0.17 restore `69c837f85c01b8352be4316874dc959d2462e0cb` remains recoverable. Source backups do not restore personal browser saves, credentials, Library synchronization or schedules.
 
-## Upcoming candidate — v0.19 growth discoverability
+## Accepted candidate — v0.19 growth discoverability
 
-**Development candidate only; no v0.19 acceptance or publication claimed here.** Implemented scope is presentation: readiness badges/summary and navigation/focus shortcuts derived from the existing `abilityView` and `protectionView`. Existing AP learning, active slots, rank gates and optional Protection decisions should become easier to find without changing combat, loot, progression, save schema or RNG.
+**Bounded-desktop accepted, not root-published yet.** Runtime source `88907e42c728922a50038b219799a7baa6c74c4f` is backed up with 169 complete-source files. Candidate site `7a424212937f61ce019662ee44389397fc562760`, exact Pages `40340421670` success and six HTTP/source byte comparisons passed.
 
-Documentation consolidation is maintenance, not gameplay. Superseded checkpoint statements have moved to [HISTORY-READMES-STATUS.md](HISTORY-READMES-STATUS.md), preserving their provenance rather than treating old “pending” statuses as active blockers.
+Implemented scope is presentation: truthful learn/slot/upgrade cues and explicit focus-only shortcuts using existing eligibility. Protection is a separate optional choice. No gameplay formulas, rewards, RNG, save schema or auto-allocation changed. **1,295/1,295 tests and four syntax checks passed**; 14,400 independent old/new state/RNG/report comparisons match. Actual browser tests cover fresh AP1, zero-AP slotting, Lv9 explicit growth, three victories naturally reaching Lv10, optional Protection, readonly, keyboard focus and reload. See [source acceptance](ACCEPTANCE-V019.md), [browser evidence](BROWSER-QA-V019.md), and [growth guide](GROWTH-DISCOVERY-GUIDE.md).
 
-Source verification: **1,295/1,295 tests and four syntax checks passed**; independent 14,400 old/new state/RNG/report comparisons match. See [ACCEPTANCE-V019.md](ACCEPTANCE-V019.md) and [growth guide](GROWTH-DISCOVERY-GUIDE.md).
+Remaining: accepted-source receipt backup, root deployment with exact CI/HTTP, then actual stable-root smoke. Stable is still the v0.18 release above. Documentation-only receipts reuse tested runtime results.
 
-Remaining evidence before calling v0.19 accepted:
-
-- Honest locked, available, insufficient-AP and active/inactive states; no automated learning, activation or spending from navigation.
-- Keyboard/focus, camp/combat/read-only behavior, repeated navigation and reload/transient-state checks.
-- Verified complete-source backup, authorized isolated candidate publication, exact CI/served-byte checks and actual browser acceptance before any authorized root promotion and stable-root smoke.
+README/STATUS consolidation is maintenance, not gameplay. Every prior paragraph is preserved in [HISTORY-READMES-STATUS.md](HISTORY-READMES-STATUS.md); its old pending states are historical, not new blockers.
 
 ## Retained limits and boundaries
 

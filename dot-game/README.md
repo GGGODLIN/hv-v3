@@ -2,7 +2,7 @@
 
 [Play the accepted game](https://gggodlin.github.io/play/hv-v3-dot/) · [Current status](docs/STATUS.md) · [Historical records](docs/HISTORY-READMES-STATUS.md)
 
-**Latest verified release: v0.18**, bounded-desktop accepted on 2026-10-26. This working tree is preparing a **v0.19 presentation-only growth-discoverability candidate**, not an accepted release. Its implemented readiness cues, summary and focus shortcuts expose existing ability/Protection decisions; they do not add growth rules, rewards or saved progress.
+**Latest verified release: v0.18**, bounded-desktop accepted on 2026-10-26. This working tree is the **v0.19 presentation-only growth-discoverability candidate**, now bounded-desktop accepted but not yet root-published. Its implemented readiness cues, summary and focus shortcuts expose existing ability/Protection decisions; they do not add growth rules, rewards or saved progress.
 
 ## Play
 

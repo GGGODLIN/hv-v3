@@ -1,6 +1,6 @@
 # v0.19 source acceptance — growth discovery
 
-2026-10-26; development candidate, not yet browser accepted or root-published.
+2026-10-26; bounded-desktop candidate accepted; root publication pending.
 
 Base accepted full source: `b61a8ed67ea9c58260dab0bb98ea754a6ff33f0a` (v0.18).
 
@@ -17,6 +17,6 @@ Read-only `growthReadiness` composes existing ability and Protection views. UI a
 - Independent baseline check: engine source outside the added pure helper is byte-identical; 12 old/new runs (four seeds × three tactics), 1,200 ticks each, yielded **14,400 exact full-state/RNG/report comparisons**. Tests also retain 2,400 paired instrumentation observations.
 - Existing tab, ability, commission, sale, finish-camp, combat, timing, save and migration regression remains passing. Only current-version UI marker assertions were advanced from 0.18 to 0.19.
 
-## Pending release gates
+## Browser acceptance and remaining release gates
 
-Source exact-commit backup/readback; isolated authorized public candidate; exact CI/HTTP bytes; actual browser focus/learn/slot/fight/Protection/reload/readonly checks; accepted source; root publication and stable smoke. Do not infer those from source tests. Real higher-rank browser play is not claimed from level-gate unit fixtures. No narrow/physical-mobile or OS-suspend acceptance is claimed.
+Source88907e42c728922a50038b219799a7baa6c74c4f backup/readback verified. Candidate7a424212937f61ce019662ee44389397fc562760 exact Pages40340421670 and six HTTP hashes passed. Actual browser focus/learn/slot/fight/Protection/reload/readonly checks passed; see [BROWSER-QA-V019.md](BROWSER-QA-V019.md). Accepted-source receipt and root publication/stable smoke remain pending. Real higher-rank browser play is not claimed from level-gate unit fixtures. No narrow/physical-mobile or OS-suspend acceptance is claimed.
