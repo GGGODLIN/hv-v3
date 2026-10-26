@@ -3,7 +3,9 @@
  *   optional; arcane staff; bulwark 1H + shield), the one closest to the school's sim median in both fresh d1 normal-fight win rate
  *   (K=50 fights, counter AI, same path as rc9-tune) and total potions: score = |d1 − med|/0.1 + |pot − med|/max(1, med); ties → closest to median power.
  * abyss10 (rc5): same as abyss15 at best >= 10; record best = 10, so entry is d11 and d15 is reachable.
- * abyss15: the power-median character (across the four schools) at the moment its record best first reaches >= 15; record best = 15.
+ * abyss15 (rc11): among characters at the moment their record best first reaches >= 15 (four schools) whose level >= the abyss10 preset's
+ *   level, the one closest to the at15 median in d1 normal-fight win rate and total potions (same score as postF20); record best = 15.
+ *   (rc3..rc10 used plain power median, which picked a Lv14 / 0-potion oc character below abyss10's Lv16.)
  * Usage: npx tsx scripts/cp6-export-presets.ts > public/data/cp6-presets.json   (do not hand-edit the output). */
 import { readFileSync } from 'node:fs';
 import { autoRun, starterKit, type Strategy } from '../src/core/auto';
@@ -55,7 +57,13 @@ for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
   out[`postF20-${sc}`] = { ...m, note: `closest to sim median d1 win ${(md * 100).toFixed(0)}% / potions ${mp} among ${okS.length} rule-compliant of ${snaps.length} first-F20 clears (buff:${sc}, seeds 1..${N})` };
 }
 const m10 = med(at10); out.abyss10 = { ...m10, note: `median power of ${at10.length} characters when best first reached >=10 (four schools, seeds 1..${N}, ${T} trips)` };
-const m = med(at15); out.abyss15 = { ...m, note: `median power of ${at15.length} characters when best first reached >=15 (four schools, seeds 1..${N}, ${T} trips)` };
+for (const x of at15) { x.d1 = d1win(x.player, `buff:${x.school}` as Strategy); x.pot = pots(x.player); }
+const md15 = mid(at15.map((x) => x.d1!)), mp15 = mid(at15.map((x) => x.pot!)), pw15 = mid(at15.map((x) => x.power));
+const el15 = at15.filter((x) => x.level >= m10.level && ruleOk(x.school, x.player));
+const sco15 = (x: Snap) => Math.abs(x.d1! - md15) / 0.1 + Math.abs(x.pot! - mp15) / Math.max(1, mp15);
+const m = [...el15].sort((a, b) => sco15(a) - sco15(b) || Math.abs(a.power - pw15) - Math.abs(b.power - pw15) || a.seed - b.seed)[0]!;
+sumMed.abyss15 = { d1: md15, pot: mp15, n: at15.length, ok: el15.length, lv: mid(at15.map((x) => x.level)), hp: 0, mp: 0 };
+out.abyss15 = { ...m, note: `closest to at15 median d1 win ${(md15 * 100).toFixed(0)}% / potions ${mp15} among ${el15.length} rule-compliant Lv>=${m10.level} of ${at15.length} characters when best first reached >=15 (four schools, seeds 1..${N}, ${T} trips)` };
 process.stdout.write(JSON.stringify(out) + '\n');
 for (const [k, v] of Object.entries(out)) { const sc = v.school; const d = runDerived(v.player, startAbyss(clone(v.player), 1, 1)); console.error(k, 'seed', v.seed, 'Lv', v.level, 'HP', d.hp, 'MP', d.mp, 'potions', JSON.stringify(v.player.potions), 'd1', v.d1 ?? d1win(v.player, `buff:${sc}` as Strategy), 'main', v.player.equipped.mainHand?.group, 'off', v.player.equipped.offHand?.group ?? '-', 'rule', ruleOk(sc, v.player), '|', v.note); }
 console.error('sim medians', JSON.stringify(sumMed));

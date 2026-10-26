@@ -64,3 +64,6 @@ export const TIPS = {
   f3: '教學：商人送你一本祕法書（法術已解鎖）、2 瓶生命藥水與一筆金錢，也可以在這裡買藥水，F5 有首領。下一場的敵人怕某種元素，試試對應法術（1–4）。',
   spirit: '教學：OC 已達 50！按 S 開啟靈動架勢：物理傷害 +100%，每回合消耗 1 SP 與 10 OC，不足時自動關閉。',
 } as const;
+
+/** rc11 (producer): the sortie total counts abyss trips too. Balance metrics / sims ("all clear F20 within 12 trips") stay main-tower only. */
+export const sortieLabel = (main: number, abyss: number): string => `出擊 ${main + abyss} 次（主塔 ${main} ／ 深淵 ${abyss}）`;
