@@ -1,5 +1,13 @@
 # Published releases
 
+## v0.11 — published, 2026-10-26 04:32 UTC
+
+- Full researched ranks for the three existing AP lines: HP Tank10, MP Tank10,1H Damage3. Exact next-level gates, incremental AP costs, cumulative refunds and active/inactive semantics are shown. This is not the entire HV ability tree.
+- Runtime source `98b74deb09e2165b8f6f31f27b07a72532c01beb`; accepted pre-publication source `b8b3a696235210ae1e21a60c14c0379c459dd4ac` was backed up/readback verified first.839 tests and four syntax checks pass; docs-only receipts do not re-run unchanged code.
+- Site `723b69d8f52a130d0a536544ba9dcabe6b5dfdf1`; exact Pages `40269241579` success and six200 exact HTTP byte/hash matches. Four root files changed,3858 non-root blobs preserved. Isolated candidate remains `94607ad2a87734c44180cbd58f122fe5897ee478`.
+- Actual candidate browser play earned level25 and verified rank2 HP1384→1493, AP cost2/full refund3, inactive upgrade, reload and takeover. Root preserved the separate original level20/rank1 profile, completed three victories and reloaded safely; ordinary exact-ID cleanup left114 items/gold8880 and Start enabled. BROWSER-QA-V011.md records limits; MP later gates/maxima are not claimed browser-tested.
+- Latest accepted restore is the exact verified commit containing this receipt:107 files/106 manifest payloads. Prior v0.10 `26b01643d4a926fb7abb3669bd823e22dec78e6d` remains historical. No personal browser-save, Library or external-account recovery claim.
+
 ## v0.10 — published, 2026-10-26 03:30 UTC
 
 - Accepted source before publication: `19f9b9fb3583caec8a910bbff57454d78d896b65` on `GGGODLIN/hv-v3` branch `bot/dot`. Runtime source: `a2406ee8ae7dfeeb0edeed268c59fd728dba1833`; later acceptance/publication checkpoints change only docs/manifest.

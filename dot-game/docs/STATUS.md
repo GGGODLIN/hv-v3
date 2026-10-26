@@ -1,5 +1,17 @@
 # Current status
 
+## v0.11 published and stable-root accepted — 2026-10-26 04:32 UTC
+
+Version 0.11 is published and bounded-desktop accepted at https://gggodlin.github.io/play/hv-v3-dot/ . Complete accepted source `b8b3a696235210ae1e21a60c14c0379c459dd4ac` was backed up and exact-readback verified before website commit `723b69d8f52a130d0a536544ba9dcabe6b5dfdf1`. Exact Pages run `40269241579` succeeded; HTTP6 returned six200 responses with exact frozen runtime byte/SHA256 matches. Runtime remains unchanged from `98b74deb09e2165b8f6f31f27b07a72532c01beb`.
+
+The actual stable-root smoke retained the original level20/HP rank1 profile, displayed the locked level25 next rank correctly, completed three ordinary stage3 victories and safely returned to camp near inventory capacity. Reload retained AP19/20, HP1090,84 wins and inventory116. A normal exact-ID safe-sale preview sold two proven downgrades for152 credits; final reload left gold8880, inventory114 and Start enabled. Candidate level25/rank2 progress did not mix with the root profile. See docs/BROWSER-QA-V011.md for exact observations and limits.
+
+The exact verified commit containing this publication receipt is the latest accepted full-source restore point (107 files/106 manifest payloads). Prior v0.10 restore `26b01643d4a926fb7abb3669bd823e22dec78e6d` remains available. This receipt changes only docs/manifest;839 passing tests/four syntax checks are reused, without another runtime rerun or deployment. Source backup does not restore personal browser saves, credentials or schedules.
+
+Only four root blobs changed (index/style/engine/UI); loot/session and3858 non-root website blobs were preserved. Isolated candidate `94607ad2a87734c44180cbd58f122fe5897ee478` remains available. Candidate browser acceptance includes naturally earned level24→25 gate crossing, active/inactive rank2 upgrades, full cumulative refund, reload and takeover. MP/higher ranks, maxima and malformed-save negatives remain source-test coverage; physical mobile, OS suspension and application-console inspection are not claimed this iteration. All candidate tabs were closed; stable tab26 is a Deliverable at camp.
+
+### Earlier checkpoint timeline (historical)
+
 ## v0.11 desktop accepted; root promotion pending — 2026-10-26 04:26 UTC
 
 Real cloud-browser progression crossed level24→25 with ordinary earned XP, not injected resources. HP rank2 stayed locked before25, then consumed exactly2 additional AP while retaining its slot and raising HP1384→1493. Full refund returned3AP, not just the latest cost. Relearning and upgrading while inactive left HP1276 until separately slotted. Two actual rank2 victories, reload, readonly controls and explicit writer takeover retained rank2 and AP19/25. The final export records level25, gold18499, wins135, inventory116 and sparse HP rank2 metadata. See BROWSER-QA-V011.md for exact observations, the narrow desktop check and explicit MP/higher-rank/import/device/console-inspection limits.
