@@ -1,5 +1,12 @@
 # Published releases
 
+## v0.10 — desktop-accepted source, root promotion pending, 2026-10-26 03:24 UTC
+
+- Complete runtime/source `a2406ee8ae7dfeeb0edeed268c59fd728dba1833` on `GGGODLIN/hv-v3` branch `bot/dot`: 98 files / 97 manifest payloads, complete tree and exact changed-file readbacks verified. This acceptance checkpoint adds BROWSER-QA-V010.md and updates only documentation/manifest; 694 passing tests and four syntax checks are reused.
+- Isolated candidate site `7ae873625722522e4980e754d944ae8b0fdefaa3` at `/play/hv-v3-dot/candidates/v0.10/`: exact Pages run `40263377697` succeeded, and one HTTP6 pass returned six 200 exact source byte/SHA-256 matches. All 3852 prior website blobs, including accepted root and other works, remain unchanged.
+- Actual cloud Chrome verified learn/slot/refund semantics, AP and slot budgets, zero-proficiency preview, natural old-save import, all three abilities, battle/read-only guards, natural level-up AP growth, reload, writer takeover, unchanged original items and narrow layout. Exact measurements and untested device/lifecycle/import boundaries are in BROWSER-QA-V010.md; no universal speed-up claim is made.
+- Public-root promotion and final stable-root smoke are pending in this checkpoint. Retain accepted v0.9 recovery `83a973bcf2586ed5994e707cfc5faaeb519873cd`. Source backups do not contain personal browser saves or external-account state.
+
 ## v0.9 — published, 2026-10-26 02:28 UTC
 
 - Accepted source before publication: `8d6be5b3c3735021aea8e94570ee88b0efe5eea9` on `GGGODLIN/hv-v3` branch `bot/dot`. Complete runtime source: `d7c6a91c8f8ad854ddd8e01663ce3da630f26ea6`; acceptance/publication checkpoints change documentation/manifest only.

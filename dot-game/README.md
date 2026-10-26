@@ -13,6 +13,12 @@ python3 -m http.server 8000
 Open http://localhost:8000/ . Run `node --test tests/*.test.mjs` for checks. Do not open ES-module HTML via file://. Desktop play has been tested; mobile layouts are implemented but not yet device-verified. Game stays local in the browser; no server account, network gameplay, or offline progress.
 
 ## Current milestone
+Version 0.10 has bounded desktop candidate acceptance as of 2026-10-26 03:24 UTC; root promotion is pending in this checkpoint. The three rank-1 AP abilities separate learning from Major-slot activation. Real browser play verified AP costs, inactive learned abilities, free camp refunds, honest zero-proficiency preview, natural old-save import, all-three allocation, battle/read-only guards, natural level-up AP growth, reload and explicit writer takeover. See docs/BROWSER-QA-V010.md for measurements and device/import/lifecycle limits, and docs/ABILITIES-GUIDE.md for original facts versus adaptations.
+
+Complete runtime/source `a2406ee8ae7dfeeb0edeed268c59fd728dba1833` is verified: 98 files / 97 manifest payloads, 23 exact changed-file readbacks and 75 prior-verified unchanged identities. Existing 694 tests/four syntax passes are reused because this accepted-source checkpoint changes only docs/manifest. Isolated site `7ae873625722522e4980e754d944ae8b0fdefaa3` passed exact Pages run `40263377697` and one six-200 exact byte/SHA-256 HTTP comparison; all 3852 prior site blobs were preserved. Public v0.9 and recovery `83a973bcf2586ed5994e707cfc5faaeb519873cd` remain accepted until promotion and final root smoke.
+
+### Earlier candidate status (historical; superseded above)
+
 Version 0.10 is a development candidate adding the first three rank-1 AP abilities: HP Tank, MP Tank and 1H Damage. Learn with AP, then equip in Major slots; five original starting slots and level-based AP are retained. Unlimited free camp refunds and existing maxHP-based support are explicit adaptations. See docs/ABILITIES-GUIDE.md and ORIGINAL-HV.md. Public v0.9 remains accepted until this candidate passes backup/browser/release verification.
 
 ### Earlier accepted version
