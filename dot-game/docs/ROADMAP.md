@@ -63,3 +63,6 @@ Make the three weapon routes easier to evaluate: show bounded recent expedition 
 
 ## v0.10 chosen slice
 Introduce the first original-research-supported AP abilities: rank1 HP Tank, MP Tank and1H Damage. Preserve five Major slots and separate learning/equipping; show actual current effects and one-time AP costs. Initial1AP plus level growth, strict optional save data, free camp refund adaptation and legacy behavior must be explicit. This is the foundation for later ranks/ability breadth, not the entire original tree or a fabricated permanent specialization system.
+
+## v0.11 chosen slice
+Extend the three researched ability lines to their full original rank tables, giving visible level25/30 milestones and later gates without inventing more low-level scarcity. Show incremental next-rank cost separately from cumulative refund; upgrades retain slot state and never stack prior rank totals. Preserve exact rank0/1 gameplay, validate new optional rank data strictly and measure natural earned progression. This is three completed lines, not a complete HV tree; larger systems remain future work.

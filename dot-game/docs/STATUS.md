@@ -1,5 +1,11 @@
 # Current status
 
+## v0.11 development candidate — 2026-10-26 04:00 UTC
+
+Research-confirmed complete ranks for the existing three AP nodes are implemented. 839 tests and four runtime syntax checks pass. Independent acceptance covers all20 upgrade gates,7158 eligible Tank level/rank floor cases, strict saves, cumulative refunds and rank0/1 equivalence. Three naturally engine-earned cohorts reach level30 with633 wins/6417 simulation steps;12 matched easy-route runs show larger pools but no speed or absolute incoming-damage benefit. See ACCEPTANCE-V011.md. Four old UI version-label assertions were narrowly updated to0.11; no frozen gameplay digest or golden result changed. Backup/browser acceptance are pending; do not call this published. Public v0.10 restore remains `26b01643d4a926fb7abb3669bd823e22dec78e6d`.
+
+### Earlier accepted timeline
+
 ## v0.10 published and stable-root smoke accepted — 2026-10-26 03:30 UTC
 
 Live: https://gggodlin.github.io/play/hv-v3-dot/ . Accepted pre-promotion source `19f9b9fb3583caec8a910bbff57454d78d896b65` was backed up/readback verified first. Website `176842ae81cd90d55bac5f96f3bbb772dc4f27e4` passed exact Pages run `40264171858`, followed by one HTTP6 pass with six 200 responses and exact frozen source byte/SHA-256 matches. Only index/style/engine/UI root blobs changed; loot/session and all 3852 non-root site blobs, candidates and other works remained unchanged. No additions/removals.

@@ -289,3 +289,6 @@ Original active stat allocation, armor families, full proficiency abilities, ove
 
 ## v0.10 learned and slotted abilities
 The first rank1 Major nodes add researched base-pool Tank scaling and an additive1H proficiency bonus only when both learned and slotted. See ORIGINAL-HV.md and ABILITIES-GUIDE.md for AP, source, rounding and lifecycle details. Rank-zero/default gameplay is unchanged. Existing automatic heal/potion/wave restoration stays maxHP-based adaptation and therefore grows with Tank; it is not relabeled as original Cure. This changes enabled builds deliberately, not the ordinary unallocated combat baseline.
+
+## v0.11 rank extension
+Only selected ability magnitude changes when the player explicitly upgrades. Tank rank r has total10r%; 1H ranks1/2/3 have total2/3/4 ADB per effective proficiency. Do not sum historical rank effects. Upgrades keep current slot state, cost only the next rank's AP, recover at camp like prior ability adjustments, and leave RNG/items/credits/timing unchanged. Refund removes the entire line and restores cumulative AP budget. Rank0/1 behavior is differential-tested against frozen own v0.10. New rank2+ Tank floors use integer ratios; rank1 arithmetic is unchanged. Existing maxHP restorative adaptations remain.

@@ -3,7 +3,8 @@ import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSa
 export const VERSION = 1;
 export const MAX_STAGE = 30;
 export const INVENTORY_LIMIT = 120;
-// The first rank of three original-HV Major abilities, not a complete tree.
+// Three original-HV Major ability lines and their researched rank progression.
+// The exported rank-one metadata stays compatible with existing callers.
 // Training and the separate Support category are outside this slice. Camp-only
 // free refunds/reslotting are an explicit adaptation; no permanent gold cost.
 export const ABILITY_RULES = Object.freeze({majorSlots:5});
@@ -13,6 +14,17 @@ export const MAJOR_ABILITIES = Object.freeze([
   Object.freeze({id:'one-handed-damage',label:'1H Damage',rank:1,apCost:2,minLevel:0,description:'每點有效單手熟練度 +2 ADB；使用既有的 1.2 × 等級上限。'})
 ]);
 const abilityById = new Map(MAJOR_ABILITIES.map(ability=>[ability.id,ability]));
+// Each price is the incremental cost of that rank; each effect replaces the
+// earlier total. Buying only the next rank is this game's conservative UI rule.
+const tankRankCosts = [1,2,3,3,4,4,4,5,5,5];
+const abilityRanks = new Map([
+  ['hp-tank',[0,25,50,75,100,120,150,200,250,300].map((minLevel,index)=>({rank:index+1,minLevel,apCost:tankRankCosts[index],description:`基礎 HP +${10*(index+1)}%；裝備的固定 HP 不放大。`}))],
+  ['mp-tank',[0,30,60,90,120,160,210,260,310,350].map((minLevel,index)=>({rank:index+1,minLevel,apCost:tankRankCosts[index],description:`基礎 MP +${10*(index+1)}%。`}))],
+  ['one-handed-damage',[0,100,200].map((minLevel,index)=>({rank:index+1,minLevel,apCost:[2,3,5][index],description:`每點有效單手熟練度 +${index+2} ADB；使用既有的 1.2 × 等級上限。`}))]
+]);
+const learnedRank = (allocation,id) => allocation.learned.includes(id)?allocation.ranks?.[id]??1:0;
+const rankCost = (id,rank) => abilityRanks.get(id).slice(0,rank).reduce((sum,entry)=>sum+entry.apCost,0);
+const allocationCost = allocation => allocation.learned.reduce((sum,id)=>sum+rankCost(id,learnedRank(allocation,id)),0);
 // The pinned historical PA model; fixed maximum rate/duration and shared refresh
 // are this game's adaptations, not a claim about current original-HV coefficients.
 export const PENETRATED_ARMOR_RULES = Object.freeze({chance:.25,durationTicks:7,maxStacks:3,mitigationReductionPerStack:.25});
@@ -66,8 +78,10 @@ function readAbilityAllocation(s) {
   const raw=descriptor.value;
   if(!raw||typeof raw!=='object'||Array.isArray(raw)
     ||![Object.prototype,null].includes(Object.getPrototypeOf(raw)))invalid();
-  const fields=Object.getOwnPropertyDescriptors(raw);
-  if(Reflect.ownKeys(raw).length!==2||!['learned','slotted'].every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value')))invalid();
+  const fields=Object.getOwnPropertyDescriptors(raw),keys=Reflect.ownKeys(raw);
+  if(![2,3].includes(keys.length)||keys.some(key=>!['learned','slotted','ranks'].includes(key))
+    ||!keys.every(key=>fields[key]?.enumerable&&Object.hasOwn(fields[key],'value'))
+    ||!['learned','slotted'].every(key=>Object.hasOwn(fields,key)))invalid();
   const readList=key=>{
     const values=fields[key].value;
     if(!Array.isArray(values)||Object.getPrototypeOf(values)!==Array.prototype||values.length>MAJOR_ABILITIES.length
@@ -81,17 +95,36 @@ function readAbilityAllocation(s) {
     if(new Set(ids).size!==ids.length)invalid();
     return ids;
   };
-  const learned=readList('learned'),slotted=readList('slotted'),level=s.hero?.level;
+  const learned=readList('learned'),slotted=readList('slotted'),level=s.hero?.level,ranks={};
+  if(Object.hasOwn(fields,'ranks')){
+    const supplied=fields.ranks.value;
+    if(!supplied||typeof supplied!=='object'||Array.isArray(supplied)
+      ||![Object.prototype,null].includes(Object.getPrototypeOf(supplied)))invalid();
+    const rankKeys=Reflect.ownKeys(supplied);
+    // Rank one remains implicit. Reject redundant/unknown data rather than
+    // silently erasing it and pretending to support a future save format.
+    if(!rankKeys.length||rankKeys.length>learned.length)invalid();
+    for(const id of rankKeys){
+      const entry=Object.getOwnPropertyDescriptor(supplied,id);
+      if(typeof id!=='string'||!abilityById.has(id)||!learned.includes(id)
+        ||!entry?.enumerable||!Object.hasOwn(entry,'value')||!Number.isInteger(entry.value)
+        ||entry.value<2||entry.value>abilityRanks.get(id).length)invalid();
+      ranks[id]=entry.value;
+    }
+  }
+  const allocation={learned,slotted,...(Object.keys(ranks).length?{ranks}:{})};
   if(!Number.isInteger(level)||level<1||level>500||slotted.length>ABILITY_RULES.majorSlots
-    ||slotted.some(id=>!learned.includes(id))||learned.some(id=>abilityById.get(id).minLevel>level)
-    ||learned.reduce((spent,id)=>spent+abilityById.get(id).apCost,0)>level)invalid();
-  return {learned,slotted};
+    ||slotted.some(id=>!learned.includes(id))
+    ||learned.some(id=>abilityRanks.get(id)[learnedRank(allocation,id)-1].minLevel>level)
+    ||allocationCost(allocation)>level)invalid();
+  return allocation;
 }
 function abilityEffects(s, allocation) {
   const effectiveProficiency=Math.max(0,Math.min(finite(s.hero.proficiency),1.2*s.hero.level));
-  const active=id=>allocation.learned.includes(id)&&allocation.slotted.includes(id);
-  return {hpBonusPercent:active('hp-tank')?10:0,mpBonusPercent:active('mp-tank')?10:0,
-    attackBonus:active('one-handed-damage')?2*effectiveProficiency:0,effectiveProficiency};
+  const activeRank=id=>allocation.slotted.includes(id)?learnedRank(allocation,id):0;
+  const oneHandedRank=activeRank('one-handed-damage');
+  return {hpBonusPercent:10*activeRank('hp-tank'),mpBonusPercent:10*activeRank('mp-tank'),
+    attackBonus:oneHandedRank?(oneHandedRank+1)*effectiveProficiency:0,effectiveProficiency};
 }
 export function stats(s) {
   let allocation;try{allocation=readAbilityAllocation(s);}catch{allocation={learned:[],slotted:[]};}
@@ -104,8 +137,11 @@ function statsWithAbilities(s, allocation) {
   const effects=abilityEffects(s,allocation),baseHp=500+10*h.level+6*a.end,baseMp=10+h.level+a.wis;
   // Preserve rank-zero arithmetic exactly. Tanks floor only the original base;
   // this game's existing flat equipment HP and final rounding remain separate.
-  const maxHp=Math.round((effects.hpBonusPercent?Math.floor(baseHp*(1+effects.hpBonusPercent/100)):baseHp)+sum('hp'));
-  const maxMp=effects.mpBonusPercent?Math.floor(baseMp*(1+effects.mpBonusPercent/100)):Math.round(baseMp);
+  // Preserve legacy rank-one floating arithmetic; higher ranks use an exact
+  // rational multiplier so e.g. a 30% integer boundary cannot floor one low.
+  const tankBase=(base,percent)=>Math.floor(percent===10?base*1.1:base*(100+percent)/100);
+  const maxHp=Math.round((effects.hpBonusPercent?tankBase(baseHp,effects.hpBonusPercent):baseHp)+sum('hp'));
+  const maxMp=effects.mpBonusPercent?tankBase(baseMp,effects.mpBonusPercent):Math.round(baseMp);
   return {maxHp,maxMp,attack:round(Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+sum('attack')+effects.attackBonus), defense:round(sum('defense')),mitigation:1-(1-equipmentMit)*(1-attributeMit),crit:clamp(.05+a.dex*.0015+sum('crit'),0,.8),evade:clamp(.02+a.agi*.001+sum('evade'),0,.5),block:clamp(.04+sum('block'),0,.6)};
 }
 /** Pure detached camp view. Earned AP is always level (one initially, then one
@@ -117,19 +153,25 @@ export function abilityView(s) {
   try{allocation=readAbilityAllocation(s);}catch{allocation={learned:[],slotted:[]};valid=false;}
   const level=s.hero.level,earnedAp=Number.isInteger(level)&&level>=1&&level<=500?level:0;
   if(!earnedAp)valid=false;
-  const {learned,slotted}=allocation,spentAp=learned.reduce((spent,id)=>spent+abilityById.get(id).apCost,0);
+  const {learned,slotted}=allocation,spentAp=allocationCost(allocation);
   const availableAp=earnedAp-spentAp,camp=valid&&s.mode==='town';
   const catalog=MAJOR_ABILITIES.map(ability=>{
-    const known=learned.includes(ability.id),active=slotted.includes(ability.id);
-    const previewAllocation={learned:known?learned:[...learned,ability.id],slotted:active?slotted:[...slotted,ability.id]};
-    return {...ability,learned:known,slotted:active,
+    const currentRank=learnedRank(allocation,ability.id),known=currentRank>0,active=slotted.includes(ability.id);
+    const ladder=abilityRanks.get(ability.id),nextRank=ladder[currentRank]?{...ladder[currentRank]}:null;
+    const previewAllocation={...allocation,learned:known?learned:[...learned,ability.id],slotted:active?slotted:[...slotted,ability.id]};
+    const upgradeAllocation=known&&nextRank?{...previewAllocation,ranks:{...allocation.ranks,[ability.id]:nextRank.rank}}:null;
+    return {...ability,description:ladder[Math.max(1,currentRank)-1].description,learned:known,slotted:active,
+      currentRank,maxRank:ladder.length,spentAp:rankCost(ability.id,currentRank),nextRank,
       canLearn:camp&&!known&&level>=ability.minLevel&&availableAp>=ability.apCost,
+      canUpgrade:camp&&known&&!!nextRank&&level>=nextRank.minLevel&&availableAp>=nextRank.apCost,
       canSlot:camp&&known&&!active&&slotted.length<ABILITY_RULES.majorSlots,
       canUnslot:camp&&active,canRefund:camp&&known,
-      previewStats:statsWithAbilities(s,previewAllocation),previewEffects:abilityEffects(s,previewAllocation)};
+      previewStats:statsWithAbilities(s,previewAllocation),previewEffects:abilityEffects(s,previewAllocation),
+      upgradePreviewStats:upgradeAllocation?statsWithAbilities(s,upgradeAllocation):null,
+      upgradePreviewEffects:upgradeAllocation?abilityEffects(s,upgradeAllocation):null};
   });
   return {valid,earnedAp,spentAp,availableAp,majorCapacity:ABILITY_RULES.majorSlots,majorUsed:slotted.length,
-    learned:[...learned],slotted:[...slotted],effects:abilityEffects(s,allocation),currentStats:statsWithAbilities(s,allocation),catalog};
+    learned:[...learned],slotted:[...slotted],ranks:{...allocation.ranks},effects:abilityEffects(s,allocation),currentStats:statsWithAbilities(s,allocation),catalog};
 }
 function recover(s) { const p=stats(s); s.hero.hp=p.maxHp;s.hero.mp=p.maxMp; }
 
@@ -620,18 +662,21 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
-  if(['learnAbility','slotAbility','unslotAbility','refundAbility'].includes(action)){
+  if(['learnAbility','upgradeAbility','slotAbility','unslotAbility','refundAbility'].includes(action)){
     // Validate the entire allocation before changing it. Exact ID payloads only;
     // refused/no-op commands do not heal, log, draw RNG, or touch any clock/item.
     if(s.mode!=='town'||typeof payload!=='string'||!abilityById.has(payload))return s;
     let allocation;try{allocation=readAbilityAllocation(s);}catch{return s;}
-    const ability=abilityById.get(payload),{learned,slotted}=allocation;
-    const known=learned.includes(payload),active=slotted.includes(payload);
-    const spent=learned.reduce((sum,id)=>sum+abilityById.get(id).apCost,0);
+    const ability=abilityById.get(payload),{learned,slotted}=allocation,ranks={...allocation.ranks};
+    const currentRank=learnedRank(allocation,payload),known=currentRank>0,active=slotted.includes(payload);
+    const spent=allocationCost(allocation),nextRank=abilityRanks.get(payload)[currentRank];
     if(!Number.isInteger(s.hero.level)||s.hero.level<1||s.hero.level>500)return s;
     if(action==='learnAbility'){
       if(known||s.hero.level<ability.minLevel||s.hero.level-spent<ability.apCost)return s;
       learned.push(payload);
+    }else if(action==='upgradeAbility'){
+      if(!known||!nextRank||s.hero.level<nextRank.minLevel||s.hero.level-spent<nextRank.apCost)return s;
+      ranks[payload]=nextRank.rank;
     }else if(action==='slotAbility'){
       if(!known||active||slotted.length>=ABILITY_RULES.majorSlots)return s;
       slotted.push(payload);
@@ -640,15 +685,16 @@ export function act(s, action, payload) {
       slotted.splice(slotted.indexOf(payload),1);
     }else{
       if(!known)return s;
-      learned.splice(learned.indexOf(payload),1);
+      learned.splice(learned.indexOf(payload),1);delete ranks[payload];
       if(active)slotted.splice(slotted.indexOf(payload),1);
     }
-    if(learned.length)s.abilities={learned,slotted};else delete s.abilities;
+    if(learned.length)s.abilities={learned,slotted,...(Object.keys(ranks).length?{ranks}:{})};else delete s.abilities;
     recover(s);
     const messages={learnAbility:`已學習 ${ability.label} · 消耗 ${ability.apCost} AP；尚未裝入。`,
+      upgradeAbility:`已升級 ${ability.label} 至 ${nextRank?.rank} 階 · 消耗 ${nextRank?.apCost} AP；${active?'維持裝入。':'尚未裝入。'}`,
       slotAbility:`已裝入 ${ability.label}；回營資源已恢復。`,
       unslotAbility:`已移出 ${ability.label}；仍保留學習，AP 未退回。`,
-      refundAbility:`已退還 ${ability.label} · ${ability.apCost} AP；若已裝入亦一併移出。`};
+      refundAbility:`已退還 ${ability.label} · ${rankCost(payload,currentRank)} AP；若已裝入亦一併移出。`};
     log(s,messages[action]);return s;
   }
   if(action==='commissionWeapon'){

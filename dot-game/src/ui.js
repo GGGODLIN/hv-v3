@@ -96,7 +96,7 @@ function node(tag, className, text) { const el = document.createElement(tag); if
 function colorOf(item) { return /^#[0-9a-f]{3,8}$/i.test(item?.rarityColor || '') ? item.rarityColor : '#b8c3b0'; }
 const loaded = loadVersionedSave({ read: readStorage, currentKey: SAVE_KEY, legacyKeys: LEGACY_SAVE_KEYS,
   validate: validateSave, create: () => createGame(1000 + Math.floor(Math.random() * 1e8)) });
-let loadProblem = loaded.error ? '既有存檔無法讀取：資料可能損壞，或裝備含本版不支援的欄位。已開啟暫時的新旅程，原始資料尚未覆寫；請保留原存檔並匯入有效備份。' : '';
+let loadProblem = loaded.error ? '既有存檔無法讀取：資料可能損壞，或資料含本版不支援的欄位。已開啟暫時的新旅程，原始資料尚未覆寫；請保留原存檔並匯入有效備份。' : '';
 let state = loaded.state;
 let preventOverwrite = loaded.error || !storeAvailable;
 let lastSavedRaw = loaded.raw;
@@ -114,6 +114,7 @@ let lastLogSignature = '';
 let lastEnemyStatusSignature = '';
 let lastReportSignature = '';
 let lastAbilitySignature = '';
+let abilityRenderVersion = 0;
 let pinnedExpeditionReport = null;
 let lastStageCount = 0;
 let lastPreviewStage = null;
@@ -230,27 +231,35 @@ function abilityNumber(value) {
   // to whole numbers or turn a small/zero proficiency bonus into a fake +2.
   return Number.isFinite(value) ? String(value) : '—';
 }
-function changeAbility(action, id) {
-  const capabilities = { learnAbility: 'canLearn', slotAbility: 'canSlot', unslotAbility: 'canUnslot', refundAbility: 'canRefund' };
+function changeAbility(action, id, expectedRank, expectedRenderVersion) {
+  const capabilities = { learnAbility: 'canLearn', upgradeAbility: 'canUpgrade', slotAbility: 'canSlot', unslotAbility: 'canUnslot', refundAbility: 'canRefund' };
   if (!Object.hasOwn(capabilities, action)) return;
   if (!claimLease()) { $('ability-feedback').textContent = '此分頁為唯讀；接手進度後才能調整能力。'; renderAbilities(); return; }
-  if (state.mode !== 'town') { $('ability-feedback').textContent = '請先回營，再學習、裝配或遺忘能力。'; renderAbilities(); return; }
+  if (state.mode !== 'town') { $('ability-feedback').textContent = '請先回營，再學習、升階、裝配或遺忘能力。'; renderAbilities(); return; }
   // Recheck the live engine view, not the potentially stale card closure.
+  // One rendered upgrade authorizes one rank only, even if a repeated click
+  // could afford another rank after the card has been replaced. The render
+  // generation also rejects detached controls after refund/relearn or adoption.
   const before = abilityView(state), choice = before.catalog.find(entry => entry.id === id);
-  if (!choice?.[capabilities[action]]) { $('ability-feedback').textContent = '目前條件不符或已完成此操作，沒有變更能力。'; renderAbilities(); return; }
+  if (!choice?.[capabilities[action]] || (expectedRank !== undefined && choice.currentRank !== expectedRank) ||
+    (expectedRenderVersion !== undefined && expectedRenderVersion !== abilityRenderVersion)) {
+    $('ability-feedback').textContent = '目前條件不符或已完成此操作，沒有變更能力。請查看最新階級與費用。'; renderAbilities(); return;
+  }
   const dispatched = dispatch(action, id);
   const after = abilityView(state), current = after.catalog.find(entry => entry.id === id);
   const completed = dispatched && current && (
-    action === 'learnAbility' ? current.learned && !current.slotted && after.availableAp === before.availableAp - choice.apCost :
-    action === 'slotAbility' ? current.learned && current.slotted && after.availableAp === before.availableAp :
-    action === 'unslotAbility' ? current.learned && !current.slotted && after.availableAp === before.availableAp :
-    !current.learned && !current.slotted && after.availableAp === before.availableAp + choice.apCost);
+    action === 'learnAbility' ? current.currentRank === 1 && current.learned && !current.slotted && after.availableAp === before.availableAp - choice.apCost :
+    action === 'upgradeAbility' ? current.currentRank === choice.currentRank + 1 && current.learned && current.slotted === choice.slotted && current.spentAp === choice.spentAp + choice.nextRank.apCost && after.availableAp === before.availableAp - choice.nextRank.apCost :
+    action === 'slotAbility' ? current.currentRank === choice.currentRank && current.learned && current.slotted && after.availableAp === before.availableAp :
+    action === 'unslotAbility' ? current.currentRank === choice.currentRank && current.learned && !current.slotted && after.availableAp === before.availableAp :
+    current.currentRank === 0 && !current.learned && !current.slotted && after.availableAp === before.availableAp + choice.spentAp);
   if (!completed) { $('ability-feedback').textContent = '本次操作未確認完成，請核對能力狀態後再試。'; renderAbilities(); return; }
   const messages = {
-    learnAbility: `已學習 ${choice.label}，花費 ${choice.apCost} AP；尚未裝配，請另按「裝入能力槽」才生效。`,
-    slotAbility: `已裝配 ${choice.label}，現在生效；未再花費 AP。`,
+    learnAbility: `已學習 ${choice.label} Rank 1，花費 ${choice.apCost} AP；尚未裝配，請另按「裝入能力槽」才生效。`,
+    upgradeAbility: `已升階 ${choice.label} 至 Rank ${current.currentRank}，額外花費 ${choice.nextRank?.apCost} AP，累計已用 ${current.spentAp} AP；${current.slotted ? '保持裝配，新階級現在生效。' : '保持未裝配，尚未生效；請另按「裝入能力槽」。'}`,
+    slotAbility: `已裝配 ${choice.label} Rank ${current.currentRank}，現在生效；未再花費 AP。`,
     unslotAbility: `已卸下 ${choice.label}，加成停止；仍已學習，AP 不退還。`,
-    refundAbility: `已免費遺忘 ${choice.label}，同時卸下並退還 ${choice.apCost} AP；可重新學習。`
+    refundAbility: `已免費遺忘 ${choice.label} 的全部階級，同時卸下並退還 ${choice.spentAp} AP；可從 Rank 1 重新學習。`
   };
   $('ability-feedback').textContent = `${messages[action]} 營地生命與魔力已恢復。`;
 }
@@ -262,41 +271,59 @@ function renderAbilities() {
   $('ability-status').textContent = !claimLease() ? '唯讀檢視：接手進度後才能調整。' : state.mode !== 'town' ? '目前不能調整能力：請先回營。預覽不改變戰鬥。' : '只在營地調整 · 不花金幣、不抽取隨機結果 · 每次有效調整後回滿 HP／MP';
   if (signature === lastAbilitySignature) return;
   lastAbilitySignature = signature;
+  const renderVersion = ++abilityRenderVersion;
   const focused = document.activeElement?.dataset;
   const buttons = [];
   $('ability-choices').replaceChildren(...view.catalog.map(choice => {
     const card = node('article', `ability-card${choice.slotted ? ' is-slotted' : ''}`);
     card.dataset.abilityId = choice.id;
     const heading = node('div', 'ability-card-heading');
-    heading.append(node('h4', '', `${choice.label} · Rank ${choice.rank}`), node('span', 'ability-state', choice.slotted ? '已裝配 · 生效中' : choice.learned ? '已學習 · 未生效' : '尚未學習'));
-    card.append(heading, node('p', 'ability-description', choice.description));
+    heading.append(node('h4', '', `${choice.label} · Rank ${choice.currentRank} / ${choice.maxRank}`), node('span', 'ability-state', choice.slotted ? '已裝配 · 生效中' : choice.learned ? '已學習 · 未生效' : '尚未學習'));
+    card.append(heading, node('p', 'ability-description', `${choice.learned ? '本階效果' : 'Rank 1 效果'}：${choice.description}`));
     const current = view.currentStats, preview = choice.previewStats;
     const key = choice.id === 'hp-tank' ? 'maxHp' : choice.id === 'mp-tank' ? 'maxMp' : 'attack';
     const label = { maxHp: '生命上限', maxMp: '魔力上限', attack: '面板攻擊 ADB' }[key];
-    card.append(node('p', 'ability-preview', `${label}：目前 ${abilityNumber(current[key])} → 裝配後 ${abilityNumber(preview[key])}${choice.slotted ? '（已包含此能力）' : ''}`));
+    card.append(node('p', 'ability-preview', `${choice.learned ? '本階' : 'Rank 1'}預覽（假設已學習並裝配）：${label}：目前 ${abilityNumber(current[key])} → 裝配後 ${abilityNumber(preview[key])}${choice.slotted ? '（已包含此能力）' : '；未裝配時不生效'}`));
     if (choice.id === 'one-handed-damage') {
       card.append(node('p', 'ability-proficiency', `有效單手熟練度 ${abilityNumber(view.effects.effectiveProficiency)} · 此能力 ADB 加成：目前 +${abilityNumber(view.effects.attackBonus)} → 裝配後 +${abilityNumber(choice.previewEffects.attackBonus)}`));
     }
-    card.append(node('p', 'ability-cost', `學習費用 ${choice.apCost} AP${!choice.learned && view.availableAp < choice.apCost ? ' · 可用 AP 不足，可保留點數升級後再學' : ''}`));
+    const next = choice.nextRank;
+    if (choice.learned) {
+      if (next) {
+        const gate = state.hero.level < next.minLevel ? `尚需 Lv.${next.minLevel}（目前 Lv.${state.hero.level}）` : `Lv.${next.minLevel} 門檻已達成`;
+        card.append(node('p', 'ability-next', `下一階 Rank ${next.rank} · ${gate} · 額外 ${next.apCost} AP${view.availableAp < next.apCost ? ' · 可用 AP 不足' : ''}`));
+        card.append(node('p', 'ability-description', `下一階效果：${next.description}`));
+        const extra = choice.id === 'one-handed-damage' ? `；此能力 ADB 加成 +${abilityNumber(choice.upgradePreviewEffects.attackBonus)}` : '';
+        card.append(node('p', 'ability-next-preview', `下一階預覽（假設升階並裝配，未直接套用）：${label} 目前 ${abilityNumber(current[key])} → ${abilityNumber(choice.upgradePreviewStats[key])}${extra}。${choice.slotted ? '升階會保留裝配。' : '只升階仍不生效，須另行裝配。'}`));
+      } else {
+        card.append(node('p', 'ability-next', `已達最高 Rank ${choice.maxRank} · 沒有下一階`));
+      }
+      card.append(node('p', 'ability-cost', `累計已用 ${choice.spentAp} AP · 免費遺忘退還 ${choice.spentAp} AP（全部階級）`));
+    } else {
+      card.append(node('p', 'ability-cost', `學習費用 ${choice.apCost} AP${view.availableAp < choice.apCost ? ' · 可用 AP 不足，可保留點數升級後再學' : ''} · Rank 1 等級門檻 Lv.${choice.minLevel} · 尚未花費 AP`));
+    }
     const actions = node('div', 'ability-actions');
     const addAction = (action, text, capability, kind) => {
       const button = node('button', kind === 'slot' ? 'primary-button' : 'secondary-button', text);
       button.disabled = !canEdit || !choice[capability];
       button.dataset.abilityId = choice.id; button.dataset.abilityAction = kind;
       button.setAttribute('aria-label', `${choice.label}：${text}`);
-      button.addEventListener('click', () => changeAbility(action, choice.id));
+      button.addEventListener('click', () => changeAbility(action, choice.id, choice.currentRank, renderVersion));
       actions.append(button); buttons.push(button);
     };
-    addAction('learnAbility', choice.learned ? `已學習 · ${choice.apCost} AP` : `學習 · ${choice.apCost} AP`, 'canLearn', 'learn');
+    if (choice.learned) addAction('upgradeAbility', next ? `升至 Rank ${next.rank} · 額外 ${next.apCost} AP` : `已達最高 Rank ${choice.maxRank}`, 'canUpgrade', 'upgrade');
+    else addAction('learnAbility', `學習 · ${choice.apCost} AP`, 'canLearn', 'learn');
     addAction(choice.slotted ? 'unslotAbility' : 'slotAbility', choice.slotted ? '卸下能力' : '裝入能力槽', choice.slotted ? 'canUnslot' : 'canSlot', 'slot');
-    addAction('refundAbility', `免費遺忘 · 退 ${choice.apCost} AP`, 'canRefund', 'refund');
+    addAction('refundAbility', `免費遺忘 · 退 ${choice.spentAp} AP`, 'canRefund', 'refund');
     card.append(actions);
     return card;
   }));
   // A keyboard action should not discard focus when the changed cards repaint.
+  // Learning still leads to the separate activation step, not an unseen upgrade.
   if (focused?.abilityId) {
     const available = buttons.filter(button => !button.disabled && button.dataset.abilityId === focused.abilityId);
-    (available.find(button => button.dataset.abilityAction === focused.abilityAction) || available[0])?.focus?.();
+    (available.find(button => button.dataset.abilityAction === focused.abilityAction) ||
+      (focused.abilityAction === 'learn' && available.find(button => button.dataset.abilityAction === 'slot')) || available[0])?.focus?.();
   }
 }
 function commissionQuoteSignature(preview) {

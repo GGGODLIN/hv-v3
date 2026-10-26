@@ -166,11 +166,15 @@
 .ability-state { color: var(--muted); font-size: 10px; }
 .is-slotted .ability-state { color: #abe4cc; }
 .ability-description, .ability-proficiency, .ability-cost { margin-top: 4px; font-size: 10px; line-height: 1.7; color: var(--muted); }
-.ability-preview { margin-top: 6px; color: #d9e6cd; font-size: 11px; line-height: 1.7; font-variant-numeric: tabular-nums; }
-.ability-proficiency, .ability-cost { font-variant-numeric: tabular-nums; }
+.ability-preview, .ability-next-preview { margin-top: 6px; color: #d9e6cd; font-size: 11px; line-height: 1.7; font-variant-numeric: tabular-nums; }
+.ability-proficiency, .ability-cost, .ability-next { font-variant-numeric: tabular-nums; }
+.ability-next { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 7px; font-size: 11px; line-height: 1.7; color: #c1d6ca; }
+.ability-next-preview { color: #b8c9c0; }
 .ability-cost { color: var(--gold); }
 .ability-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.ability-actions>button { flex: 1 1 110px; padding: 7px 8px; min-height: 36px; font-size: 10px; }
+.ability-actions>button { flex: 1 1 110px; min-width: 0; white-space: normal; overflow-wrap: anywhere; padding: 7px 8px; min-height: 36px; font-size: 10px; }
+.ability-actions>button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.save-version-warning { padding: 9px 11px; border-left: 2px solid var(--gold); color: #e1c58a; overflow-wrap: anywhere; }
 .ability-feedback { margin-top: 8px; color: #bfe8d9; font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
 .ability-feedback:empty { display: none; }
 .ability-rules summary { color: #bfd1c5; cursor: pointer; padding: 3px 0; }
