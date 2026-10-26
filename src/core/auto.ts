@@ -23,7 +23,10 @@ import type { NodeType } from './tower';
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
 export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
 /** cp8-rc6 Part B (暫定，缺原版出處): per-lean 自動分配 weights under cp8; a lean missing here uses phys (arcane: ALLOC_WEIGHTS.arcane). Sim override: K_ALLOC_<lean>=str,dex,end,agi,int,wis. */
-export const LEAN_ALLOC: Partial<Record<NonNullable<Player['lean']>, Record<string, number>>> = { arcane: { ...ALLOC_WEIGHTS.arcane } };
+export const LEAN_ALLOC: Partial<Record<NonNullable<Player['lean']>, Record<string, number>>> = {
+  // cp8-rc6 Part B (暫定, our own sim-tuned weights, no source): arcane was ALLOC_WEIGHTS.arcane {str1,dex1,end3,agi2,int3,wis2}.
+  arcane: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 },
+};
 export const allocWeights = (p: Player): Record<string, number> => (RULES.cp8 && p.lean ? LEAN_ALLOC[p.lean] ?? ALLOC_WEIGHTS.phys : ALLOC_WEIGHTS.phys);
 export function autoAllocate(p: Player): void {
   const weights = allocWeights(p);
