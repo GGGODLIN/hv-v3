@@ -1,6 +1,6 @@
 # v0.23 browser acceptance
 
-Status: pending. Source tests are not a substitute for these actual interactions. The accepted public version remains v0.22 until this candidate and its release chain pass.
+Status: **bounded desktop candidate acceptance passed at2026-10-26T18:58Z**, including the final capacity guard. Formal-root publication and its independent smoke remain pending; public v0.22 is unchanged. Source-only edge tests remain distinguished from the actual interactions below.
 
 ## Preserved starting profile
 
@@ -49,3 +49,15 @@ The final ordinary export SHA256 `f1f2eddc8f1e76073a9844e617a71f3c234b87cd38e0d3
 Before acceptance, an independent reachable-state check found117permanent weapons could leave at least116 in the backpack, exceeding the115-item departure threshold with no disposal escape. The initial candidate is NOT promoted with that defect. A narrow116-total bound-weapon cap now rejects the117th quote/action and over-limit imports without deleting items or relaxing inventory/start rules. It counts equipped, inventory and pending weapons. Boundary/source regressions prove116 remains recoverable (wear a bound weapon and remove unbound clutter when necessary). This extreme capacity scenario is a Node fixture plus reachability argument, not an actually earned browser collection.
 
 Final safety-corrected aggregate:1,433tests/four syntax pass. New source backup and candidate deployment must precede the post-correction browser reload/smoke below; all earlier normal one-bound-weapon observations identify the initial runtime.
+
+### Final guarded candidate acceptance — 18:55–18:58UTC
+
+Guarded source `cfaf3e791a89f9485535ad68b5ad936b8116188c` was fully read back before candidate `e95036ddfd7599c1879d7442b4027d9380ba023e`. Exact Pages40381424542 succeeded; six runtime HTTP200 byte/SHA256 matches preceded normal reload. ExistingLv15/150fragment progress and grown primary weapon survived.
+
+The final confirmation visibly explains the116-total capacity guard. Chose the actually owned legacy inventory rapierloot-1 (Average,Lv3,no parry field), previewedLv3→15/attack24→39 and parry0→0, then explicitly paid100fragments:150→50. It stayed in the backpack; equippedloot-12 and characterattack178 were unchanged. This deliberate weaker-item test demonstrates compatibility and no auto-equip, not an optimal investment recommendation.
+
+One ordinary stage1 victory with queued camp return then producedLv15/gold2662/wins41/75inventory/HP969/60fragments. Normal export and reload retained both bound weapons, the original presetA and the same active primary. Final export SHA256 `737357998418e23e511b8d2749b560d7439a7af064f1876111aea345c4edc764` was readable JSONversion2: both current levels15, original anchors7 and3; oldloot-1 has no parry key in either its anchor or effective stats. All76 earlier owned IDs survived; every earlier record except intentionally boundloot-1 remained unchanged through this extra fight.
+
+Captured120 warn/error entries were all the explicitly identified `chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js` metadata source. No remaining app-origin entry appeared. This is bounded log inspection, not an exhaustive guarantee. No physical mobile/narrow viewport, forced117-weapon browser collection, malformed browser import, fragment-cap browser simulation or exact speed advantage is claimed. Those boundary cases have independent source coverage.
+
+**GO for final accepted-source backup, then formal-root promotion of these same six runtime bytes.** Keep the candidate's temporary save separate from the stable profile; source backups do not restore personal browser progress.

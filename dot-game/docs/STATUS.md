@@ -1,8 +1,10 @@
 # Current status
 
-## v0.23 development candidate — not released
+## v0.23 desktop accepted; root promotion pending — 18:58UTC
 
-Soulbound weapon growth is source-tested: final aggregate 1,433/1,433 tests (zero failures/skips), four runtime syntax checks, and independent earned-investment/compatibility review. Full source backup and bounded browser acceptance are the next gates; no public v0.23 release is claimed by this working copy. Accepted v0.22 recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644`; retain its playable site until the candidate is fully backed up and accepted.
+Guarded source `cfaf3e791a89f9485535ad68b5ad936b8116188c` is fully backed up/readback verified (211files/210payloads). Final1,433tests/four syntax and18independent acceptance groups passed. Candidate `e95036ddfd7599c1879d7442b4027d9380ba023e` passed exactPages40381424542 andsixHTTP200 byte/hash matches. Actual normal legacy import, earned fragments, explicit equipped/inventory binding, absolute level growth, no old parry refill, protection, presets and reload passed; see BROWSER-QA-V023.md.
+
+The initially discovered future-overflow and permanent-inventory deadlock defects are corrected before acceptance.116-total bound storage guard is explicitly adapted, not originalHV. No further runtime changes are pending. This acceptance documentation must be fully backed up before root promotion; until then the live accepted v0.22 remains below.
 
 ## Latest verified release — v0.22
 

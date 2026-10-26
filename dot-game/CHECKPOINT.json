@@ -1,17 +1,19 @@
 {
-  "checkpoint": "108-v023-capacity-guard-candidate",
-  "status": "guarded-source-tested-candidate-browser-recheck-pending",
+  "checkpoint": "109-v023-browser-accepted",
+  "status": "browser-accepted-prepublication",
   "base_accepted_recovery": "cfc624debcecaa029deb95e437681d7c5a5b7644",
-  "previous_candidate_source": "71128cc44bfebf0b1b080a5b242974f4aa31ac47",
+  "guarded_runtime_source": "cfaf3e791a89f9485535ad68b5ad936b8116188c",
+  "candidate_site": "e95036ddfd7599c1879d7442b4027d9380ba023e",
   "source_tests_passed": 1433,
   "runtime_syntax_checks": 4,
   "independent_acceptance_tests_passed": 18,
   "ordinary_parity_expeditions": 30,
-  "frozen_utc": "2026-10-26T18:44:00Z",
+  "browser_acceptance_utc": "2026-10-26T18:58:00Z",
+  "frozen_utc": "2026-10-26T19:01:00Z",
   "files": {
     "README.md": {
-      "bytes": 4769,
-      "sha256": "56019af52d55b0fed2bc781b6be90aa45b3fe601e58dc0233111b14b25de608a"
+      "bytes": 4883,
+      "sha256": "753d39c5167ef6b8b3b8a7d2f8766c6ac4a70898945c1fd141b8a69e2b36636b"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -174,8 +176,8 @@
       "sha256": "1d530223c660bf9f158c44f415da8d5466c4f8ef36132446376363b546f6a911"
     },
     "docs/BROWSER-QA-V023.md": {
-      "bytes": 7327,
-      "sha256": "b1563de8cb75fd602cd3d4b66aeffd0e94857ee5ddf7416c99ce193d817c19a9"
+      "bytes": 9557,
+      "sha256": "c5c9282c108d505c0269ed2aebe7645a897407c4b7d20c9c83ee7df32d1e68be"
     },
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
@@ -350,8 +352,8 @@
       "sha256": "8c3440b2d1249bfaa8e504e0c5fb51f9ecbe28b45e61f455a8d08a422a33e6b9"
     },
     "docs/STATUS.md": {
-      "bytes": 3028,
-      "sha256": "06e412961315a060e363a7398893f1b774aebbc89001e1fe662c06dc0f896df1"
+      "bytes": 3426,
+      "sha256": "1a1daba0050d3322ad1fbec1faeeb5d3008f213a6ba3a5c9e563f06c6bb796e3"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
