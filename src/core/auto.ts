@@ -184,8 +184,8 @@ export const isBuffStrat = (s: Strategy): s is BuffStrategy => s.startsWith('buf
 /** cp8 (b) (producer 2026-10-26, 暫定, our own AI knob, no source): per-school buff ids the cp8 auto-pick takes before its own school
  *  (defensive / recovery first). Empty = old order. */
 export const LEAN_BUFF_FIRST: Partial<Record<string, string[]>> = {
-  // cp8 (b) chosen on B256 (暫定): arcane V 0.63→0.64, P1 1.421→1.227×; blade V 0.68→0.71. Death breakdown: 80% of arcane d10-12 deaths had the HP potion on cooldown.
-  arcane: ['S-vigor', 'W6', 'W4', 'N4'], blade: ['S-vigor', 'W6', 'W4', 'N4'],
+  // cp8 (b) chosen on B256 (暫定): arcane V 0.63→0.64, P1 1.421→1.227×. Death breakdown: 80% of arcane d10-12 deaths had the HP potion on cooldown.
+  arcane: ['S-vigor', 'W6', 'W4', 'N4'], // blade tried (V 0.68→0.71) but blade raw p95 0.98→0.81 breaks 受傷 raw-p95 −0.08 → not adopted
 };
 export function prefBuff(ids: string[], strat: BuffStrategy, rng: Rng): string | undefined {
   if (!ids.length) return undefined;
