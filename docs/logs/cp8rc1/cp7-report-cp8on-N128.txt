@@ -1,0 +1,66 @@
+
+=== set A (seeds 1..128) cp7=true knobs {"betterMargin":0.02,"pityUntil":2,"pityTries":32,"pityPasses":8,"pityLevelStep":1,"pityLevelCap":3,"pityQualityPerPass":1,"pityBumpEvery":2,"winHeal":0.1,"dmgMid":0.2,"dmgLate":0,"knee":15,"dmgScale":1,"plRamp":3,"tierRamp":3,"themeK":1,"plScale":1,"lootLvAdd":5}
+  P1 blade: trips 1786 ≥1 better 84.4% median 2 (main median 5, abyss median 2)
+  P1 oc: trips 1811 ≥1 better 87.3% median 2 (main median 5, abyss median 2)
+  P1 arcane: trips 1693 ≥1 better 88.9% median 2 (main median 4, abyss median 2)
+  P1 bulwark: trips 1588 ≥1 better 80.0% median 2 (main median 7, abyss median 2)
+  P1 (info) all trips 6878: ≥1 better 85.3%, median 2; trips with no win 974
+  P1 (info) checkpoint (start>1) trips 4591: died with 0 kills 21.2%; AI picked a shallower checkpoint 890×
+  P2 mean depth (clip 10..20) blade 19.29 oc 19.77 arcane 19.52 bulwark 19.34
+  P3 d13–d20 full clear: with campfire 75.6% (229/303), without 48.1% (168/349)
+  P4 per-entry death rate: d1–5 0.0% d6–15 3.3% (d11–15 5.2%) d16–20 6.2% | per depth 1:0 2:0 3:0 4:0 5:0 6:1 7:0 8:4 9:0 10:1 11:8 12:0 13:14 14:0 15:3 16:10 17:0 18:14 19:0 20:6
+  P4 fresh win blade: d1 99.6% d2 99.4% d3 99.2% d5 99.4% d10 89.8% d10np 84.6% d13 75.0% d16 65.2% d18 57.2% d20 80.3%
+  P4 fresh win oc: d1 100.0% d2 100.0% d3 100.0% d5 100.0% d10 96.7% d10np 93.8% d13 94.7% d16 96.1% d18 95.3% d20 77.5%
+  P4 fresh win arcane: d1 100.0% d2 99.8% d3 99.2% d5 100.0% d10 98.8% d10np 98.4% d13 79.5% d16 90.4% d18 88.9% d20 91.4%
+  P4 fresh win bulwark: d1 99.8% d2 98.6% d3 97.1% d5 98.6% d10 83.2% d10np 75.8% d13 69.5% d16 59.6% d18 54.7% d20 77.1%
+  P5 first F20 clear trip (median) blade 3 never≤12 3.1% | oc 4 never≤12 0.0% | arcane 3 never≤12 0.0% | bulwark 2 never≤12 0.0%
+  CHECK PASS P1 every won trip ≥1 better drop: 99.3% of 5904 trips (target ≥99%)
+  CHECK PASS P1 median better drops per won trip 2 ≥ 2
+  CHECK PASS P2 d10–d20 mean depth strongest/weakest 1.025× ≤ 1.3×
+  CHECK PASS P3 campfire gap 27.4pp ≤ 30pp
+  CHECK PASS P4 trip-1 median depth 20 in 10–30
+  CHECK PASS P4 shape low→rising: d1–5 0.0% < d6–15 3.3%
+  CHECK PASS P4 shape late flat: d16–20 6.2% ≤ 1.25 × d11–15 5.2% = 6.5%
+  CHECK PASS P4 blade d1–3 ≥95% (99.6%/99.4%/99.2%) d5 ≥75% (99.4%) d16 ≥60% (65.2%) d20 ≥35% (80.3%)
+  CHECK PASS P4 oc d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (96.1%) d20 ≥35% (77.5%)
+  CHECK PASS P4 arcane d1–3 ≥95% (100.0%/99.8%/99.2%) d5 ≥75% (100.0%) d16 ≥60% (90.4%) d20 ≥35% (91.4%)
+  CHECK FAIL P4 bulwark d1–3 ≥95% (99.8%/98.6%/97.1%) d5 ≥75% (98.6%) d16 ≥60% (59.6%) d20 ≥35% (77.1%)
+  CHECK PASS P4 blade trip-1 d10 boss win 99.2% (122/123) ≥ 70% (fresh d10 boss 89.8%, no potions 84.6%)
+  CHECK PASS P4 oc trip-1 d10 boss win 99.2% (127/128) ≥ 70% (fresh d10 boss 96.7%, no potions 93.8%)
+  CHECK PASS P4 arcane trip-1 d10 boss win 100.0% (124/124) ≥ 70% (fresh d10 boss 98.8%, no potions 98.4%)
+  CHECK PASS P4 bulwark trip-1 d10 boss win 99.2% (118/119) ≥ 70% (fresh d10 boss 83.2%, no potions 75.8%)
+  CHECK PASS P5 blade never full-clear F20 within 12 trips 3.1% ≤ 10%
+
+=== set B (seeds 129..256) cp7=true knobs {"betterMargin":0.02,"pityUntil":2,"pityTries":32,"pityPasses":8,"pityLevelStep":1,"pityLevelCap":3,"pityQualityPerPass":1,"pityBumpEvery":2,"winHeal":0.1,"dmgMid":0.2,"dmgLate":0,"knee":15,"dmgScale":1,"plRamp":3,"tierRamp":3,"themeK":1,"plScale":1,"lootLvAdd":5}
+  P1 blade: trips 1736 ≥1 better 82.9% median 2 (main median 5, abyss median 2)
+  P1 oc: trips 1802 ≥1 better 86.5% median 2 (main median 5, abyss median 2)
+  P1 arcane: trips 1735 ≥1 better 88.4% median 2 (main median 4, abyss median 2)
+  P1 bulwark: trips 1598 ≥1 better 80.4% median 2 (main median 6, abyss median 2)
+  P1 (info) all trips 6871: ≥1 better 84.7%, median 2; trips with no win 1005
+  P1 (info) checkpoint (start>1) trips 4579: died with 0 kills 21.9%; AI picked a shallower checkpoint 904×
+  P2 mean depth (clip 10..20) blade 19.36 oc 19.78 arcane 19.41 bulwark 19.19
+  P3 d13–d20 full clear: with campfire 73.5% (227/309), without 50.6% (180/356)
+  P4 per-entry death rate: d1–5 0.0% d6–15 3.7% (d11–15 5.7%) d16–20 5.3% | per depth 1:0 2:0 3:0 4:0 5:0 6:1 7:0 8:4 9:0 10:2 11:9 12:0 13:15 14:0 15:3 16:8 17:0 18:11 19:0 20:6
+  P4 fresh win blade: d1 100.0% d2 100.0% d3 99.6% d5 99.8% d10 85.9% d10np 80.9% d13 72.0% d16 66.3% d18 55.1% d20 81.7%
+  P4 fresh win oc: d1 100.0% d2 100.0% d3 99.8% d5 99.6% d10 93.0% d10np 89.8% d13 93.6% d16 96.5% d18 94.7% d20 76.8%
+  P4 fresh win arcane: d1 99.8% d2 100.0% d3 99.6% d5 99.8% d10 98.6% d10np 98.8% d13 77.3% d16 85.0% d18 89.8% d20 91.6%
+  P4 fresh win bulwark: d1 99.8% d2 99.2% d3 98.2% d5 99.4% d10 84.4% d10np 77.1% d13 70.1% d16 61.5% d18 57.6% d20 77.3%
+  P5 first F20 clear trip (median) blade 3 never≤12 2.3% | oc 4 never≤12 0.0% | arcane 3 never≤12 0.0% | bulwark 2 never≤12 0.0%
+  CHECK PASS P1 every won trip ≥1 better drop: 99.2% of 5866 trips (target ≥99%)
+  CHECK PASS P1 median better drops per won trip 2 ≥ 2
+  CHECK PASS P2 d10–d20 mean depth strongest/weakest 1.031× ≤ 1.3×
+  CHECK PASS P3 campfire gap 22.9pp ≤ 30pp
+  CHECK PASS P4 trip-1 median depth 20 in 10–30
+  CHECK PASS P4 shape low→rising: d1–5 0.0% < d6–15 3.7%
+  CHECK PASS P4 shape late flat: d16–20 5.3% ≤ 1.25 × d11–15 5.7% = 7.1%
+  CHECK PASS P4 blade d1–3 ≥95% (100.0%/100.0%/99.6%) d5 ≥75% (99.8%) d16 ≥60% (66.3%) d20 ≥35% (81.7%)
+  CHECK PASS P4 oc d1–3 ≥95% (100.0%/100.0%/99.8%) d5 ≥75% (99.6%) d16 ≥60% (96.5%) d20 ≥35% (76.8%)
+  CHECK PASS P4 arcane d1–3 ≥95% (99.8%/100.0%/99.6%) d5 ≥75% (99.8%) d16 ≥60% (85.0%) d20 ≥35% (91.6%)
+  CHECK PASS P4 bulwark d1–3 ≥95% (99.8%/99.2%/98.2%) d5 ≥75% (99.4%) d16 ≥60% (61.5%) d20 ≥35% (77.3%)
+  CHECK PASS P4 blade trip-1 d10 boss win 100.0% (122/122) ≥ 70% (fresh d10 boss 85.9%, no potions 80.9%)
+  CHECK PASS P4 oc trip-1 d10 boss win 100.0% (128/128) ≥ 70% (fresh d10 boss 93.0%, no potions 89.8%)
+  CHECK PASS P4 arcane trip-1 d10 boss win 100.0% (122/122) ≥ 70% (fresh d10 boss 98.6%, no potions 98.8%)
+  CHECK PASS P4 bulwark trip-1 d10 boss win 96.7% (118/122) ≥ 70% (fresh d10 boss 84.4%, no potions 77.1%)
+  CHECK PASS P5 blade never full-clear F20 within 12 trips 2.3% ≤ 10%
+
+== CP7 VERDICT: FAIL
