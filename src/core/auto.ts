@@ -1,3 +1,4 @@
+import { CP7 } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
 import { type Action, type BattleState, act, alive, armCp5, canUse, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
@@ -24,6 +25,15 @@ export function autoAllocate(p: Player): void {
     const best = ATTRS.map((a) => [a, (attrCost(p.attrs[a] + 1) - attrCost(p.attrs[a])) / weights[a]!] as const).sort((x, y) => x[1] - y[1])[0]!;
     if (allocate(p, best[0]) === 0) break;
   }
+}
+
+/** 暫定（缺原版出處）: sim town prep buys health potions up to this stock (shared with the CP7 出發前整備 「買藥」). */
+export const TOWN_HP_POTIONS = 3;
+/** Buy health potions up to `n` while credits last (sim town prep; UI 「買藥」). Returns potions bought. */
+export function buyHealthTo(p: Player, n: number): number {
+  let k = 0;
+  while (p.potions.health < n && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; k++; }
+  return k;
 }
 
 /** 暫定 (round 5): auto-equip only swaps when the power score rises by at least this fraction, so IW-upgraded gear is not pushed out by a near-equal drop. */
@@ -53,7 +63,7 @@ function equipHands(p: Player, cands: Equip[], st: NonNullable<GearStyle>): Equi
   let best: [Equip | undefined, Equip | undefined] = [p.equipped.mainHand, p.equipped.offHand];
   const legal = (m: Equip | undefined, o: Equip | undefined) => !(o && blocksOffHand(m)) && !(o && st.shield === 'no') && !(st.shield === 'yes' && offs.length && !o && !blocksOffHand(m));
   const curOk = (!best[0] || !st.main || best[0].group === st.main || !styled.length) && legal(best[0], best[1]);
-  let bestS = curOk ? score(best[0], best[1]) * (1 + AUTO_EQUIP_MARGIN) : -Infinity;
+  let bestS = curOk ? score(best[0], best[1]) * (1 + (RULES.cp7 ? CP7.betterMargin : AUTO_EQUIP_MARGIN)) : -Infinity; // CP7: same margin as the badge
   for (const m of pool.length ? pool : [undefined]) for (const o of [undefined, ...offs]) {
     if (!legal(m, o)) continue;
     const v = score(m, o); if (v > bestS) { bestS = v; best = [m, o]; }
@@ -80,7 +90,8 @@ export function autoEquip(p: Player, extra: Equip[] = [], style: GearStyle = nul
       // rc4 fix: an off-hand cannot go next to a two-hander / staff. The old trial scored the illegal pair, then equip() pushed the
       // weapon to the inventory and the town sell (keep = equipped only) sold it, leaving the sim character unarmed. Never trade the main hand away.
       if (slot === 'offHand' && blocksOffHand(p.equipped.mainHand)) continue;
-      if (powerScore(derive(trial)) > cur * (1 + AUTO_EQUIP_MARGIN)) {
+      // CP7: the AI wears what the UI badges as 「▲ 比身上好」 (same rule, CP7.betterMargin).
+      if (powerScore(derive(trial)) > cur * (1 + (RULES.cp7 ? CP7.betterMargin : AUTO_EQUIP_MARGIN))) {
         if (!p.inventory.includes(e)) { p.inventory.push(e); used.push(e); }
         equip(p, e);
       }
@@ -238,7 +249,7 @@ export function chooseCp5(b: BattleState, mode: Cp5Sim['mode'], base: () => Acti
   if (a.kind === 'spell' && b.hp < b.d.hp * 0.5 && (b.monsters[a.target] as CM | undefined)?.affixes?.includes('antimagic')) return { kind: 'attack', target: a.target };
   return a;
 }
-export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
+export interface RunReport { trip: number; unlockRate: number; settlement: Settlement; floorReached: number; kills: number; turns: number; level: number; power: number; bosses: BossFight[]; battles: number; spiritBattles: number; /** CP7 P1: better-than-worn drops this trip. */ upg?: number; /** CP7 P3: depths (abyss) / floors of rest nodes visited. */ rests?: number[]; /** CP6 abyss result. */ abyss?: { cleared: number; school: string; ms: number; titles: string[] }; /** CP4 rc: elite fights (floor, won). */ elites?: { floor: number; won: boolean; hpPct: number }[];
   /** rc4 diagnostics (sim-only, read by scripts/rc4-noclear.ts): why the run stopped early. */
   end?: { why: 'dead' | 'retreat'; floor: number; type: string; foes: { name: string; rank: string; affixes?: string[]; sig?: string }[] };
   /** CP4 (buff strategies only) */
@@ -252,7 +263,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   // Town prep.
   if (has(p, 'alloc')) autoAllocate(p);
   autoEquip(p, [], gearStyle(strategy));
-  while (has(p, 'shop') && p.potions.health < 3 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
+  if (has(p, 'shop')) buyHealthTo(p, TOWN_HP_POTIONS);
   const level = derive(p).level;
   const power = powerScore(derive(p));
   const bs = isBuffStrat(strategy);
@@ -295,6 +306,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   const elites: { floor: number; won: boolean; hpPct: number }[] = [];
   let end: RunReport['end'];
   let battles = 0, spiritBattles = 0;
+  const rests: number[] = [];
   while (!run.done) {
     if (run.abyss && depthOf(run) > (cp5?.cap ?? 60)) { run.done = 'retreat'; break; }
     const opt = pickOption(p, run, strategy);
@@ -332,7 +344,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
       if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
-      applyLoot(p, run, chestLoot(run));
+      applyLoot(p, run, chestLoot(run, p));
       const used = autoEquip(p, run.bag, gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e));
     } else if (type === 'merchant') {
@@ -347,6 +359,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         takeBuff(p, run, x.id); cp4.sources.merchant = (cp4.sources.merchant ?? 0) + 1;
       }
     } else if (type === 'rest') {
+      rests.push(depthOf(run) || run.floor);
       const d = runDerived(p, run);
       if (run.hp < d.hp * 0.8 || !p.equipped.mainHand) rest(p, run, 'heal');
       else rest(p, run, 'upgrade', 'mainHand');
@@ -365,7 +378,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     for (const e of p.inventory.filter((x) => !keep.has(x.id))) p.credits += sellPrice(e);
     p.inventory = p.inventory.filter((x) => keep.has(x.id));
   }
-  return { trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
+  return { upg: run.upg ?? 0, rests, trip: run.trip ?? 0, unlockRate: unlockRate(p), settlement: s, floorReached, kills: run.kills, turns, level, power, bosses, battles, spiritBattles, elites, ...(end ? { end } : {}), ...(abyss ? { abyss } : {}), ...(bs ? { cp4: { ...cp4, buffs: [...(run.buffs ?? [])], formed: formed(run.buffs ?? []) } } : {}) };
 }
 
 export function starterKit(p: Player, seed = 7): void {

@@ -12,10 +12,13 @@ import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { abyssBestMsg, abyssLvFollow, deathCarryMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
-import { ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
+import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
+import { CP7, betterThanWorn, checkpointOptions, gearVerdict } from '../core/cp7';
+import { betterInBag, prepAlloc, prepEquip, prepIssues, prepPotions, type PrepIssue } from '../core/prep';
+import { TOWN_HP_POTIONS } from '../core/auto';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
 import { sortieLabel } from '../core/progress';
 import { scrollToCurrentFloor } from './mapscroll';
@@ -51,6 +54,8 @@ export class App {
   townTab: 'char' | 'gear' | 'shop' | 'iw' = 'char';
   /** CP3 unlock / tutorial notices shown on the current screen. */
   notice: string[] = [];
+  /** CP7: chosen abyss start checkpoint. */
+  abyssStart: number | null = null;
   noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
   battle: BattleState | null = null;
   battleType: NodeType = 'battle';
@@ -149,6 +154,24 @@ export class App {
       <ul class="istats">${st}</ul>${actions ? `<div class="iact">${actions}</div>` : ''}</div>`;
   }
 
+  /** Battle / chest loot card. CP7 P1: a drop that beats the worn piece (betterThanWorn, +5% 戰力) gets a green frame and a
+   *  「▲ 比身上好」 badge; other drops are shown dimmed without the stat-delta row so they do not distract. Off = cp6 card. */
+  lootCard(e: Equip, l: Loot): string {
+    const guar = l.guaranteed?.includes(e.id) ? '<b class="warn" data-guar>保底</b> ' : '';
+    if (!RULES.cp7) return this.itemCard(e, `${guar}<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e);
+    const up = betterThanWorn(this.p, e);
+    const card = this.itemCard(e, `${up ? '<b class="better" data-better>▲ 比身上好</b> ' : ''}${guar}<button data-bequip="${e.id}">立刻換上</button>`);
+    return up ? `<div class="loot-better">${card}${this.compare(e)}</div>` : `<div class="loot-plain" data-plain>${card}</div>`;
+  }
+
+  /** cp7-rc5 bug 1: storage / run-bag badge from the same rule as 出發前整備 (gearVerdict). Off = '' (cp6 UI). */
+  betterTag(e: Equip): string {
+    if (!RULES.cp7) return '';
+    const v = gearVerdict(this.p, e);
+    return v === 'better' ? '<b class="better" data-better>▲ 比身上好</b> '
+      : v === 'small' ? `<small class="dim" data-small-gain title="戰力提升未超過 ${Math.round(CP7.betterMargin * 100)}%，不算「比身上好」，出發前整備不會提醒">小幅提升（≤${Math.round(CP7.betterMargin * 100)}%，不列入整備提醒）</small> ` : '';
+  }
+
   /** Derived-stat deltas if e were equipped. */
   compare(e: Equip): string {
     const clone: Player = JSON.parse(JSON.stringify(this.p));
@@ -209,7 +232,7 @@ export class App {
         const e = p.equipped[s];
         return `<div class="slot"><div class="slotname">${SLOT_ZH[s]}</div>${e ? this.itemCard(e, `<button data-unequip="${s}">卸下</button>`) : '<div class="empty">—</div>'}</div>`;
       }).join('');
-      const inv = [...p.inventory].sort((a, b) => a.slot.localeCompare(b.slot)).map((e) => this.itemCard(e, `<button data-equip="${e.id}">裝備</button>${has(p, 'shop') ? ` <button data-sell="${e.id}">賣 ${sellPrice(e)}C</button>` : ''}`) + this.compare(e)).join('');
+      const inv = [...p.inventory].sort((a, b) => a.slot.localeCompare(b.slot)).map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-equip="${e.id}">裝備</button>${has(p, 'shop') ? ` <button data-sell="${e.id}">賣 ${sellPrice(e)}C</button>` : ''}`) + this.compare(e)).join('');
       body = `<div class="cols"><div><h3>穿戴中</h3><div class="slots">${eq}</div></div><div><h3>倉庫（${p.inventory.length}）</h3><div class="inv">${inv || '<div class="empty">空</div>'}</div></div></div>`;
     } else {
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<tr><td>${POTION_ZH[k]}</td><td>持有 ${p.potions[k]}</td><td><button data-buy="${k}" ${p.credits < RULES.potionPrice[k] ? 'disabled' : ''}>買 ${RULES.potionPrice[k]}C</button></td></tr>`).join('');
@@ -246,7 +269,7 @@ export class App {
       const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
     }).join('');
-    const bag = r.bag.map((e) => this.itemCard(e, `<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
+    const bag = r.bag.map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
@@ -376,7 +399,7 @@ export class App {
       const l = this.pending.loot;
       const pots = Object.entries(l.potions).filter(([, v]) => v).map(([k, v]) => `${POTION_ZH[k as PotionId]} ×${v}`).join('、');
       body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>
-        <div class="inv">${l.equips.map((e) => this.itemCard(e, `${l.guaranteed?.includes(e.id) ? '<b class="warn" data-guar>保底</b> ' : ''}<button data-bequip="${e.id}">立刻換上</button>`) + this.compare(e)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
+        <div class="inv">${l.equips.map((e) => this.lootCard(e, l)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
       const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
@@ -443,10 +466,12 @@ export class App {
     on('[data-sellall]', () => { const n = this.p.inventory.length; const sum = this.p.inventory.reduce((t, e) => t + sellPrice(e), 0); this.ask('賣掉倉庫全部？', `<p class="warn">會賣掉倉庫裡全部 ${n} 件裝備，得到 ${sum}C。賣掉後無法買回。</p>`, `確定賣掉 ${n} 件`, () => { for (const e of this.p.inventory) this.p.credits += sellPrice(e); this.p.inventory = []; this.go('town'); }); }); // CP3-bugfix 6: confirm
     on('[data-buy]', (el) => { const k = el.dataset.buy as PotionId; if (this.p.credits >= RULES.potionPrice[k]) { this.p.credits -= RULES.potionPrice[k]; this.p.potions[k]++; } this.go('town'); });
     on('[data-newgame]', () => this.ask('建立新角色？', `<p class="warn">目前的存檔（Lv${level(this.p)}、${this.p.inventory.length} 件倉庫裝備、${this.p.credits}C）會被清空，無法復原。</p>`, '清空並建立新角色', () => { const settings = { ...this.data.settings }; this.data = App.fresh(); this.data.settings = settings; this.stage.speed = settings.speed; this.save(); this.go('town'); })); // CP4-rc-fix 5: speed / skip-anim are preferences, kept
-    on('[data-modal-cancel]', () => { this.modal = null; this.render(); });
+    on('[data-modal-cancel]', () => { this.modal = null; this.prepKind = null; this.render(); });
     on('[data-modal-ok]', () => { const m = this.modal; this.modal = null; m?.onOk(); if (!this.modal) this.render(); });
-    on('[data-start]', () => this.startRun());
-    on('[data-abyss]', () => this.startAbyss());
+    on('[data-start]', () => this.depart('main'));
+    on('[data-abyss]', () => this.depart('abyss'));
+    on('[data-prep]', (el) => this.prepFix(el.dataset.prep as PrepIssue | 'all'));
+    document.querySelector('[data-abyss-start]')?.addEventListener('change', (ev) => { this.abyssStart = Number((ev.target as HTMLSelectElement).value); const b = document.querySelector('[data-abyss]'); if (b) b.textContent = `進入深淵塔（第 ${this.abyssStart} 層起）▶`; });
     on('[data-node]', (el) => this.enterNode(Number(el.dataset.node)));
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
@@ -552,6 +577,44 @@ export class App {
     this.save(); this.render();
   }
 
+  /** CP7 出發前整備提醒: town → tower / abyss. Opens the reminder when any prepIssues() holds; otherwise departs at once. */
+  depart(kind: 'main' | 'abyss') {
+    const go = () => (kind === 'main' ? this.startRun() : this.startAbyss());
+    if (!RULES.cp7 || !prepIssues(this.p).length) return go();
+    if (kind === 'abyss') { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value); if (v) this.abyssStart = v; }
+    this.prepKind = kind;
+    this.prepModal();
+  }
+  prepKind: 'main' | 'abyss' | null = null;
+  prepModal() {
+    const p = this.p, iss = prepIssues(p), kind = this.prepKind!;
+    const go = () => { this.prepKind = null; if (kind === 'main') this.startRun(); else this.startAbyss(); };
+    const row = (id: PrepIssue, text: string, btn: string) => `<li data-prep-row="${id}">${text} <button data-prep="${id}">${btn}</button></li>`;
+    const nb = betterInBag(p).length;
+    const rows = [
+      iss.includes('alloc') ? row('alloc', `還有 ${unspentExp(p).toLocaleString()} EXP 未分配成屬性點。`, '自動分配') : '',
+      iss.includes('potion') ? row('potion', `沒有帶生命藥水（持有 ${p.potions.health} 瓶，${p.credits.toLocaleString()}C）。`, `買藥（補到 ${TOWN_HP_POTIONS} 瓶）`) : '',
+      iss.includes('equip') ? row('equip', `倉庫有 ${nb} 件「▲ 比身上好」的裝備。`, '換上') : '',
+    ].join('');
+    const body = iss.length
+      ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
+      : `<p data-prepbox data-prep-done>整備完成。</p>`;
+    this.modal = { title: '出發前整備', body, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
+    this.render();
+  }
+  prepFix(k: PrepIssue | 'all') {
+    const p = this.p;
+    const msg: string[] = [];
+    const todo = k === 'all' ? prepIssues(p) : [k]; // 全部處理 = each open item, in the sim's town-prep order (alloc → equip → potions)
+    const want = (x: PrepIssue) => todo.includes(x);
+    if (want('alloc')) { const n = prepAlloc(p); if (n) msg.push(`自動分配 ${n} 點屬性`); }
+    if (want('equip')) { const n = prepEquip(p); if (n) msg.push('已換上較好的裝備'); }
+    if (want('potion')) { const n = prepPotions(p); msg.push(n ? `買了 ${n} 瓶生命藥水` : '錢不夠，沒買到藥水'); }
+    if (msg.length) this.notice = msg;
+    this.save();
+    if (this.prepKind) this.prepModal(); else this.render();
+  }
+
   startRun() {
     this.data.run = startRun(this.p, randomSeed());
     this.notice = [...(this.data.run.notes ?? [])];
@@ -563,7 +626,11 @@ export class App {
   abyssBtn(): string {
     if (!RULES.cp6Abyss || !abyssOpen(this.p)) return '';
     const st = checkpointStart(loadRecord(localStorage.getItem(ABYSS_KEY)).best);
-    return `<button data-abyss class="big">進入深淵塔（第 ${st} 層起）▶</button>`;
+    if (!RULES.cp7) return `<button data-abyss class="big">進入深淵塔（第 ${st} 層起）▶</button>`;
+    // CP7 decision 2: pick any unlocked checkpoint (default = deepest).
+    const opts = checkpointOptions(loadRecord(localStorage.getItem(ABYSS_KEY)).best, ABYSS.checkpoint);
+    const sel = opts.includes(this.abyssStart ?? 0) ? this.abyssStart! : st;
+    return `<label class="hint">出發檢查點 <select data-abyss-start>${opts.map((d) => `<option value="${d}"${d === sel ? ' selected' : ''}>第 ${d} 層</option>`).join('')}</select></label> <button data-abyss class="big">進入深淵塔（第 ${sel} 層起）▶</button>`;
   }
   abyssRecordHtml(): string {
     if (!RULES.cp6Abyss || !abyssOpen(this.p)) return '';
@@ -573,7 +640,9 @@ export class App {
     return `<div class="hint" data-abyssrec>深淵紀錄：最高 ${rec.best} 層 · 共 ${rec.trips} 趟${rows ? ` · ${rows}` : ''}${rec.titles.length ? `<br>稱號：${rec.titles.map((t) => `<b data-title>${esc(t)}</b>`).join('、')}` : ''}</div>`;
   }
   startAbyss() {
-    const rec = loadRecord(localStorage.getItem(ABYSS_KEY)), st = checkpointStart(rec.best);
+    const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
+    let st = checkpointStart(rec.best);
+    if (RULES.cp7) { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value ?? st); if (checkpointOptions(rec.best, ABYSS.checkpoint).includes(v)) st = v; this.abyssStart = st; }
     this.data.run = startAbyss(this.p, randomSeed(), st, rec.ms);
     this.notice = [`深淵塔第 ${st} 層：戰死帶回 50%，撤退保留全部。每 5 層一個檢查點。`];
     this.go('map');
@@ -586,7 +655,7 @@ export class App {
     this.pending = {};
     this.notice = coreEnterNode(this.p, r, t);
     if (t === 'battle' || t === 'elite' || t === 'boss') return this.startBattle(t);
-    if (t === 'chest') { this.pending.loot = chestLoot(r); applyLoot(this.p, r, this.pending.loot); }
+    if (t === 'chest') { this.pending.loot = chestLoot(r, this.p); applyLoot(this.p, r, this.pending.loot); }
     if (t === 'merchant') { r.merchant = merchantStock(r); if (RULES.cp4RunBuffs) r.buffStock = merchantBuffs(this.p, r); }
     if (t === 'shrine' && RULES.cp4RunBuffs) openShrine(this.p, r);
     this.go('node');
@@ -627,7 +696,17 @@ export class App {
     }
     this.busy = true;
     this.render();
+    const hpBefore = b.hp, turnBefore = b.turn;
     const ev = act(b, a, this.rng, profsOf(this.p));
+    // cp7-rc5 bug 3: per-turn damage record (display only, no effect on the battle): one line per monster phase, kept in full
+    // on window.__turnLog for playtest reports (the on-screen log shows the last 6 lines only).
+    if (RULES.cp7) {
+      const taken = ev.reduce((t, e) => t + (e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
+      const maxHit = ev.reduce((t, e) => Math.max(t, e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
+      const rec = { turn: b.turn, action: a.kind, hpBefore, hpAfter: b.hp, maxHp: b.d.hp, taken, maxHit };
+      const w = window as unknown as { __turnLog?: (typeof rec)[] }; (w.__turnLog ??= []).push(rec);
+      if (b.turn > turnBefore || taken) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}</span>`);
+    }
     for (const e of ev) {
       if (e.t === 'hit' && e.dmg > 0 && e.crits) this.log.push(`<span class="crit">${e.from === 'player' ? '暴擊' : '被暴擊'} ${e.dmg}</span>`);
       if (e.t === 'hit' && e.from === 'player' && e.weak && e.dmg > 0) this.log.push(`<span class="weakhit">弱點！${esc(b.monsters[e.to as number]!.name)} 受到 ${e.dmg}</span>`);

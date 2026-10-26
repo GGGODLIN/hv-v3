@@ -11,7 +11,7 @@ export const GAME_KEYS = [SAVE_KEY, ABYSS_KEY] as const;
  */
 export function applyPreset(kv: KV, pr: Preset): SaveData {
   for (const k of GAME_KEYS) kv.removeItem(k);
-  const save: SaveData = { v: SAVE_VERSION, player: structuredClone(pr.player), run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: 0, bestFloor: 20, clears: 1 } };
+  const save: SaveData = { v: SAVE_VERSION, player: structuredClone(pr.player), run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: (pr.player as { prog?: { trips?: number } }).prog?.trips ?? 0, bestFloor: 20, clears: 1 } }; // cp7 fix: town sortie count = the character's trip count (banner 第 N 趟 = trips+1)
   kv.setItem(SAVE_KEY, JSON.stringify(save));
   kv.setItem(ABYSS_KEY, JSON.stringify(pr.record));
   return save;

@@ -6,6 +6,7 @@ import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from '.
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
+import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
@@ -45,6 +46,8 @@ export const RULES = {
   cp5Bosses: true, // CP5 accepted 2026-10-26 (cp5-pass): bosses/floors on by default
   /** CP6 feature flag (docs/cp6-abyss.md §9). Off = identical to cp5-rc. `?cp6` in the URL turns it on (implies cp5Bosses). */
   cp6Abyss: true, // CP6 accepted (cp6-pass): default on
+  /** CP7 手感 feature flag (docs/cp7-feel.md). Off = identical to cp6-pass. On by default since cp7-pass. */
+  cp7: true, // CP7 accepted (cp7-pass): default on
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -79,6 +82,8 @@ export interface RunState {
   foundEquip?: boolean;
   /** CP3: 1-based trip number (carry-back multiplier) and pending unlock / tutorial messages for the UI. */
   trip?: number;
+  /** CP7 P1: better-than-worn drops this trip (counted at drop time). */
+  upg?: number;
   tutorial?: boolean;
   /** Next elite is picked with an elemental weakness (CP3-7 grimoire lesson). */
   weakNext?: boolean;
@@ -280,6 +285,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w, ab);
       if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
       if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? ABYSS.bossDmgAt[ab] ?? 1 : 1);
+        if (RULES.cp7 && type !== 'boss') m.adb *= 1 - CP7.themeK * (1 - (CP7.themeDmg[f] ?? 1));
         if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
       return m;
     });
@@ -317,7 +323,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[] }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[] }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -330,10 +336,15 @@ export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
 export const floorMinQuality = (_f: number): Quality => 'fair';
 
 /** rc11: main-tower loot level (see RULES.lootPlayerLevel). */
-export const lootLevel = (run: RunState): number => (RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor));
-export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): Loot {
+/** CP7 decision 1: RULES.cp7 implies lootPlayerLevel (findings 003 §1.1), plus CP7.lootLvAdd (暫定) so main-tower gear keeps up with floor monsters. */
+export const lootLevel = (run: RunState): number =>
+  RULES.cp7 ? Math.max(1, (run.plv ?? 1) + CP7.lootLvAdd) : RULES.lootPlayerLevel ? Math.max(1, run.plv ?? 1) : floorLevel(run.floor);
+/** cp7-rc3: drop level for every loot source (battle, chest, merchant, pity) under CP7 = player level + lootLvAdd, in the main
+ *  tower AND the abyss. rc2 used abyssLevel (= player level, no +5) for abyss drops — playtest: drops mostly at player level. */
+export const dropLevel = (run: RunState): number => RULES.cp7 ? lootLevel(run) : run.abyss ? abyssLevel(run) : lootLevel(run);
+export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p?: Player): Loot {
   const ab = depthOf(run);
-  const L = ab ? abyssLevel(run) : lootLevel(run);
+  const L = dropLevel(run);
   return withRng(run, (rng) => {
     const loot: Loot = { equips: [], credits: 0, potions: {}, exp: 0 };
     // CP5 r3 (暫定): a solo elite rolls the drop table once more for the missing normal add (producer decision 1).
@@ -372,17 +383,32 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType): 
     // 暫定 early-loot guarantee (round 5): the first won battle on floors 1-4 with no equipment found yet this run drops one.
     if (run.floor <= RULES.earlyEquipByFloor && !run.foundEquip && loot.equips.length === 0) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
     if (loot.equips.length) run.foundEquip = true;
+    if (RULES.cp7 && p) cp7Pity(rng, p, run, loot, L);
     return loot;
   });
 }
 
-export function chestLoot(run: RunState): Loot {
-  const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
+/** CP7 P1: count better-than-worn drops this trip; add the smart-loot pity piece when needed (CP7.pityUntil). */
+function cp7Pity(rng: Rng, p: Player, run: RunState, loot: Loot, L: number): void {
+  let u = loot.equips.filter((e) => betterThanWorn(p, e)).length;
+  if (u === 0 && (run.upg ?? 0) < CP7.pityUntil) {
+    const e = pityPiece(rng, p, L) ?? pityWeapon(rng, p, L); // cp7-rc3: weapon fallback everywhere (was abyss only)
+    if (e) { loot.equips.push(e); (loot.better ??= []).push(e.id); u = 1; }
+  }
+  run.upg = (run.upg ?? 0) + u;
+}
+
+export function chestLoot(run: RunState, p?: Player): Loot {
+  const L = dropLevel(run); // CP6 r2 decision 7; cp7-rc3 +lootLvAdd in the abyss
   // design §5: chests drop 2-3 items (暫定 single-player acceleration).
-  return withRng(run, (rng) => ({
-    equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
-    credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
-  }));
+  return withRng(run, (rng) => {
+    const loot: Loot = {
+      equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
+      credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
+    };
+    if (RULES.cp7 && p) { cp7Pity(rng, p, run, loot, L); }
+    return loot;
+  });
 }
 
 export function applyLoot(p: Player, run: RunState, loot: Loot): void {
@@ -399,7 +425,8 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
   if (b.over !== 'win') { run.done = 'dead'; return null; }
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
-  const loot = battleLoot(run, monsters, type);
+  const loot = battleLoot(run, monsters, type, p);
+  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * CP7.winHeal)); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
   const total = Object.values(b.used).reduce((a, c) => a + (c ?? 0), 0) || 1;
   for (const k of PROFS) {
@@ -411,7 +438,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
 }
 
 export function merchantStock(run: RunState): MerchantStock {
-  const L = run.abyss ? abyssLevel(run) : lootLevel(run); // CP6 r2 decision 7
+  const L = dropLevel(run); // CP6 r2 decision 7; cp7-rc3 +lootLvAdd in the abyss
   return withRng(run, (rng) => ({
     equips: [0, 1, 2].map((i) => {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
@@ -440,7 +467,7 @@ export function shrine(p: Player, run: RunState, id: Shrine['id']): string {
   if (id === 'might') { run.bonus.dmg += 0.15; return '傷害 +15%'; }
   if (id === 'vigor') { run.bonus.hp += 0.2; run.hp = runDerived(p, run).hp; return '最大 HP +20%，HP 全滿'; }
   run.hp = Math.max(1, Math.round(run.hp - d.hp * 0.3));
-  const e = withRng(run, (rng) => generateEquip(rng, floorLevel(run.floor), { minQuality: 'superior' }));
+  const e = withRng(run, (rng) => generateEquip(rng, RULES.cp7 ? dropLevel(run) : floorLevel(run.floor), { minQuality: 'superior' }));
   run.bag.push(e);
   return `獲得 ${e.quality} 裝備`;
 }

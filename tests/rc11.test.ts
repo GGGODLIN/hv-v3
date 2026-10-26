@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { sortieLabel } from '../src/core/progress';
 import { CP5_TOWER, TOWER, towerRules } from '../src/core/tower';
@@ -36,11 +36,11 @@ describe('rc11 map scrolls to the current floor', () => {
 });
 
 describe('rc11 abyss15 preset', () => {
-  it('is not below abyss10 in level, best 15, rule-compliant blade', () => {
+  it('is not below abyss10 in level, best 15 (cp7-rc3 re-export: Lv13 bulwark)', () => {
     const a10 = presets.abyss10!, a15 = presets.abyss15!;
     expect(level(a15.player)).toBeGreaterThanOrEqual(level(a10.player));
     expect((a15.record as { best: number }).best).toBe(15);
-    expect(level(a15.player)).toBe(17);
+    expect(level(a15.player)).toBe(13);
   });
 });
 
@@ -82,3 +82,9 @@ describe('rc11 loot level (report only; flag stays OFF)', () => {
 describe('rc11 boss revive text', () => {
   it('says the revive clears status ailments', () => { expect(BOSS_PHASE_TEXT).toContain('復活清除異常狀態'); });
 });
+
+// cp7-pass: RULES.cp7 is on by default; this file pins the pre-CP7 (cp6-pass) formulas, so it runs with cp7 off.
+// CP7 behaviour is covered by tests/cp7*.test.ts.
+let savedCp7 = false;
+beforeAll(() => { savedCp7 = RULES.cp7; RULES.cp7 = false; });
+afterAll(() => { RULES.cp7 = savedCp7; });

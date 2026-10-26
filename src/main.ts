@@ -9,7 +9,7 @@ import { H, Stage, W } from './game/stage';
 function buildBadge() {
   const el = document.createElement('div');
   el.id = 'build';
-  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}`;
+  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}${RULES.cp7 ? ' · CP7' : ''}`;
   el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#8a7f99;opacity:.8;pointer-events:none;z-index:9999';
   document.body.appendChild(el);
 }
@@ -31,7 +31,9 @@ async function boot() {
   if (new URLSearchParams(location.search).has('cp5')) RULES.cp5Bosses = true;
   // CP6 abyss tower is off by default; `?cp6` turns it on (and the CP5 bosses / affixes it reuses).
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
-  // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss10|abyss15` (rc5: `debug` no longer required)
+  // CP7 手感 (docs/cp7-feel.md) is off by default; `?cp7` turns it on.
+  if (new URLSearchParams(location.search).has('cp7')) RULES.cp7 = true;
+  // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss10|abyss15|abyss20` (rc5: `debug` no longer required)
   // overwrites the local save with a sim-exported character (public/data/cp6-presets.json) before the game boots.
   const qs = new URLSearchParams(location.search), preset = qs.get('preset');
   // rc5 (b): `debug` is no longer required — without it the preset was silently ignored and the previous save (e.g. abyss15) stayed.

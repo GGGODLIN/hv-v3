@@ -157,3 +157,9 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .weakbox .wk .res { color: #9aa4b8; margin-left: 6px; }
 .weakbox .wk .res i { font-style: normal; color: #c9b27a; margin-right: 4px; }
 .weakbox .wk .res i.mine { color: #ff8a6a; }
+
+/* CP7 P1: better-than-worn drops stand out; ordinary drops stay quiet. */
+.loot-better > .item { outline: 2px solid #6cff8c; box-shadow: 0 0 8px rgba(108,255,140,.45); }
+.better { color: #6cff8c; }
+.loot-plain { opacity: .55; }
+.loot-plain:hover { opacity: 1; }
