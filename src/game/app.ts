@@ -303,7 +303,7 @@ export class App {
       return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}${spellSug?.id === id ? ' suggest" data-sugbtn="1' : ''}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
-    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
+    const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.potions[id] <= 0 ? 'data-potempty' : b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (potHint(b) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.potions[id] <= 0 ? '用完' : b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]} 回合` : `×${b.potions[id]}`}</small></button>`).join('');
     const chargers = b.monsters.filter((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0)); // cp8-rc7 P1 item 3: 元素脈衝 too
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
@@ -465,7 +465,7 @@ export class App {
     return `<br><span data-chargeest="${est}:${pct}">預估傷害 約 ${est}（佔最大 HP ${pct}%）· 防禦後約 ${estD}</span>`
       + (urgent ? `<br><b class="warn" data-urgent="${est}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：先喝藥或防禦</b>` : '')
       + this.chargePayoff(b, chargers, est, estD)
-      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${cd > 0 ? `生命藥水冷卻中（還要 ${cd} 回合）` : '生命藥水已用完'}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
+      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，這回合改用 <b>D·防禦</b> 或 <b>S·靈動架勢</b></b>` : '');
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
   /** cp8-rc10 P0-4 */

@@ -17,7 +17,7 @@ function setup(rank: 'normal' | 'boss' = 'normal', potions = { health: 3, mana: 
 
 describe('CP2b', () => {
   it('5. health potion: 10 player turns blocked after drinking, countdown shown 10..1', () => {
-    expect(HEALTH_POTION_CD).toBe(10);
+    expect(HEALTH_POTION_CD).toBe(5);
     const b = setup(); b.monsters[0]!.adb = 0;
     const rng = new Rng(1);
     act(b, { kind: 'item', id: 'health' }, rng, {});

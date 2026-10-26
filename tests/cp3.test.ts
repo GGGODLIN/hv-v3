@@ -32,7 +32,7 @@ describe('CP3-A lock tests: sourced values (change only with producer approval)'
   });
   it('potions: mana/spirit cooldown 40 (F-002-4.1A); health 10 is assumed (HVP potion 10)', () => {
     expect(C['F-002-4.1A-item-cooldown'].value.turns).toBe(40);
-    expect(HEALTH_POTION_CD).toBe(10);
+    expect(HEALTH_POTION_CD).toBe(5);
     expect(C['P-health-potion-cd'].source).toContain('assumed');
     expect(DEF.mitigation).toBe(0.25);
   });

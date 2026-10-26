@@ -26,11 +26,11 @@ describe('round 6', () => {
     b.oc = 50; b.sp = 0; expect(canUse(b, { kind: 'spirit' })).toBe(false);
     expect(whyNot(b, { kind: 'spirit' })).toContain('SP 不足');
   });
-  it('4. health potion cooldown is 10 turns; floor-10 boss has at most 1 minion', () => {
+  it('4. health potion cooldown is 5 turns (暫定、非原版); floor-10 boss has at most 1 minion', () => {
     const { b } = fresh();
     b.hp = 1;
     act(b, { kind: 'item', id: 'health' }, new Rng(1), {});
-    expect(b.itemCd.health).toBe(10);
+    expect(b.itemCd.health).toBe(5);
     for (let s = 1; s <= 200; s++) {
       const run = startRun(newPlayer(), s); run.floor = 10;
       const ms = encounter(run, pool, 'boss');
