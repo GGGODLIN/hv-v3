@@ -12,7 +12,8 @@ if (opts.length) await pg.select('[data-abyss-start]', String(Math.max(...opts))
 await pg.click('[data-abyss]'); await w(300);
 for (let i = 0; i < 3 && (await pg.$('[data-modal-ok]')); i++) { await pg.click('[data-modal-ok]'); await w(300); }
 R.startpick = !!(await pg.$('[data-startpick]'));
-R.nodesLocked = await pg.$$eval('[data-node]', (n) => n.length > 0 && n.every((x) => x.disabled));
+// rc4 (item 4a): nodes are no longer locked during the start pick (they stay clickable; entering forgoes the open picks).
+R.nodesLocked = await pg.$$eval("[data-node]", (n) => n.length > 0 && n.every((x) => !x.disabled));
 let picks = 0; while ((await pg.$('[data-startpick] [data-buff]')) && picks < 10) { await pg.click('[data-startpick] [data-buff]'); await w(200); picks++; }
 R.picks = picks; R.startpickGone = !(await pg.$('[data-startpick]'));
 R.nodesFree = await pg.$$eval('[data-node]', (n) => n.some((x) => !x.disabled));
