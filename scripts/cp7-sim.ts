@@ -67,7 +67,7 @@ const b10 = { n: 0, w: 0 }; let built = 0, deep = 0, shallow = 0, cpTrips = 0, c
 for (let s = S0 + 1; s <= S0 + N; s++) {
   const p = newPlayer(); starterKit(p, s, sc === 'bulwark' ? 'bulwark' : undefined); let ok = false, i = 1;
   // debug only (stderr): kit / heavy-armor timing
-  const kitS = (tag: string) => { const b = p.equipped.body, d = derive(p); return `${tag} ${s} ${b ? b.group + ':' + b.base + ':' + b.quality : '-'} hp ${d.hp} pm ${d.physMit.toFixed(3)}`; }; let heavyAt = p.equipped.body?.group === 'heavy' ? 'kit' : '';
+  const kitS = (tag: string) => { const b = p.equipped.body, d = derive(p); return `${tag} ${s} ${b ? b.group + ':' + b.base + ':' + b.quality : '-'} hp ${d.hp} pm ${d.physMit.toFixed(3)} mh ${p.equipped.mainHand ? p.equipped.mainHand.group + ':' + p.equipped.mainHand.quality + ':L' + p.equipped.mainHand.level + ':ad' + Math.round(p.equipped.mainHand.stats.attackDamage ?? 0) : '-'} lv ${level(p)}`; }; let heavyAt = p.equipped.body?.group === 'heavy' ? 'kit' : '';
   if (E.DBGKIT) console.error(kitS('K0'));
   for (; i <= 60; i++) { const r = autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }); if (E.DBGKIT && !heavyAt && p.equipped.body?.group === 'heavy') heavyAt = 'm' + i; upgMain.push(r.upg ?? 0); if (r.kills) upgWon.push(r.upg ?? 0); if (!r.upg) { zero.main++; if (!r.kills) zero.mainNoLoot++; } if (r.settlement.outcome === 'clear') { ok = true; break; } }
   firstClear.push(ok ? i : 99);

@@ -1,0 +1,132 @@
+K0 1 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad33 lv 1
+K1 1 cloth:ironsilk:magnificent hp 774 pm 0.259 mh staff:superior:L18:ad35 lv 16 heavyAt none
+K0 2 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad35 lv 1
+K1 2 cloth:gossamer:magnificent hp 788 pm 0.301 mh staff:average:L15:ad33 lv 15 heavyAt none
+K0 3 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad45 lv 1
+K1 3 light:kevlar:magnificent hp 816 pm 0.425 mh staff:superior:L13:ad35 lv 13 heavyAt none
+K0 4 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad46 lv 1
+K1 4 heavy:plate:superior hp 730 pm 0.396 mh oneHand:superior:L15:ad61 lv 14 heavyAt m3
+K0 5 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad37 lv 1
+K1 5 heavy:chain:magnificent hp 846 pm 0.432 mh staff:superior:L15:ad34 lv 13 heavyAt m4
+K0 6 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad33 lv 1
+K1 6 cloth:gossamer:average hp 730 pm 0.276 mh staff:superior:L11:ad30 lv 11 heavyAt none
+K0 7 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad34 lv 1
+K1 7 cloth:ironsilk:peerless hp 764 pm 0.321 mh staff:exquisite:L14:ad49 lv 15 heavyAt m1
+K0 8 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad36 lv 1
+K1 8 cloth:cotton:average hp 736 pm 0.272 mh staff:superior:L14:ad30 lv 11 heavyAt none
+K0 9 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad37 lv 1
+K1 9 heavy:chain:magnificent hp 924 pm 0.473 mh staff:superior:L20:ad47 lv 16 heavyAt m3
+K0 10 light:leather:fair hp 510 pm 0.089 mh oneHand:fair:L1:ad38 lv 1
+K1 10 heavy:chain:superior hp 796 pm 0.362 mh staff:average:L15:ad31 lv 14 heavyAt m3
+K0 11 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad36 lv 1
+K1 11 cloth:gossamer:superior hp 806 pm 0.301 mh staff:superior:L14:ad38 lv 15 heavyAt none
+K0 12 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad34 lv 1
+K1 12 heavy:plate:superior hp 824 pm 0.329 mh staff:superior:L16:ad36 lv 15 heavyAt m3
+K0 13 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad46 lv 1
+K1 13 heavy:plate:exquisite hp 826 pm 0.393 mh staff:superior:L10:ad26 lv 14 heavyAt m3
+K0 14 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad35 lv 1
+K1 14 heavy:chain:exquisite hp 760 pm 0.277 mh staff:superior:L9:ad26 lv 14 heavyAt m3
+K0 15 light:leather:fair hp 510 pm 0.093 mh oneHand:fair:L1:ad35 lv 1
+K1 15 heavy:plate:magnificent hp 814 pm 0.346 mh staff:superior:L18:ad38 lv 14 heavyAt m2
+K0 16 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad34 lv 1
+K1 16 heavy:plate:superior hp 884 pm 0.422 mh oneHand:superior:L17:ad88 lv 15 heavyAt m4
+K0 17 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad34 lv 1
+K1 17 heavy:chain:superior hp 794 pm 0.347 mh twoHand:superior:L14:ad156 lv 15 heavyAt m1
+K0 18 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad36 lv 1
+K1 18 cloth:ironsilk:exquisite hp 810 pm 0.302 mh staff:superior:L20:ad43 lv 16 heavyAt none
+K0 19 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad35 lv 1
+K1 19 light:leather:superior hp 774 pm 0.284 mh staff:exquisite:L18:ad45 lv 16 heavyAt none
+HA 19 2
+K0 20 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad35 lv 1
+K1 20 cloth:ironsilk:exquisite hp 830 pm 0.321 mh staff:superior:L9:ad25 lv 15 heavyAt none
+K0 21 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad35 lv 1
+K1 21 light:drakehide:exquisite hp 774 pm 0.365 mh staff:magnificent:L16:ad53 lv 13 heavyAt none
+HA 21 8
+K0 22 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad34 lv 1
+K1 22 heavy:chain:exquisite hp 814 pm 0.428 mh twoHand:superior:L17:ad146 lv 14 heavyAt m2
+K0 23 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad34 lv 1
+K1 23 cloth:gossamer:magnificent hp 720 pm 0.207 mh staff:superior:L12:ad34 lv 13 heavyAt none
+K0 24 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad50 lv 1
+K1 24 cloth:ironsilk:magnificent hp 796 pm 0.343 mh staff:superior:L13:ad39 lv 14 heavyAt none
+K0 25 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad37 lv 1
+K1 25 light:leather:exquisite hp 796 pm 0.340 mh staff:superior:L16:ad40 lv 14 heavyAt none
+K0 26 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad37 lv 1
+K1 26 heavy:plate:magnificent hp 884 pm 0.415 mh twoHand:superior:L19:ad147 lv 15 heavyAt m3
+K0 27 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad34 lv 1
+K1 27 cloth:cotton:superior hp 730 pm 0.231 mh staff:superior:L17:ad44 lv 14 heavyAt none
+K0 28 light:leather:fair hp 510 pm 0.087 mh oneHand:fair:L1:ad37 lv 1
+K1 28 light:drakehide:magnificent hp 748 pm 0.270 mh staff:superior:L16:ad36 lv 14 heavyAt none
+K0 29 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad34 lv 1
+K1 29 heavy:chain:superior hp 716 pm 0.218 mh staff:average:L14:ad25 lv 12 heavyAt m2
+K0 30 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad37 lv 1
+K1 30 cloth:gossamer:exquisite hp 778 pm 0.278 mh staff:average:L6:ad24 lv 14 heavyAt none
+K0 31 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad37 lv 1
+K1 31 heavy:chain:exquisite hp 802 pm 0.435 mh staff:superior:L14:ad38 lv 11 heavyAt m2
+K0 32 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad37 lv 1
+K1 32 cloth:ironsilk:peerless hp 790 pm 0.374 mh staff:superior:L17:ad38 lv 14 heavyAt none
+K0 33 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad37 lv 1
+K1 33 heavy:plate:average hp 774 pm 0.339 mh staff:legendary:L10:ad47 lv 13 heavyAt m1
+K0 34 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad37 lv 1
+K1 34 light:kevlar:legendary hp 850 pm 0.349 mh staff:superior:L20:ad44 lv 17 heavyAt none
+HA 34 2
+K0 35 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad36 lv 1
+K1 35 heavy:chain:superior hp 786 pm 0.386 mh oneHand:superior:L11:ad55 lv 13 heavyAt m1
+K0 36 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad38 lv 1
+K1 36 cloth:gossamer:exquisite hp 742 pm 0.244 mh staff:superior:L16:ad42 lv 14 heavyAt none
+K0 37 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad38 lv 1
+K1 37 cloth:gossamer:legendary hp 754 pm 0.306 mh staff:superior:L11:ad31 lv 14 heavyAt none
+K0 38 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad37 lv 1
+K1 38 cloth:ironsilk:peerless hp 782 pm 0.281 mh staff:superior:L16:ad38 lv 18 heavyAt none
+K0 39 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad37 lv 1
+K1 39 cloth:ironsilk:magnificent hp 814 pm 0.328 mh staff:superior:L18:ad34 lv 17 heavyAt none
+K0 40 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad37 lv 1
+K1 40 heavy:chain:superior hp 824 pm 0.419 mh oneHand:superior:L17:ad80 lv 15 heavyAt m1
+K0 41 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad36 lv 1
+K1 41 heavy:chain:superior hp 780 pm 0.412 mh oneHand:superior:L13:ad80 lv 13 heavyAt m2
+K0 42 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad35 lv 1
+K1 42 cloth:ironsilk:magnificent hp 758 pm 0.240 mh staff:average:L18:ad32 lv 15 heavyAt none
+K0 43 light:leather:fair hp 510 pm 0.091 mh oneHand:fair:L1:ad35 lv 1
+K1 43 heavy:chain:average hp 762 pm 0.352 mh staff:superior:L6:ad30 lv 13 heavyAt m2
+K0 44 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad34 lv 1
+K1 44 cloth:cotton:exquisite hp 742 pm 0.277 mh staff:superior:L15:ad34 lv 14 heavyAt none
+K0 45 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad38 lv 1
+K1 45 heavy:plate:magnificent hp 846 pm 0.391 mh staff:superior:L12:ad36 lv 13 heavyAt m4
+K0 46 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad38 lv 1
+K1 46 heavy:chain:superior hp 734 pm 0.417 mh oneHand:superior:L10:ad55 lv 12 heavyAt m3
+K0 47 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad34 lv 1
+K1 47 cloth:gossamer:magnificent hp 896 pm 0.414 mh staff:superior:L18:ad42 lv 15 heavyAt none
+K0 48 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad47 lv 1
+K1 48 heavy:plate:average hp 820 pm 0.419 mh twoHand:superior:L16:ad149 lv 14 heavyAt m3
+K0 49 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad36 lv 1
+K1 49 light:leather:fair hp 734 pm 0.296 mh twoHand:superior:L14:ad174 lv 15 heavyAt none
+K0 50 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad45 lv 1
+K1 50 heavy:plate:legendary hp 872 pm 0.435 mh staff:average:L13:ad30 lv 15 heavyAt m1
+K0 51 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad45 lv 1
+K1 51 light:leather:peerless hp 796 pm 0.381 mh staff:average:L17:ad34 lv 14 heavyAt none
+K0 52 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad33 lv 1
+K1 52 cloth:cotton:legendary hp 816 pm 0.369 mh staff:superior:L19:ad37 lv 16 heavyAt none
+K0 53 light:leather:fair hp 510 pm 0.065 mh oneHand:fair:L1:ad37 lv 1
+K1 53 cloth:ironsilk:peerless hp 836 pm 0.347 mh staff:average:L19:ad35 lv 15 heavyAt none
+K0 54 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad36 lv 1
+K1 54 cloth:cotton:superior hp 778 pm 0.356 mh twoHand:exquisite:L16:ad218 lv 14 heavyAt none
+HA 54 1
+K0 55 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad37 lv 1
+K1 55 heavy:plate:exquisite hp 776 pm 0.397 mh twoHand:exquisite:L6:ad103 lv 15 heavyAt m1
+K0 56 light:leather:fair hp 510 pm 0.068 mh oneHand:fair:L1:ad35 lv 1
+K1 56 heavy:plate:magnificent hp 834 pm 0.384 mh staff:exquisite:L16:ad52 lv 13 heavyAt m3
+K0 57 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad34 lv 1
+K1 57 light:drakehide:superior hp 752 pm 0.308 mh staff:average:L18:ad36 lv 15 heavyAt none
+K0 58 light:leather:fair hp 510 pm 0.067 mh oneHand:fair:L1:ad36 lv 1
+K1 58 cloth:ironsilk:magnificent hp 752 pm 0.237 mh staff:superior:L18:ad44 lv 15 heavyAt none
+K0 59 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad36 lv 1
+K1 59 heavy:chain:magnificent hp 820 pm 0.415 mh twoHand:average:L17:ad133 lv 14 heavyAt m1
+K0 60 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad34 lv 1
+K1 60 heavy:plate:exquisite hp 844 pm 0.409 mh twoHand:superior:L17:ad146 lv 14 heavyAt m2
+K0 61 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad37 lv 1
+K1 61 heavy:plate:superior hp 814 pm 0.396 mh staff:superior:L13:ad31 lv 14 heavyAt m5
+K0 62 light:leather:fair hp 510 pm 0.069 mh oneHand:fair:L1:ad34 lv 1
+K1 62 heavy:chain:magnificent hp 814 pm 0.394 mh staff:superior:L16:ad41 lv 14 heavyAt m1
+K0 63 light:leather:fair hp 510 pm 0.066 mh oneHand:fair:L1:ad45 lv 1
+K1 63 heavy:chain:exquisite hp 752 pm 0.329 mh staff:superior:L14:ad38 lv 15 heavyAt m2
+K0 64 light:leather:fair hp 510 pm 0.070 mh oneHand:fair:L1:ad35 lv 1
+K1 64 cloth:cotton:exquisite hp 702 pm 0.205 mh staff:superior:L17:ad43 lv 13 heavyAt none

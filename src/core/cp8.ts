@@ -14,7 +14,7 @@ export const CP8 = {
    *  can be used — the toggle is free, but a player who never presses it loses the SS damage bonus in every boss fight. */
   bossSpirit: true,
   /** 暫定（缺原版出處）P5: cap on the summed monster damage of one round, as a fraction of max HP (0 = off). */
-  turnCap: 0.7, // cp8-rc5 (暫定, own rule, producer 2026-10-26): 0.9 → 0.7
+  turnCap: 0.75, // cp8-rc5 (暫定, own rule, producer 2026-10-26): 0.9 → 0.7 → 0.75 (lowest of 0.75/0.8 passing P4 late flat on B128+B256; docs/logs/cp8rc8/dec)
   /** 暫定（缺原版出處）P3: run buffs picked before an abyss trip that starts at depth `start` > 1: N = floor((start − 1) / per), max `max`. */
   startBuffPer: 5,
   startBuffMax: 6,

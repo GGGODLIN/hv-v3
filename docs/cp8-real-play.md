@@ -182,3 +182,28 @@ P1 PASS（A 1.133×、B 1.071×）；P5 PASS（最差 0.0%）；vitest 29 檔 25
 - naive AI 改打 UI 預設目標（第一隻活著的怪），不再挑最低血量（SIM_TGT=low 保留舊行為）。preset 回放 sim：blade trip-1 22 → 17。
 - 試玩：每個 preset 一個存檔槽（切換時暫存／還原；同 preset 或 &fresh 重新套用）。
 - 結果（rc7 log）：P1 PASS（A 1.136×、B 1.227×）。FAIL：受傷 CHECK（turnCap 0.7 讓各派 trip-1 p95 都頂在 0.70）、B 組 late flat 4.3% > 3.8%+0.2pp、B256 5.0% > 4.6%+0.2pp。未打 tag。
+
+## cp8-rc5 後段平拆解 + 決策（2026-10-26）
+
+B 組（SEED0=256, current AI）P4 後段平，`K8_turnCap` 覆寫，只量測（logs: docs/logs/cp8rc8/dec）：
+
+| turnCap | 目標 | N=128 d16–20 / 上限 | N=256 d16–20 / 上限 |
+|---|---|---|---|
+| 0.9 | UI 預設 | 4.2% ≤ 4.0%+0.2 PASS | 4.9% ≤ 4.7%+0.2 PASS |
+| 0.8 | UI 預設 | 4.2% / 4.0% PASS | 4.9% / 4.7% PASS |
+| 0.75 | UI 預設 | 4.2% / 4.0% PASS | 4.9% / 4.7% PASS |
+| 0.7 | UI 預設 | 4.3% / 3.8% FAIL | 5.0% / 4.6% FAIL |
+| 0.7 | SIM_TGT=low | 4.3% / 3.8% FAIL（與上列逐位相同） | 5.0% / 4.6% FAIL（相同） |
+
+- 已驗證：超標來自 turnCap 0.7（d11–15 分母降、d16–20 多 1 死）；naive 目標改動對 current AI 的 P4 無影響（chooseNaive 只在 SIM_AI=naive 用）。
+- 決策（製作人授權）：turnCap = 0.75（0.75/0.8 中最低且 P4 通過者，暫定）。
+
+### 受傷 CHECK（製作人決定，暫定）
+p95 改用 turnCap 前的原始單回合傷害（rd1raw = 實際 + 被 cap 截掉的部分）；p50 維持實際傷害。
+
+### blade preset 主手
+postF20-blade 主手 fair L6 → superior L13 scythe（其他流派 preset 主手 superior/exquisite L10–15）。preset 重播 trip1 中位 d17 → d22。
+
+### 為什麼從零 A/B sim 的 blade 仍到 d22
+- 已驗證（DBGKIT K1, SC=blade SEED0=0 N=64 naive）：從零 sim 的「blade」在 abyss trip 1 時主手 49/64 是 staff、6 oneHand、只有 9/64 是 twoHand；身體多為 cloth。換裝邏輯按分數挑裝備，不鎖流派武器，所以 A/B 的 blade 數字大部分量的不是 twoHand blade 配置。
+- 推測：這些 staff/cloth 配置在 trip 1 撐到 d22，和 preset 的 twoHand 配置不可比；原因未完全拆解，不阻擋 rc5。
