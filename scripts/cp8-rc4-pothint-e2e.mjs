@@ -18,7 +18,7 @@ for (let k = 0; k < 3 && !(await pg.$('.cmdbar')); k++) { const c = await pg.$('
 // cp8-rc9 P0-2: the rule is now HP < 50% or HP − next-round estimate < 25% max HP, so each probe also fixes the foes' attack (adb).
 const probe = (hp, charge, adb = 1) => pg.evaluate(([hp, charge, adb]) => { const a = window.hv, s = a.battle; s.hp = Math.round(s.d.hp * hp); s.itemCd.health = 0; s.monsters.forEach((m) => { if (m.hp > 0) { m.charge = charge; m.adb = adb === 'big' ? s.d.hp * 3 : adb; } }); a.render(); return !!document.querySelector('[data-pothint]'); }, [hp, charge, adb]);
 R.inBattle = !!(await pg.$('.cmdbar'));
-R.h40 = await probe(0.4, 0); R.h60 = await probe(0.6, 0); R.h60c = await probe(0.6, 1, 'big'); R.h80c = await probe(0.8, 1); R.h80big = await probe(0.8, 0, 'big');
+R.h40 = await probe(0.4, 0); R.h60 = await probe(0.6, 0); R.h60c = await probe(0.6, 1, 'big'); R.h80c = await probe(0.8, 1); R.h80big = await probe(0.8, 0, 'big'); R.h50big = await probe(0.5, 0, 'big');
 R.errs = errs; console.log(JSON.stringify(R));
-const ok = R.eliteOk && R.inBattle && R.h40 && !R.h60 && R.h60c && !R.h80c && R.h80big && !errs.length;
+const ok = R.eliteOk && R.inBattle && R.h40 && !R.h60 && !R.h60c && !R.h80c && !R.h80big && R.h50big && /* rc14 item 4: above 50% HP a full-heal potion would mostly be wasted → dark */ !errs.length;
 console.log(ok ? 'CP8 RC4 POTHINT E2E PASS' : 'CP8 RC4 POTHINT E2E FAIL'); await b.close(); process.exit(ok ? 0 : 1);

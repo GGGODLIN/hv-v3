@@ -173,7 +173,7 @@ if(!R.cp2regen.length||!R.cp2regen.every(t=>/HP \+\d+ · MP \+\d+ · SP \+\d+/.t
 if(!R.cp2weakHud.some(t=>t.includes('25%'))||!R.cp2weakLog.length)fails.push('CP2 weakness');
 if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
 // cp8-rc2: the label became 「冷卻 N 回合」 (spaces + 回合); only the countdown is checked; cp8-rc11: 5..1 (P-health-potion-cd 5, 暫定、非原版).
-{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻')).map(t=>Number(t.match(/\d+/)[0]));if(cd.length!==5||cd[0]!==5||cd[4]!==1)fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
+{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻')).map(t=>Number(t.match(/\d+/)[0]));if(cd.length!==3||cd[0]!==3||cd[2]!==1)/* rc13: P-health-potion-cd 3 (暫定) */fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
 if(!R.cp2decide||!R.cp2suggest.some(t=>t.includes('防禦')))fails.push('CP2 charge decision');
 {const t=R.cp3town;if(!t.alloc||t.shopTab||t.iwTab)fails.push('CP3 town locks');}
 if(!R.cp3trip||!R.cp3trip.includes('×5'))fails.push('CP3 trip-1 carry multiplier (CARRY_MULT 5)');
