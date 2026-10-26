@@ -189,13 +189,17 @@ test('ranked abilities: save roundtrips retain inactive rank costs without trust
   assert.throws(()=>legacy.validateSave(s),/能力配置/,'v0.10 safely rejects newer rank metadata rather than silently deleting it');
 });
 
-for(const selected of [[],['hp-tank'],['mp-tank'],['one-handed-damage'],ids])test(`ranked abilities: frozen v0.10 rank-zero/one actions, saves and gameplay stay byte-identical (${selected.join('+')||'none'})`,()=>{
+for(const selected of [[],['hp-tank'],['mp-tank'],['one-handed-damage'],ids])test(`ranked abilities: frozen v0.10 rank-zero/one actions, saves and pre-loot gameplay stay byte-identical (${selected.join('+')||'none'})`,()=>{
   let current=profile(25,7.654321),old=legacy.validateSave(copy(current));
   // Normalize equal load logs once before starting the differential sequence.
   current=validateSave(copy(current));assert.deepEqual(current,old);
-  const apply=(action,payload)=>{act(current,action,payload);legacy.act(old,action,payload);assert.equal(serialized(current),serialized(old));assert.deepEqual(stats(current),legacy.stats(old));};
+  const apply=(action,payload)=>{act(current,action,payload);legacy.act(old,action,payload);assert.equal(serialized(current),serialized(old));assert.deepEqual(stats(current),{...legacy.stats(old),parry:.035});};
   for(const id of selected){apply('learnAbility',id);apply('slotAbility',id);assert.equal(Object.hasOwn(current.abilities,'ranks'),false);}
-  apply('start');for(let tick=0;tick<400&&current.mode==='battle'&&!current.wins;tick++){
+  apply('start');
+  // Keep this old-gear differential combat free of rewards: new rapier generation
+  // intentionally changes loot/RNG, independently covered by current loot tests.
+  for(const state of [current,old])for(const enemy of state.enemies){enemy.hp=1e9;enemy.maxHp=1e9;}
+  for(let tick=0;tick<400&&current.mode==='battle'&&!current.wins;tick++){
     const before=serialized(current);abilityView(current);assert.equal(serialized(current),before);
     advance(current,.1);legacy.advance(old,.1);assert.equal(serialized(current),serialized(old));
   }

@@ -75,3 +75,6 @@ Give block/parry equipment an offensive-defense interaction through the original
 
 ## v0.14 chosen slice
 Make offensive, defensive and weapon-family alternatives easier to revisit with three gear-only camp presets. Store existing item IDs, not copies or stat snapshots; switch the complete set atomically even with a full backpack. Explicit save locks and cross-preset protection prevent accidental disposal. Abilities/tactics remain separate, and original Equipment Sets/Personas have broader scope than this adaptation.
+
+## v0.15 chosen slice
+Add original-supported raw rapier parry and legal Nimble affix with honest adapted rating-to-probability integration. Preserve old gear and expose the seventh tradeoff in all disposal/preset comparisons. Do not pretend the complete original Accuracy/interception model is implemented or alter quality weights to manufacture success.

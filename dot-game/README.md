@@ -1,5 +1,12 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.15 development candidate — 2026-10-26 08:00 UTC
+
+New rapier Parry rating and legal Nimble suffix connect gear tradeoffs to the existing counterattack system. Raw original rating and the game's adapted final probability are explicitly distinct; old items remain unchanged, while new rapier scores/prices and future RNG trajectories can change. See docs/PARRY-GEAR-GUIDE.md (PARRY-GEAR-GUIDE.md from docs). Source tests, backup and browser acceptance are pending. Public v0.14 and complete restore `22bdfca3068c7934921c2493eb40de624d684318` remain accepted until this candidate is verified.
+
+### Earlier checkpoint timeline (historical)
+
+
 An independently designed single-player browser RPG inspired by original HentaiVerse research. This directory is self-contained: do not run or reuse the repository root application. Existing implementation, generated constants, monster dataset, art, and other authors' single-player proposals are excluded.
 
 ## Run

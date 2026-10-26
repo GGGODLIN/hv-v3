@@ -43,7 +43,7 @@ export function qualityFromRoll(roll) {
 const BASES = Object.freeze({
   weapon: [
     { name: '暮鋼戰斧', family: 'axe', attack: [350*.0854,701*.0854], slaughter: [470*.0854,888*.0854], note: '重視基礎斬擊傷害。' },
-    { name: '逐風刺劍', family: 'rapier', attack: [150*.0854,461*.0854], slaughter: [230*.0854,601*.0854], crit: [124*.0105/100,511*.0105/100], balance: [342*.0105/100,991*.0105/100], note: '較低基礎傷害，可搭配平衡詞綴。' },
+    { name: '逐風刺劍', family: 'rapier', attack: [150*.0854,461*.0854], slaughter: [230*.0854,601*.0854], crit: [124*.0105/100,511*.0105/100], balance: [342*.0105/100,991*.0105/100], parry: [75*.0894,211*.0894], nimble: [137*.0894,301*.0894], note: '較低基礎傷害，可搭配平衡詞綴。' },
     { name: '裂岩戰棍', family: 'club', attack: [250*.0854,621*.0854], slaughter: [353*.0854,792*.0854], crit: [124*.0105/100,511*.0105/100], balance: [344*.0105/100,991*.0105/100], note: '穩定的中量武器。' },
   ],
   armor: [
@@ -76,7 +76,7 @@ const LEGACY_WEAPON_NAMES = new Map();
 for (const [rank, tier] of QUALITY_TIERS.entries()) {
   const prefixes = rank === 0 ? [''] : rank >= 6 ? PREFIXES.map(p => p.name) : ['', ...PREFIXES.map(p => p.name)];
   for (const base of BASES.weapon) {
-    const eligibleSuffixes = ['屠戮', ...(base.balance ? ['平衡'] : [])];
+    const eligibleSuffixes = ['屠戮', ...(base.balance ? ['平衡'] : []), ...(base.nimble ? ['靈巧'] : [])];
     const suffixes = rank === 0 ? [''] : rank >= 3 ? eligibleSuffixes : ['', ...eligibleSuffixes];
     for (const prefix of prefixes) for (const suffix of suffixes) {
       LEGACY_WEAPON_NAMES.set(`${tier.label}・${prefix}${base.name}${suffix ? '・' + suffix : ''}`, base.family);
@@ -102,7 +102,7 @@ for (const [rank, tier] of QUALITY_TIERS.entries()) {
   const prefixes = rank === 0 ? [''] : rank >= 6 ? PREFIXES.map(p => p.name) : ['', ...PREFIXES.map(p => p.name)];
   for (const slot of SLOTS) for (const base of BASES[slot]) {
     const eligibleSuffixes = slot === 'weapon'
-      ? ['屠戮', ...(base.balance ? ['平衡'] : [])]
+      ? ['屠戮', ...(base.balance ? ['平衡'] : []), ...(base.nimble ? ['靈巧'] : [])]
       : (slot === 'armor' ? SUFFIXES.slice(1) : SUFFIXES).map(suffix => suffix.name);
     const suffixes = rank === 0 ? [''] : rank >= 3 ? eligibleSuffixes : ['', ...eligibleSuffixes];
     for (const prefix of prefixes) for (const suffix of suffixes) {
@@ -137,7 +137,7 @@ export function describeItemFlavor(item) {
   }
   return description;
 }
-const STAT_KEYS = Object.freeze(['attack', 'defense', 'hp', 'crit', 'evade', 'block']);
+const STAT_KEYS = Object.freeze(['attack', 'defense', 'hp', 'crit', 'evade', 'block', 'parry']);
 const RATES = new Set(['crit', 'evade', 'block']);
 const SAFE_LOOT_QUALITIES = new Set(['Crude', 'Fair', 'Average']);
 const ITEM_KEYS = new Set(['id', 'name', 'slot', 'weaponFamily', 'quality', 'rarityColor',
@@ -284,6 +284,7 @@ export function generateItem(rng, level = 1, slot) {
       // Slaughter changes ADB endpoints; Balance changes crit endpoints where documented.
       const available = [SLAUGHTER_SUFFIX];
       if (base.balance) available.push({ name: '平衡', code: 'balance', stats: {}, note: '平衡暴擊區間' });
+      if (base.nimble) available.push({ name: '靈巧', code: 'nimble', stats: {}, note: '靈巧招架值區間' });
       suffix = pick(rng, available);
     } else {
       // This game's new armor/accessory affixes have explicitly restricted families.
@@ -303,6 +304,7 @@ function buildItem({ level: lv, slot: actualSlot, base, tier, prefix, suffix, ro
     let endpoints = base[key];
     if (key === 'attack' && suffix?.code === 'slaughter') endpoints = base.slaughter;
     if (key === 'crit' && suffix?.code === 'balance') endpoints = base.balance;
+    if (key === 'parry' && suffix?.code === 'nimble') endpoints = base.nimble;
     const affix = (prefix?.stats[key] || 0) + (suffix?.stats[key] || 0);
     if (!endpoints && !affix) continue;
     const r = rollStat(key);
@@ -311,8 +313,10 @@ function buildItem({ level: lv, slot: actualSlot, base, tier, prefix, suffix, ro
     const [lo, hi] = endpoints || [0,0];
     const value = lo + (hi - lo) * q + affix * (.75 + .5*q);
     // Original ADB/rate level scale; flat defense and bonus HP are explicit adaptations.
-    const scale = RATES.has(key) ? 2000 : key === 'attack' ? 50/3 : key === 'hp' ? 12 : 20;
-    itemStats[key] = RATES.has(key) ? rounded(clamp(value*(1+lv/scale),0,.16)) : Math.max(1,Math.round(value*(1+lv/scale)));
+    const scale = RATES.has(key) || key === 'parry' ? 2000 : key === 'attack' ? 50/3 : key === 'hp' ? 12 : 20;
+    // Parry is an original equipment rating, not an already converted probability.
+    // Do not apply the older .16 probability cap or integer-stat rounding to it.
+    itemStats[key] = key === 'parry' ? rounded(Math.max(0,value*(1+lv/scale))) : RATES.has(key) ? rounded(clamp(value*(1+lv/scale),0,.16)) : Math.max(1,Math.round(value*(1+lv/scale)));
   }
   const values = Object.values(rolls);
   const roll = Math.round(values.reduce((a,b)=>a+b,0)/Math.max(1,values.length));
@@ -344,12 +348,13 @@ export function scoreItem(item) {
   const s = item && typeof item === 'object' && item.stats && typeof item.stats === 'object' ? item.stats : {};
   return Math.round(clamp(finite(s.attack), 0, 1e7) * 2 + clamp(finite(s.defense), 0, 1e7) * 1.6
     + clamp(finite(s.hp), 0, 1e8) * 0.12 + clamp(finite(s.crit), 0, 1) * 260
-    + clamp(finite(s.evade), 0, 1) * 200 + clamp(finite(s.block), 0, 1) * 180);
+    + clamp(finite(s.evade), 0, 1) * 200 + clamp(finite(s.block), 0, 1) * 180
+    + clamp(finite(s.parry), 0, 1e6) * 1.8);
 }
 export function describeItem(item) {
   if (!item || typeof item !== 'object' || !item.stats || typeof item.stats !== 'object') return '無裝備資料';
-  const labels = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' };
+  const labels = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋', parry: '招架值' };
   return STAT_KEYS.filter(key => finite(item.stats[key]) > 0).map(key =>
-    `${labels[key]} +${RATES.has(key) ? `${(finite(item.stats[key]) * 100).toFixed(1)}%` : Math.round(finite(item.stats[key]))}`
+    `${labels[key]} +${RATES.has(key) ? `${(finite(item.stats[key]) * 100).toFixed(1)}%` : key === 'parry' ? finite(item.stats[key]).toFixed(1) : Math.round(finite(item.stats[key]))}`
   ).join(' · ') || '無額外屬性';
 }

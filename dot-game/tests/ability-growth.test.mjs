@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGame,act,advance,stats,validateSave,abilityView,MAJOR_ABILITIES,ABILITY_RULES,VERSION,expeditionReports} from '../src/engine.js';
+import * as historicalV014 from './fixtures/v0.14/engine.js';
 import * as baseline from './fixtures/v0.8.1/engine.js';
 
 const ids=['hp-tank','mp-tank','one-handed-damage'];
@@ -35,7 +36,7 @@ test('ability growth: new/default game has one derived AP and no durable allocat
   const s=createGame(),view=abilityView(s);
   assert.equal(Object.hasOwn(s,'abilities'),false);
   assert.deepEqual(s,baseline.createGame());
-  assert.deepEqual(stats(s),baseline.stats(s));
+  assert.deepEqual(stats(s),{...baseline.stats(s),parry:.035});
   assert.equal(view.earnedAp,1);assert.equal(view.spentAp,0);assert.equal(view.availableAp,1);
   assert.equal(view.majorCapacity,5);assert.equal(view.majorUsed,0);
   assert.equal(row(s,'hp-tank').canLearn,true);assert.equal(row(s,'mp-tank').canLearn,true);
@@ -186,7 +187,7 @@ test('ability growth: roundtrip retains learned and separate slots, recovers exa
 test('ability growth: an explicitly empty valid allocation normalizes to legacy omission',()=>{
   const s=createGame();s.abilities={learned:[],slotted:[]};
   const loaded=validateSave(s);assert.equal(Object.hasOwn(loaded,'abilities'),false);
-  assert.deepEqual(stats(s),baseline.stats(s));
+  assert.deepEqual(stats(s),{...baseline.stats(s),parry:.035});
 });
 
 const malformed=[undefined,null,false,0,'hp-tank',[],{},
@@ -231,17 +232,22 @@ test('ability growth: unsupported descriptors/accessors/sparse lists/extra metad
   assert.throws(()=>validateSave(inherited),/能力配置/);assert.equal(reads,0);
 });
 
-test('ability growth: default natural loop stays byte-observable gameplay/RNG identical to frozen engine',()=>{
+test('ability growth: default natural combat stays identical until the intentional new first-clear rapier roll',()=>{
   const s=createGame(1),old=baseline.createGame(1);act(s,'start');baseline.act(old,'start');
   for(let n=0;n<800&&!s.wins;n++){
     const before=json(s);abilityView(s);assert.equal(json(s),before);
-    advance(s,.1);baseline.advance(old,.1);assert.equal(json(s),json(old));
+    advance(s,.1);baseline.advance(old,.1);
+    if(!s.wins)assert.equal(json(s),json(old));
+    else for(const key of ['hero','battle','timing','equipment','kills','wins'])assert.deepEqual(s[key],old[key],key);
   }
   assert.equal(s.wins,1);assert.equal(abilityView(s).earnedAp,s.hero.level);assert.equal(s.hero.level,2);
 });
 
 test('ability growth: naturally earned AP supports a real second-expedition 1H benefit without replaying rewards',()=>{
-  const earned=createGame(1);run(earned);assert.equal(earned.hero.level,2);assert.equal(abilityView(earned).availableAp,2);
+  // Acquire the original example through frozen own v0.14 so the intentional
+  // new rapier roll does not rewrite the historical example's following RNG.
+  const earned=historicalV014.createGame(1);historicalV014.act(earned,'start');
+  while(!earned.wins&&earned.mode==='battle')historicalV014.advance(earned,.1);historicalV014.act(earned,'retreat');assert.equal(earned.hero.level,2);assert.equal(abilityView(earned).availableAp,2);
   const plain=validateSave(clone(earned)),active=validateSave(clone(earned));
   learnAndSlot(active,'one-handed-damage');assert.equal(abilityView(active).availableAp,0);
   const unbuffed=run(plain),buffed=run(active);

@@ -22,11 +22,11 @@ function assertReport(actual,expected) {
   near(actual.survival.minHpPercent,expected.survival.minHpPercent);
 }
 
-test('v0.9 independent: exact accepted own-v0.8.1 fixture and unchanged loot/session bytes',()=>{
+test('v0.9 independent: exact accepted own-v0.8.1 fixture and historical loot/current session bytes',()=>{
   for(const [path,digest] of [
     ['./fixtures/v0.8.1/engine.js','9ae2378a4818ab92d9e4813ca89e2bed5c4af7f5de5acee01e29575dfeacfa6a'],
     ['./fixtures/v0.8.1/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
-    ['../src/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
+    ['./fixtures/v0.14/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
     ['../src/session.js','821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a'],
   ])assert.equal(hash(readFileSync(new URL(path,import.meta.url))),digest,path);
 });

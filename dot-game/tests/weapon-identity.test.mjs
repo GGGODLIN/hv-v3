@@ -1,3 +1,4 @@
+import {generateItem as preParryGenerateItem} from './fixtures/v0.14/loot.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -141,7 +142,7 @@ test('flat comparison score is family-independent and excludes proc utility', ()
   }
 });
 
-test('v0.4 trait prose preserves all 3000 baseline numeric rolls, RNG draws, names, and IDs', () => {
+test('historical pre-parry: v0.4 trait prose preserves all 3000 baseline numeric rolls, RNG draws, names, and IDs', () => {
   // Fingerprints captured from v0.2 baseline loot.js before this metadata change.
   // Only the new identity field and explanatory prose are excluded.
   const baselines = [
@@ -154,7 +155,7 @@ test('v0.4 trait prose preserves all 3000 baseline numeric rolls, RNG draws, nam
     const rng = () => { calls++; state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 2 ** 32; };
     const hash = createHash('sha256');
     for (let i = 0; i < 1000; i++) {
-      const { description, weaponFamily, ...item } = generateItem(rng, 1 + i % 80, [undefined, 'weapon', 'armor', 'accessory'][i % 4]);
+      const { description, weaponFamily, ...item } = preParryGenerateItem(rng, 1 + i % 80, [undefined, 'weapon', 'armor', 'accessory'][i % 4]);
       hash.update(JSON.stringify(item) + '\n');
     }
     assert.equal(calls, baseline.calls);

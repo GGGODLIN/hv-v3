@@ -27,7 +27,7 @@ function oracle(s,active=Object.fromEntries((s.abilities?.slotted||[]).map(id=>[
   const tank=(value,r)=>r?Math.floor(value*(10+r)/10):value;
   const unroundedAttack=Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+Object.values(s.equipment).reduce((sum,item)=>sum+(item.stats.attack||0),0);
   const bonus=active['one-handed-damage']?(1+active['one-handed-damage'])*Math.max(0,Math.min(h.proficiency,1.2*h.level)):0;
-  return {...accepted.stats(base),maxHp:Math.round(tank(hp,active['hp-tank']||0)+gear),maxMp:active['mp-tank']?tank(mp,active['mp-tank']):Math.round(mp),attack:Math.round((unroundedAttack+bonus)*100)/100};
+  return {...accepted.stats(base),parry:Math.min(.5,Math.max(0,.035+Object.values(s.equipment).reduce((sum,item)=>sum+(item.stats.parry||0),0)/100)),maxHp:Math.round(tank(hp,active['hp-tank']||0)+gear),maxMp:active['mp-tank']?tank(mp,active['mp-tank']):Math.round(mp),attack:Math.round((unroundedAttack+bonus)*100)/100};
 }
 function ledger(s){const view=current.abilityView(s),spent=ids.reduce((n,id)=>n+cost(id,rank(s,id)),0);
   assert.equal(view.valid,true);assert.equal(view.earnedAp,s.hero.level);assert.equal(view.spentAp,spent);assert.equal(view.availableAp,s.hero.level-spent);
@@ -144,7 +144,7 @@ test('ranked independent: save gate and total AP budget cannot be bypassed by su
     s.earnedAp=999;s.hero.ap=999;s.abilityPoints=999;assert.throws(()=>current.validateSave(s),/能力配置/);assert.equal(current.abilityView(s).valid,false);}
   const low=fixture(1);low.abilities={learned:['hp-tank','mp-tank'],slotted:[]};assert.throws(()=>current.validateSave(low),/能力配置/);
   for(const level of [1,25,30,100,200,350,500]){const legacy=fixture(level),returned=current.validateSave(clone(legacy));assert.deepEqual(returned,accepted.validateSave(clone(legacy)));assert.equal(Object.hasOwn(returned,'abilities'),false);
-    for(const id of ids.filter(id=>schedules[id].costs[0]<=level)){const allocated=allocate(clone(legacy),id);assert.deepEqual(current.validateSave(clone(allocated)),accepted.validateSave(clone(allocated)));assert.equal(Object.hasOwn(allocated.abilities,'ranks'),false);assert.deepEqual(current.stats(allocated),accepted.stats(allocated));}}
+    for(const id of ids.filter(id=>schedules[id].costs[0]<=level)){const allocated=allocate(clone(legacy),id);assert.deepEqual(current.validateSave(clone(allocated)),accepted.validateSave(clone(allocated)));assert.equal(Object.hasOwn(allocated.abilities,'ranks'),false);assert.deepEqual(current.stats(allocated),{...accepted.stats(allocated),parry:.035});}}
   const learned=allocate(fixture(),'hp-tank',10),before=clone(learned);for(let i=0;i<4;i++){const loaded=current.validateSave(JSON.parse(json(learned)));assert.equal(ledger(loaded).spentAp,36);assert.deepEqual(loaded.abilities,learned.abilities);}assert.deepEqual(learned,before);
 });
 

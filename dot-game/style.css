@@ -232,3 +232,11 @@
 .gear-set-dialog-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .gear-set-dialog-actions button { flex: 1 1 130px; min-height: 42px; white-space: normal; }
 @media(max-width:800px) { .gear-set-choices { grid-template-columns: minmax(0,1fr); } }
+
+/* Equipment parry is a rating; expose its adapted final chance separately. */
+.player-parry { grid-column: 1 / -1; min-width: 0; margin: 0 0 16px; padding: 10px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.player-parry > p { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 11px; }
+.player-parry strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.player-parry details { margin-top: 7px; font-size: 10px; color: var(--muted); }
+.player-parry summary { cursor: pointer; }
+.player-parry details p { margin-top: 7px; }

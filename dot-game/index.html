@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.14 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.15 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -21,6 +21,7 @@
       <div class="resource"><div><span>魔力</span><strong id="mp-label">—</strong></div><div class="meter mp"><i id="mp-bar"></i></div></div>
       <div class="resource small"><div><span>成長</span><strong id="xp-label">—</strong></div><div class="meter xp"><i id="xp-bar"></i></div></div>
       <div class="stat-grid"><div><span>攻擊</span><strong id="stat-attack">—</strong></div><div><span>防禦</span><strong id="stat-defense">—</strong></div><div><span>暴擊</span><strong id="stat-crit">—</strong></div><div><span>金幣</span><strong id="stat-gold" class="gold">—</strong></div></div>
+      <section class="player-parry" aria-label="角色招架判定率"><p><span>招架判定率</span><strong id="stat-parry">—</strong></p><details><summary>招架值不是百分比</summary><p>本作將裝備招架值合計除以 100，再加既有基礎 3.5%，最高 50%。這是單次判定機率的本作適配，不是原版依攻擊者命中計算的公式，也不是完全招架率。</p><p>新產出的刺劍有招架值，靈巧（Nimble）詞綴提高此值，取代屠戮／平衡路線的加成；不是同時疊加。舊裝備未列招架值時為 0，不會自動回填。較高招架值可能增加反擊資格，仍不保證更快通關。</p><p>舊版無法理解新裝備招架欄位；請先匯出備份，並重新整理舊分頁再接手進度。</p></details></section>
       <div class="section-heading gear-heading"><h3>目前裝備</h3><span class="muted">點擊檢視</span></div>
       <div id="equipment" class="equipment-list"></div>
       <div class="hero-footnote"><span class="tiny-diamond">◆</span> 裝備決定上限，下一件好物就在前方。</div>
@@ -51,7 +52,7 @@
         <p id="counterattack-status" class="counterattack-status"></p>
         <p id="counterattack-chance" class="counterattack-value"></p>
         <p id="counterattack-budget" class="counterattack-value"></p>
-        <p class="counterattack-note">招架或格擋成功後才擲反擊機率，不是每次受擊機率；純閃避不觸發。增加格擋可增加符合條件的機會，但不保證更快通關。</p>
+        <p class="counterattack-note">招架或格擋成功後才擲反擊機率，不是每次受擊機率；純閃避不觸發。增加招架判定率或格擋可增加符合條件的機會，但不保證更快通關。</p>
         <details class="counterattack-rules"><summary>觸發條件與本版範圍</summary><p>裝備可辨識的戰斧、刺劍或戰棍時，敵方物理攻擊確實出現至少一次招架／格擋成功、我方與攻擊者仍存活，且本回合尚有次數，才有機會反擊該敵人。本作把部分招架／格擋也列為資格，這是雙判定鏈的整合改編，不是已考證的原版部分防禦規則。純閃避、盲擊落空或僅有零傷害不算。</p><p>條件機率參考原版：min(75, 25 + 0.02 × (STR + DEX) + 有效單手熟練度 / 10)%；本作沿用有效熟練度上限 1.2 × 等級。每個我方回合最多 1 次；有效熟練度達 100／200 時改為 2／3 次。回合不是全域 Tick，也不是每個敵人的回合；已發起但被擋下的反擊仍佔次數。</p><p>反擊使用當前面板一般攻擊，不花 MP、不額外增加熟練度，也不佔正常攻擊行動。不能暴擊；繞過閃避與招架，但仍受格擋、減傷與傷害亂數影響。已有穿透護甲可改善反擊傷害，反擊不施加或刷新穿透護甲、流血、暈眩或其他武器特效。</p><p>目前只實作單手反擊的傷害部分，尚無原版反擊暈眩、Overcharge／Overwhelming Strikes；不是完整原版單手流派。回營及載入不保留反擊次數；候選版與正式版存檔仍分開。戰報反擊傷害另列，不算普攻或技能傷害。</p></details>
       </section>
       <section class="camp-gear-sets panel" aria-labelledby="gear-set-heading" aria-describedby="gear-set-intro">
@@ -100,7 +101,7 @@
         <p id="auto-sell-description">只檢查之後的新掉落；開啟不清理既有背包。</p>
         <button id="sell-safe" class="secondary-button" aria-haspopup="dialog">預覽安全整理</button>
         <p id="safe-loot-status" role="status" aria-live="polite">確認前不會出售。</p>
-        <details class="safe-loot-rules"><summary>哪些會留，哪些可出售？</summary><p>只考慮未鎖定的粗製／尚可／普通裝備。必須有已裝備、或背包中已鎖定的同型裝備作為保留者：攻擊、防禦、生命、暴擊、閃避、格擋六項均不低，且至少一項較高。鎖定也能把備用裝備設為保留者。</p><p>同型須是本作可辨識的相同基底，不跨武器路線，也不以評分判定。屬性相同、有高有低的取捨、優良（Superior）以上、未辨識裝備都會留下。沒有受保護的保留者，就不自動出售。</p><p>這不是無限掛機：背包仍可能滿、戰鬥仍可能失敗；無離線補算。舊版分頁可能移除自動出售設定，回到本版時請確認是否需要重新開啟。</p></details>
+        <details class="safe-loot-rules"><summary>哪些會留，哪些可出售？</summary><p>只考慮未鎖定的粗製／尚可／普通裝備。必須有已裝備、或背包中已鎖定的同型裝備作為保留者：攻擊、防禦、生命、暴擊、閃避、格擋、招架值七項均不低，且至少一項較高。鎖定也能把備用裝備設為保留者。</p><p>同型須是本作可辨識的相同基底，不跨武器路線，也不以評分判定。屬性相同、有高有低的取捨、優良（Superior）以上、未辨識裝備都會留下。沒有受保護的保留者，就不自動出售。</p><p>這不是無限掛機：背包仍可能滿、戰鬥仍可能失敗；無離線補算。舊版分頁可能移除自動出售設定，回到本版時請確認是否需要重新開啟。</p></details>
       </section>
       <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><span>◇</span><h3>看看下一件好東西</h3><p>選擇一件裝備，比較它會為旅者帶來什麼改變。</p></div></section>
     </aside>
@@ -114,7 +115,7 @@
 <dialog id="commission-dialog" class="commission-dialog" aria-labelledby="commission-title" aria-describedby="commission-delivery">
   <div class="dialog-heading"><h2 id="commission-title">確認武器委託</h2><button data-close="commission-dialog" aria-label="關閉委託預覽">✕</button></div>
   <p id="commission-item-meta" class="commission-item-meta"></p><h3 id="commission-item-name" class="commission-item-name"></h3>
-  <p id="commission-current" class="muted"></p><div id="commission-comparison" class="commission-comparison" aria-label="與現用武器的六項屬性比較"></div>
+  <p id="commission-current" class="muted"></p><div id="commission-comparison" class="commission-comparison" aria-label="與現用武器的七項屬性比較"></div>
   <div id="commission-trait" class="weapon-trait"></div>
   <p class="muted">差值只比較武器本身，不是角色總值或 DPS；百分點是機率的相減。穿透護甲與暈眩另看特效，不能只依評分或單項數值決定。更強或更適合的戰利品仍可能值得保留。</p>
   <p id="commission-cost" class="commission-cost"></p><p class="muted">遠征不收金幣；委託可能用盡餘額，請依上方購買後餘額自行決定，不必購買才能繼續。</p><p id="commission-delivery">交付方式：已鎖定送入背包，不自動裝備、不自動出售。若想使用，購買後自行選擇「換上裝備」。</p>

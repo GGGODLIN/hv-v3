@@ -1,5 +1,12 @@
 # Current status
 
+## v0.15 development candidate — 2026-10-26 08:00 UTC
+
+New rapier Parry rating and legal Nimble suffix connect gear tradeoffs to the existing counterattack system. Raw original rating and the game's adapted final probability are explicitly distinct; old items remain unchanged, while new rapier scores/prices and future RNG trajectories can change. See docs/PARRY-GEAR-GUIDE.md (PARRY-GEAR-GUIDE.md from docs). All 1,140 Node tests and four runtime syntax checks pass. Independent source acceptance passes. Exact source backup and actual browser acceptance remain pending. Public v0.14 and complete restore `22bdfca3068c7934921c2493eb40de624d684318` remain accepted until this candidate is verified.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.14 published and stable-root accepted — 2026-10-26 07:29 UTC
 
 Version0.14 is published at https://gggodlin.github.io/play/hv-v3-dot/ . Accepted source `cc26b628b97fcd665051c3410858ad93195fb27a` was backed up/readback verified before website `a8bc6a82da6f476c6a0b2e53320c95f7ff106fe8`. Exact Pages40285780632 succeeded; HTTP6 returned six200 exact frozen-runtime byte/SHA256 matches. Runtime remains `65e02542472fc4cf9eb9592f2eab1ababd777b39`. Only four root runtime files changed; loot/session and3876non-root website blobs were preserved.

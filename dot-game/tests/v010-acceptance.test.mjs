@@ -31,7 +31,7 @@ function oracle(s,active=[]) {
   const h=s.hero,a=h.attributes,sum=key=>Object.values(s.equipment).reduce((n,item)=>n+(item.stats[key]||0),0);
   const baseHp=500+10*h.level+6*a.end,baseMp=10+h.level+a.wis;
   const attack=Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+sum('attack');
-  return {...accepted.stats(s),
+  return {...accepted.stats(s),parry:Math.min(.5,Math.max(0,.035+sum('parry')/100)),
     maxHp:Math.round((active.includes('hp-tank')?Math.floor(baseHp*11/10):baseHp)+sum('hp')),
     maxMp:active.includes('mp-tank')?Math.floor(baseMp*11/10):Math.round(baseMp),
     attack:Math.round((attack+(active.includes('one-handed-damage')?2*Math.max(0,Math.min(h.proficiency,1.2*h.level)):0))*100)/100};
@@ -45,11 +45,11 @@ function rng(seed) {return ()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;re
 
 // Original equations and accepted rank-zero gameplay are separate oracles. The
 // frozen engine is own v0.8.1 source, not falsely identified as a v0.9 copy.
-test('v0.10 independent: accepted baseline and untouched loot/session retain exact original digests',()=>{
+test('v0.10 independent: accepted baseline/historical loot and current session retain exact original digests',()=>{
   for(const [path,digest] of [
     ['./fixtures/v0.8.1/engine.js','9ae2378a4818ab92d9e4813ca89e2bed5c4af7f5de5acee01e29575dfeacfa6a'],
     ['./fixtures/v0.8.1/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
-    ['../src/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
+    ['./fixtures/v0.14/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
     ['../src/session.js','821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a'],
   ])assert.equal(sha(readFileSync(new URL(path,import.meta.url))),digest,path);
   assert.equal(current.VERSION,1);
@@ -135,13 +135,13 @@ test('v0.10 independent: optional save allocation is strict, failure leaves inpu
   for(const level of [1,4,500]) {
     const raw=fixture(level),before=clone(raw),restored=current.validateSave(raw);
     assert.deepEqual(restored,accepted.validateSave(raw));assert.deepEqual(raw,before);
-    assert.equal(Object.hasOwn(restored,'abilities'),false);assert.deepEqual(current.stats(restored),accepted.stats(restored));
+    assert.equal(Object.hasOwn(restored,'abilities'),false);assert.deepEqual(current.stats(restored),{...accepted.stats(restored),parry:.035});
   }
   const allocated=allocate(fixture()),before=clone(allocated),old=accepted.validateSave(JSON.parse(JSON.stringify(allocated)));
   assert.equal(Object.hasOwn(old,'abilities'),false);assert.equal(old.hero.gold,allocated.hero.gold);
   assert.deepEqual(old.equipment,allocated.equipment);assert.deepEqual(old.inventory,allocated.inventory);
   const returned=current.validateSave(old);assert.equal(ledger(returned).availableAp,returned.hero.level);
-  assert.deepEqual(current.stats(returned),accepted.stats(returned));assert.deepEqual(allocated,before);
+  assert.deepEqual(current.stats(returned),{...accepted.stats(returned),parry:.035});assert.deepEqual(allocated,before);
 });
 
 test('v0.10 independent: preview reads are detached, side-effect free and cannot grant abilities/AP or settle combat',()=>{
@@ -205,7 +205,7 @@ test('v0.10 independent: historical earned profiles and current paired growth ch
     const old=accepted.createGame(seed),s=current.createGame(seed),family=['axe','rapier','club'][seed-1],strategy=['balanced','assault','sustain'][seed-1],dt=seed===1?.1:.25;
     const oldHash=createHash('sha256'),newHash=createHash('sha256');
     const record=()=>{oldHash.update(JSON.stringify(old)+'\n');newHash.update(JSON.stringify(s)+'\n');ledger(s);};
-    const action=(name,payload)=>{accepted.act(old,name,payload);current.act(s,name,payload);record();};
+    const action=(name,payload)=>{accepted.act(old,name,payload);historicalV012.act(s,name,payload);record();};
     function expedition() {
       const wins=s.wins;action('start');
       for(let n=0;n<600/dt&&s.mode==='battle'&&s.wins===wins;n++) {accepted.advance(old,dt);historicalV012.advance(s,dt);record();trainingSteps++;}
@@ -219,7 +219,7 @@ test('v0.10 independent: historical earned profiles and current paired growth ch
     }
     let bought=false;
     for(let n=0;n<20&&!bought;n++) {
-      expedition();equipBest();const offer=current.previewWeaponCommission(s,family);
+      expedition();equipBest();const offer=historicalV012.previewWeaponCommission(s,family);
       if(offer.available){action('commissionWeapon',{family,quoteBasis:offer.quoteBasis});action('equip',offer.item.id);bought=true;}
     }
     assert.ok(bought);action('setStrategy',strategy);

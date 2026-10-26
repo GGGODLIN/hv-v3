@@ -85,7 +85,7 @@ function renderRoutePreview() {
   }));
 }
 const slotIcons = { weapon: '⚔', armor: '◈', accessory: '◇' };
-const statNames = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋' };
+const statNames = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋', parry: '招架值' };
 const rateStats = new Set(['crit', 'evade', 'block']);
 const stageNames = ['霧松邊境', '青苔古道', '斷月遺跡', '幽燈深林', '灰燼城門', '沉星聖所'];
 const stageName = stage => stageNames[(Math.max(1, Number(stage)) - 1) % stageNames.length];
@@ -260,7 +260,7 @@ function gearSetStatText(value, rate = false) {
 function gearSetComparison(preview) {
   const wrap = node('div', 'gear-set-comparison');
   wrap.append(node('p', 'muted', '目前 → 套用後；保留目前能力與戰術。這是面板差異，不是勝率或速度保證。'));
-  for (const [key,label,rate] of [['attack','攻擊',false],['maxHp','生命上限',false],['maxMp','魔力上限',false],['mitigation','一般物理減傷',true],['crit','暴擊',true],['evade','閃避',true],['block','格擋',true]]) {
+  for (const [key,label,rate] of [['attack','攻擊',false],['maxHp','生命上限',false],['maxMp','魔力上限',false],['mitigation','一般物理減傷',true],['crit','暴擊',true],['evade','閃避',true],['block','格擋',true],['parry','招架判定率',true]]) {
     const row=node('p', 'gear-set-stat'); row.append(node('span','',label), node('strong','',`${gearSetStatText(preview.currentStats?.[key],rate)} → ${gearSetStatText(preview.nextStats?.[key],rate)}`)); wrap.append(row);
   }
   const counter = view => view?.eligible ? `${gearSetStatText(view.chance,true)}／回合最多 ${view.maxPerTurn} 次` : '未啟用';
@@ -669,7 +669,7 @@ function openSafeSalePreview() {
     const row = node('li', 'safe-sale-item');
     const equipped = Object.values(state.equipment).some(keeper => keeper.id === item.keeperId);
     row.append(node('strong', '', item.name), node('span', 'safe-sale-meta', `${qualityName(item.quality)} · ${slotNames[item.slot]} · ${format(item.value)} 金幣`), node('span', 'safe-sale-id', `出售 ID：${item.id}`));
-    row.append(node('p', 'safe-sale-reason', `保留「${item.keeperName}」（${equipped ? '已裝備' : '背包已鎖定'}；ID：${item.keeperId}）。同型的六項屬性均不低，且${item.strictlyBetterKeys.map(key => statNames[key] || key).join('、')}較高；不以評分判定。`));
+    row.append(node('p', 'safe-sale-reason', `保留「${item.keeperName}」（${equipped ? '已裝備' : '背包已鎖定'}；ID：${item.keeperId}）。同型的七項屬性均不低，且${item.strictlyBetterKeys.map(key => statNames[key] || key).join('、')}較高；不以評分判定。`));
     return row;
   }));
   $('safe-sale-summary').textContent = `本次預覽 ${items.length} 件 · 合計 ${format(preview.total)} 金幣`;
@@ -866,6 +866,9 @@ function renderCounterattack() {
     ? `每個我方回合最多 ${format(view.maxPerTurn)} 次${state.mode === 'battle' ? ` · 本回合已發起 ${format(view.usedThisTurn)} 次，剩 ${format(view.remainingThisTurn)} 次` : ' · 出發時重新計數'}`
     : '這不是每次敵人攻擊都會觸發的機率。';
 }
+function renderPlayerParry(derived) {
+  $('stat-parry').textContent = `${((Number(derived.parry) || 0) * 100).toFixed(2)}%`;
+}
 function render(force = false) {
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
@@ -873,6 +876,7 @@ function render(force = false) {
 
   renderCounterattack();
   const derived = stats(state);
+  renderPlayerParry(derived);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
   $('hp-label').textContent = `${format(state.hero.hp)} / ${format(derived.maxHp)}`;
   $('mp-label').textContent = `${format(state.hero.mp)} / ${format(derived.maxMp)}`;
@@ -1024,11 +1028,11 @@ function renderItemDetail() {
   for (const key of keys) {
     if (!statNames[key]) continue;
     const value = Number(item.stats?.[key]) || 0, old = Number(current?.stats?.[key]) || 0, diff = value - old;
-    const display = rateStats.has(key) ? `${(value * 100).toFixed(1)}%` : format(value);
-    const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : Math.round(diff)}`;
+    const display = rateStats.has(key) ? `${(value * 100).toFixed(1)}%` : key === 'parry' ? value.toFixed(1) : format(value);
+    const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : key === 'parry' ? diff.toFixed(1) : Math.round(diff)}`;
     const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', display), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
   }
-  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。'}屬性評分不含流血、穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
+  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。招架值是裝備評級，不是機率百分比；未列時為 0。'}屬性評分不含流血、穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
   const actions = node('div', 'detail-actions');
   if (!selectedSlot) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });

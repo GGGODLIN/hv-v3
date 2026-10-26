@@ -1,3 +1,4 @@
+import * as preParryEngine from './fixtures/v0.14/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -12,7 +13,7 @@ const sha256=value=>createHash('sha256').update(value).digest('hex');
 const families=['axe','rapier','club'];
 const source=readFileSync(new URL('../src/engine.js',import.meta.url),'utf8');
 const historicalEngineSource=readFileSync(new URL('./fixtures/v0.8.1/engine.js',import.meta.url),'utf8');
-const lootSource=readFileSync(new URL('../src/loot.js',import.meta.url),'utf8');
+const lootSource=readFileSync(new URL('./fixtures/v0.14/loot.js',import.meta.url),'utf8');
 const region=(s,start,end)=>{const a=s.indexOf(start),b=end?s.indexOf(end,a):s.length;assert.ok(a>=0&&b>a);return s.slice(a,b);};
 const durable=s=>{const copy=clone(s);delete copy.logs;return copy;};
 function camp(level=7,gold=1e6){const s=createGame(42);s.hero.level=level;s.hero.gold=gold;s.wins=1;return s;}
@@ -28,8 +29,9 @@ test('v0.7 independent: all 1500 family/level offers obey independent R110 Slaug
     const s=camp(level),before=clone(s),offer=previewWeaponCommission(s,family),item=offer.item;
     const [low,high]=endpoints[family],attack=Math.max(1,Math.round((low+(high-low)*q)*.0854*(1+level/(50/3))));
     const crit=Math.round(Math.min(.16,(124+(511-124)*q)*.0105/100*(1+level/2000))*10000)/10000;
-    assert.deepEqual(item.stats,family==='axe'?{attack}:{attack,crit});
-    assert.deepEqual(item.rolls,family==='axe'?{attack:110}:{attack:110,crit:110});
+    const parry=Math.round((75+(211-75)*q)*.0894*(1+level/2000)*10000)/10000;
+    assert.deepEqual(item.stats,family==='axe'?{attack}:family==='rapier'?{attack,crit,parry}:{attack,crit});
+    assert.deepEqual(item.rolls,family==='axe'?{attack:110}:family==='rapier'?{attack:110,crit:110,parry:110}:{attack:110,crit:110});
     assert.equal(item.level,level);assert.equal(item.quality,'Superior');assert.equal(item.roll,110);
     assert.equal(item.prefix,'');assert.equal(item.suffix,'屠戮');assert.equal(item.locked,true);
     assert.equal(item.weaponFamily,family);assert.equal(item.power,scoreItem(item));assert.equal(item.id,'loot-1');
@@ -230,9 +232,9 @@ test('v0.7 historical: strict import/ordinary state helpers and the actual old v
   assert.equal(sha256(region(lootSource,'const STAT_KEYS','/** Pure fail-closed classification')),'ec9c5e2b9d9ac3def55c71ae4359576d1c77ed538d3c6de3ad287a524aff591e','old validator strict descriptor guard unchanged');
 });
 
-test('v0.7 independent: every bought family/level item survives ACTUAL v0.6 validator then current reload unchanged',()=>{
+test('v0.7 historical pre-parry: every bought family/level item survives ACTUAL v0.6 validator then current reload unchanged',()=>{
   for(let level=1;level<=500;level++)for(const family of families){
-    const s=camp(level);s.autoSell=true;const q=buy(s,family),old=jsonClone(validateOldV06(jsonClone(s))),upgraded=validateSave(old);
+    const s=camp(level);s.autoSell=true;const q=preParryEngine.previewWeaponCommission(s,family); preParryEngine.act(s,'commissionWeapon',{family,quoteBasis:q.quoteBasis}); const old=jsonClone(validateOldV06(jsonClone(s))),upgraded=validateSave(old);
     for(const state of [old,upgraded]){
       assert.deepEqual(state.inventory,[q.item]);assert.deepEqual(state.equipment,validateSave(jsonClone(s)).equipment);
       assert.equal(state.hero.gold,s.hero.gold);assert.equal(state.inventory[0].locked,true);assert.equal(state.inventory[0].weaponFamily,family);

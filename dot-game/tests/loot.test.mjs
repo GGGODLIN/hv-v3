@@ -69,7 +69,7 @@ test('base-specific suffix legality and independently rolled stats', () => {
   const rng=seeded(1337); let sawDifferent=false;
   for(let i=0;i<400;i++) {
     const item=generateItem(rng,2,i%2?'weapon':'armor');
-    if(item.slot==='weapon') assert.ok(['','屠戮','平衡'].includes(item.suffix));
+    if(item.slot==='weapon') assert.ok((item.weaponFamily==='rapier'?['','屠戮','平衡','靈巧']:['','屠戮','平衡']).includes(item.suffix));
     else assert.ok(['','長夜','壁壘','追風'].includes(item.suffix));
     if(new Set(Object.values(item.rolls)).size>1) sawDifferent=true;
   }

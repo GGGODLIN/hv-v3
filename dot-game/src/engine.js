@@ -165,7 +165,9 @@ function statsWithAbilities(s, allocation) {
   const tankBase=(base,percent)=>Math.floor(percent===10?base*1.1:base*(100+percent)/100);
   const maxHp=Math.round((effects.hpBonusPercent?tankBase(baseHp,effects.hpBonusPercent):baseHp)+sum('hp'));
   const maxMp=effects.mpBonusPercent?tankBase(baseMp,effects.mpBonusPercent):Math.round(baseMp);
-  return {maxHp,maxMp,attack:round(Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+sum('attack')+effects.attackBonus), defense:round(sum('defense')),mitigation:1-(1-equipmentMit)*(1-attributeMit),crit:clamp(.05+a.dex*.0015+sum('crit'),0,.8),evade:clamp(.02+a.agi*.001+sum('evade'),0,.5),block:clamp(.04+sum('block'),0,.6)};
+  // Existing flat 3.5% plus one percentage point per equipment parry rating is
+  // our bounded adaptation, not the original attacker-accuracy rating formula.
+  return {maxHp,maxMp,attack:round(Math.max(1,Math.log(3330+2*a.str+a.dex)/Math.log(1.0003)-27029.81)+sum('attack')+effects.attackBonus), defense:round(sum('defense')),mitigation:1-(1-equipmentMit)*(1-attributeMit),crit:clamp(.05+a.dex*.0015+sum('crit'),0,.8),evade:clamp(.02+a.agi*.001+sum('evade'),0,.5),block:clamp(.04+sum('block'),0,.6),parry:clamp(.035+sum('parry')/100,0,.5)};
 }
 /** Pure detached camp view. Earned AP is always level (one initially, then one
  * per level); there is no grant counter to duplicate on reload or repeated wins.
@@ -705,7 +707,7 @@ function playerTurn(s) {
 function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
   const p=stats(s);
-  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true},{...p,parry:.035},()=>random(s));
+  const attack=resolveAttack({attack:e.attack,crit:.20,critBonus:.2,trackDefense:true},p,()=>random(s));
   const previousHp=s.hero.hp;
   s.hero.hp=Math.max(0,s.hero.hp-attack.damage);event(s,attack.damage?'hit':attack.outcome==='block'?'block':'miss',attack.damage?'承受傷害':'化解攻擊',attack.damage,'hero');
   observeExpeditionLoss(s,previousHp-s.hero.hp,p.maxHp);
@@ -1012,7 +1014,7 @@ function sanitizeItem(raw, expectedSlot) {
   if(!raw||typeof raw!=='object'||Array.isArray(raw)||!SLOTS.includes(raw.slot)||(expectedSlot&&raw.slot!==expectedSlot))throw new Error('裝備資料不完整');
   if(typeof raw.id!=='string'||!raw.id||raw.id.length>100||(/^loot-/.test(raw.id)&&!/^loot-\d{1,9}$/.test(raw.id)))throw new Error('裝備識別碼無效');
   if(!QUALITY.includes(raw.quality))throw new Error('裝備品質無效');
-  const bonuses={};for(const k of ['attack','defense','hp','crit','evade','block']){if(raw.stats?.[k]!==undefined){if(typeof raw.stats[k]!=='number'||!Number.isFinite(raw.stats[k])||raw.stats[k]<0||raw.stats[k]>(['crit','evade','block'].includes(k)?1:1000000))throw new Error('裝備屬性無效');bonuses[k]=raw.stats[k];}}
+  const bonuses={};for(const k of ['attack','defense','hp','crit','evade','block','parry']){if(raw.stats?.[k]!==undefined){if(typeof raw.stats[k]!=='number'||!Number.isFinite(raw.stats[k])||raw.stats[k]<0||raw.stats[k]>(['crit','evade','block'].includes(k)?1:1000000))throw new Error('裝備屬性無效');bonuses[k]=raw.stats[k];}}
   const rolls={};for(const key of Object.keys(bonuses)){if(raw.rolls?.[key]!==undefined)rolls[key]=clamp(finite(raw.rolls[key]),0,200);}
   const weaponFamily=resolveWeaponFamily(raw);
   return {...(raw.slot==='weapon'?{weaponFamily}:{}),...(raw.rolls&&typeof raw.rolls==='object'?{rolls}:{}),...(typeof raw.prefix==='string'?{prefix:text(raw.prefix,'',40)}:{}),...(typeof raw.suffix==='string'?{suffix:text(raw.suffix,'',40)}:{}),id:raw.id,name:text(raw.name,'未知裝備'),slot:raw.slot,quality:text(raw.quality,'Average',24),rarityColor:typeof raw.rarityColor==='string'&&/^#[\da-f]{3,8}$/i.test(raw.rarityColor)?raw.rarityColor:'#aab6c8',level:integer(raw.level,1,1000),roll:clamp(finite(raw.roll),0,500),power:clamp(finite(raw.power),0,1000000),stats:bonuses,locked:raw.locked===true,description:text(raw.description,'',240)};

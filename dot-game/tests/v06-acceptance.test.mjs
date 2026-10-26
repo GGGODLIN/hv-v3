@@ -13,7 +13,10 @@ const keys=['attack','defense','hp','crit','evade','block'];
 const vector={attack:20,defense:10,hp:50,crit:.1,evade:.1,block:.1};
 const canonical=value=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key])])):value;
 function item(id,{slot='weapon',base=0,tier=0,...changes}={}) {
-  let n=0;return {...generateItem(()=>[base/3+.01,tier][n++]??.99,3,slot),id,...changes};
+  let n=0;const made={...generateItem(()=>[base/3+.01,tier][n++]??.99,3,slot),id,...changes};
+  // Synthetic stat overrides must not retain orphan diagnostic rolls from the new rapier base.
+  if(changes.stats)made.rolls=Object.fromEntries(Object.entries(made.rolls).filter(([key])=>Object.hasOwn(made.stats,key)));
+  return made;
 }
 function fixture() {
   const s=createGame(42);s.hero.gold=137;
@@ -181,7 +184,7 @@ test('v0.6 independent: optional strict-true auto flag never sweeps existing/pen
   for(const value of [undefined,null,false,1,'true',{},[]]){const raw=fixture();raw.autoSell=value;assert.equal(Object.hasOwn(validateSave(raw),'autoSell'),false);}
 });
 
-function strongKeepers(){return ['weapon','armor','accessory'].flatMap(slot=>[0,1,2].map(base=>item(`keeper-${slot}-${base}`,{slot,base,locked:true,stats:{attack:1000,defense:1000,hp:1000,crit:1,evade:1,block:1}})));}
+function strongKeepers(){return ['weapon','armor','accessory'].flatMap(slot=>[0,1,2].map(base=>item(`keeper-${slot}-${base}`,{slot,base,locked:true,stats:{attack:1000,defense:1000,hp:1000,crit:1,evade:1,block:1,parry:1000}})));}
 function forceDrop(seed,{auto=false,first=true,overflow=false}={}){
   const s=createGame(seed);s.inventory=strongKeepers();s.wins=first?0:1;if(auto)act(s,'setAutoSell',true);act(s,'start');
   s.wave=4;s._clock=1.04;s._enemyClock=0;

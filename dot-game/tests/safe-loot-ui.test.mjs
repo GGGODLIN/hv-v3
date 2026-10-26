@@ -60,7 +60,7 @@ test('safe loot UI: defaults OFF, camp-only, no broad low-quality action, and co
   assert.match(h.dom['auto-sell-state'].textContent, /關 · 預設/);
   assert.doesNotMatch(html.match(/<input id="auto-sell-toggle"[^>]+>/)[0], /checked/);
   assert.doesNotMatch(js, /sellCommon|sell-common/);
-  for (const fragment of ['之後的新掉落', '開啟不清理既有背包', '背包中已鎖定', '六項均不低', '至少一項較高', '不以評分判定', '屬性相同', '有高有低', 'Superior', '未辨識裝備', '不是無限掛機', '舊版分頁可能移除']) assert.ok(html.includes(fragment), fragment);
+  for (const fragment of ['之後的新掉落', '開啟不清理既有背包', '背包中已鎖定', '七項均不低', '至少一項較高', '不以評分判定', '屬性相同', '有高有低', 'Superior', '未辨識裝備', '不是無限掛機', '舊版分頁可能移除']) assert.ok(html.includes(fragment), fragment);
   for (const mode of ['battle', 'defeat']) {
     h.state.mode = mode; h.run('renderSafeLoot();');
     assert.equal(h.dom['auto-sell-toggle'].disabled, true);
@@ -118,7 +118,7 @@ test('safe loot UI: preview shows exact names, IDs, protected keeper, reason, co
       assert.ok(rows[index].includes(`出售 ID：${entry.id}`));
       assert.ok(rows[index].includes(`ID：${entry.keeperId}`));
       assert.ok(rows[index].includes(`${entry.value} 金幣`));
-      assert.match(rows[index], /六項屬性均不低.*攻擊較高.*不以評分判定/);
+      assert.match(rows[index], /七項屬性均不低.*攻擊較高.*不以評分判定/);
       assert.ok(rows[index].includes(lockedKeeper ? '背包已鎖定' : '已裝備'));
     }
     assert.match(h.dom['safe-sale-feedback'].textContent, /尚未出售/);

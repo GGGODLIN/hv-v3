@@ -18,7 +18,7 @@ function repeat(s,count,seconds,step=advance){for(let n=0;n<count;n++)step(s,sec
 const enemyActions=s=>s._eventId-s.battle.actions.attacks;
 const directEvents=s=>s.events.filter(e=>['hit','crit','miss','block'].includes(e.type));
 
-test('v0.8.1 historical: accepted engine bytes outside advance and current loot/session retain verified v0.8 provenance',()=>{
+test('v0.8.1 historical: accepted engine bytes outside advance and historical pre-parry loot/session retain verified v0.8 provenance',()=>{
   // v0.9 intentionally adds observational report hooks outside advance. Keep
   // these exact historical digests, not regenerated hashes of changed source.
   // All behavioral tests below still exercise current runtime; v09 acceptance
@@ -26,7 +26,7 @@ test('v0.8.1 historical: accepted engine bytes outside advance and current loot/
   const source=readFileSync(new URL('./fixtures/v0.8.1/engine.js',import.meta.url),'utf8');
   assert.equal(sha(source.slice(0,source.indexOf('export function advance(s, seconds) {'))),'d0e87b4314fc11520cb0d9d22377194909a0f6ba5e0ade27a6817ca149f69d96');
   assert.equal(sha(source.slice(source.indexOf('function refillPending(s)'))),'d56ef0bc3c189055643c6b817ca36f822116afb085333904df06cbdea87c27ca');
-  assert.equal(sha(readFileSync(new URL('../src/loot.js',import.meta.url))),'458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc');
+  assert.equal(sha(readFileSync(new URL('./fixtures/v0.14/loot.js',import.meta.url))),'458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc');
   assert.equal(sha(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a');
   assert.equal(sha(readFileSync(new URL('./fixtures/v0.8/engine.js',import.meta.url))),'a9e3b4b8d8ec5ac6ecc8dcdbc72e3586e24e9ca7cce32b6ebb4de3e7346fe8b1');
   assert.equal(sha(readFileSync(new URL('./fixtures/v0.8/loot.js',import.meta.url))),'458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc');

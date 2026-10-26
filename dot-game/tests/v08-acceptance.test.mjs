@@ -229,11 +229,11 @@ test('v0.8 independent: identical processed tick counts yield identical bleed-on
   const a=fight(),b=clone(a);attach(a.enemies[0]);attach(b.enemies[0]);advance(a,1e9);advance(b,2);assert.deepEqual(a,b,'existing two-second clamp remains exact');
 });
 
-test('v0.8 historical validator plus current loot, session, unallocated stats and family scoring retain accepted-v0.7 behavior',()=>{
+test('v0.8 historical validator plus historical pre-parry loot, session, unallocated stats and family scoring retain accepted-v0.7 behavior',()=>{
   // Accepted receipt 022-v07-publication-receipt, verified before runtime edits.
   // Live axe trait prose and exact old-trait cleanup are the only allowed loot
   // changes. Freeze all catalog/family data and all sanitizer/generator code.
-  const loot=readFileSync(new URL('../src/loot.js',import.meta.url),'utf8');
+  const loot=readFileSync(new URL('./fixtures/v0.14/loot.js',import.meta.url),'utf8');
   assert.equal(sha(loot.slice(0,loot.indexOf('const WEAPON_TRAITS'))),'1244fd797574884277636905a7cf8c5201ef39cbe424694ceaec0224bd1d3db3');
   assert.equal(sha(loot.slice(loot.indexOf('const STAT_KEYS'))),'44f86cb5e777bbf4c6561558eefe67dbce043877ff6cd39973425dcd9d025904');
   assert.equal(sha(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a');

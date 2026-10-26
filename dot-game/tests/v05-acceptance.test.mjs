@@ -1,3 +1,4 @@
+import {generateItem as preParryGenerateItem} from './fixtures/v0.14/loot.js';
 import test from 'node:test';
 import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
@@ -211,7 +212,7 @@ test('v0.5 independent: role metadata itself never changes damage, proc eligibil
   assert.deepEqual(CLUB_STUN_RULES,{chance:.25,durationTicks:4});
 });
 
-test('v0.5 independent: unchanged resolver/rewards and historical enemyAttack stay byte-frozen; generator preserves outputs and RNG',()=>{
+test('historical pre-parry: v0.5 independent: unchanged resolver/rewards and historical enemyAttack stay byte-frozen; generator preserves outputs and RNG',()=>{
   // Frozen from accepted v0.5 engine 2afaaf2c… (loot af7eac11…). v0.6 intentionally
   // adds opt-in sale routing and strict import validation, not new combat/rolls.
   // Narrow unchanged regions replace the old whole-module/action/sanitizer freezes;
@@ -247,7 +248,7 @@ test('v0.5 independent: unchanged resolver/rewards and historical enemyAttack st
   ]) {
     let seed=initialSeed,calls=0;const rng=()=>{calls++;seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2**32;};
     const hash=createHash('sha256');
-    for(let i=0;i<1000;i++)hash.update(JSON.stringify(generateItem(rng,1+i%80,[undefined,'weapon','armor','accessory'][i%4]))+'\n');
+    for(let i=0;i<1000;i++)hash.update(JSON.stringify(preParryGenerateItem(rng,1+i%80,[undefined,'weapon','armor','accessory'][i%4]))+'\n');
     assert.equal(calls,callsExpected);assert.equal(seed,finalSeed);assert.equal(hash.digest('hex'),digest);
   }
   assert.equal(sha256(readFileSync(new URL('../src/session.js',import.meta.url))),'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a');

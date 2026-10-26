@@ -5,7 +5,7 @@ import {classifySafeLootItem, itemSalePrice, scoreItem} from '../src/loot.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const SLOTS = ['weapon', 'armor', 'accessory'];
-const KEYS = ['attack', 'defense', 'hp', 'crit', 'evade', 'block'];
+const KEYS = ['attack', 'defense', 'hp', 'crit', 'evade', 'block', 'parry'];
 const LOW = new Set(['Crude', 'Fair', 'Average']);
 // The default is a fast regression subset, not the broader measurement below.
 // Reproduce the documented 100-seed evidence with SAFE_LOOT_SEEDS=100.

@@ -1,3 +1,4 @@
+import {generateItem as preParryGenerateItem} from './fixtures/v0.14/loot.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -22,7 +23,7 @@ test('commission catalog: three immutable descriptors agree with supported weapo
 test('commission catalog: level-seven baseline uses existing Slaughter endpoints and scoring', () => {
   for (const [family, name, stats, power, resale] of [
     ['axe', '優良・暮鋼戰斧・屠戮', { attack: 77 }, 154, 175],
-    ['rapier', '優良・逐風刺劍・屠戮', { attack: 46, crit: .0295 }, 100, 121],
+    ['rapier', '優良・逐風刺劍・屠戮', { attack: 46, crit: .0295, parry: Math.round((75+(211-75)*(110/200)**1.52)*.0894*(1+7/2000)*10000)/10000 }, 121, 142],
     ['club', '優良・裂岩戰棍・屠戮', { attack: 64, crit: .0295 }, 136, 157],
   ]) {
     const item = createCommissionWeapon(family, 7);
@@ -46,7 +47,7 @@ test('commission catalog: every family and level exactly matches an ordinary sam
       // Ordinary generation: chosen base; Superior; no prefix; Slaughter;
       // all applicable stat draws land at R110. Final draw is the ordinary ID.
       const draws = [(index + .5) / 3, .5, .9, 0,
-        ...Array(family === 'axe' ? 1 : 2).fill(.5), .25];
+        ...Array(family === 'axe' ? 1 : family === 'rapier' ? 3 : 2).fill(.5), .25];
       const ordinary = generateItem(() => {
         assert.ok(draws.length, 'ordinary generator used an unexpected draw');
         return draws.shift();
@@ -130,7 +131,7 @@ test('commission catalog: ordinary strict-schema guards and safe-sale protection
   assert.equal(dominanceWitness({ ...item, locked: false }, [keeper]), null, 'Superior is not safe-sale eligible');
 });
 
-test('commission catalog: shared builder preserves 3000 complete accepted-v0.6 item fingerprints and RNG streams', () => {
+test('historical pre-parry: commission catalog: shared builder preserves 3000 complete accepted-v0.6 item fingerprints and RNG streams', () => {
   // Captured from accepted v0.6 loot.js before refactoring. Unlike older identity
   // fingerprints, these include every property, including description/family.
   for (const baseline of [
@@ -142,7 +143,7 @@ test('commission catalog: shared builder preserves 3000 complete accepted-v0.6 i
     const rng = () => { calls++; seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 2 ** 32; };
     const hash = createHash('sha256');
     for (let i = 0; i < 1000; i++) {
-      hash.update(JSON.stringify(generateItem(rng, 1 + i % 80, [undefined, 'weapon', 'armor', 'accessory'][i % 4])) + '\n');
+      hash.update(JSON.stringify(preParryGenerateItem(rng, 1 + i % 80, [undefined, 'weapon', 'armor', 'accessory'][i % 4])) + '\n');
     }
     assert.equal(calls, baseline.calls);
     assert.equal(seed, baseline.finalSeed);
