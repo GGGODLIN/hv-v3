@@ -1,5 +1,18 @@
 # hv-v3 dot — independent idle loot RPG
 
+## v0.15 published and stable-root accepted — 2026-10-26 12:07 UTC
+
+Play: https://gggodlin.github.io/play/hv-v3-dot/ . New rapier equipment parry input/Nimble, consistent seven-stat equipment decisions, and camp departure feedback are now live. Original equipment inputs and our adapted final probabilities remain explicitly distinct; old owned gear is not retrofilled.
+
+Runtime source3f5b3cce2c1fdf3ddb98966bbd93ef2e8d761ceb passed1,155tests/four syntax. Accepted full sourcef791ea3f6cabbcfa27af61a5bb7ccdb5e7a6573b was verified before root663589608a78d5ccdd38dc0b9d30de85a7bc92a2. Exact rootPages40319505231 and HTTP6 passed; five root files changed, session and3882non-root blobs preserved.
+
+Actual candidate and root ordinary purchase/equip/reload/combat passed. Root kept its independent natural profile and endedLv7/gold124/wins8/inventory14/HP707/parry15.15%. See BROWSER-QA-V015.md for observed evidence and explicit random-Nimble/capacity/device limits. The cloud test browser reset earlier; no old profile was invented, and source backup is not browser-save backup.
+
+This exact verified publication-receipt commit is the latest accepted full-source restore (146files/145payloads); prior v0.14 restore22bdfca3068c7934921c2493eb40de624d684318 remains available. Only docs/manifest changed after acceptance; unchanged1,155tests/four syntax are reused. No credentials, Library synchronization or schedule restoration is claimed.
+
+### Earlier checkpoint timeline (historical)
+
+
 ## v0.15 desktop accepted; root promotion pending — 2026-10-26 11:59 UTC
 
 Latest runtime3f5b3cce2c1fdf3ddb98966bbd93ef2e8d761ceb is source-backed (1,155 tests/four syntax). Following explicit isolated-test-page approval, candidate1fa69a69d390123804e3aabd2d71079b00804025 passed exact Pages40318235306 and HTTP6; all3882 earlier website blobs stayed unchanged.

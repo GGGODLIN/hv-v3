@@ -84,3 +84,6 @@ Source is backed up; runtime development is complete for this slice. Do not star
 
 ## v0.15 departure feedback follow-up
 Correct the observed enabled-but-refused camp Start control while staging authorization is pending. Surface the existing five-slot reserve and pending-loot requirement, and play the departure sound only after an actual transition into battle. This is a bounded UI correction, not another gameplay system or permission to retry staging.
+
+## v0.15 release loop closed — 2026-10-26 12:07 UTC
+Explicit staging authorization, exact candidate CI/HTTP, actual browser acceptance, acceptance-source backup, root publication, root smoke and final source receipt are complete when the final receipt readback is verified. The earlier staging blocker is historical. Future work may select the next supported gameplay improvement; do not repeat the old permission loop or replace the declared adapter with an unverified accuracy formula.

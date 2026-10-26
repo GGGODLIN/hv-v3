@@ -1,5 +1,14 @@
 # Published releases
 
+## v0.15 — published, 2026-10-26 12:06 UTC
+
+- New rapier equipment parry input and legal Nimble suffix, integrated character check, conservative seven-stat comparisons and presets. Original equipment endpoints/quality model are separate from the explicit adapted chance mapping; old gear is not retrofilled.
+- Camp departure button now matches existing five-free-slot/pending-loot engine requirements; rejected/repeated starts do not play the success sound.
+- Runtime3f5b3cce2c1fdf3ddb98966bbd93ef2e8d761ceb;1,155tests/four syntax passed. Candidate1fa69a69d390123804e3aabd2d71079b00804025 passed exactPages40318235306/HTTP6 and bounded actual cloud play.
+- Accepted sourcef791ea3f6cabbcfa27af61a5bb7ccdb5e7a6573b was fully backed up/readback verified before root663589608a78d5ccdd38dc0b9d30de85a7bc92a2. Exact rootPages40319505231 succeeded and HTTP6 returned six exact200matches. Only5rootfiles changed; session and3882non-root blobs preserved.
+- See BROWSER-QA-V015.md for actual observed versus source-only coverage, final root smoke and cloud-test-profile reset. Prior accepted restore22bdfca3068c7934921c2493eb40de624d684318 remains recoverable.
+
+
 ## v0.14 — published, 2026-10-26 07:29 UTC
 
 - Three gear-only camp presets store existing IDs; exact atomic preview/swap, explicit save-lock and referenced-item protection. Original broader Equipment Sets/Persona remain distinct; combat/loot/economy coefficients unchanged.

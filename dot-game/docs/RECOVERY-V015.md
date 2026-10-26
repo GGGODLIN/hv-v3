@@ -1,5 +1,8 @@
 # v0.15 source-backed candidate; staging blocked
 
+## Current accepted recovery — 2026-10-26 12:07 UTC
+The source-only blocker below is historical and resolved. v0.15 is now accepted and live at https://gggodlin.github.io/play/hv-v3-dot/ . Restore this exact fully verified publication-receipt commit for current source/docs; runtime is3f5b3cce, accepted prepublication sourcef791ea3f, website66358960. BROWSER-QA-V015.md records exact CI/HTTP and ordinary candidate/root play. Prior v0.14 recovery22bdfca remains valid as an older release, not the newest accepted version. Never use stale unreferenced71c68c26.
+
 ## Updated: prior staging blocker resolved, 2026-10-26 11:59 UTC
 Explicit user approval enabled isolated candidate1fa69a69 from newer corrected runtime3f5b3cce. Exact CI/HTTP and bounded browser acceptance now pass; see BROWSER-QA-V015.md. The earlier blocker below is historical. This acceptance receipt is the latest candidate-source restore after exact readback; root promotion remains pending and accepted public v0.14 is still valid. Never deploy stale71c68c26.
 

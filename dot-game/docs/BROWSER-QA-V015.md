@@ -24,3 +24,11 @@ Natural random drops were observed, but none was a new parry-bearing random rapi
 Captured warn/error inspection returned54 entries, all from the explicitly identified browser-extension metadata script `chrome-extension://kcdongibgcplmaagnmgpjhpjgmmaaaaa/content-script.bundle.js`; after excluding exactly that source, no app-origin entries remained. This is bounded captured-log evidence, not an exhaustive runtime guarantee.
 
 Acceptance source backup and stable-root promotion/smoke are subsequent steps, not claimed completed by this section.
+
+## Stable-root publication and smoke — 2026-10-26 12:07 UTC
+
+Accepted source `f791ea3f6cabbcfa27af61a5bb7ccdb5e7a6573b` was fully verified before root website `663589608a78d5ccdd38dc0b9d30de85a7bc92a2`. Exact Pages40319505231 succeeded; HTTP6 returned six200exact byte/SHA matches. Five root runtime files changed, session stayed unchanged, and3882non-root website blobs were preserved.
+
+Root tab2 loadedv0.15 with its own natural Lv6/486gold/6wins profile, not candidate Lv10 progress. Old gear stayed3.50%parry. A real stage1 victory took20.0s; after a few ordinary next-fight kills, returning with586gold allowed a568gold rapier commission, leaving18. Manual equip/reload displayed15.15%. A subsequent real new-rapier victory took13.7s. Return/reload ended atLv7,124gold,8wins,14inventory,707HP,15.15%parry and the same commissioned sword. Candidate tab3 was closed; root2 left atcamp as Deliverable. No candidate progression replaced root.
+
+Root captured warn/error inspection returned36entries, all from the same explicitly excluded browser-extension metadata source; no app-origin entry remained. The same bounded/device/audio/capacity limits apply. The final publication receipt modifies docs/manifest only; no runtime retest/redeployment is needed.
