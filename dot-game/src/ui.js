@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, expeditionReports, abilityView, growthReadiness, protectionView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -111,6 +111,7 @@ const selectedSaleCheckboxes = new Map();
 let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
+let soulbindConsent = null;
 let gearSetConsent = null;
 let lastGearSetSignature = "";
 let lastCommissionSignature = '';
@@ -225,6 +226,7 @@ function syncSelection() {
   lastAbilitySignature = ''; $('ability-feedback').textContent = '';
   clearSelectedSale(); // Local sale intent never crosses ownership, reload or import.
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
+  closeSoulbindWeapon(); // Permanent investment always needs fresh local consent.
   if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
@@ -993,6 +995,7 @@ function renderTargetPriority() {
   live.textContent = view.targetId === null ? '' : `目前集火：${view.targetName} · ${view.reason}。普攻與攻擊技能適用；治癒／護盾仍優先，反擊仍打攻擊者。`;
 }
 function render(force = false) {
+  renderSoulbindStatus();
   $('strategy-select').value = state.strategy || 'balanced';
   $('strategy-select').disabled = state.mode !== 'town' || !tabOwner;
   $('strategy-description').textContent = STRATEGIES.find(strategy => strategy.id === state.strategy)?.description || '';
@@ -1028,7 +1031,7 @@ function render(force = false) {
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
-  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode]);
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, $('slot-filter').value, $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
@@ -1049,6 +1052,7 @@ function render(force = false) {
 function itemContent(item) {
   const icon = node('span', 'item-icon', slotIcons[item.slot] || '◇');
   const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${itemTypeName(item)} · Lv.${item.level} · ${qualityName(item.quality)}`));
+  if (Object.hasOwn(item, 'soulbound')) info.append(node('span', 'soulbound-badge', '靈魂綁定 · 隨等級成長'));
   return [icon, info];
 }
 function renderEquipment() {
@@ -1148,7 +1152,8 @@ function renderInventory() {
   if (!items.length) { const empty = node('div', 'empty-inventory'); empty.append(node('b', '', '◇'), node('span', '', state.inventory.length ? '這個部位還沒有戰利品。' : '背包還很輕。出發帶回第一件寶物吧。')); $('inventory-list').replaceChildren(empty); return; }
   $('inventory-list').replaceChildren(...items.map(item => {
     const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
-    if (isGearSetProtected(state,item.id)) button.append(node('span', 'lock-indicator', '配裝'));
+    if (Object.hasOwn(item, 'soulbound')) button.append(node('span', 'lock-indicator', '永久'));
+    else if (isGearSetProtected(state,item.id)) button.append(node('span', 'lock-indicator', '配裝'));
     else if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
     else {
       const comparison = powerComparisonText(item, state.equipment[item.slot]);
@@ -1158,14 +1163,14 @@ function renderInventory() {
         button.append(marker);
       }
     }
-    button.setAttribute('aria-label', `${item.name}，${qualityName(item.quality)}，等級 ${item.level}${item.locked ? '，已鎖定' : ''}`);
+    button.setAttribute('aria-label', `${item.name}，${qualityName(item.quality)}，等級 ${item.level}${Object.hasOwn(item, 'soulbound') ? '，靈魂綁定，永久鎖定' : item.locked ? '，已鎖定' : ''}`);
     button.setAttribute('aria-pressed', String(item.id === selectedId));
     button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
     const row = node('div', 'inventory-entry');
     const label = node('label', 'selected-sale-check');
     const check = node('input'); check.type = 'checkbox'; check.checked = selectedSaleIds.has(item.id);
     check.setAttribute('aria-label', `選取出售：${item.name}（ID：${item.id}）`);
-    check.disabled = !tabOwner || state.mode !== 'town' || isGearSetProtected(state,item.id) || !previewSelectedSale(state, [item.id]).available;
+    check.disabled = !tabOwner || state.mode !== 'town' || Object.hasOwn(item, 'soulbound') || isGearSetProtected(state,item.id) || !previewSelectedSale(state, [item.id]).available;
     selectedSaleCheckboxes.set(item.id, check);
     check.addEventListener('change', () => toggleSelectedSale(item.id, check.checked));
     label.append(check, node('span', '', '選售')); row.append(label, button); return row;
@@ -1176,12 +1181,14 @@ function renderItemDetail() {
   if (!item) {
     const placeholder = node('div', 'detail-placeholder'); placeholder.append(node('span', '', '◇'), node('h3', '', '看看下一件好東西'), node('p', '', '選擇一件裝備，比較它會為旅者帶來什麼改變。')); $('item-detail').replaceChildren(placeholder); return;
   }
+  const restoreSoulbindFocus = document.activeElement?.dataset?.soulbindId === item.id;
+  const bound = Object.hasOwn(item, 'soulbound');
   const wrap = $('item-detail'); wrap.style.setProperty('--item-color', colorOf(item));
   const current = state.equipment[item.slot];
-  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}`);
-  const name = node('h3', 'detail-name', item.name);
+  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}${bound ? ' · 靈魂綁定' : ''}`);
+  const name = node('h3', 'detail-name', item.name); name.tabIndex = -1;
   const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}`);
-  const description = node('p', 'detail-description', describeItemFlavor(item) || '一件等待發揮力量的裝備。');
+  const description = node('p', 'detail-description', bound ? '已永久投入靈魂碎片；武器依原始綁定基準隨角色等級成長，沒有重新抽取屬性。' : describeItemFlavor(item) || '一件等待發揮力量的裝備。');
   const trait = node('div', 'weapon-trait');
   if (item.slot === 'weapon') {
     trait.append(node('strong', '', `武器路線 · ${weaponFamilyNames[resolveWeaponFamily(item)] || '未辨識'}`), node('p', '', describeWeaponTrait(item)));
@@ -1202,11 +1209,94 @@ function renderItemDetail() {
   if (!selectedSlot) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
     const protectedBySet = isGearSetProtected(state,item.id);
-    const lock = node('button', 'secondary-button', protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet; lock.addEventListener('click', () => dispatch('lock', item.id));
-    const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
+    const lock = node('button', 'secondary-button', bound ? '永久綁定' : protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet || bound; lock.addEventListener('click', () => { if (!Object.hasOwn(item, 'soulbound')) dispatch('lock', item.id); });
+    const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || bound || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { if (Object.hasOwn(item, 'soulbound')) return; dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
   }
-  if (isGearSetProtected(state,item.id)) explanation.append(node('span','gear-set-protection','此裝備被配裝記錄使用，不能解鎖或出售。先清除或覆寫所有使用它的配裝，再手動解鎖；不會自動解鎖。'));
-  wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions);
+  if (bound) explanation.append(node('span', 'soulbind-protection', '永久綁定：不能解除、解鎖或出售（包含安全整理、自選出售）。清除配裝記錄也不會解除保護；可以正常換裝。'));
+  else if (isGearSetProtected(state,item.id)) explanation.append(node('span','gear-set-protection','此裝備被配裝記錄使用，不能解鎖或出售。先清除或覆寫所有使用它的配裝，再手動解鎖；不會自動解鎖。'));
+  const soulbind = node('div', 'soulbind-item-action');
+  let bindButton;
+  if (item.slot === 'weapon' && !bound) {
+    const preview = previewSoulbindWeapon(state, item.id);
+    bindButton = node('button', 'secondary-button', '預覽靈魂綁定');
+    bindButton.dataset.soulbindId = item.id;
+    bindButton.setAttribute('aria-haspopup', 'dialog');
+    bindButton.disabled = !tabOwner || state.mode !== 'town' || !preview.before || !preview.after;
+    bindButton.addEventListener('click', () => openSoulbindWeapon(item.id));
+    const reason = !tabOwner ? '唯讀分頁：接手後才能綁定。' : state.mode !== 'town' ? '請先回營；戰鬥與戰敗時不能綁定。' : !preview.available ? preview.reason : `品質費用 ${format(preview.cost)} 靈魂碎片；預覽不扣除、不自動綁定。`;
+    soulbind.append(bindButton, node('p', 'muted', reason));
+  }
+  wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions, soulbind);
+  if (restoreSoulbindFocus && bindButton && !bindButton.disabled) bindButton.focus();
+}
+
+// Soulbind is a one-item permanent investment, never an automatic policy.
+function soulbindQuoteSignature(quote) {
+  return JSON.stringify([quote, state.mode, state.stage, state.hero.level, state.soulFragments, state.equipment, state.inventory, state.pendingLoot, state.gearSets]);
+}
+function closeSoulbindWeapon() {
+  soulbindConsent = null;
+  $('soulbind-confirm').disabled = true;
+  if ($('soulbind-dialog').open) $('soulbind-dialog').close();
+}
+function abortSoulbindWeapon(message) {
+  soulbindConsent = null;
+  $('soulbind-confirm').disabled = true;
+  $('soulbind-feedback').textContent = `本次確認已取消。${message} 請核對碎片與裝備後重新預覽。`;
+}
+function reconcileSoulbindWeapon() {
+  if (!soulbindConsent) return;
+  if (!claimLease() || state.mode !== 'town') { abortSoulbindWeapon('控制權或營地狀態已改變，未執行綁定。'); return; }
+  const fresh = previewSoulbindWeapon(state, soulbindConsent.quote.id);
+  if (!fresh.available || soulbindConsent.signature !== soulbindQuoteSignature(fresh)) abortSoulbindWeapon('報價、碎片或裝備資料已改變，未執行綁定。');
+}
+function soulbindStat(value, rate = false) {
+  const number = (Number(value) || 0) * (rate ? 100 : 1);
+  return `${Number(number.toFixed(8)).toLocaleString('zh-TW', { maximumFractionDigits: 8 })}${rate ? '%' : ''}`;
+}
+function openSoulbindWeapon(id) {
+  if (!claimLease() || state.mode !== 'town') { showToast('請在持有進度的分頁回營後，再預覽靈魂綁定。'); return; }
+  // A second item cannot replace consent while the first item's dialog is open.
+  if ($('soulbind-dialog').open) return;
+  const quote = previewSoulbindWeapon(state, id);
+  if (!quote.before || !quote.after) { showToast(quote.reason || '這件裝備目前不能靈魂綁定。'); return; }
+  soulbindConsent = quote.available ? { quote: JSON.parse(JSON.stringify(quote)), signature: soulbindQuoteSignature(quote) } : null;
+  $('soulbind-item-name').textContent = quote.before.name;
+  $('soulbind-item-meta').textContent = `${qualityName(quote.before.quality)}（${quote.before.quality}） · ${itemTypeName(quote.before)} · ID：${quote.id}`;
+  $('soulbind-level').textContent = `裝備等級：Lv.${quote.before.level} → Lv.${quote.after.level}（目前角色 Lv.${state.hero.level}）`;
+  const heading = node('div', 'soulbind-stat-row soulbind-stat-heading');
+  heading.append(...['武器屬性', '綁定前', '綁定後'].map(text => node('span', '', text)));
+  $('soulbind-comparison').replaceChildren(heading, ...Object.entries(statNames).map(([key, label]) => {
+    const row = node('div', 'soulbind-stat-row');
+    row.append(node('span', '', label), node('span', '', soulbindStat(quote.before.stats?.[key], rateStats.has(key))), node('strong', '', soulbindStat(quote.after.stats?.[key], rateStats.has(key))));
+    return row;
+  }));
+  $('soulbind-cost').textContent = `現有 ${format(state.soulFragments)} − 品質費用 ${format(quote.cost)} ＝ 綁定後 ${format(quote.fragmentsAfter)} 靈魂碎片`;
+  $('soulbind-feedback').textContent = quote.available ? '尚未綁定或扣除碎片。取消不變更；確認只處理這件原有武器，不自動換裝。' : `目前不能綁定：${quote.reason} 尚未扣除碎片。`;
+  $('soulbind-confirm').textContent = `確認永久綁定 · ${format(quote.cost)} 靈魂碎片`;
+  $('soulbind-confirm').disabled = !quote.available;
+  $('soulbind-dialog').showModal();
+}
+function confirmSoulbindWeapon() {
+  if (!soulbindConsent || !$('soulbind-dialog').open) { soulbindConsent = null; $('soulbind-confirm').disabled = true; return; }
+  reconcileSoulbindWeapon();
+  if (!soulbindConsent) return;
+  const quote = soulbindConsent.quote;
+  const equippedSlot = Object.keys(state.equipment).find(slot => state.equipment[slot]?.id === quote.id);
+  const inventoryIds = state.inventory.map(item => item.id).join('|');
+  soulbindConsent = null; $('soulbind-confirm').disabled = true;
+  const completed = dispatch('soulbindWeapon', quote);
+  const bound = equippedSlot ? state.equipment[equippedSlot] : state.inventory.find(item => item.id === quote.id);
+  const succeeded = completed && state.soulFragments === quote.fragmentsAfter && bound?.locked === true && bound?.soulbound && JSON.stringify(bound) === JSON.stringify(quote.after) && inventoryIds === state.inventory.map(item => item.id).join('|');
+  if (!succeeded) { abortSoulbindWeapon('操作未確認完成，不能視為綁定成功。'); return; }
+  closeSoulbindWeapon(); render(true);
+  $('item-detail').querySelector('.detail-name')?.focus?.();
+  showToast(`「${bound.name}」已永久靈魂綁定 · 消耗 ${format(quote.cost)} 靈魂碎片；不能解鎖或出售。`);
+}
+function renderSoulbindStatus() {
+  reconcileSoulbindWeapon();
+  $('soul-fragment-balance').textContent = `${format(state.soulFragments)} 靈魂碎片`;
+  $('soulbind-status').textContent = !tabOwner ? '唯讀分頁：可查看，接手並回營後才能綁定。' : state.mode !== 'town' ? '回營後選取已裝備或背包中的武器，再預覽綁定。' : '選取已裝備或背包中的戰斧、刺劍或戰棍，再按「預覽靈魂綁定」；不會自動花費。';
 }
 
 // Entire scene is independently drawn with canvas primitives; no external assets.
@@ -1376,6 +1466,10 @@ $('auto-protection').addEventListener('change', event => {
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
 $('slot-filter').addEventListener('change',()=>render(true));$('sort-select').addEventListener('change',()=>render(true));
+$('soulbind-confirm').addEventListener('click', confirmSoulbindWeapon);
+$('soulbind-dialog').addEventListener('close', closeSoulbindWeapon);
+$('soulbind-dialog').addEventListener('cancel', closeSoulbindWeapon);
+$('import-save').addEventListener('click', closeSoulbindWeapon);
 $('gear-set-confirm').addEventListener('click', confirmGearSet);
 $('gear-set-dialog').addEventListener('close', closeGearSetDialog);
 $('gear-set-dialog').addEventListener('cancel', closeGearSetDialog);
@@ -1433,6 +1527,9 @@ window.addEventListener('popstate', clearSelectedSale);
 window.addEventListener('pagehide', clearSelectedSale);
 window.addEventListener('pagehide', closeGearSetDialog);
 window.addEventListener('popstate', closeGearSetDialog);
+window.addEventListener('popstate', closeSoulbindWeapon);
+window.addEventListener('pagehide', closeSoulbindWeapon);
+$('save-file').addEventListener('change', closeSoulbindWeapon);
 document.addEventListener('visibilitychange', () => {
   lastFrame = performance.now(); pump.reset();
   if (document.hidden) { save(true); if (!prefs.backgroundIdle) releaseLease(); }
@@ -1479,7 +1576,7 @@ setupCampNavigation();
 setInterval(() => {
   if (!pageActive) return;
   if (ownership.supported && !handoff && (!document.hidden || prefs.backgroundIdle)) ownership.request();
-  pump.tick(); reconcileWeaponCommission();
+  pump.tick(); reconcileWeaponCommission(); reconcileSoulbindWeapon();
   if (tabOwner) save();
 }, 250);
 function frame(now) {
@@ -1490,7 +1587,7 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-if (loaded.migrated) notice('已讀取舊版 v1／v2 進度，將另存至目前的 v3 存檔格式；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在目前版本繼續遊玩或手動匯出。');
+if (loaded.migrated) notice('已讀取舊版 v1／v2 儲存位置的進度，將另存至目前的 v3 儲存位置（資料格式 v2）；舊存檔完整保留。舊版分頁之後的進度不會自動合併，請在目前版本繼續遊玩或手動匯出。');
 if (loadProblem) notice(loadProblem);
 if (!ownership.supported) {
   prefs.backgroundIdle = false;

@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGame,act,advance,stats,validateSave,abilityView,MAJOR_ABILITIES,ABILITY_RULES,VERSION,expeditionReports} from '../src/engine.js';
@@ -25,7 +26,7 @@ function run(s) {
 }
 
 test('ability growth: fixed three rank-one Major entries, original costs and five-slot capacity',()=>{
-  assert.equal(VERSION,1);assert.deepEqual(ABILITY_RULES,{majorSlots:5});
+  assert.equal(VERSION,2);assert.deepEqual(ABILITY_RULES,{majorSlots:5});
   assert.deepEqual(MAJOR_ABILITIES.map(({id,apCost,minLevel,rank})=>({id,apCost,minLevel,rank})),
     ids.map((id,i)=>({id,apCost:i===2?2:1,minLevel:0,rank:1})));
   assert.ok(Object.isFrozen(MAJOR_ABILITIES)&&Object.isFrozen(ABILITY_RULES));
@@ -35,7 +36,7 @@ test('ability growth: fixed three rank-one Major entries, original costs and fiv
 test('ability growth: new/default game has one derived AP and no durable allocation field',()=>{
   const s=createGame(),view=abilityView(s);
   assert.equal(Object.hasOwn(s,'abilities'),false);
-  assert.deepEqual(s,baseline.createGame());
+  assert.deepEqual(legacyState(s),baseline.createGame());
   assert.deepEqual(stats(s),{...baseline.stats(s),parry:.035});
   assert.equal(view.earnedAp,1);assert.equal(view.spentAp,0);assert.equal(view.availableAp,1);
   assert.equal(view.majorCapacity,5);assert.equal(view.majorUsed,0);
@@ -165,13 +166,14 @@ test('ability growth: a hypothetical slot preview does not pretend the player ca
   assert.equal(row(s,'mp-tank').previewStats.maxMp,20);assert.equal(json(s),before);
 });
 
-test('ability growth: legacy imports stay allocation-free and old reader can drop new allocations without losing gold/items',()=>{
+test('ability growth: historical v1 imports stay allocation-free; old reader rejects v2 but drops v1 allocations without losing gold/items',()=>{
   const legacy=profile(4,2);legacy.hero.gold=4321;
   assert.equal(Object.hasOwn(validateSave(clone(legacy)),'abilities'),false);
-  const active=learnAndSlot(legacy,...ids),old=baseline.validateSave(JSON.parse(json(active)));
+  const active=learnAndSlot(legacy,...ids);assert.throws(()=>baseline.validateSave(JSON.parse(json(active))),/不支援/);
+  const old=baseline.validateSave(legacyEnvelope(active));
   assert.equal(Object.hasOwn(old,'abilities'),false);assert.equal(old.hero.gold,4321);
   assert.deepEqual(old.equipment,active.equipment);assert.deepEqual(old.inventory,active.inventory);
-  assert.equal(abilityView(validateSave(old)).availableAp,4);
+  const migrated=validateSave(old);assert.equal(migrated.version,2);assert.equal(migrated.soulFragments,0);assert.equal(abilityView(migrated).availableAp,4);
 });
 
 test('ability growth: roundtrip retains learned and separate slots, recovers exact pools, and does not replay AP grants',()=>{
@@ -237,7 +239,7 @@ test('ability growth: default natural combat stays identical until the intention
   for(let n=0;n<800&&!s.wins;n++){
     const before=json(s);abilityView(s);assert.equal(json(s),before);
     advance(s,.1);baseline.advance(old,.1);
-    if(!s.wins)assert.equal(json(s),json(old));
+    if(!s.wins)assert.equal(json(legacyState(s)),json(old));
     else for(const key of ['hero','battle','timing','equipment','kills','wins'])assert.deepEqual(s[key],old[key],key);
   }
   assert.equal(s.wins,1);assert.equal(abilityView(s).earnedAp,s.hero.level);assert.equal(s.hero.level,2);

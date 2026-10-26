@@ -4,6 +4,10 @@
 
 **Latest verified release: v0.22**, bounded-desktop accepted and published2026-10-26. Reports now remember the actual departure target/Protection policies, active ability ranks and equipped identities. Expand configuration details to understand which build produced a result; changing camp later does not rewrite history. No combat changes or claim of a best build. [Report guide](docs/REPORT-BUILD-GUIDE.md).
 
+## v0.23 development candidate
+
+Soul Fragments and explicitly confirmed weapon soulbinding are implemented with 1,426 passing source tests and four syntax checks. A bound weapon follows character level without rerolling its identity or affixes; fragment awards and conservative disposal protection are adaptations. This is not yet browser-accepted or published. Latest accepted complete recovery remains `cfc624debcecaa029deb95e437681d7c5a5b7644` (v0.22). See [Soulbind guide](docs/SOULBIND-GUIDE.md).
+
 ## Play
 
 1. Choose a stage and start an expedition. Combat and skills resolve automatically; return to camp to compare, equip, lock or sell earned loot.

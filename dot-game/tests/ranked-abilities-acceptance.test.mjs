@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import * as historicalV012 from './fixtures/v0.12/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -34,7 +35,7 @@ function ledger(s){const view=current.abilityView(s),spent=ids.reduce((n,id)=>n+
   assert.equal(view.majorCapacity,5);assert.equal(view.majorUsed,s.abilities?.slotted.length||0);return view;}
 
 test('ranked independent: all three complete ladders retain the rank-one API and expose honest unlearned/max-rank previews',()=>{
-  const s=fixture();assert.equal(current.VERSION,1);assert.deepEqual(current.ABILITY_RULES,{majorSlots:5});
+  const s=fixture();assert.equal(current.VERSION,2);assert.deepEqual(current.ABILITY_RULES,{majorSlots:5});
   assert.deepEqual(current.MAJOR_ABILITIES,accepted.MAJOR_ABILITIES);
   for(const id of ids){let entry=row(s,id);assert.equal(entry.currentRank,0);assert.equal(entry.maxRank,schedules[id].gates.length);assert.equal(entry.spentAp,0);
     assert.equal(entry.nextRank.rank,1);assert.equal(entry.nextRank.minLevel,0);assert.equal(entry.nextRank.apCost,schedules[id].costs[0]);
@@ -143,8 +144,8 @@ test('ranked independent: save gate and total AP budget cannot be bypassed by su
   for(const id of ids)for(let r=2;r<=schedules[id].gates.length;r++){const s=fixture(schedules[id].gates[r-1]-1);s.abilities={learned:[id],slotted:[id],ranks:{[id]:r}};
     s.earnedAp=999;s.hero.ap=999;s.abilityPoints=999;assert.throws(()=>current.validateSave(s),/能力配置/);assert.equal(current.abilityView(s).valid,false);}
   const low=fixture(1);low.abilities={learned:['hp-tank','mp-tank'],slotted:[]};assert.throws(()=>current.validateSave(low),/能力配置/);
-  for(const level of [1,25,30,100,200,350,500]){const legacy=fixture(level),returned=current.validateSave(clone(legacy));assert.deepEqual(returned,accepted.validateSave(clone(legacy)));assert.equal(Object.hasOwn(returned,'abilities'),false);
-    for(const id of ids.filter(id=>schedules[id].costs[0]<=level)){const allocated=allocate(clone(legacy),id);assert.deepEqual(current.validateSave(clone(allocated)),accepted.validateSave(clone(allocated)));assert.equal(Object.hasOwn(allocated.abilities,'ranks'),false);assert.deepEqual(current.stats(allocated),{...accepted.stats(allocated),parry:.035});}}
+  for(const level of [1,25,30,100,200,350,500]){const legacy=fixture(level),returned=current.validateSave(clone(legacy));assert.deepEqual(legacyState(returned),accepted.validateSave(legacyEnvelope(legacy)));assert.equal(Object.hasOwn(returned,'abilities'),false);
+    for(const id of ids.filter(id=>schedules[id].costs[0]<=level)){const allocated=allocate(clone(legacy),id);assert.deepEqual(legacyState(current.validateSave(clone(allocated))),accepted.validateSave(legacyEnvelope(allocated)));assert.equal(Object.hasOwn(allocated.abilities,'ranks'),false);assert.deepEqual(current.stats(allocated),{...accepted.stats(allocated),parry:.035});}}
   const learned=allocate(fixture(),'hp-tank',10),before=clone(learned);for(let i=0;i<4;i++){const loaded=current.validateSave(JSON.parse(json(learned)));assert.equal(ledger(loaded).spentAp,36);assert.deepEqual(loaded.abilities,learned.abilities);}assert.deepEqual(learned,before);
 });
 
@@ -181,17 +182,17 @@ test('ranked independent: historical pre-counter acquisition preserves v0.10 thr
   const results=[];
   for(const seed of [29,42,77]){
     const s=current.createGame(seed),old=accepted.createGame(seed);let steps=0,runs=0;const gates={};
-    const action=(name,payload)=>{current.act(s,name,payload);accepted.act(old,name,payload);assert.deepEqual(s,old);};
+    const action=(name,payload)=>{current.act(s,name,payload);accepted.act(old,name,payload);assert.deepEqual(legacyState(s),legacyState(old));};
     function camp(){for(const slot of ['weapon','armor','accessory']){const best=[s.equipment[slot],...s.inventory.filter(item=>item.slot===slot)].reduce((a,b)=>scoreItem(a)>=scoreItem(b)?a:b);if(best.id!==s.equipment[slot].id)action('equip',best.id);}
       if(s.inventory.length>50)for(const item of [...s.inventory])if(!item.locked)action('sell',item.id);
       if(s.hero.level>=4&&!s.abilities)for(const id of ids){action('learnAbility',id);action('slotAbility',id);}action('selectStage',Math.min(3,s.unlocked));}
     while(s.hero.level<30&&runs<1000){camp();const level=s.hero.level,wins=s.wins;
       if([24,29].includes(level)){const id=level===24?'hp-tank':'mp-tank';assert.equal(row(s,id).canUpgrade,false);gates[level]={xp:s.hero.xp,xpNext:s.hero.xpNext,wins:s.wins};}
-      action('start');for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){historicalV012.advance(s,1);accepted.advance(old,1);assert.deepEqual(s,old);steps++;}
+      action('start');for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){historicalV012.advance(s,1);accepted.advance(old,1);assert.deepEqual(legacyState(s),legacyState(old));steps++;}
       assert.equal(s.wins,wins+1,'natural cohort must win without fixture edits');runs++;action('retreat');ledger(s);
       if([24,29].includes(level)&&s.hero.level>level){const id=level===24?'hp-tank':'mp-tank';assert.equal(row(s,id).canUpgrade,true);const branch=clone(s),prior=ledger(branch);current.act(branch,'upgradeAbility',id);assert.equal(rank(branch,id),2);assert.equal(ledger(branch).availableAp,prior.availableAp-2);}
     }
-    assert.equal(s.hero.level,30);assert.ok(gates[24]&&gates[29]);assert.deepEqual(s,old);
+    assert.equal(s.hero.level,30);assert.ok(gates[24]&&gates[29]);assert.deepEqual(legacyState(s),legacyState(old));
     const profile=current.validateSave(clone(s)),pairs=[];
     for(const upgrades of [[],['hp-tank'],['mp-tank'],['hp-tank','mp-tank']]){const branch=clone(profile);for(const id of upgrades)current.act(branch,'upgradeAbility',id);
       const p=current.stats(branch),wins=branch.wins;assert.deepEqual(p,oracle(branch));assert.equal(branch.seed,profile.seed);assert.equal(branch.hero.gold,profile.hero.gold);assert.deepEqual(branch.equipment,profile.equipment);

@@ -257,3 +257,11 @@ The optional camp target-priority policies are independently designed idle-game 
 ## v0.22 observation-only adaptation
 
 Start-build report snapshots are independent session feedback, not an original-HV mechanic. Existing validated choices are observed without formula/effect/RNG/reward/save changes. Protection policy does not prove active buff; only slotted Major abilities are reported as enabled configuration.
+
+## v0.23 Soulbind investment boundary
+
+Current official Items revision67045 lists Soul Fragment base costs100 for Crude through Exquisite,250 Magnificent,500 Legendary and1000 Peerless; the additional cost is2% of that base per item level above the character. Older cached250-cost Superior/Exquisite tables are not current evidence. The Armory revision67000 / Equipment Basics describe nontradeable bound gear following character level. Conflicting original100-level eligibility wording is avoided by accepting only owned recognized axe/rapier/club items no higher than the character. No accessory/armor original-type mapping is fabricated.
+
+Normal-clear10fragment rewards, no historical grants, no fragment shop, and forbidding every disposal/unlock path are this game's adaptations. Original fragment shop price1000credits is not repurposed as a cheap credit damage upgrade. An explicit quote/confirmation preserves item identity/rolls/affixes/preset references; no automatic binding. Binding is not IW or forging, and no World Seeds/materials/charm rewards are invented in this slice.
+
+Effective levels/stats are recalculated from an immutable pre-binding displayed-stat anchor, retaining this game's level-scale model. Attack50/3 versus current wiki16.60027 is a deliberate compatibility approximation, not a claim of exact server precision; rate/parry2000, inventedHP12/defense20, whole-prefix scaling, existing rounding/caps and unrecoverable earlier rounding are documented in SOULBIND-GUIDE.md. Missing old parry remains missing. Version2 save protection, v1 migration withzero fragments, cache validation and old-reader rejection are engineering contracts, not original game mechanics.

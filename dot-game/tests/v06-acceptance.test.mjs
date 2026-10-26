@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import * as historicalV08 from './fixtures/v0.8/engine.js';
 import assert from 'node:assert/strict';
@@ -301,11 +302,11 @@ const log=(s,message)=>{s.logs.unshift(message);s.logs.length=Math.min(30,s.logs
 ${legacyValidatorSource.replace('export function validateSave','function validateSave')}
 validateSave;`,{createGame,stats,resolveWeaponFamily});
 
-test('v0.6 independent: real v0.5 downgrade drops opt-in only, then upgrade stays OFF and preserves ordinary items/gold/locks',()=>{
+test('v0.6 independent: v2 rejects in v0.5; historical v1 envelope drops opt-in only, then upgrade stays OFF and preserves ordinary items/gold/locks',()=>{
   assert.equal(sha256(legacyValidatorSource),'158ebd12a17bd231a586667d5cb4333bb1d46ad9e25b0b7f17221049a9199064');
   for(const family of [null,'axe','rapier','club','future']){
     const raw=fixture();raw.autoSell=true;raw.equipment.weapon.weaponFamily=family;raw.pendingLoot=[item('pending',{locked:true})];
-    const v6=validateSave(clone(raw)),v5=clone(validateOldV05(clone(v6)));assert.equal(Object.hasOwn(v5,'autoSell'),false);
+    const v6=validateSave(clone(raw));assert.throws(()=>validateOldV05(clone(v6)),/不支援/);const v5=clone(validateOldV05(legacyEnvelope(v6)));assert.equal(Object.hasOwn(v5,'autoSell'),false);
     for(const key of ['inventory','equipment','pendingLoot'])assert.deepEqual(v5[key],v6[key]);assert.equal(v5.hero.gold,v6.hero.gold);
     const upgraded=validateSave(v5);assert.equal(Object.hasOwn(upgraded,'autoSell'),false);
     for(const key of ['inventory','equipment','pendingLoot'])assert.deepEqual(upgraded[key],v6[key]);assert.equal(upgraded.hero.gold,v6.hero.gold);
@@ -313,10 +314,10 @@ test('v0.6 independent: real v0.5 downgrade drops opt-in only, then upgrade stay
   }
 });
 
-test('v0.6 independent: supported unknown names/family sentinel stay loaded, unlocked and ineligible through downgrade/upgrade',()=>{
+test('v0.6 independent: supported unknown names/family sentinel stay loaded, unlocked and ineligible through historical v1 downgrade/upgrade',()=>{
   const s=fixture();s.inventory.push(item('name',{name:'自訂未知裝備'}),item('family',{weaponFamily:'unsupported'}));
   const restored=validateSave(clone(s));assert.equal(restored.inventory.find(i=>i.id==='family').weaponFamily,null);
-  for(const state of [restored,validateSave(clone(validateOldV05(clone(restored))))]){
+  for(const state of [restored,validateSave(clone(validateOldV05(legacyEnvelope(restored))))]){
     for(const id of ['name','family']){assert.equal(state.inventory.find(i=>i.id===id).locked,false);assert.ok(!previewSafeSale(state).items.some(i=>i.id===id));}
     assert.equal(state.inventory.find(i=>i.id==='family').weaponFamily,null,'never revive family by reparsing name');
   }
@@ -339,11 +340,11 @@ test('v0.6 independent: item accessors, own prototype keys, symbols and inherite
   assert.equal(calls,0);
 });
 
-test('v0.6 independent: 270 ordinary known v0.5 generated exports import with same items, prices and lock bits',()=>{
+test('v0.6 independent: 270 ordinary known historical v1 v0.5 generated exports import with same items, prices and lock bits',()=>{
   for(const slot of ['weapon','armor','accessory'])for(const level of [1,3,30])for(let seed=1;seed<=30;seed++){
     let state=seed;const rng=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
     const s=createGame(seed),drop=generateItem(rng,level,slot);drop.id='loot-1';drop.locked=seed%2===0;s.inventory=[drop];s.hero.gold=seed*137;
-    const old=clone(validateOldV05(clone(s))),loaded=validateSave(clone(old));
+    const old=clone(validateOldV05(legacyEnvelope(s))),loaded=validateSave(clone(old));
     assert.deepEqual(loaded.inventory,old.inventory);assert.deepEqual(loaded.equipment,old.equipment);assert.equal(loaded.hero.gold,old.hero.gold);
     assert.equal(price(loaded.inventory[0]),price(drop));assert.equal(Object.hasOwn(loaded,'autoSell'),false);
   }

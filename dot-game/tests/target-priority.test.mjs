@@ -1,3 +1,4 @@
+import { legacyState } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -61,14 +62,14 @@ test('bleed stays on its applied enemy, terminal death settles once and next wav
   for(const e of s.enemies){if(e.hp>0){e.hp=1;e.bleeding={stacks:1,expiresAtTick:s.timing.ticks+7,damagePerTick:9};}}
   const wave=s.wave;advance(s,1.05);assert.equal(s.wave,wave+1);assert.ok(targetPriorityView(s).targetId);assert.ok(s.enemies.every(e=>e.hp>0));
 });
-test('default complete state, RNG and reports match frozen v0.20 across 12,000 steps',()=>{
+test('default state after root version/currency projection, RNG and reports match frozen v0.20 across 12,000 steps',()=>{
   // Generated once from accepted ee44bf5b2e270e9f71dc62a5567fe7f82053e93b
   // src/engine.js, independently before changing this assertion. This hashes
   // every complete state (including seed), transient report view and ordering.
   const digest=createHash('sha256');
   for(let seed=1;seed<=12;seed++)for(const stage of [1,3,5,6,10]){
     const s=createGame(seed);s.unlocked=stage;s.stage=stage;act(s,'targetPriority','front');act(s,'start');
-    for(let n=0;n<200;n++){advance(s,.25);digest.update(JSON.stringify({state:s,reports:expeditionReports(s).map(({build,...legacyReport})=>legacyReport)}));}
+    for(let n=0;n<200;n++){advance(s,.25);digest.update(JSON.stringify({state:legacyState(s),reports:expeditionReports(s).map(({build,...legacyReport})=>legacyReport)}));}
   }
   assert.equal(digest.digest('hex'),'a741b6841bc295dbfcd7e091055341ee4cf70e054892cf2ee46ace54cd0f9618');
 });

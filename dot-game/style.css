@@ -291,3 +291,28 @@
 .report-build-details summary { cursor: pointer; padding: 4px 0; color: #bfd1c5; }
 .report-build-details summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 .report-build-list { margin: 5px 0; padding-left: 18px; line-height: 1.7; }
+
+/* Permanent investment: visible balance, explicit preview, no automatic action. */
+.soulbind-panel { margin-bottom: 16px; padding: 16px; }
+.soulbind-panel .section-heading { flex-wrap: wrap; gap: 8px; }
+.soulbind-panel p, .soulbind-rules { font-size: 12px; line-height: 1.8; color: #b6c9be; }
+.soul-fragment-balance, .soulbind-cost { color: #d5b6ee; font-variant-numeric: tabular-nums; }
+.soul-fragment-balance { font-size: 12px; }
+.soulbind-rules summary { cursor: pointer; color: #d5b6ee; padding: 5px 0; }
+.soulbind-rules summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.gear-info .soulbound-badge { color: #d5b6ee; }
+.soulbind-protection { display: block; color: #d5b6ee; margin-top: 10px; }
+.soulbind-item-action { margin-top: 12px; }
+.soulbind-item-action button { min-height: 44px; }
+.soulbind-dialog { max-width: 620px; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.soulbind-item-name { overflow-wrap: anywhere; color: #d5b6ee; font-size: 20px; }
+.soulbind-comparison { background: #102027; padding: 10px 12px; border-radius: 7px; }
+.soulbind-stat-row { display: grid; grid-template-columns: minmax(70px, 1fr) repeat(2, minmax(0, 1fr)); gap: 8px; padding: 5px 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.soulbind-stat-row>* { overflow-wrap: anywhere; }
+.soulbind-stat-row>:not(:first-child) { text-align: right; }
+.soulbind-stat-heading { color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.soulbind-warning { border-left: 3px solid #b98ad5; padding-left: 12px; color: #ead3f5; }
+.soulbind-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.soulbind-actions>button { flex: 1 1 220px; font-size: 12px; }
+#soulbind-feedback, #soulbind-item-meta { overflow-wrap: anywhere; }
+@media(max-width:680px) { .soulbind-dialog { padding: 18px; } .soulbind-item-name { font-size: 18px; } }

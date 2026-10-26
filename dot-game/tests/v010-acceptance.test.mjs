@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import * as historicalV012 from './fixtures/v0.12/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -52,7 +53,7 @@ test('v0.10 independent: accepted baseline/historical loot and current session r
     ['./fixtures/v0.14/loot.js','458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc'],
     ['../src/session.js','821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a'],
   ])assert.equal(sha(readFileSync(new URL(path,import.meta.url))),digest,path);
-  assert.equal(current.VERSION,1);
+  assert.equal(current.VERSION,2);
 });
 
 test('v0.10 independent: rank-one source equations floor bases, exclude flat gear HP, cap proficiency and require both learning and slotting',()=>{
@@ -115,7 +116,7 @@ test('v0.10 independent: all allocation mutations refuse battle, intermission, d
   assert.deepEqual(s,before);
 });
 
-test('v0.10 independent: optional save allocation is strict, failure leaves input untouched, legacy omission stays omitted and old validators safely drop allocation',()=>{
+test('v0.10 independent: optional save allocation is strict, failure leaves input untouched, legacy omission stays omitted and old validators reject v2 and historical v1 validators safely drop allocation',()=>{
   const malformed=[undefined,null,false,0,'hp-tank',[],{},
     {learned:[],slotted:[],ap:999},{learned:['missing'],slotted:[]},
     {learned:['hp-tank','hp-tank'],slotted:[]},{learned:['hp-tank'],slotted:['hp-tank','hp-tank']},
@@ -134,10 +135,10 @@ test('v0.10 independent: optional save allocation is strict, failure leaves inpu
   assert.throws(()=>current.validateSave(accessor));assert.equal(invoked,0);
   for(const level of [1,4,500]) {
     const raw=fixture(level),before=clone(raw),restored=current.validateSave(raw);
-    assert.deepEqual(restored,accepted.validateSave(raw));assert.deepEqual(raw,before);
+    assert.throws(()=>accepted.validateSave(raw),/不支援/);assert.deepEqual(legacyState(restored),accepted.validateSave(legacyEnvelope(raw)));assert.deepEqual(raw,before);
     assert.equal(Object.hasOwn(restored,'abilities'),false);assert.deepEqual(current.stats(restored),{...accepted.stats(restored),parry:.035});
   }
-  const allocated=allocate(fixture()),before=clone(allocated),old=accepted.validateSave(JSON.parse(JSON.stringify(allocated)));
+  const allocated=allocate(fixture()),before=clone(allocated),old=accepted.validateSave(legacyEnvelope(allocated));
   assert.equal(Object.hasOwn(old,'abilities'),false);assert.equal(old.hero.gold,allocated.hero.gold);
   assert.deepEqual(old.equipment,allocated.equipment);assert.deepEqual(old.inventory,allocated.inventory);
   const returned=current.validateSave(old);assert.equal(ledger(returned).availableAp,returned.hero.level);
@@ -204,12 +205,12 @@ test('v0.10 independent: historical earned profiles and current paired growth ch
   for(let seed=1;seed<=3;seed++) {
     const old=accepted.createGame(seed),s=current.createGame(seed),family=['axe','rapier','club'][seed-1],strategy=['balanced','assault','sustain'][seed-1],dt=seed===1?.1:.25;
     const oldHash=createHash('sha256'),newHash=createHash('sha256');
-    const record=()=>{oldHash.update(JSON.stringify(old)+'\n');newHash.update(JSON.stringify(s)+'\n');ledger(s);};
+    const record=()=>{oldHash.update(JSON.stringify(old)+'\n');newHash.update(JSON.stringify(legacyState(s))+'\n');ledger(s);};
     const action=(name,payload)=>{accepted.act(old,name,payload);historicalV012.act(s,name,payload);record();};
     function expedition() {
       const wins=s.wins;action('start');
       for(let n=0;n<600/dt&&s.mode==='battle'&&s.wins===wins;n++) {accepted.advance(old,dt);historicalV012.advance(s,dt);record();trainingSteps++;}
-      assert.equal(s.wins,wins+1,'earned profile reaches the next camp without fixture boosts');assert.deepEqual(s,old);trainingRuns++;action('retreat');
+      assert.equal(s.wins,wins+1,'earned profile reaches the next camp without fixture boosts');assert.deepEqual(legacyState(s),legacyState(old));trainingRuns++;action('retreat');
     }
     function equipBest() {
       for(const slot of ['weapon','armor','accessory']) {
@@ -224,7 +225,7 @@ test('v0.10 independent: historical earned profiles and current paired growth ch
     }
     assert.ok(bought);action('setStrategy',strategy);
     for(const stage of [2,3]){action('selectStage',stage);expedition();}
-    assert.ok(s.hero.level>=4);assert.equal(oldHash.digest('hex'),newHash.digest('hex'));assert.deepEqual(s,old);
+    assert.ok(s.hero.level>=4);assert.equal(oldHash.digest('hex'),newHash.digest('hex'));assert.deepEqual(legacyState(s),legacyState(old));
     const profile=current.validateSave(JSON.parse(JSON.stringify(s))),initialSeed=profile.seed,initialGold=profile.hero.gold;
     const choices=[[],['hp-tank'],['mp-tank'],['one-handed-damage'],ids];
     const pairs=[];

@@ -147,7 +147,7 @@ const STAT_KEYS = Object.freeze(['attack', 'defense', 'hp', 'crit', 'evade', 'bl
 const RATES = new Set(['crit', 'evade', 'block']);
 const SAFE_LOOT_QUALITIES = new Set(['Crude', 'Fair', 'Average']);
 const ITEM_KEYS = new Set(['id', 'name', 'slot', 'weaponFamily', 'quality', 'rarityColor',
-  'level', 'roll', 'rolls', 'power', 'stats', 'locked', 'description', 'prefix', 'suffix']);
+  'level', 'roll', 'rolls', 'power', 'stats', 'locked', 'description', 'prefix', 'suffix', 'soulbound']);
 const STAT_KEY_SET = new Set(STAT_KEYS);
 const REQUIRED_ITEM_KEYS = ['id', 'name', 'slot', 'quality', 'level', 'power', 'stats', 'locked'];
 const OBJECT_PROTOTYPE_KEYS = new Set(Reflect.ownKeys(Object.prototype));
@@ -196,6 +196,7 @@ export function hasUnknownSaleMetadata(item) {
         if (!item.stats || !Object.hasOwn(item.stats, key) || !Number.isInteger(value) || value < 0 || value > 200) return true;
       }
     }
+    if (Object.hasOwn(item, 'soulbound') && !isSoulboundItem(item)) return true;
     return false;
   } catch { return true; }
 }
@@ -203,7 +204,7 @@ export function hasUnknownSaleMetadata(item) {
  * Optional historical diagnostic fields may be absent; supplied metadata must be
  * recognized, well-formed, and consistent with the complete generated name.
  */
-export function classifySafeLootItem(item) {
+function classifyItemIdentity(item) {
   try {
     if (!knownDataRecord(item, ITEM_KEYS) || !REQUIRED_ITEM_KEYS.every(key => Object.hasOwn(item, key)) || typeof item.id !== 'string' || !item.id || item.id.length > 100
       || typeof item.name !== 'string' || typeof item.locked !== 'boolean'
@@ -233,6 +234,87 @@ export function classifySafeLootItem(item) {
     return identity;
   } catch { return null; }
 }
+/** Valid bound weapons may be comparison keepers, never sale candidates. */
+export function classifySafeLootItem(item) {
+  const identity = classifyItemIdentity(item);
+  if (!identity || (Object.hasOwn(item, 'soulbound') && !isSoulboundItem(item))) return null;
+  return identity;
+}
+const SOULBOUND_KEYS = new Set(['version', 'level', 'stats']);
+const SOULBIND_COSTS = Object.freeze({ Crude:100, Fair:100, Average:100, Superior:100,
+  Exquisite:100, Magnificent:250, Legendary:500, Peerless:1000 });
+const validHeroLevel = level => Number.isInteger(level) && level >= 1 && level <= 500;
+function soulStatsValid(stats) {
+  return knownDataRecord(stats, STAT_KEY_SET) && Object.hasOwn(stats, 'attack') && stats.attack > 0
+    && Object.entries(stats).every(([key, value]) => typeof value === 'number' && Number.isFinite(value)
+      && value >= 0 && value <= (RATES.has(key) ? .16 : 1000000)
+      && (RATES.has(key) || key === 'parry' ? value === rounded(value) : Number.isInteger(value)));
+}
+// Preserve historical generated values rather than inventing unknown base rolls.
+// 50/3 is this game's historical ADB approximation, not the current wiki's exact
+// 16.60027 factor. HP/defense and scaling whole prefix contributions are adapters.
+function soulStatsAt(anchor, level) {
+  if (level === anchor.level) return { ...anchor.stats };
+  return Object.fromEntries(Object.entries(anchor.stats).map(([key, value]) => {
+    const scale = RATES.has(key) || key === 'parry' ? 2000 : key === 'attack' ? 50/3 : key === 'hp' ? 12 : 20;
+    const effective = value * (1 + level / scale) / (1 + anchor.level / scale);
+    return [key, RATES.has(key) ? rounded(clamp(effective, 0, .16))
+      : key === 'parry' ? rounded(effective) : Math.round(effective)];
+  }));
+}
+function sameStats(a, b) {
+  return Object.keys(a).length === Object.keys(b).length
+    && Object.keys(a).every(key => Object.hasOwn(b, key) && a[key] === b[key]);
+}
+// Positive level scaling is monotonic, including rounding and capped rates.
+// Admit only anchors whose full future growth fits the existing save schema;
+// otherwise a valid binding today could become unsavable on a later level-up.
+function soulAnchorSupportsMaxLevel(anchor) {
+  const stats = soulStatsAt(anchor, 500);
+  return soulStatsValid(stats) && scoreItem({ stats }) <= 1000000;
+}
+/** Structural integrity, not a cryptographic claim about user-editable saves. */
+export function isSoulboundItem(item) {
+  try {
+    if (!classifyItemIdentity(item) || item.slot !== 'weapon' || !validHeroLevel(item.level)
+      || item.locked !== true || !Object.hasOwn(item, 'soulbound')) return false;
+    const anchor = item.soulbound;
+    if (!knownDataRecord(anchor, SOULBOUND_KEYS) || Object.keys(anchor).length !== 3
+      || anchor.version !== 1 || !validHeroLevel(anchor.level) || anchor.level > item.level
+      || !soulStatsValid(anchor.stats) || !soulStatsValid(item.stats)
+      || !soulAnchorSupportsMaxLevel(anchor)) return false;
+    const expected = soulStatsAt(anchor, item.level);
+    return sameStats(expected, item.stats) && item.power === scoreItem({ stats: expected });
+  } catch { return false; }
+}
+/** Pure quote; already-bound, unknown, overlevel and unsupported items have no offer. */
+export function soulbindCost(item, playerLevel) {
+  try {
+    if (!validHeroLevel(playerLevel) || !classifyItemIdentity(item) || hasUnknownSaleMetadata(item)
+      || Object.hasOwn(item, 'soulbound') || item.slot !== 'weapon' || item.level > playerLevel
+      || !soulStatsValid(item.stats) || item.power !== scoreItem(item)) return null;
+    // Binding is permanent: all future levels, not only today's quote, must fit.
+    if (!soulAnchorSupportsMaxLevel({ level:item.level, stats:item.stats })) return null;
+    return SOULBIND_COSTS[item.quality] ?? null;
+  } catch { return null; }
+}
+function soulboundCopy(item, anchor, level) {
+  const stats = soulStatsAt(anchor, level);
+  const power = scoreItem({ stats });
+  if (!soulStatsValid(stats) || power > 1000000) return null;
+  const soulbound = Object.freeze({ version:1, level:anchor.level, stats:Object.freeze({ ...anchor.stats }) });
+  return { ...item, ...(Object.hasOwn(item, 'rolls') ? { rolls:{ ...item.rolls } } : {}),
+    level, stats, power, locked:true, soulbound };
+}
+export function createSoulboundItem(item, playerLevel) {
+  if (soulbindCost(item, playerLevel) === null) return null;
+  return soulboundCopy(item, { level:item.level, stats:item.stats }, playerLevel);
+}
+/** Validate old cache first, then derive from the original immutable anchor. */
+export function scaleSoulboundItem(item, playerLevel) {
+  if (!validHeroLevel(playerLevel) || !isSoulboundItem(item) || playerLevel < item.soulbound.level) return null;
+  return soulboundCopy(item, item.soulbound, playerLevel);
+}
 /** Returns evidence, never sells. Caller must supply only currently equipped or
  * explicitly locked inventory keepers and must exclude equipped candidates.
  * Missing implemented stats mean zero; equality and every tradeoff are retained.
@@ -240,7 +322,7 @@ export function classifySafeLootItem(item) {
 export function dominanceWitness(candidate, keepers) {
   try {
     const identity = classifySafeLootItem(candidate);
-    if (!identity || candidate.locked !== false || !SAFE_LOOT_QUALITIES.has(candidate.quality) || !Array.isArray(keepers)) return null;
+    if (!identity || Object.hasOwn(candidate, 'soulbound') || candidate.locked !== false || !SAFE_LOOT_QUALITIES.has(candidate.quality) || !Array.isArray(keepers)) return null;
     // Reject self-comparison even if another supplied keeper could dominate it.
     if (keepers.some(keeper => keeper === candidate || (keeper && typeof keeper === 'object'
       && Object.getOwnPropertyDescriptor(keeper, 'id')?.value === candidate.id))) return null;
@@ -263,6 +345,7 @@ export function dominanceWitness(candidate, keepers) {
 }
 /** Existing individual-sale formula, not an eligibility or dominance score. */
 export function itemSalePrice(item) {
+  if (item && typeof item === 'object' && 'soulbound' in item) return 0;
   const level = item?.level, power = item?.power;
   if (typeof level !== 'number' || !Number.isFinite(level) || typeof power !== 'number' || !Number.isFinite(power)) return 0;
   const price = Math.max(1, Math.round(level * 3 + power));

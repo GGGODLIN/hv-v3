@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import * as historicalV012 from './fixtures/v0.12/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -78,7 +79,7 @@ for(const skill of [false,true])test(`v0.9 independent: ${skill?'skill':'basic'}
 test('v0.9 independent: terminal bleed pays actual HP once and suppresses queued recovery/player/enemy actions',()=>{
   const s=battle({hp:3,bleeding:{stacks:1,expiresAtTick:7,damagePerTick:1000},stunRecoveryPending:true});
   s.timing={turns:0,ticks:6,tu:699};s._clock=1.04;s._enemyClock=1.89;
-  const plain=clone(s);baseline.advance(plain,.02);current.advance(s,.02);assert.deepEqual(s,plain);
+  const plain=clone(s);baseline.advance(plain,.02);current.advance(s,.02);assert.deepEqual(legacyState(s),legacyState(plain));
   const report=reports(s)[0];assert.equal(report.outcome,'win');assert.deepEqual(report.damage,{basic:0,skill:0,bleed:3});
   assert.deepEqual(report.procs,{penetratedArmor:0,stun:0,bleeding:0});assert.equal(report.actions.attacks,0);
   assert.equal(report.survival.hpLost,0);assert.equal(s.wins,1);assert.equal(s.kills,1);
@@ -88,7 +89,7 @@ test('v0.9 independent: terminal bleed pays actual HP once and suppresses queued
 
 test('v0.9 independent: fatal stun recovery caps incoming HP and settles defeat before repeated retreat',()=>{
   const s=battle({attack:1e9,stunRecoveryPending:true});s.hero.hp=.625;s._clock=1.04;s._enemyClock=1.89;
-  const plain=clone(s);baseline.advance(plain,.02);current.advance(s,.02);assert.deepEqual(s,plain);
+  const plain=clone(s);baseline.advance(plain,.02);current.advance(s,.02);assert.deepEqual(legacyState(s),legacyState(plain));
   const report=reports(s)[0];assert.equal(report.outcome,'defeat');assert.equal(report.survival.hpLost,.625);
   assert.equal(report.survival.minHpPercent,0);assert.equal(report.actions.attacks,0);assert.equal(report.actions.heals,0);
   assert.equal(s.events.filter(event=>event.target==='hero').length,1);
@@ -100,7 +101,7 @@ test('v0.9 independent: report metadata cannot survive JSON reload, cloning, for
   const raw=JSON.parse(JSON.stringify(s));
   // Serialized gameplay retains elapsed/timing until validation; compare both
   // validators rather than introducing any new persistent report allowlist.
-  const restored=current.validateSave(raw);assert.deepEqual(restored,baseline.validateSave(raw));
+  const restored=current.validateSave(raw);assert.throws(()=>baseline.validateSave(raw),/不支援/);assert.deepEqual(legacyState(restored),baseline.validateSave(legacyEnvelope(raw)));
   for(const state of [clone(s),restored,current.createGame(42),current.validateSave({...raw,
     reports:reports(s),expeditionReports:reports(s),_expeditionFeedback:{active:reports(s)[0],reports:reports(s)}})])assert.deepEqual(reports(state),[]);
   assert.equal(JSON.stringify(s).includes('hpLost'),false);assert.equal(reports(s).length,1);
@@ -154,7 +155,7 @@ test('v0.9 historical: 20 pre-counter routes preserve full-state/RNG fingerprint
   for(let seed=1;seed<=20;seed++) {
     const old=baseline.createGame(seed),s=current.createGame(seed),family=['axe','rapier','club'][(seed-1)%3];
     const cadence=seed%2?.1:.25,oldHash=createHash('sha256'),newHash=createHash('sha256');
-    const record=()=>{oldHash.update(JSON.stringify(old)+'\n');newHash.update(JSON.stringify(s)+'\n');};
+    const record=()=>{oldHash.update(JSON.stringify(old)+'\n');newHash.update(JSON.stringify(legacyState(s))+'\n');};
     const action=(name,payload)=>{baseline.act(old,name,payload);current.act(s,name,payload);record();};
     function expedition({retreatAt=null}={}) {
       const wins=old.wins;action('start');assert.equal(old.mode,'battle');const oracle=observeBaseline(old);
@@ -164,7 +165,7 @@ test('v0.9 historical: 20 pre-counter routes preserve full-state/RNG fingerprint
       }
       assert.ok(old.wins>wins||old.mode==='defeat'||old.mode==='town','natural expedition must terminate');
       const outcome=old.wins>wins?'win':old.mode==='defeat'?'defeat':'retreat',expected=oracle.finish(outcome);
-      assertReport(reports(s)[0],expected);assert.deepEqual(s,old);expeditions++;if(outcome==='defeat')defeats++;
+      assertReport(reports(s)[0],expected);assert.deepEqual(legacyState(s),legacyState(old));expeditions++;if(outcome==='defeat')defeats++;
       coverage.bleed+=expected.damage.bleed;coverage.stun+=expected.procs.stun;coverage.penetratedArmor+=expected.procs.penetratedArmor;
       return outcome;
     }

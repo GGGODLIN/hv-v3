@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGame,act,advance,stats,validateSave,abilityView,MAJOR_ABILITIES} from '../src/engine.js';
@@ -186,14 +187,14 @@ test('ranked abilities: save roundtrips retain inactive rank costs without trust
   assert.throws(()=>validateSave(overBudget),/能力配置/);delete overBudget.abilities.ranks;
   assert.throws(()=>validateSave(overBudget),/能力配置/);overBudget.hero.level=4;
   assert.equal(abilityView(validateSave(overBudget)).availableAp,0);
-  assert.throws(()=>legacy.validateSave(s),/能力配置/,'v0.10 safely rejects newer rank metadata rather than silently deleting it');
+  assert.throws(()=>legacy.validateSave(s),/不支援/,'v0.10 rejects version 2 outright');assert.throws(()=>legacy.validateSave(legacyEnvelope(s)),/能力配置/,'historical v1 envelope safely rejects newer rank metadata rather than silently deleting it');
 });
 
-for(const selected of [[],['hp-tank'],['mp-tank'],['one-handed-damage'],ids])test(`ranked abilities: frozen v0.10 rank-zero/one actions, saves and pre-loot gameplay stay byte-identical (${selected.join('+')||'none'})`,()=>{
-  let current=profile(25,7.654321),old=legacy.validateSave(copy(current));
+for(const selected of [[],['hp-tank'],['mp-tank'],['one-handed-damage'],ids])test(`ranked abilities: frozen v0.10 rank-zero/one actions, saves and pre-loot gameplay stay byte-identical after root version/currency projection (${selected.join('+')||'none'})`,()=>{
+  let current=profile(25,7.654321),old=legacy.validateSave(legacyEnvelope(current));
   // Normalize equal load logs once before starting the differential sequence.
-  current=validateSave(copy(current));assert.deepEqual(current,old);
-  const apply=(action,payload)=>{act(current,action,payload);legacy.act(old,action,payload);assert.equal(serialized(current),serialized(old));assert.deepEqual(stats(current),{...legacy.stats(old),parry:.035});};
+  current=validateSave(copy(current));assert.deepEqual(legacyState(current),legacyState(old));
+  const apply=(action,payload)=>{act(current,action,payload);legacy.act(old,action,payload);assert.equal(serialized(legacyState(current)),serialized(old));assert.deepEqual(stats(current),{...legacy.stats(old),parry:.035});};
   for(const id of selected){apply('learnAbility',id);apply('slotAbility',id);assert.equal(Object.hasOwn(current.abilities,'ranks'),false);}
   apply('start');
   // Keep this old-gear differential combat free of rewards: new rapier generation
@@ -201,8 +202,8 @@ for(const selected of [[],['hp-tank'],['mp-tank'],['one-handed-damage'],ids])tes
   for(const state of [current,old])for(const enemy of state.enemies){enemy.hp=1e9;enemy.maxHp=1e9;}
   for(let tick=0;tick<400&&current.mode==='battle'&&!current.wins;tick++){
     const before=serialized(current);abilityView(current);assert.equal(serialized(current),before);
-    advance(current,.1);legacy.advance(old,.1);assert.equal(serialized(current),serialized(old));
+    advance(current,.1);legacy.advance(old,.1);assert.equal(serialized(legacyState(current)),serialized(old));
   }
-  apply('retreat');assert.deepEqual(validateSave(copy(current)),legacy.validateSave(copy(old)));
+  apply('retreat');assert.deepEqual(legacyState(validateSave(copy(current))),legacy.validateSave(copy(old)));
   for(const id of selected){apply('unslotAbility',id);apply('slotAbility',id);apply('refundAbility',id);}
 });

@@ -190,7 +190,7 @@ test('v0.5 saves restore progress but never import encounter roles or role-like 
   raw.enemies[0].roleId='spoof';raw.enemies[0].defense=1e6;raw.enemies[0].stunRecoveryPending=true;
   const before=clone(raw);assert.throws(()=>validateSave(raw));assert.deepEqual(raw,before,'unsupported item extension must not be stripped or rewrite the input');
   delete raw.equipment.weapon.roleId;const restored=validateSave(raw);
-  assert.equal(restored.version,1);assert.equal(restored.mode,'town');assert.deepEqual(restored.enemies,[]);
+  assert.equal(restored.version,2);assert.equal(restored.mode,'town');assert.deepEqual(restored.enemies,[]);
   assert.equal(restored.roleId,undefined);assert.equal(restored.equipment.weapon.roleId,undefined);
   assert.equal(restored.hero.gold,s.hero.gold);assert.equal(restored.stage,4);assert.equal(restored.seed,s.seed);
   assert.equal(restored.hero.hp,stats(restored).maxHp);

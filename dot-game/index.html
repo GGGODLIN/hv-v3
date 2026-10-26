@@ -8,7 +8,7 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.22 · 持續開發</span></h1></span></a>
+    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.23 · 持續開發</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -53,7 +53,7 @@
       <section class="camp-workspace" aria-label="營地與遠征工具">
         <div class="camp-navigation" role="tablist" aria-label="切換營地工具">
           <button type="button" id="camp-tab-battle" role="tab" aria-selected="true" aria-controls="camp-panel-battle" tabindex="0">戰況<span>反擊 · 戰報</span></button>
-          <button type="button" id="camp-tab-gear" role="tab" aria-selected="false" aria-controls="camp-panel-gear" tabindex="-1">配裝<span>方案 · 委託</span></button>
+          <button type="button" id="camp-tab-gear" role="tab" aria-selected="false" aria-controls="camp-panel-gear" tabindex="-1">配裝<span>綁定 · 方案 · 委託</span></button>
           <button type="button" id="camp-tab-growth" role="tab" aria-selected="false" aria-controls="camp-panel-growth" tabindex="-1">成長<span id="growth-tab-summary">AP · 能力</span></button>
         </div>
         <p class="camp-navigation-hint">出戰與背包常駐；切換工具不會暫停戰鬥。</p>
@@ -79,12 +79,18 @@
       <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
         </div>
         <div id="camp-panel-gear" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-gear" tabindex="0" hidden>
+      <section class="soulbind-panel panel" aria-labelledby="soulbind-heading">
+        <div class="section-heading"><h3 id="soulbind-heading">Soulbind · 靈魂綁定</h3><strong id="soul-fragment-balance" class="soul-fragment-balance">0 靈魂碎片</strong></div>
+        <p>將原有武器永久綁定，立即對齊角色等級，之後隨升級成長。不能解除、解鎖或出售；不是必選強化。</p>
+        <p id="soulbind-status"></p>
+        <details class="soulbind-rules"><summary>碎片來源、品質費用與本作適配</summary><p>每次正常通關取得 10 靈魂碎片，是本作掛機節奏改編；持有上限 1,000,000,000。撤退、戰敗不發放。舊存檔從 0 開始，不補發歷史獎勵。靈魂碎片不是金幣或 AP。</p><p>沿用原版基礎費用：精良（Exquisite）以下 100、華麗（Magnificent）250、傳奇（Legendary）500、無雙（Peerless）1,000 碎片。本版只支援可辨識且原本裝備等級不高於角色的戰斧、刺劍、戰棍；已鎖定或配裝引用中的武器也能綁定。待領戰利品須先領入背包。</p><p>依綁定前的原始等級與屬性基準成長，不重新抽取品質，也不替舊裝補造招架值。此縮放是本作適配，不是完整原版成長公式；未實作 Item World 或鍛造。</p></details>
+      </section>
       <section class="camp-gear-sets panel" aria-labelledby="gear-set-heading" aria-describedby="gear-set-intro">
         <div class="section-heading"><h3 id="gear-set-heading">營地配裝方案</h3><span class="badge">3 份裝備記錄</span></div>
         <p id="gear-set-intro" class="gear-set-note">先穿好裝備，再按「鎖定並儲存目前配裝」。方案引用原有裝備，不複製物品；下次預覽後即可一次換上三件。</p>
         <p id="gear-set-status" class="gear-set-note"></p><div id="gear-set-choices" class="gear-set-choices"></div>
         <p id="gear-set-feedback" class="gear-set-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-        <details class="gear-set-rules"><summary>鎖定保護與本版範圍</summary><p>方案中的裝備不能解鎖或出售，包含安全整理與自選出售。覆寫或清除方案只修改記錄，舊裝備仍鎖定；不再被任何方案使用後，才可自行解鎖。不會自動丟棄舊裝。</p><p>三份裝備方案參考原版起始配裝數量，但這裡只儲存武器、護甲與飾品的 ID，是本作適配；不是完整原版 Equipment Sets 或 Personas。能力、戰術、屬性與道具不隨方案切換。遺失或不符的裝備不會被補造，整套都不會套用；背包滿時仍可交換原有裝備。</p><p>請更新舊分頁再接手。v0.13 等舊版可能丟棄配裝記錄，但原有裝備鎖定仍保留；來源備份不代替瀏覽器存檔，請定期匯出。</p></details>
+        <details class="gear-set-rules"><summary>鎖定保護與本版範圍</summary><p>方案中的裝備不能解鎖或出售，包含安全整理與自選出售。覆寫或清除方案只修改記錄，舊裝備仍鎖定；非靈魂綁定裝備不再被任何方案使用後，才可自行解鎖。靈魂綁定裝備永久不能解鎖或出售。不會自動丟棄舊裝。</p><p>三份裝備方案參考原版起始配裝數量，但這裡只儲存武器、護甲與飾品的 ID，是本作適配；不是完整原版 Equipment Sets 或 Personas。能力、戰術、屬性與道具不隨方案切換。遺失或不符的裝備不會被補造，整套都不會套用；背包滿時仍可交換原有裝備。</p><p>請更新舊分頁再接手。v0.13 等舊版可能丟棄配裝記錄，但原有裝備鎖定仍保留；來源備份不代替瀏覽器存檔，請定期匯出。</p></details>
       </section>
       <section class="weapon-commission panel" aria-labelledby="commission-heading">
         <div class="section-heading"><h3 id="commission-heading">武器委託</h3><span class="badge">本作獨立機制</span></div>
@@ -142,6 +148,17 @@
   <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。支援背景線上掛機；關閉後不計離線收益。</span><span id="tab-status"></span></footer>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
+<dialog id="soulbind-dialog" class="soulbind-dialog" aria-labelledby="soulbind-title" aria-describedby="soulbind-warning">
+  <div class="dialog-heading"><h2 id="soulbind-title">確認永久靈魂綁定</h2><button data-close="soulbind-dialog" aria-label="關閉靈魂綁定預覽">✕</button></div>
+  <p id="soulbind-item-meta" class="muted"></p><h3 id="soulbind-item-name" class="soulbind-item-name"></h3><p id="soulbind-level"></p>
+  <div id="soulbind-comparison" class="soulbind-comparison" aria-label="這件武器綁定前後的七項屬性"></div>
+  <p class="muted">只比較這件武器，不是角色總值或傷害保證；招架值不是百分比。未列屬性顯示 0，不會補造屬性。</p>
+  <p id="soulbind-cost" class="soulbind-cost"></p>
+  <p id="soulbind-warning" class="soulbind-warning">永久投資：碎片不退還，不能解除、解鎖或出售（含安全整理、自選出售）。保留原有武器與所在位置，不會自動換裝。</p>
+  <p class="muted">綁定後立即對齊目前角色等級，之後依原始綁定基準隨升級成長；不重新抽取品質。成長縮放為本作適配，不是完整原版公式。</p>
+  <p id="soulbind-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+  <div class="soulbind-actions"><button data-close="soulbind-dialog" class="secondary-button" autofocus>取消，不變更</button><button id="soulbind-confirm" class="primary-button" disabled>確認永久綁定</button></div>
+</dialog>
 <dialog id="gear-set-dialog" class="gear-set-dialog" aria-labelledby="gear-set-title" aria-describedby="gear-set-summary"><div class="dialog-heading"><h2 id="gear-set-title">預覽配裝</h2><button data-close="gear-set-dialog" aria-label="關閉配裝預覽">✕</button></div><p id="gear-set-summary"></p><ol id="gear-set-items"></ol><div id="gear-set-stats"></div><p id="gear-set-dialog-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="gear-set-dialog-actions"><button data-close="gear-set-dialog" class="secondary-button" autofocus>取消，不變更</button><button id="gear-set-confirm" class="primary-button" disabled>確認套用配裝</button></div></dialog>
 <dialog id="selected-sale-dialog" class="safe-sale-dialog" aria-labelledby="selected-sale-title" aria-describedby="selected-sale-summary"><div class="dialog-heading"><h2 id="selected-sale-title">確認自行選取出售</h2><button data-close="selected-sale-dialog" aria-label="關閉自選出售預覽">✕</button></div><p id="selected-sale-summary" class="safe-sale-summary"></p><ol id="selected-sale-list" class="safe-sale-list"></ol><p id="selected-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="selected-sale-dialog" class="secondary-button" autofocus>取消，保留裝備</button><button id="selected-sale-confirm" class="primary-button" disabled>確認自選出售</button></div></dialog>
 <dialog id="safe-sale-dialog" class="safe-sale-dialog" aria-labelledby="safe-sale-title" aria-describedby="safe-sale-summary"><div class="dialog-heading"><h2 id="safe-sale-title">確認安全整理</h2><button data-close="safe-sale-dialog" aria-label="關閉整理預覽">✕</button></div><p id="safe-sale-summary" class="safe-sale-summary"></p><ol id="safe-sale-list" class="safe-sale-list"></ol><p id="safe-sale-feedback" role="status" aria-live="polite" aria-atomic="true"></p><div class="safe-sale-actions"><button data-close="safe-sale-dialog" class="secondary-button" autofocus>取消，返回背包</button><button id="safe-sale-confirm" class="primary-button" disabled>確認出售</button></div></dialog>
@@ -156,6 +173,6 @@
   <div class="commission-actions"><button data-close="commission-dialog" class="secondary-button" autofocus>取消，返回營地</button><button id="commission-confirm" class="primary-button" disabled>確認委託</button></div>
 </dialog>
 <dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>回營配置能力。</strong>AP 學習與裝入能力槽是兩個步驟；5 格 Major 槽免費，可免費遺忘退還 AP。達到下一階門檻後可花額外 AP 升階，但未裝配仍不生效。營地能力區分開列出本階與下一階的假設裝配預覽，預設不自動配置。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景掛機預設開啟；瀏覽器可能節流，關閉後無離線收益。停頓超過 5 秒整段不補算。</p><p class="muted">目前實作 HP Tank／MP Tank 各 10 階與 1H Damage 3 階，仍不是完整原版能力樹；其他能力後續擴充。營地免費重配、固定裝備 HP 加在 Tank 之後，以及自動治癒／藥水／換波恢復按最大 HP 計算，皆為本作整合或既有改編；Tank 會提升這些恢復量，不代表原版 Cure 規則。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
-<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><p class="save-version-warning">升階前請匯出備份。v0.10 舊分頁無法讀取 Rank 2 以上的能力資料；請重新整理所有舊版分頁，再接手進度，避免舊版覆寫。此版仍沿用 v3 存檔命名空間。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
+<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><p class="save-version-warning">v0.23 使用資料格式 v2；舊資料格式 v1 會升級，靈魂碎片從 0 開始。請先匯出備份並重新整理所有舊版分頁，再接手進度：v0.22 及更舊版不能讀取新格式，不要用舊分頁覆寫。仍沿用 v3 儲存命名空間，與資料格式版本不同。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
 <script type="module" src="./src/ui.js"></script>
 </body></html>

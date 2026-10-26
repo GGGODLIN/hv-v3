@@ -239,7 +239,10 @@ test('historical pre-parry: v0.5 independent: unchanged resolver/rewards and his
     ['recoverStunnedEnemies','3793f627724f1f5063ada2aa8133bb666fa0304b8ec072fbba06800a94eb33c8'],
     ['usePotion','f206089133516eacdb5c692b555de6909acd22326248522db65ab34c846be842'],
   ])assert.equal(sha256(region(['resolveAttack','enemyAttack','enemyTurn','recoverStunnedEnemies'].includes(name)?historicalV081Source:source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
-  assert.equal(sha256(region(source,'function gainXp','function win')),'b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4','unchanged XP/death rewards');
+  // v0.23 adds bound-item synchronization inside gainXp. Preserve the original
+  // byte guard against accepted v0.22; current rewards retain behavioral coverage.
+  const historicalV022Source=readFileSync(new URL('./fixtures/v0.22/engine.js',import.meta.url),'utf8');
+  assert.equal(sha256(region(historicalV022Source,'function gainXp','function win')),'b9ad55e991bff755212815b09077b4465992fe72ca51158ca12cd1129033aba4','historical pre-soulbind XP/death reward source');
   // v0.7 shares arithmetic between random drops and the fixed commission.
   // These complete-output/RNG baselines were independently rerun against the
   // accepted v0.6 loot.js (5d3d97d8…); not new hashes of candidate source.

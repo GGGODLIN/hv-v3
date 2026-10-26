@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import * as historicalV012 from './fixtures/v0.12/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -75,9 +76,9 @@ test('selected independent: pending refill preserves exactly the old FIFO path a
   sell(s,ids);assert.deepEqual(withoutLogs(s),withoutLogs(expected));assert.equal(s.inventory.length,120);assert.deepEqual(s.pendingLoot.map(i=>i.id),['pending-c']);
 });
 
-test('selected independent: manual selection is transient and leaves existing save schema unchanged',()=>{
+test('selected independent: manual selection is transient within schema v2; historical v1 reader rejects v2',()=>{
   const s=fixture(),before=game.validateSave(clone(s));quote(s,['chosen-a']);assert.deepEqual(game.validateSave(clone(s)),before);
-  sell(s,['chosen-a']);const current=game.validateSave(clone(s)),old=previous.validateSave(clone(s));assert.deepEqual(current,old);assert.equal(Object.hasOwn(current,'selectedSale'),false);
+  sell(s,['chosen-a']);const current=game.validateSave(clone(s));assert.throws(()=>previous.validateSave(clone(s)),/不支援/);const old=previous.validateSave(legacyEnvelope(s));assert.deepEqual(legacyState(current),old);assert.equal(Object.hasOwn(current,'selectedSale'),false);
 });
 
 // All acquisition uses normal public actions and simulation, not a level, loot,
@@ -89,19 +90,19 @@ test('selected independent: historical loot acquisition then current batch equal
   const results=[];
   for(const seed of [29,42,77]){
     const s=game.createGame(seed),old=previous.createGame(seed);let steps=0;
-    const action=(name,payload)=>{game.act(s,name,payload);previous.act(old,name,payload);assert.deepEqual(s,old);};
+    const action=(name,payload)=>{game.act(s,name,payload);previous.act(old,name,payload);assert.deepEqual(legacyState(s),legacyState(old));};
     for(let run=0;run<30;run++){
       for(const slot of ['weapon','armor','accessory']){const best=[s.equipment[slot],...s.inventory.filter(i=>i.slot===slot)].reduce((a,b)=>scoreItem(a)>=scoreItem(b)?a:b);if(best.id!==s.equipment[slot].id)action('equip',best.id);}
       if(s.hero.level>=4&&!s.abilities)for(const id of ['hp-tank','mp-tank','one-handed-damage']){action('learnAbility',id);action('slotAbility',id);}
       action('selectStage',Math.min(3,s.unlocked));const wins=s.wins;action('start');
-      for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){historicalV012.advance(s,1);previous.advance(old,1);assert.deepEqual(s,old);steps++;}
+      for(let n=0;n<600&&s.mode==='battle'&&s.wins===wins;n++){historicalV012.advance(s,1);previous.advance(old,1);assert.deepEqual(legacyState(s),legacyState(old));steps++;}
       assert.equal(s.wins,wins+1);action('retreat');
     }
     const ids=s.inventory.filter(i=>!i.locked).slice(0,12).map(i=>i.id);assert.equal(ids.length,12);const prices=ids.map(id=>itemSalePrice(s.inventory.find(i=>i.id===id))),before=clone(s),expected=clone(s);
     const high=ids.filter(id=>!['Crude','Fair','Average'].includes(s.inventory.find(i=>i.id===id).quality)).length;assert.ok(high>0);
     const safeBefore=game.previewSafeSale(s);quote(s,ids);assert.deepEqual(game.previewSafeSale(s),safeBefore);
     for(const id of ids)previous.act(expected,'sell',id);sell(s,ids);assert.deepEqual(withoutLogs(s),withoutLogs(expected));
-    assert.deepEqual(game.validateSave(clone(s)),previous.validateSave(clone(s)));
+    assert.deepEqual(legacyState(game.validateSave(clone(s))),previous.validateSave(legacyEnvelope(s)));
     results.push({seed,wins:before.wins,level:before.hero.level,steps,inventoryBefore:before.inventory.length,inventoryAfter:s.inventory.length,selected:ids.length,selectedAboveAverage:high,credited:prices.reduce((a,b)=>a+b,0),unchangedSeed:s.seed===before.seed});
   }
   t.diagnostic(JSON.stringify({kind:'engine-earned-not-browser-earned',runs:90,results}));

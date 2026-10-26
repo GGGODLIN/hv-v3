@@ -1,3 +1,4 @@
+import { legacyState } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -7,9 +8,10 @@ import * as baseline from './fixtures/v0.21/engine.js';
 
 const copy=structuredClone;
 const baselineRoot=new URL('./fixtures/v0.21/',import.meta.url);
-// The only intended report delta. No state field, RNG, damage or reward is omitted.
+// Historical report delta is build; v023 state comparisons project only root version/currency.
+// No item/stat, RNG, damage, event, log or historical reward is omitted.
 const historicalReports=s=>game.expeditionReports(s).map(({build,...report})=>report);
-function equalPair(a,b){assert.deepEqual(a,b);assert.equal(a.seed,b.seed);assert.equal(JSON.stringify(a),JSON.stringify(b));assert.deepEqual(historicalReports(a),baseline.expeditionReports(b));}
+function equalPair(a,b){assert.deepEqual(legacyState(a),legacyState(b));assert.equal(a.seed,b.seed);assert.equal(JSON.stringify(legacyState(a)),JSON.stringify(legacyState(b)));assert.deepEqual(historicalReports(a),baseline.expeditionReports(b));}
 const enemy=(extra={})=>({id:'audit-actor',name:'Audit actor',hp:100000,maxHp:100000,attack:35,defense:0,evade:0,parry:0,block:0,...extra});
 
 test('v022 independent audit: own published v021 baseline has unchanged source identities',()=>{
@@ -17,7 +19,7 @@ test('v022 independent audit: own published v021 baseline has unchanged source i
   assert.equal(createHash('sha256').update(readFileSync(new URL(name,baselineRoot))).digest('hex'),hash);
 });
 
-test('v022 independent audit: natural default and chosen-policy fights retain every state byte, RNG and historical report field',()=>{
+test('v022 independent audit: natural default and chosen-policy fights retain every projected state byte (root version/currency only), RNG and historical report field',()=>{
  for(const seed of [1,29,42,77])for(const stage of [1,4,5,6])for(const policy of ['front','caster','weakest']){
   const a=game.createGame(seed),b=baseline.createGame(seed);
   for(const [api,s] of [[game,a],[baseline,b]]){s.unlocked=6;s.stage=stage;api.act(s,'targetPriority',policy);api.act(s,'start');}
@@ -27,7 +29,7 @@ test('v022 independent audit: natural default and chosen-policy fights retain ev
    game.advance(a,.1);baseline.advance(b,.1);equalPair(a,b);
   }
   game.act(a,'retreat');baseline.act(b,'retreat');equalPair(a,b);
-  assert.deepEqual(game.validateSave(copy(a)),baseline.validateSave(copy(b)));
+  assert.deepEqual(legacyState(game.validateSave(copy(a))),baseline.validateSave(copy(b)));
  }
 });
 

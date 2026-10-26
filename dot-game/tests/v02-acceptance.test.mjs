@@ -36,7 +36,7 @@ test('v0.2 independent: strategies give no instant stats or resources; are camp-
   }
   act(s,'start');const before=clone(s);act(s,'setStrategy','assault');assert.deepEqual(s,before);
   const legacy=clone(s);delete legacy.strategy;delete legacy.battle.actions;
-  const restored=validateSave(legacy);assert.equal(restored.version,1);assert.equal(restored.strategy,'balanced');
+  const restored=validateSave(legacy);assert.equal(restored.version,2);assert.equal(restored.strategy,'balanced');
   assert.equal(restored.mode,'town');assert.equal(restored.hero.gold,s.hero.gold);
   act(restored,'start');assert.doesNotThrow(()=>advance(restored,2));
 });

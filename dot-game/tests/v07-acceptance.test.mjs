@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import * as preParryEngine from './fixtures/v0.14/engine.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -238,9 +239,9 @@ test('v0.7 historical: strict import/ordinary state helpers and the actual old v
   assert.equal(sha256(region(lootSource,'const STAT_KEYS','/** Pure fail-closed classification')),'ec9c5e2b9d9ac3def55c71ae4359576d1c77ed538d3c6de3ad287a524aff591e','old validator strict descriptor guard unchanged');
 });
 
-test('v0.7 historical pre-parry: every bought family/level item survives ACTUAL v0.6 validator then current reload unchanged',()=>{
+test('v0.7 historical pre-parry: every historical v1 bought family/level item survives ACTUAL v0.6 validator then current reload unchanged',()=>{
   for(let level=1;level<=500;level++)for(const family of families){
-    const s=camp(level);s.autoSell=true;const q=preParryEngine.previewWeaponCommission(s,family); preParryEngine.act(s,'commissionWeapon',{family,quoteBasis:q.quoteBasis}); const old=jsonClone(validateOldV06(jsonClone(s))),upgraded=validateSave(old);
+    const s=camp(level);s.autoSell=true;const q=preParryEngine.previewWeaponCommission(s,family); preParryEngine.act(s,'commissionWeapon',{family,quoteBasis:q.quoteBasis}); const old=jsonClone(validateOldV06(legacyEnvelope(s))),upgraded=validateSave(old);
     for(const state of [old,upgraded]){
       assert.deepEqual(state.inventory,[q.item]);assert.deepEqual(state.equipment,validateSave(jsonClone(s)).equipment);
       assert.equal(state.hero.gold,s.hero.gold);assert.equal(state.inventory[0].locked,true);assert.equal(state.inventory[0].weaponFamily,family);
@@ -255,7 +256,7 @@ test('v0.7 independent: new commission provenance/stat/roll fields still reject 
   for(const placement of ['inventory','equipment','pendingLoot'])for(const mutate of [i=>i.commission=true,i=>i.provenance={source:'shop'},i=>i.stats.future=1,i=>i.rolls.future=110,i=>i.locked='true',i=>i.rolls.attack=110.5]){
     const s=camp(),i=held('malformed');mutate(i);
     if(placement==='equipment')s.equipment.weapon=i;else s[placement]=[i];
-    const before=clone(s);assert.throws(()=>validateSave(s),/不支援的裝備/);assert.throws(()=>validateOldV06(s),/不支援的裝備/);assert.deepEqual(s,before);
+    const before=clone(s);assert.throws(()=>validateSave(s),/不支援的裝備/);assert.throws(()=>validateOldV06(s),/不支援/);assert.throws(()=>validateOldV06(legacyEnvelope(s)),/不支援的裝備/);assert.deepEqual(s,before);
   }
 });
 

@@ -1,6 +1,9 @@
-import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice } from './loot.js';
+import { generateItem, createCommissionWeapon, resolveWeaponFamily, hasUnknownSaleMetadata, dominanceWitness, itemSalePrice, soulbindCost, createSoulboundItem, scaleSoulboundItem, isSoulboundItem } from './loot.js';
 
-export const VERSION = 1;
+export const VERSION = 2;
+// Independent expedition pacing, not original-HV fragment drop rates.
+export const SOUL_FRAGMENT_LIMIT = 1000000000;
+export const SOUL_FRAGMENTS_PER_WIN = 10;
 export const MAX_STAGE = 30;
 export const INVENTORY_LIMIT = 120;
 // Three original-HV Major ability lines and their researched rank progression.
@@ -151,7 +154,7 @@ function starter(slot) {
   return {id:`starter-${slot}`,name,slot,quality:'Crude',rarityColor:'#8d9bb0',level:1,roll:10,power:1,stats:bonuses,locked:true,description:'獨立設計的入門裝備；換上戰利品即可改善戰力。'};
 }
 export function createGame(seed = 1) {
-  const s = {version:VERSION,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,strategy:'balanced',inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{},actions:freshActions()},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
+  const s = {version:VERSION,soulFragments:0,seed:integer(seed,0,0xffffffff,1),hero:{level:1,xp:0,xpNext:nextXp(1),hp:1,mp:1,gold:0,proficiency:0,attributes:{str:8,dex:8,agi:8,end:8,int:8,wis:8}},mode:'town',stage:1,unlocked:1,wave:0,totalWaves:4,kills:0,wins:0,autoAdvance:false,strategy:'balanced',inventory:[],equipment:Object.fromEntries(SLOTS.map(slot=>[slot,starter(slot)])),enemies:[],events:[],logs:['整裝出發。戰鬥會自動進行；回營後換上戰利品，再挑戰深處。'],battle:{elapsed:0,cleared:0,bestTimes:{},actions:freshActions()},pendingLoot:[],timing:{turns:0,ticks:0,tu:0},potions:3,_eventId:0,_itemId:0,_clock:0,_enemyClock:0,_turns:0,_phase:'idle',_rest:0};
   recover(s); return s;
 }
 function readAbilityAllocation(s) {
@@ -625,6 +628,7 @@ function protectedLootKeepers(s) {
   return [...SLOTS.map(slot=>s.equipment?.[slot]).filter(item=>!hasUnknownSaleMetadata(item)),...s.inventory.filter(item=>!hasUnknownSaleMetadata(item)&&item.locked===true)];
 }
 function safeSaleEntry(item, keepers) {
+  if(boundMetadata(item))return null;
   const witness=dominanceWitness(item,keepers);if(!witness)return null;
   const keeper=keepers.find(kept=>Object.getOwnPropertyDescriptor(kept,'id')?.value===witness.keeperId),value=itemSalePrice(item);
   if(!keeper||!Number.isSafeInteger(value)||value<1)return null;
@@ -692,7 +696,7 @@ export function previewSelectedSale(s, requestedIds) {
     const items=[];
     for(const id of ids){
       const item=s.inventory.find(held=>Object.getOwnPropertyDescriptor(held,'id')?.value===id);
-      if(!selectedSaleItem(item)||item.locked||isGearSetProtected(s,id))return unavailable('選擇包含已鎖定、已裝備、待領、遺失或不支援的裝備；整批未出售。');
+      if(!selectedSaleItem(item)||boundMetadata(item)||item.locked||isGearSetProtected(s,id))return unavailable('選擇包含已鎖定、已裝備、待領、遺失或不支援的裝備；整批未出售。');
       const value=itemSalePrice(item);
       if(!Number.isSafeInteger(value)||value<1)return unavailable('出售價格無效，未建立出售清單。');
       const detached=JSON.parse(JSON.stringify(item)),currentEquipment=JSON.parse(JSON.stringify(s.equipment[item.slot]));
@@ -704,6 +708,98 @@ export function previewSelectedSale(s, requestedIds) {
     if(quoteBasis.length>1048576)return unavailable('出售資料過長，未建立出售清單。');
     return {available:true,reason:'',items,total,goldAfter,quoteBasis};
   } catch {return unavailable('裝備或交易資料無效，未建立出售清單。');}
+}
+// Reject accessors, inherited data, symbols and sparse/extended arrays before
+// creating consent or reading imported metadata. Ordinary cross-realm JSON is
+// supported; no caller-provided toJSON/getter is ever executed.
+const nativeObjectSource=Function.prototype.toString.call(Object);
+function dataRecord(value) {
+  if(!value||typeof value!=='object'||Array.isArray(value))return false;
+  const prototype=Object.getPrototypeOf(value);
+  if(prototype===null||prototype===Object.prototype)return true;
+  const constructor=Object.getOwnPropertyDescriptor(prototype,'constructor')?.value;
+  return Object.getPrototypeOf(prototype)===null&&typeof constructor==='function'
+    &&Function.prototype.toString.call(constructor)===nativeObjectSource
+    &&Reflect.ownKeys(prototype).length===Reflect.ownKeys(Object.prototype).length
+    &&Reflect.ownKeys(prototype).every(key=>Object.hasOwn(Object.prototype,key));
+}
+function detachedData(value,depth=0,seen=new Set(),allowNonfinite=false) {
+  if(value===null||['string','boolean','undefined'].includes(typeof value))return value;
+  if(typeof value==='number'&&(allowNonfinite||Number.isFinite(value)))return value;
+  if(depth>24||!value||typeof value!=='object'||seen.has(value))throw Error('invalid data');
+  const array=Array.isArray(value);
+  if(array&&Object.getPrototypeOf(value)!==Array.prototype){
+    const prototype=Object.getPrototypeOf(value),constructor=prototype&&Object.getOwnPropertyDescriptor(prototype,'constructor')?.value;
+    if(!Array.isArray(prototype)||typeof constructor!=='function'
+      ||Function.prototype.toString.call(constructor)!==Function.prototype.toString.call(Array)
+      ||Reflect.ownKeys(prototype).length!==Reflect.ownKeys(Array.prototype).length
+      ||!Reflect.ownKeys(prototype).every(key=>Object.hasOwn(Array.prototype,key)))throw Error('invalid array prototype');
+  }
+  if(!array&&!dataRecord(value))throw Error('invalid record');
+  const keys=Reflect.ownKeys(value),result=array?[]:{};
+  if(array&&(keys.length!==value.length+1||value.length>10000))throw Error('invalid array');
+  seen.add(value);
+  for(const key of keys){
+    if(array&&key==='length')continue;
+    const field=Object.getOwnPropertyDescriptor(value,key);
+    if(typeof key!=='string'||!field?.enumerable||!Object.hasOwn(field,'value')
+      ||(array&&(!/^(0|[1-9]\d*)$/.test(key)||Number(key)>=value.length)))throw Error('invalid field');
+    Object.defineProperty(result,key,{value:detachedData(field.value,depth+1,seen,allowNonfinite),enumerable:true,writable:true,configurable:true});
+  }
+  seen.delete(value);return result;
+}
+function ownData(record,key,optional=false) {
+  const field=Object.getOwnPropertyDescriptor(record,key);
+  if(!field){if(optional&&!(key in record))return undefined;throw Error('missing field');}
+  if(!field.enumerable||!Object.hasOwn(field,'value'))throw Error('invalid field');
+  return field.value;
+}
+const fragmentBalance=value=>Number.isInteger(value)&&value>=0&&value<=SOUL_FRAGMENT_LIMIT;
+const boundMetadata=item=>!!item&&typeof item==='object'&&'soulbound' in item;
+// Stable comparison is semantic: JSON serialization/reordering cannot alter the
+// quote, but no extra/missing field (including undefined) gains consent.
+function identicalData(a,b) {
+  if(Object.is(a,b))return true;
+  if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
+  const keys=Object.keys(a);
+  return keys.length===Object.keys(b).length&&keys.every(key=>Object.hasOwn(b,key)&&identicalData(a[key],b[key]));
+}
+/** Pure, detached exact-weapon consent. Pending items are deliberately excluded.
+ * The entire returned quote is required by the action, not just a price or ID.
+ */
+export function previewSoulbindWeapon(s,id) {
+  const empty=reason=>({id:typeof id==='string'?id:null,available:false,reason,cost:null,fragmentsAfter:null,before:null,after:null,quoteBasis:null});
+  try{
+    if(!dataRecord(s)||typeof id!=='string'||!id||id.length>100)return empty('靈魂綁定資料無效。');
+    const context={};
+    for(const key of ['version','mode','hero','soulFragments','equipment','inventory','pendingLoot'])context[key]=detachedData(ownData(s,key));
+    for(const key of ['gearSets','abilities']){const value=ownData(s,key,true);if(Object.hasOwn(s,key))context[key]=detachedData(value);}
+    if(context.version!==VERSION||!fragmentBalance(context.soulFragments)||!dataRecord(context.hero)
+      ||!Number.isInteger(context.hero.level)||context.hero.level<1||context.hero.level>500
+      ||!dataRecord(context.equipment)||Reflect.ownKeys(context.equipment).length!==SLOTS.length)return empty('角色、碎片或裝備資料無效。');
+    const hero=context.hero;
+    if(['xp','hp','mp','gold','proficiency'].some(key=>!Number.isFinite(hero[key])||hero[key]<0)
+      ||hero.gold>1e12||hero.proficiency>1e6||!Number.isFinite(hero.xpNext)||hero.xpNext<=0
+      ||!dataRecord(hero.attributes)||Object.keys(hero.attributes).length!==6
+      ||['str','dex','agi','end','int','wis'].some(key=>!Number.isFinite(hero.attributes[key])||hero.attributes[key]<0))return empty('角色資料無效。');
+    const held=gearHeldItems(context);if(!held)return empty('裝備識別或內容無效。');
+    readGearSets(context);readAbilityAllocation(context);
+    const item=held.get(id);
+    if(!item||item.slot!=='weapon')return empty('僅可綁定背包或已裝備的支援武器；待領裝備不可綁定。');
+    if(boundMetadata(item))return empty('這件武器已靈魂綁定，不會重複扣除碎片。');
+    const cost=soulbindCost(item,context.hero.level),after=createSoulboundItem(item,context.hero.level);
+    if(cost===null||!after)return empty(item.level>context.hero.level?'武器等級高於角色；達到所需等級後才能綁定。':'這件武器的類型、品質或屬性不支援靈魂綁定。');
+    const fragmentsAfter=context.soulFragments-cost,before=detachedData(item);
+    const reason=context.mode!=='town'?'請先回營，再靈魂綁定。':fragmentsAfter<0?`靈魂碎片不足：還差 ${-fragmentsAfter} 個。`:'';
+    const quoteBasis=JSON.stringify([id,context]);
+    if(quoteBasis.length>1048576)return empty('靈魂綁定資料過長，未建立確認。');
+    return {id,available:!reason,reason,cost,fragmentsAfter,before,after:detachedData(after),quoteBasis};
+  }catch{return empty('靈魂綁定資料無效；未扣除碎片或變更裝備。');}
+}
+function synchronizeSoulboundItems(s) {
+  const synchronize=item=>boundMetadata(item)?scaleSoulboundItem(item,s.hero.level)??item:item;
+  for(const slot of SLOTS)s.equipment[slot]=synchronize(s.equipment[slot]);
+  for(const list of [s.inventory,s.pendingLoot])for(let i=0;i<list.length;i++)list[i]=synchronize(list[i]);
 }
 export function previewWeaponCommission(s, family, suffix = 'slaughter') {
   const unavailable=reason=>({family:typeof family==='string'?family:null,item:null,price:null,goldAfter:null,available:false,reason,quoteBasis:null,currentWeapon:null});
@@ -740,7 +836,7 @@ function addLoot(s, slot) {
   do{s._itemId=(s._itemId%999999999)+1;item.id=`loot-${s._itemId}`;}while(used.has(item.id));
   // Opt-in affects only this newly generated drop, after the unchanged RNG/ID
   // path. It never sweeps inventory/pending items or bypasses the start guard.
-  const sale=s.autoSell===true&&!isGearSetProtected(s,item.id)?safeSaleEntry(item,protectedLootKeepers(s)):null;
+  const sale=s.autoSell===true&&!boundMetadata(item)&&!isGearSetProtected(s,item.id)?safeSaleEntry(item,protectedLootKeepers(s)):null;
   if(sale){
     s.hero.gold+=sale.value;
     event(s,'loot',`自動出售 ${item.name} · +${sale.value} 金幣`,sale.value,item.id);
@@ -755,6 +851,7 @@ function gainXp(s, amount) {
   while(s.hero.xp>=s.hero.xpNext && s.hero.level<500) {
     s.hero.xp-=s.hero.xpNext;s.hero.level++;s.hero.xpNext=nextXp(s.hero.level);
     for(const key of Object.keys(s.hero.attributes))s.hero.attributes[key]+=2;
+    synchronizeSoulboundItems(s);
     const p=stats(s);s.hero.hp=Math.min(p.maxHp,s.hero.hp+90);s.hero.mp=Math.min(p.maxMp,s.hero.mp+6);
     event(s,'level',`成長至 Lv.${s.hero.level}`,s.hero.level);log(s,`升級！力量、耐久與資源上限提高。`);
   }
@@ -767,7 +864,12 @@ function win(s) {
   s.wins++;s.battle.cleared++;s.unlocked=Math.min(MAX_STAGE,Math.max(s.unlocked,s.stage+1));
   const previous=s.battle.bestTimes[s.stage];if(!previous||s.battle.elapsed<previous)s.battle.bestTimes[s.stage]=round(s.battle.elapsed);
   const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
-  event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`);
+  const fragments=fragmentBalance(s.soulFragments)?Math.min(SOUL_FRAGMENTS_PER_WIN,SOUL_FRAGMENT_LIMIT-s.soulFragments):0;
+  s.soulFragments+=fragments;
+  const capNotice=s.soulFragments===SOUL_FRAGMENT_LIMIT?' 靈魂碎片已達持有上限；本次增加 '+fragments+' 個。':'';
+  event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,(sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`)+capNotice);
+  // The live balance shows the reward; no synthetic event shifts combat IDs
+  // or evicts historical event/log entries from their bounded buffers.
   settleExpeditionReport(s,'win');
   protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
   if(finishThenCampSessions.has(s)){finishThenCamp(s);return;}
@@ -1063,6 +1165,31 @@ export function act(s, action, payload) {
       refundAbility:`已退還 ${ability.label} · ${rankCost(payload,currentRank)} AP；若已裝入亦一併移出。`};
     log(s,messages[action]);return s;
   }
+  if(action==='soulbindWeapon'){
+    let submitted;
+    try{
+      if(!dataRecord(payload))return s;
+      submitted=detachedData(payload);
+      if(typeof submitted.id!=='string'||typeof submitted.quoteBasis!=='string'||submitted.quoteBasis.length>1048576)return s;
+    }catch{return s;}
+    const offer=previewSoulbindWeapon(s,submitted.id);
+    if(!offer.available||!identicalData(submitted,offer))return s;
+    const index=s.inventory.findIndex(item=>item.id===offer.id);
+    const owner=index>=0?s.inventory:s.equipment,key=index>=0?String(index):'weapon';
+    const item=owner[key],bound=createSoulboundItem(item,s.hero.level);
+    if(!bound||!identicalData(detachedData(bound),offer.after))return s;
+    // Prebuild everything before the synchronous debit/replacement. The quote's
+    // objects never enter live state, and every failed/stale/repeated request is
+    // a complete no-op (including RNG, logs, item counters and health).
+    let logs;
+    try{logs=detachedData(ownData(s,'logs'));if(!Array.isArray(logs)||logs.length>30||logs.some(line=>typeof line!=='string'))return s;}catch{return s;}
+    const message=`靈魂綁定：${bound.name} · -${offer.cost} 靈魂碎片；跟隨角色等級，永久鎖定且不可出售。`;
+    const nextLogs=[message,...logs].slice(0,30);
+    if(!Object.getOwnPropertyDescriptor(s,'soulFragments')?.writable
+      ||!Object.getOwnPropertyDescriptor(owner,key)?.writable||!Object.getOwnPropertyDescriptor(s,'logs')?.writable)return s;
+    s.soulFragments=offer.fragmentsAfter;owner[key]=bound;s.logs=nextLogs;
+    return s;
+  }
   if(action==='commissionWeapon'){
     let family,quoteBasis,suffix='slaughter';
     try {
@@ -1139,10 +1266,10 @@ export function act(s, action, payload) {
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
   if(action==='start'){start(s);return s;}
   const item=s.inventory.find(i=>i.id===payload);
-  if(action==='lock'&&item){if(isGearSetProtected(s,item.id))return s;item.locked=!item.locked;return s;}
+  if(action==='lock'&&item){if(boundMetadata(item)||isGearSetProtected(s,item.id))return s;item.locked=!item.locked;return s;}
   if(action==='equip'&&item){const old=s.equipment[item.slot];s.inventory.splice(s.inventory.indexOf(item),1,old);s.equipment[item.slot]=item;recover(s);event(s,'loot',`已裝備 ${item.name}`);return s;}
-  if(action==='sell'&&item&&!item.locked&&!isGearSetProtected(s,item.id)){s.hero.gold+=Math.max(1,Math.round(item.level*3+item.power));s.inventory.splice(s.inventory.indexOf(item),1);refillPending(s);return s;}
-  if(action==='sellCommon'){const sold=s.inventory.filter(i=>!i.locked&&!isGearSetProtected(s,i.id)&&['Crude','Fair','Average'].includes(i.quality));s.hero.gold+=sold.reduce((n,i)=>n+Math.max(1,Math.round(i.level*3+i.power)),0);s.inventory=s.inventory.filter(i=>!sold.includes(i));refillPending(s);log(s,`整理了 ${sold.length} 件普通裝備；鎖定裝備均保留。`);}
+  if(action==='sell'&&item&&!boundMetadata(item)&&!item.locked&&!isGearSetProtected(s,item.id)){s.hero.gold+=Math.max(1,Math.round(item.level*3+item.power));s.inventory.splice(s.inventory.indexOf(item),1);refillPending(s);return s;}
+  if(action==='sellCommon'){const sold=s.inventory.filter(i=>!boundMetadata(i)&&!i.locked&&!isGearSetProtected(s,i.id)&&['Crude','Fair','Average'].includes(i.quality));s.hero.gold+=sold.reduce((n,i)=>n+Math.max(1,Math.round(i.level*3+i.power)),0);s.inventory=s.inventory.filter(i=>!sold.includes(i));refillPending(s);log(s,`整理了 ${sold.length} 件普通裝備；鎖定裝備均保留。`);}
   return s;
 }
 function sanitizeItem(raw, expectedSlot) {
@@ -1155,9 +1282,28 @@ function sanitizeItem(raw, expectedSlot) {
   return {...(raw.slot==='weapon'?{weaponFamily}:{}),...(raw.rolls&&typeof raw.rolls==='object'?{rolls}:{}),...(typeof raw.prefix==='string'?{prefix:text(raw.prefix,'',40)}:{}),...(typeof raw.suffix==='string'?{suffix:text(raw.suffix,'',40)}:{}),id:raw.id,name:text(raw.name,'未知裝備'),slot:raw.slot,quality:text(raw.quality,'Average',24),rarityColor:typeof raw.rarityColor==='string'&&/^#[\da-f]{3,8}$/i.test(raw.rarityColor)?raw.rarityColor:'#aab6c8',level:integer(raw.level,1,1000),roll:clamp(finite(raw.roll),0,500),power:clamp(finite(raw.power),0,1000000),stats:bonuses,locked:raw.locked===true,description:text(raw.description,'',240)};
 }
 export function validateSave(input) {
-  if(!input||typeof input!=='object'||Array.isArray(input)||input.version!==VERSION||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
+  // Read only supported saved fields. Session reports and other unknown root
+  // fields retain the legacy ignore policy; never visit their executable data.
+  // Recognized fields are detached via descriptors before any value is consumed.
+  if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('不支援或損壞的存檔');
+  const saved={},labels={abilities:'能力配置',gearSets:'配裝',targetPriority:'集火設定',autoProtection:'自動護盾設定',
+    soulFragments:'靈魂碎片',equipment:'不支援的裝備',inventory:'不支援的裝備',pendingLoot:'不支援的裝備'};
+  for(const key of ['version','seed','hero','equipment','inventory','pendingLoot','targetPriority','autoProtection','abilities','gearSets',
+    '_itemId','unlocked','stage','kills','wins','autoAdvance','strategy','autoSell','battle','soulFragments']){
+    try{
+      const field=Object.getOwnPropertyDescriptor(input,key);
+      if(!field){if(key in input)throw Error('inherited field');continue;}
+      if(!field.enumerable||!Object.hasOwn(field,'value'))throw Error('invalid field');
+      saved[key]=detachedData(field.value,0,new Set(),true);
+    }catch{throw new Error(`${labels[key]??'存檔欄位'}資料無效；未載入，請保留原存檔。`);}
+  }
+  if(!dataRecord(input))throw new Error('不支援或損壞的存檔格式');
+  input=saved;
+  if(!input||typeof input!=='object'||Array.isArray(input)||![1,VERSION].includes(input.version)||!input.hero||!input.equipment||!Array.isArray(input.inventory)||input.inventory.length>INVENTORY_LIMIT)throw new Error('不支援或損壞的存檔');
+  const legacy=input.version===1;
+  if(legacy?Object.hasOwn(input,'soulFragments'):!Object.hasOwn(input,'soulFragments')||!fragmentBalance(input.soulFragments))throw new Error('靈魂碎片資料或存檔版本無效；未載入，請保留原存檔。');
   const h=input.hero;if(!Number.isInteger(h.level)||h.level<1||h.level>500||!Number.isFinite(h.xp)||h.xp<0||!Number.isFinite(h.gold)||h.gold<0)throw new Error('角色資料無效');
-  const s=createGame(input.seed);s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
+  const s=createGame(input.seed);s.soulFragments=legacy?0:input.soulFragments;s.hero.level=h.level;s.hero.xpNext=nextXp(h.level);s.hero.xp=clamp(h.xp,0,s.hero.xpNext-1);s.hero.gold=clamp(h.gold,0,1e12);s.hero.proficiency=clamp(finite(h.proficiency),0,1e6);
   const targetField=Object.getOwnPropertyDescriptor(input,'targetPriority');
   if(targetField){if(!targetField.enumerable||!Object.hasOwn(targetField,'value')||!validTargetPriority(targetField.value))throw new Error('集火設定無效；未載入，請保留原存檔。');if(targetField.value!=='front')s.targetPriority=targetField.value;}
   else if('targetPriority' in input)throw new Error('集火設定無效；未載入，請保留原存檔。');
@@ -1171,7 +1317,17 @@ export function validateSave(input) {
   const sanitizeForLoad=(raw,slot)=>{
     // Refuse unknown item/stat/roll fields before the historical whitelist can
     // erase them. No auto-lock can silently become a trusted keeper witness.
+    if(legacy&&boundMetadata(raw))throw new Error('舊版存檔不能包含靈魂綁定資料；未載入，請保留原存檔。');
     if(hasUnknownSaleMetadata(raw))throw new Error('不支援的裝備欄位或格式，未載入；請保留原存檔。');
+    if(boundMetadata(raw)){
+      // Check raw caches BEFORE rescaling. A malformed/forged cache must not be
+      // silently repaired into valid data; only coherent older caches migrate.
+      if(!isSoulboundItem(raw)||raw.level>h.level||raw.soulbound.level>h.level)throw new Error('靈魂綁定錨點或屬性資料無效；未載入，請保留原存檔。');
+      sanitizeItem(raw,slot); // Retain historical ID/slot validity checks.
+      const canonical=scaleSoulboundItem(raw,h.level);
+      if(!canonical)throw new Error('靈魂綁定等級無效；未載入，請保留原存檔。');
+      return canonical;
+    }
     return sanitizeItem(raw,slot);
   };
   s.equipment=Object.fromEntries(SLOTS.map(slot=>[slot,sanitizeForLoad(input.equipment[slot],slot)]));

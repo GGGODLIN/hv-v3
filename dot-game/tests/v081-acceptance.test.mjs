@@ -1,3 +1,4 @@
+import { legacyState, legacyEnvelope } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -166,7 +167,7 @@ test('v0.8.1 independent: compensation is transient, load resets clocks without 
   const originalKeys=Object.keys(validateSave(createGame())).sort(),before={inventory:clone(s.inventory),equipment:clone(s.equipment),gold:s.hero.gold};
   for(const value of [s._tuCompensation,NaN,Infinity,-Infinity,1e99,-1e99,'1',{},[]]){
     const raw=clone(s);raw._tuCompensation=value;const restored=validateSave(raw);
-    assert.deepEqual(historical.validateSave(raw),restored,'the actual frozen v0.8 validator gives the same safe-town durable state');
+    assert.throws(()=>historical.validateSave(raw),/不支援/);assert.deepEqual(historical.validateSave(legacyEnvelope(raw)),legacyState(restored),'historical v1 envelope gives the same safe-town durable state except version/currency');
     assert.equal(restored._tuCompensation,undefined);assert.deepEqual(Object.keys(restored).sort(),originalKeys);assert.equal(restored.mode,'town');
     assert.deepEqual(restored.timing,{turns:0,ticks:0,tu:0});assert.deepEqual(restored.inventory,before.inventory);assert.equal(restored.hero.gold,before.gold);
   }
