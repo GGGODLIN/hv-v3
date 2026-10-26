@@ -233,7 +233,6 @@ export function hpDanger(s: BattleState): boolean {
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
-/** cp8-rc12 item 5（自訂，非原版）: HP in danger but the health potion cannot be drunk (cooldown / empty) → suggest D (and S when usable). */
 /** cp8-rc12 item 5（自訂，非原版）: HP in danger but the health potion cannot be drunk (cooldown / empty) → hint S (Spirit Stance) when usable.
  *  D is NOT hinted here: rc12 sim (preset arcane, 64 paired seeds, naive hinted) — pressing D on every such turn cut the trip median
  *  24 → 12, and D only on a wind-up still 24 → 19 (D skips the attack and takes only 25% off). */
