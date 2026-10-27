@@ -950,10 +950,17 @@ export function deathCharge<T extends { charged: boolean }>(h2: T[], last: T): T
 export function deathTip(o: { lastDmg: number; maxHp: number; reflect?: boolean; pots: number; potCd: number; charged?: boolean }): string {
   const pct = Math.round((o.lastDmg / Math.max(1, o.maxHp)) * 100);
   if (o.reflect) return `致命的是你自己攻擊時的反傷（${o.lastDmg}，${pct}%）：HP 低於反傷值的兩倍時，先喝藥或改打別的怪，不要再普攻有反傷的敵人。`;
-  if (o.pots > 0 && o.potCd > 0) return `倒下時生命藥水還在冷卻（剩 ${o.pots} 瓶）：藥水有冷卻，HP 高時不要連喝；HP ≤ ${Math.min(100, pct * 2)}% 時就要預留這一瓶。`;
+  if (o.pots > 0 && o.potCd > 0) return `藥水沒用完，是還在冷卻（剩 ${o.pots} 瓶，冷卻還要 ${o.potCd} 回合）：HP 高時不要連喝，HP ≤ ${Math.min(100, pct * 2)}% 時要確定藥水已冷卻好；冷卻中改按 D·防禦。`; // cp9-rc5 bug 2（自訂，暫定）
   if (o.pots > 0) return `倒下時還剩 ${o.pots} 瓶生命藥水：最後一擊 ${pct}%，HP 低於 ${Math.min(100, pct * 2)}% 時就按 Z。`;
   if (o.charged) return `生命藥水已用完，最後是蓄力大招（${pct}%）：看到 ⚠ 蓄力就按 D·防禦，出發前多買藥水。`;
   return `生命藥水已用完：出發前多買藥水，或 HP 低於一半時在休息點回復、撤退。`;
+}
+/** cp9-rc5 bug 1（自訂，暫定）: the death headline is the lethal turn's total damage (same number as the turn log "第 N 回合 -X"),
+ *  not the single last hit (oc8: headline 97 / 13% while the turn was -375 / 50%). The killing hit is named alongside. */
+export function deathHeadline(recent: { turn: number; taken: number }[], last: { who: string; label?: string; dmg: number; charged: boolean }, maxHp: number, esc: (x: string) => string = (x) => x): string {
+  const t = recent[recent.length - 1]!, pct = Math.round((t.taken / Math.max(1, maxHp)) * 100);
+  const by = `${last.charged ? '（蓄力大招）' : ''}${esc(last.who)}${last.label ? ' ' + esc(last.label) : ''}`;
+  return `死因：第 ${t.turn} 回合共受 ${t.taken} 傷害（佔最大 HP ${pct}%），最後一擊是 ${by} ${last.dmg}`;
 }
 export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2Taken = 0): string {
   if (last2Taken >= maxHp * DEATH_BURST_2T) return `最後兩回合共受 ${last2Taken} 傷害（佔最大 HP ${Math.round((last2Taken / maxHp) * 100)}%）：兩回合內就會被打穿，HP 低於這個數字前就先喝藥或防禦。`;

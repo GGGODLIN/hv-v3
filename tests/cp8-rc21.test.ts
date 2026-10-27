@@ -49,7 +49,7 @@ describe('rc21 item 3: death screen', async () => {
   const cause = (recent: unknown[], lastHit: unknown, lastAdvice: unknown = null) => (App.prototype.deathCause as () => string).call({ recent, lastHit, lastAdvice, adviceNote: App.prototype.adviceNote });
   it('cp9-rc3 bug 1: headline = the killing hit; the biggest hit of the last 2 turns listed separately when different', () => {
     const h = cause([{ turn: 5, taken: 100, big: hit('A', 100) }, { turn: 6, taken: 420, big: hit('B', 420) }, { turn: 7, taken: 150, big: hit('C', 150) }], hit('C', 150));
-    expect(h).toContain('data-deathcause="150"'); expect(h).toContain('data-deathtop="420"'); expect(h).toMatch(/死因：C 最後一擊 150/);
+    expect(h).toContain('data-deathcause="150"'); expect(h).toContain('data-deathtop="420"'); expect(h).toMatch(/死因：第 \d+ 回合共受 \d+ 傷害.*最後一擊是 C 150/) /* cp9-rc5 bug 1（自訂）: headline = lethal turn total */;
   });
   it('0-damage turns are in the turn list (oc3/oc5)', () => {
     const h = cause([{ turn: 5, taken: 300, big: hit('A', 300) }, { turn: 6, taken: 0 }, { turn: 7, taken: 500, big: hit('A', 500) }], hit('A', 500));

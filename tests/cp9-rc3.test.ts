@@ -12,7 +12,7 @@ describe('cp9-rc3 bug 1: death headline', async () => {
   const cause = (recent: unknown[], lastHit: unknown) => (App.prototype.deathCause as () => string).call({ recent, lastHit, lastAdvice: null, adviceNote: App.prototype.adviceNote, battle: null });
   it('names the killer, not a bigger minion hit (arcane7: boss 守門者 killed, headline said 炎翼刺客)', () => {
     const h = cause([{ turn: 5, taken: 280, big: { who: '炎翼刺客', dmg: 268, charged: true } }, { turn: 6, taken: 122, big: { who: '守門者', dmg: 122, charged: false } }], { who: '守門者', dmg: 122, charged: false, maxHp: 760 });
-    expect(h).toMatch(/死因：守門者 最後一擊 122/); expect(h).toContain('data-deathtop="268"');
+    expect(h).toMatch(/死因：第 \d+ 回合共受 \d+ 傷害.*最後一擊是 守門者 122/) /* cp9-rc5 bug 1（自訂） */; expect(h).toContain('data-deathtop="268"');
   });
   it('a 反傷 event is named as the player\'s own reflect (bulwark8 −77)', () => {
     expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/startsWith\('反傷'\)[^\n]*反傷（你攻擊/);
