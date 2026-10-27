@@ -2,6 +2,12 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## Current slice: v0.35 readable original battle actors
+
+v0.34 is published and bounded desktop-accepted, not blocked on the historical v0.26/v0.33 publication refusals. The latest actual cloud screenshot still shows generic shared pointed enemy geometry and a fixed hero sword. Give the four existing named enemies and boss distinct original canvas silhouettes and make the hero's displayed weapon match the existing equipment family. Keep the current layout, background, HP/status/target overlays, complete rules and all game state untouched. This is presentation only, not new combat roles or a claim of complete art direction.
+
+Candidate source/test verification precedes backup, isolated candidate publication and actual visual play acceptance; formal replacement follows only after accepted source backup. Earlier sections below preserve the decisions and limitations at their original stage. Their then-pending browser or publication status is historical: v0.33/v0.34 have since passed bounded desktop acceptance. Mobile/narrow viewport and comprehensive accessibility remain unverified.
+
 ## v0.34 selected effect-detail readability
 
 Actual accepted v0.33 desktop inspection exposed a wall of repeated technical weapon-effect text below otherwise compact comparisons. Reproduce the two always-visible source paragraphs, then keep a concise correct identity/tradeoff and historical-model/adaptation caveat visible while moving the byte-identical full paragraphs into one adjacent native disclosure. This is targeted equipment-detail presentation, not a generic collapse-all pass, automatic recommendation or new mechanic.

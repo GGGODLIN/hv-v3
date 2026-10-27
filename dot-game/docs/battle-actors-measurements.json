@@ -1,0 +1,632 @@
+{
+  "kind": "v035 natural source-engine plus simulated-DOM canvas-command controller regression; NOT browser/raster/layout/native keyboard/AT acceptance",
+  "baselineCommit": "7ade3e41161752c54cbfc4329000bc36e5d8716c",
+  "baselineInputSha256": {
+    "CHECKPOINT.json": "e3b65cc048e044519588486720678ea9d4a8c2c46a466199c6a6f21602c6bac5",
+    "src/ui.js": "a6d7c274be25174043e25d5882ae922bae0ba96640813e9e5d238f578cfcc90e",
+    "index.html": "dceca1b3574d2774611fb01c2c7cf8367c48bcb0b7a32b908e5b3e657cc8cbc7",
+    "style.css": "c92d96b2648f0ea908daa1e4849b4b1681e0a14d8177a41d24ce04b07b249225",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
+  },
+  "baselineManifestFilesVerified": 389,
+  "inputSha256": {
+    "src/ui.js": "3453008a505fd769a04ae459db953cecfa4aadeedb9867c1aefcead55c9ffe5b",
+    "index.html": "64a0846f4e41cb305597364f02ed5dc7178198fb0b85f0156783236ebc15e6ce",
+    "style.css": "c92d96b2648f0ea908daa1e4849b4b1681e0a14d8177a41d24ce04b07b249225",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "tests/helpers/comparison-focus-harness.mjs": "4dc392fd8bb125f6f91d4a536c99725248bd157bc7e3222a702189a30aab7470"
+  },
+  "runnerSha256": "f7f4cbb7c0ccb74804dd1d04d6a126810df4eebbac739e2006f47ae142190762",
+  "preservedInputs": {
+    "historicalFixtures": 40,
+    "browserFixtures": 2,
+    "helpers": 2,
+    "manifestSha256": "2cd5982c7ecc89155d003510f60729f0249c6cceec114f9fae22520b34dbb119",
+    "exactAcceptedV034Bytes": true
+  },
+  "protocol": {
+    "seed": 42,
+    "attempts": 20,
+    "maxStage": 5,
+    "maxPulsesPerFight": 1000,
+    "pulseSeconds": 1,
+    "acquisition": "Fresh seed42, default Balanced. Before each of 20 attempts equip the highest-scored currently owned item per slot (later item wins ties), select min(5, already unlocked stage), start, queue finishThenCamp, advance one-second source pulses until town/defeat or 1000 pulses. Retain losses/censors; retreat after defeat. No grants, edited resources/stats/loot, sales, commissions, AP, binding, IW, rerolls or added attempts. Compare full state and full expedition reports with exact accepted v034 after every public action and pulse.",
+    "replay": "Load the identical unchanged canonical earned camp save into baseline and candidate fullUI controllers plus a candidate no-animation control. Select the first owned axe, rapier and club in inventory-then-equipment order (record gaps if absent). Use real item-detail equip buttons. For each available family attempt routes1–5 once, using existing stage/start/finish-to-camp controls and 250ms pump pulses; retain losses/censors. Reduced motion is on for odd routes and off for even routes, changed through the real preference handler. No rerolls or outcome-conditioned extra attempts.",
+    "animation": "Every controller action and pump pulse compares complete state, reports, logged actions and tracked storage writes across all three controllers. Baseline/candidate each perform two actual frame calls between simulation pulses; a second candidate runs the same actions/pump/render without frame/drawScene. Each frame-only pair must leave state/reports/actions/writes byte-identical. Also probe fresh-camp starter and hidden/readonly contexts. View-only particles/pulses may change; frame never advances the engine.",
+    "canvasAdapter": "Existing comparison-focus-harness remains unchanged. Script-local methods are attached to its empty ctx object, count standard canvas commands, reject nonfinite numeric arguments and check save/restore balance. No rasterization, image comparison, layout, browser, actual rAF scheduling, native input or accessibility claim. Cosmetic Math.random is fixed to .42 only in each VM; engine RNG remains its original state-seeded function."
+  },
+  "acquisition": {
+    "attempts": 20,
+    "sourcePulses": 363,
+    "sourceParityChecks": 432,
+    "wins": 20,
+    "lossesOrCensors": [],
+    "reachedStages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "level": 13,
+    "gold": 2710,
+    "inventory": 33,
+    "pending": 0,
+    "fragments": 200,
+    "seeds": 20,
+    "canonicalSaveSha256": "ab33eb6db47190714dd0a22bb70b2728af3c6225693fb9b1b41cf22a8849a744",
+    "encounters": [
+      {
+        "kind": "beetle",
+        "firstId": "e-0-1-3-1",
+        "firstName": "碎晶甲蟲",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 21,
+        "alternatingAttackSeen": false
+      },
+      {
+        "kind": "boss",
+        "firstId": "e-0-1-4-0",
+        "firstName": "裂隙守門者 · 1",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          4
+        ],
+        "uniqueEnemyIds": 20,
+        "alternatingAttackSeen": false
+      },
+      {
+        "kind": "guard",
+        "firstId": "e-0-1-2-0",
+        "firstName": "赤砂守衛",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 21,
+        "alternatingAttackSeen": true
+      },
+      {
+        "kind": "hound",
+        "firstId": "e-0-1-2-1",
+        "firstName": "灰霧獵犬",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 37,
+        "alternatingAttackSeen": false
+      },
+      {
+        "kind": "shadowbeast",
+        "firstId": "e-0-1-1-0",
+        "firstName": "荒野影獸",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 21,
+        "alternatingAttackSeen": false
+      }
+    ],
+    "outcomes": [
+      {
+        "attempt": 1,
+        "stage": 1,
+        "pulses": 32,
+        "outcome": "win",
+        "stateSha256": "f757aefee6b5ae4acd12c3da944c7b165d33bb20c058be157f7a0789e773020c",
+        "reportsSha256": "3e319c92f5d09b0c984208eaba6f60922b034de6c060c9be88a87561f7855ee1"
+      },
+      {
+        "attempt": 2,
+        "stage": 2,
+        "pulses": 14,
+        "outcome": "win",
+        "stateSha256": "377a94a1b4c0a90a85ff716e6a0fc288f685917842d3c0b39aa20b61be24bab6",
+        "reportsSha256": "8e3e1c37349f2411e96000ce4fa69b68eb702a4a0de4342638cf7795bc80fac7"
+      },
+      {
+        "attempt": 3,
+        "stage": 3,
+        "pulses": 20,
+        "outcome": "win",
+        "stateSha256": "f5bf0dff028cd937b9b05057284667abbc9ba2431003f320c29f2be69611241a",
+        "reportsSha256": "cba68642176c9b409a7cb7cd4409cc632421ca735187194aedd0a9f8943e4f3b"
+      },
+      {
+        "attempt": 4,
+        "stage": 4,
+        "pulses": 20,
+        "outcome": "win",
+        "stateSha256": "e0a5602956c3e75bf465cdf62d0c3e38bde23b1fa810bf971361de2fbbc53d06",
+        "reportsSha256": "c751d36eba3ac0821d65a1692a36d948217b3dcde1c5b1e987d2fe6f181851d6"
+      },
+      {
+        "attempt": 5,
+        "stage": 5,
+        "pulses": 23,
+        "outcome": "win",
+        "stateSha256": "44adaa41945e4826fd173e709b51c5001726bc944b7d36c122e44e3d1c3d25d6",
+        "reportsSha256": "510746873f6513cdbd39864f1a09d7cbc718603442652761072349709e8a964b"
+      },
+      {
+        "attempt": 6,
+        "stage": 5,
+        "pulses": 20,
+        "outcome": "win",
+        "stateSha256": "cb654ebe4b595e23b2b7cd44c006ed2950e488dd83e3dd0ca0b867da997f5f99",
+        "reportsSha256": "58299a63fe54d72a4334962667b31fdbb02732969a170c537ecd154279e704b9"
+      },
+      {
+        "attempt": 7,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "8c76199925bff21faf3db7e3e6930cabc5f6f65b23dec3a35ebaaba1799060cd",
+        "reportsSha256": "5e464bbaddc0fdaae0e549aaf35e10be328ef5d50b7e36d6565ebd1f01cddf00"
+      },
+      {
+        "attempt": 8,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "d5948b45b3faddb3d6084698e22be3e5a228310de25d931196db6f7915c24bfa",
+        "reportsSha256": "067a29a9e37e37dba4da6511fd2ad843ca5e0a1506fe0dcb718dd5f104762066"
+      },
+      {
+        "attempt": 9,
+        "stage": 5,
+        "pulses": 18,
+        "outcome": "win",
+        "stateSha256": "c77aa6078fcf90ba8487dc5aa90f4757c65424ad4512b5c8b2896a3c55a8cfbf",
+        "reportsSha256": "e60be1a3ddb4e13f40f0ba9a910a5de77ded56892b109201acdf900f5e0de8cb"
+      },
+      {
+        "attempt": 10,
+        "stage": 5,
+        "pulses": 20,
+        "outcome": "win",
+        "stateSha256": "47a4618abe3df5be0f7e6b762a0992a883c544f828a4971a244aed39ea8d5b72",
+        "reportsSha256": "3ebe291e447d9ac47c8fcdd65f40c1584ef3cca40a8a24d88305d7cb1f331b92"
+      },
+      {
+        "attempt": 11,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "82bb88d585f786eb31cd3fcae4c1c212fa1a00ddd5a505a8d72bea758619d808",
+        "reportsSha256": "7dbe8202a98dd688d0e46834abd904b91ab7be677a58cf89ebac8e25ccba5c8e"
+      },
+      {
+        "attempt": 12,
+        "stage": 5,
+        "pulses": 19,
+        "outcome": "win",
+        "stateSha256": "b926c934a7652ab3a0c287e7ff26a45e2b8c0a2fcfca07480267166822a76943",
+        "reportsSha256": "b788d8ce0ac4485768aae6911b09f21d860939f8fd08b61ab307e5e396b04850"
+      },
+      {
+        "attempt": 13,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "cba2d82f4dbafe993e4c09a31ac17d3e64677199efc29792209cf7d7ae65fcf1",
+        "reportsSha256": "1611ebb6bf59d8c9a8947d0d669c7c7b39972f79c110233b7636f764a2a6b06d"
+      },
+      {
+        "attempt": 14,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "e56b9cf2f4f56ff38609d9f6e44a0b90f3069d42224512f394281b0df2282a46",
+        "reportsSha256": "7e2eb209d53763d8aa44b765d8b79859b9e7a11e8eda1b2473e55c7bb3e3e13d"
+      },
+      {
+        "attempt": 15,
+        "stage": 5,
+        "pulses": 17,
+        "outcome": "win",
+        "stateSha256": "edbb392e892c103f461459c608d9441c18a897cd0e0ab1c45dd3e7fcca6130d7",
+        "reportsSha256": "64593c22ef468aa54a1f760b1c0d9e3061207aa392da0bab7fc46aa1a0bade03"
+      },
+      {
+        "attempt": 16,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "856626094d0f295feeeb407cb49614d123601444e609b4877a200f6f4b53109b",
+        "reportsSha256": "b6302d70b3bee9df72333fb93f3ae2ca1fe0ce43988e548ac868956b56ade34c"
+      },
+      {
+        "attempt": 17,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "6f6ffc9628e1174a865a05f149ca1136679835e479a7577401e334ddd28ccfd1",
+        "reportsSha256": "5b349b52556ba679d2946b8c50cbe2b6b9b91ff172936132110ce336a3d63286"
+      },
+      {
+        "attempt": 18,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "607e757754033e03c2611bf2e42c2d72db4cc357ab27b3b4354b5560031d0eed",
+        "reportsSha256": "452282c62d8697a86d080342f2afdf56cc3c19b93509de93262385cd9aaab503"
+      },
+      {
+        "attempt": 19,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "d4ba615e07f537e0b6dc6aaa88b98d7ba8e347896e015857254e7ff975bcc2a1",
+        "reportsSha256": "02bc505ad592f263291e6c2a521dbbb1f76e7d18579dd82751a1c4ef15b2caeb"
+      },
+      {
+        "attempt": 20,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "stateSha256": "dbfed8166c6167cce04c28d16a691ba4d0f74c9bc6516e595a70a2aefb9b39bc",
+        "reportsSha256": "ec941344e900115a5a4a7004b6d967ee2cfa9f39b01c5b25ca9df3d6128941c9"
+      }
+    ]
+  },
+  "replay": {
+    "acquiredWeapons": [
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "name": "優良・暮鋼戰斧・屠戮"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "name": "優良・獵隙逐風刺劍・屠戮"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "name": "傳奇・獵隙裂岩戰棍・平衡"
+      }
+    ],
+    "controllerParityChecks": 1722,
+    "animationNonmutationChecks": 1542,
+    "frameCalls": 3084,
+    "controllerPulses": 749,
+    "postFinishPulses": 120,
+    "attempts": 15,
+    "wins": 15,
+    "lossesOrCensors": [],
+    "finalWins": 35,
+    "finalCanonicalSaveSha256": "e8cf92d81835e551b4de1f1bb76ae1e398024e0d7f106004c98691f205e8a164",
+    "encounters": [
+      {
+        "kind": "beetle",
+        "firstId": "e-20-1-3-1",
+        "firstName": "碎晶甲蟲",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 18,
+        "alternatingAttackSeen": false
+      },
+      {
+        "kind": "boss",
+        "firstId": "e-20-1-4-0",
+        "firstName": "裂隙守門者 · 1",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          4
+        ],
+        "uniqueEnemyIds": 15,
+        "alternatingAttackSeen": false
+      },
+      {
+        "kind": "guard",
+        "firstId": "e-20-1-2-0",
+        "firstName": "赤砂守衛",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 18,
+        "alternatingAttackSeen": true
+      },
+      {
+        "kind": "hound",
+        "firstId": "e-20-1-2-1",
+        "firstName": "灰霧獵犬",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 21,
+        "alternatingAttackSeen": false
+      },
+      {
+        "kind": "shadowbeast",
+        "firstId": "e-20-1-1-0",
+        "firstName": "荒野影獸",
+        "stages": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "waves": [
+          1,
+          2,
+          3
+        ],
+        "uniqueEnemyIds": 18,
+        "alternatingAttackSeen": false
+      }
+    ],
+    "visibleSceneCalls": {
+      "baseline": 1538,
+      "candidate": 1538,
+      "noAnimationControl": 0
+    },
+    "canvasCommandCounts": {
+      "baseline": 970321,
+      "candidate": 1254583,
+      "noAnimationControl": 0
+    },
+    "checkpoints": [
+      "original unknown-family starter is rendered without mutation",
+      "unchanged canonical earned save loaded into three controllers",
+      "naturally acquired axe loot-2 equipped by original UI action",
+      "axe route1 terminal win",
+      "axe route2 terminal win",
+      "axe route3 terminal win",
+      "axe route4 terminal win",
+      "axe route5 terminal win",
+      "naturally acquired rapier loot-23 equipped by original UI action",
+      "rapier route1 terminal win",
+      "rapier route2 terminal win",
+      "rapier route3 terminal win",
+      "rapier route4 terminal win",
+      "rapier route5 terminal win",
+      "naturally acquired club loot-1 equipped by original UI action",
+      "club route1 terminal win",
+      "club route2 terminal win",
+      "club route3 terminal win",
+      "club route4 terminal win",
+      "club route5 terminal win",
+      "readonly rendering remains game-state and storage neutral",
+      "hidden frames remain game-state and storage neutral"
+    ],
+    "outcomes": [
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "stage": 1,
+        "reducedMotion": true,
+        "pulses": 34,
+        "outcome": "win",
+        "stateSha256": "a541551772f92abc9d1c7560dfeaa3176023bfd1196f29fdc330093c4c52a08c",
+        "reportsSha256": "c23e997c2cab19b92ff880f960a548667c7dce16f06d807bc5515d917f8f973e"
+      },
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "stage": 2,
+        "reducedMotion": false,
+        "pulses": 47,
+        "outcome": "win",
+        "stateSha256": "f96b5c41de9cb935cf65ab299dc5b399a637e6fbbb6035058e648db7dc4f6f6a",
+        "reportsSha256": "d122724410bb1d98433d0e578d8e14e5fd4f21bdec3f28e7c334563e92f739f2"
+      },
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "stage": 3,
+        "reducedMotion": true,
+        "pulses": 55,
+        "outcome": "win",
+        "stateSha256": "a039f655d23326381250b55e4aaeeea9de1abca1010f4d72bcde19dbb101cb8f",
+        "reportsSha256": "979d0d986eaf20931f133bdc360377fc58dac125e115502fa3e22013a27c0060"
+      },
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "stage": 4,
+        "reducedMotion": false,
+        "pulses": 42,
+        "outcome": "win",
+        "stateSha256": "012426ebab0cb9cc74e25f8ea9373764835d06aade33925bb161e61a3f8526c5",
+        "reportsSha256": "15a79df993db013897ee1107a3232966576fe29cbab47d0db1da26b122bf0b9b"
+      },
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "stage": 5,
+        "reducedMotion": true,
+        "pulses": 63,
+        "outcome": "win",
+        "stateSha256": "ce07ad481040b00729fbfcf46d24fc2563b4780a15aa7daf1aee60c9feff190a",
+        "reportsSha256": "830bdbda1d5fccbcac26698aa289632a974c015a80a21d8d963e6432e01b2254"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "stage": 1,
+        "reducedMotion": true,
+        "pulses": 42,
+        "outcome": "win",
+        "stateSha256": "3225c9e9030bb08e115eca5b3b0db6136594695a0aa59475c5a4b1a92ec6dae7",
+        "reportsSha256": "3abc2ae677d81bd3733b34b040006e281197421ff01d559284ceb385291e9d01"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "stage": 2,
+        "reducedMotion": false,
+        "pulses": 47,
+        "outcome": "win",
+        "stateSha256": "8b78c01960e373e93c33c9b73af09343dc2d67534877c7b0bd70f34b125e381f",
+        "reportsSha256": "f65a03624394ac2242adde6432b462be87f9f2e35ae10aca3fe10cb13f49b465"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "stage": 3,
+        "reducedMotion": true,
+        "pulses": 47,
+        "outcome": "win",
+        "stateSha256": "fae94307f1b13fa18d2d5fac89ed3b04dd964f7dc6726ab4aceebefda065e347",
+        "reportsSha256": "f946af62beafd692ec30c0538e21f01507c6f0d7b921943b7b4711cd3cd404b0"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "stage": 4,
+        "reducedMotion": false,
+        "pulses": 63,
+        "outcome": "win",
+        "stateSha256": "0bfee4e677246ea6da3d9a2d27474c935de37f0782d4bacdf6d7d2bd60005944",
+        "reportsSha256": "deff73bd546b242b111cb13013c12eda137e1afd9ee6ab3ebe155f3996f5601f"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "stage": 5,
+        "reducedMotion": true,
+        "pulses": 63,
+        "outcome": "win",
+        "stateSha256": "d1f9ad589b3470f2a018a56ea0f339f7f5d2f7367d27b5cbd340807efa2723ae",
+        "reportsSha256": "e32bcd2620ed82bc4058dcd5276a031b39ab0a37c725402c0c4a21aaf5c33917"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "stage": 1,
+        "reducedMotion": true,
+        "pulses": 30,
+        "outcome": "win",
+        "stateSha256": "6bf497420ae15eddf303c92e83b535a25645cdafd5ac2a858a98354441069708",
+        "reportsSha256": "45f891244abbecdc5706ae0c8744a6b77803b945295fabe839e3099776d9b37d"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "stage": 2,
+        "reducedMotion": false,
+        "pulses": 38,
+        "outcome": "win",
+        "stateSha256": "4b0e72444e98166ce77a7277f4be5ab8b61510a886b6a424f545bab15839d70b",
+        "reportsSha256": "0a954d491b804275fa7fcad2b54621a1fc9e3e4769531c9e5cc7590840ca5bd8"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "stage": 3,
+        "reducedMotion": true,
+        "pulses": 51,
+        "outcome": "win",
+        "stateSha256": "600c08c54e1a2040145a33d6194b1c0917ccbda8ed30ca8dd64df58b7d26b0fd",
+        "reportsSha256": "53124952f9c81aaf1ce6bfc70dc5a52e506e4ccadfa39937ad09acbb5b69f277"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "stage": 4,
+        "reducedMotion": false,
+        "pulses": 59,
+        "outcome": "win",
+        "stateSha256": "fa1d0cd7290ec101729467c25e29684d5dbfb1f4915b5a80ee0f7f5ab6d4605c",
+        "reportsSha256": "cd4abe06d75987941771758536b9a08be681f7007cf8d27a3fe484b20487c150"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "stage": 5,
+        "reducedMotion": true,
+        "pulses": 68,
+        "outcome": "win",
+        "stateSha256": "7514cee162399910783fedfa9d6daee522bce3d7ca0be3be4b5cac831f8433ef",
+        "reportsSha256": "a5e9b1c872f8f3e00d4ff45865df5c2bcc0b29dadcee6de93f969afd91a2bceb"
+      }
+    ]
+  },
+  "gaps": [],
+  "limitations": "Fixed deterministic sample, not a balance/rate/quality conclusion. Existing fullUI source DOM and script-local canvas commands do not render pixels or exercise CSS, actual frame scheduling, native keyboard, focus visibility, mobile, zoom or accessibility tree. Harness uses unsupported-Web-Locks temporary mode: tracked write parity is not real browser persistence/cross-tab acceptance. Natural camp save is a generated protocol result, not a user private save. No pending overflow, binding/IW or weapon-family unknown-enemy fallback fabrication is claimed by this sample; existing independent tests cover separate boundaries. Full-state/report equality includes RNG and gameplay policies, but source regression is not hosted acceptance. Supplied accepted commit identity is pinned by CHECKPOINT hash and its complete 389-file manifest; this restored directory has no Git metadata and this runner performs no remote lookup."
+}

@@ -1,30 +1,40 @@
 {
-  "checkpoint": "140-v034-publication-receipt",
-  "version": "0.34.0",
-  "status": "published-bounded-desktop-accepted-complete-recovery-record",
-  "source_base": "e61ad65af2708480133a4547ceb0e8fc28776a49",
-  "base_accepted_recovery": "e61ad65af2708480133a4547ceb0e8fc28776a49",
+  "checkpoint": "141-v035-battle-actors-source",
+  "version": "0.35.0",
+  "status": "source-tested-awaiting-isolated-browser-acceptance",
+  "source_base": "7ade3e41161752c54cbfc4329000bc36e5d8716c",
+  "base_accepted_recovery": "7ade3e41161752c54cbfc4329000bc36e5d8716c",
   "accepted_website": "e69c6b8833e41a0f2c0cc7cced3811717fcf6933",
-  "scope": "Documentation/checkpoint-only final recovery record after exact stable publication and actual original-stable-profile browser smoke. No runtime, stylesheet, asset, storage, gameplay, schema, test or fixture changes from accepted source138.",
-  "source_tests_passed": 1862,
+  "scope": "Original canvas actor identity only: four existing named enemy bodies, gate boss, neutral fallback and actual equipped family. Cosmetic defeated/static appearance. Existing enemy overlay suffix, scene/background/layout/core/RNG/save unchanged; version metadata and provenance updated.",
+  "source_tests_passed": 1897,
   "runtime_syntax_checks": 4,
-  "new_source_ui_tests": 15,
-  "new_independent_audit_tests": 20,
+  "new_source_ui_tests": 16,
+  "new_independent_audit_tests": 19,
   "new_engine_tests": 0,
-  "source_input_files_unchanged_during_final_suite": 189,
-  "audit_input_manifest_sha256": "8e530b6b92780f9455f823afb7092084aa601347d75132abdf3d1710dc9c6cf3",
+  "source_input_files_unchanged_during_final_suite": 177,
+  "audit_input_manifest_sha256": "34a9d9bb5c09d6c2a9ed2bfe02407bdb7edc0c41cedc2f6227ebf8694af4aa74",
+  "full_suite_initial_failure": "One missed v034 version-only assertion in counterattack-ui; exact metadata correction then complete 1897/1897 rerun. Initial failed receipt retained outside source.",
   "natural_replay": {
-    "receipt_sha256": "89f851ad76b88be648beb303548c8800197c74f4942b07d6dbf0072be799ee4d",
-    "independent_rerun_exact": true,
+    "receipt_sha256": "c968b57fe629dfcc6695c3c60d73cd549b689a453694e62fbf232c5476e3029f",
+    "separate_process_exact": true,
     "natural_attempts": 20,
     "natural_wins": 20,
-    "source_parity_checks": 286,
-    "controller_checkpoints": 12,
+    "stages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "source_parity_checks": 432,
+    "controller_wins": 15,
+    "controller_parity_checks": 1722,
+    "frame_calls": 3084,
     "source_only_not_browser": true,
-    "provenance_note": "Historical source136 functional test receipt; unchanged during accepted-phase display-label transition. Accepted full suite rerun separately."
+    "synthetic_unknown_fallback_not_natural_evidence": true
   },
   "save_format": 3,
-  "save_compatibility": "Unchanged fields, storage scopes, migrations/rejections and ownership rules from accepted v033. Existing Exquisite IW1 and emergencySupply historical-reader restrictions remain. Disclosure uses current DOM only.",
+  "save_compatibility": "No state, preference, storage key, import/export, migration, item, policy or RNG changes from v034. Earlier Exquisite IW1/emergencySupply historical-reader restrictions remain.",
   "unchanged_core_files": [
     "src/engine.js",
     "src/loot.js",
@@ -34,24 +44,29 @@
   "browser_fixture_files_unchanged": 2,
   "new_fixture_files": 0,
   "assets": {
-    "unchanged_files": 14,
-    "new_assets": 0,
-    "includes_originals_license_and_provenance": true,
-    "runtime_external_asset_links": false
+    "existing_files_unchanged": 14,
+    "new_binary_assets": 0,
+    "new_external_sources": 0,
+    "actor_source": "src/ui.js original code-native drawing; not Kenney or original-HV art",
+    "credits": "docs/ASSET-CREDITS.md"
   },
-  "original_text_preservation": "All three families retain original complete describeWeaponTrait and weaponRuleText paragraphs exactly inside native details; unknown no-proc text remains visible. Original-HV facts not removed.",
-  "visual_acceptance": "PASS actual cloud-browser desktop 1180x757; document scrollWidth1165, zero broken images; native disclosure hierarchy and focus/scroll retained. Not mobile/narrow/zoom/AT acceptance.",
-  "browser_acceptance": "PASS bounded candidate desktop plus original stable-profile smoke on published root, with all39 prior held records exact. No candidate progress imported. Explicit limits retained in docs/BROWSER-QA-V034.md.",
-  "assistive_technology_acceptance": "not-run",
-  "website_staging": "PASS candidate e9b661262a22eacab8000f89e8968b3cb0c99796; Pages40495402879 success; all21 HTTP200/exact bytes; stable v033 unchanged",
-  "publication": "formal v0.34 published with exact CI/21-file HTTP; original stable-profile ordinary clear/reload passed; candidates and outside website identities preserved",
+  "visual_acceptance": "Pending actual candidate render; source traces are not pixels or art-quality acceptance. Background and chest unchanged.",
+  "browser_acceptance": false,
+  "assistive_technology_acceptance": false,
+  "website_staging": {
+    "candidate_path": "public/play/hv-v3-dot/candidates/v0.35/",
+    "formal_path": "public/play/hv-v3-dot/",
+    "candidate_before_formal": true,
+    "source_backup_before_publication": true
+  },
+  "publication": "Not yet attempted for this frozen candidate. Prior v034 remains accepted formal.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T11:40:05.831204+00:00",
+  "frozen_utc": "2026-10-27T12:15:56.766987+00:00",
   "files": {
     "README.md": {
-      "bytes": 22797,
-      "sha256": "56a4a84f0b85993fdb4260f4f108c4927a65d85495ce88c6d7c48c1797a0f247"
+      "bytes": 23828,
+      "sha256": "410dd903de60fc1d9bbb76a365a9d4b283ef8c8f864e53fd188fe9d73ebbe887"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -217,6 +232,10 @@
       "bytes": 6678,
       "sha256": "799842a2dd8f90624600c3c39e6ed0752c475a0dc0e031457850dbd87e2903b8"
     },
+    "docs/ACCEPTANCE-V035.md": {
+      "bytes": 3232,
+      "sha256": "232ede3a1ff0ce7b4f08db5e5bcc21ff33c468b0c120a40faceb872ff97a7b01"
+    },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
       "sha256": "3fa178df14a831b59a4a83247e25cafbc1a827e504b1fe2eacceb10b3f012511"
@@ -250,8 +269,8 @@
       "sha256": "f7c5cd76c6b3d088dbf71cf55ca411e04151fe8a2ec30dbe6f8d9aa1c8f6cacd"
     },
     "docs/ASSET-CREDITS.md": {
-      "bytes": 3633,
-      "sha256": "91eef237f541a85f8f5d58a5476591a479042f054268790845ffde1376c83893"
+      "bytes": 4426,
+      "sha256": "3faaf5a74138ebd5883346d10e09484a4dfcc2199b548fce0aa224c528384fb6"
     },
     "docs/AUDIT-V021.md": {
       "bytes": 3060,
@@ -320,6 +339,14 @@
     "docs/AUDIT-V034.md": {
       "bytes": 8429,
       "sha256": "ec9af03377b16ea3940402d9c772ca2df9908c27cfba7504671833b71b046c4f"
+    },
+    "docs/AUDIT-V035.md": {
+      "bytes": 10059,
+      "sha256": "965a6feb4ae9eae1ebaf9d1f42dbba4bf2bbb85d6ea9849a60b3f5803be91b32"
+    },
+    "docs/BATTLE-ACTORS-MEASUREMENTS.md": {
+      "bytes": 7611,
+      "sha256": "66bbb3816eef9685227e3e1a9f90ed44552d0766fe08de24f184855454c7f5b5"
     },
     "docs/BLEED-GUIDE.md": {
       "bytes": 15947,
@@ -661,17 +688,21 @@
       "bytes": 6882,
       "sha256": "2e455be4751cedb90d98aaf8e24ccb1fc40db105a8850a544b46c8aed411908b"
     },
+    "docs/RECOVERY-V035.md": {
+      "bytes": 3188,
+      "sha256": "c69c4fdcb4c938bd136ce3f081ed65f9588edc1c74487d4102a3b0b9223ef7aa"
+    },
     "docs/RELEASES.md": {
-      "bytes": 45968,
-      "sha256": "6b97f46312148283895f93af4aabb1b75f55fbd0683f4f8e6e7e04afd36e222d"
+      "bytes": 46989,
+      "sha256": "a5b4459e687202093324d08797eca88111889f648a819b7209657f67c1338109"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 27041,
-      "sha256": "a048ba86a8edcf43cd39925a5ab4598ebfedbe88e9beee9a9bdf503f4624f2ec"
+      "bytes": 28137,
+      "sha256": "b005ac6c02d1632bf1dd8f474cb9e6d1951964d6599b30cd6840105458d0d68e"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -702,8 +733,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 25583,
-      "sha256": "8973c70a50937d33fa43f8cdea1931c830c68f296bc362dfed48bd37f0838fc4"
+      "bytes": 26604,
+      "sha256": "1a2e716d8998fc4b8153dcb1fa378e742fa783a21e091d4917cad14b7858467d"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -712,6 +743,10 @@
     "docs/UI-AND-SAVES.md": {
       "bytes": 5409,
       "sha256": "d17c0437d2959545cf778a0aa22ab44442a409e22bf4a5a6fd92a1d6e39a0706"
+    },
+    "docs/battle-actors-measurements.json": {
+      "bytes": 22121,
+      "sha256": "c968b57fe629dfcc6695c3c60d73cd549b689a453694e62fbf232c5476e3029f"
     },
     "docs/measurements/comparison-focus.json": {
       "bytes": 12742,
@@ -907,11 +942,15 @@
     },
     "index.html": {
       "bytes": 44796,
-      "sha256": "dceca1b3574d2774611fb01c2c7cf8367c48bcb0b7a32b908e5b3e657cc8cbc7"
+      "sha256": "64a0846f4e41cb305597364f02ed5dc7178198fb0b85f0156783236ebc15e6ce"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "b2b630c9c37cb17ee26ecf1b93d1db13270661eadcdb10dfd84e00b2da834ea8"
+      "sha256": "38cd0a7ea9c6f7d3d42064406add2fadc994052ffd89a7f699b3fe0caea827ed"
+    },
+    "scripts/battle-actors-measurement.mjs": {
+      "bytes": 20689,
+      "sha256": "f7f4cbb7c0ccb74804dd1d04d6a126810df4eebbac739e2006f47ae142190762"
     },
     "scripts/effect-readability-measurement.mjs": {
       "bytes": 14346,
@@ -982,8 +1021,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 151606,
-      "sha256": "a6d7c274be25174043e25d5882ae922bae0ba96640813e9e5d238f578cfcc90e"
+      "bytes": 160578,
+      "sha256": "3453008a505fd769a04ae459db953cecfa4aadeedb9867c1aefcead55c9ffe5b"
     },
     "style.css": {
       "bytes": 73406,
@@ -1005,13 +1044,21 @@
       "bytes": 11211,
       "sha256": "d481674470a6c1a1dd9810a7efe38bdff9e462a4d4e7bb8f9a2deb329c4c7510"
     },
+    "tests/battle-actors-audit.test.mjs": {
+      "bytes": 17389,
+      "sha256": "ea5048d947dc5cf5e869036969db02d57f5e7723ccae20350acbb55f8a771557"
+    },
+    "tests/battle-actors.test.mjs": {
+      "bytes": 10647,
+      "sha256": "9470e9d1b2ce6d82406ef14526bfcaa69a4a96cc8f1c9fa4339727ff33e29905"
+    },
     "tests/bleed-balance.test.mjs": {
       "bytes": 16546,
       "sha256": "e34367c80d7742b6b9d1cc4c8b620af462a410682d32d740011cd0d57f5f387c"
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "91b593ac0212b0d24f68083224f404a35dac3823636fa601fe12c896b4faacd9"
+      "sha256": "18728bf93f9505eb6937c372ff8d0e9dc4005f8bef6bba3581303e53cb55913d"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1067,7 +1114,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18314,
-      "sha256": "f9a0d6cd9cae162324709a362bdee4f5bf78788617bb962d00bad18a4a528218"
+      "sha256": "2fc08ae6da93ad39e1a8560208bca1757e031c709c14b3194293179178861e31"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1083,7 +1130,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "0e120d98f6866cdc9aeb95c53511634231725cf0e8a1fb5bc5ddaef1dcb0f7d8"
+      "sha256": "7214f54a83a53332f89f46f290d07d309ae0eb552ed4745231801eec0de95c62"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1107,7 +1154,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "e8efe48d8f950f7ca808c6da6b7d77597835386aa11e7bb699f6855901c6d697"
+      "sha256": "283a2b8a9324601f52363a95050abd8ad35e6bc12fa4a6fa744c43145d8776e1"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1371,7 +1418,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "227c9dae22426abf90079021870af4f8753c435acd3dfab0c46263bc13359366"
+      "sha256": "478264d5e078c9e120855cfb9f3f03d1ade1638cf9ecd39683a5dec0a13c3dae"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1427,7 +1474,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "0f27ead77a139ff3affce25b21812779c2024adcc628f9778f79cdc4da929903"
+      "sha256": "c5ef37bc815a0110d8aa40e0beb017a0cebf4b8569d378e79c8d66f766dedce4"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1455,7 +1502,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9533,
-      "sha256": "71edef4df1100254d0f6b642d789ec452f31233ea718c4cc2f82ed1a63773e60"
+      "sha256": "ca0898c9de3ca50996f42b64a82dda044d5f73ef6af61fb5aa2b0b82459c8440"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1519,7 +1566,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "b243ef086992392254a91c1121c995341810c4e7135e276ecee44fe5bda61665"
+      "sha256": "341c174a16f9bc720dbe9038857e1dd99cf197f86dab4a02f29a85f7cd35d01d"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1603,127 +1650,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15068,
-      "sha256": "f9fbdd31309498604ccac80d060af1d8a8f53f99fe0c3c16944fcc2f7a896d26"
+      "sha256": "43aaa45b507f2e4b23663d064e3de2d85b6e3b150867c470382d96df6c5b2efa"
     }
-  },
-  "full_suite_rerun_for_accepted_phase": true,
-  "candidate_website": "e9b661262a22eacab8000f89e8968b3cb0c99796",
-  "candidate_ci_run": 40495402879,
-  "candidate_http_exact_files": 21,
-  "runtime_acceptance_transition": {
-    "index_label_before": "v0.34 · 來源候選",
-    "index_label_after": "v0.34 · 持續開發",
-    "eight_corresponding_phase_assertions_synchronized": true,
-    "index_title_unchanged": true,
-    "functional_runtime_assets_styles_unchanged": true,
-    "historical_source136_replay_receipt_unchanged": true
-  },
-  "actual_candidate_export_verification": {
-    "kind": "Read-only verification of actual ordinary browser exports, not generated gameplay and not private-save backup",
-    "before": {
-      "sha256": "e25f1e5442b338cc3211b69d0b17ee2ae971da9219036fd64434b18f06b47e6c",
-      "bytes": 56022,
-      "format": 3,
-      "level": 16,
-      "gold": 2507,
-      "wins": 46,
-      "inventory": 85,
-      "hp": 993,
-      "fragments": 10,
-      "seeds": 0,
-      "mode": "town"
-    },
-    "after": {
-      "sha256": "89bffe67bda1a6f3f1ed9a391dfc2a750521fc2ed8ecaf4b0022e5201f78f426",
-      "bytes": 52863,
-      "format": 3,
-      "level": 16,
-      "gold": 2583,
-      "wins": 47,
-      "inventory": 87,
-      "hp": 993,
-      "fragments": 20,
-      "seeds": 1,
-      "mode": "town"
-    },
-    "bothValidateFormat3": true,
-    "exportsUnmodified": true,
-    "originalItems": 88,
-    "afterItems": 90,
-    "allOriginalItemRecordsExact": true,
-    "added": [
-      "loot-88",
-      "loot-89"
-    ],
-    "removed": [],
-    "equippedRecordsExact": true,
-    "gearSetsExact": true,
-    "abilitiesExact": true,
-    "strategyExact": true,
-    "emergencySupplyExact": true,
-    "rawExportsCopiedIntoSource": false
-  },
-  "browser_scope_limits": [
-    "mobile/narrow/touch/zoom",
-    "forced colors",
-    "screen-reader speech",
-    "hardware keyboard differences",
-    "OS sleep",
-    "comprehensive cross-tab/ownership",
-    "actual pending FIFO overflow/claim",
-    "automatic low-HP supply trigger",
-    "retesting Exquisite IW1 paid entry"
-  ],
-  "previous_v033_accepted_recovery": "9e43771c5ea729d328f465ee5ce91cfcc6e8c90f",
-  "finalization_docs_only": true,
-  "runtime_unchanged_from_accepted_source138": true,
-  "full_suite_rerun_for_docs_finalization": false,
-  "source_test_count_note": "1862 passing tests freshly rerun after accepted phase-label/test synchronization in source138; finalization changes documentation only and does not claim another full run.",
-  "stable_publication": {
-    "commit": "e69c6b8833e41a0f2c0cc7cced3811717fcf6933",
-    "tree": "95701d7d55af3932ecbe6a87771281823a992d78",
-    "parent": "e9b661262a22eacab8000f89e8968b3cb0c99796",
-    "ci_run": 40497206404,
-    "ci_conclusion": "success",
-    "http_exact_files": 21,
-    "candidate_unchanged": true,
-    "other_website_blobs_modes_preserved": 3984,
-    "write_denials": 0,
-    "uncertain_writes": 0,
-    "early_http_before_deploy_old_runtime_same_route_recheck_passed": true
-  },
-  "stable_original_profile_smoke": {
-    "passed_at_utc": "2026-10-27T11:37:47Z",
-    "actual_cloud_browser": true,
-    "ordinary_stage1_win_seconds": 10.6,
-    "before": {
-      "level": 11,
-      "gold": 990,
-      "wins": 19,
-      "inventory": 36,
-      "fragments": 40,
-      "seeds": 3
-    },
-    "after": {
-      "level": 11,
-      "gold": 1066,
-      "wins": 20,
-      "inventory": 38,
-      "fragments": 50,
-      "seeds": 4,
-      "hp": 872,
-      "mp": 49
-    },
-    "reload_persisted": true,
-    "original_39_item_records_exact": true,
-    "old_unbound_level7_loot12_exact": true,
-    "equipped_preset_abilities_exact": true,
-    "pre_export_sha256": "ed794afa75b2cba0d64609975e2b33b68bf05090029f89d67dfe36e5448ef3bf",
-    "post_export_sha256": "fb9d171993945abdadcf275b8cd68bdb0052371d7d00827278ac19954af04e3d",
-    "raw_exports_in_source": false,
-    "candidate_progress_imported": false,
-    "native_summary_default_closed_and_enter_expansion_passed": true,
-    "console_app_origin_errors_in_bounded_capture": 0,
-    "console_known_extension_entries": 34
   }
 }
