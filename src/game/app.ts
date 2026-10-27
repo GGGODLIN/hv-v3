@@ -809,7 +809,7 @@ export class App {
     const oc0 = openingOc(this.p, t, r);
     armBattle(this.battle, r);
     this.battle.oc += oc0;
-    this.lastAdvice = null; this.queued = this.queued2 = null;
+    this.lastAdvice = null; this.queued = this.queued2 = this.holdKey = null;
     this.encAt = Date.now(); this.enc = [`遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`, ...this.monsters.map((m) => { const w = weaknesses(m), r = resistances(m); return w.length || r.length ? `<span class="enemyelem" data-enemyelem>${esc(m.name)}：${w.map((x) => `弱${ENC_TZ[x.type] ?? x.type} ${Math.abs(x.pct)}%`).join(' ')}${w.length && r.length ? '；' : ''}${r.map((x) => `抗${ENC_TZ[x.type] ?? x.type} ${x.pct}%`).join(' ')}</span>` : ''; }).filter(Boolean)];
     this.log = this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`);
     setTimeout(() => { if (this.screen === 'battle') this.render(); }, ENC_MS + 50);
@@ -821,12 +821,25 @@ export class App {
     this.stage.setTarget(0);
   }
 
+  holdKey: string | null = null;
+  /** rc19 (c): run the key queued during the charge hold. If a D / Z is still animating, it joins the normal queue behind it. */
+  flushHold(): void {
+    const k = this.holdKey; if (!k || this.screen !== 'battle' || !this.battle || this.battle.over) { this.holdKey = null; return; }
+    if (performance.now() < this.chargeHoldUntil) { setTimeout(() => this.flushHold(), this.chargeHoldUntil - performance.now() + 20); return; }
+    this.holdKey = null; this.refused = '';
+    if (this.busy) { if (!this.queued) this.queued = k; else if (/^(defend|item:)/.test(this.queued)) this.queued2 ??= k; return; }
+    void this.command(k);
+  }
+
   async command(cmd: string): Promise<void> {
     const b = this.battle;
     if (!b || this.busy || b.over) return;
     if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:)/.test(cmd)) { // cp8-rc9 item 1
       // rc16 item 7: the hold used to drop the key silently (looked swallowed after a potion / boss phase change). Say so.
-      this.refused = `⚠ 敵人剛開始蓄力：先看決策，${Math.ceil((this.chargeHoldUntil - performance.now()) / 100) / 10} 秒後再按（D／Z 立即可用）`; this.render(); return;
+      // rc19 (c) producer 2026-10-27: a key pressed during the hold is queued and runs when the hold ends (was refused = looked swallowed). 自訂，非原版
+      const wait = this.chargeHoldUntil - performance.now(); this.holdKey = cmd;
+      this.refused = `⏳ 敵人剛開始蓄力：先看決策，已排隊，${Math.ceil(wait / 100) / 10} 秒後自動執行（D／Z 立即可用）`; this.render();
+      setTimeout(() => this.flushHold(), wait + 20); return;
     }
     const [kind, id] = cmd.split(':') as [string, string | undefined];
     if (b.monsters[this.target]?.hp === 0) this.target = b.monsters.findIndex((m) => m.hp > 0);
