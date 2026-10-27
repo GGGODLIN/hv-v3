@@ -220,7 +220,7 @@ function refreshSavedState() {
   if (preventOverwrite || raw !== lastSavedRaw) {
     try {
       const recovering = preventOverwrite;
-      state = validateSave(JSON.parse(raw)); lastSavedRaw = raw; syncSelection();
+      state = validateSave(JSON.parse(raw)); resetEventObservation(); lastSavedRaw = raw; syncSelection();
       preventOverwrite = false;
       if (recovering) { loadProblem = ''; notice(''); }
     }
@@ -242,6 +242,14 @@ if (channel) channel.onmessage = event => {
   }
 };
 if (!ownership.supported) tabOwner = true; // ephemeral memory only; never writes SAVE_KEY
+// A validated replacement restarts transient engine event IDs. Only a new
+// journey object resets observation; ownership changes on the same object must
+// retain deduplication or old rewards would play again.
+function resetEventObservation() {
+  seenEvents.clear();
+  for (const event of state.events || []) seenEvents.add(String(event.id));
+  lastProcessedEvent = null;
+}
 function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
   resetInventoryFilters(); // A newly imported/adopted journey must not inherit a hidden subset.
@@ -2087,7 +2095,7 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('storage', event => {
   if (event.key === SAVE_KEY && !tabOwner && event.newValue) {
-    try { state = validateSave(JSON.parse(event.newValue)); lastSavedRaw = event.newValue; syncSelection(); if (!document.hidden) render(true); } catch { /* invalid external state never imported */ }
+    try { state = validateSave(JSON.parse(event.newValue)); resetEventObservation(); lastSavedRaw = event.newValue; syncSelection(); if (!document.hidden) render(true); } catch { /* invalid external state never imported */ }
   }
 });
 $('growth-jump').addEventListener('click', focusGrowthChoice);

@@ -323,3 +323,7 @@ Kenney UI Pack shapes and independently authored equipment icons are presentatio
 ## v0.34 effect-reading boundary
 
 No original rule or adaptation changes in this presentation-only slice. The equipment detail retains concise effect identity, meaningful tradeoffs and an always-visible historical-model/game-adaptation caveat. The existing full trait and numeric rule paragraphs remain byte-identical in a neighbouring native disclosure, including the axe's delayed snapshots and possibly weaker reapplication, PA's subsequent physical mitigation semantics, and stun's non-refreshing recovery action. This is not a new original-HV formula, damage recommendation, proc guarantee beyond established conditions, or removal of the source uncertainty above. Resource costs, pending restrictions and irreversible investment warnings remain outside this technical disclosure at their existing operations.
+
+## v0.40 event observation recovery
+
+This repairs a UI lifecycle defect, not original HV mechanics. Canonical save loading deliberately restores camp state and starts new transient event IDs; the UI now starts a new observed-ID set only on successful state replacement. Equipment, loot, rewards, RNG and save-format rules remain unchanged. No new original-game claim or adaptation is introduced.

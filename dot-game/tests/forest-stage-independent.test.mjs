@@ -1,3 +1,4 @@
+import { beforeEventObservationReset } from './helpers/event-observation-baseline.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -20,7 +21,7 @@ test('forest independent: accepted v036 mechanics/session/CSS bytes retained', (
   for (const [p, hash] of Object.entries(pins)) assert.equal(sha(read(p)), hash, p);
 });
 test('forest independent: all pre-drawing controllers and full DOM status bytes retained', () => {
-  assert.equal(sha(source.slice(0, actorStart)), 'f1425d43ac53f2ca638fc41f82105b1120fd743ae03390402f7525c17dbc76b8');
+  assert.equal(sha(beforeEventObservationReset(source.slice(0, actorStart))), 'f1425d43ac53f2ca638fc41f82105b1120fd743ae03390402f7525c17dbc76b8');
 });
 test('forest independent: actor and opaque-nameplate functions byte-identical to v036', () => {
   const functions = runInNewContext(`${helperSource}; [rect, polygon, drawHero, drawEnemy].map(f => f.toString())`);
@@ -34,7 +35,7 @@ test('forest independent: actor positioning, effects and lifecycle retained outs
   const front = source.indexOf('  // Front grass', chest);
   assert.ok(ground >= 0 && chest > ground && front > chest);
   assert.equal(sha(source.slice(ground, chest)), 'b47b06ebd0df3ae7e5dcde3502fad0bee22c1a88ecafe8a45f98347b4fc52b6c');
-  assert.equal(sha(source.slice(front)), 'ad0f67d080f29a5f5f4e4bfaaa0e7c243602a1c678d1c0052c46902bcb35482c');
+  assert.equal(sha(beforeEventObservationReset(source.slice(front))), 'ad0f67d080f29a5f5f4e4bfaaa0e7c243602a1c678d1c0052c46902bcb35482c');
 });
 
 const backgroundEnd = source.indexOf('  const ground=h*.79;', sceneStart);

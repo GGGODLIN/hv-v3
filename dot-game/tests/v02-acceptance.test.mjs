@@ -172,11 +172,11 @@ test('v0.2 integration: actual acquisition refresh adopts raced v2 or protects m
   const ui=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8');
   const start=ui.indexOf('function refreshSavedState()'),end=ui.indexOf('const ownership =',start);
   assert.ok(start>=0&&end>start);
-  const refresh=ui.slice(start,end);
+  const refresh=ui.slice(start,end)+ui.slice(ui.indexOf('function resetEventObservation()'),ui.indexOf('function syncSelection()'));
   for(const raw of [JSON.stringify({...createGame(42),hero:{...createGame(42).hero,gold:987}}),'','{broken']) {
-    const context={storeAvailable:true,preventOverwrite:false,readStorage:()=>raw,SAVE_KEY:'save-v2',lastSavedRaw:null,state:createGame(1),validateSave,syncSelection:()=>{},notice:()=>{}};
+    const context={seenEvents:new Set(['1']),lastProcessedEvent:'1',storeAvailable:true,preventOverwrite:false,readStorage:()=>raw,SAVE_KEY:'save-v2',lastSavedRaw:null,state:createGame(1),validateSave,syncSelection:()=>{},notice:()=>{}};
     runInNewContext(`${refresh}\nrefreshSavedState();`,context);
-    if(raw.startsWith('{"version"')){assert.equal(context.state.hero.gold,987);assert.equal(context.lastSavedRaw,raw);}
+    if(raw.startsWith('{"version"')){assert.equal(context.state.hero.gold,987);assert.equal(context.lastSavedRaw,raw);assert.equal(context.seenEvents.size,0);assert.equal(context.lastProcessedEvent,null);}
     else assert.equal(context.preventOverwrite,true,'a corrupt save appearing before ownership cannot be overwritten');
   }
   const denied={storeAvailable:false,preventOverwrite:false,readStorage:()=>null,SAVE_KEY:'save-v2',lastSavedRaw:null,state:createGame(1),validateSave,syncSelection:()=>{},notice:()=>{}};

@@ -2,6 +2,10 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## Current slice: v0.40 adopted-journey event observation (source only)
+
+Fix confirmed event-ID collision after taking back progress: successful canonical replacement restarts transient engine IDs, so reset only that UI observation boundary. Same-state ownership changes must not replay old effects. No reward, storage format, engine, art or economic rules change. Full production UI with simulated browser APIs validates both storage notification and fresh ownership read paths; real v040 browser acceptance remains outstanding. No website action while the existing material-scope refusal is unresolved; do not rename a candidate to bypass it.
+
 ## Current slice: v0.39 native dialog naming (source only)
 
 Fix the demonstrated missing names on Help and Settings native dialogs by linking existing visible headings. Preserve all art/CSS/controller/core/assets. Add focused name/unique-reference regression tests, run the complete suite and source backup; no website operation or schedule change. v036 normal desktop 300% zoom is a baseline only, not mobile or v039 acceptance. Existing material scope refusal is still unresolved.

@@ -1,3 +1,4 @@
+import { beforeEventObservationReset } from './helpers/event-observation-baseline.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -15,8 +16,8 @@ const primitives = source.slice(source.indexOf('function rect('), source.indexOf
 
 test('chest independent: entire UI outside exact chest block retains frozen v037 bytes', () => {
   assert.ok(start > 0 && end > start);
-  // No UI version label exists in v037, so no broad normalization is permitted.
-  assert.equal(hash(source.slice(0, start) + '<CHEST>\n' + source.slice(end)), '0c5144a8a376778b7abf51c5ab1d5ec15c9140b40973b9550eb91aa89a06f8b8');
+  // Normalize only the exact v040 observation helper/calls; no broad normalization.
+  assert.equal(hash(beforeEventObservationReset(source.slice(0, start) + '<CHEST>\n' + source.slice(end))), '0c5144a8a376778b7abf51c5ab1d5ec15c9140b40973b9550eb91aa89a06f8b8');
 });
 test('chest independent: gameplay, loot, persistence, CSS and all 14 assets remain byte-identical', () => {
   for (const [path, expected] of Object.entries({
@@ -101,7 +102,7 @@ test('chest independent: volume has separate front, side, bevelled lid, paired s
 });
 test('chest independent: HTML and package retain baseline after exact version and v039 dialog-name normalization', () => {
   const html=read('index.html');
-  assert.equal((html.match(/v0\.39/g)||[]).length,2);
-  assert.equal(hash(html.replaceAll('v0.39','v0.37').replace(' aria-labelledby="help-title"', '').replace(' id="help-title"', '').replace(' aria-labelledby="settings-title"', '').replace(' id="settings-title"', '')),'5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade');
-  assert.equal(hash(read('package.json').replace('"version": "0.39.0"','"version": "0.37.0"')),'6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3');
+  assert.equal((html.match(/v0\.40/g)||[]).length,2);
+  assert.equal(hash(html.replaceAll('v0.40','v0.37').replace(' aria-labelledby="help-title"', '').replace(' id="help-title"', '').replace(' aria-labelledby="settings-title"', '').replace(' id="settings-title"', '')),'5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade');
+  assert.equal(hash(read('package.json').replace('"version": "0.40.0"','"version": "0.37.0"')),'6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3');
 });
