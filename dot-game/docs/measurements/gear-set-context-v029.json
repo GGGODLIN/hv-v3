@@ -1,0 +1,1827 @@
+{
+  "kind": "v0.29 earned source-engine preset-context measurement; not browser or UI-cancel acceptance",
+  "protocol": {
+    "seeds": [
+      29,
+      42,
+      77
+    ],
+    "attemptsPerSeed": 30,
+    "pulseSeconds": 1,
+    "maxPulsesPerFight": 1000,
+    "acquisition": "Fresh stage1 Balanced defaults, exactly30 attempts per fixed seed unless start-blocked/censored. Before each attempt choose highest-score owned item per slot (current/earlier item wins ties), then try legal learn/slot actions for all3 existing rank1 lines. Each start requests finishThenCamp. No potions, commission, sales, binding, IW, upgrades, resource/stat/RNG edits or extra attempts. Retain every defeat/censor/missing-family result.",
+    "presets": "After acquisition, save the first held axe/rapier/club (equipped item then backpack order) in A/B/C, retaining current armor/accessory; restore the acquisition weapon. Missing families are recorded without replacement or extra runs. No random item is created for a test.",
+    "profiles": "Independent copies of the same prepared earned save: A Balanced/front/ProtectionOFF/supplyOFF/all3 learned abilities slotted; B Assault/caster/ProtectionON only if naturally unlocked/supplyON/HP+1H slotted; C Sustain/weakest/ProtectionOFF/supplyON retained/HP+MP slotted. Keep earned ranks and record locked Protection or already-current gear without forcing a swap.",
+    "observation": "Inspect exact gear preview, prove full state/RNG unchanged, apply only a valid non-active exact quote, prove current policies/ability allocation and all owned item bytes unchanged. Already-active application is a complete no-op. Run one stage1 expedition for each available family and check actual start report against that branch configuration. No causal speed/survival comparison is made across different gear or policies."
+  },
+  "baseline": {
+    "commit": "e4121bb89be2b9e29bdbb262c83f16d0be993267",
+    "sha256": {
+      "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
+    }
+  },
+  "rows": [
+    {
+      "acquisition": {
+        "seed": 29,
+        "status": "completed",
+        "attempts": 30,
+        "wins": 30,
+        "losses": [],
+        "pulses": 318,
+        "elapsedSeconds": 301.79999999999956,
+        "final": {
+          "level": 13,
+          "wins": 30,
+          "kills": 180,
+          "gold": 2280,
+          "fragments": 300,
+          "seeds": 30,
+          "inventory": 51,
+          "pending": 0,
+          "rng": 3191130803,
+          "mode": "town"
+        },
+        "configuration": {
+          "strategy": "balanced",
+          "targetPriority": "front",
+          "autoProtection": false,
+          "protectionUnlocked": true,
+          "emergencySupply": false,
+          "emergencySupplyEffective": false,
+          "learned": [
+            {
+              "id": "hp-tank",
+              "rank": 1
+            },
+            {
+              "id": "mp-tank",
+              "rank": 1
+            },
+            {
+              "id": "one-handed-damage",
+              "rank": 1
+            }
+          ],
+          "slotted": [
+            {
+              "id": "hp-tank",
+              "rank": 1
+            },
+            {
+              "id": "mp-tank",
+              "rank": 1
+            },
+            {
+              "id": "one-handed-damage",
+              "rank": 1
+            }
+          ]
+        },
+        "acquisitionTraceSha256": "b56e543fde970a684239c02d12c5635a2d6f7a14a08fb9152a079328fb4c8755",
+        "earnedStateSha256": "f6e7ee3dadd399ce2adb3ef40b7e66c920047f4c53189725ead328e1318822d8",
+        "canonicalSaveSha256": "77bd3cf2b1bf68d4335451fa2910d29162cd93301e99575937b7890866856b9e"
+      },
+      "preparedSaveSha256": "fab4a70e30a6fdf5581275a9cb3e6b3c0792887c685f944a3dd7084e01f06710",
+      "branches": [
+        {
+          "id": "a",
+          "family": "axe",
+          "available": true,
+          "itemId": "loot-43",
+          "name": "華麗・銳意暮鋼戰斧・屠戮",
+          "quality": "Magnificent",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "balanced",
+            "target": "front",
+            "protection": false,
+            "supply": false,
+            "slotted": [
+              "hp-tank",
+              "mp-tank",
+              "one-handed-damage"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "balanced",
+            "targetPriority": "front",
+            "autoProtection": false,
+            "protectionUnlocked": true,
+            "emergencySupply": false,
+            "emergencySupplyEffective": false,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "OFF requested",
+          "preview": {
+            "active": true,
+            "applied": false,
+            "currentStats": {
+              "maxHp": 1017,
+              "maxMp": 60,
+              "attack": 220.83,
+              "defense": 18,
+              "mitigation": 0.2215189873417721,
+              "crit": 0.1303,
+              "evade": 0.07250000000000001,
+              "block": 0.07400000000000001,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1017,
+              "maxMp": 60,
+              "attack": 220.83,
+              "defense": 18,
+              "mitigation": 0.2215189873417721,
+              "crit": 0.1303,
+              "evade": 0.07250000000000001,
+              "block": 0.07400000000000001,
+              "parry": 0.035
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-43"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-27"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-32"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-43",
+              "armor": "loot-27",
+              "accessory": "loot-32"
+            }
+          },
+          "beforeStateSha256": "fab4a70e30a6fdf5581275a9cb3e6b3c0792887c685f944a3dd7084e01f06710",
+          "appliedStateSha256": "fab4a70e30a6fdf5581275a9cb3e6b3c0792887c685f944a3dd7084e01f06710",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 8,
+            "seconds": 7.399999999999991,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 51,
+              "pending": 0,
+              "rng": 3191130803,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 52,
+              "pending": 0,
+              "rng": 3307599989,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "front",
+              "autoProtection": false,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "mp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "one-handed-damage",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-43",
+                  "name": "華麗・銳意暮鋼戰斧・屠戮",
+                  "level": 3,
+                  "quality": "Magnificent"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-27",
+                  "name": "傳奇・流風鐵衛胸甲・追風",
+                  "level": 3,
+                  "quality": "Legendary"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-32",
+                  "name": "華麗・赤晶指環・長夜",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "10d83712e640d2c6bc1c15566904cd3f58dc7a3f1359100b4abc09c36d2a79aa"
+          }
+        },
+        {
+          "id": "b",
+          "family": "rapier",
+          "available": true,
+          "itemId": "loot-26",
+          "name": "優良・堅守逐風刺劍・靈巧",
+          "quality": "Superior",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "assault",
+            "target": "caster",
+            "protection": true,
+            "supply": true,
+            "slotted": [
+              "hp-tank",
+              "one-handed-damage"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "assault",
+            "targetPriority": "caster",
+            "autoProtection": true,
+            "protectionUnlocked": true,
+            "emergencySupply": true,
+            "emergencySupplyEffective": true,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "enabled",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1017,
+              "maxMp": 55,
+              "attack": 220.83,
+              "defense": 18,
+              "mitigation": 0.2215189873417721,
+              "crit": 0.1303,
+              "evade": 0.07250000000000001,
+              "block": 0.07400000000000001,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1029,
+              "maxMp": 55,
+              "attack": 167.83,
+              "defense": 20,
+              "mitigation": 0.23708860759493666,
+              "crit": 0.15560000000000002,
+              "evade": 0.07250000000000001,
+              "block": 0.07400000000000001,
+              "parry": 0.20351400000000003
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-43"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-27"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-32"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-26",
+              "armor": "loot-27",
+              "accessory": "loot-32"
+            }
+          },
+          "beforeStateSha256": "4fe28d5e834c7d16e2875c2848d60bf445fc885fc50bc2347df246dd38e028cb",
+          "appliedStateSha256": "bf02fd11ea3f11b505e8555ccee2603dbdb179e6836dde5a6b25e4c51a5fa75d",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 9,
+            "seconds": 8.399999999999988,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 51,
+              "pending": 0,
+              "rng": 3191130803,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 53,
+              "pending": 0,
+              "rng": 583441925,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "caster",
+              "autoProtection": true,
+              "emergencySupply": true,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "one-handed-damage",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-26",
+                  "name": "優良・堅守逐風刺劍・靈巧",
+                  "level": 3,
+                  "quality": "Superior"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-27",
+                  "name": "傳奇・流風鐵衛胸甲・追風",
+                  "level": 3,
+                  "quality": "Legendary"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-32",
+                  "name": "華麗・赤晶指環・長夜",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "88b7ca58838ae95705c629ee2bd938cd6bef1b2f1f245aaf1857866815b48f8c"
+          }
+        },
+        {
+          "id": "c",
+          "family": "club",
+          "available": true,
+          "itemId": "loot-2",
+          "name": "精良・裂岩戰棍・平衡",
+          "quality": "Exquisite",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "sustain",
+            "target": "weakest",
+            "protection": false,
+            "supply": true,
+            "slotted": [
+              "hp-tank",
+              "mp-tank"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "sustain",
+            "targetPriority": "weakest",
+            "autoProtection": false,
+            "protectionUnlocked": true,
+            "emergencySupply": true,
+            "emergencySupplyEffective": false,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "OFF requested",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1017,
+              "maxMp": 60,
+              "attack": 190.75,
+              "defense": 18,
+              "mitigation": 0.2215189873417721,
+              "crit": 0.1303,
+              "evade": 0.07250000000000001,
+              "block": 0.07400000000000001,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1017,
+              "maxMp": 60,
+              "attack": 163.75,
+              "defense": 18,
+              "mitigation": 0.2215189873417721,
+              "crit": 0.20020000000000002,
+              "evade": 0.07250000000000001,
+              "block": 0.07400000000000001,
+              "parry": 0.035
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-43"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-27"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-32"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-2",
+              "armor": "loot-27",
+              "accessory": "loot-32"
+            }
+          },
+          "beforeStateSha256": "9cce2577058e5ee716981bdbcbf4817ad8d524375923f9018a4ff66dcdbf93f2",
+          "appliedStateSha256": "b967539c696751fd103173928621c3100876d3e34afdac39c8a53a757041896f",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 12,
+            "seconds": 11.599999999999977,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 51,
+              "pending": 0,
+              "rng": 3191130803,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 53,
+              "pending": 0,
+              "rng": 2493961878,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "weakest",
+              "autoProtection": false,
+              "emergencySupply": true,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "mp-tank",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-2",
+                  "name": "精良・裂岩戰棍・平衡",
+                  "level": 3,
+                  "quality": "Exquisite"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-27",
+                  "name": "傳奇・流風鐵衛胸甲・追風",
+                  "level": 3,
+                  "quality": "Legendary"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-32",
+                  "name": "華麗・赤晶指環・長夜",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "2475fab3d1e0d9d4e4f897be0bb769bcbc196876981c07883075990f307d5516"
+          }
+        }
+      ]
+    },
+    {
+      "acquisition": {
+        "seed": 42,
+        "status": "completed",
+        "attempts": 30,
+        "wins": 30,
+        "losses": [],
+        "pulses": 315,
+        "elapsedSeconds": 298.5999999999996,
+        "final": {
+          "level": 13,
+          "wins": 30,
+          "kills": 180,
+          "gold": 2280,
+          "fragments": 300,
+          "seeds": 30,
+          "inventory": 47,
+          "pending": 0,
+          "rng": 3948994713,
+          "mode": "town"
+        },
+        "configuration": {
+          "strategy": "balanced",
+          "targetPriority": "front",
+          "autoProtection": false,
+          "protectionUnlocked": true,
+          "emergencySupply": false,
+          "emergencySupplyEffective": false,
+          "learned": [
+            {
+              "id": "hp-tank",
+              "rank": 1
+            },
+            {
+              "id": "mp-tank",
+              "rank": 1
+            },
+            {
+              "id": "one-handed-damage",
+              "rank": 1
+            }
+          ],
+          "slotted": [
+            {
+              "id": "hp-tank",
+              "rank": 1
+            },
+            {
+              "id": "mp-tank",
+              "rank": 1
+            },
+            {
+              "id": "one-handed-damage",
+              "rank": 1
+            }
+          ]
+        },
+        "acquisitionTraceSha256": "d86ea66f42384f58b6b14238e27b627965342b4146d2067782971c0d0aa87516",
+        "earnedStateSha256": "5ff436d8dda2917147d4314e6f8a6581f0c94408b09dc672aaa37aa1549b7f09",
+        "canonicalSaveSha256": "1edbb5946f13954b530be21fd2c12e9d34403fd967fe2a1b2301a9cccf2e1480"
+      },
+      "preparedSaveSha256": "c9e7e9a71684754d4ef0b49d7cd0631893ef70e4003e9775ce65ee26079c242f",
+      "branches": [
+        {
+          "id": "a",
+          "family": "axe",
+          "available": true,
+          "itemId": "loot-23",
+          "name": "精良・獵隙暮鋼戰斧・屠戮",
+          "quality": "Exquisite",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "balanced",
+            "target": "front",
+            "protection": false,
+            "supply": false,
+            "slotted": [
+              "hp-tank",
+              "mp-tank",
+              "one-handed-damage"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "balanced",
+            "targetPriority": "front",
+            "autoProtection": false,
+            "protectionUnlocked": true,
+            "emergencySupply": false,
+            "emergencySupplyEffective": false,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "OFF requested",
+          "preview": {
+            "active": true,
+            "applied": false,
+            "currentStats": {
+              "maxHp": 1085,
+              "maxMp": 60,
+              "attack": 216.99,
+              "defense": 18,
+              "mitigation": 0.21724683544303802,
+              "crit": 0.1326,
+              "evade": 0.052000000000000005,
+              "block": 0.048600000000000004,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1085,
+              "maxMp": 60,
+              "attack": 216.99,
+              "defense": 18,
+              "mitigation": 0.21724683544303802,
+              "crit": 0.1326,
+              "evade": 0.052000000000000005,
+              "block": 0.048600000000000004,
+              "parry": 0.035
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-23"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-29"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-18"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-23",
+              "armor": "loot-29",
+              "accessory": "loot-18"
+            }
+          },
+          "beforeStateSha256": "c9e7e9a71684754d4ef0b49d7cd0631893ef70e4003e9775ce65ee26079c242f",
+          "appliedStateSha256": "c9e7e9a71684754d4ef0b49d7cd0631893ef70e4003e9775ce65ee26079c242f",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 8,
+            "seconds": 7.399999999999991,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 47,
+              "pending": 0,
+              "rng": 3948994713,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 49,
+              "pending": 0,
+              "rng": 2561756460,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "front",
+              "autoProtection": false,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "mp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "one-handed-damage",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-23",
+                  "name": "精良・獵隙暮鋼戰斧・屠戮",
+                  "level": 3,
+                  "quality": "Exquisite"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-29",
+                  "name": "華麗・堅守餘燼護衣・長夜",
+                  "level": 3,
+                  "quality": "Magnificent"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-18",
+                  "name": "華麗・赤晶指環・壁壘",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "3d4da9b8bfe6614a94a659abf5b0fdcefc2052dca92b293215ef338ea25733c3"
+          }
+        },
+        {
+          "id": "b",
+          "family": "rapier",
+          "available": true,
+          "itemId": "loot-11",
+          "name": "精良・逐風刺劍・靈巧",
+          "quality": "Exquisite",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "assault",
+            "target": "caster",
+            "protection": true,
+            "supply": true,
+            "slotted": [
+              "hp-tank",
+              "one-handed-damage"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "assault",
+            "targetPriority": "caster",
+            "autoProtection": true,
+            "protectionUnlocked": true,
+            "emergencySupply": true,
+            "emergencySupplyEffective": true,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "enabled",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1085,
+              "maxMp": 55,
+              "attack": 216.99,
+              "defense": 18,
+              "mitigation": 0.21724683544303802,
+              "crit": 0.1326,
+              "evade": 0.052000000000000005,
+              "block": 0.048600000000000004,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1085,
+              "maxMp": 55,
+              "attack": 179.99,
+              "defense": 18,
+              "mitigation": 0.21724683544303802,
+              "crit": 0.1578,
+              "evade": 0.052000000000000005,
+              "block": 0.048600000000000004,
+              "parry": 0.23129100000000002
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-23"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-29"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-18"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-11",
+              "armor": "loot-29",
+              "accessory": "loot-18"
+            }
+          },
+          "beforeStateSha256": "786aa46e23ace32485d653dd59dd86300ff2eecd13d84934ab6dfc1f570c964e",
+          "appliedStateSha256": "bac9b7a1836f34c72454613c740764748af006070626e6b22b6935535134e9da",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 9,
+            "seconds": 8.399999999999988,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 47,
+              "pending": 0,
+              "rng": 3948994713,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 48,
+              "pending": 0,
+              "rng": 2313712787,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "caster",
+              "autoProtection": true,
+              "emergencySupply": true,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "one-handed-damage",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-11",
+                  "name": "精良・逐風刺劍・靈巧",
+                  "level": 3,
+                  "quality": "Exquisite"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-29",
+                  "name": "華麗・堅守餘燼護衣・長夜",
+                  "level": 3,
+                  "quality": "Magnificent"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-18",
+                  "name": "華麗・赤晶指環・壁壘",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "35122fd05a47fde4cda04a1e99b116e7a71b928a557afbdada9ac0778efedef6"
+          }
+        },
+        {
+          "id": "c",
+          "family": "club",
+          "available": true,
+          "itemId": "loot-3",
+          "name": "精良・裂岩戰棍・屠戮",
+          "quality": "Exquisite",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "sustain",
+            "target": "weakest",
+            "protection": false,
+            "supply": true,
+            "slotted": [
+              "hp-tank",
+              "mp-tank"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "sustain",
+            "targetPriority": "weakest",
+            "autoProtection": false,
+            "protectionUnlocked": true,
+            "emergencySupply": true,
+            "emergencySupplyEffective": false,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "OFF requested",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1085,
+              "maxMp": 60,
+              "attack": 186.75,
+              "defense": 18,
+              "mitigation": 0.21724683544303802,
+              "crit": 0.1326,
+              "evade": 0.052000000000000005,
+              "block": 0.048600000000000004,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1085,
+              "maxMp": 60,
+              "attack": 174.75,
+              "defense": 18,
+              "mitigation": 0.21724683544303802,
+              "crit": 0.1593,
+              "evade": 0.052000000000000005,
+              "block": 0.048600000000000004,
+              "parry": 0.035
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-23"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-29"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-18"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-3",
+              "armor": "loot-29",
+              "accessory": "loot-18"
+            }
+          },
+          "beforeStateSha256": "ab7fd55d44c698a53988cd5950a39c9954b366ccfe331c7345cd1d3dea0673ad",
+          "appliedStateSha256": "51427690654273347a6f76ce44051ffafdc9e617bfbc89c0ed689a500fbd4616",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 9,
+            "seconds": 8.399999999999988,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 47,
+              "pending": 0,
+              "rng": 3948994713,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 49,
+              "pending": 0,
+              "rng": 2545451858,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "weakest",
+              "autoProtection": false,
+              "emergencySupply": true,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "mp-tank",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-3",
+                  "name": "精良・裂岩戰棍・屠戮",
+                  "level": 3,
+                  "quality": "Exquisite"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-29",
+                  "name": "華麗・堅守餘燼護衣・長夜",
+                  "level": 3,
+                  "quality": "Magnificent"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-18",
+                  "name": "華麗・赤晶指環・壁壘",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "449ff1473ec36fc1aa8da7c5e84e82ab1f79cf678e3942d79fd71576900df02e"
+          }
+        }
+      ]
+    },
+    {
+      "acquisition": {
+        "seed": 77,
+        "status": "completed",
+        "attempts": 30,
+        "wins": 30,
+        "losses": [],
+        "pulses": 347,
+        "elapsedSeconds": 332.39999999999947,
+        "final": {
+          "level": 13,
+          "wins": 30,
+          "kills": 180,
+          "gold": 2280,
+          "fragments": 300,
+          "seeds": 30,
+          "inventory": 53,
+          "pending": 0,
+          "rng": 3487557618,
+          "mode": "town"
+        },
+        "configuration": {
+          "strategy": "balanced",
+          "targetPriority": "front",
+          "autoProtection": false,
+          "protectionUnlocked": true,
+          "emergencySupply": false,
+          "emergencySupplyEffective": false,
+          "learned": [
+            {
+              "id": "hp-tank",
+              "rank": 1
+            },
+            {
+              "id": "mp-tank",
+              "rank": 1
+            },
+            {
+              "id": "one-handed-damage",
+              "rank": 1
+            }
+          ],
+          "slotted": [
+            {
+              "id": "hp-tank",
+              "rank": 1
+            },
+            {
+              "id": "mp-tank",
+              "rank": 1
+            },
+            {
+              "id": "one-handed-damage",
+              "rank": 1
+            }
+          ]
+        },
+        "acquisitionTraceSha256": "8e89676dc4380947818a0c4311721192d330881c58f9cbe9c979772589dbcfbc",
+        "earnedStateSha256": "7579b1d0e7407bf9bbad1d32721e8ca3d1c1fd36149e73dcce38e4f389fb8b8e",
+        "canonicalSaveSha256": "e5f485ace41ed42c619e492a7f5d27997fa84501f17c90ac39b4930266aaa9cb"
+      },
+      "preparedSaveSha256": "d1dcfc46a2b87403dd6678d2af3b38cce8c49323c77c5a9e32d21e35280959c5",
+      "branches": [
+        {
+          "id": "a",
+          "family": "axe",
+          "available": true,
+          "itemId": "loot-30",
+          "name": "普通・暮鋼戰斧・屠戮",
+          "quality": "Average",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "balanced",
+            "target": "front",
+            "protection": false,
+            "supply": false,
+            "slotted": [
+              "hp-tank",
+              "mp-tank",
+              "one-handed-damage"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "balanced",
+            "targetPriority": "front",
+            "autoProtection": false,
+            "protectionUnlocked": true,
+            "emergencySupply": false,
+            "emergencySupplyEffective": false,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "OFF requested",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1061,
+              "maxMp": 60,
+              "attack": 204.35,
+              "defense": 19,
+              "mitigation": 0.2264556962025317,
+              "crit": 0.1792,
+              "evade": 0.06180000000000001,
+              "block": 0.0492,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1061,
+              "maxMp": 60,
+              "attack": 199.35,
+              "defense": 19,
+              "mitigation": 0.2264556962025317,
+              "crit": 0.1399,
+              "evade": 0.06180000000000001,
+              "block": 0.0492,
+              "parry": 0.035
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-40"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-23"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-31"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-30",
+              "armor": "loot-23",
+              "accessory": "loot-31"
+            }
+          },
+          "beforeStateSha256": "d1dcfc46a2b87403dd6678d2af3b38cce8c49323c77c5a9e32d21e35280959c5",
+          "appliedStateSha256": "af049e0efde53ea1877935e8afc389c2f1124d9f80ced6aae8587def4a9d6bb5",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 9,
+            "seconds": 8.399999999999988,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 53,
+              "pending": 0,
+              "rng": 3487557618,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 55,
+              "pending": 0,
+              "rng": 4193628821,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "front",
+              "autoProtection": false,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "mp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "one-handed-damage",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-30",
+                  "name": "普通・暮鋼戰斧・屠戮",
+                  "level": 3,
+                  "quality": "Average"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-23",
+                  "name": "傳奇・堅守餘燼護衣・追風",
+                  "level": 3,
+                  "quality": "Legendary"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-31",
+                  "name": "華麗・獵隙赤晶指環・壁壘",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "76500b3747d34e7e4c0931b44c0e77c350ba47c0f68f274c2c4e2b676d3ccb27"
+          }
+        },
+        {
+          "id": "b",
+          "family": "rapier",
+          "available": true,
+          "itemId": "loot-33",
+          "name": "優良・逐風刺劍・屠戮",
+          "quality": "Superior",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "assault",
+            "target": "caster",
+            "protection": true,
+            "supply": true,
+            "slotted": [
+              "hp-tank",
+              "one-handed-damage"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "assault",
+            "targetPriority": "caster",
+            "autoProtection": true,
+            "protectionUnlocked": true,
+            "emergencySupply": true,
+            "emergencySupplyEffective": true,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "enabled",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1061,
+              "maxMp": 55,
+              "attack": 204.35,
+              "defense": 19,
+              "mitigation": 0.2264556962025317,
+              "crit": 0.1792,
+              "evade": 0.06180000000000001,
+              "block": 0.0492,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1061,
+              "maxMp": 55,
+              "attack": 178.35,
+              "defense": 19,
+              "mitigation": 0.2264556962025317,
+              "crit": 0.1663,
+              "evade": 0.06180000000000001,
+              "block": 0.0492,
+              "parry": 0.14460900000000002
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-40"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-23"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-31"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-33",
+              "armor": "loot-23",
+              "accessory": "loot-31"
+            }
+          },
+          "beforeStateSha256": "4289ac37b4e8be61fd86ae2208ca5341a1a23edcd7d4acd6139cbb3448079e29",
+          "appliedStateSha256": "75535b3ec2ac0347d15c80ac053c4fa249f915496d4efb4a4ce0cda59d6eefb3",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 10,
+            "seconds": 9.499999999999984,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 53,
+              "pending": 0,
+              "rng": 3487557618,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 54,
+              "pending": 0,
+              "rng": 3519777151,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "caster",
+              "autoProtection": true,
+              "emergencySupply": true,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "one-handed-damage",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-33",
+                  "name": "優良・逐風刺劍・屠戮",
+                  "level": 3,
+                  "quality": "Superior"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-23",
+                  "name": "傳奇・堅守餘燼護衣・追風",
+                  "level": 3,
+                  "quality": "Legendary"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-31",
+                  "name": "華麗・獵隙赤晶指環・壁壘",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "6e7fbdc14badb80e62f44ccd8d09f52d376d610a00eee0c12100d4e543b68002"
+          }
+        },
+        {
+          "id": "c",
+          "family": "club",
+          "available": true,
+          "itemId": "loot-1",
+          "name": "普通・裂岩戰棍",
+          "quality": "Average",
+          "level": 3,
+          "tested": true,
+          "requestedProfile": {
+            "strategy": "sustain",
+            "target": "weakest",
+            "protection": false,
+            "supply": true,
+            "slotted": [
+              "hp-tank",
+              "mp-tank"
+            ]
+          },
+          "actualConfiguration": {
+            "strategy": "sustain",
+            "targetPriority": "weakest",
+            "autoProtection": false,
+            "protectionUnlocked": true,
+            "emergencySupply": true,
+            "emergencySupplyEffective": false,
+            "learned": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              },
+              {
+                "id": "one-handed-damage",
+                "rank": 1
+              }
+            ],
+            "slotted": [
+              {
+                "id": "hp-tank",
+                "rank": 1
+              },
+              {
+                "id": "mp-tank",
+                "rank": 1
+              }
+            ]
+          },
+          "protectionRequestResult": "OFF requested",
+          "preview": {
+            "active": false,
+            "applied": true,
+            "currentStats": {
+              "maxHp": 1061,
+              "maxMp": 60,
+              "attack": 174.75,
+              "defense": 19,
+              "mitigation": 0.2264556962025317,
+              "crit": 0.1792,
+              "evade": 0.06180000000000001,
+              "block": 0.0492,
+              "parry": 0.035
+            },
+            "nextStats": {
+              "maxHp": 1061,
+              "maxMp": 60,
+              "attack": 146.75,
+              "defense": 19,
+              "mitigation": 0.2264556962025317,
+              "crit": 0.1614,
+              "evade": 0.06180000000000001,
+              "block": 0.0492,
+              "parry": 0.035
+            },
+            "currentEquipment": [
+              {
+                "slot": "weapon",
+                "id": "loot-40"
+              },
+              {
+                "slot": "armor",
+                "id": "loot-23"
+              },
+              {
+                "slot": "accessory",
+                "id": "loot-31"
+              }
+            ],
+            "targetEquipment": {
+              "weapon": "loot-1",
+              "armor": "loot-23",
+              "accessory": "loot-31"
+            }
+          },
+          "beforeStateSha256": "46658df764b728d879d38352683b371b9dcb01b404e9fa6282548ca96261f09f",
+          "appliedStateSha256": "7e765e3e0abf2cb4bdc95e1c1dae28f4a2a39ccb0e37235d860b63081d3902a4",
+          "checks": {
+            "previewFullStateAndRngUnchanged": true,
+            "gearOnlyApply": true,
+            "allOwnedBytesRetained": true,
+            "currentPoliciesAndRanksRetained": true,
+            "actualStartReportMatches": true
+          },
+          "expedition": {
+            "outcome": "win",
+            "pulses": 11,
+            "seconds": 10.49999999999998,
+            "before": {
+              "level": 13,
+              "wins": 30,
+              "kills": 180,
+              "gold": 2280,
+              "fragments": 300,
+              "seeds": 30,
+              "inventory": 53,
+              "pending": 0,
+              "rng": 3487557618,
+              "mode": "town"
+            },
+            "after": {
+              "level": 13,
+              "wins": 31,
+              "kills": 186,
+              "gold": 2356,
+              "fragments": 310,
+              "seeds": 31,
+              "inventory": 54,
+              "pending": 0,
+              "rng": 2106585420,
+              "mode": "town"
+            },
+            "startBuild": {
+              "targetPriority": "weakest",
+              "autoProtection": false,
+              "emergencySupply": true,
+              "abilities": [
+                {
+                  "id": "hp-tank",
+                  "rank": 1
+                },
+                {
+                  "id": "mp-tank",
+                  "rank": 1
+                }
+              ],
+              "equipment": [
+                {
+                  "slot": "weapon",
+                  "id": "loot-1",
+                  "name": "普通・裂岩戰棍",
+                  "level": 3,
+                  "quality": "Average"
+                },
+                {
+                  "slot": "armor",
+                  "id": "loot-23",
+                  "name": "傳奇・堅守餘燼護衣・追風",
+                  "level": 3,
+                  "quality": "Legendary"
+                },
+                {
+                  "slot": "accessory",
+                  "id": "loot-31",
+                  "name": "華麗・獵隙赤晶指環・壁壘",
+                  "level": 3,
+                  "quality": "Magnificent"
+                }
+              ]
+            },
+            "reportSha256": "ebd5883fef4b142e04b59f3db92be07997c2b8c210b0b153bc1a77a061b4787b"
+          }
+        }
+      ]
+    }
+  ],
+  "inputSha256": {
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "scripts/gear-set-context-measurement.mjs": "e83d4dd72b5a09e9e42bf4b0791f99365a685ee578b26d3fc3ab30a3cdb1402a"
+  }
+}

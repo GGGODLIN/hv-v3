@@ -260,7 +260,7 @@ function dispatch(action, payload) {
 }
 // Gear-only plans reference owned items; they never copy items or save abilities.
 function gearSetIntentSignature() {
-  return JSON.stringify([state.gearSets, state.equipment, state.inventory, state.pendingLoot, state.hero.level, state.hero.attributes, state.hero.proficiency, state.abilities, state.mode, tabOwner]);
+  return JSON.stringify([state.gearSets, state.equipment, state.inventory, state.pendingLoot, state.hero.level, state.hero.attributes, state.hero.proficiency, state.abilities, state.strategy, state.targetPriority, state.autoProtection, state.emergencySupply, state.mode, tabOwner]);
 }
 function closeGearSetDialog() {
   gearSetConsent = null;
@@ -290,6 +290,27 @@ function gearSetComparison(preview) {
   wrap.append(node('p','gear-set-counter',`招架／格擋成功後的條件反擊：${counter(preview.currentCounter)} → ${counter(preview.nextCounter)}。不是每次受擊機率。`));
   return wrap;
 }
+// This is the current configuration retained by a gear-only switch, not saved
+// preset data. The matching consent signature cancels if any displayed choice changes.
+function gearSetRetainedContext() {
+  const section = node('section', 'report-build gear-set-retained-context');
+  const abilities = abilityView(state), protection = protectionView(state), supply = emergencySupplyView(state);
+  const strategy = STRATEGIES.find(entry => entry.id === state.strategy)?.label || '未辨識';
+  const current = {targetPriority: targetPriorityView(state).policy, autoProtection: protection.enabled};
+  section.append(node('h3', '', '目前設定 · 套用後維持'),
+    node('p', 'report-build-note', '以下是現在的設定，不是配裝方案儲存的內容。只換三件裝備；不學習、裝配或升階能力，也不切換任何戰鬥政策。'),
+    node('p', 'report-build-policy', `目前戰術：${strategy}`),
+    node('p', 'report-build-policy', buildPolicyText(current, '目前政策')),
+    node('p', 'report-build-note', protection.unlocked
+      ? `Protection 政策不代表護盾已生效；出戰後仍依原施法條件判斷，每次 ${format(protection.manaCost)} MP 並取代一次攻擊。`
+      : `Protection 尚未解鎖（Lv.${protection.unlockLevel}）；政策不代表護盾已生效，目前不能施放。`),
+    node('p', 'report-build-policy', `目前設定：${buildEmergencySupplyText(supply.enabled)}`));
+  if (supply.strategy === 'sustain') section.append(node('p', 'report-build-note', '目前為持久：額外緊急補給開關不生效；原本治癒後 HP 低於 30% 自動喝藥的規則仍獨立運作，可以用最後 1 瓶。'));
+  section.append(node('p', 'report-build-policy', '目前已裝配能力 · 套用後仍生效'),
+    buildAbilityList(abilities.valid ? abilities.catalog.filter(choice => choice.slotted).map(choice => ({id: choice.id, rank: choice.currentRank})) : null),
+    node('p', 'report-build-note', '只列已裝配階級；學會但未裝配的能力不生效。面板預覽已包含這些能力，不是另一份能力方案，也不保證勝率或速度。'));
+  return section;
+}
 function requestGearSet(id, kind) {
   if ($('gear-set-dialog').open || !claimLease() || state.mode !== 'town') return;
   const view = gearSetsView(state), row = view.sets.find(entry => entry.id === id);
@@ -314,7 +335,7 @@ function requestGearSet(id, kind) {
     }
   }
   $('gear-set-items').replaceChildren(...rows);
-  $('gear-set-stats').replaceChildren(...(preview ? [gearSetComparison(preview)] : []));
+  $('gear-set-stats').replaceChildren(...(preview ? [gearSetRetainedContext(), gearSetComparison(preview)] : []));
   $('gear-set-dialog-feedback').textContent = '取消不會改變裝備或記錄；確認只處理這份預覽。';
   $('gear-set-confirm').textContent = kind === 'apply' ? '確認套用配裝' : kind === 'save' ? '確認鎖定並覆寫' : '確認清除記錄';
   $('gear-set-confirm').disabled = false; $('gear-set-dialog').showModal();
@@ -1168,24 +1189,13 @@ function expeditionBuildContext(build) {
     section.append(node('p', 'report-build-policy', '出發配置未記錄；不以目前配置推測。'));
     return section;
   }
-  const target = TARGET_PRIORITIES.find(entry => entry.id === build.targetPriority)?.label || '未記錄';
-  const protection = build.autoProtection === true ? 'ON' : build.autoProtection === false ? 'OFF' : '未記錄';
-  section.append(node('p', 'report-build-policy', `出發政策：${target} · Protection ${protection}`),
+  section.append(node('p', 'report-build-policy', buildPolicyText(build, '出發政策')),
     node('p', 'report-build-note', '政策不代表護盾已生效；有實際施放時另列護盾取捨。'));
-  if (build.emergencySupply === true) section.append(node('p', 'report-build-policy', '出發設定：額外緊急補給 ON · 僅均衡／猛攻於治癒後 HP 低於 30% 使用，保留 1 瓶手動；持久仍用既有規則，可用最後 1 瓶。'),
+  if (build.emergencySupply === true) section.append(node('p', 'report-build-policy', `出發設定：${buildEmergencySupplyText(true)}`),
     node('p', 'report-build-note', '此設定不代表實際喝藥；行動次數另列本場實際藥水消耗（含手動／自動）。'));
   const details = node('details', 'report-build-details');
   details.append(node('summary', '', '出發配置詳情 · 已裝配能力／裝備'));
-  const abilities = node('ul', 'report-build-list');
-  if (!Array.isArray(build.abilities)) abilities.append(node('li', '', '已裝配能力：未記錄'));
-  else if (!build.abilities.length) abilities.append(node('li', '', '已裝配能力：無'));
-  else for (const ability of build.abilities.slice(0, 5)) {
-    const known = MAJOR_ABILITIES.find(entry => entry.id === ability?.id);
-    const name = known?.label || '未辨識能力';
-    const maxRank = ability?.id === 'one-handed-damage' ? 3 : 10;
-    const rank = known && Number.isInteger(ability?.rank) && ability.rank > 0 && ability.rank <= maxRank ? ability.rank : '未記錄';
-    abilities.append(node('li', '', `${name} · Rank ${rank} · ID：${known?.id || '未記錄'}`));
-  }
+  const abilities = buildAbilityList(build.abilities);
   const equipment = node('ul', 'report-build-list');
   const text = value => typeof value === 'string' && value.trim() ? value.slice(0, 160) : '未記錄';
   for (const slot of ['weapon', 'armor', 'accessory']) {
@@ -1197,6 +1207,30 @@ function expeditionBuildContext(build) {
   details.append(abilities, equipment, node('p', 'report-build-note', '僅記錄出發配置；層數、等級與遭遇不同，不代表最佳配裝或勝負原因。'));
   section.append(details);
   return section;
+}
+// Shared read-only labels keep current preset context and historical reports
+// consistent; callers still supply their own current or departure-only data.
+function buildPolicyText(build, prefix) {
+  const target = TARGET_PRIORITIES.find(entry => entry.id === build.targetPriority)?.label || '未記錄';
+  const protection = build.autoProtection === true ? 'ON' : build.autoProtection === false ? 'OFF' : '未記錄';
+  return `${prefix}：${target} · Protection ${protection}`;
+}
+function buildEmergencySupplyText(enabled) {
+  return enabled ? '額外緊急補給 ON · 僅均衡／猛攻於治癒後 HP 低於 30% 使用，保留 1 瓶手動；持久仍用既有規則，可用最後 1 瓶。'
+    : '額外緊急補給 OFF · 均衡／猛攻維持手動喝藥；持久仍用既有規則，可用最後 1 瓶。';
+}
+function buildAbilityList(entries) {
+  const list = node('ul', 'report-build-list');
+  if (!Array.isArray(entries)) list.append(node('li', '', '已裝配能力：未記錄'));
+  else if (!entries.length) list.append(node('li', '', '已裝配能力：無'));
+  else for (const ability of entries.slice(0, 5)) {
+    const known = MAJOR_ABILITIES.find(entry => entry.id === ability?.id);
+    const name = known?.label || '未辨識能力';
+    const maxRank = ability?.id === 'one-handed-damage' ? 3 : 10;
+    const rank = known && Number.isInteger(ability?.rank) && ability.rank > 0 && ability.rank <= maxRank ? ability.rank : '未記錄';
+    list.append(node('li', '', `${name} · Rank ${rank} · ID：${known?.id || '未記錄'}`));
+  }
+  return list;
 }
 function renderExpeditionReports() {
   const reports = expeditionReports(state).slice(0, 2);

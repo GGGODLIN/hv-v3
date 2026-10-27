@@ -1,5 +1,13 @@
 # Three gear-only camp presets
 
+## v0.29: current retained settings in apply preview
+
+The apply dialog also shows the current strategy, target priority, Protection policy, emergency-supply behavior and currently slotted ability ranks. These settings are read from the current character, **not recalled from the saved preset**. Applying still changes only the three gear references and performs the existing camp recovery; it does not learn, upgrade, slot or refund abilities, spend AP or change any policy.
+
+Protection ON describes a casting policy, not a shield already active in camp; its unlock condition remains visible. Sustain uses its own automatic potion rule, including the last bottle, regardless of the separately retained extra-supply preference. Learned-but-unslotted abilities are not presented as active. A sheet comparison is still not a win-rate or speed prediction.
+
+If any displayed policy or ability context changes after opening, confirmation is canceled and requires a fresh preview. Canceling or opening the preview does not change game state or RNG. This section documents source-only work; it is not a claim of browser acceptance or publication. See ACCEPTANCE-V029.md and RECOVERY-V029.md for evidence status.
+
 ## Use
 1. Equip the three items you want through normal inventory controls.
 2. At camp choose an empty 配裝 A/B/C slot's explicitly labeled lock-and-save control. This stores existing item IDs and locks all three items. It neither creates another copy nor moves them into extra storage.
