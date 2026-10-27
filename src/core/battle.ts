@@ -223,7 +223,10 @@ export function chargeEstimate(s: BattleState, m0: Monster, defending = false, c
   const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : m.charge > 0 ? BOSS_CHARGE_MULT : 1; // rc9 P0-1: heavyNext / plain hit = ×1
   const el = pulse ? m.shieldEl : m.elemAttack;
   const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
-  return meanHit(m.adb * mult * (m.elemAttack ? CP5.frostMult : 1) * (crit ? 1 + MCRIT.critDamageBonus : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0);
+  const raw = m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), spec = s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0;
+  // rc21 item 2（暫定，自訂，非原版）: the crit case is the worst hit — top roll (F-002-5.1D 120%) × monster crit, the same definition
+  // worstHit / bigTele use. rc16–rc20 used the mean roll (100%) × crit, which under-reads a real top-roll crit by up to 1/6 (QA rc20 oc1 F16).
+  return crit ? maxHit(raw, mit, spec, 1 + MCRIT.critDamageBonus) : meanHit(raw, mit, spec);
 }
 /** cp8-rc10 P0-3: the biggest plain (×1) hit this monster can land now: top roll, monster crit (+ its crit bonus damage), current mitigation. */
 export function worstHit(s: BattleState, m0: Monster, defending = false): number {
@@ -241,11 +244,14 @@ export function nextRoundEstimate(s: BattleState, crit = false): number {
 /** rc16（製作人要求，自訂）: physical hits log resistance only when it is at least this %. */
 export const PHYS_RESIST_LOG = 25;
 /** rc20 item 1（自訂，非原版）: HP ≤ POT_HINT.low of max (暫定 35%). */
+/** rc21 item 2（製作人 40%）: the next round could take ≥ this share of max HP → show the decision even when HP survives it. */
+export const BIG_NEXT = 0.4;
+export const bigNext = (s: BattleState): boolean => s.hp > 0 && nextRoundEstimate(s, true) >= s.d.hp * BIG_NEXT;
 export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
 export function hpDanger(s: BattleState): boolean {
   // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
   // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
-  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp || lowHp(s);
+  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp || lowHp(s) || bigNext(s); // rc21 item 2: …or the next round could take ≥ 40% max HP
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
@@ -262,14 +268,16 @@ export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: str
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
-  const why = nextRoundEstimate(s, true) >= s.hp ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）`;
-  // rc20 item 1（自訂，非原版）: low HP + potion usable → Z first.
-  if (canUse(s, { kind: 'item', id: 'health' }) && lowHp(s)) return { danger, est, hp, keys: ['Z', 'D'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）或 D·防禦（${why}）` };
-  if (canUse(s, { kind: 'item', id: 'health' })) return { danger, est, hp, keys: ['D', 'Z'], text: `D·防禦（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%）或 Z·生命藥水（剩 ${s.potions.health} 瓶）（HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
-  // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
+  const lethal = nextRoundEstimate(s, true) >= s.hp;
+  const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
   const estD = Math.round(s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, true, true) : 0), 0));
+  const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
+  // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
+  if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
+  if (!lethal && !lowHp(s)) return { danger, est, hp, keys: dOk ? ['D', 'A'] : ['A'], text: `${dOk ? `D·防禦（防禦後估計 ${estD}）或 ` : ''}A·攻擊（${why}，HP ${hp} 撐得住）` };
+  // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
   const pn = `生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}`;
-  if (RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
+  if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
   const sp = guardHint(s) === 'spirit';
   return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}${pn}，${why}）` };
 }

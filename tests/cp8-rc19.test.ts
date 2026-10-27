@@ -65,7 +65,7 @@ describe('rc19 (d) potion unusable + estimate ≥ HP → D / S / A through charg
   it('potion on cooldown counts as unusable too', () => withCp8(() => {
     const b = setup(1.1, 3); b.itemCd.health = 2; expect(chargeAdvice(b).keys).toEqual(['D']);
   }));
-  it('potion usable keeps D/Z', () => withCp8(() => { const b = setup(1.1, 3); expect(chargeAdvice(b).keys).toEqual(['D', 'Z']); }));
+  it('potion usable keeps D/Z', () => withCp8(() => { const b = setup(1.1, 3); b.hp -= 1; expect(chargeAdvice(b).keys[0]).toBe('Z'); /* rc21 item 1: Z first */ }));
 });
 import { deathHint } from '../src/core/battle';
 describe('rc19 (e) death hint: last hit ≥ 15% max HP is not 「被慢慢磨光」', () => {

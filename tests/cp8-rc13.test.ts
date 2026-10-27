@@ -32,7 +32,7 @@ describe('rc13 2H / 1H skills (Skills.md:61,73,75)', () => {
   });
   it('estimate crit value = normal × 1.2 (F-002-5.1B)', () => {
     const b = mk(1); const m = b.monsters[0]!; m.adb = 1000;
-    expect(chargeEstimate(b, m, false, true) / chargeEstimate(b, m)).toBeCloseTo(1.2, 1);
+    expect(chargeEstimate(b, m, false, true) / chargeEstimate(b, m)).toBeCloseTo(1.2 * 1.2, 1); // rc21: crit case = top roll (120%) × crit 1.2;
   });
 });
 
