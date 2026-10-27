@@ -5,8 +5,9 @@
 import { ATTRS } from './formulas';
 import { type Player, unspentExp } from './player';
 import { has } from './progress';
-import { autoAllocate, autoEquip, buyHealthTo, TOWN_HP_POTIONS } from './auto';
+import { autoAllocate, autoEquip, leanStyle, buyHealthTo, buyPotionsTo, naivePrep, TOWN_HP_POTIONS } from './auto';
 import { betterThanWorn } from './cp7';
+import { RULES } from './run';
 import type { Equip } from './items';
 
 export type PrepIssue = 'alloc' | 'potion' | 'equip';
@@ -19,9 +20,16 @@ export const canAllocate = (p: Player): boolean => {
   return ATTRS.some((a) => t.attrs[a] !== p.attrs[a]);
 };
 /** (b) no health potion (only once the town shop is open; before that startRun tops up to STARTER_POTIONS). */
-export const lacksPotion = (p: Player): boolean => has(p, 'shop') && p.potions.health <= 0;
+// cp8-rc6 bug 2: under cp8 an empty mana or spirit stock also counts (全部處理 tops all three up to TOWN_HP_POTIONS, 暫定).
+export const lacksPotion = (p: Player): boolean => has(p, 'shop') && (RULES.cp8 ? p.potions.health <= 0 || p.potions.mana <= 0 || p.potions.spirit <= 0 : p.potions.health <= 0);
 /** (c) inventory pieces that beat the worn slot by CP7.betterMargin (the 「▲ 比身上好」 badge rule). */
-export const betterInBag = (p: Player): Equip[] => p.inventory.filter((e) => betterThanWorn(p, e));
+export const betterInBag = (p: Player): Equip[] => {
+  // cp8-rc3: judge on the character after 「自動分配」 (prepAll runs alloc before equip), so the list matches what 換上 will do.
+  const t = RULES.cp8 && canAllocate(p) ? { ...p, attrs: { ...p.attrs } } : p; if (t !== p) autoAllocate(t);
+  return p.inventory.filter((e) => betterThanWorn(t, e));
+};
+/** cp8-rc3: pieces CP8.autoWear put on during the last trip that are still worn (the reminder names them once). */
+export const autoWorn = (p: Player): Equip[] => Object.values(p.equipped).filter((e): e is Equip => !!e && !!p.lastWorn?.includes(e.id));
 
 export function prepIssues(p: Player): PrepIssue[] {
   const out: PrepIssue[] = [];
@@ -38,14 +46,14 @@ export function prepAlloc(p: Player): number {
   return ATTRS.reduce((s, a) => s + p.attrs[a], 0) - before;
 }
 /** 「買藥」: sim town prep (up to TOWN_HP_POTIONS, as many as credits allow). Returns potions bought. */
-export const prepPotions = (p: Player): number => buyHealthTo(p, TOWN_HP_POTIONS);
+export const prepPotions = (p: Player): number => (RULES.cp8 ? buyPotionsTo : buyHealthTo)(p, TOWN_HP_POTIONS); // cp8-rc6 bug 2: + mana / spirit
 /** 「換上」: the sim's autoEquip (no school in town → slot-by-slot, CP7.betterMargin), repeated until nothing in the bag
  *  is badged better any more (bounded). Returns the number of swaps. */
 export function prepEquip(p: Player): number {
   let n = 0;
   for (let guard = 0; guard < 8 && betterInBag(p).length; guard++) {
     const before = Object.values(p.equipped).map((e) => e?.id).join();
-    autoEquip(p, []);
+    autoEquip(p, [], leanStyle(p));
     const after = Object.values(p.equipped).map((e) => e?.id).join();
     if (before === after) break;
     n++;
@@ -54,3 +62,5 @@ export function prepEquip(p: Player): number {
 }
 /** 「全部處理」: same order as the sim town prep (autoRun): alloc → equip → potions. */
 export function prepAll(p: Player): void { prepAlloc(p); prepEquip(p); prepPotions(p); }
+
+naivePrep.equip = (p: Player): void => { prepEquip(p); };

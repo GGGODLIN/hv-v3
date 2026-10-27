@@ -1,22 +1,29 @@
 import { BOSS_SEP, markDuplicates } from './names';
 import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, affixWeight, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
 import { CONSTANTS as C } from './data/constants';
-import { monsterExp } from './formulas';
+import { attrCost, monsterExp } from './formulas';
 import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
-import { type Player, type Prof, PROFS, derive, level, profValue, powerScore } from './player';
+import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
+import { CP8, RC22, cp8ThemeDmg, startBuffs } from './cp8';
+import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
+import { ADVICE_DIAG } from './battle';
 import { combos, formed, schoolCounts, sumMods } from './buffs';
 import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
   dropAccel: 8,
+  /** rc19 (b): battle potion drops use the original Restoratives rolls when cp8 is on. false = rc18 (3:1:1 on every non-equip drop). */
+  origPotionDrop: true,
+  /** rc20 item 4（自訂，非原版）: with origPotionDrop the original rolls give ~0.5% potion per monster, so an elite battle also guarantees 1 health potion. */
+  eliteHealthPotion: true,
   /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
   expMult: C['P-exp-multiplier'].value.playerMultipliers,
   /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
@@ -48,6 +55,8 @@ export const RULES = {
   cp6Abyss: true, // CP6 accepted (cp6-pass): default on
   /** CP7 手感 feature flag (docs/cp7-feel.md). Off = identical to cp6-pass. On by default since cp7-pass. */
   cp7: true, // CP7 accepted (cp7-pass): default on
+  /** CP8 真實遊玩 flag (docs/cp8-real-play.md). Off = identical to cp7-pass. `?cp8` in the URL turns it on. */
+  cp8: false,
 };
 
 export interface Shrine { id: 'might' | 'vigor' | 'gamble'; zh: string; desc: string }
@@ -57,7 +66,9 @@ export const SHRINES: Shrine[] = [
   { id: 'gamble', zh: '血之賭注', desc: '失去 30% 目前 HP，換一件優良以上裝備' },
 ];
 
-export interface MerchantStock { equips: { e: Equip; price: number }[] }
+/** rc19 item 3（製作人要求，自訂，非原版）: hpLeft = health potions this merchant still sells (MERCHANT_HP_POTIONS each, town price). */
+export interface MerchantStock { equips: { e: Equip; price: number }[]; hpLeft?: number }
+export const MERCHANT_HP_POTIONS = 3;
 
 export interface RunState {
   seed: number;
@@ -94,6 +105,9 @@ export interface RunState {
   offer?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
   offerN?: number;
   offersLeft?: number;
+  /** cp8-rc5: start-pick offer set aside when the player went into a node first (「待選」, pickable any time this trip) + offers still owed. */
+  held?: { src: 'shrine' | 'elite' | 'boss'; ids: string[] } | null;
+  heldLeft?: number;
   /** CP4: elite wins this trip (for winOffers) */
   eliteWins?: number;
   /** CP4 step 4: shrine risk shown, curse mitigation penalty, next battle opens at OC 0. */
@@ -108,6 +122,12 @@ export interface RunState {
   f10?: boolean;
   /** CP5: player bleed / burn carried between battles (cleared by rest, health potion, defend). */
   pdot?: import('./cp5').PDot;
+  /** CP8: ids of drops auto-worn this run (CP8.autoWear). */
+  worn?: string[];
+  /** CP8 P3: the start-buff picks are still open (map screen shows them before the first node). */
+  startPick?: boolean;
+  /** CP8 P2: 戰力 (powerScore) at run start, for the settlement screen. */
+  pw0?: number;
   /** CP6 (flag): abyss trip; start = depth of floor 1. Depth of the current floor = start + floor − 1. */
   abyss?: { start: number; /** highest milestone depth already claimed (record) */ ms?: number; /** titles earned this trip */ titles?: string[] };
 }
@@ -124,13 +144,14 @@ export function startRun(p: Player, seed: number): RunState {
   const locked: NodeType[] = [];
   if (!has(p, 'shrine')) locked.push('shrine');
   if (!has(p, 'merchant')) locked.push('merchant');
-  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}), ...(RULES.cp6Abyss ? { distinct: true } : {}) });
+  const tower = generateTower(rng, { tutorial, locked, shrine: notes.length > 0, ...(RULES.cp5Bosses ? { long: true } : {}), ...(RULES.cp6Abyss ? { distinct: true } : {}), ...(RULES.cp8 ? { restBeforeBoss: true } : {}) });
   const d = derive(p);
   return {
     seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip, tutorial, notes,
     ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}),
     ...(RULES.cp5Bosses ? { cp5: true } : {}),
+    ...(RULES.cp8 ? { pw0: powerScore(d) } : {}),
   };
 }
 
@@ -143,18 +164,25 @@ export function startAbyss(p: Player, seed: number, start = 1, ms = 0): RunState
   const rng = new Rng(seed);
   const d = derive(p);
   const tower: Tower = { floors: [abyssFloor(rng, start, 1)] };
-  return {
+  const run: RunState = {
     seed, plv: level(p), rng: rng.state, tower, floor: 1, path: [], hp: d.hp, mp: d.mp, sp: d.sp, bonus: { dmg: 0, hp: 0 },
     bag: [], exp: 0, credits: 0, profExp: {}, kills: 0, current: null, merchant: null, done: null, trip: 99, notes: [],
     ...(RULES.cp4RunBuffs ? { buffs: [] as string[] } : {}), cp5: true, abyss: { start, ms, titles: [] },
+    ...(RULES.cp8 ? { pw0: powerScore(d) } : {}),
   };
+  // CP8 P3 (暫定 N): from a checkpoint, pick startBuffs(start) run buffs from the CP4 pool before the first floor.
+  const n = RULES.cp8 && RULES.cp4RunBuffs ? startBuffs(start) : 0;
+  if (n > 0) { run.startPick = true; run.offersLeft = n - 1; openOffer(p, run, 'boss'); }
+  return run;
 }
 /** CP6: monster / item / merchant / chest level at the current depth (r2 decision 7: one formula). */
 /** CP6: carry-back multiplier an abyss run would get if it ended now (same as settle). */
 /** rc5 (a): floor number shown in titles — absolute abyss depth in the abyss, tower floor otherwise. */
 export const floorLabel = (run: RunState): number => (run.abyss ? depthOf(run) : run.floor);
 /** rc5 (c): new-record notice; the record counts depths cleared. */
-export const abyssBestMsg = (n: number): string => `深淵新紀錄：已通過 ${n} 層`;
+/** cp8-rc9 P1-10: one wording everywhere — 「到達第 N 層（已通過 M 層）」 (reached = the depth stood on, passed = depths cleared). */
+export const reachedMsg = (reached: number, passed: number, abyss = true): string => `到達${abyss ? '深淵' : ''}第 ${reached} 層（已通過 ${passed} 層）`;
+export const abyssBestMsg = (n: number): string => `深淵新紀錄：${reachedMsg(n + 1, n, false)}`;
 /** rc5 (d): on death, say what the run had so a +0 result (died before any reward) is explained. */
 export const deathCarryMsg = (exp: number, credits: number): string => `戰死：本趟累積 ${exp} EXP、${credits} C，帶回 ${Math.round(RULES.death.exp * 100)}%${exp || credits ? '' : '（本趟尚未獲得任何獎勵）'}`;
 export const abyssCarryAt = (run: RunState): number => abyssCarry(depthOf(run));
@@ -267,7 +295,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
     const plan: Rank[] =
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
       type === 'elite' ? (run.weakNext || (run.cp5 && CP5.eliteSolo) ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
-      ['normal', 'normal'] /* 暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
+      (['normal', 'normal'] as Rank[]).slice(0, RULES.cp8 && RC22.normalCap > 0 ? RC22.normalCap : 2) /* rc22 normalCap（自訂）;  暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
     const th = run.cp5 && !CP5_FORCE.themeOff ? themeOf(f) : null;
     const w = th ? (r: MonsterRow) => themeWeight(th, r) : undefined;
     const out = plan.map((rank) => {
@@ -284,11 +312,12 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
       if (run.cp5) cp5Monster(rng, pool, lo, hi, L, f, m, w, ab);
       if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
-      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? ABYSS.bossDmgAt[ab] ?? 1 : 1);
-        if (RULES.cp7 && type !== 'boss') m.adb *= 1 - CP7.themeK * (1 - (CP7.themeDmg[f] ?? 1));
+      if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? (RULES.cp8 && ab === 25 ? CP8.boss25Dmg : ABYSS.bossDmgAt[ab] ?? 1) : 1);
+        if (RULES.cp7 && type !== 'boss') m.adb *= 1 - CP7.themeK * (1 - (RULES.cp8 && ab > 20 ? cp8ThemeDmg(f) : CP7.themeDmg[f] ?? 1));
         if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
       return m;
     });
+    if (RULES.cp8 && ab && ab > 17 && type !== 'boss' && out.length >= 2 && RC22.multiK !== 1) { const k = 1 - (1 - RC22.multiK) * Math.min(1, (ab - 17) / 3); for (const m of out) m.adb *= k; } // rc22 item 2（自訂，非原版）: ramps d18→d20 to multiK
     if (type === 'elite') run.weakNext = false;
     markDuplicates(out.map((m) => m.name)).forEach((n, i) => { out[i]!.name = n; });
     return out;
@@ -323,7 +352,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[] }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[]; /** rc22 decision (b): max HP lost to auto-wear on this loot (UI 「最大 HP −N」). */ hpDrop?: number }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -356,11 +385,18 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
       if (rng.chance(drop)) {
         if (rng.chance(Math.min(1, LR.equipmentRoll * RULES.dropAccel * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.dropAccelMult ?? 0) : 1)))) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
         else {
-          const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]);
-          loot.potions[k] = (loot.potions[k] ?? 0) + 1;
+          if (RULES.cp8 && RULES.origPotionDrop) {
+            // rc19 (b) producer 2026-10-27: potion drops follow the original rolls (F-003-restorative-rolls). Unbuilt items (Draught/Elixir/crystals...) drop nothing.
+            const RR = C['F-003-restorative-rolls'].value;
+            if (rng.chance(RR.restoratives) && rng.chance(RR.potion)) { const k = RR.types[rng.int(0, RR.types.length - 1)] as PotionId; loot.potions[k] = (loot.potions[k] ?? 0) + 1; }
+          } else {
+            const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]); // pre-rc19 (no source)
+            loot.potions[k] = (loot.potions[k] ?? 0) + 1;
+          }
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
+    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot')) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
@@ -413,6 +449,13 @@ export function chestLoot(run: RunState, p?: Player): Loot {
 
 export function applyLoot(p: Player, run: RunState, loot: Loot): void {
   run.bag.push(...loot.equips);
+  const hp0 = runDerived(p, run).hp;
+  if (RULES.cp8 && CP8.autoWear) for (const e of loot.equips) if (betterThanWorn(p, e)) {
+    // CP8 P1 (暫定): wear a badged drop at once so it survives death; the replaced piece goes to the (persistent) inventory.
+    equip(p, e); run.bag = run.bag.filter((x) => x !== e); (run.worn ??= []).push(e.id);
+  }
+  if (ADVICE_DIAG.revert.has('hpclamp')) { const d = runDerived(p, run); if (d.hp < hp0) loot.hpDrop = hp0 - d.hp; } else // rc22 diag: SIM_REVERT=hpclamp = rc19 (no clamp)
+  { const d = runDerived(p, run); run.hp = Math.min(run.hp, d.hp); run.mp = Math.min(run.mp, d.mp); run.sp = Math.min(run.sp, d.sp); if (d.hp < hp0) loot.hpDrop = hp0 - d.hp; } // rc20 item 5: auto-wear can lower max HP (QA 786/756)
   run.credits += loot.credits;
   run.exp += loot.exp;
   for (const [k, v] of Object.entries(loot.potions)) p.potions[k as PotionId] += v!;
@@ -444,6 +487,7 @@ export function merchantStock(run: RunState): MerchantStock {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
       return { e, price: Math.round(sellPrice(e) * RULES.merchantMarkup * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.priceMult ?? 0) : 1)) };
     }),
+   ...(RULES.cp8 ? { hpLeft: MERCHANT_HP_POTIONS } : {}),
   }));
 }
 
@@ -484,7 +528,11 @@ export function advance(run: RunState, option: number): void {
 
 export interface Settlement {
   outcome: 'clear' | 'dead' | 'retreat';
+  /** cp8-rc9 P1-10: floors / depths cleared this trip. */
+  passed?: number;
   exp: number; credits: number; kept: Equip[]; lost: number; lostItems: Equip[]; lostPotions: Partial<Record<PotionId, number>>; levelBefore: number; levelAfter: number;
+  /** CP8 P2: what came back (戰力 at start → now, auto-worn drops, attribute points now affordable). */
+  cp8?: { pw0: number; pw1: number; worn: string[]; attrPts: number };
   floor: number;
   /** CP3: carry-back multiplier applied and systems opened by this return. */
   mult: number; unlocks: string[];
@@ -501,6 +549,7 @@ export function settle(p: Player, run: RunState): Settlement {
   const mult = run.abyss ? abyssCarryAt(run) : carryMult(run.trip ?? g.trips + 1);
   const exp = Math.round(run.exp * (dead ? RULES.death.exp : 1) * mult);
   const credits = Math.round(run.credits * (dead ? RULES.death.credits : 1) * mult);
+  if (RULES.cp8) p.lastWorn = (run.worn ?? []).filter((id) => Object.values(p.equipped).some((e) => e?.id === id)); // cp8-rc3 item 2
   let kept = run.bag;
   let lostPotions: Partial<Record<PotionId, number>> = {};
   if (dead) {
@@ -517,11 +566,29 @@ export function settle(p: Player, run: RunState): Settlement {
   if (g.trips >= 1) { const m = unlock(p, 'alloc'); if (m) unlocks.push(m); }
   if (g.trips >= 2) { const m = unlock(p, 'shop'); if (m) unlocks.push(m); }
   if (outcome === 'clear' || run.f10) { const m = unlock(p, 'iw'); if (m) unlocks.push(m + '（第一次免費）'); }
-  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, ...(run.abyss ? { abyss: true } : {}) };
+  return { outcome, exp, credits, mult, unlocks, kept, lost: run.bag.length - kept.length, lostItems: run.bag.filter((e) => !kept.includes(e)), lostPotions, levelBefore: before, levelAfter: level(p), floor: run.abyss ? depthOf(run) : run.floor, passed: run.abyss ? abyssCleared(run) : outcome === 'clear' ? run.floor : run.floor - 1, ...(run.abyss ? { abyss: true } : {}),
+    ...(RULES.cp8 ? { cp8: { pw0: Math.round(run.pw0 ?? 0), pw1: Math.round(powerScore(derive(p))), worn: [...(run.worn ?? [])], attrPts: cp8AttrPts(p) } } : {}) };
 }
 
+/** CP8 P2: attribute points the 「自動分配」 logic could buy now (same greedy rule as the sim's autoAllocate). */
+export function cp8AttrPts(p: Player): number {
+  const t: Player = JSON.parse(JSON.stringify(p)); let n = 0;
+  for (let g = 0; g < 2000; g++) { const a = (['str', 'dex', 'end', 'agi', 'int', 'wis'] as const).map((k) => [k, attrCost(t.attrs[k] + 1) - attrCost(t.attrs[k])] as const).sort((x, y) => x[1] - y[1])[0]!; if (allocate(t, a[0]) === 0) break; n++; }
+  return n;
+}
 export function score(e: Equip): number {
   return QUALITIES.indexOf(e.quality) * 1000 + e.roll + e.level * 5 + e.iw * 200;
 }
 
 export { powerScore, profValue };
+
+/** rc16 item 3（自訂，非原版）: drink a health potion on the map, no cooldown. parsed_wiki only describes Restoratives as Battle Items,
+ *  so out-of-battle use is our own rule; the heal amount is the same as in battle. Returns HP gained (0 = nothing done). */
+export const MAP_LOW_HP = 0.5; // 暫定: map warning below this HP fraction
+export function mapPotion(p: Player, run: RunState): number {
+  const d = runDerived(p, run);
+  if (p.potions.health <= 0 || run.hp >= d.hp) return 0;
+  const before = run.hp; p.potions.health--;
+  run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * C['F-002-items'].value.healthPotion.fraction));
+  return run.hp - before;
+}

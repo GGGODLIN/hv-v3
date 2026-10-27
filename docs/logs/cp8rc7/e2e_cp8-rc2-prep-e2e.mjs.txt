@@ -1,0 +1,18 @@
+{
+ "on": {
+  "body": "emvoplpv2sfiae3c",
+  "text": "倉庫有 1 件「▲ 比身上好」的裝備：身・優良・噬火者之秘銀鎖子胸鎧（▲56） 換上",
+  "items": [
+   {
+    "id": "emvoplpv2sfiae3c",
+    "t": "身・優良・噬火者之秘銀鎖子胸鎧（▲56）"
+   }
+  ]
+ },
+ "off": {
+  "body": "emvoplpv2sfiae3c",
+  "text": "倉庫有 1 件「▲ 比身上好」的裝備。 換上",
+  "items": []
+ }
+}
+CP8-RC2 PREP E2E PASS

@@ -2,9 +2,15 @@
 // startBattle -> command() per turn -> endBattle -> node screen -> continueNode. Decisions come from the same sim AI
 // (decide / pickOption / prefBuff), so any gap vs scripts/cp7-sim.ts is state or live-only logic, not AI.
 // prep=sim: town prep like autoRun (alloc, equip, buy 3 HP potions; equip loot / buy potions mid-run). prep=raw: none (a player who skips them).
-// Needs `vite` dev server (imports /src modules). Usage: node scripts/cp7-live-path.mjs [base] [N] [prep] [presets,...]
+// Needs /src modules, i.e. a `vite` dev server. post-rc9 #4: if [base] does not serve /src (a built preview such as the e2e runner's),
+// the script starts its own vite dev server from this repo on a free port and drives that; prints PASS/FAIL and exits 0/1.
+// PASS = every run finishes without a script error or pageerror and reports a cleared depth. Usage: node scripts/cp7-live-path.mjs [base] [N] [prep] [presets,...]
 import puppeteer from 'puppeteer-core';
-const BASE = process.argv[2] ?? 'http://localhost:5301/';
+import { createServer } from 'vite';
+let BASE = process.argv[2] ?? 'http://localhost:5199/'; let dev = null;
+const servesSrc = await fetch(new URL('src/core/auto.ts', BASE)).then((r) => r.ok && /javascript/.test(r.headers.get('content-type') ?? '')).catch(() => false);
+if (!servesSrc) { dev = await createServer({ root: new URL('..', import.meta.url).pathname, server: { port: 0, host: '127.0.0.1', strictPort: false }, logLevel: 'error' }); await dev.listen();
+  BASE = dev.resolvedUrls.local[0]; console.log(`(${process.argv[2] ?? 'default base'} has no /src → own vite dev server ${BASE})`); }
 const N = Number(process.argv[3] ?? 4), PREP = process.argv[4] ?? 'sim';
 const KEYS = (process.argv[5] ?? 'postF20-blade,postF20-oc,postF20-arcane,postF20-bulwark').split(',');
 const br = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
@@ -48,4 +54,7 @@ for (const k of KEYS) for (let s = 1; s <= N; s++) {
   }, s, PREP, k).catch((e) => ({ key: k, seed: s, err: String(e) }));
   r.errs = errs.slice(0, 3); out.push(r); console.log(JSON.stringify(r)); await pg.close();
 }
-await br.close();
+await br.close(); if (dev) await dev.close();
+const bad = out.filter((r) => r.err || r.errs.length || typeof r.cleared !== 'number');
+console.log(bad.length ? `CP7-LIVE-PATH FAIL: ${bad.length}/${out.length} runs: ${bad.map((r) => `${r.key}#${r.seed} ${r.err ?? r.errs[0] ?? 'no cleared'}`).join(' | ')}` : `CP7-LIVE-PATH PASS (${out.length} runs)`);
+process.exit(bad.length ? 1 : 0);

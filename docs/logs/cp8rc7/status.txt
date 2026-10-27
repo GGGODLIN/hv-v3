@@ -1,0 +1,23 @@
+vitest 0
+cp4on 0
+e2e cp5-rc2-e2e.mjs 0
+e2e cp6-rc2-dot-e2e.mjs 0
+e2e cp6-rc2-ui-e2e.mjs 0
+e2e cp6-rc3-e2e.mjs 0
+e2e cp6-rc6-e2e.mjs 0
+e2e cp7-rc4-prep-e2e.mjs 0
+e2e cp7-rc5-bug1-e2e.mjs 0
+e2e cp8-rc1-e2e.mjs 0
+e2e cp8-rc2-prep-e2e.mjs 0
+e2e cp8-rc3-prep-e2e.mjs 0
+e2e cp8-rc3-startpick-e2e.mjs 0
+e2e cp8-rc4-pothint-e2e.mjs 0
+e2e cp8-rc4-startpick-e2e.mjs 0
+e2e cp8-rc5-held-e2e.mjs 0
+e2e cp8-rc5-quickcast-e2e.mjs 0
+e2e cp8-rc6-e2e.mjs 0
+e2e cp8-rc6-fresh-e2e.mjs 0
+e2e cp8-rc7-e2e.mjs 0
+e2e e2e.mjs 0
+e2e e2e-cp3fix.mjs 0
+ALLDONE

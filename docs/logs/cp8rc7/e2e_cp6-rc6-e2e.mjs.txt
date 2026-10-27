@@ -1,0 +1,135 @@
+{
+ "res": {
+  "abyss15/battle": [
+   {
+    "i": 0,
+    "name": "炎毒飛龍",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:-42",
+     "crushing:25",
+     "dark:6",
+     "elec:30",
+     "fire:31",
+     "holy:8",
+     "slashing:25",
+     "wind:-16"
+    ],
+    "want": [
+     "cold:-42",
+     "crushing:25",
+     "dark:6",
+     "elec:30",
+     "fire:31",
+     "holy:8",
+     "slashing:25",
+     "wind:-16"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "霜晶幽魂",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:30",
+     "crushing:25",
+     "dark:29",
+     "elec:29",
+     "fire:-42",
+     "holy:-43",
+     "piercing:25",
+     "wind:29"
+    ],
+    "want": [
+     "cold:30",
+     "crushing:25",
+     "dark:29",
+     "elec:29",
+     "fire:-42",
+     "holy:-43",
+     "piercing:25",
+     "wind:29"
+    ]
+   }
+  ],
+  "abyss15/elite": [
+   {
+    "i": 0,
+    "name": "堅硬反魔・霜爪亡魂",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:26",
+     "crushing:25",
+     "dark:26",
+     "elec:26",
+     "fire:-45",
+     "holy:-49",
+     "piercing:25",
+     "wind:26"
+    ],
+    "want": [
+     "cold:26",
+     "crushing:25",
+     "dark:26",
+     "elec:26",
+     "fire:-45",
+     "holy:-49",
+     "piercing:25",
+     "wind:26"
+    ]
+   }
+  ],
+  "postF20-blade/boss": [
+   {
+    "i": 0,
+    "name": "守門者・霜爪狼",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:25",
+     "crushing:25",
+     "fire:-25",
+     "wind:25"
+    ],
+    "want": [
+     "cold:25",
+     "crushing:25",
+     "fire:-25",
+     "wind:25"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "霜棘熊",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:26",
+     "crushing:25",
+     "dark:2",
+     "elec:2",
+     "fire:-21",
+     "wind:25"
+    ],
+    "want": [
+     "cold:26",
+     "crushing:25",
+     "dark:2",
+     "elec:2",
+     "fire:-21",
+     "wind:25"
+    ]
+   }
+  ]
+ },
+ "errs": []
+}
+ALL PASS

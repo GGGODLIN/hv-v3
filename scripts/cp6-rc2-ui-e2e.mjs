@@ -1,9 +1,11 @@
 // CP6 rc2 UI fixes (a)(b)(d) e2e. Needs `npx vite --port 5198`.
 import puppeteer from 'puppeteer-core';
+const BASE = process.argv[2] ?? process.env.E2E_URL ?? 'http://localhost:5198/'; // cp8-rc2: base URL no longer hard-coded
 const br = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 const pg = await br.newPage(); await pg.setViewport({ width: 1280, height: 900 });
 const errs = []; pg.on('pageerror', (e) => errs.push(String(e)));
-await pg.goto('http://localhost:5198/?debug', { waitUntil: 'networkidle0' });
+pg.on('dialog', (d) => d.accept()); // cp8-rc2: rc3 added a 「確定不拿」 confirm on skip; an unhandled dialog froze evaluate (protocolTimeout)
+await pg.goto(BASE + '?debug', { waitUntil: 'networkidle0' });
 await pg.waitForFunction(() => window.hv); await pg.evaluate(() => localStorage.clear()); await pg.reload({ waitUntil: 'networkidle0' }); await pg.waitForFunction(() => window.hv);
 const w = (ms) => new Promise((r) => setTimeout(r, ms)); const res = {}; const fail = [];
 // (d) map boss titles carry no signature icon
@@ -28,6 +30,6 @@ await pg.evaluate(() => { const hv = window.hv; hv.startRun(); hv.enterNode(0); 
 await pg.evaluate(() => { const hv = window.hv; hv.battle.hp = Math.round(hv.battle.d.hp * 0.3); hv.command('item:health'); }); await w(1500);
 res.b = await pg.evaluate(() => { const b = document.querySelector('[data-act="item:health"]'); return { cd: window.hv.battle?.itemCd.health, potcd: b?.dataset.potcd, aria: b?.getAttribute('aria-disabled'), small: b?.querySelector('small')?.textContent, suggest: b?.classList.contains('suggest'), bg: b && getComputedStyle(b).backgroundImage.slice(0, 24), icon: b && getComputedStyle(b.querySelector('.icon')).filter }; });
 await pg.screenshot({ path: '/tmp/rc2-b.png' });
-if (!(res.b.cd > 0) || res.b.potcd !== String(res.b.cd) || res.b.aria !== 'true' || res.b.small !== `冷卻 ${res.b.cd} 回合` || res.b.suggest || !res.b.icon.includes('grayscale')) fail.push('b');
+if (!(res.b.cd > 0) || res.b.potcd !== String(res.b.cd) || res.b.aria !== 'true' || !new RegExp(`^冷卻 ${res.b.cd}｜剩 \\d+$`).test(res.b.small) || res.b.suggest || !res.b.icon.includes('grayscale')) fail.push('b');
 res.errs = errs; if (errs.length) fail.push('errs');
 console.log(JSON.stringify(res)); console.log(fail.length ? `E2E FAIL ${fail}` : 'E2E PASS (a)(b)(d)'); await br.close(); process.exit(fail.length ? 1 : 0);

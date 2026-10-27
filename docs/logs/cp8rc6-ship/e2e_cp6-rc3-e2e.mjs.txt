@@ -1,0 +1,67 @@
+{
+ "res": {
+  "map": {
+   "depth": 16,
+   "carry": "1.1",
+   "trip": 0,
+   "boss": "每 5 層是首領（下一個：深淵 20 層）。",
+   "info": "深淵 · 惡夢（Nightmare） · 怪物 HP ×1.05、傷害 ×10.13 · 每 5 層首領保底 1 件普通以上 · 戰死帶回 50%（再乘帶回倍率）",
+   "eliteNodes": 1,
+   "eliteMarks": 1,
+   "old510": false
+  },
+  "skipCancel": true,
+  "skipOk": false,
+  "dialogs": [
+   "確定不拿？這次的 buff 放棄後不能再選。",
+   "確定不拿？這次的 buff 放棄後不能再選。",
+   "撤退回城？本趟所得全部保留。"
+  ],
+  "result": {
+   "reached": "16",
+   "carry": "深淵帶回倍率（1＋0.05×難度階） ×1.1",
+   "unlock": "深淵新紀錄：已通過 15 層",
+   "floor1": false
+  },
+  "depthNow": 16,
+  "presets": {
+   "postF20-blade": {
+    "preset": "postF20-blade",
+    "open": true,
+    "best": 0,
+    "btn": "進入深淵塔（第 1 層起）▶",
+    "eq": 6
+   },
+   "postF20-oc": {
+    "preset": "postF20-oc",
+    "open": true,
+    "best": 0,
+    "btn": "進入深淵塔（第 1 層起）▶",
+    "eq": 7
+   },
+   "postF20-arcane": {
+    "preset": "postF20-arcane",
+    "open": true,
+    "best": 0,
+    "btn": "進入深淵塔（第 1 層起）▶",
+    "eq": 6
+   },
+   "postF20-bulwark": {
+    "preset": "postF20-bulwark",
+    "open": true,
+    "best": 0,
+    "btn": "進入深淵塔（第 1 層起）▶",
+    "eq": 7
+   },
+   "abyss15": {
+    "preset": "abyss15",
+    "open": true,
+    "best": 15,
+    "btn": "進入深淵塔（第 16 層起）▶",
+    "eq": 7
+   }
+  }
+ },
+ "errs": []
+}
+ALL PASS

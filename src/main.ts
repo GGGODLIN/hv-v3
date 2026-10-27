@@ -3,14 +3,14 @@ import './style.css';
 import { makePool, type MonsterRow } from './core/monsters';
 import { App } from './game/app';
 import { RULES } from './core/run';
-import { applyPreset, stripPreset, type Preset } from './core/preset';
+import { switchSlot, stripPreset, type Preset } from './core/preset';
 import { H, Stage, W } from './game/stage';
 
 function buildBadge() {
   const el = document.createElement('div');
   el.id = 'build';
-  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}${RULES.cp7 ? ' · CP7' : ''}`;
-  el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#8a7f99;opacity:.8;pointer-events:none;z-index:9999';
+  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}${RULES.cp7 ? ' · CP7' : ''}${RULES.cp8 ? ' · CP8' : ''}`; // rc21 QA: CP8 was missing
+  el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#a89cb8;opacity:1;pointer-events:none;z-index:9999';
   document.body.appendChild(el);
 }
 
@@ -33,6 +33,8 @@ async function boot() {
   if (new URLSearchParams(location.search).has('cp6')) { RULES.cp6Abyss = true; RULES.cp5Bosses = true; }
   // CP7 手感 (docs/cp7-feel.md) is off by default; `?cp7` turns it on.
   if (new URLSearchParams(location.search).has('cp7')) RULES.cp7 = true;
+  // CP8 真實遊玩 (docs/cp8-real-play.md) is off by default; `?cp8` turns it on.
+  if (new URLSearchParams(location.search).has('cp8')) RULES.cp8 = true;
   // CP6 rc3 debug presets (docs/cp6-playtest-checklist.md): `?cp6&debug&preset=postF20-blade|oc|arcane|bulwark|abyss10|abyss15|abyss20` (rc5: `debug` no longer required)
   // overwrites the local save with a sim-exported character (public/data/cp6-presets.json) before the game boots.
   const qs = new URLSearchParams(location.search), preset = qs.get('preset');
@@ -43,11 +45,12 @@ async function boot() {
     const pr = all[preset];
     if (pr) {
       // rc10: full replacement (save + abyss record), then drop `preset` from the URL so reloading does not wipe progress.
-      applyPreset(localStorage, pr);
+      // cp8-rc5: one save slot per preset (switching presets parks / restores instead of overwriting).
+      (window as unknown as { hvSlot: string }).hvSlot = switchSlot(localStorage, preset, pr, qs.has('fresh'));
       history.replaceState(null, '', location.pathname + stripPreset(location.search) + location.hash);
       (window as unknown as { hvPreset: string }).hvPreset = preset;
-    } else console.warn(`unknown preset ${preset}; known: ${Object.keys(all).join(', ')}`);
-  }
+    } else presetWarn(`未知的 preset「${preset}」，已忽略（可用：${Object.keys(all).join(', ')}）`);
+  } else if (preset) presetWarn(`preset「${preset}」被忽略：CP6 深淵未開啟（網址加 ?cp6）`); // rc14 item 6
   buildBadge();
   const stage = new Stage();
   new Phaser.Game({ type: Phaser.AUTO, parent: 'stage', width: W, height: H, pixelArt: true, backgroundColor: '#120c18', scene: stage });
@@ -57,3 +60,15 @@ async function boot() {
   if (import.meta.env.DEV || new URLSearchParams(location.search).has('debug')) (window as unknown as { hv: App }).hv = app;
 }
 boot();
+
+/** rc14 item 6: a preset that is not applied is reported on screen (and in the console), never silently. */
+function presetWarn(msg: string): void {
+  console.warn(msg);
+  const d = document.createElement('div'); d.dataset.presetIgnored = '1'; d.textContent = '⚠ ' + msg;
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#a33;color:#fff;padding:4px 8px;font-size:13px';
+  document.body.appendChild(d); (window as unknown as { hvPresetIgnored: string }).hvPresetIgnored = msg;
+}
+
+// rc16 item 6: the layout is a fixed 1100px; on narrower windows (QA: 913px) scale it to fit instead of clipping / scrolling sideways.
+const fit = () => { const w = document.getElementById('wrap'); if (w) w.style.zoom = String(Math.min(1, (window.innerWidth - 8) / 1100)); };
+window.addEventListener('resize', fit); fit();

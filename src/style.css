@@ -103,7 +103,13 @@ button.node .ni { font-size: 30px; }
 .weakhit { color: #40ff90; font-weight: bold; }
 .decide { border: 2px solid #ff5040; background: rgba(120,20,10,.55); padding: 6px 8px; margin: 4px 0; animation: pulse 0.8s infinite alternate; }
 @keyframes pulse { from { box-shadow: 0 0 0 #ff5040; } to { box-shadow: 0 0 12px #ff5040; } }
-button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
+@keyframes potblink { 50% { background: #7a2a10; box-shadow: 0 0 16px #ff6030; } }
+button.pothint { outline-color: #ff6030; animation: potblink 0.8s ease-in-out infinite; }
+button.castable { outline: 1px solid #ffb04099; } /* cp8-rc11 4(a): any skill castable now */
+button.suggest { outline: 3px solid #ffb040; box-shadow: 0 0 14px #ffb040; background: #4a3410; font-weight: bold; animation: sugpulse 1.2s ease-in-out infinite; }
+@keyframes sugpulse { 50% { box-shadow: 0 0 4px #ffb040; } }
+.sugtitle { color: #ffd070; font-size: 1.1em; font-weight: bold; margin-bottom: 4px; }
+.sugtitle b { color: #fff; background: #8a5a10; padding: 0 6px; border-radius: 3px; }
 .abtn button { padding: 2px 6px; }
 .unlocks { background: #2a2410; border: 1px solid #c9a227; color: #ffe070; padding: 6px 10px; margin: 6px 0; border-radius: 4px; }
 .log .unlock { color: #ffe070; }
@@ -114,6 +120,10 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .iname { display: flex; align-items: center; }
 .cmdbar button .icon.sp { width: 28px; height: 28px; display: block; margin: 0 auto 2px; }
 /* CP4 run buffs (flag ?cp4) */
+.buffs.fixh { min-height: 21px; }
+/* cp8-rc5: one fixed row — wrapping to a 2nd row when the picked names got long moved the map nodes 21.8px (startpick e2e flake). */
+.buffs.fixh { height: 22px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.buffs.fixh > * { flex-shrink: 0; }
 .buffs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 4px 0; font-size: 12px; }
 .bf { padding: 1px 6px; border-radius: 3px; border: 1px solid #ffffff44; background: #2a2038; }
 .bf.r-rare, .buffcard.r-rare { border-color: #5aa0ff; } .bf.r-legend, .buffcard.r-legend { border-color: #ffb040; box-shadow: 0 0 6px #ffb04066; }
@@ -163,3 +173,194 @@ button.suggest { outline: 2px solid #ffb040; box-shadow: 0 0 10px #ffb040; }
 .better { color: #6cff8c; }
 .loot-plain { opacity: .55; }
 .loot-plain:hover { opacity: 1; }
+.resisthit { color: #9aa8b8; } .enemyelem { color: #c0d8ff; }
+
+/* ===== rc17 visual pass (視覺改版，只改外觀，不改數值／規則) =====
+   Kenney UI Pack 2.0 (CC0, public/assets/kenney/License.txt), tinted by scripts/gen-kenney-ui.py.
+   One palette + one type scale for battle, map, town, equipment. Layout boxes keep their sizes (e2e positions). */
+:root {
+  --bg: #100d16; --panel: rgba(20, 16, 28, 0.95); --line: #3d3550; --text: #ece6f2; --dim: #9d93ad; --acc: #e8b04a;
+  --gold: #e8b04a; --hp: #d9443c; --mp: #3d86e0; --sp: #3fb764; --oc: #e8b04a; --danger: #e0483a; --good: #5fd47a;
+  --num: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; /* 單一字族：中英數字同一套，數字用 tabular-nums */
+}
+html, body { background: radial-gradient(ellipse at 50% -10%, #2a2036, var(--bg) 65%); }
+h2 { font-size: 21px; color: var(--gold); letter-spacing: .04em; text-shadow: 0 2px 0 #0008; }
+h3 { color: #c8bcd8; border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+.topbar .title { font-family: var(--num); letter-spacing: .12em; color: var(--gold); text-shadow: 0 2px 0 #000; }
+/* buttons: Kenney depth frame, 9-slice, drawn inside the existing box */
+button { border: 1px solid transparent; background: transparent; border-image: url("/assets/kenney/btn.png") 14 fill / 8px stretch; text-shadow: 0 1px 0 #000; }
+button:hover:not(:disabled):not([aria-disabled="true"]):not(.on):not(.big):not(.main):not(.suggest):not(.pothint) { background: transparent; border-color: transparent; border-image-source: url("/assets/kenney/btn-hover.png"); }
+button.on, button.big, .cmdbar button.main { border-image-source: url("/assets/kenney/btn-main.png"); background: transparent; color: #1c1206; text-shadow: 0 1px 0 #ffe2a080; font-weight: 700; }
+button.on small, button.big small, .cmdbar button.main small { color: #3a2610; }
+button.big:hover:not(:disabled), .cmdbar button.main:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-main.png"); filter: brightness(1.1); }
+button[aria-disabled="true"] { border-image: none; }
+button.ghost { border-image: none; border: 1px solid var(--line); }
+button.suggest { border-image-source: url("/assets/kenney/btn-main.png"); color: #1c1206; text-shadow: none; }
+button.pothint { border-image-source: url("/assets/kenney/btn-danger.png"); }
+/* panels: Kenney bordered square as frame */
+.panel, .cmdbar { border: 1px solid transparent; border-image: url("/assets/kenney/panel.png") 16 fill / 10px stretch; background: transparent; box-shadow: 0 10px 30px #000a; }
+.panel::before { content: ""; position: absolute; left: 14px; right: 14px; top: 46px; height: 4px; background: url("/assets/kenney/divider.png") center / 100% 2px no-repeat; opacity: .35; pointer-events: none; }
+.panel.node::before, .panel.result::before { display: none; }
+/* bars (player + map): dark trough, glossy fill, numbers in the numeric face */
+.bar { height: 18px; border: 1px solid #000; border-radius: 4px; background: #0b0910; box-shadow: inset 0 1px 3px #000, 0 0 0 1px #ffffff14; }
+.bar > div { border-radius: 3px; box-shadow: inset 0 1px 0 #ffffff55, inset 0 -3px 0 #0003; }
+.bar span { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 11px; font-weight: 700; }
+.bar.hp > div { background: linear-gradient(#f06a5e, var(--hp) 55%, #8e2420); }
+.bar.mp > div { background: linear-gradient(#7ab0ff, var(--mp) 55%, #1f4f9a); }
+.bar.sp > div { background: linear-gradient(#7ae090, var(--sp) 55%, #1f7a3c); }
+.bar.oc > div { background: linear-gradient(#ffd98a, var(--oc) 55%, #9a6a1a); }
+/* HUD + log + hint panel */
+.hudl, .log { background: linear-gradient(#16121ff0, #0d0b12f0); border: 1px solid var(--line); box-shadow: inset 0 1px 0 #ffffff10; }
+.log .crit { color: #ffd84a; font-weight: 700; }
+.decide { border: 2px solid var(--danger); border-radius: 6px; background: linear-gradient(#5a1410e6, #3a0c08e6); }
+.decide[data-decide="safe"], .decide:has([data-decide="safe"]) { border-color: var(--good); background: linear-gradient(#123a20e6, #0b2414e6); animation: none; }
+.sugtitle { color: var(--gold); } .sugtitle b { background: var(--gold); color: #1c1206; }
+.weakbox b { color: var(--good); }
+/* map nodes: route cards on a path rail */
+.floor { border-left: 3px solid #3d355088; }
+.floor.cur { background: linear-gradient(90deg, #e8b04a22, transparent); outline: none; border-left-color: var(--gold); }
+.floor.past { opacity: .6; }
+.fn { font-family: var(--num); color: #c8bcd8; }
+.node { background: #1d1828; border-color: #ffffff30; border-radius: 6px; }
+button.node { border-image-source: url("/assets/kenney/btn.png"); }
+button.node:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-hover.png"); transform: translateY(-1px); }
+.node.chosen { outline: 2px solid var(--gold); background: #3a2c14; }
+/* town / equipment cards */
+.tabs { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.item { border-radius: 6px; box-shadow: 0 2px 0 #0006; }
+.iname { text-shadow: 0 1px 0 #000; }
+.prof { background: #ffffff0d; border: 1px solid var(--line); }
+.unlocks { border-color: var(--gold); background: #2a2210; }
+.stats td:last-child, .num { font-family: var(--num); letter-spacing: .03em; }
+/* element skills keep their color as a bottom stripe (border-image replaced the colored border) */
+.cmdbar button.el-fire { box-shadow: inset 0 -3px 0 #ff6a2a; } .cmdbar button.el-cold { box-shadow: inset 0 -3px 0 #7fd8ff; } .cmdbar button.el-elec { box-shadow: inset 0 -3px 0 #fff04a; }
+.cmdbar button.el-wind { box-shadow: inset 0 -3px 0 #8affb0; } .cmdbar button.el-holy { box-shadow: inset 0 -3px 0 #fff8c8; } .cmdbar button.el-dark { box-shadow: inset 0 -3px 0 #b060ff; }
+/* rc17: encounter box over the log — 2 s, then 0.5 s fade */
+.logwrap { position: relative; }
+.encounter { position: absolute; left: 0; right: 0; top: 0; z-index: 5; background: linear-gradient(#1c1626f5, #100d16f5); border: 1px solid var(--gold); border-radius: 6px; padding: 6px 9px; font-size: 14px; line-height: 1.45; pointer-events: none; animation: encfade 2.5s linear forwards; }
+@keyframes encfade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 自訂，非原版：rc18 低血量「喝藥再出發」 */
+.potgo{border:2px solid #e05050;background:rgba(224,80,80,.12);border-radius:8px;padding:8px 10px;margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.potgo .hint{margin:0}
+.potgobtn{font-size:1.1em;font-weight:700;padding:8px 18px;animation:potpulse 1.4s ease-in-out infinite}
+@keyframes potpulse{50%{filter:brightness(1.25)}}
+
+/* 自訂，非原版：rc18 route map (presentation only) */
+.panel.map .tower { position: relative; gap: 22px; }
+.panel.map .tower > .floor, .panel.map .tower > .theme-sep { position: relative; z-index: 1; }
+.panel.map .floor { justify-content: center; }
+.panel.map .floor .fn { position: absolute; left: 6px; }
+.panel.map svg.routes { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; overflow: visible; }
+svg.routes path { fill: none; }
+svg.routes .e-future { stroke: #ffffff2e; stroke-width: 1.5; stroke-dasharray: 3 4; }
+svg.routes .e-next { stroke: #ffe8b0; stroke-width: 2.5; filter: drop-shadow(0 0 3px #e8b04a); }
+svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
+
+/* ===== rc19 battle-screen revamp (視覺，只改外觀；只作用在戰鬥畫面 .screen-battle) =====
+   Kenney UI Pack RPG Expansion + Game Icons (CC0, public/assets/kenney-rpg|kenney-icons/License.txt).
+   Fonts: Cinzel (titles) + Bungee (numbers), SIL OFL 1.1 (public/assets/fonts/*-OFL.txt); Chinese falls back to Noto Sans TC. */
+@font-face { font-family: "HVTitle"; src: url("/assets/fonts/Cinzel.ttf") format("truetype"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "HVNum"; src: url("/assets/fonts/Bungee.ttf") format("truetype"); font-display: swap; }
+.screen-battle { --rpgtext: #3b2412; --rpgnum: "HVNum", "Noto Sans TC", sans-serif; }
+.screen-battle .topbar .title { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 900; font-size: 20px; letter-spacing: .08em; color: #ffd27a; text-shadow: 0 2px 0 #5a2a08, 0 0 8px #ffb04a88; }
+/* buttons: whole Kenney beige button, 9-slice, pressed state */
+.screen-battle .cmdbar button { border: 0; border-style: solid; border-width: 10px 10px 13px; border-image: url("/assets/kenney-rpg/buttonLong_beige.png") 10 10 13 fill stretch; background: transparent; color: var(--rpgtext); text-shadow: 0 1px 0 #fff8; font-weight: 700; box-shadow: none; padding: 0 4px; }
+.screen-battle .cmdbar button small { color: #6a4320; font-family: var(--rpgnum); font-weight: 400; letter-spacing: .02em; }
+.screen-battle .cmdbar button:hover:not(:disabled):not([aria-disabled="true"]) { border-image-source: url("/assets/kenney-rpg/buttonLong_beige.png"); filter: brightness(1.08); }
+.screen-battle .cmdbar button:active:not(:disabled):not([aria-disabled="true"]) { border-width: 12px 10px 9px; border-image: url("/assets/kenney-rpg/buttonLong_beige_pressed.png") 10 10 9 fill stretch; transform: translateY(3px); }
+.screen-battle .cmdbar button.main, .screen-battle .cmdbar button.suggest { border-image-source: url("/assets/kenney-rpg/buttonLong_blue.png"); color: #fff; text-shadow: 0 1px 0 #0a2a5a; }
+.screen-battle .cmdbar button.main small, .screen-battle .cmdbar button.suggest small { color: #d8ecff; }
+.screen-battle .cmdbar button.main:active, .screen-battle .cmdbar button.suggest:active { border-image-source: url("/assets/kenney-rpg/buttonLong_blue_pressed.png") !important; }
+.screen-battle .cmdbar button.suggest { filter: drop-shadow(0 0 6px #6cc0ff); }
+.screen-battle .cmdbar button.pothint { border-image-source: url("/assets/kenney-rpg/buttonLong_brown.png"); color: #fff; filter: drop-shadow(0 0 7px #ff5040); }
+.screen-battle .cmdbar button[aria-disabled="true"], .screen-battle .cmdbar button:disabled { border-image: url("/assets/kenney-rpg/buttonLong_grey.png") 10 10 13 fill stretch; color: #6d6d6d; text-shadow: none; opacity: .75; }
+.screen-battle .cmdbar button[class*="el-"] { box-shadow: none; }
+/* panels: Kenney wood panel (status bar, skill bar), parchment inset (hints, encounter box) */
+.screen-battle .cmdbar { border: 14px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 fill stretch; background: transparent; padding: 2px; }
+.screen-battle .hudl { border: 12px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 fill stretch; background: transparent; border-radius: 0; box-shadow: 0 6px 16px #000a; padding: 0 2px; }
+.screen-battle .hudl .status { color: #fff2d8; text-shadow: 0 1px 0 #000; }
+.screen-battle .hint, .screen-battle .weakbox, .screen-battle .encounter, .screen-battle .cp5tips { border: 8px solid transparent; border-image: url("/assets/kenney-rpg/panelInset_beige.png") 10 fill stretch; background: transparent; color: var(--rpgtext); text-shadow: none; border-radius: 0; }
+.screen-battle .hint b, .screen-battle .encounter b, .screen-battle .weakbox b { color: #8a2a10; }
+.screen-battle .log { background: #1b0f07e0; border: 2px solid #8a5a2a; color: #f4e6cc; }
+.screen-battle .decide { border: 10px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 fill stretch; background: transparent; color: #fff; box-shadow: 0 0 0 2px #ff4a3a, 0 0 14px #ff3a2a; }
+.screen-battle .decide[data-decide="safe"], .screen-battle .decide:has([data-decide="safe"]) { box-shadow: 0 0 0 2px #5fd47a, 0 0 12px #3fb764; }
+/* bars: Kenney RPG bar art (trough + colored fill, 9-slice) with an icon in front */
+.screen-battle .bar { height: 18px; border: 0; border-radius: 0; background: url("/assets/kenney-rpg/bar-back.png") 0 0 / 100% 18px no-repeat; border-image: url("/assets/kenney-rpg/bar-back.png") 0 9 fill / 0 9px stretch; box-shadow: none; margin-left: 20px; overflow: visible; }
+.screen-battle .bar > div { min-width: 18px; border-radius: 0; box-shadow: none; background: none !important; border-image: url("/assets/kenney-rpg/bar-red.png") 0 9 fill / 0 9px stretch; }
+.screen-battle .bar.mp > div { border-image-source: url("/assets/kenney-rpg/bar-blue.png"); }
+.screen-battle .bar.sp > div { border-image-source: url("/assets/kenney-rpg/bar-green.png"); }
+.screen-battle .bar.oc > div { border-image-source: url("/assets/kenney-rpg/bar-yellow.png"); }
+.screen-battle .bar::before { content: ""; position: absolute; left: -22px; top: -2px; width: 22px; height: 22px; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px #000); }
+.screen-battle .bar.hp::before { background-image: url("/assets/icons/p-health.png"); }
+.screen-battle .bar.mp::before { background-image: url("/assets/icons/p-mana.png"); }
+.screen-battle .bar.sp::before { background-image: url("/assets/icons/p-spirit.png"); }
+.screen-battle .bar.oc::before { background-image: url("/assets/kenney-icons/star.png"); filter: sepia(1) saturate(6) hue-rotate(5deg) drop-shadow(0 1px 1px #000); }
+.screen-battle .bar span { font-family: var(--rpgnum); font-weight: 400; font-size: 11px; line-height: 18px; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; letter-spacing: .03em; }
+.screen-battle .status, .screen-battle [data-bfloor] { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 700; }
+.screen-battle .hud > * { align-self: start; }
+.screen-battle .weakbox:empty { display: none; }
+.screen-battle .encounter *, .screen-battle .weakbox * { color: inherit !important; }
+.screen-battle .encounter { color: #3b2412; }
+.screen-battle .cmdbar .hint { border: 0; border-image: none; color: #f4e6cc; align-self: center; }
+/* rc19 item 2: encounter box no longer floats over the log / scene — a small centred panel stacked above the log inside the same
+   128px block (log keeps its newest lines at the bottom), so neither covers the other at 1280 or 913. */
+.screen-battle .logwrap { display: flex; flex-direction: column; height: 128px; gap: 4px; }
+.screen-battle .encounter { position: static; flex: none; align-self: center; max-width: min(560px, 100%); font-size: 12px; line-height: 1.35; padding: 2px 6px; max-height: 66px; overflow: hidden; }
+.screen-battle .logwrap .log { flex: 1 1 auto; min-height: 0; height: auto; display: flex; flex-direction: column; justify-content: flex-end; }
+/* rc19 item 2: right-column boxes (weakness / decision / hints) live in .hudr so a tall decision box no longer pushes the log down
+   onto the monsters (913 width). */
+.hud > .hudl, .hud > .logwrap, .hud > .refused { grid-column: 1; }
+.hud > .hudr { grid-column: 2; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+/* ===== rc19 item 1: same Kenney RPG style on the map / town / equipment (town 裝備 tab) screens (視覺，只改外觀) ===== */
+.screen-town .topbar .title, .screen-map .topbar .title { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 900; font-size: 20px; letter-spacing: .08em; color: #ffd27a; text-shadow: 0 2px 0 #5a2a08, 0 0 8px #ffb04a88; }
+.screen-town .panel, .screen-map .panel { border: 16px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 stretch; background: linear-gradient(#2b1a0ef2, #1d1209f2) padding-box; border-radius: 0; box-shadow: 0 8px 24px #000c; }
+.screen-town .panel::before, .screen-map .panel::before { display: none; }
+.screen-town h2, .screen-town h3, .screen-map h2, .screen-map h3 { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 900; color: #ffd27a; text-shadow: 0 2px 0 #5a2a08; }
+.screen-town button, .screen-map button { border: 0; border-style: solid; border-width: 8px 8px 11px; border-image: url("/assets/kenney-rpg/buttonLong_beige.png") 10 10 13 fill stretch; background: transparent; color: #3b2412; text-shadow: none; padding: 0 8px; border-radius: 0; font-weight: 700; }
+.screen-town button small, .screen-map button small { color: #6a4320; }
+.screen-town button:hover:not(:disabled):not([aria-disabled="true"]), .screen-map button:hover:not(:disabled):not([aria-disabled="true"]) { border-image-source: url("/assets/kenney-rpg/buttonLong_beige.png"); filter: brightness(1.08); background: transparent; }
+.screen-town button:active:not(:disabled):not([aria-disabled="true"]), .screen-map button:active:not(:disabled):not([aria-disabled="true"]) { border-width: 10px 8px 9px; border-image: url("/assets/kenney-rpg/buttonLong_beige_pressed.png") 10 10 9 fill stretch; transform: translateY(1px); }
+.screen-town button.on, .screen-town button.big, .screen-town button.suggest, .screen-map button.on, .screen-map button.big, .screen-map button.suggest { border-image-source: url("/assets/kenney-rpg/buttonLong_blue.png"); color: #fff; text-shadow: 0 1px 0 #0a2a5a; }
+.screen-town button.on small, .screen-town button.big small, .screen-map button.on small, .screen-map button.big small { color: #d8ecff; }
+.screen-town button.on:active, .screen-town button.big:active, .screen-map button.on:active, .screen-map button.big:active { border-image-source: url("/assets/kenney-rpg/buttonLong_blue_pressed.png") !important; }
+.screen-town button:disabled, .screen-town button[aria-disabled="true"], .screen-map button:disabled, .screen-map button[aria-disabled="true"] { border-image: url("/assets/kenney-rpg/buttonLong_grey.png") 10 10 13 fill stretch; color: #6d6d6d; opacity: 1; }
+.screen-town button.node, .screen-map button.node { border-image-source: url("/assets/kenney-rpg/buttonLong_brown.png"); color: #fff2d8; text-shadow: 0 1px 0 #000; }
+.screen-town button.node .tick, .screen-town button.node small, .screen-map button.node .tick, .screen-map button.node small { color: #ffd27a; }
+.screen-town .node:not(button), .screen-map .node:not(button) { background: #3a2614; border: 2px solid #8a5a2a; border-radius: 0; color: #f4e6cc; }
+.screen-town .node.chosen, .screen-map .node.chosen { outline: 3px solid #ffd27a; background: #6a4320; }
+.screen-town .hint, .screen-town .notice, .screen-town .cp5tips, .screen-map .hint, .screen-map .notice, .screen-map .cp5tips { border: 8px solid transparent; border-image: url("/assets/kenney-rpg/panelInset_beige.png") 10 fill stretch; background: transparent; color: #3b2412; border-radius: 0; }
+.screen-town .hint b, .screen-town .hint .warn, .screen-map .hint b, .screen-map .hint .warn { color: #8a2a10; }
+.screen-town .hint.warn, .screen-map .hint.warn { color: #8a2a10; font-weight: 700; }
+.screen-town .item, .screen-map .item { background: linear-gradient(90deg, color-mix(in srgb, var(--q) 22%, #2b1a0e), #2b1a0e); border-radius: 0; box-shadow: 0 0 0 2px #6a4320, 0 3px 0 #0008; }
+.screen-town .tabs, .screen-map .tabs { border-bottom: 2px solid #8a5a2a; }
+.screen-town .foot, .screen-map .foot { border-top: 2px solid #8a5a2a; }
+.screen-town .stats td:last-child, .screen-town .num, .screen-map .stats td:last-child, .screen-map .num { font-family: "HVNum", "Noto Sans TC", sans-serif; font-weight: 400; color: #ffe2a8; }
+.screen-town .stats tr, .screen-map .stats tr { border-color: #6a432088; }
+.screen-town .bar, .screen-map .bar { height: 18px; border: 0; border-radius: 0; background: url("/assets/kenney-rpg/bar-back.png") 0 0 / 100% 18px no-repeat; border-image: url("/assets/kenney-rpg/bar-back.png") 0 9 fill / 0 9px stretch; box-shadow: none; overflow: visible; margin-left: 24px; }
+.screen-town .bar > div, .screen-map .bar > div { min-width: 18px; border-radius: 0; box-shadow: none; background: none !important; border-image: url("/assets/kenney-rpg/bar-red.png") 0 9 fill / 0 9px stretch; }
+.screen-town .bar.mp > div, .screen-map .bar.mp > div { border-image-source: url("/assets/kenney-rpg/bar-blue.png"); }
+.screen-town .bar.sp > div, .screen-map .bar.sp > div { border-image-source: url("/assets/kenney-rpg/bar-green.png"); }
+.screen-town .bar::before, .screen-map .bar::before { content: ""; position: absolute; left: -22px; top: -2px; width: 22px; height: 22px; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px #000); }
+.screen-town .bar.hp::before, .screen-map .bar.hp::before { background-image: url("/assets/icons/p-health.png"); }
+.screen-town .bar.mp::before, .screen-map .bar.mp::before { background-image: url("/assets/icons/p-mana.png"); }
+.screen-town .bar.sp::before, .screen-map .bar.sp::before { background-image: url("/assets/icons/p-spirit.png"); }
+.screen-town .bar span, .screen-map .bar span { font-family: "HVNum", "Noto Sans TC", sans-serif; font-weight: 400; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; }
+.screen-town td .hint, .screen-town label.hint, .screen-town small.hint, .screen-town span.hint, .screen-map td .hint, .screen-map label.hint, .screen-map small.hint, .screen-map span.hint { border: 0; border-image: none; background: transparent; color: #cdb48e; }
+.screen-town td .dim, .screen-town td small, .screen-map td .dim, .screen-map td small { color: #b89c74; }
+.screen-town td.hint { border: 0; border-image: none; background: transparent; color: #cdb48e; opacity: 1; }
+
+/* rc19 AA contrast pass (視覺，只改外觀): text ≥ 4.5:1 on shop / 道具界 / prep modal */
+.screen-town button.on, .screen-town button.big, .screen-town button.suggest, .screen-town .tabs button.on, .screen-map button.on, .screen-map button.big, .screen-map button.suggest, .screen-map .tabs button.on { border-image: url("/assets/kenney-rpg/buttonLong_blue.png") 10 10 13 stretch; background: #1f4a85 padding-box; color: #fff; text-shadow: 0 1px 0 #0a1a33; }
+.screen-town button.on:active:not(:disabled), .screen-town button.big:active:not(:disabled), .screen-map button.on:active:not(:disabled), .screen-map button.big:active:not(:disabled) { border-image: url("/assets/kenney-rpg/buttonLong_blue_pressed.png") 10 10 9 stretch !important; background: #1a3f72 padding-box; }
+.screen-town button b, .screen-town button .iwgain, .screen-map button b, .screen-map button .iwgain { color: inherit; }
+.screen-town .hint .iwgain, .screen-town .hint b, .screen-map .hint .iwgain, .screen-map .hint b { color: #3b2412; }
+.screen-town .hint .iwgain b, .screen-map .hint .iwgain b { color: #1d5a1d; }
+.screen-town button:disabled, .screen-town button[aria-disabled="true"], .screen-map button:disabled, .screen-map button[aria-disabled="true"] { color: #565656; }
+/* rc20 item 3: darker small text on the death screen (contrast) */
+.result.dead .hint, .result.dead [data-deathturns], .result.dead [data-deathbiggest], .result.dead small { color: #e8dcc6; opacity: 1; }
+
+/* rc21 item 4: merchant nodes stand out on the route map */
+.node.mhl { border-color: #e0b84a; box-shadow: 0 0 0 2px #e0b84a66; }
+.node .mmark { display: block; color: #ffd76a; font-weight: bold; }

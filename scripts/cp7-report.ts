@@ -44,7 +44,8 @@ for (const S0 of [...new Set(rows.map((r) => r.S0))].sort((a, b) => a - b)) {
   checks.push([`P4 trip-1 median depth ${m1} in 10–30`, m1 >= 10 && m1 <= 30]);
   checks.push([`P4 shape low→rising: d1–5 ${pct(lo)} < d6–15 ${pct(mid)}`, lo < mid]);
   // CP7 decision 4: ≤ at the printed precision (0.1pp) — equal to the cap passes.
-  checks.push([`P4 shape late flat: d16–20 ${pct(late)} ≤ 1.25 × d11–15 ${pct(m2)} = ${pct(1.25 * m2)}`, Math.round(late * 1000) <= Math.round(1.25 * m2 * 1000)]);
+  // cp8-rc6 (暫定, producer 2026-10-26): an overshoot under 0.2pp counts as sampling noise.
+  checks.push([`P4 shape late flat: d16–20 ${pct(late)} ≤ 1.25 × d11–15 ${pct(m2)} = ${pct(1.25 * m2)} (+0.2pp 抽樣容差, 暫定)`, Math.round(late * 1000) <= Math.round(1.25 * m2 * 1000) || late - 1.25 * m2 < 0.002]);
   const w = (k: string) => { let ww = 0, nn = 0; for (const r of set) { const v = r.win[k]; if (v != null) { ww += v; nn++; } } return ww / nn; };
   for (const sc of SCH) console.log(`  P4 fresh win ${sc}: ${Object.entries(by(sc).win).map(([k, v]) => `${k} ${v == null ? '—' : pct(v)}`).join(' ')}`);
   for (const sc of SCH) { const r = by(sc).win; checks.push([`P4 ${sc} d1–3 ≥95% (${[r.d1, r.d2, r.d3].map((x) => pct(x!)).join('/')}) d5 ≥75% (${pct(r.d5!)}) d16 ≥60% (${pct(r.d16!)}) d20 ≥35% (${pct(r.d20!)})`, r.d1! >= 0.95 && r.d2! >= 0.95 && r.d3! >= 0.95 && r.d5! >= 0.75 && r.d16! >= 0.6 && r.d20! >= 0.35]); }

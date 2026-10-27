@@ -1,13 +1,14 @@
 import { RULES } from './run';
+import { CP8, RC22 } from './cp8';
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
-import { resolveHit, type Avoid } from './damage';
+import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
 import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
 
-export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow';
+export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow' | 'greatCleave' | 'concussiveStrike' | 'rendingBlow' | 'shatterStrike';
 export type SpellId = 'fiery' | 'freeze' | 'shock' | 'gale' | 'smite' | 'corruption';
 export type PotionId = 'health' | 'mana' | 'spirit';
 
@@ -24,8 +25,21 @@ const SK = C['F-002-4.2-skills'].value;
 export const SKILLS: Record<SkillId, { id: SkillId; zh: string; oc: number; cd: number; desc: string }> = {
   shieldBash: { id: 'shieldBash', zh: '盾擊', oc: SK.shieldBash.ocCost, cd: SK.shieldBash.cooldown, desc: `x${SK.shieldBash.multiplier} 打擊並暈眩 ${SK.shieldBash.stunTicks} 回合` },
   vitalStrike: { id: 'vitalStrike', zh: '要害打擊', oc: SK.vitalStrike.ocCost, cd: SK.vitalStrike.cooldown, desc: `x${SK.vitalStrike.multiplier}（對暈眩 x${SK.vitalStrike.multiplierVsStunned}）並流血` },
-  mercifulBlow: { id: 'mercifulBlow', zh: '慈悲一擊', oc: SK.mercifulBlow.ocCost, cd: SK.mercifulBlow.cooldown, desc: `目標 HP<${SK.mercifulBlow.executeBelowHpFraction * 100}% 時 x${SK.mercifulBlow.multiplier}` },
+  mercifulBlow: { id: 'mercifulBlow', zh: '慈悲一擊', oc: SK.mercifulBlow.ocCost, cd: SK.mercifulBlow.cooldown, desc: `x${SK.mercifulBlow.multiplier}；目標流血且 HP<${SK.mercifulBlow.executeBelowHpFraction * 100}% 時直接擊殺` },
+  greatCleave: { id: 'greatCleave', zh: '巨力劈砍', oc: SK.greatCleave.ocCost, cd: SK.greatCleave.cooldown, desc: `x${SK.greatCleave.multiplier} 必定暴擊（可觸發骨牌）` },
+  rendingBlow: { id: 'rendingBlow', zh: '撕裂擊', oc: SK.rendingBlow.ocCost, cd: SK.rendingBlow.cooldown, desc: `x${SK.rendingBlow.multiplier} 最多 ${SK.rendingBlow.targets} 目標，無視物理減傷，命中後破甲 ${SK.rendingBlow.paStacks} 層` },
+  shatterStrike: { id: 'shatterStrike', zh: '粉碎擊', oc: SK.shatterStrike.ocCost, cd: SK.shatterStrike.cooldown, desc: `x${SK.shatterStrike.multiplier} 最多 ${SK.shatterStrike.targets} 目標，破甲目標暈眩 ${SK.shatterStrike.stunTicks} 回合` },
+  concussiveStrike: { id: 'concussiveStrike', zh: '震盪打擊', oc: SK.concussiveStrike.ocCost, cd: SK.concussiveStrike.cooldown, desc: `x${SK.concussiveStrike.multiplier} 魔法傷害並暈眩 ${SK.concussiveStrike.stunTicks} 回合` },
 };
+/** cp8-rc12 (sourced, Skills.md:55-79): each fighting style has its own skill set. rc11 gave every style the One-Handed set, so a
+ *  2H fighter spent 25-100 OC on Shield Bash / Vital Strike (x4, no Domino) instead of Great Cleave (x10, always crits), and a staff
+ *  caster traded its fiery quick-cast for a physical x4 staff hit. Unarmed has no style row in the source: keeps the 1H set (暫定).
+ *  rc13: 2H T2/T3 Rending Blow / Shatter Strike built (Skills.md:73-75, 109-111); profRequired not enforced yet (CP9). */
+export const KITS: Record<Derived['style'], SkillId[]> = {
+  oneHand: ['shieldBash', 'vitalStrike', 'mercifulBlow'], unarmed: ['shieldBash', 'vitalStrike', 'mercifulBlow'],
+  twoHand: ['greatCleave', 'rendingBlow', 'shatterStrike'], staff: ['concussiveStrike'],
+};
+export const skillKit = (s: BattleState): SkillId[] => KITS[s.d.style] ?? KITS.oneHand;
 const OC = C['F-002-overcharge'].value;
 const SS = C['F-002-spirit-stance'].value;
 export const DEF = C['002-07'].value;
@@ -66,17 +80,22 @@ function cp5Split(s: BattleState, ev: BEvent[]): void {
     const m = m0 as CM;
     if (m.hp > 0 || !m.splitInto || m.splitDone) return;
     m.splitDone = true;
-    for (const c of m.splitInto) if (alive(s).length < CP5.maxMonsters) { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `分裂！${c.name} 出現` }); }
+    for (const c of m.splitInto) if (alive(s).length < (RULES.cp8 && RC22.normalCap > 0 && !s.monsters.some((x) => x.rank === 'boss') ? Math.min(RC22.normalCap, CP5.maxMonsters) : CP5.maxMonsters)) /* rc22 normalCap（自訂） */ { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `分裂！${c.name} 出現` }); }
   });
 }
 /** CP5 鐵壁: damage halved on the elite's first turns. Returns mit unchanged otherwise. */
-const ironMit = (m: Monster, mit: number) => ((m as CM).ironTurns ? 1 - (1 - mit) * CP5.ironMit : mit);
+const PA = C['F-penetrated-armor'].value, PA_TURNS = C['P-penetrated-armor-turns'].value.turns;
+/** rc13: Penetrated Armor (Equipment_Procs.md) multiplies the monster's physical mitigation by 1 − 25% × stacks. */
+const paMit = (m: Monster, mit: number) => ((m.status.pa ?? 0) > 0 && (m.status.paTurns ?? 0) > 0 ? mit * (1 - PA.perStack * Math.min(PA.maxStacks, m.status.pa!)) : mit);
+const ironMit = (m: Monster, mit0: number) => { const mit = paMit(m, mit0); return (m as CM).ironTurns ? 1 - (1 - mit) * CP5.ironMit : mit; };
+/** rc13: the up-to-N target order shared by spells and the 2H area skills (target first, then neighbours). */
+const areaOrder = (s: BattleState, t0: number, n: number) => [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2, t0 - 3, t0 + 3, t0 - 4, t0 + 4].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)].slice(0, n);
 /** CP5 反傷 (守門者 stance / 尖刺 affix): reflect a share of physical damage through player physMit, spec and defend. */
 function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   const m = s.monsters[ti] as CM;
   const frac = (m.thornTurns ? CP5.thornsFrac : 0) + (m.affixes?.includes('spikes') ? CP5.spikesFrac : 0);
   if (!frac || dmg <= 0) return;
-  const out = Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
+  const out = Math.min(Math.round(s.d.hp * CP5.reflectCapHp), Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1)));
   if (out <= 0) return;
   s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
   ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });
@@ -107,7 +126,7 @@ export type Action =
   | { kind: 'spirit' };
 
 export type BEvent =
-  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; spirit?: boolean }
+  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; resisted?: number; rtype?: string; spirit?: boolean }
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
   | { t: 'status'; to: 'player' | number; text: string; phase?: boolean }
   | { t: 'death'; to: number }
@@ -161,13 +180,13 @@ export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: nu
   return {
     d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: C['P-oc-start'].value.initial,
     monsters, turn: 0, spirit: false, defendTurns: 0, focusTurn: false,
-    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0 },
+    cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0, greatCleave: 0, concussiveStrike: 0, rendingBlow: 0, shatterStrike: 0 },
     itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0, regen: { hp: 0, mp: 0, sp: 0 },
   };
 }
 
 export const alive = (s: BattleState) => s.monsters.filter((m) => m.hp > 0);
-const ocCap = (s: BattleState) => (s.mods ? OC.cap + (s.mods.ocCap ?? 0) : OC.cap);
+export const ocCap = (s: BattleState) => (s.mods ? OC.cap + (s.mods.ocCap ?? 0) : OC.cap);
 /** OC cost of a skill after CP4 mods (O8, oc combo). */
 export function skillOc(s: BattleState, id: SkillId): number {
   const M = s.mods;
@@ -184,17 +203,194 @@ export function spellCost(s: BattleState, id: SpellId): number {
   return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1) * x));
 }
 
+/** CP8 rc3 (暫定): what 「A·攻擊」 does — the staff quick spell (CP8.staffQuickSpell) when usable, else a normal attack. */
+// cp8-rc5 (playtest bug: bulwark in 靈動架勢 cast 烈焰爆破 on A): the UI also passes the live main-hand group; both must be a staff.
+export function quickAttack(s: BattleState, target: number, main?: string): Action {
+  const id = CP8.staffQuickSpell as SpellId;
+  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id]) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
+  return { kind: 'attack', target };
+}
+/** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
+/** rc13 item 2: pothint / danger read the crit-case estimate (SIM_EST_CRIT=0 → rc12 normal estimate, for comparison only). */
+const ENV_EST_CRIT = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_EST_CRIT !== '0';
+export const POT_HINT = { hp: 0.5, charging: 0.75, /** rc14 item 4（暫定）: share of the heal that must land */ minUseful: 0.5, /** rc20 item 1（暫定，製作人舉例 ≤35%；自訂，非原版）: HP at or below this share is 「HP 偏低」 even without a big estimate */ low: 0.35 };
+/** cp8-rc6 item 6: estimate of a charging monster's next heavy hit (mult as enemyTurn: drain → CP5.drainMult else BOSS_CHARGE_MULT,
+ *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance and the per-turn cap.
+ *  rc13 item 2: crit = true → the same hit as a monster crit (× 1 + F-002-5.1B critDamageBonus 0.2, Battles.md:45). */
+export function chargeEstimate(s: BattleState, m0: Monster, defending = false, crit = false): number {
+  const m = m0 as CM;
+  const pulse = m.rank === 'boss' && !!m.pulseNext && m.charge === 0; // cp8-rc7 P1 item 3: 元素脈衝 is a telegraphed big move too
+  const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : m.charge > 0 ? BOSS_CHARGE_MULT : 1; // rc9 P0-1: heavyNext / plain hit = ×1
+  const el = pulse ? m.shieldEl : m.elemAttack;
+  const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
+  const raw = m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), spec = s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0;
+  // rc21 item 2（暫定，自訂，非原版）: the crit case is the worst hit — top roll (F-002-5.1D 120%) × monster crit, the same definition
+  // worstHit / bigTele use. rc16–rc20 used the mean roll (100%) × crit, which under-reads a real top-roll crit by up to 1/6 (QA rc20 oc1 F16).
+  const cr = ADVICE_DIAG.critRoll; // rc21 sim diag only (SIM_CRITROLL): null = rc21 top roll; a number = mean roll × that × crit
+  if (crit && cr !== null) return meanHit(raw, mit, spec) * cr * (1 + MCRIT.critDamageBonus);
+  return crit ? maxHit(raw, mit, spec, 1 + MCRIT.critDamageBonus) : meanHit(raw, mit, spec);
+}
+/** cp8-rc10 P0-3: the biggest plain (×1) hit this monster can land now: top roll, monster crit (+ its crit bonus damage), current mitigation. */
+export function worstHit(s: BattleState, m0: Monster, defending = false): number {
+  const m = m0 as CM; const el = m.elemAttack;
+  const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
+  return maxHit(m.adb * (el ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0, 1 + MCRIT.critDamageBonus);
+}
+/** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
+export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
+/** rc9 P0-2: summed estimate of every live monster's next hit (wind-ups at their release multiplier; stunned monsters skip). */
+export function nextRoundEstimate(s: BattleState, crit = false): number {
+  return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1, crit) : 0), 0);
+}
+/** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
+/** rc16（製作人要求，自訂）: physical hits log resistance only when it is at least this %. */
+export const PHYS_RESIST_LOG = 25;
+/** rc20 item 1（自訂，非原版）: HP ≤ POT_HINT.low of max (暫定 35%). */
+/** rc21 item 2（製作人 40%）: the next round could take ≥ this share of max HP → show the decision even when HP survives it. */
+export const BIG_NEXT = 0.4;
+export const bigNext = (s: BattleState): boolean => !ADVICE_DIAG.revert.has('warn40') && s.hp > 0 && nextRoundEstimate(s, true) >= s.d.hp * BIG_NEXT;
+export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
+export function hpDanger(s: BattleState): boolean {
+  // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
+  // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
+  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp || (!ADVICE_DIAG.revert.has('lowz') && lowHp(s)) || bigNext(s); // rc22 diag: SIM_REVERT=lowz drops the rc20 low-HP trigger // rc21 item 2: …or the next round could take ≥ 40% max HP
+  const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
+  return s.hp < s.d.hp * th;
+}
+/** cp8-rc12 item 5（自訂，非原版）: HP in danger but the health potion cannot be drunk (cooldown / empty) → hint S (Spirit Stance) when usable.
+ *  D is NOT hinted here: rc12 sim (preset arcane, 64 paired seeds, naive hinted) — pressing D on every such turn cut the trip median
+ *  24 → 12, and D only on a wind-up still 24 → 19 (D skips the attack and takes only 25% off). */
+export function guardHint(s: BattleState): 'spirit' | null {
+  if (s.over || canUse(s, { kind: 'item', id: 'health' }) || !hpDanger(s)) return null;
+  return !s.spirit && canUse(s, { kind: 'spirit' }) ? 'spirit' : null;
+}
+/** rc16 items 1–2（自訂，非原版）: the single charge-turn decision used by the battle panel, the status bar, the urgent line and the
+ *  death screen. keys: what to press, in order of preference. */
+export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: string[]; text: string };
+/** rc21 sim diagnostics only (set by auto.ts from SIM_ZRULE; the game never changes it). 'rc21' = default.
+ *  'rc20order' = ablation: only the Z-first ordering reverts to rc20 (lethal → D,Z; low → Z,D).
+ *  'lethal' = variant (非預設，自訂): Z forced only when the estimate ≥ HP; HP ≤ 35% but survivable → A first, Z second. */
+export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null; revert: Set<string> } = { zRule: 'rc21', critRoll: 1, revert: new Set() }; // rc22 decision (a): mean roll is the default (自訂); null = rc21 top roll (SIM_CRITROLL=max)
+export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
+  const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
+  if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
+  const lethal = nextRoundEstimate(s, true) >= s.hp;
+  const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
+  const estD = Math.round(s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, true, true) : 0), 0));
+  const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
+  // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
+  const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
+  // rc21 item 2（暫定，自訂）: on a survivable ≥ 40% warning, Z only when at least half of its heal would land (rc14 POT_HINT.minUseful, same rule as potHint).
+  const zUseful = !big || ADVICE_DIAG.revert.has('zuseful') || s.d.hp - s.hp >= Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful;
+  const zr = ADVICE_DIAG.zRule;
+  if (zr !== 'rc21' && canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) {
+    if (zr === 'rc20order') return { danger, est, hp, keys: lethal ? ['D', 'Z'] : ['Z', 'D'], text: 'diag rc20order' };
+    if (!lethal && !big) return { danger, est, hp, keys: ['A', 'Z'], text: 'diag lethal-only Z' };
+  }
+  if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
+  if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
+  // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
+  // rc21 QA (arcane3 F11/F15): give the real reason Z is out — full HP, none left, or on cooldown (never 「冷卻 0 回合」).
+  const pn = `生命藥水${s.potions.health <= 0 ? '已用完' : s.itemCd.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : s.hp >= s.d.hp ? '滿血無需喝藥' : '目前不能用'}`;
+  if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
+  const sp = guardHint(s) === 'spirit';
+  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}${pn}，${why}）` };
+}
+/** rc19 (a)（自訂，非原版）: the Z·生命藥水 button highlight. QA rc16 oc4 F6: HP 357/792 (45%), biggest hit 44, decision said A, yet Z
+ *  lit — the button used potHint, whose "HP < 50%" branch ignores the estimate and so bypassed chargeAdvice. In cp8 the button now
+ *  lights only when chargeAdvice itself recommends Z (HP danger + potion usable), never at full HP. potHint stays as the sim policy. */
+export function zHint(s: BattleState, target = 0): boolean {
+  if (!RULES.cp8) return potHint(s);
+  return s.hp < s.d.hp && chargeAdvice(s, target).keys.includes('Z');
+}
+export function potHint(s: BattleState): boolean {
+  if (!canUse(s, { kind: 'item', id: 'health' })) return false;
+  if (s.hp >= s.d.hp) return false; // rc13 item 4: never at full HP (Z would heal +0)
+  // rc14 item 4（暫定、自訂，非原版）: above 50% HP, no hint while less than half of the potion's heal would land (the rest is wasted).
+  if (RULES.cp8 && s.hp >= s.d.hp * POT_HINT.hp && s.d.hp - s.hp < Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful) return false;
+  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s, ENV_EST_CRIT) < s.d.hp * CP8.potAfter; // rc9 P0-2（自訂，非原版）
+  const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
+  return s.hp < s.d.hp * th;
+}
+/** cp8-rc12 item 2: the arcane element suggestion (UI 💡 + highlighted spell button; the hinted sim follows it).
+ *  rc8–rc11 ('old'): the castable spell matching the target's biggest weakness — ignores MP cost (聖擊／腐化 cost 14 vs 6, hit
+ *  1 target vs 3), the other targets the spell splashes, and the spell's EDB. 'new'（自訂，非原版）: expected damage of every
+ *  castable spell over the targets it would hit (EDB × mod × weakness/resist, the same terms spellHit uses), per MP when MP is
+ *  short (< `SPELL_HINT_MP_CASTS` casts of the cheapest spell left after it); a spell is only suggested when it beats the A·攻擊
+ *  quick spell by > `SPELL_HINT_EDGE`. */
+export const SPELL_HINT_MP_CASTS = 3; // 暫定（自訂，非原版）
+export const SPELL_HINT_EDGE = 0.1; // 暫定（自訂，非原版）
+export function spellValue(s: BattleState, id: SpellId, target: number): number {
+  const def = SPELLS[id], t0 = s.monsters[target]?.hp ? target : s.monsters.findIndex((m) => m.hp > 0);
+  if (t0 < 0) return 0;
+  const order = [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)].slice(0, def.targets);
+  const base = (1 + s.d.edb[def.element] / 100) * def.mod;
+  return order.reduce((a, i) => { const m = s.monsters[i]!; const sp = m.spec[def.element] / 100;
+    return a + Math.min(m.hp, s.d.mdb * base * (s.mods?.weakMult && sp < 0 ? 1 + s.mods.weakMult : 1) * (1 - m.magMit) * (1 - sp)); }, 0);
+}
+export function suggestSpell(s: BattleState, target: number, mode: 'old' | 'new' = 'new'): { id: SpellId; type: string; pct: number } | null {
+  const m = s.monsters[target]; if (!m || m.hp <= 0) return null;
+  const ids = (Object.keys(SPELLS) as SpellId[]).filter((id) => canUse(s, { kind: 'spell', id, target }));
+  if (mode === 'old') {
+    for (const w of weaknesses(m).filter((x) => x.type in ELEM_OF).sort((x, y) => y.pct - x.pct)) {
+      const id = ids.find((sp) => SPELLS[sp].element === w.type); if (id) return { id, type: w.type, pct: w.pct };
+    }
+    return null;
+  }
+  if (!ids.length) return null;
+  const cheap = Math.min(...ids.map((id) => spellCost(s, id)));
+  const score = (id: SpellId) => { const c = spellCost(s, id), v = spellValue(s, id, target); return s.mp - c < cheap * SPELL_HINT_MP_CASTS ? v / c : v; };
+  const best = ids.reduce((a, id) => (score(id) > score(a) ? id : a));
+  const q = quickAttack(s, target); const qid = q.kind === 'spell' ? q.id : null;
+  if (qid && (best === qid || score(best) <= score(qid) * (1 + SPELL_HINT_EDGE))) return null;
+  const el = SPELLS[best].element; return { id: best, type: el, pct: Math.max(0, -m.spec[el]) };
+}
+/** rc13 item 3(b)（自訂，非原版）: a skill is hinted only when its expected damage beats the quick attack by > SKILL_HINT_EDGE (same edge as the spell hint). */
+export const SKILL_HINT_EDGE = SPELL_HINT_EDGE;
+const physExp = (s: BattleState, m: Monster, mult: number, opts: { noMit?: boolean; crit?: boolean } = {}) => {
+  const ce = opts.crit ? 1 + s.d.critMod : 1 + Math.min(1, s.d.physCrit) * s.d.critMod;
+  const mit = opts.noMit ? 0 : ironMit(m, m.physMit);
+  return Math.min(m.hp, s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * ce * (1 - mit) * (1 - m.spec[s.d.damageType] / 100));
+};
+/** rc13 item 3(b): expected damage of one skill this turn (overkill capped at each target's HP; area skills sum their targets). */
+export function skillValue(s: BattleState, id: SkillId, target: number): number {
+  const t0 = s.monsters[target]?.hp ? target : s.monsters.findIndex((m) => m.hp > 0); if (t0 < 0) return 0;
+  const m = s.monsters[t0]!;
+  switch (id) {
+    case 'shieldBash': return physExp(s, m, SK.shieldBash.multiplier);
+    case 'vitalStrike': return physExp(s, m, m.status.stun > 0 ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier);
+    case 'mercifulBlow': return m.status.bleedTurns > 0 && m.status.bleed > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction ? m.hp : physExp(s, m, SK.mercifulBlow.multiplier);
+    case 'greatCleave': return physExp(s, m, SK.greatCleave.multiplier, { crit: true });
+    case 'rendingBlow': return areaOrder(s, t0, SK.rendingBlow.targets).reduce((a, i) => a + physExp(s, s.monsters[i]!, SK.rendingBlow.multiplier, { noMit: true }), 0);
+    case 'shatterStrike': return areaOrder(s, t0, SK.shatterStrike.targets).reduce((a, i) => a + physExp(s, s.monsters[i]!, SK.shatterStrike.multiplier), 0);
+    case 'concussiveStrike': return Math.min(m.hp, s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit));
+  }
+}
+/** Expected damage of the quick attack (A) on this target. */
+export function attackValue(s: BattleState, target: number): number {
+  const q = quickAttack(s, target);
+  if (q.kind === 'spell') return spellValue(s, q.id, target);
+  const m = s.monsters[target] ?? s.monsters.find((x) => x.hp > 0); return m ? physExp(s, m, 1) : 0;
+}
+/** rc13 item 3(b): the skill worth pressing now, or null when none beats A by more than the edge (e.g. A already kills the target). */
+/** rc16 item 5 diag: why the skill hint did or did not light (counts only, no behaviour). */
+export const SKILL_HINT_STATS = { on: false, calls: 0, lit: 0, noOc: 0, belowEdge: 0, other: 0, ratios: [] as number[] };
+export function suggestSkill(s: BattleState, target: number): SkillId | null {
+  const H = SKILL_HINT_STATS; if (H.on) H.calls++;
+  const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }));
+  if (!ids.length) { if (!H.on) return null; if (skillKit(s).some((id) => !s.locked?.skill && s.cooldowns[id] <= 0 && s.oc < skillOc(s, id))) H.noOc++; else H.other++; return null; }
+  const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
+  const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on) H.ratios.push(ratio);
+  if (ratio > 1 + SKILL_HINT_EDGE) { if (H.on) H.lit++; return best; } if (H.on) H.belowEdge++; return null;
+}
+const ELEM_OF: Record<string, true> = { fire: true, cold: true, elec: true, wind: true, holy: true, dark: true };
 export function canUse(s: BattleState, a: Action): boolean {
   if (s.over) return false;
   switch (a.kind) {
     case 'attack': return true;
     case 'skill': {
-      if (s.locked?.skill) return false;
+      if (s.locked?.skill || !skillKit(s).includes(a.id)) return false;
       if (s.cooldowns[a.id] > 0 || s.oc < skillOc(s, a.id)) return false;
-      if (a.id === 'mercifulBlow') {
-        const m = s.monsters[a.target];
-        return !!m && m.hp > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction;
-      }
       return true;
     }
     case 'spell': return !s.locked?.spell && s.mp >= spellCost(s, a.id);
@@ -277,9 +473,9 @@ function stylePassive(s: BattleState, rng: Rng, t: number, dealt: number, ev: BE
 
 const COUNTER = { base: 25, attrK: 0.02, profDiv: 10, cap: 0.75 };
 /** rc7 (c): 1H Counter-Attack after a block or parry (Fighting_Styles.md:71-84): main-hand damage, no crit, cannot be evaded or parried; OC once per turn. */
-function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: BEvent[]): boolean {
+function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: BEvent[], extra = 0): boolean {
   const a = s.d.attrs, p = s.d.wprof, m = s.monsters[ti]!;
-  if (done >= (p >= 200 ? 3 : p >= 100 ? 2 : 1)) return false;
+  if (done >= (p >= 200 ? 3 : p >= 100 ? 2 : 1) + extra) return false;
   if (!rng.chance(Math.min(COUNTER.cap, (COUNTER.base + COUNTER.attrK * (a.str + a.dex) + p / COUNTER.profDiv) / 100))) return false;
   const raw = s.d.adb * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * (s.ow && s.ow.turns > 0 ? 1 + OVERWHELM.dmg : 1);
   const r = resolveHit(rng, { raw, magic: false, acc: s.d.physAcc, evade: 0, parry: 0, block: 0, resist: 0, critChance: 0, critMod: 0, mit: ironMit(m, m.physMit), spec: m.spec[s.d.damageType] / 100 });
@@ -290,11 +486,11 @@ function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: B
   return true;
 }
 
-function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType): number {
+function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType, critOverride?: number, noMit = false): number {
   const m = s.monsters[ti]!;
   const M = s.mods;
   let raw = s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (M?.ssDamage ?? 0) : 1);
-  let critChance = s.d.physCrit;
+  let critChance = critOverride ?? s.d.physCrit;
   if (M) {
     if (M.weakMult && isWeak(m, dtype)) raw *= 1 + M.weakMult;
     if (M.counterReady) { M.counterReady = false; raw *= BULWARK_COUNTER_MULT; fire(s); }
@@ -306,7 +502,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
   const r = resolveHit(rng, {
     raw, magic: false, acc: s.d.physAcc * (ow ? 1 + OVERWHELM.acc : 1),
     evade: m.status.stun > 0 ? 0 : m.evade, parry: m.status.stun > 0 ? 0 : m.parry * (ow ? Math.max(0, 1 - OVERWHELM.counterParry * ow.stacks) : 1), block: 0, resist: 0,
-    critChance, critMod: s.d.critMod, mit: ironMit(m, m.physMit), spec: m.spec[dtype] / 100,
+    critChance, critMod: s.d.critMod, mit: noMit ? 0 : ironMit(m, m.physMit), spec: m.spec[dtype] / 100,
   });
   if (r.avoidMult > 0) {
     m.hp = Math.max(0, m.hp - r.damage);
@@ -315,13 +511,27 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
     if (M?.combo.blade && r.crits > 0) fire(s);
     if (M?.combo.oc && s.oc >= cap && !M.freeSkill) { M.freeSkill = true; fire(s); }
   }
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit, ...(r.avoidMult > 0 && m.spec[dtype] >= PHYS_RESIST_LOG ? { resisted: m.spec[dtype], rtype: dtype } : {}) });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
   if (s.cp5 && r.avoidMult > 0) reflect(s, ti, r.damage, ev);
   return r.avoidMult > 0 ? r.damage : 0;
 }
 
+/** cp8-rc12: Concussive Strike — MDB x6 magic damage (findings/002 4.2 "MDB x 6"). The source names no element: untyped here
+ *  (no element bonus / specific mitigation; 暫定). Magic mitigation and resist apply like a spell. Coalesced Mana proc not built. */
+function magicStrike(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[]): void {
+  const m = s.monsters[ti]!;
+  const r = resolveHit(rng, {
+    raw: s.d.mdb * mult, magic: true, acc: s.d.magAcc,
+    evade: m.status.stun > 0 ? 0 : m.evade, parry: 0, block: 0, resist: m.resist, counterResist: s.d.counterResist,
+    critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: 0,
+  });
+  if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label: '震盪打擊' });
+  if (m.hp <= 0) ev.push({ t: 'death', to: ti });
+  if (s.cp5 && r.avoidMult > 0) antimagic(s, ti, r.damage, ev);
+}
 /** CP7 P2 (sourced): Damage.md:63 — specific mitigation is reduced additively but "cannot be reduced below 0, or reduced further
  * if the mitigation is already negative". cp6 subtracted the proficiency reduction from a weakness too (amplifying it). */
 function cp7SpellSpec(spec: number, reduce: number): number {
@@ -344,7 +554,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
     critChance: s.d.magCrit, critMod: s.d.spellCritMod, mit: ironMit(m, m.magMit), spec: cp7SpellSpec(m.spec[def.element] / 100, specReduce),
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element) });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element), resisted: r.avoidMult > 0 && m.spec[def.element] > 0 ? m.spec[def.element] : undefined });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
     if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
@@ -389,8 +599,33 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
           m.status.bleedTurns = VSB.ticks;
           ev.push({ t: 'status', to: t, text: `流血：每回合 ${m.status.bleed}，持續 ${VSB.ticks} 回合` });
         }
+      } else if (a.id === 'greatCleave') {
+        // Skills.md:73 / findings/002 4.2: x10, always crits, can trigger Domino (the 2H style passive).
+        stylePassive(s, rng, t, physHit(s, rng, t, SK.greatCleave.multiplier, ev, '巨力劈砍', s.d.damageType, 1), ev);
+      } else if (a.id === 'concussiveStrike') {
+        magicStrike(s, rng, t, SK.concussiveStrike.multiplier, ev);
+        if (m.hp > 0 && m.status.stun <= 0) { m.status.stun = SK.concussiveStrike.stunTicks; ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
+      } else if (a.id === 'rendingBlow') {
+        // Skills.md:73: up to 5 targets, damage bypasses monster physical mitigation, then 3 stacks of Penetrated Armor (applied after the damage).
+        for (const ti of areaOrder(s, t, SK.rendingBlow.targets)) {
+          const mm = s.monsters[ti]!;
+          physHit(s, rng, ti, SK.rendingBlow.multiplier, ev, '撕裂擊', s.d.damageType, undefined, true);
+          if (mm.hp > 0) { mm.status.pa = Math.min(PA.maxStacks, (mm.status.pa ?? 0) + SK.rendingBlow.paStacks); mm.status.paTurns = PA_TURNS; ev.push({ t: 'status', to: ti, text: `破甲 ${mm.status.pa} 層（物理減傷 ×${1 - PA.perStack * mm.status.pa}，${PA_TURNS} 回合）` }); }
+        }
+      } else if (a.id === 'shatterStrike') {
+        // Skills.md:75: up to 5 targets; a target with Penetrated Armor is stunned 5 ticks (an existing stun is not refreshed).
+        for (const ti of areaOrder(s, t, SK.shatterStrike.targets)) {
+          const mm = s.monsters[ti]!;
+          const had = (mm.status.pa ?? 0) > 0 && (mm.status.paTurns ?? 0) > 0;
+          physHit(s, rng, ti, SK.shatterStrike.multiplier, ev, '粉碎擊');
+          if (mm.hp > 0 && had && mm.status.stun <= 0) { mm.status.stun = SK.shatterStrike.stunTicks; ev.push({ t: 'status', to: ti, text: `暈眩 ${mm.status.stun} 回合（無法行動、無法迴避）` }); }
+        }
       } else {
-        physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');
+        // Skills.md:61 / 103: x10 damage; on a target with Bleeding Wound below 25% HP it kills instantly (rc13; rc12 wrongly gated the skill on HP < 25%).
+        if (m.status.bleedTurns > 0 && m.status.bleed > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction) {
+          const dmg = m.hp; m.hp = 0;
+          ev.push({ t: 'hit', from: 'player', to: t, dmg, crits: 0, avoided: null, label: '慈悲一擊・處決' }); ev.push({ t: 'death', to: t });
+        } else physHit(s, rng, t, SK.mercifulBlow.multiplier, ev, '慈悲一擊');
       }
       break;
     }
@@ -409,7 +644,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? HEALTH_POTION_CD : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1;
+      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1;
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];
@@ -559,22 +794,39 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
   s.cp5 = { pdot: pdot ? { ...pdot } : emptyDot() };
   const ev: BEvent[] = [];
   s.monsters.forEach((m, i) => { if ((m as CM).sig === 'shield') rotateShield(m as CM, i, ev); });
+  // CP8 P1 (暫定): boss battles open already in Spirit Stance when it can be used (a naive player never presses the toggle).
+  if (RULES.cp8 && CP8.bossSpirit && !s.spirit && s.monsters.some((m) => m.rank === 'boss') && canUse(s, { kind: 'spirit' })) { s.spirit = true; s.spiritUsed = true; ev.push({ t: 'spirit', on: true }); }
   return ev;
 }
 
+/** cp8-rc4 diagnostic: worst single monster round (fraction of max HP) since the last reset, with its hits. */
+export const RDMG = { max: 0, raw: 0 /* cp8-rc5 injury p95: same round before CP8.turnCap */, clip: 0, hits: [] as Record<string, unknown>[], av: {} as Record<string, number> };
 function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
+  const hits: Record<string, unknown>[] = [], h0 = s.hp;
+  RDMG.clip = 0;
+  monstersAct0(s, rng, ev, hits);
+  const f = (h0 - s.hp) / s.d.hp;
+  RDMG.raw = Math.max(RDMG.raw, f + RDMG.clip / s.d.hp);
+  if (f > RDMG.max) { RDMG.max = f; RDMG.hits = hits; RDMG.av = { hp: s.d.hp, evade: s.d.evade, parry: s.d.parry, block: s.d.block, physMit: s.d.physMit, magMit: s.d.magMit }; }
+}
+function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<string, unknown>[]): void {
   if (s.over) return;
   const defending = s.defendTurns > 0;
   let ripostes = 0, counters = 0;
+  const defBonus = RULES.cp8 && defending && (s.mods?.combo.bulwark || (s.d.style === 'oneHand' && s.d.block > 0)) ? CP8.bulwarkDefCounter : 0; // bulwark = 1H + shield layout (or the bulwark combo) // cp8-rc8 P2-1 自訂，非原版
+  // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
+  const hp0 = s.hp, cap = RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity;
   s.monsters.forEach((m0, i) => {
     const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
     if (s.cp5) { if (m.thornTurns) m.thornTurns--; if (m.ironTurns) m.ironTurns--; }
+    if ((m.status.paTurns ?? 0) > 0 && --m.status.paTurns! <= 0) m.status.pa = 0;
     if (m.status.stun > 0) {
       m.status.stun--;
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
       if (m.pulseNext) { m.pulseNext = false; ev.push({ t: 'status', to: i, text: '元素脈衝被打斷！' }); }
+      if (m.heavyNext) { m.heavyNext = false; ev.push({ t: 'status', to: i, text: '蓄力一擊被打斷！' }); }
       return;
     }
     let mult = 1;
@@ -597,6 +849,13 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
         else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
       }
     }
+    // rc9 P0-1（自訂，非原版，暫定）: a boss / elite plain hit estimated ≥ CP8.bigTele × max HP winds up for 1 round first.
+    // cp8-rc10 P0-3: every rank (rc9 skipped normal monsters — the d26 frost caster hit 462 ≈ 50% unannounced), and judged on the
+    // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
+    if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
+      if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
+      else if (worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+    }
     const zero = s.focusTurn;
     const r = resolveHit(rng, {
       raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
@@ -604,13 +863,15 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],
     });
-    const dmg = r.avoidMult > 0 ? r.damage : 0;
+    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.round(cap - (hp0 - s.hp))));
     s.hp = Math.max(0, s.hp - dmg);
+    RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
+    hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
-    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev)) counters++;
+    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus)) counters++;
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
-    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn) {
+    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
       physHit(s, rng, i, BULWARK_RIPOSTE.mult, ev, '反擊');
       s.mods.counterReady = keep;
@@ -618,4 +879,16 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
   });
   if (s.defendTurns > 0) s.defendTurns--;
+}
+
+/** rc19 (e)（製作人要求，自訂，非原版）: death-screen hint for a non-charged death. A last hit ≥ 15% of max HP is never
+ *  called 「被慢慢磨光」. topDmg = biggest single hit of the last turns, lastDmg = the killing hit. */
+export const DEATH_BIG_LAST = 0.15;
+/** rc20 item 3: damage in the last 2 enemy turns at or above this share of max HP counts as a burst death, never "slowly worn down". 暫定（自訂，非原版） */
+export const DEATH_BURST_2T = 0.5;
+export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2Taken = 0): string {
+  if (last2Taken >= maxHp * DEATH_BURST_2T) return `最後兩回合共受 ${last2Taken} 傷害（佔最大 HP ${Math.round((last2Taken / maxHp) * 100)}%）：兩回合內就會被打穿，HP 低於這個數字前就先喝藥或防禦。`;
+  if (topDmg >= maxHp * 0.3) return '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。';
+  if (lastDmg >= maxHp * DEATH_BIG_LAST) return `最後一擊佔最大 HP ${Math.round((lastDmg / maxHp) * 100)}%（≥ ${DEATH_BIG_LAST * 100}%）：HP 低於這一擊的兩倍前就先喝藥或防禦。`;
+  return 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
 }

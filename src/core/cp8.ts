@@ -1,0 +1,55 @@
+/**
+ * CP8 真實遊玩 (docs/cp8-real-play.md). Everything here is used only when RULES.cp8 is on.
+ * Knobs marked 暫定 have no original-game source (Clean Room rule: listed in docs/cp8-real-play.md §暫定值).
+ */
+import { CP7 } from './cp7';
+const RC22_ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+const num = (k: string): number | null => (RC22_ENV?.[k] != null && RC22_ENV[k] !== '' ? Number(RC22_ENV[k]) : null);
+/** rc22 item 2 tuning（自訂，非原版，暫定）. Sim overrides: SIM_POTCD / SIM_MULTIK / SIM_NORMALCAP.
+ *  potCd: health-potion cooldown under cp8 (null = data value 3). multiK: monster damage × this in non-boss abyss fights with ≥ 2
+ *  monsters past d17 (1 = off). normalCap: max monsters alive in non-boss fights (0 = CP5.maxMonsters). */
+// rc22 defaults（自訂，非原版，暫定）: ui-sim N=128 seeds 0/256 — potCd 2 → multiK 0.65 → normalCap 1 reached all ≥ 27, arcane/bulwark ≥ 32.
+export const RC22 = { potCd: (num('SIM_POTCD') ?? 2) as number | null, multiK: num('SIM_MULTIK') ?? 0.65, normalCap: num('SIM_NORMALCAP') ?? 1 };
+export const CP8 = {
+  /** 暫定（缺原版出處；rc3 試玩 d25 首領從滿血 936 被打死）: d25 abyss boss damage × (replaces ABYSS.bossDmgAt[25]=0.6 when cp8 is on).
+   *  d25 stacks tier 3→4, plevel +10 and the first boss affix on one fight; this softens only that boss. */
+  boss25Dmg: 0.5,
+  /** 暫定（缺原版出處；產品規則）P1: a drop that the 「▲ 比身上好」 rule (CP7 betterThanWorn) badges is worn at once, in the run.
+   *  Root cause of the naive gap: loot sits in the run bag, and on death only RULES.death.keepBestItems (=1) bag piece survives. */
+  autoWear: true,
+  /** 暫定（缺原版出處；產品規則）P1: boss battles open in Spirit Stance (sourced entry rule: OC ≥ 50, F-002-spirit-stance) when it
+   *  can be used — the toggle is free, but a player who never presses it loses the SS damage bonus in every boss fight. */
+  bossSpirit: true,
+  /** cp8-rc8 P2 item 1（自訂，非原版，暫定）: bulwark defending gets +1 block-counter per turn (riposte allowed while defending, 1H counter cap +1). 0 = off. */
+  bulwarkDefCounter: 1,
+  /** rc9 item 1 (UI only, 自訂，非原版，暫定): ms a fresh 蓄力 / 大招 panel ignores A / skills / spells (D / potions stay instant). */
+  chargeHoldMs: 700,
+  /** rc9 P0-1（自訂，非原版，暫定）: a boss / elite normal hit whose estimate is ≥ this × max HP is wound up for 1 round first
+   *  (telegraphed with its estimate; released next turn at ×1). 0 = off. */
+  bigTele: 0.5,
+  /** rc9 P0-2（自訂，非原版，暫定）: the HP-potion hint also lights when HP − the next round's estimated damage < this × max HP. */
+  potAfter: 0.25,
+  /** 暫定（缺原版出處）P5: cap on the summed monster damage of one round, as a fraction of max HP (0 = off). */
+  turnCap: 0.75, // cp8-rc5 (暫定, own rule, producer 2026-10-26): 0.9 → 0.7 → 0.75 (lowest of 0.75/0.8 passing P4 late flat on B128+B256; docs/logs/cp8rc8/dec)
+  /** 暫定（缺原版出處）P3: run buffs picked before an abyss trip that starts at depth `start` > 1: N = floor((start − 1) / per), max `max`. */
+  startBuffPer: 5,
+  startBuffMax: 6,
+  /** 暫定（缺原版出處）P3 (rc2): non-boss damage factor for abyss themes 1–3 from the 2nd rotation (d21–23, d41–43 …). CP7.themeDmg
+   *  gives themes 16–19 ×0.7, so at d20→d21 the discount ended at once (adb +52% vs d18 while the tier multiplier is only +9.5%).
+   *  The discount now fades out 0.7 → 1 over themes 1–3 (theme 20 is the boss floor, not affected).
+   *  cp8-rc11 item 3（暫定、自訂，非原版）: rc2's 4 steps ended at d24, so d24→d25 still jumped ×0.925→×1. The ramp now spans
+   *  themes 1–9 (d21–d29), linear 0.7 + 0.3·i/9, and d30 is the first full-strength floor.
+   *  (rc2–rc10 value: [0.7, 0.775, 0.85, 0.925].) */
+  /** cp8-rc12 item 3（暫定、自訂，非原版）: from d21 each DIFF tier jump ramps over all 5 depths of the tier (was CP7.tierRamp 3 →
+   *  depths 3–5 of a tier shared one multiplier: d22–24 ×6.08, d27–29 ×7.60). Now the multiplier rises on every floor. */
+  tailRamp: 5,
+  themeTail: Array.from({ length: 9 }, (_, i) => Math.round((0.7 + (0.3 * i) / 9) * 1000) / 1000) as number[],
+  /** 暫定（缺原版出處；產品規則）rc3: with a staff in the main hand, 「A·攻擊」 casts this basic spell when it can (MP, unlocked),
+   *  else it is a normal melee hit. Playtest: an arcane player who only presses 攻擊 hit with the staff (adb 118, wprof 5) and died at d8.
+   *  '' = off. The spell itself (cost, damage) is unchanged. */
+  staffQuickSpell: 'fiery' as string,
+};
+/** CP8 rc2: theme damage factor at theme floor f (1..20) for abyss depth > 20. */
+export const cp8ThemeDmg = (f: number): number => (f >= 1 && f <= CP8.themeTail.length ? CP8.themeTail[f - 1]! : CP7.themeDmg[f] ?? 1);
+/** CP8 P3 (暫定 formula): number of start buffs for an abyss trip from depth `start`. */
+export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, Math.max(0, Math.floor((start - 1) / CP8.startBuffPer)));

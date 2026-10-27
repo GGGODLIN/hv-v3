@@ -15,6 +15,9 @@ export const CP5 = {
   burn: { frac: 0.15, turns: 3 },
   bleed: { frac: 0.1, turns: 3 },
   maxMonsters: 4,
+  /** cp8-rc12 (自訂，非原版): one reflect (thorns / spikes) deals at most this share of the player's max HP. Reflect is a share of the hit,
+   *  so one x10 always-crit Great Cleave into a thorns shield (frac 1.0) returned ~3x the A-only reflect (paired preset runs, blade). */
+  reflectCapHp: 0.1,
   spikesFrac: 0.15, leechFrac: 0.25, ironTurns: 2, ironMit: 0.5, splitHp: 0.15, // tune r1 (was 0.25)
   /** CP5 sim tune r1: frost melee damage multiplier; 2-affix elite HP multiplier. */
   frostMult: 0.75, doubleHp: 0.8,
@@ -92,7 +95,7 @@ export function affixCombos(floor?: number): AffixId[][] {
 
 /** CP5 extra monster state (all optional, so a flag-off Monster is unchanged). */
 export interface Cp5Mon {
-  sig?: BossSig; sigTurns?: number; sigPending?: boolean; thornTurns?: number; charges?: number; drainNext?: boolean; pulseNext?: boolean;
+  sig?: BossSig; sigTurns?: number; sigPending?: boolean; thornTurns?: number; charges?: number; drainNext?: boolean; pulseNext?: boolean; /** cp8-rc9 P0-1: telegraphed big single hit next turn (自訂，非原版). */ heavyNext?: boolean;
   shieldEl?: Element; breachEl?: Element; specBase?: Monster['spec']; reserve?: Monster[]; summoned?: boolean;
   affixes?: AffixId[]; ironTurns?: number; splitInto?: Monster[]; splitDone?: boolean; ownTurns?: number;
   elemAttack?: Element; critBonus?: number;

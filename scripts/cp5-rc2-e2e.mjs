@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer-core';
 const br = await puppeteer.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 const pg = await br.newPage(); await pg.setViewport({ width: 1280, height: 900 });
 const errs = []; pg.on('pageerror', (e) => errs.push(String(e)));
-await pg.goto('http://localhost:5198/?debug&cp5', { waitUntil: 'networkidle0' });
+await pg.goto((process.argv[2] ?? process.env.E2E_URL ?? 'http://localhost:5198/') + '?debug&cp5', { waitUntil: 'networkidle0' });
 await pg.waitForFunction(() => window.hv); await pg.evaluate(() => localStorage.clear());
 const w = (ms) => new Promise((r) => setTimeout(r, ms)); const res = {};
 await pg.evaluate(() => { const hv = window.hv; hv.startRun(); const r = hv.run; const i = r.tower.floors.findIndex((f) => f.n >= 3 && f.options.includes('elite') && !f.options.includes('boss')); r.floor = i + 1; hv.go('map'); });

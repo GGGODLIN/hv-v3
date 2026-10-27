@@ -1,0 +1,151 @@
+{
+ "res": {
+  "abyss15/battle": [
+   {
+    "i": 0,
+    "name": "雷角刺客",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:28",
+     "crushing:-25",
+     "dark:27",
+     "elec:30",
+     "fire:27",
+     "holy:-29",
+     "piercing:-25",
+     "slashing:-25",
+     "wind:27"
+    ],
+    "want": [
+     "cold:28",
+     "crushing:-25",
+     "dark:27",
+     "elec:30",
+     "fire:27",
+     "holy:-29",
+     "piercing:-25",
+     "slashing:-25",
+     "wind:27"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "雷冠甲蟲",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:-15",
+     "crushing:-25",
+     "dark:7",
+     "elec:42",
+     "fire:33",
+     "holy:6",
+     "slashing:25",
+     "wind:31"
+    ],
+    "want": [
+     "cold:-15",
+     "crushing:-25",
+     "dark:7",
+     "elec:42",
+     "fire:33",
+     "holy:6",
+     "slashing:25",
+     "wind:31"
+    ]
+   }
+  ],
+  "abyss15/elite": [
+   {
+    "i": 0,
+    "name": "反魔冰霜・霜鱗精靈",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:84",
+     "crushing:-25",
+     "dark:-36",
+     "elec:34",
+     "fire:34",
+     "holy:33",
+     "piercing:-25",
+     "slashing:-25",
+     "wind:33"
+    ],
+    "want": [
+     "cold:84",
+     "crushing:-25",
+     "dark:-36",
+     "elec:34",
+     "fire:34",
+     "holy:33",
+     "piercing:-25",
+     "slashing:-25",
+     "wind:33"
+    ]
+   }
+  ],
+  "postF20-blade/boss": [
+   {
+    "i": 0,
+    "name": "守門者・風血砲台",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:34",
+     "dark:12",
+     "elec:-35",
+     "fire:34",
+     "holy:34",
+     "piercing:25",
+     "slashing:25",
+     "wind:35"
+    ],
+    "want": [
+     "cold:34",
+     "dark:12",
+     "elec:-35",
+     "fire:34",
+     "holy:34",
+     "piercing:25",
+     "slashing:25",
+     "wind:35"
+    ]
+   },
+   {
+    "i": 1,
+    "name": "雷翼幻靈",
+    "row": true,
+    "resLabel": true,
+    "ok": true,
+    "shown": [
+     "cold:27",
+     "crushing:-25",
+     "dark:29",
+     "elec:47",
+     "fire:29",
+     "holy:30",
+     "piercing:-25",
+     "wind:28"
+    ],
+    "want": [
+     "cold:27",
+     "crushing:-25",
+     "dark:29",
+     "elec:47",
+     "fire:29",
+     "holy:30",
+     "piercing:-25",
+     "wind:28"
+    ]
+   }
+  ]
+ },
+ "errs": []
+}
+ALL PASS

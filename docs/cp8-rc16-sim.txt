@@ -1,0 +1,10 @@
+base-arcane: arcane SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 79 p25 50 p75 100
+base-bulwark: bulwark SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 35 p25 30 p75 41
+base-oc: oc SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 24 p25 20 p75 30
+base: blade SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 23 p25 18 p75 31
+oc100: blade SIM_MAPPOT=1 SIM_OPEN_OC=100 SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 100 p25 75 p75 100
+oc50: blade SIM_MAPPOT=1 SIM_OPEN_OC=50 SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 100 p25 69 p75 100
+pot-arcane: arcane SIM_MAPPOT=1 SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 80 p25 55 p75 100
+pot-bulwark: bulwark SIM_MAPPOT=1 SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 35 p25 30 p75 41
+pot-oc: oc SIM_MAPPOT=1 SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 25 p25 20 p75 30
+pot: blade SIM_MAPPOT=1 SIM_ROUTE=battle SIM_AI=naive N=128 cap 100: median 26 p25 21 p75 35

@@ -46,6 +46,8 @@ export interface TowerOpts {
   long?: boolean;
   /** CP6 rc2 (c), flag cp6Abyss: no floor offers two routes of the same type. */
   distinct?: boolean;
+  /** cp8-rc6 item 2 (flag RULES.cp8): the floor before each boss floor always offers a rest. */
+  restBeforeBoss?: boolean;
 }
 const COMBAT: NodeType[] = ['battle', 'elite'];
 export const isCombat = (t: NodeType) => t === 'battle' || t === 'elite' || t === 'boss';
@@ -80,6 +82,9 @@ export function generateTower(rng: Rng, opts: TowerOpts = {}): Tower {
     }
     if (!options.length) options.push(COMBAT.find((t) => !banned(t)) ?? 'battle');
     if (options[0] === 'rest' && T.restFloors.includes(n)) { const i = rng.int(0, options.length - 1); [options[0], options[i]] = [options[i]!, options[0]!]; }
+    // cp8-rc6 item 2 (producer): the floor right before a boss floor always offers a rest node (added after the rng draws, so the
+    // stream and every other floor stay as before; restFloors / combatFloors values unchanged). On a combat-only floor it is an extra route.
+    if (opts.restBeforeBoss && T.bossFloors.includes(n + 1) && !options.includes('rest') && !locked.has('rest')) options.push('rest');
     floors.push({ n, options });
   }
   if (opts.shrine && !floors.some((f) => f.options.includes('shrine'))) {

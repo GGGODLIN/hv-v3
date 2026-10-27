@@ -1,0 +1,14 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Error [TypeError]: Cannot read properties of null (reading 'nodes')
+    at evaluate (evaluate at file:///workspace/hv-v3/scripts/e2e.mjs:54:10, <anonymous>:0:28)
+    at #evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/ExecutionContext.js:388:19)
+    at async ExecutionContext.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/ExecutionContext.js:274:16)
+    at async IsolatedWorld.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/IsolatedWorld.js:102:16)
+    at async CdpFrame.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/api/Frame.js:359:20)
+    at async CdpPage.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/api/Page.js:826:20)
+    at async file:///workspace/hv-v3/scripts/e2e.mjs:54:1
+
+Node.js v20.19.2

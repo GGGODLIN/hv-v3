@@ -1,0 +1,2 @@
+{"blade":{"lean":"blade","saved":"blade","eq":{"mainHand":"oneHand:axe","body":"light:leather"},"lv":0},"oc":{"lean":"oc","saved":"oc","eq":{"mainHand":"oneHand:axe","body":"light:leather"},"lv":0},"arcane":{"lean":"arcane","saved":"arcane","eq":{"mainHand":"oneHand:axe","body":"light:leather"},"lv":0},"bulwark":{"lean":"bulwark","saved":"bulwark","eq":{"mainHand":"oneHand:axe","offHand":"shield:buckler","body":"light:leather"},"lv":0},"fail":[],"errs":[]}
+CP8 RC6 FRESH E2E PASS

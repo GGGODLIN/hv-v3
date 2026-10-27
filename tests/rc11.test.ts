@@ -25,8 +25,9 @@ describe('rc11 boss floors come from tower rules', () => {
 
 describe('rc11 map scrolls to the current floor', () => {
   it('centres .floor.cur inside its .tower box', () => {
-    const box = { offsetTop: 100, clientHeight: 300, scrollTop: 0 };
-    const cur = { offsetTop: 1100, offsetHeight: 40, closest: (sel: string) => (sel === '.tower' ? box : null) };
+    // rc18: scrollToCurrentFloor measures with rects (the .tower is now position:relative); same centring outcome
+    const box = { offsetHeight: 300, clientHeight: 300, scrollTop: 0, getBoundingClientRect: () => ({ top: 100, height: 300 }) };
+    const cur = { offsetHeight: 40, getBoundingClientRect: () => ({ top: 1100 }), closest: (sel: string) => (sel === '.tower' ? box : null) };
     scrollToCurrentFloor({ querySelector: (sel: string) => (sel === '.panel.map .floor.cur' ? cur : null) } as unknown as ParentNode);
     expect(box.scrollTop).toBe(1100 - 100 - (300 - 40) / 2);
   });

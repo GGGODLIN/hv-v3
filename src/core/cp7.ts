@@ -5,6 +5,7 @@
 import { type Equip, type Slot, QUALITIES, blocksOffHand, generateEquip, type Quality } from './items';
 import { type Player, derive, powerScore } from './player';
 import type { Rng } from './rng';
+import { RULES } from './run';
 
 export const CP7 = {
   /** "比身上好" threshold: wearing the item raises 戰力 (powerScore) by more than this fraction. Under CP7 the sim's armour
@@ -59,8 +60,34 @@ export function wearGain(p: Player, e: Equip): number {
   if (blocksOffHand(e)) delete trial.equipped.offHand;
   return cur > 0 ? powerScore(derive(trial)) / cur - 1 : 1;
 }
+/** cp8-rc6 item 5: weapon layout per lean school (same as auto.ts gearStyle('buff:<school>'): blade 2H no shield, oc 1H shield free,
+ *  arcane staff no shield, bulwark 1H + shield). May `e` be worn by this player's lean school? Non-weapon slots / no lean: always. */
+export const LEAN_HANDS = { blade: ['twoHand', false], oc: ['oneHand', true], arcane: ['staff', false], bulwark: ['oneHand', true] } as const;
+export function leanAllows(p: Player, e: Equip): boolean {
+  if (!RULES.cp8 || !p.lean) return true;
+  const [main, shield] = LEAN_HANDS[p.lean];
+  if (e.slot === 'mainHand') return e.group === main;
+  if (e.slot === 'offHand') return shield;
+  if (ARMOR_GROUPS.includes(e.group)) return LEAN_ARMOR[p.lean]!.includes(e.group); // cp8-rc7 P0 bug 2
+  return true;
+}
+/** cp8-rc7 P0 bug 2 (layout only, 暫定 school→armour mapping, no numbers): rc6 locked only weapons, so a preset bulwark kept a cloth robe and
+ *  arcane kept heavy legs. arcane = cloth / light, others = light / heavy (bulwark still prefers heavy, see betterThanWorn). */
+const ARMOR_GROUPS: readonly string[] = ['cloth', 'light', 'heavy'];
+export const LEAN_ARMOR = { blade: ['light', 'heavy'], oc: ['light', 'heavy'], arcane: ['cloth', 'light'], bulwark: ['light', 'heavy'] } as Record<string, readonly string[]>;
 /** CP7 P1 definition of a better drop (UI badge + sim metric). */
-export const betterThanWorn = (p: Player, e: Equip): boolean => wearGain(p, e) > CP7.betterMargin;
+export function betterThanWorn(p: Player, e: Equip): boolean {
+  if (!leanAllows(p, e)) return false;
+  if (RULES.cp8 && p.lean && p.equipped[e.slot] && !leanAllows(p, p.equipped[e.slot]!)) return e.id !== p.equipped[e.slot]!.id && wearGain(p, e) >= 0; // cp8-rc9 P1-7: never a 戰力 drop // cp8-rc7 P0 bug 2: replaces a disallowed worn piece
+  // cp8-rc6 item 5: school-locked weapon layout (badge, autoWear, 換上 all share this)
+  if (RULES.cp8 && p.lean === 'bulwark') { // cp8-rc5 (layout only): a bulwark-leaning player keeps 1H + shield and heavy armour
+    const w = p.equipped[e.slot], arm = ['cloth', 'light', 'heavy'].includes(e.group);
+    if (e.slot === 'mainHand' && e.group !== 'oneHand') return false;
+    if (arm && w?.group === 'heavy' && e.group !== 'heavy') return false;
+    if (arm && e.group === 'heavy' && w && w.group !== 'heavy') return wearGain(p, e) >= 0 && e.id !== w.id;
+  }
+  return wearGain(p, e) > CP7.betterMargin;
+}
 /** cp7-rc5 bug 1: one verdict for every 「▲」 the UI shows (裝備欄 compare, 「▲ 比身上好」 badge, 出發前整備). `small` = 戰力 goes up
  *  but by no more than CP7.betterMargin, so the badge / reminder do not list it (the UI says so instead of a bare ▲). */
 export function gearVerdict(p: Player, e: Equip): 'better' | 'small' | 'none' {

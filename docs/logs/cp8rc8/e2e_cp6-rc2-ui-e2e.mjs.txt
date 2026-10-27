@@ -1,0 +1,2 @@
+{"d":["災厄","守門者","深淵之王","塔主"],"a1":{"disabled":true,"text":"先選 buff 或「不拿」","need":true},"a2":{"screen":"node","offer":true},"a3":{"disabled":false,"offer":false},"b":{"cd":10,"potcd":"10","aria":"true","small":"冷卻 10 回合","suggest":false,"bg":"repeating-linear-gradien","icon":"grayscale(1) brightness(0.55)"},"errs":[]}
+E2E PASS (a)(b)(d)

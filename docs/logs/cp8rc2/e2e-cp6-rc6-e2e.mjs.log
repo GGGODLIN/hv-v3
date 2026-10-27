@@ -1,0 +1,17 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+Error [TypeError]: Cannot read properties of null (reading 'abyss')
+    at evaluate (evaluate at file:///workspace/hv-v3/scripts/cp6-rc6-e2e.mjs:11:12, <anonymous>:0:18)
+    at #evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/ExecutionContext.js:388:19)
+    at async ExecutionContext.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/ExecutionContext.js:274:16)
+    at async IsolatedWorld.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/IsolatedWorld.js:102:16)
+    at async CdpFrame.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/api/Frame.js:359:20)
+    at async CdpPage.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/api/Page.js:826:20)
+    at async file:///workspace/hv-v3/scripts/cp6-rc6-e2e.mjs:11:3
+    at startBattle (http://127.0.0.1:5198/assets/index-BkvedJ6_.js:142:3776)
+    at $i (http://127.0.0.1:5198/assets/index-BkvedJ6_.js:102:104624)
+    at Mi (http://127.0.0.1:5198/assets/index-BkvedJ6_.js:102:101278)
+
+Node.js v20.19.2

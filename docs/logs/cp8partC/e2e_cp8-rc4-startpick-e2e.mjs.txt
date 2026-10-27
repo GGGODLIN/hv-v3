@@ -1,0 +1,2 @@
+{"ys":[[274.5,false],[274.5,false],[274.5,false],[274.5,false],[274.5,false]],"many":0,"maxJump":0,"disabledDuring":false,"midPick":true,"entered":true,"errs":[]}
+CP8 RC4 STARTPICK E2E PASS

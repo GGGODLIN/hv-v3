@@ -1,0 +1,86 @@
+{
+ "▲9: build badge has CP7": {
+  "ok": true,
+  "info": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+ },
+ "▲9: storage says 小幅提升, no ▲ 比身上好": {
+  "ok": true,
+  "info": {
+   "mh": "emvp592m4kuicwia",
+   "oh": "shield",
+   "modal": false,
+   "rows": [],
+   "equipBtn": null,
+   "better": false,
+   "small": true,
+   "badge": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+  }
+ },
+ "▲9: abyss reminder has no equip row (consistent with storage)": {
+  "ok": true,
+  "info": {
+   "mh": "emvp592m4kuicwia",
+   "oh": "shield",
+   "modal": true,
+   "rows": [
+    "alloc",
+    "potion"
+   ],
+   "equipBtn": null,
+   "better": false,
+   "small": true,
+   "badge": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+  }
+ },
+ "▲36: build badge has CP7": {
+  "ok": true,
+  "info": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+ },
+ "▲36: storage shows ▲ 比身上好": {
+  "ok": true,
+  "info": {
+   "mh": "emvp592m4kuicwia",
+   "oh": "shield",
+   "modal": false,
+   "rows": [],
+   "equipBtn": null,
+   "better": true,
+   "small": false,
+   "badge": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+  }
+ },
+ "▲36: abyss reminder lists 換上": {
+  "ok": true,
+  "info": {
+   "mh": "emvp592m4kuicwia",
+   "oh": "shield",
+   "modal": true,
+   "rows": [
+    "alloc",
+    "potion",
+    "equip"
+   ],
+   "equipBtn": "換上",
+   "better": true,
+   "small": false,
+   "badge": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+  }
+ },
+ "▲36: 換上 wears the club, shield kept, row gone": {
+  "ok": true,
+  "info": {
+   "mh": "emvp65ek7ff8r4n",
+   "oh": "shield",
+   "modal": true,
+   "rows": [
+    "alloc",
+    "potion"
+   ],
+   "equipBtn": null,
+   "better": false,
+   "small": false,
+   "badge": "build a77dc92 · CP4 · CP5 · CP6 · CP7"
+  }
+ }
+}
+CP7-RC5 BUG1 E2E ALL PASS

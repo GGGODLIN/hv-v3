@@ -1,0 +1,54 @@
+
+=== set A (seeds 1..32) cp8=true naive=true
+  blade: trip1 median d14 (p25 9) trip2 median d15  F20 clear median 15 trips  d21 first battle 0/26
+  oc: trip1 median d15 (p25 12) trip2 median d19  F20 clear median 22 trips  d21 first battle 3/23
+  arcane: trip1 median d17 (p25 12) trip2 median d17  F20 clear median 17 trips  d21 first battle 3/23
+  bulwark: trip1 median d15 (p25 12) trip2 median d20  F20 clear median 15 trips  d21 first battle 6/28
+  P5 blade (HP 842..952, 17 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 1.5% d30 38.5%
+  P5 oc (HP 940..1074, 15 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 5.6%
+  P5 arcane (HP 916..1034, 15 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 10.3%
+  P5 bulwark (HP 882..1030, 18 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 1.3% d30 10.2%
+  CHECK P1 every school trip-1 median ≥ d10: blade 14 oc 15 arcane 17 bulwark 15 PASS
+  CHECK P1 strongest/weakest trip-1 median 1.214× ≤ 1.3× PASS
+  CHECK P2 trip-2 median ≥ trip-1 median + 3: blade 14→15 oc 15→19 arcane 17→17 bulwark 15→20 FAIL
+  CHECK P3 d21 start (with start buffs) first battle win 12.0% (12/100) ≥ 40% FAIL
+  CHECK P4 trip-1 median depth 15 in 10–30 PASS
+  CHECK P4 shape low→rising: d1–5 0.2% < d6–15 9.5% PASS
+  CHECK P4 shape late flat: d16–20 16.3% ≤ 1.25 × d11–15 11.8% = 14.8% FAIL
+  CHECK P4 blade d1–3 ≥95% (100.0%/100.0%/93.5%) d5 ≥75% (100.0%) d16 ≥60% (31.0%) d20 ≥35% (37.9%) FAIL
+  CHECK P4 oc d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (61.5%) d20 ≥35% (57.7%) PASS
+  CHECK P4 arcane d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (64.3%) d20 ≥35% (50.0%) PASS
+  CHECK P4 bulwark d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (29.0%) d20 ≥35% (41.9%) FAIL
+  CHECK P4 blade trip-1 d10 boss win 96.2% (25/26) ≥ 70% (fresh d10 boss 80.6%, no potions 61.3%) PASS
+  CHECK P4 oc trip-1 d10 boss win 100.0% (24/24) ≥ 70% (fresh d10 boss 96.4%, no potions 85.7%) PASS
+  CHECK P4 arcane trip-1 d10 boss win 88.9% (24/27) ≥ 70% (fresh d10 boss 93.1%, no potions 82.8%) PASS
+  CHECK P4 bulwark trip-1 d10 boss win 100.0% (28/28) ≥ 70% (fresh d10 boss 78.1%, no potions 59.4%) PASS
+  CHECK P5 full-HP one-round death, worst school×depth 56.5% (blade d28) ≤ 2% FAIL
+
+=== set B (seeds 257..288) cp8=true naive=true
+  blade: trip1 median d12 (p25 9) trip2 median d15  F20 clear median 13 trips  d21 first battle 2/21
+  oc: trip1 median d15 (p25 12) trip2 median d20  F20 clear median 20 trips  d21 first battle 7/27
+  arcane: trip1 median d15 (p25 12) trip2 median d19  F20 clear median 19 trips  d21 first battle 5/21
+  bulwark: trip1 median d19 (p25 14) trip2 median d19  F20 clear median 17 trips  d21 first battle 6/28
+  P5 blade (HP 844..962, 17 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 21.9%
+  P5 oc (HP 952..1046, 17 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 6.4%
+  P5 arcane (HP 930..1012, 16 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 10.9%
+  P5 bulwark (HP 910..1024, 17 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 1.5% d30 18.9%
+  CHECK P1 every school trip-1 median ≥ d10: blade 12 oc 15 arcane 15 bulwark 19 PASS
+  CHECK P1 strongest/weakest trip-1 median 1.583× ≤ 1.3× FAIL
+  CHECK P2 trip-2 median ≥ trip-1 median + 3: blade 12→15 oc 15→20 arcane 15→19 bulwark 19→19 FAIL
+  CHECK P3 d21 start (with start buffs) first battle win 20.6% (20/97) ≥ 40% FAIL
+  CHECK P4 trip-1 median depth 15 in 10–30 PASS
+  CHECK P4 shape low→rising: d1–5 0.1% < d6–15 10.6% PASS
+  CHECK P4 shape late flat: d16–20 19.6% ≤ 1.25 × d11–15 11.9% = 14.9% FAIL
+  CHECK P4 blade d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (24.1%) d20 ≥35% (41.4%) FAIL
+  CHECK P4 oc d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (46.9%) d20 ≥35% (65.6%) FAIL
+  CHECK P4 arcane d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (63.0%) d20 ≥35% (66.7%) PASS
+  CHECK P4 bulwark d1–3 ≥95% (100.0%/100.0%/100.0%) d5 ≥75% (100.0%) d16 ≥60% (48.4%) d20 ≥35% (58.1%) FAIL
+  CHECK P4 blade trip-1 d10 boss win 84.0% (21/25) ≥ 70% (fresh d10 boss 90.3%, no potions 71.0%) PASS
+  CHECK P4 oc trip-1 d10 boss win 90.0% (27/30) ≥ 70% (fresh d10 boss 93.8%, no potions 84.4%) PASS
+  CHECK P4 arcane trip-1 d10 boss win 96.4% (27/28) ≥ 70% (fresh d10 boss 93.3%, no potions 80.0%) PASS
+  CHECK P4 bulwark trip-1 d10 boss win 100.0% (30/30) ≥ 70% (fresh d10 boss 87.5%, no potions 81.3%) PASS
+  CHECK P5 full-HP one-round death, worst school×depth 59.1% (blade d27) ≤ 2% FAIL
+
+CP8 SOME FAIL

@@ -3,6 +3,9 @@ import type { BEvent, BattleState } from '../core/battle';
 import type { Monster } from '../core/monsters';
 import { QUALITY_COLOR, type Quality } from '../core/items';
 import { bodyOf } from '../core/bodies';
+import { AFFIXES, type AffixId } from '../core/cp5';
+/** rc15 (2): short element names for the enemy label (display only). */
+const STAGE_ELEM_ZH: Record<string, string> = { fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗', crushing: '打', slashing: '斬', piercing: '刺', void: '虛' };
 
 export const W = 1100;
 export const H = 620;
@@ -115,7 +118,10 @@ export class Stage extends Phaser.Scene {
       if (m.rank === 'boss') sprite.setTint(0xff8080);
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () => { if (m.hp > 0) this.onTarget(i); });
       const top = y - (kind === 'beast' ? 95 : 148) * scale;
-      const label = this.add.text(x, top - 26, `${m.rank === 'elite' ? '☠' : ''}${m.name} Lv${m.level}`, { fontFamily: 'monospace', fontSize: '13px', color: m.rank === 'normal' ? '#ffffff' : '#ffb060', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+      const ek = (Object.keys(m.spec) as (keyof Monster['spec'])[]);
+      const wk = ek.filter((k) => m.spec[k] < 0).map((k) => STAGE_ELEM_ZH[k] ?? k).join(''), rs = ek.filter((k) => m.spec[k] > 0).map((k) => STAGE_ELEM_ZH[k] ?? k).join('');
+      const elemTag = [wk && `弱${wk}`, rs && `抗${rs}`].filter(Boolean).join('｜');
+      const label = this.add.text(x, top - (elemTag ? 34 : 26), `${m.rank === 'elite' ? '☠' : ''}${m.name}${((m as Monster & { affixes?: AffixId[] }).affixes ?? []).map((a) => `【${AFFIXES[a]?.zh ?? a}】`).join('')} Lv${m.level}${elemTag ? `\n${elemTag}` : ''}`, { fontFamily: '"Noto Sans TC", sans-serif', fontSize: '13px', fontStyle: 'bold', color: m.rank === 'normal' ? '#ece6f2' : '#e8b04a', stroke: '#100d16', strokeThickness: 4, align: 'center' }).setOrigin(0.5).setDepth(20);
       const bar = this.add.graphics().setDepth(20);
       const v: MonView = { m, sprite, kind, x, y, scale, bar, label, ring };
       this.mons.push(v);
@@ -131,9 +137,13 @@ export class Stage extends Phaser.Scene {
     const w = 100, x = v.x - w / 2, y = top - 14;
     v.bar.clear();
     if (v.m.hp <= 0) return;
-    v.bar.fillStyle(0x000000, 0.7).fillRect(x - 1, y - 1, w + 2, 9);
+    // rc17 視覺：framed rounded bar, palette colors, 25% ticks (display only)
+    v.bar.fillStyle(0x000000, 0.85).fillRoundedRect(x - 2, y - 2, w + 4, 11, 3);
+    v.bar.fillStyle(0x2a2436, 1).fillRoundedRect(x - 1, y - 1, w + 2, 9, 2);
     const f = v.m.hp / v.m.maxHp;
-    v.bar.fillStyle(f > 0.5 ? 0x4ad94a : f > 0.25 ? 0xe0c040 : 0xe04040, 1).fillRect(x, y, w * f, 7);
+    const c = f > 0.5 ? 0x3fb764 : f > 0.25 ? 0xe8b04a : 0xd9443c;
+    if (f > 0) { v.bar.fillStyle(c, 1).fillRoundedRect(x, y, Math.max(2, w * f), 7, 2); v.bar.fillStyle(0xffffff, 0.28).fillRect(x + 1, y + 1, Math.max(0, w * f - 2), 2); }
+    v.bar.fillStyle(0x000000, 0.5); for (let k = 1; k < 4; k++) v.bar.fillRect(x + (w * k) / 4, y, 1, 7);
     if (v.m.status.stun > 0) v.bar.fillStyle(0x7fd8ff, 1).fillRect(x, y + 8, 18, 3);
     if (v.m.status.bleed > 0) v.bar.fillStyle(0xd02020, 1).fillRect(x + 20, y + 8, 18, 3);
   }
@@ -145,11 +155,12 @@ export class Stage extends Phaser.Scene {
 
   refresh() { this.mons.forEach((v) => this.drawBar(v)); this.setTarget(this.target); }
 
-  popup(x: number, y: number, text: string, color: string, size = 22, rise = 70) {
-    const t = this.add.text(x + Phaser.Math.Between(-18, 18), y, text, { fontFamily: 'monospace', fontSize: `${size}px`, fontStyle: 'bold', color, stroke: '#000', strokeThickness: 5 }).setOrigin(0.5).setDepth(40);
+  popup(x: number, y: number, text: string, color: string, size = 22, rise = 70, sticky = false) {
+    const t = this.add.text(x + Phaser.Math.Between(-18, 18), y, text, { fontFamily: '"Noto Sans TC", sans-serif', fontSize: `${size + 2}px`, fontStyle: 'bold', color, stroke: '#140e1c', strokeThickness: 6, shadow: { offsetX: 0, offsetY: 3, color: '#000', blur: 0, fill: true, stroke: true } }).setOrigin(0.5).setDepth(40);
     t.setScale(0.4);
     this.tweens.add({ targets: t, scale: 1, duration: 120 / this.speed, ease: 'Back.Out' });
-    this.tweens.add({ targets: t, y: y - rise, alpha: 0, delay: 350 / this.speed, duration: 650 / this.speed, onComplete: () => t.destroy() });
+    if (sticky) t.setData('sticky', 1); // cp8-rc7 P2: block / parry text stays readable at 4x (fixed 900 ms hold, not divided by speed)
+    this.tweens.add({ targets: t, y: y - rise, alpha: 0, delay: sticky ? 900 : 350 / this.speed, duration: sticky ? 700 : 650 / this.speed, onComplete: () => t.destroy() });
   }
 
   private flash(s: Phaser.GameObjects.Sprite, color = 0xffffff) {
@@ -248,7 +259,9 @@ export class Stage extends Phaser.Scene {
         this.shake(0.006 + e.crits * 0.003);
       } else this.popup(v.x, top + 10, e.dmg > 0 ? `${e.dmg}` : '', magic ? '#9fd8ff' : '#ffffff', 24);
       if (avoidTxt) this.popup(v.x, top - 10, avoidTxt, '#bbbbbb', 15, 40);
-      if (e.label) this.popup(v.x, top - 34, e.label, '#ffb060', 15, 30);
+      // cp8-rc7 P2: block-counter / riposte (label 反擊…) is a big sticky banner so defending visibly pays off.
+      if (e.label?.startsWith('反擊')) this.popup(v.x, top - 40, `⚔ ${e.label} ${e.dmg}`, '#7fd0ff', 26, 50, true);
+      else if (e.label) this.popup(v.x, top - 34, e.label, '#ffb060', 15, 30);
       await this.wait(260);
     } else if (typeof e.from === 'number') {
       const v = this.mons[e.from];
@@ -261,7 +274,9 @@ export class Stage extends Phaser.Scene {
       if (e.dmg > 0) { this.heroPlay('hurt'); this.flash(this.hero, 0xff8080); }
       const big = e.label === '重擊！' || e.crits > 0;
       this.popup(this.hero.x, this.hero.y - 220, e.dmg > 0 ? `-${e.dmg}` : '', big ? '#ff3030' : '#ff8080', big ? 30 : 22);
-      if (avoidTxt) this.popup(this.hero.x, this.hero.y - 245, avoidTxt, '#cccccc', 15, 40);
+      // cp8-rc6 item 7: block / parry get a clear 「格擋！-N」 popup (bigger, shield blue); other avoidances unchanged.
+      if (e.avoided === 'block' || e.avoided === 'parry') this.popup(this.hero.x, this.hero.y - 300, `🛡 ${avoidTxt}！${e.dmg > 0 ? `-${e.dmg}` : ''}`, '#7fd0ff', 30, 50, true);
+      else if (avoidTxt) this.popup(this.hero.x, this.hero.y - 245, avoidTxt, '#cccccc', 15, 40);
       if (e.label === '重擊！') this.shake(0.018, 320);
       else if (e.dmg > 0) this.shake(0.003, 120);
       await this.wait(220);

@@ -1,0 +1,2 @@
+{"elite":[[false,false],[true,true]],"eliteOk":true,"inBattle":true,"h40":true,"h60":false,"h60c":true,"h80c":false,"errs":[]}
+CP8 RC4 POTHINT E2E PASS

@@ -22,7 +22,7 @@ describe('rc10 preset load fully replaces the save', () => {
     const s = loadFrom(kv)!;
     expect(level(s.player)).toBe(14);
     expect(derive(s.player).hp).toBe(784);
-    expect(Object.values(s.player.potions).reduce((a, b) => a + b, 0)).toBe(3);
+    expect(s.player.potions.health).toBe(3); // cp8 post-rc9 producer: every postF20 preset starts with 3 HP potions (was 3 potions total)
     expect(s.run).toBeNull(); expect(s.stats.runs).toBe((presets['postF20-blade']!.player as { prog?: { trips?: number } }).prog?.trips ?? 0);
     const rec = loadRecord(kv.getItem(ABYSS_KEY));
     expect(rec).toMatchObject({ best: 0, trips: 0, titles: [], bySchool: {} });

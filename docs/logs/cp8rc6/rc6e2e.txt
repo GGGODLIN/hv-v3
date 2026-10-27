@@ -1,0 +1,17 @@
+/tmp/cp8/e2e_cp5-rc2-e2e.mjs.txt: {"elite":{"marks":7,"inNode":1,"banner":true},"b5":{"loops":1,"tele":false},"doc
+/tmp/cp8/e2e_cp6-rc2-dot-e2e.mjs.txt: E2E PASS (e)
+/tmp/cp8/e2e_cp6-rc2-ui-e2e.mjs.txt: E2E PASS (a)(b)(d)
+/tmp/cp8/e2e_cp6-rc3-e2e.mjs.txt: ALL PASS
+/tmp/cp8/e2e_cp6-rc6-e2e.mjs.txt: ALL PASS
+/tmp/cp8/e2e_cp7-rc4-prep-e2e.mjs.txt: CP7-RC4 PREP E2E ALL PASS
+/tmp/cp8/e2e_cp7-rc5-bug1-e2e.mjs.txt: CP7-RC5 BUG1 E2E ALL PASS
+/tmp/cp8/e2e_cp8-rc1-e2e.mjs.txt: CP8 E2E PASS
+/tmp/cp8/e2e_cp8-rc2-prep-e2e.mjs.txt: CP8-RC2 PREP E2E PASS
+/tmp/cp8/e2e_cp8-rc3-prep-e2e.mjs.txt: CP8-RC3 PREP E2E PASS
+/tmp/cp8/e2e_cp8-rc3-startpick-e2e.mjs.txt: CP8 RC3 STARTPICK E2E PASS
+/tmp/cp8/e2e_cp8-rc4-pothint-e2e.mjs.txt: CP8 RC4 POTHINT E2E PASS
+/tmp/cp8/e2e_cp8-rc4-startpick-e2e.mjs.txt: CP8 RC4 STARTPICK E2E FAIL
+/tmp/cp8/e2e_cp8-rc5-held-e2e.mjs.txt: CP8 RC5 HELD E2E PASS
+/tmp/cp8/e2e_e2e-cp3fix.mjs.txt: E2E-CP3FIX PASS
+/tmp/cp8/e2e_e2e.mjs.txt: E2E PASS
+rerun cp8-rc4-startpick: PASS (first run FAIL maxJump 21.8 under sim load)

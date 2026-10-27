@@ -1,0 +1,17 @@
+file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/common/CallbackRegistry.js:99
+    #error = new ProtocolError();
+             ^
+
+ProtocolError: Runtime.callFunctionOn timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.
+    at <instance_members_initializer> (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/common/CallbackRegistry.js:99:14)
+    at new Callback (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/common/CallbackRegistry.js:103:16)
+    at CallbackRegistry.create (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/common/CallbackRegistry.js:22:26)
+    at Connection._rawSend (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/Connection.js:104:26)
+    at CdpCDPSession.send (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/CdpSession.js:71:33)
+    at #evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/ExecutionContext.js:360:50)
+    at ExecutionContext.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/ExecutionContext.js:274:36)
+    at IsolatedWorld.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/cdp/IsolatedWorld.js:102:30)
+    at CdpFrame.evaluate (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/api/Frame.js:359:43)
+    at CdpFrame.<anonymous> (file:///workspace/hv-v3/node_modules/puppeteer-core/lib/esm/puppeteer/util/decorators.js:101:27)
+
+Node.js v20.19.2

@@ -1,0 +1,52 @@
+
+=== set A (seeds 1..256) cp8=true naive=true
+  blade: trip1 median d24 (p25 17) trip2 median d25  F20 clear median 5 trips  d21 first battle 863/1024
+  oc: trip1 median d24 (p25 19) trip2 median d25  F20 clear median 6 trips  d21 first battle 955/1024
+  arcane: trip1 median d27 (p25 20) trip2 median d27  F20 clear median 5 trips  d21 first battle 1024/1024
+  bulwark: trip1 median d25 (p25 19) trip2 median d27  F20 clear median 3 trips  d21 first battle 923/1024
+  (info) trip-2 vs trip-1 median this set: blade 24→25 oc 24→25 arcane 27→27 bulwark 25→27 — P2 is judged on A+B pooled below
+  P5 blade (HP 982..1036, 131 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  P5 oc (HP 1018..1080, 130 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  P5 arcane (HP 718..764, 143 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  P5 bulwark (HP 1052..1116, 143 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  CHECK P1 every school trip-1 median ≥ d10: blade 24 oc 24 arcane 27 bulwark 25 PASS
+  CHECK P1 strongest/weakest trip-1 median 1.125× ≤ 1.3× PASS
+  CHECK P3 d21 start (with start buffs) first battle win 91.9% (3765/4096) ≥ 40% PASS
+  CHECK P4 current AI (cp7-report P4 lines missing — pass the current-AI file as 2nd arg) FAIL
+  CHECK P5 full-HP one-round death, worst school×depth 0.0% ≤ 2% PASS
+
+=== set B (seeds 257..512) cp8=true naive=true
+  blade: trip1 median d24 (p25 19) trip2 median d25  F20 clear median 5 trips  d21 first battle 902/1024
+  oc: trip1 median d24 (p25 19) trip2 median d25  F20 clear median 6 trips  d21 first battle 959/1024
+  arcane: trip1 median d27 (p25 22) trip2 median d29  F20 clear median 5 trips  d21 first battle 1024/1024
+  bulwark: trip1 median d27 (p25 19) trip2 median d29  F20 clear median 4 trips  d21 first battle 945/1024
+  (info) trip-2 vs trip-1 median this set: blade 24→25 oc 24→25 arcane 27→29 bulwark 27→29 — P2 is judged on A+B pooled below
+  P5 blade (HP 982..1034, 129 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  P5 oc (HP 1018..1078, 134 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  P5 arcane (HP 718..760, 152 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  P5 bulwark (HP 1052..1122, 137 chars) one-round death from full HP: d5 0.0% d10 0.0% d15 0.0% d20 0.0% d25 0.0% d30 0.0%
+  CHECK P1 every school trip-1 median ≥ d10: blade 24 oc 24 arcane 27 bulwark 27 PASS
+  CHECK P1 strongest/weakest trip-1 median 1.125× ≤ 1.3× PASS
+  CHECK P3 d21 start (with start buffs) first battle win 93.5% (3830/4096) ≥ 40% PASS
+  CHECK P4 current AI (cp7-report P4 lines missing — pass the current-AI file as 2nd arg) FAIL
+  CHECK P5 full-HP one-round death, worst school×depth 0.0% ≤ 2% PASS
+
+=== A+B pooled
+  P2 blade: (1) median 24→25 ✗ | (2) d25 boss beaten 40.6%→64.6% (+24.0pp) ✓ | (3) mean 22.43→25.22 (+2.79) ✓
+  P2 oc: (1) median 24→25 ✗ | (2) d25 boss beaten 39.1%→71.3% (+32.2pp) ✓ | (3) mean 22.91→25.98 (+3.06) ✓
+  P2 arcane: (1) median 27→27 ✗ | (2) d25 boss beaten 68.6%→87.5% (+18.9pp) ✓ | (3) mean 24.75→27.13 (+2.38) ✓
+  P2 bulwark: (1) median 27→29 ✓ | (2) d25 boss beaten 60.4%→82.4% (+22.1pp) ✓ | (3) mean 25.12→28.23 (+3.12) ✓
+  CHECK P2 every school passes (1) median +2 or (2) d25 boss +10pp or (3) mean +2 (A+B pooled) PASS
+  blade p10 14 p25 19 med 24 ratio 0.79 | oc p10 14 p25 19 med 24 ratio 0.79 | arcane p10 12 p25 22 med 27 ratio 0.81 | bulwark p10 14 p25 19 med 27 ratio 0.70
+  CHECK V trip-1 p25 ≥ 0.7 × median every school (A+B pooled) PASS
+  blade trip1 p50 0.56 p95 0.75 raw p95 0.97 all p50 0.66 p95 0.75 | oc trip1 p50 0.47 p95 0.73 raw p95 0.78 all p50 0.57 p95 0.75 | arcane trip1 p50 0.67 p95 0.75 raw p95 1.35 all p50 0.75 p95 0.75 | bulwark trip1 p50 0.45 p95 0.68 raw p95 0.68 all p50 0.54 p95 0.75
+  受傷 start d1-10: blade n533 p50 0.56 | oc n523 p50 0.47 | arcane n542 p50 0.66 | bulwark n532 p50 0.45
+  受傷 start d11-20: blade n273 p50 0.57 | oc n186 p50 0.50 | arcane n149 p50 0.71 | bulwark n157 p50 0.47
+  受傷 start d21-30: blade n2603 p50 0.68 | oc n2621 p50 0.59 | arcane n3082 p50 0.75 | bulwark n1824 p50 0.56
+  受傷 cleared d0-10: blade n27 p50 0.39 | oc n14 p50 0.38 | arcane n39 p50 0.48 | bulwark n21 p50 0.36
+  受傷 cleared d11-20: blade n313 p50 0.49 | oc n212 p50 0.42 | arcane n163 p50 0.62 | bulwark n174 p50 0.39
+  受傷 cleared d21-30: blade n2735 p50 0.67 | oc n2739 p50 0.58 | arcane n3260 p50 0.75 | bulwark n1890 p50 0.55
+  受傷 cleared d31-+: blade n334 p50 0.72 | oc n365 p50 0.59 | arcane n311 p50 0.75 | bulwark n428 p50 0.53
+  CHECK 受傷 (producer 2026-10-26 (c), 暫定) bulwark all p50 0.54 lowest ✓ | start d11-20 p50 0.47 lowest ✓ | trip-1 raw p95 0.68 ≤ 0.78 − 0.08 ✓ PASS
+
+CP8 SOME FAIL

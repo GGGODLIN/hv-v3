@@ -1,0 +1,2 @@
+{"bwBattle":true,"bwAttack":[1,1,1,1,1,1],"bwDefend":[2,2,2,1,2,2],"blade":{"t1":"💡 本場可用：攻擊累積 OC 後可用 Q·盾擊（25OC）、W·要害打擊（50OC）、E·慈悲一擊（100OC）","t2":false},"oc":{"t1":"💡 本場可用：攻擊累積 OC 後可用 Q·盾擊（25OC）、W·要害打擊（50OC）、E·慈悲一擊（100OC）","t2":false},"bulwark":{"t1":null,"t2":false},"fail":[],"errs":[]}
+CP8 RC8 E2E PASS

@@ -1,0 +1,278 @@
+K0 1 light:leather:fair hp 510 pm 0.078
+K1 1 heavy:plate:superior hp 794 pm 0.415 heavyAt m1
+K0 2 light:leather:fair hp 510 pm 0.077
+K1 2 heavy:chain:exquisite hp 782 pm 0.398 heavyAt m1
+K0 3 light:leather:fair hp 510 pm 0.079
+K1 3 cloth:ironsilk:peerless hp 946 pm 0.457 heavyAt none
+K0 4 light:leather:fair hp 510 pm 0.079
+K1 4 heavy:plate:average hp 810 pm 0.421 heavyAt m2
+K0 5 light:leather:fair hp 510 pm 0.080
+K1 5 heavy:chain:exquisite hp 790 pm 0.398 heavyAt m1
+K0 6 light:leather:fair hp 510 pm 0.103
+K1 6 heavy:plate:exquisite hp 800 pm 0.427 heavyAt m2
+K0 7 light:leather:fair hp 510 pm 0.077
+K1 7 heavy:plate:superior hp 726 pm 0.399 heavyAt m1
+K0 8 light:leather:fair hp 510 pm 0.076
+K1 8 cloth:ironsilk:peerless hp 826 pm 0.392 heavyAt none
+K0 9 light:leather:fair hp 510 pm 0.087
+K1 9 heavy:chain:superior hp 828 pm 0.432 heavyAt m4
+K0 10 light:leather:fair hp 510 pm 0.076
+K1 10 heavy:chain:superior hp 798 pm 0.413 heavyAt m2
+K0 11 light:leather:fair hp 510 pm 0.078
+K1 11 heavy:plate:exquisite hp 824 pm 0.434 heavyAt m1
+K0 12 light:leather:fair hp 510 pm 0.077
+K1 12 light:kevlar:exquisite hp 780 pm 0.386 heavyAt none
+HA 12 1
+K0 13 light:leather:fair hp 510 pm 0.080
+K1 13 heavy:chain:superior hp 736 pm 0.413 heavyAt m2
+K0 14 light:leather:fair hp 528 pm 0.080
+K1 14 heavy:plate:exquisite hp 814 pm 0.449 heavyAt m1
+K0 15 light:leather:fair hp 510 pm 0.076
+K1 15 light:kevlar:superior hp 696 pm 0.372 heavyAt none
+HA 15 5
+K0 16 light:leather:fair hp 510 pm 0.079
+K1 16 heavy:plate:average hp 738 pm 0.401 heavyAt m2
+K0 17 light:leather:fair hp 510 pm 0.080
+K1 17 heavy:plate:superior hp 724 pm 0.427 heavyAt m3
+K0 18 light:leather:fair hp 510 pm 0.079
+K1 18 heavy:chain:superior hp 736 pm 0.386 heavyAt m2
+K0 19 light:leather:fair hp 510 pm 0.078
+K1 19 heavy:chain:exquisite hp 776 pm 0.412 heavyAt m1
+K0 20 light:leather:fair hp 510 pm 0.078
+K1 20 heavy:chain:superior hp 840 pm 0.402 heavyAt m1
+K0 21 light:leather:fair hp 510 pm 0.079
+K1 21 heavy:chain:superior hp 798 pm 0.415 heavyAt m2
+K0 22 light:leather:fair hp 510 pm 0.077
+K1 22 heavy:plate:superior hp 800 pm 0.415 heavyAt m1
+K0 23 light:leather:fair hp 510 pm 0.102
+K1 23 light:kevlar:superior hp 760 pm 0.401 heavyAt none
+HA 23 10
+K0 24 light:leather:fair hp 510 pm 0.077
+K1 24 light:kevlar:exquisite hp 760 pm 0.397 heavyAt none
+HA 24 1
+K0 25 light:leather:fair hp 510 pm 0.076
+K1 25 light:leather:fair hp 706 pm 0.362 heavyAt none
+HA 25 2
+K0 26 light:leather:fair hp 510 pm 0.078
+K1 26 light:drakehide:superior hp 786 pm 0.396 heavyAt none
+HA 26 1
+K0 27 light:leather:fair hp 510 pm 0.077
+K1 27 heavy:plate:exquisite hp 770 pm 0.398 heavyAt m1
+K0 28 light:leather:fair hp 522 pm 0.082
+K1 28 heavy:chain:superior hp 806 pm 0.431 heavyAt m1
+K0 29 light:leather:fair hp 510 pm 0.079
+K1 29 heavy:chain:superior hp 810 pm 0.387 heavyAt m4
+K0 30 light:leather:fair hp 510 pm 0.078
+K1 30 heavy:plate:magnificent hp 848 pm 0.474 heavyAt m1
+K0 31 light:leather:fair hp 510 pm 0.077
+K1 31 heavy:chain:exquisite hp 804 pm 0.429 heavyAt m3
+K0 32 light:leather:fair hp 510 pm 0.077
+K1 32 cloth:ironsilk:peerless hp 904 pm 0.434 heavyAt none
+K0 33 light:leather:fair hp 510 pm 0.077
+K1 33 heavy:plate:average hp 878 pm 0.425 heavyAt m2
+K0 34 light:leather:fair hp 510 pm 0.097
+K1 34 light:drakehide:magnificent hp 826 pm 0.419 heavyAt none
+HA 34 1
+K0 35 light:leather:fair hp 510 pm 0.079
+K1 35 heavy:plate:exquisite hp 960 pm 0.445 heavyAt m3
+K0 36 light:leather:fair hp 510 pm 0.079
+K1 36 light:kevlar:exquisite hp 878 pm 0.423 heavyAt none
+HA 36 7
+K0 37 light:leather:fair hp 510 pm 0.081
+K1 37 cloth:ironsilk:magnificent hp 802 pm 0.315 heavyAt none
+K0 38 light:leather:fair hp 510 pm 0.076
+K1 38 cloth:ironsilk:magnificent hp 860 pm 0.360 heavyAt none
+K0 39 light:leather:fair hp 522 pm 0.081
+K1 39 cloth:ironsilk:peerless hp 798 pm 0.329 heavyAt none
+K0 40 light:leather:fair hp 510 pm 0.076
+K1 40 heavy:plate:average hp 722 pm 0.371 heavyAt m1
+K0 41 light:leather:fair hp 510 pm 0.078
+K1 41 light:kevlar:superior hp 778 pm 0.390 heavyAt none
+HA 41 1
+K0 42 light:leather:fair hp 510 pm 0.077
+K1 42 heavy:plate:exquisite hp 854 pm 0.447 heavyAt m3
+K0 43 light:leather:fair hp 522 pm 0.082
+K1 43 light:kevlar:superior hp 782 pm 0.394 heavyAt none
+HA 43 1
+K0 44 light:leather:fair hp 510 pm 0.076
+K1 44 heavy:plate:superior hp 798 pm 0.411 heavyAt m1
+K0 45 light:leather:fair hp 510 pm 0.078
+K1 45 light:kevlar:magnificent hp 770 pm 0.425 heavyAt none
+K0 46 light:leather:fair hp 510 pm 0.076
+K1 46 heavy:chain:superior hp 814 pm 0.414 heavyAt m1
+K0 47 light:leather:fair hp 510 pm 0.078
+K1 47 light:leather:exquisite hp 736 pm 0.409 heavyAt none
+HA 47 1
+K0 48 light:leather:fair hp 510 pm 0.076
+K1 48 light:leather:average hp 878 pm 0.412 heavyAt none
+HA 48 7
+K0 49 light:leather:fair hp 510 pm 0.079
+K1 49 heavy:chain:superior hp 740 pm 0.416 heavyAt m2
+K0 50 light:leather:fair hp 510 pm 0.076
+K1 50 heavy:plate:superior hp 810 pm 0.435 heavyAt m2
+K0 51 light:leather:fair hp 510 pm 0.081
+K1 51 heavy:chain:magnificent hp 862 pm 0.460 heavyAt m3
+K0 52 light:leather:fair hp 510 pm 0.079
+K1 52 heavy:chain:superior hp 834 pm 0.417 heavyAt m1
+K0 53 light:leather:fair hp 510 pm 0.081
+K1 53 heavy:plate:superior hp 806 pm 0.418 heavyAt m1
+K0 54 light:leather:fair hp 510 pm 0.082
+K1 54 heavy:chain:average hp 762 pm 0.380 heavyAt m3
+K0 55 light:leather:fair hp 510 pm 0.099
+K1 55 heavy:chain:average hp 760 pm 0.391 heavyAt m2
+K0 56 light:leather:fair hp 510 pm 0.078
+K1 56 heavy:plate:average hp 784 pm 0.399 heavyAt m1
+K0 57 light:leather:fair hp 510 pm 0.078
+K1 57 cloth:gossamer:magnificent hp 762 pm 0.300 heavyAt none
+K0 58 light:leather:fair hp 510 pm 0.081
+K1 58 heavy:chain:superior hp 756 pm 0.319 heavyAt m2
+K0 59 light:leather:fair hp 510 pm 0.079
+K1 59 cloth:ironsilk:superior hp 820 pm 0.351 heavyAt none
+K0 60 light:leather:fair hp 510 pm 0.080
+K1 60 heavy:chain:fair hp 726 pm 0.392 heavyAt m2
+K0 61 light:leather:fair hp 510 pm 0.079
+K1 61 cloth:cotton:magnificent hp 842 pm 0.396 heavyAt none
+K0 62 light:leather:fair hp 510 pm 0.079
+K1 62 heavy:plate:exquisite hp 914 pm 0.363 heavyAt m1
+K0 63 light:leather:fair hp 510 pm 0.076
+K1 63 light:leather:magnificent hp 808 pm 0.404 heavyAt none
+HA 63 1
+K0 64 light:leather:fair hp 528 pm 0.084
+K1 64 heavy:plate:superior hp 764 pm 0.440 heavyAt m1
+K0 65 light:leather:fair hp 510 pm 0.078
+K1 65 heavy:chain:superior hp 770 pm 0.354 heavyAt m1
+K0 66 light:leather:fair hp 510 pm 0.075
+K1 66 light:kevlar:magnificent hp 824 pm 0.390 heavyAt none
+HA 66 8
+K0 67 light:leather:fair hp 510 pm 0.086
+K1 67 heavy:plate:superior hp 846 pm 0.390 heavyAt m3
+K0 68 light:leather:fair hp 510 pm 0.077
+K1 68 heavy:chain:superior hp 734 pm 0.392 heavyAt m2
+K0 69 light:leather:fair hp 510 pm 0.078
+K1 69 heavy:plate:average hp 698 pm 0.384 heavyAt m1
+K0 70 light:leather:fair hp 510 pm 0.104
+K1 70 light:drakehide:exquisite hp 824 pm 0.378 heavyAt none
+K0 71 light:leather:fair hp 510 pm 0.080
+K1 71 light:leather:superior hp 708 pm 0.408 heavyAt none
+HA 71 1
+K0 72 light:leather:fair hp 510 pm 0.078
+K1 72 heavy:chain:average hp 792 pm 0.372 heavyAt m2
+K0 73 light:leather:fair hp 522 pm 0.080
+K1 73 heavy:chain:average hp 800 pm 0.434 heavyAt m1
+K0 74 light:leather:fair hp 510 pm 0.081
+K1 74 cloth:ironsilk:peerless hp 862 pm 0.346 heavyAt none
+K0 75 light:leather:fair hp 510 pm 0.079
+K1 75 heavy:plate:exquisite hp 806 pm 0.455 heavyAt m2
+K0 76 light:leather:fair hp 510 pm 0.101
+K1 76 cloth:gossamer:magnificent hp 794 pm 0.272 heavyAt none
+K0 77 light:leather:fair hp 510 pm 0.081
+K1 77 heavy:plate:average hp 744 pm 0.389 heavyAt m2
+K0 78 light:leather:fair hp 510 pm 0.078
+K1 78 heavy:chain:superior hp 834 pm 0.384 heavyAt m5
+K0 79 light:leather:fair hp 510 pm 0.076
+K1 79 heavy:plate:superior hp 802 pm 0.422 heavyAt m1
+K0 80 light:leather:fair hp 510 pm 0.079
+K1 80 heavy:plate:exquisite hp 768 pm 0.400 heavyAt m1
+K0 81 light:leather:fair hp 510 pm 0.080
+K1 81 heavy:plate:superior hp 832 pm 0.413 heavyAt m3
+K0 82 light:leather:fair hp 510 pm 0.082
+K1 82 heavy:plate:exquisite hp 790 pm 0.414 heavyAt m1
+K0 83 light:leather:fair hp 510 pm 0.080
+K1 83 heavy:chain:average hp 762 pm 0.386 heavyAt m2
+K0 84 light:leather:fair hp 510 pm 0.089
+K1 84 heavy:chain:superior hp 730 pm 0.403 heavyAt m1
+K0 85 light:leather:fair hp 510 pm 0.087
+K1 85 heavy:plate:superior hp 836 pm 0.418 heavyAt m1
+K0 86 light:leather:fair hp 510 pm 0.076
+K1 86 heavy:chain:exquisite hp 802 pm 0.451 heavyAt m2
+K0 87 light:leather:fair hp 510 pm 0.078
+K1 87 heavy:chain:fair hp 746 pm 0.353 heavyAt m2
+K0 88 light:leather:fair hp 510 pm 0.078
+K1 88 heavy:plate:exquisite hp 844 pm 0.413 heavyAt m1
+K0 89 light:leather:fair hp 510 pm 0.081
+K1 89 cloth:ironsilk:magnificent hp 768 pm 0.315 heavyAt none
+K0 90 light:leather:fair hp 510 pm 0.080
+K1 90 light:kevlar:exquisite hp 764 pm 0.417 heavyAt none
+K0 91 light:leather:fair hp 510 pm 0.098
+K1 91 heavy:plate:average hp 790 pm 0.415 heavyAt m2
+K0 92 light:leather:fair hp 510 pm 0.081
+K1 92 heavy:chain:average hp 826 pm 0.436 heavyAt m1
+K0 93 light:leather:fair hp 510 pm 0.077
+K1 93 cloth:ironsilk:exquisite hp 682 pm 0.266 heavyAt none
+K0 94 light:leather:fair hp 510 pm 0.078
+K1 94 heavy:plate:superior hp 836 pm 0.415 heavyAt m1
+K0 95 light:leather:fair hp 510 pm 0.077
+K1 95 light:kevlar:superior hp 860 pm 0.432 heavyAt none
+HA 95 1
+K0 96 light:leather:fair hp 510 pm 0.081
+K1 96 heavy:plate:exquisite hp 748 pm 0.438 heavyAt m2
+K0 97 light:leather:fair hp 510 pm 0.080
+K1 97 cloth:cotton:exquisite hp 822 pm 0.404 heavyAt none
+K0 98 light:leather:fair hp 510 pm 0.077
+K1 98 heavy:chain:magnificent hp 732 pm 0.375 heavyAt m1
+K0 99 light:leather:fair hp 510 pm 0.076
+K1 99 heavy:chain:superior hp 718 pm 0.373 heavyAt m1
+K0 100 light:leather:fair hp 510 pm 0.078
+K1 100 heavy:chain:superior hp 824 pm 0.436 heavyAt m1
+K0 101 light:leather:fair hp 510 pm 0.078
+K1 101 heavy:plate:superior hp 838 pm 0.433 heavyAt m2
+K0 102 light:leather:fair hp 510 pm 0.079
+K1 102 light:drakehide:magnificent hp 822 pm 0.410 heavyAt none
+HA 102 10
+K0 103 light:leather:fair hp 510 pm 0.076
+K1 103 heavy:chain:magnificent hp 854 pm 0.479 heavyAt m2
+K0 104 light:leather:fair hp 510 pm 0.082
+K1 104 heavy:plate:superior hp 742 pm 0.373 heavyAt m2
+K0 105 light:leather:fair hp 510 pm 0.081
+K1 105 heavy:chain:average hp 734 pm 0.384 heavyAt m1
+K0 106 light:leather:fair hp 510 pm 0.077
+K1 106 heavy:plate:superior hp 836 pm 0.447 heavyAt m1
+K0 107 light:leather:fair hp 510 pm 0.076
+K1 107 heavy:chain:superior hp 762 pm 0.393 heavyAt m1
+K0 108 light:leather:fair hp 510 pm 0.080
+K1 108 heavy:plate:magnificent hp 968 pm 0.460 heavyAt m1
+K0 109 light:leather:fair hp 510 pm 0.077
+K1 109 heavy:chain:exquisite hp 814 pm 0.437 heavyAt m3
+K0 110 light:leather:fair hp 510 pm 0.081
+K1 110 heavy:plate:legendary hp 854 pm 0.397 heavyAt m1
+K0 111 light:leather:fair hp 510 pm 0.078
+K1 111 heavy:plate:average hp 832 pm 0.406 heavyAt m2
+K0 112 light:leather:fair hp 510 pm 0.076
+K1 112 light:drakehide:superior hp 780 pm 0.379 heavyAt none
+HA 112 1
+K0 113 light:leather:fair hp 510 pm 0.079
+K1 113 heavy:chain:superior hp 758 pm 0.366 heavyAt m1
+K0 114 light:leather:fair hp 510 pm 0.079
+K1 114 heavy:chain:exquisite hp 862 pm 0.402 heavyAt m2
+K0 115 light:leather:fair hp 510 pm 0.079
+K1 115 light:leather:average hp 730 pm 0.373 heavyAt none
+HA 115 1
+K0 116 light:leather:fair hp 510 pm 0.085
+K1 116 heavy:chain:superior hp 854 pm 0.464 heavyAt m1
+K0 117 light:leather:fair hp 510 pm 0.080
+K1 117 heavy:plate:magnificent hp 848 pm 0.415 heavyAt m1
+K0 118 light:leather:fair hp 510 pm 0.079
+K1 118 heavy:plate:exquisite hp 910 pm 0.444 heavyAt m3
+K0 119 light:leather:fair hp 510 pm 0.077
+K1 119 heavy:chain:exquisite hp 764 pm 0.415 heavyAt m1
+K0 120 light:leather:fair hp 510 pm 0.077
+K1 120 heavy:chain:superior hp 786 pm 0.408 heavyAt m1
+K0 121 light:leather:fair hp 510 pm 0.077
+K1 121 heavy:plate:superior hp 814 pm 0.410 heavyAt m2
+K0 122 light:leather:fair hp 510 pm 0.103
+K1 122 light:kevlar:exquisite hp 800 pm 0.418 heavyAt none
+K0 123 light:leather:fair hp 510 pm 0.105
+K1 123 heavy:chain:superior hp 870 pm 0.461 heavyAt m1
+K0 124 light:leather:fair hp 510 pm 0.078
+K1 124 light:kevlar:average hp 818 pm 0.398 heavyAt none
+HA 124 1
+K0 125 light:leather:fair hp 510 pm 0.080
+K1 125 light:kevlar:superior hp 760 pm 0.400 heavyAt none
+HA 125 1
+K0 126 light:leather:fair hp 510 pm 0.081
+K1 126 heavy:plate:exquisite hp 786 pm 0.407 heavyAt m1
+K0 127 light:leather:fair hp 510 pm 0.079
+K1 127 light:leather:fair hp 756 pm 0.377 heavyAt none
+HA 127 1
+K0 128 light:leather:fair hp 510 pm 0.080
+K1 128 heavy:plate:superior hp 838 pm 0.413 heavyAt m3

@@ -18,7 +18,7 @@ describe('rc5 fixes', () => {
     expect(checkpointStart(presets.abyss10!.record.best)).toBe(11);
     expect(checkpointStart(presets.abyss15!.record.best)).toBe(16);
   });
-  it('(c) record message says cleared N floors', () => { expect(abyssBestMsg(12)).toBe('深淵新紀錄：已通過 12 層'); });
+  it('(c) record message says cleared N floors', () => { expect(abyssBestMsg(12)).toBe('深淵新紀錄：到達第 13 層（已通過 12 層）') /* cp8-rc9 P1-10 */; });
   it('(d) abyss death carries back 50% × depth multiplier', () => {
     const p = newPlayer(); starterKit(p, 1); const exp0 = p.exp, c0 = p.credits;
     const r = startAbyss(p, 1, 16); r.exp = 1000; r.credits = 400; r.done = 'dead';

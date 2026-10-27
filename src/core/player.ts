@@ -24,6 +24,10 @@ export interface Player {
   potions: { health: number; mana: number; spirit: number };
   /** CP3 early-unlock progress (missing on pre-CP3 saves = veteran, see progress.prog). */
   prog?: Progress;
+  /** CP8 rc3: ids of the pieces CP8.autoWear put on in the last trip (shown once by the 出發前整備 reminder). */
+  lastWorn?: string[];
+  /** cp8-rc5: the school the player starts as (bulwark starter kit / preset school; trips do not change it — rc5: drifting on a formed school cost blade p25 17→15); bulwark → town 換上 prefers 1H + shield + heavy. */
+  lean?: 'blade' | 'oc' | 'arcane' | 'bulwark';
 }
 
 export function newPlayer(name = '冒險者'): Player {

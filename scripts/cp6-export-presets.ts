@@ -10,6 +10,9 @@
  *   went on to clear d20 (the d20 boss). Among rule-compliant ones, closest to the median power; record best = 15 → entry d16. Lets a
  *   playtester reach and verify d20 (abyss15's Lv17 blade dies at d18 in playtests).
  * cp7-rc3: exported with RULES.cp7 on (fixed drop level), N=128: N=128 npx tsx scripts/with-cp7.ts scripts/cp6-export-presets.ts > public/data/cp6-presets.json
+ * cp8-rc6: SCHOOLS=bulwark,arcane POST_ONLY=1 N=128 npx tsx scripts/with-cp8.ts scripts/cp6-export-presets.ts > /tmp/post.json — RULES.cp8 on, each
+ *   character starts with its school's lean (starterKit lean → bulwark kit, school-locked auto-equip, school-aware 自動分配); prints only the
+ *   postF20 entries for those schools, merged into public/data/cp6-presets.json by scripts/cp8-rc6-merge-presets.ts.
  * Usage (cp6): npx tsx scripts/cp6-export-presets.ts > public/data/cp6-presets.json   (do not hand-edit the output). */
 import { readFileSync } from 'node:fs';
 import { autoRun, starterKit, type Strategy } from '../src/core/auto';
@@ -37,10 +40,11 @@ const clone = <X>(x: X): X => JSON.parse(JSON.stringify(x));
 const med = (a: Snap[]) => [...a].sort((x, y) => x.power - y.power || x.seed - y.seed)[Math.floor((a.length - 1) / 2)]!;
 const out: Record<string, Snap & { note: string }> = {}; const at15: Snap[] = [], at10: Snap[] = [], d20: Snap[] = [];
 const capRec = (rec: AbyssRecord, n: number): AbyssRecord => { const rr = clone(rec); rr.best = n; for (const v of Object.values(rr.bySchool)) if (v) v.best = Math.min(v.best, n); return rr; };
-for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
+const SCHOOLS = (process.env.SCHOOLS ?? 'blade,oc,arcane,bulwark').split(',') as ('blade' | 'oc' | 'arcane' | 'bulwark')[];
+for (const sc of SCHOOLS) {
   const strat = `buff:${sc}` as Strategy; const snaps: Snap[] = [];
   for (let s = 1; s <= N; s++) {
-    const p = newPlayer(); starterKit(p, s);
+    const p = newPlayer(); starterKit(p, s, RULES.cp8 ? sc : undefined);
     let i = 0, ok = false;
     for (; i < 60;) { i++; if (autoRun(p, pool, s * 1000 + i, strat, { mode: 'counter', retreat: 0.3 }).settlement.outcome === 'clear') { ok = true; break; } }
     if (!ok || !abyssOpen(p)) continue;
@@ -62,6 +66,7 @@ for (const sc of ['blade', 'oc', 'arcane', 'bulwark']) {
   sumMed[sc] = { d1: md, pot: mp, n: snaps.length, ok: okS.length, lv: mid(snaps.map((x) => x.level)), hp: mid(dv.map((x) => x.hp)), mp: mid(dv.map((x) => x.mp)) };
   out[`postF20-${sc}`] = { ...m, note: `closest to sim median d1 win ${(md * 100).toFixed(0)}% / potions ${mp} among ${okS.length} rule-compliant of ${snaps.length} first-F20 clears (buff:${sc}, seeds 1..${N})` };
 }
+if (process.env.POST_ONLY) { process.stdout.write(JSON.stringify(out) + '\n'); for (const [k, v] of Object.entries(out)) console.error(k, 'seed', v.seed, 'Lv', v.level, JSON.stringify(v.player.attrs), v.player.equipped.mainHand?.base, v.player.equipped.offHand?.base, v.player.equipped.body?.base, v.note); process.exit(0); }
 const m10 = med(at10); out.abyss10 = { ...m10, note: `median power of ${at10.length} characters when best first reached >=10 (four schools, seeds 1..${N}, ${T} trips)` };
 for (const x of at15) { x.d1 = d1win(x.player, `buff:${x.school}` as Strategy); x.pot = pots(x.player); }
 const md15 = mid(at15.map((x) => x.d1!)), mp15 = mid(at15.map((x) => x.pot!)), pw15 = mid(at15.map((x) => x.power));

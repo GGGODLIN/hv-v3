@@ -1,0 +1,2 @@
+{"tower":{"i1":0,"mid":{"dotShown":true},"after":{"screen":"node","pdot":null,"done":null},"next":{"burnTurns":0,"bleedTurns":0,"dotUi":false}},"abyss":{"i1":0,"mid":{"dotShown":true},"after":{"screen":"node","pdot":null,"done":null},"next":{"burnTurns":0,"bleedTurns":0,"dotUi":false}},"errs":[]}
+E2E PASS (e)

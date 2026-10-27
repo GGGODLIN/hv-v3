@@ -1,0 +1,4 @@
+blade hp 838 lv 14 trip1 median d22 trip2 median d25 trip3 median d25 trip4 median d27
+oc hp 816 lv 13 trip1 median d19 trip2 median d22 trip3 median d25 trip4 median d25
+arcane hp 866 lv 15 trip1 median d14 trip2 median d19 trip3 median d22 trip4 median d25
+bulwark hp 808 lv 14 trip1 median d25 trip2 median d27 trip3 median d27 trip4 median d29
