@@ -226,6 +226,8 @@ export function chargeEstimate(s: BattleState, m0: Monster, defending = false, c
   const raw = m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), spec = s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0;
   // rc21 item 2（暫定，自訂，非原版）: the crit case is the worst hit — top roll (F-002-5.1D 120%) × monster crit, the same definition
   // worstHit / bigTele use. rc16–rc20 used the mean roll (100%) × crit, which under-reads a real top-roll crit by up to 1/6 (QA rc20 oc1 F16).
+  const cr = ADVICE_DIAG.critRoll; // rc21 sim diag only (SIM_CRITROLL): null = rc21 top roll; a number = mean roll × that × crit
+  if (crit && cr !== null) return meanHit(raw, mit, spec) * cr * (1 + MCRIT.critDamageBonus);
   return crit ? maxHit(raw, mit, spec, 1 + MCRIT.critDamageBonus) : meanHit(raw, mit, spec);
 }
 /** cp8-rc10 P0-3: the biggest plain (×1) hit this monster can land now: top roll, monster crit (+ its crit bonus damage), current mitigation. */
@@ -268,7 +270,7 @@ export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: str
 /** rc21 sim diagnostics only (set by auto.ts from SIM_ZRULE; the game never changes it). 'rc21' = default.
  *  'rc20order' = ablation: only the Z-first ordering reverts to rc20 (lethal → D,Z; low → Z,D).
  *  'lethal' = variant (非預設，自訂): Z forced only when the estimate ≥ HP; HP ≤ 35% but survivable → A first, Z second. */
-export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal' } = { zRule: 'rc21' };
+export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null } = { zRule: 'rc21', critRoll: null };
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
