@@ -1,0 +1,487 @@
+{
+  "kind": "v0.28 source-engine pending loot measurement; not browser acceptance",
+  "protocol": {
+    "knownReproductionSeed": 42,
+    "additionalFixedSeeds": [
+      29,
+      77
+    ],
+    "maxAttempts": 400,
+    "maxPulsesPerFight": 1000,
+    "pulseSeconds": 1,
+    "acquisition": "Fresh stage1 Balanced defaults; no AP, potions, commissions, auto-sale, RNG/stat/resource edits. Before attempts1–10 equip the highest current score per slot (later entry wins ties). Before each start, explicitly sell the oldest unlocked backpack item until at most115 remain. Start and request finishThenCamp each time. Stop at first pending drop or400 attempts; retain every defeat/censor.",
+    "investment": "The invested branch tries to bind one eligible100-fragment backpack weapon from attempt11 onward using its exact quote, then never equips it. No injected currency, new drop, IW, or extra inventory protection rule.",
+    "populations": "Seed42 reproduces an already-discovered case, not an independent favorable search. Seeds29/77 and400-attempt bound were fixed before these measurements. No frequency or general balance estimate is claimed.",
+    "supportedSave": "Separately move the naturally earned bound backpack weapon into pending in the last pre-overflow camp state (or final camp state if no overflow), preserving every item and resource; validate it, then explicitly claim it. This deliberately constructed supported-save state is NOT naturally reached by these runs."
+  },
+  "knownReproduction": {
+    "seed": 42,
+    "invest": false,
+    "status": "first-natural-overflow",
+    "attempts": 315,
+    "pulses": 2746,
+    "losses": [],
+    "binding": null,
+    "final": {
+      "level": 31,
+      "wins": 315,
+      "kills": 1890,
+      "gold": 50232,
+      "fragments": 3150,
+      "seeds": 315,
+      "inventory": 120,
+      "pending": 1,
+      "seed": 2505047735,
+      "itemId": 556,
+      "mode": "town"
+    },
+    "stateSha256": "ab723ca75d092cc7088e38e3c557745c1429403dc69366e2a809e5306063defd",
+    "canonicalSaveSha256": "983170cc7cb048afed5128b9900538ad03cdaede65573f9c80ca27c34b549703",
+    "ownedItemsSha256": "08950a84db23f8693a5bcb20ea3a4e0a9a56872298e5eefdf61a8bd3dec857e0",
+    "runStateTraceSha256": "194a741ba44e0a01aa8981b4e6a6ebdad9ff0f7d68ceecbc77f53c7bfaf74371",
+    "combatTraceSha256": "1a8a72a21e4d7c839a9561d00f4d1ccbaa0876441217f4a412a2a27cd7a1905d",
+    "pendingItems": [
+      {
+        "id": "loot-556",
+        "name": "普通・餘燼護衣",
+        "slot": "armor",
+        "quality": "Average",
+        "rarityColor": "#b6c6d8",
+        "level": 3,
+        "roll": 90,
+        "rolls": {
+          "defense": 79,
+          "hp": 100
+        },
+        "power": 25,
+        "stats": {
+          "defense": 8,
+          "hp": 103
+        },
+        "locked": false,
+        "description": "偏重生命，適合長線消耗戰。詞綴：無。",
+        "prefix": "",
+        "suffix": ""
+      }
+    ],
+    "normalWinLog": "第 1 層通關 · 7.4 秒，保底裝備已保留於待領區。",
+    "exactV027Parity": {
+      "comparisons": 3817,
+      "allStateFieldsCompared": true,
+      "allReportsCompared": true,
+      "allowedRewardLogDifference": true
+    }
+  },
+  "knownInvestedCombatParity": true,
+  "rows": [
+    {
+      "seed": 42,
+      "invest": true,
+      "status": "first-natural-overflow",
+      "attempts": 315,
+      "pulses": 2746,
+      "losses": [],
+      "binding": {
+        "attempt": 11,
+        "id": "loot-3",
+        "quality": "Exquisite",
+        "cost": 100,
+        "initialLevel": 8,
+        "anchor": {
+          "version": 1,
+          "level": 3,
+          "stats": {
+            "attack": 62,
+            "crit": 0.0357
+          }
+        },
+        "anchorSha256": "7974d8ec6c6317718ca7e8308568934973da4aff0d013a3a089a70681f04dd19"
+      },
+      "final": {
+        "level": 31,
+        "wins": 315,
+        "kills": 1890,
+        "gold": 50125,
+        "fragments": 3050,
+        "seeds": 315,
+        "inventory": 120,
+        "pending": 1,
+        "seed": 2505047735,
+        "itemId": 556,
+        "mode": "town"
+      },
+      "stateSha256": "93a99a476960d812e8cc01cdf2512d6a9f745d77b4cd2b9fafbbf93803fb5c70",
+      "canonicalSaveSha256": "4db488e44d48183cbecf93043950a1cca39f72f26765ac4ad8108a074da88039",
+      "ownedItemsSha256": "a9435025290b174bc6434c42f5bd332b50393cacf5bdda4b8c45e35b1c77c96d",
+      "runStateTraceSha256": "620a8d2bdc3c3930d33ec141b92719ab73e6acb4df387a07a75761be77b18893",
+      "combatTraceSha256": "1a8a72a21e4d7c839a9561d00f4d1ccbaa0876441217f4a412a2a27cd7a1905d",
+      "pendingItems": [
+        {
+          "id": "loot-556",
+          "name": "普通・餘燼護衣",
+          "slot": "armor",
+          "quality": "Average",
+          "rarityColor": "#b6c6d8",
+          "level": 3,
+          "roll": 90,
+          "rolls": {
+            "defense": 79,
+            "hp": 100
+          },
+          "power": 25,
+          "stats": {
+            "defense": 8,
+            "hp": 103
+          },
+          "locked": false,
+          "description": "偏重生命，適合長線消耗戰。詞綴：無。",
+          "prefix": "",
+          "suffix": ""
+        }
+      ],
+      "normalWinLog": "第 1 層通關 · 7.4 秒，保底裝備已保留於待領區。",
+      "exactV027Parity": {
+        "comparisons": 3818,
+        "allStateFieldsCompared": true,
+        "allReportsCompared": true,
+        "allowedRewardLogDifference": true
+      },
+      "naturalRecovery": {
+        "tested": true,
+        "fullClaimNoop": true,
+        "pendingIds": [
+          "loot-556"
+        ],
+        "firstSoldId": "loot-440",
+        "firstSaleCredits": 25,
+        "firstRefilledId": "loot-556",
+        "additionalSoldIds": [
+          "loot-441",
+          "loot-442",
+          "loot-443",
+          "loot-444",
+          "loot-445"
+        ],
+        "recovered": {
+          "level": 31,
+          "wins": 315,
+          "kills": 1890,
+          "gold": 50480,
+          "fragments": 3050,
+          "seeds": 315,
+          "inventory": 115,
+          "pending": 0,
+          "seed": 2505047735,
+          "itemId": 556,
+          "mode": "town"
+        },
+        "ownedItemsAfterRecoverySha256": "a594655d025363966abff8164654011b4a64dd87ed0066d6f602e0652abd83e0",
+        "restarted": true,
+        "boundPreserved": true,
+        "checks": {
+          "exactSelectedRemoval": true,
+          "fifoRefill": true,
+          "noDuplicateIds": true,
+          "rngUnaffectedByCollection": true
+        }
+      },
+      "supportedFreeSpaceClaim": {
+        "kind": "constructed supported-save distribution of naturally earned items; not naturally reached",
+        "sourceCampSha256": "db8f723311d5a7b1c1646b1cd63457023bf4c1f81837a8e9e5a5f5abfda945e0",
+        "movedEarnedBoundId": "loot-3",
+        "before": {
+          "level": 31,
+          "wins": 314,
+          "kills": 1884,
+          "gold": 50049,
+          "fragments": 3040,
+          "seeds": 314,
+          "inventory": 114,
+          "pending": 1,
+          "seed": 594553007,
+          "itemId": 550,
+          "mode": "town"
+        },
+        "view": {
+          "count": 1,
+          "freeSlots": 6,
+          "claimable": 1,
+          "available": true,
+          "reason": ""
+        },
+        "after": {
+          "level": 31,
+          "wins": 314,
+          "kills": 1884,
+          "gold": 50049,
+          "fragments": 3040,
+          "seeds": 314,
+          "inventory": 115,
+          "pending": 0,
+          "seed": 594553007,
+          "itemId": 550,
+          "mode": "town"
+        },
+        "ownedItemsSha256": "e4eb7382535f9883d39c6f3feca7edf2c9d1cd06670d5e1ffa52b12c542a8537",
+        "resources": {
+          "level": 31,
+          "wins": 314,
+          "kills": 1884,
+          "gold": 50049,
+          "fragments": 3040,
+          "seeds": 314,
+          "seed": 594553007,
+          "itemId": 550,
+          "mode": "town"
+        },
+        "checks": {
+          "validBeforeClaim": true,
+          "sameObjectMoved": true,
+          "allOwnedBytesPreserved": true,
+          "allNonInventoryStatePreserved": true,
+          "repeatedClaimNoop": true,
+          "reloadPreservesItems": true,
+          "sourceUnchanged": true
+        }
+      }
+    },
+    {
+      "seed": 29,
+      "invest": true,
+      "status": "attempt-bound",
+      "attempts": 400,
+      "pulses": 3396,
+      "losses": [],
+      "binding": {
+        "attempt": 11,
+        "id": "loot-2",
+        "quality": "Exquisite",
+        "cost": 100,
+        "initialLevel": 8,
+        "anchor": {
+          "version": 1,
+          "level": 3,
+          "stats": {
+            "attack": 51,
+            "crit": 0.0699
+          }
+        },
+        "anchorSha256": "293e3b38d0017d1b62ea847e75c05d0209edcff91f03f864b1fa626e1741f97b"
+      },
+      "final": {
+        "level": 33,
+        "wins": 400,
+        "kills": 2400,
+        "gold": 65557,
+        "fragments": 3900,
+        "seeds": 400,
+        "inventory": 117,
+        "pending": 0,
+        "seed": 2792485480,
+        "itemId": 691,
+        "mode": "town"
+      },
+      "stateSha256": "c536c87293d588bccfd260af289d6cc7783f6df592a03109e43ae59b0f93c7be",
+      "canonicalSaveSha256": "025128146d45193dc9d68a483883f0cf0baeb62b440480a441e08489b3e0c280",
+      "ownedItemsSha256": "2c06b4bebb9af3b59e4d017249108bee2dfff32f2ff22f2c59ffd29b88f211ff",
+      "runStateTraceSha256": "f7d19e3cb9795818bb3ff22391d3c3cd3667a68f1fb810e6d050354714d1ce26",
+      "combatTraceSha256": "95ec2ea416c8102cb50c1f415349f5f10ae3387890d45e08688e1307c232db83",
+      "pendingItems": [],
+      "normalWinLog": "第 1 層通關 · 8.4 秒，保底裝備已入背包。",
+      "exactV027Parity": {
+        "comparisons": 4777,
+        "allStateFieldsCompared": true,
+        "allReportsCompared": true,
+        "allowedRewardLogDifference": false
+      },
+      "naturalRecovery": {
+        "tested": false,
+        "reason": "No naturally pending item within the predeclared attempts."
+      },
+      "supportedFreeSpaceClaim": {
+        "kind": "constructed supported-save distribution of naturally earned items; not naturally reached",
+        "sourceCampSha256": "b0c11d33bcd39f76389648d10bae5bf155ce8706bd9dbc9658440e3f17f2c6a9",
+        "movedEarnedBoundId": "loot-2",
+        "before": {
+          "level": 33,
+          "wins": 399,
+          "kills": 2394,
+          "gold": 65481,
+          "fragments": 3890,
+          "seeds": 399,
+          "inventory": 114,
+          "pending": 1,
+          "seed": 1520934772,
+          "itemId": 689,
+          "mode": "town"
+        },
+        "view": {
+          "count": 1,
+          "freeSlots": 6,
+          "claimable": 1,
+          "available": true,
+          "reason": ""
+        },
+        "after": {
+          "level": 33,
+          "wins": 399,
+          "kills": 2394,
+          "gold": 65481,
+          "fragments": 3890,
+          "seeds": 399,
+          "inventory": 115,
+          "pending": 0,
+          "seed": 1520934772,
+          "itemId": 689,
+          "mode": "town"
+        },
+        "ownedItemsSha256": "472d4c377877ba721312c5874da855494b21dd74a6ab2a310bfcec42dd37154b",
+        "resources": {
+          "level": 33,
+          "wins": 399,
+          "kills": 2394,
+          "gold": 65481,
+          "fragments": 3890,
+          "seeds": 399,
+          "seed": 1520934772,
+          "itemId": 689,
+          "mode": "town"
+        },
+        "checks": {
+          "validBeforeClaim": true,
+          "sameObjectMoved": true,
+          "allOwnedBytesPreserved": true,
+          "allNonInventoryStatePreserved": true,
+          "repeatedClaimNoop": true,
+          "reloadPreservesItems": true,
+          "sourceUnchanged": true
+        }
+      }
+    },
+    {
+      "seed": 77,
+      "invest": true,
+      "status": "attempt-bound",
+      "attempts": 400,
+      "pulses": 3379,
+      "losses": [],
+      "binding": {
+        "attempt": 11,
+        "id": "loot-1",
+        "quality": "Average",
+        "cost": 100,
+        "initialLevel": 8,
+        "anchor": {
+          "version": 1,
+          "level": 3,
+          "stats": {
+            "attack": 34,
+            "crit": 0.0215
+          }
+        },
+        "anchorSha256": "dcd4159bff7447a189af1eed3fd8a8f3f86c915a8e858d3b0dea0f3aee6c45fa"
+      },
+      "final": {
+        "level": 33,
+        "wins": 400,
+        "kills": 2400,
+        "gold": 65792,
+        "fragments": 3900,
+        "seeds": 400,
+        "inventory": 117,
+        "pending": 0,
+        "seed": 2807300224,
+        "itemId": 696,
+        "mode": "town"
+      },
+      "stateSha256": "f102ec55ccf6ec1c0b9cc5124489789f8929159a1fca475d18a1e6038f24f095",
+      "canonicalSaveSha256": "6650d14b0ec2e96b2368f8e9a012da2f18896dd3b994c5a4244f234d125b444c",
+      "ownedItemsSha256": "388fd5c915a1be2a4d24f083c1d1561696befc4884700225b555eb31d27871ff",
+      "runStateTraceSha256": "59e0aa895e3096c8ca4184e80bcd8b0b43decb89e315f326ac3d6de7116b36e2",
+      "combatTraceSha256": "b613b3b794ac0adaffbc8caa51aa390f5bc6b5b28ebc2dca9b045401115b8fe5",
+      "pendingItems": [],
+      "normalWinLog": "第 1 層通關 · 7.4 秒，保底裝備已入背包。",
+      "exactV027Parity": {
+        "comparisons": 4766,
+        "allStateFieldsCompared": true,
+        "allReportsCompared": true,
+        "allowedRewardLogDifference": false
+      },
+      "naturalRecovery": {
+        "tested": false,
+        "reason": "No naturally pending item within the predeclared attempts."
+      },
+      "supportedFreeSpaceClaim": {
+        "kind": "constructed supported-save distribution of naturally earned items; not naturally reached",
+        "sourceCampSha256": "2c9f7a55d9bc8feda5dc0e59dc5086a23a7b3cdfb67e5f4de1321c698601ac46",
+        "movedEarnedBoundId": "loot-1",
+        "before": {
+          "level": 33,
+          "wins": 399,
+          "kills": 2394,
+          "gold": 65716,
+          "fragments": 3890,
+          "seeds": 399,
+          "inventory": 114,
+          "pending": 1,
+          "seed": 2730491419,
+          "itemId": 694,
+          "mode": "town"
+        },
+        "view": {
+          "count": 1,
+          "freeSlots": 6,
+          "claimable": 1,
+          "available": true,
+          "reason": ""
+        },
+        "after": {
+          "level": 33,
+          "wins": 399,
+          "kills": 2394,
+          "gold": 65716,
+          "fragments": 3890,
+          "seeds": 399,
+          "inventory": 115,
+          "pending": 0,
+          "seed": 2730491419,
+          "itemId": 694,
+          "mode": "town"
+        },
+        "ownedItemsSha256": "12b38293c62d539fc91b799b4cfdc37fa6a557232cace296e5366217f438a190",
+        "resources": {
+          "level": 33,
+          "wins": 399,
+          "kills": 2394,
+          "gold": 65716,
+          "fragments": 3890,
+          "seeds": 399,
+          "seed": 2730491419,
+          "itemId": 694,
+          "mode": "town"
+        },
+        "checks": {
+          "validBeforeClaim": true,
+          "sameObjectMoved": true,
+          "allOwnedBytesPreserved": true,
+          "allNonInventoryStatePreserved": true,
+          "repeatedClaimNoop": true,
+          "reloadPreservesItems": true,
+          "sourceUnchanged": true
+        }
+      }
+    }
+  ],
+  "baseline": {
+    "commit": "6cb7230093f0ddc99bdddd0c1d96efabf4aa8d4b",
+    "repositoryPath": "dot-game/src/engine.js",
+    "engineSha256": "76750a0da6b2ecf4a0e61ce0a99bc1c166f76a53ea744098f8f03fe5074b0ffd",
+    "lootSha256": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "comparison": "Every acquisition action and pulse compares the full state and all reports. Only the exact pending-guaranteed-reward log wording is normalized; RNG, equipment, inventory, pending, resources and all other fields are exact."
+  },
+  "inputSha256": {
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "scripts/pending-loot-measurement.mjs": "0d9d8d5dd8690184623a57ed6b481ecc0daa7807e0726c6523f38f95ccc8575d"
+  }
+}

@@ -12,6 +12,7 @@ import {acquireNatural,trialNatural} from '../scripts/exquisite-item-world-measu
 const source=readFileSync(new URL('./fixtures/v0.25/src/ui.js',import.meta.url),'utf8');
 const currentSource=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('./fixtures/v0.25/index.html',import.meta.url),'utf8');
+const currentHtml=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const SAVE_KEY = 'hv-v3-dot-stable-save-v3';
 const LOCK_NAME = 'hv-v3-dot-stable-writer-v3';
@@ -43,7 +44,7 @@ function world(initialRaw = '{broken') {
   const tabs = [], channels = [], held = new Map(), writes = [], storageEvents = [];
   let serial = 0;
   function tab(options = {}) {
-    const id = `tab-${++serial}`, dom = Object.fromEntries([...html.matchAll(/\bid="([^"]+)"/g)].map(match => [match[1], element()]));
+    const id = `tab-${++serial}`, dom = Object.fromEntries([...(options.current ? currentHtml : html).matchAll(/\bid="([^"]+)"/g)].map(match => [match[1], element()]));
     dom['slot-filter'].value = 'all'; dom['sort-select'].value = 'new';
     const window = element('window'), document = element('document'), timers = [];
     Object.assign(document, { hidden: false, body: element('body'), getElementById: key => dom[key], createElement: element,

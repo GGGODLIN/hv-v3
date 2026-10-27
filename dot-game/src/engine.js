@@ -1014,12 +1014,12 @@ function win(s) {
   if(itemWorldSessions.has(s)){winItemWorld(s);return;}
   s.wins++;s.battle.cleared++;s.unlocked=Math.min(MAX_STAGE,Math.max(s.unlocked,s.stage+1));
   const previous=s.battle.bestTimes[s.stage];if(!previous||s.battle.elapsed<previous)s.battle.bestTimes[s.stage]=round(s.battle.elapsed);
-  const sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
+  const pendingBefore=s.pendingLoot.length,sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
   const fragments=fragmentBalance(s.soulFragments)?Math.min(SOUL_FRAGMENTS_PER_WIN,SOUL_FRAGMENT_LIMIT-s.soulFragments):0;
   s.soulFragments+=fragments;
   if(seedBalance(s.worldSeeds))s.worldSeeds=Math.min(WORLD_SEED_LIMIT,s.worldSeeds+WORLD_SEEDS_PER_WIN);
   const capNotice=s.soulFragments===SOUL_FRAGMENT_LIMIT?' 靈魂碎片已達持有上限；本次增加 '+fragments+' 個。':'';
-  event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,(sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已入背包。`)+capNotice);
+  event(s,'win',`第 ${s.stage} 層突破`,round(s.battle.elapsed));log(s,(sale?`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，保底裝備已自動出售 +${sale.value} 金幣。`:`第 ${s.stage} 層通關 · ${s.battle.elapsed.toFixed(1)} 秒，${s.pendingLoot.length>pendingBefore?'保底裝備已保留於待領區。':'保底裝備已入背包。'}`)+capNotice);
   // The live balance shows the reward; no synthetic event shifts combat IDs
   // or evicts historical event/log entries from their bounded buffers.
   settleExpeditionReport(s,'win');
@@ -1220,6 +1220,17 @@ export function advance(s, seconds) {
   }
   return s;
 }
+/** Read-only camp recovery status. Pending is the existing bounded overflow
+ * queue, not extra usable storage; claiming never sells, equips or creates loot. */
+export function pendingLootView(s) {
+  const valid=!!s&&Array.isArray(s.inventory)&&s.inventory.length<=INVENTORY_LIMIT
+    &&Array.isArray(s.pendingLoot)&&s.pendingLoot.length<=8;
+  const count=valid?s.pendingLoot.length:0,freeSlots=valid?INVENTORY_LIMIT-s.inventory.length:0;
+  const claimable=Math.min(count,freeSlots);
+  const reason=!valid?'戰利品資料無效，未移動任何裝備。':s.mode!=='town'?'請先回營，再領取待領戰利品。'
+    :!count?'沒有待領戰利品。':!freeSlots?'背包已滿；請先自行整理背包，待領裝備均保留。':'';
+  return {count,freeSlots,claimable,available:!reason,reason};
+}
 function refillPending(s){while(s.pendingLoot.length&&s.inventory.length<INVENTORY_LIMIT)s.inventory.push(s.pendingLoot.shift());}
 function usePotion(s) {
   const p=stats(s);
@@ -1230,6 +1241,16 @@ function usePotion(s) {
   }
 }
 export function act(s, action, payload) {
+  if(action==='claimPending'){
+    // Re-read current room/queue on each click. No submitted IDs or stale count
+    // can select a different item, exceed capacity, or charge/duplicate rewards.
+    if(payload!==undefined)return s;
+    const view=pendingLootView(s);
+    if(!view.available||!Object.getOwnPropertyDescriptor(s,'inventory')?.writable
+      ||!Object.getOwnPropertyDescriptor(s,'pendingLoot')?.writable)return s;
+    const inventory=[...s.inventory,...s.pendingLoot.slice(0,view.claimable)],pendingLoot=s.pendingLoot.slice(view.claimable);
+    s.inventory=inventory;s.pendingLoot=pendingLoot;return s;
+  }
   if(action==='enterItemWorld'){enterItemWorld(s,payload);return s;}
   if(action==='finishThenCamp'){
     if(typeof payload!=='boolean'||!finishThenCampView(s).available)return s;

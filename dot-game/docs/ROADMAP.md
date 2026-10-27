@@ -139,3 +139,10 @@ Require all-family and cache/future-level500 validation, stale/changed-target at
 ## v0.27 selected source-only idle improvement
 
 While public staging remains tool-review blocked, continue the explicitly requested unaffected development with one bounded gameplay improvement: default-OFF extra emergency supply for Balanced/Assault. Reuse the existing three-bottle stock and restoration, check after existing healing below30%, reserve one manual bottle, and preserve Sustain's established automatic rule. Make the exception unmistakable in the control and reports; avoid a hidden automatic purchase or new potion economy. Exact OFF/all-strategy parity, portable old-reader preference-fallback checks, strict new-save validation, paid-entry quote invalidation and paired earned-source measurements precede complete source backup. This does not resolve or retry the publication block, nor replace actual browser acceptance; v0.25 remains accepted.
+
+
+## v0.28 selected pending-loot recovery
+
+Natural full-inventory play can retain a drop in the existing pending queue, yet the previous interface exposed only its count/start refusal and falsely described queued guaranteed loot as delivered to the backpack. Add a distinct FIFO pending list with exact comparison before the player decides which backpack gear to sell, and a camp-only claim action that transfers only what fits into existing free slots. This also repairs accepted imported saves containing pending items plus free space without requiring an unrelated sale or hidden retreat action.
+
+Keep natural overflow and accepted-import boundary evidence separate. The116-bound-weapon limit is already recoverable and is not a bug; do not raise it or add storage, disposal, direct pending equip/bind/IW, reward or schema changes. Preserve exact item identity/anchors, existing automatic refill after sales, complete selected-sale consent, ownership and filters. Source tests/earned simulations/complete readback do not resolve the website review block or count as browser acceptance; accepted v0.25 remains.

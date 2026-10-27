@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -230,7 +230,7 @@ function syncSelection() {
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   closeSoulbindWeapon(); // Permanent investment always needs fresh local consent.
   closeItemWorld(); // A paid trial never inherits consent from another journey or owner.
-  if (selectedId && !state.inventory.some(item => item.id === selectedId)) selectedId = null;
+  if (selectedId && ![...state.inventory, ...state.pendingLoot].some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
 // Match the engine's existing departure reserve; this is feedback, not a new rule.
@@ -1101,8 +1101,8 @@ function render(force = false) {
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = trial.active ? `目標：${trial.targetName} · 完成五回合才獲 IW1；結束必回營，不自動重刷。` : state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
-  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, selectedId, selectedSlot, inventoryFilters(), $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments, state.worldSeeds]);
-  if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderItemDetail(); }
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, state.pendingLoot, selectedId, selectedSlot, inventoryFilters(), $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments, state.worldSeeds]);
+  if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderPendingLoot(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
   const logSignature = JSON.stringify(state.logs);
@@ -1263,8 +1263,48 @@ function renderInventory() {
     label.append(check, node('span', '', '選售')); row.append(label, button); return row;
   }));
 }
+// Overflow is a separate FIFO queue, never a hidden part of the sale selection.
+function renderPendingLoot() {
+  const view = pendingLootView(state), panel = $('pending-loot');
+  panel.hidden = view.count === 0;
+  const needed = Math.max(0, state.inventory.length + view.count - (INVENTORY_LIMIT - 5));
+  $('pending-loot-summary').textContent = `待領 ${view.count} 件 · 背包 ${state.inventory.length}／${INVENTORY_LIMIT} 件 · 空位 ${view.freeSlots} 格。`;
+  $('claim-pending').disabled = !tabOwner || !view.available;
+  $('claim-pending').textContent = view.claimable ? `依序領入背包 ${view.claimable} 件` : '背包已滿，先整理裝備';
+  $('pending-loot-status').textContent = !tabOwner ? '唯讀分頁：可以比較待領裝備；接手並回營後才能領取。'
+    : state.mode !== 'town' ? '待領裝備已保留；請先回營，再整理或領取。'
+    : view.freeSlots === 0 ? `背包已滿；請先比較，再自行選擇要整理的背包裝備。出售會自動依序補入待領品；要領完並保留 5 格出戰空間，共需自行整理 ${needed} 件背包裝備。`
+    : `可領取前 ${view.claimable} 件，不會自動換裝或出售。${needed ? `要領完並保留 5 格出戰空間，共需自行整理 ${needed} 件背包裝備。` : '領完後已保留出戰所需 5 格空位。'}`;
+  const restoreId = document.activeElement?.dataset?.pendingLootId;
+  let focus;
+  $('pending-loot-list').replaceChildren(...state.pendingLoot.map((item, index) => {
+    const button = node('button', `inventory-card pending-loot-card${item.id === selectedId ? ' selected' : ''}`);
+    button.dataset.pendingLootId = item.id; button.style.setProperty('--item-color', colorOf(item));
+    button.append(node('span', 'pending-loot-order', `${index + 1}`), ...itemContent(item));
+    button.setAttribute('aria-label', `第 ${index + 1} 件待領：${item.name}，${qualityName(item.quality)}，等級 ${item.level}，ID：${item.id}，僅查看比較`);
+    button.setAttribute('aria-pressed', String(item.id === selectedId));
+    button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
+    if (restoreId === item.id) focus = button;
+    return button;
+  }));
+  if (focus) focus.focus();
+}
+function claimPendingLoot() {
+  const view = pendingLootView(state);
+  if (!tabOwner || state.mode !== 'town' || !view.available) { render(true); return; }
+  const before = state.pendingLoot.length, selectedWasPending = state.pendingLoot.some(item => item.id === selectedId);
+  if (!dispatch('claimPending')) return;
+  const moved = before - state.pendingLoot.length;
+  if (!(moved > 0)) return;
+  if (selectedSaleConsent) abortSelectedSale('待領裝備已領入背包；請關閉後重新預覽。');
+  showToast(`已依序領入 ${moved} 件；尚有 ${state.pendingLoot.length} 件待領。沒有出售、換裝或改變物品。`);
+  if (selectedWasPending && state.inventory.some(item => item.id === selectedId)) $('item-detail').querySelector('.detail-name')?.focus?.();
+  else if (!state.pendingLoot.length) $('slot-filter').focus();
+}
 function renderItemDetail() {
-  const item = selectedSlot ? state.equipment[selectedSlot] : state.inventory.find(item => item.id === selectedId);
+  const inventoryItem = state.inventory.find(item => item.id === selectedId);
+  const pending = !selectedSlot && !inventoryItem && state.pendingLoot.some(item => item.id === selectedId);
+  const item = selectedSlot ? state.equipment[selectedSlot] : inventoryItem || state.pendingLoot.find(item => item.id === selectedId);
   if (!item) {
     const placeholder = node('div', 'detail-placeholder'); placeholder.append(node('span', '', '◇'), node('h3', '', '看看下一件好東西'), node('p', '', '選擇一件裝備，比較它會為旅者帶來什麼改變。')); $('item-detail').replaceChildren(placeholder); return;
   }
@@ -1273,9 +1313,9 @@ function renderItemDetail() {
   const bound = Object.hasOwn(item, 'soulbound');
   const wrap = $('item-detail'); wrap.style.setProperty('--item-color', colorOf(item));
   const current = state.equipment[item.slot];
-  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : ''}${bound ? ' · 靈魂綁定' : ''}${item.itemWorld?.level === 1 ? ' · IW1' : ''}`);
+  const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : pending ? ' · 待領戰利品' : ''}${bound ? ' · 靈魂綁定' : ''}${item.itemWorld?.level === 1 ? ' · IW1' : ''}`);
   const name = node('h3', 'detail-name', item.name); name.tabIndex = -1;
-  const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}`);
+  const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}${pending ? ` · ID：${item.id}` : ''}`);
   const description = node('p', 'detail-description', bound ? '已永久投入靈魂碎片；武器依原始綁定基準隨角色等級成長，沒有重新抽取屬性。' : describeItemFlavor(item) || '一件等待發揮力量的裝備。');
   const trait = node('div', 'weapon-trait');
   if (item.slot === 'weapon') {
@@ -1294,18 +1334,19 @@ function renderItemDetail() {
   }
   const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。招架值是裝備評級，不是機率百分比；未列時為 0。'}屬性評分不含流血、穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
   const actions = node('div', 'detail-actions');
-  if (!selectedSlot) {
+  if (!selectedSlot && !pending) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
     const protectedBySet = isGearSetProtected(state,item.id);
     const lock = node('button', 'secondary-button', bound ? '永久綁定' : protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet || bound; lock.addEventListener('click', () => { if (!Object.hasOwn(item, 'soulbound')) dispatch('lock', item.id); });
     const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || bound || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { if (Object.hasOwn(item, 'soulbound')) return; dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
   }
-  if (!selectedSlot && !inventoryMatchesFilters(item, inventoryFilters())) explanation.append(node('span', 'inventory-detail-hidden', '正在比較的這件裝備位於背包篩選外；選取仍保留，篩選不會自動換裝或出售。'));
-  if (bound) explanation.append(node('span', 'soulbind-protection', '永久綁定：不能解除、解鎖或出售（包含安全整理、自選出售）。清除配裝記錄也不會解除保護；可以正常換裝。'));
+  if (pending) explanation.append(node('span', 'pending-loot-detail', '待領裝備只供比較，不占背包顯示件數，也不受背包篩選影響。領入背包前不能換裝、鎖定、出售、綁定或挑戰裝備界；領取依取得先後順序，不會跳過前面的裝備。'));
+  if (!selectedSlot && !pending && !inventoryMatchesFilters(item, inventoryFilters())) explanation.append(node('span', 'inventory-detail-hidden', '正在比較的這件裝備位於背包篩選外；選取仍保留，篩選不會自動換裝或出售。'));
+  if (bound) explanation.append(node('span', 'soulbind-protection', `永久綁定：不能解除、解鎖或出售（包含安全整理、自選出售）。清除配裝記錄也不會解除保護；${pending ? '領入背包後才可換裝。' : '可以正常換裝。'}`));
   else if (isGearSetProtected(state,item.id)) explanation.append(node('span','gear-set-protection','此裝備被配裝記錄使用，不能解鎖或出售。先清除或覆寫所有使用它的配裝，再手動解鎖；不會自動解鎖。'));
   const soulbind = node('div', 'soulbind-item-action');
   let bindButton;
-  if (item.slot === 'weapon' && !bound) {
+  if (item.slot === 'weapon' && !bound && !pending) {
     const preview = previewSoulbindWeapon(state, item.id);
     bindButton = node('button', 'secondary-button', '預覽靈魂綁定');
     bindButton.dataset.soulbindId = item.id;
@@ -1317,7 +1358,7 @@ function renderItemDetail() {
   }
   const itemWorld = node('div', 'item-world-item-action');
   let itemWorldButton;
-  if (item.slot === 'weapon' && resolveWeaponFamily(item)) {
+  if (item.slot === 'weapon' && resolveWeaponFamily(item) && !pending) {
     const preview = previewItemWorld(state, item.id);
     itemWorldButton = node('button', 'secondary-button', item.itemWorld?.level === 1 ? 'IW1 已完成' : '預覽 Item World · IW1');
     itemWorldButton.dataset.itemWorldId = item.id;
@@ -1626,6 +1667,7 @@ $('start-button').addEventListener('click',()=>{const previousMode=state.mode;if
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));
 $('pin-report').addEventListener('click', pinRecentExpeditionReport);
+$('claim-pending').addEventListener('click', claimPendingLoot);
 for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
 $('strategy-select').addEventListener('change', event => dispatch('setStrategy', event.target.value));
 for (const policy of TARGET_PRIORITIES) { const option = node('option', '', policy.label); option.value = policy.id; $('target-priority-select').append(option); }
