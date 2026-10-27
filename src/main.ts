@@ -68,3 +68,7 @@ function presetWarn(msg: string): void {
   d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#a33;color:#fff;padding:4px 8px;font-size:13px';
   document.body.appendChild(d); (window as unknown as { hvPresetIgnored: string }).hvPresetIgnored = msg;
 }
+
+// rc16 item 6: the layout is a fixed 1100px; on narrower windows (QA: 913px) scale it to fit instead of clipping / scrolling sideways.
+const fit = () => { const w = document.getElementById('wrap'); if (w) w.style.zoom = String(Math.min(1, (window.innerWidth - 8) / 1100)); };
+window.addEventListener('resize', fit); fit();
