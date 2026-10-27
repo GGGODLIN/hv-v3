@@ -263,6 +263,8 @@ export const PHYS_RESIST_LOG = 25;
 export const BIG_NEXT = 0.4;
 export const bigNext = (s: BattleState): boolean => !ADVICE_DIAG.revert.has('warn40') && s.hp > 0 && nextRoundEstimate(s, true) >= s.d.hp * BIG_NEXT;
 export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
+/** cp9-rc5 QA bug 1（自訂，暫定）: one rule for 「下回合全體暴擊估計 ≥ HP」 — the rounded estimate vs the rounded HP, exactly what is printed. */
+export const isLethal = (est: number, hp: number): boolean => Math.round(est) >= Math.round(hp);
 export function hpDanger(s: BattleState): boolean {
   // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
   // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
@@ -302,7 +304,7 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
 function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
-  const lethal = nextRoundEstimate(s, true) >= s.hp;
+  const lethal = isLethal(est, hp); // cp9-rc5 QA bug 1（自訂）: the same rounded numbers the text shows
   const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
   const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
