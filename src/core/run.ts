@@ -19,6 +19,8 @@ import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor,
 /** Approved design defaults + provisional tuning. */
 export const RULES = {
   dropAccel: 8,
+  /** rc19 (b): battle potion drops use the original Restoratives rolls when cp8 is on. false = rc18 (3:1:1 on every non-equip drop). */
+  origPotionDrop: true,
   /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
   expMult: C['P-exp-multiplier'].value.playerMultipliers,
   /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
@@ -377,8 +379,14 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
       if (rng.chance(drop)) {
         if (rng.chance(Math.min(1, LR.equipmentRoll * RULES.dropAccel * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.dropAccelMult ?? 0) : 1)))) loot.equips.push(generateEquip(rng, L, { minQuality: floorMinQuality(run.floor) }));
         else {
-          const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]);
-          loot.potions[k] = (loot.potions[k] ?? 0) + 1;
+          if (RULES.cp8 && RULES.origPotionDrop) {
+            // rc19 (b) producer 2026-10-27: potion drops follow the original rolls (F-003-restorative-rolls). Unbuilt items (Draught/Elixir/crystals...) drop nothing.
+            const RR = C['F-003-restorative-rolls'].value;
+            if (rng.chance(RR.restoratives) && rng.chance(RR.potion)) { const k = RR.types[rng.int(0, RR.types.length - 1)] as PotionId; loot.potions[k] = (loot.potions[k] ?? 0) + 1; }
+          } else {
+            const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]); // pre-rc19 (no source)
+            loot.potions[k] = (loot.potions[k] ?? 0) + 1;
+          }
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
