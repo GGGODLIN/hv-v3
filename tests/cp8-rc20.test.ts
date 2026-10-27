@@ -50,9 +50,8 @@ describe('rc20 item 3: death screen', () => {
     const t = deathHint(120, 120, 772, 420); expect(t).not.toContain('慢慢磨光'); expect(t).toContain('兩回合');
   });
   it('real slow attrition still says 慢慢磨光', () => expect(deathHint(80, 80, 772, 160)).toContain('慢慢磨光'));
-  it('headline is the lethal (last) hit, biggest shown separately', () => {
-    const s = readFileSync('src/game/app.ts', 'utf8');
-    expect(s).toMatch(/const top = this\.lastHit \?\?/); expect(s).toContain('致命一擊'); expect(s).toContain('data-deathbiggest');
+  it('biggest and lethal hits are both shown (rc21 item 3 swapped the headline to the biggest; see cp8-rc21)', () => {
+    const s = readFileSync('src/game/app.ts', 'utf8'); expect(s).toContain('data-deathlast'); expect(s).toContain('data-deathbiggest');
   });
   it('death-screen small text is brightened', () => expect(readFileSync('src/style.css', 'utf8')).toMatch(/\.result\.dead \.hint[^{]*\{ color: #e8dcc6/));
 });

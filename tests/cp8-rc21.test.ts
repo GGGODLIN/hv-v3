@@ -39,3 +39,21 @@ describe('rc21 item 2: hint on non-charging turns when the next round could take
   }));
   it('next round 30% of max at 56% HP → no hint', () => withCp8(() => expect(chargeAdvice(qa(449, 798, 0.3)).danger).toBe(false)));
 });
+describe('rc21 item 3: death screen', async () => {
+  const { App } = await import('../src/game/app');
+  const hit = (who: string, dmg: number, charged = false) => ({ who, dmg, charged, maxHp: 800 });
+  const cause = (recent: unknown[], lastHit: unknown, lastAdvice: unknown = null) => (App.prototype.deathCause as () => string).call({ recent, lastHit, lastAdvice, adviceNote: App.prototype.adviceNote });
+  it('headline = biggest hit of the last 2 turns; lethal hit listed separately (oc2/oc4/oc7)', () => {
+    const h = cause([{ turn: 5, taken: 100, big: hit('A', 100) }, { turn: 6, taken: 420, big: hit('B', 420) }, { turn: 7, taken: 150, big: hit('C', 150) }], hit('C', 150));
+    expect(h).toContain('data-deathcause="420"'); expect(h).toContain('data-deathlast="150"'); expect(h).toContain('最後一擊');
+  });
+  it('0-damage turns are in the turn list (oc3/oc5)', () => {
+    const h = cause([{ turn: 5, taken: 300, big: hit('A', 300) }, { turn: 6, taken: 0 }, { turn: 7, taken: 500, big: hit('A', 500) }], hit('A', 500));
+    expect(h).toContain('第 6 回合 -0'); expect(h).toContain('最後 3 回合');
+    expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/turnHits\.length \? turnHits\.reduce/);
+  });
+  it('charge text and the 兩回合內被打穿 burst line appear together (oc3/blade8)', () => {
+    const h = cause([{ turn: 6, taken: 300, big: hit('A', 300) }, { turn: 7, taken: 741, big: { ...hit('Boss', 741, true), label: '重擊' } }], { ...hit('Boss', 741, true), label: '重擊' });
+    expect(h).toContain('兩回合'); expect(h).toContain('蓄力／大招');
+  });
+});

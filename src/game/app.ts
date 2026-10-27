@@ -522,14 +522,15 @@ export class App {
   }
   deathCause(): string {
     const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);
-    if (r.length) { // cp8-rc7 P1 item 5: the charged / big-move hit (if any) or the biggest single hit of the last turns, plus damage per turn
-      const ch = hb.find((x) => x.charged), maxHp = this.lastHit?.maxHp ?? 1;
-      const top = this.lastHit ?? ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)); // rc20 item 3: headline = the lethal (last) hit
-      const biggest = hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), last2 = r.slice(-2).reduce((t, x) => t + x.taken, 0);
-      const hint = top.charged ? `${esc(top.who)} 的${esc(top.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : deathHint(biggest.dmg, top.dmg, maxHp, last2);
+    if (r.length && hb.length) { // cp8-rc7 P1 item 5; rc21 item 3: headline = biggest single hit of the last 2 turns, the lethal hit listed separately
+      const maxHp = this.lastHit?.maxHp ?? 1, pick = (a: typeof hb) => a.reduce((x, y) => (y.dmg > x.dmg ? y : x));
+      const h2 = r.slice(-2).map((x) => x.big!).filter(Boolean), top = pick(h2.length ? h2 : hb), last = this.lastHit ?? hb[hb.length - 1]!;
+      const last2 = r.slice(-2).reduce((t, x) => t + x.taken, 0), ch = h2.find((x) => x.charged) ?? (last.charged ? last : undefined);
+      // rc21 item 3: the burst line (兩回合內被打穿) and the charge text are shown together, never one replacing the other.
+      const hint = [deathHint(top.dmg, last.dmg, maxHp, last2), ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : ''].filter(Boolean).join('<br>');
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
-      const big = biggest.dmg > top.dmg ? `<br><span data-deathbiggest="${biggest.dmg}">最後幾回合最大單擊：${esc(biggest.who)}${biggest.label ? ' ' + esc(biggest.label) : ''} ${biggest.dmg}</span>` : '';
-      return `<p data-deathcause="${top.dmg}" ${top.charged ? `data-deathcharge="${top.dmg}"` : ''}>死因：致命一擊 ${top.charged ? '（蓄力大招）' : ''}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）${big}<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
+      const lastLine = `<br><span data-deathlast="${last.dmg}">最後一擊：${last.charged ? '（蓄力大招）' : ''}${esc(last.who)}${last.label ? ' ' + esc(last.label) : ''} ${last.dmg}</span>`;
+      return `<p data-deathcause="${top.dmg}" data-deathbiggest="${top.dmg}" ${top.charged ? `data-deathcharge="${top.dmg}"` : ''}>死因：最後 2 回合最大單擊 ${top.charged ? '（蓄力大招）' : ''}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）${lastLine}<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
     }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
@@ -910,7 +911,7 @@ export class App {
     if (b.oc >= 50 && has(this.p, 'spirit') && !b.spirit) { const t = tip(this.p, 'spirit', TIPS.spirit); if (t) this.log.push(`<span class="unlock" data-unlock data-tip="spirit">${esc(t)}</span>`); }
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
-    if (turnHits.length) { const big = turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x); this.recent = [...this.recent, { turn: b.turn, taken: turnHits.reduce((t, h) => t + h.dmg, 0), big }].slice(-3); } // cp8-rc7 P1 item 5
+    { const big = turnHits.length ? turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x) : undefined; this.recent = [...this.recent, { turn: b.turn, taken: turnHits.reduce((t, h) => t + h.dmg, 0), big }].slice(-3); } // rc21 item 3: 0-damage turns are recorded too. // cp8-rc7 P1 item 5
     await capped(this.stage.play(ev, b), 2000 + ev.length * 300); // cp8-rc10 P1-9
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
