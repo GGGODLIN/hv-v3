@@ -2,7 +2,7 @@
 // Env: CHROME_PATH (default /usr/bin/google-chrome), E2E_URL (default http://127.0.0.1:5199/), E2E_SHOTS (default e2e-shots/).
 import p from 'puppeteer-core';
 import { mkdirSync } from 'node:fs';
-const URL0=process.env.E2E_URL||'http://127.0.0.1:5199/';
+const URL0=process.argv[2]||process.env.E2E_URL||'http://127.0.0.1:5199/'; // rc17: full-suite runner passes the base as argv (it used to fall back to 5199)
 const b=await p.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--use-gl=swiftshader'],defaultViewport:{width:1280,height:900}});
 const w=ms=>new Promise(r=>setTimeout(r,ms));const S=(process.env.E2E_SHOTS||'e2e-shots')+'/';mkdirSync(S,{recursive:true});
 const pg=await b.newPage();
