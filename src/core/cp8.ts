@@ -53,3 +53,8 @@ export const CP8 = {
 export const cp8ThemeDmg = (f: number): number => (f >= 1 && f <= CP8.themeTail.length ? CP8.themeTail[f - 1]! : CP7.themeDmg[f] ?? 1);
 /** CP8 P3 (暫定 formula): number of start buffs for an abyss trip from depth `start`. */
 export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, Math.max(0, Math.floor((start - 1) / CP8.startBuffPer)));
+/** CP9 rc1（自訂，非原版，暫定）. Sim overrides: SIM_BOSSBURST / SIM_BOSSPLAIN / SIM_NORMALCAP etc.
+ *  bossBurst: in a boss fight, everything the player takes in one act() (hits, reflects, burn/bleed) ≤ this × max HP on a turn
+ *  that was telegraphed (any monster winding up at the start of the enemy phase). bossPlain: the same cap on an un-telegraphed
+ *  turn, so a big turn always has a one-turn warning. */
+export const CP9 = { on: num('SIM_CP9') !== 0, bossBurst: num('SIM_BOSSBURST') ?? 0.5, bossPlain: num('SIM_BOSSPLAIN') ?? 0.3 };

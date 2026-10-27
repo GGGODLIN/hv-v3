@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -24,8 +24,11 @@ import type { NodeType } from './tower';
 /** sim diag only (never read by the game): battle-entry HP buckets and HP potions left at each death. */
 export const SIM_DIAG = { battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number>,
   /** rc21 diag: health potions drunk in battle — by HP% decile at the drink, by floor, and by reason (lethal / low / big). */
-  zHp: {} as Record<number, number>, zFloor: {} as Record<number, number>, zWhy: {} as Record<string, number>, floorBattles: {} as Record<number, number> };
+  zHp: {} as Record<number, number>, zFloor: {} as Record<number, number>, zWhy: {} as Record<string, number>, floorBattles: {} as Record<number, number>,
+  /** cp9 diag（自訂）: boss fight turns, worst single enemy turn in a boss fight (share of max HP), player action mix in normal fights. */
+  bossTurns: [] as number[], bossBurst: [] as number[], normActs: {} as Record<string, number> };
 let DIAG_FLOOR = 0;
+const FIGHT_BURST = { v: 0 };
 export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
 /** cp8-rc6 Part B (暫定，缺原版出處): per-lean 自動分配 weights under cp8; a lean missing here uses phys (arcane: ALLOC_WEIGHTS.arcane). Sim override: K_ALLOC_<lean>=str,dex,end,agi,int,wis. */
 /** cp8-rc7 P0 bug 1 (暫定，缺原版出處，our own AI knob — not a game value): rc6 only had arcane here, so blade / oc / bulwark all used phys
@@ -424,7 +427,7 @@ function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Act
 export const FIGHT_LOG: Record<string, number | string | boolean>[] = []; export const FIGHT_CTX = { depth: 0, type: '' };
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
   const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
-  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; act(b, a, rng, profs); if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
+  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; const ev9 = act(b, a, rng, profs); if (b.monsters.some((m) => m.rank === 'boss')) { const f9 = turnDamage(ev9) / b.d.hp; if (ENV?.DBG9 && f9 > 0.5) console.error('B9', f9.toFixed(3), b.d.hp, h0, b.hp, JSON.stringify(ev9.filter((e) => e.t === 'hit' && e.to === 'player' || e.t === 'pdot'))); FIGHT_BURST.v = Math.max(FIGHT_BURST.v, f9); } else if (FIGHT_CTX.type === 'battle') { const k9 = a.kind === 'skill' ? 'skill' : a.kind === 'spell' ? 'spell' : a.kind; SIM_DIAG.normActs[k9] = (SIM_DIAG.normActs[k9] ?? 0) + 1; } if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
   if (dbg) FIGHT_LOG.push({ ...dbg, depth: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: b.turn, won: b.over === 'win', maxHp: Math.round(b.d.hp), maxMp: Math.round(b.d.mp ?? 0), mpEnd: Math.round(b.mp), hpEnd: Math.round(b.hp) });
   if (!b.over) b.over = 'lose';
 }
@@ -480,6 +483,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         fight(c, strategy, r2, profs, 'ignore');
         alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
       }
+      FIGHT_BURST.v = 0;
       FIGHT_CTX.depth = depthOf(run) || run.floor; FIGHT_CTX.type = type;
       if (cp5) fight(b, strategy, rng, profs, cp5.mode);
       else fight(b, strategy, rng, profs);
@@ -488,6 +492,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (!b.over) b.over = 'lose';
       if (ENV?.DBGFIGHT && run.abyss) console.error('BF ' + JSON.stringify({ st: strategy, d: depthOf(run), type, won: b.over === 'win', turns: b.turn, hp0: +hp0Pct.toFixed(2), maxHp: Math.round(d.hp), adb: Math.round(d.adb), pmit: +d.physMit.toFixed(3), ev: +(d.evade ?? 0).toFixed(3), blk: +(d.block ?? 0).toFixed(3), mh: p.equipped.mainHand?.group, oh: p.equipped.offHand?.group ?? '-', body: p.equipped.body?.group, lv: Math.round(powerScore(d)), ...(b as unknown as { dbg: object }).dbg }));
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
+      if (type === 'boss') { SIM_DIAG.bossTurns.push(b.turn); SIM_DIAG.bossBurst.push(+FIGHT_BURST.v.toFixed(3)); }
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
       if (!loot) { SIM_DIAG.deathPots[b.potions.health] = (SIM_DIAG.deathPots[b.potions.health] ?? 0) + 1; end = { why: 'dead', floor: run.floor, type, hpPots: b.potions.health, bturns: b.turn, mp: b.mp, mpMax: b.d.mp, mpPots: b.potions.mana, hpCd: b.itemCd.health, mpCd: b.itemCd.mana, hp0: hp0Pct, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }

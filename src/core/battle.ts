@@ -1,5 +1,9 @@
 import { RULES } from './run';
-import { CP8, RC22 } from './cp8';
+import { CP8, CP9, RC22 } from './cp8';
+/** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
+const ACT9 = { taken: 0, tele: false };
+const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && s.monsters.some((m) => m.rank === 'boss');
+const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, Math.floor((tele ? CP9.bossBurst : CP9.bossPlain) * s.d.hp - ACT9.taken)) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
@@ -96,17 +100,17 @@ function reflect(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   const frac = (m.thornTurns ? CP5.thornsFrac : 0) + (m.affixes?.includes('spikes') ? CP5.spikesFrac : 0);
   if (!frac || dmg <= 0) return;
   const out = Math.min(Math.round(s.d.hp * CP5.reflectCapHp), Math.round(dmg * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType]) * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1)));
-  if (out <= 0) return;
-  s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
-  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反傷 -${out}` });
+  const out9 = Math.min(out, budget9(s, false)); if (out9 <= 0) return; // cp9 (b)（自訂）
+  s.hp = Math.max(0, s.hp - out9); ACT9.taken += out9; CP5_STAT.reflect += out9; CP5_STAT.reflectN++;
+  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out9, crits: 0, avoided: null, label: `反傷 -${out9}` });
 }
 /** CP5 反魔 (暫定): reflect a share of spell damage (through player defend only). */
 function antimagic(s: BattleState, ti: number, dmg: number, ev: BEvent[]): void {
   if (!(s.monsters[ti] as CM).affixes?.includes('antimagic') || dmg <= 0) return;
   const out = Math.round(dmg * CP5.antimagicFrac * (s.defendTurns > 0 ? 1 - DEF.mitigation : 1));
-  if (out <= 0) return;
-  s.hp = Math.max(0, s.hp - out); CP5_STAT.reflect += out; CP5_STAT.reflectN++;
-  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out, crits: 0, avoided: null, label: `反魔 -${out}` });
+  const out9 = Math.min(out, budget9(s, false)); if (out9 <= 0) return; // cp9 (b)（自訂）
+  s.hp = Math.max(0, s.hp - out9); ACT9.taken += out9; CP5_STAT.reflect += out9; CP5_STAT.reflectN++;
+  ev.push({ t: 'hit', from: ti, to: 'player', dmg: out9, crits: 0, avoided: null, label: `反魔 -${out9}` });
 }
 /** Clear player bleed / burn (health potion, defend). */
 function cleanse(s: BattleState, ev: BEvent[], by: string): void {
@@ -239,8 +243,12 @@ export function worstHit(s: BattleState, m0: Monster, defending = false): number
 /** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
 export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
 /** rc9 P0-2: summed estimate of every live monster's next hit (wind-ups at their release multiplier; stunned monsters skip). */
-export function nextRoundEstimate(s: BattleState, crit = false): number {
-  return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1, crit) : 0), 0);
+export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1): number {
+  const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0);
+  // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
+  if (!RULES.cp8) return raw;
+  const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
+  return Math.min(raw, tc, bb);
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
 /** rc16（製作人要求，自訂）: physical hits log resistance only when it is at least this %. */
@@ -276,7 +284,7 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   const lethal = nextRoundEstimate(s, true) >= s.hp;
   const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
-  const estD = Math.round(s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, true, true) : 0), 0));
+  const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
   // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
   const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
@@ -286,6 +294,13 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   if (zr !== 'rc21' && canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) {
     if (zr === 'rc20order') return { danger, est, hp, keys: lethal ? ['D', 'Z'] : ['Z', 'D'], text: 'diag rc20order' };
     if (!lethal && !big) return { danger, est, hp, keys: ['A', 'Z'], text: 'diag lethal-only Z' };
+  }
+  // cp9 (c)（自訂，非原版）: Z only when the estimate ≥ HP or HP ≤ 50%; a telegraphed charge above that → D (else A).
+  // a lethal estimate that D brings under HP also gets D (the potion is kept for when D is not enough).
+  if (RULES.cp8 && CP9.on && (!lethal || dOk) && s.hp > s.d.hp * 0.5) {
+    const tele = s.monsters.some(windingUp), dCan = canUse(s, { kind: 'defend' });
+    if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
+    return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 過半，不必喝藥）` };
   }
   if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
   if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
@@ -567,6 +582,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
 export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<Prof, number>> = {}): BEvent[] {
   const ev: BEvent[] = [];
   if (!canUse(s, a)) return [{ t: 'msg', text: '無法使用' }];
+  ACT9.taken = 0; ACT9.tele = false; // cp9 (b)（自訂）
   let free = false;
   let noRegen = false;
   s.focusTurn = false;
@@ -730,8 +746,9 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
   });
   if (s.cp5) {
     const p = s.cp5.pdot;
-    if (p.burnTurns > 0) { s.hp = Math.max(0, s.hp - p.burn); p.burnTurns--; ev.push({ t: 'pdot', kind: 'burn', dmg: p.burn }); }
-    if (p.bleedTurns > 0) { s.hp = Math.max(0, s.hp - p.bleed); p.bleedTurns--; ev.push({ t: 'pdot', kind: 'bleed', dmg: p.bleed }); }
+    // cp9 (b)（自訂）: DoT ticks count toward the boss-fight turn budget
+    if (p.burnTurns > 0) { const x = Math.min(p.burn, budget9(s, ACT9.tele)); s.hp = Math.max(0, s.hp - x); ACT9.taken += x; p.burnTurns--; ev.push({ t: 'pdot', kind: 'burn', dmg: x }); }
+    if (p.bleedTurns > 0) { const x = Math.min(p.bleed, budget9(s, ACT9.tele)); s.hp = Math.max(0, s.hp - x); ACT9.taken += x; p.bleedTurns--; ev.push({ t: 'pdot', kind: 'bleed', dmg: x }); }
     if (!p.burnTurns) p.burn = 0;
     if (!p.bleedTurns) p.bleed = 0;
   }
@@ -815,7 +832,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   let ripostes = 0, counters = 0;
   const defBonus = RULES.cp8 && defending && (s.mods?.combo.bulwark || (s.d.style === 'oneHand' && s.d.block > 0)) ? CP8.bulwarkDefCounter : 0; // bulwark = 1H + shield layout (or the bulwark combo) // cp8-rc8 P2-1 自訂，非原版
   // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
-  const hp0 = s.hp, cap = RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity;
+  const hp0 = s.hp, cap = Math.min(RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, budget9(s, (ACT9.tele = s.monsters.some(windingUp)))); let took9 = 0; // cp9 (b)（自訂）: boss-fight burst ≤ 50% telegraphed / 30% plain
   s.monsters.forEach((m0, i) => {
     const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
@@ -863,8 +880,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],
     });
-    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.round(cap - (hp0 - s.hp))));
-    s.hp = Math.max(0, s.hp - dmg);
+    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
+    s.hp = Math.max(0, s.hp - dmg); took9 += dmg; ACT9.taken += dmg; // cp9 (b): reflect / burn / bleed later this act share the budget;（自訂）: count hits, not net HP (mid-round heals no longer reopen the cap)
     RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
