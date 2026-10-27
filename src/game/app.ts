@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { deathHint, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { deathHint, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -533,7 +533,7 @@ export class App {
     if (r.length && hb.length) { // cp8-rc7 P1 item 5; rc21 item 3: headline = biggest single hit of the last 2 turns, the lethal hit listed separately
       const maxHp = this.lastHit?.maxHp ?? 1, pick = (a: typeof hb) => a.reduce((x, y) => (y.dmg > x.dmg ? y : x));
       const h2 = r.slice(-2).map((x) => x.big!).filter(Boolean), top = pick(h2.length ? h2 : hb), last = this.lastHit ?? hb[hb.length - 1]!;
-      const last2 = r.slice(-2).reduce((t, x) => t + x.taken, 0), ch = h2.find((x) => x.charged) ?? (last.charged ? last : undefined);
+      const last2 = r.slice(-2).reduce((t, x) => t + x.taken, 0), ch = deathCharge(h2, last); // cp9 (d) bug 2（自訂）
       // rc21 item 3: the burst line (兩回合內被打穿) and the charge text are shown together, never one replacing the other.
       const hint = [deathHint(top.dmg, last.dmg, maxHp, last2), ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : ''].filter(Boolean).join('<br>');
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
@@ -649,7 +649,7 @@ export class App {
     // Keys pressed during an animation are queued (latest wins) instead of being dropped.
     // cp8-rc9 P1-11: a queued D / Z / X / C is not overwritten by a later A or skill key (rc8 playtest: Z then A-spam = Z never happened).
     // rc16 item 7: a non-defensive key pressed behind a queued D / Z used to be dropped (Z then A = A swallowed); it now waits in queued2.
-    if (this.busy) { if (RULES.cp8 && this.queued && /^(defend|item:)/.test(this.queued) && !/^(defend|item:)/.test(map[k]!)) this.queued2 = map[k]!; else this.queued = map[k]!; return; }
+    if (this.busy) { if (RULES.cp8 && this.queued && /^(defend|item:|spirit)/.test(this.queued) && !/^(defend|item:|spirit)/.test(map[k]!)) this.queued2 = map[k]!; else this.queued = map[k]!; return; }
     this.command(map[k]!);
   }
 
@@ -844,18 +844,20 @@ export class App {
     const k = this.holdKey; if (!k || this.screen !== 'battle' || !this.battle || this.battle.over) { this.holdKey = null; return; }
     if (performance.now() < this.chargeHoldUntil) { setTimeout(() => this.flushHold(), this.chargeHoldUntil - performance.now() + 20); return; }
     this.holdKey = null; this.refused = '';
-    if (this.busy) { if (!this.queued) this.queued = k; else if (/^(defend|item:)/.test(this.queued)) this.queued2 ??= k; return; }
+    if (this.busy) { if (!this.queued) this.queued = k; else if (/^(defend|item:|spirit)/.test(this.queued)) this.queued2 ??= k; return; }
     void this.command(k);
   }
 
   async command(cmd: string): Promise<void> {
+    // cp9 (d) bug 3（自訂）: S·靈動架勢 is a free toggle the hint recommends during a wind-up; rc22 queued it behind the charge hold, so the
+    // stance stayed off and the hint kept saying S after S was pressed (bulwark6). S now runs at once like D / Z.
     const b = this.battle;
     if (!b || this.busy || b.over) return;
-    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:)/.test(cmd)) { // cp8-rc9 item 1
+    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:|spirit)/.test(cmd)) { // cp8-rc9 item 1
       // rc16 item 7: the hold used to drop the key silently (looked swallowed after a potion / boss phase change). Say so.
       // rc19 (c) producer 2026-10-27: a key pressed during the hold is queued and runs when the hold ends (was refused = looked swallowed). 自訂，非原版
       const wait = this.chargeHoldUntil - performance.now(); this.holdKey = cmd;
-      this.refused = `⏳ 敵人剛開始蓄力：先看決策，已排隊，${Math.ceil(wait / 100) / 10} 秒後自動執行（D／Z 立即可用）`; this.render();
+      this.refused = `⏳ 敵人剛開始蓄力：先看決策，已排隊，${Math.ceil(wait / 100) / 10} 秒後自動執行（D／Z／S 立即可用）`; this.render();
       setTimeout(() => this.flushHold(), wait + 20); return;
     }
     const [kind, id] = cmd.split(':') as [string, string | undefined];
@@ -885,7 +887,7 @@ export class App {
     // cp7-rc5 bug 3: per-turn damage record (display only, no effect on the battle): one line per monster phase, kept in full
     // on window.__turnLog for playtest reports (the on-screen log shows the last 6 lines only).
     if (RULES.cp7) {
-      const taken = ev.reduce((t, e) => t + (e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
+      const taken = turnDamage(ev); // cp9 (d) bug 1（自訂）: incl. burn/bleed ticks
       const maxHit = ev.reduce((t, e) => Math.max(t, e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
       const rec = { turn: b.turn, action: a.kind, hpBefore, hpAfter: b.hp, maxHp: b.d.hp, taken, maxHit };
       const w = window as unknown as { __turnLog?: (typeof rec)[] }; (w.__turnLog ??= []).push(rec);
@@ -919,7 +921,7 @@ export class App {
     if (b.oc >= 50 && has(this.p, 'spirit') && !b.spirit) { const t = tip(this.p, 'spirit', TIPS.spirit); if (t) this.log.push(`<span class="unlock" data-unlock data-tip="spirit">${esc(t)}</span>`); }
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
-    { const big = turnHits.length ? turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x) : undefined; this.recent = [...this.recent, { turn: b.turn, taken: turnHits.reduce((t, h) => t + h.dmg, 0), big }].slice(-3); } // rc21 item 3: 0-damage turns are recorded too. // cp8-rc7 P1 item 5
+    { const big = turnHits.length ? turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x) : undefined; this.recent = [...this.recent, { turn: b.turn, taken: turnDamage(ev), big }] /* cp9 (d) bug 1（自訂） */.slice(-3); } // rc21 item 3: 0-damage turns are recorded too. // cp8-rc7 P1 item 5
     await capped(this.stage.play(ev, b), 2000 + ev.length * 300); // cp8-rc10 P1-9
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
@@ -928,7 +930,7 @@ export class App {
     // CP8.chargeHoldMs, so tapping / holding A at 4x + 跳過動畫 cannot skip the decide panel. D / Z / X / C stay instant.
     if (RULES.cp8 && !b.over && b.monsters.some(windingUp)) {
       const fresh = !this.windWas; this.windWas = true;
-      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !/^(defend|item:)/.test(q)) q = null; if (this.queued && !/^(defend|item:)/.test(this.queued)) this.queued = null; }
+      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !/^(defend|item:|spirit)/.test(q)) q = null; if (this.queued && !/^(defend|item:|spirit)/.test(this.queued)) this.queued = null; }
     } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }

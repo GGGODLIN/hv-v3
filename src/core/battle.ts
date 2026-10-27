@@ -886,6 +886,16 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
 export const DEATH_BIG_LAST = 0.15;
 /** rc20 item 3: damage in the last 2 enemy turns at or above this share of max HP counts as a burst death, never "slowly worn down". 暫定（自訂，非原版） */
 export const DEATH_BURST_2T = 0.5;
+/** cp9 (d) bug 1（自訂）: all damage the player took from one act() — enemy hits, reflects AND player burn/bleed ticks (pdot).
+ *  rc22 counted only 'hit' events, so a turn with a DoT tick showed less than the HP lost (blade8 -240 @ 263, bulwark8 -188 @ 214). */
+export function turnDamage(ev: BEvent[]): number {
+  return ev.reduce((t, e) => t + (e.t === 'hit' && e.to === 'player' ? e.dmg : e.t === 'pdot' ? e.dmg : 0), 0);
+}
+/** cp9 (d) bug 2（自訂）: the charged hit the death advice names. The killing hit wins when it was charged; otherwise the latest
+ *  charged hit of the last 2 turns (rc22 took the first one, so a mid-turn charger was named instead of the killer). */
+export function deathCharge<T extends { charged: boolean }>(h2: T[], last: T): T | undefined {
+  return last.charged ? last : [...h2].reverse().find((x) => x.charged);
+}
 export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2Taken = 0): string {
   if (last2Taken >= maxHp * DEATH_BURST_2T) return `最後兩回合共受 ${last2Taken} 傷害（佔最大 HP ${Math.round((last2Taken / maxHp) * 100)}%）：兩回合內就會被打穿，HP 低於這個數字前就先喝藥或防禦。`;
   if (topDmg >= maxHp * 0.3) return '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。';
