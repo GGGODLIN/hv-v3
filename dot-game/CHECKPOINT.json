@@ -1,12 +1,12 @@
 {
-  "checkpoint": "131-v033-grid-readability-source",
+  "checkpoint": "133-v033-browser-accepted",
   "version": "0.33.0",
-  "status": "source-complete-audited-visual-acceptance-pending-unpublished-publication-tool-blocked",
-  "source_base": "0cfde1801d288a94ff485cdc1e9a17442456bf89",
+  "status": "bounded-desktop-browser-accepted-source-before-root-publication",
+  "source_base": "63b39c5a62193988430bdf86379b3f75c1b3a303",
   "base_accepted_recovery": "e5962e728ae4c20db80172916f3e1a9b72815a91",
   "accepted_website": "f00fdfe1fcad529081057e99592a49466341bb08",
   "prepared_unpublished_v026_website_candidate": "14524044ee864ac9ac590ed933c9fd0ef5148680",
-  "scope": "Bounded inventory/equipped/pending readability: inset card keyboard focus avoids outward scroll-edge geometry risk; accessible names preserve actual family/IW/protection metadata; textual comparison marker is distinct from sale. No gameplay/save/schema/assets changes.",
+  "scope": "Record actual bounded desktop candidate acceptance and recovery evidence; change only visible index label from source candidate to continuing development. No functional runtime, stylesheet, asset, gameplay, storage, schema or fixture changes.",
   "source_tests_passed": 1827,
   "runtime_syntax_checks": 4,
   "source_input_files_unchanged_during_final_suite": 186,
@@ -53,17 +53,17 @@
     "errors": 0,
     "not_layout_acceptance": true
   },
-  "visual_acceptance": "not-run; viewport fit, responsive, zoom, native focus paint and forced-color appearance remain unverified",
-  "browser_acceptance": "not-run",
+  "visual_acceptance": "PASS bounded actual cloud-browser 1180x757 desktop: first-screen action, loaded icons, wrapping, no observed horizontal overflow and inset focus paint; narrow/mobile/zoom/forced-color appearance not tested",
+  "browser_acceptance": "PASS bounded candidate ordinary progression/equip/reload, unchanged earned import, native Enter exact-ID focus, policy and preset context/cancel/confirm, earned Exquisite bind and paid five-wave IW1/reload, hidden selected-sale quote/cancel. See docs/BROWSER-QA-V033.md.",
   "assistive_technology_acceptance": "not-run",
-  "website_staging": "not-attempted-known-tool-block",
-  "publication": "not-run",
+  "website_staging": "candidate published exact 35a4cfff40a7fab92dd1848d9db455878347a1c4; Pages 40484556586 success; all 21 files exact HTTP200",
+  "publication": "formal-root-pending-accepted-source-exact-readback; stable-profile-smoke-not-run",
   "outside_source_blobs_to_preserve": 409,
-  "frozen_utc": "2026-10-27T09:15:42.573718+00:00",
+  "frozen_utc": "2026-10-27T10:12:54.421065+00:00",
   "files": {
     "README.md": {
-      "bytes": 15576,
-      "sha256": "dc8268e7430dc9ae2db7acc60be8b6257deeee89f38d8cdf890508460e7d6a03"
+      "bytes": 16945,
+      "sha256": "017f5ed39fe3cd81658ee9d423005a07e65dabc90bcb6190a5e75d49ec8d6772"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -222,8 +222,8 @@
       "sha256": "d1bc3b905411afdb42ec00209302d10248658b55ba820a0f59ac4941eaed20c5"
     },
     "docs/ACCEPTANCE-V033.md": {
-      "bytes": 4473,
-      "sha256": "d88e942be77aeba2430f4f89ba48c8d43ccf134bfe2551929c42d087de33afde"
+      "bytes": 5565,
+      "sha256": "80aceb7dbfd7c074c81cea334dd7d7c8aba25faeb540868fd99ccd01d009b31f"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -400,6 +400,10 @@
     "docs/BROWSER-QA-V03.md": {
       "bytes": 6219,
       "sha256": "f7d08605e9876f5ff78e3a59a11b99b6a245ecfa4edfa6717fdebd8f23832420"
+    },
+    "docs/BROWSER-QA-V033.md": {
+      "bytes": 11670,
+      "sha256": "5f38fc793baf2b167fb756a3caa1dac274a2edf9ef0cd72b0b8cf7eb720675f6"
     },
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
@@ -646,12 +650,12 @@
       "sha256": "254a2e2ce12d54c2016fab6d9c340806d3e3df231f2f7d17ae55eacbcfc02324"
     },
     "docs/RECOVERY-V033.md": {
-      "bytes": 2937,
-      "sha256": "0a918382eeceb586df335baa22712c95b763db0ce8fa2cfa562e2dc828a0cc2b"
+      "bytes": 4121,
+      "sha256": "76c87070007d05fc0fa1381bc1cd09d87c79667cf192e8a427b2506415b1d15d"
     },
     "docs/RELEASES.md": {
-      "bytes": 41860,
-      "sha256": "ffede4bc5af660210ae902a808a9f2187565c599c630806804155e67b2e5e354"
+      "bytes": 42816,
+      "sha256": "1c65e2b4204595b6378056337c2dfdbc707fe4755c9b87de729d3ca05ac4774c"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
@@ -690,8 +694,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 17862,
-      "sha256": "8d4217787014b863b0c06832df67ad0ad363851ef3f8f657e959f87d83c29abd"
+      "bytes": 19765,
+      "sha256": "d5e6023eb007369a7f2ca2000e620528f9c6204e260e258e95f671a8d29fbbae"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -891,7 +895,7 @@
     },
     "index.html": {
       "bytes": 44796,
-      "sha256": "738535bdbaaec704c6aeed656bcc86a35e38a7f05d0793fb455c9a622f7d6c96"
+      "sha256": "2c4565185b9fc510b898c0350f8f57d78f8d4d4e9903c44121cc19378eac09b2"
     },
     "package.json": {
       "bytes": 207,
@@ -1577,5 +1581,27 @@
       "bytes": 15068,
       "sha256": "6ad5fdb417fdf946ab13b7d335cd1d6c29a90e6e5da694b5ce43b426b9d8f0c9"
     }
-  }
+  },
+  "candidate_website": "35a4cfff40a7fab92dd1848d9db455878347a1c4",
+  "candidate_ci_run": 40484556586,
+  "candidate_http_exact_files": 21,
+  "runtime_acceptance_transition": {
+    "index_label_before": "v0.33 · 來源候選",
+    "index_label_after": "v0.33 · 持續開發",
+    "index_title_unchanged": true,
+    "functional_runtime_assets_styles_unchanged": true,
+    "candidate_deployment_unchanged": true,
+    "storage_namespace_code_unchanged": true
+  },
+  "browser_scope_limits": [
+    "narrow/mobile/touch/high zoom",
+    "forced colors",
+    "spoken screen reader",
+    "physical keyboard hardware",
+    "OS sleep",
+    "comprehensive cross-tab/ownership",
+    "actual pending FIFO overflow/claim",
+    "automatic low-HP supply trigger",
+    "hostile or malformed browser imports"
+  ]
 }
