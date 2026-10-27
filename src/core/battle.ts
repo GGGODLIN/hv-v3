@@ -2,9 +2,10 @@ import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
 import { CP8, CP9, RC22 } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
-const ACT9 = { taken: 0, tele: false };
+const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
-const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, (tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
+const def9 = (s: BattleState, x: number): number => (CP9.defCap > 0 && s.defendTurns > 0 ? Math.min(x, Math.ceil(CP9.defCap * s.d.hp) - 1, ACT9.hp0 >= 2 ? ACT9.hp0 - 1 : s.stand9 ? Infinity : 0 /* 防禦保命: a defending act at HP ≥ 2 leaves ≥ 1 HP; at 1 HP it holds once per fight (stand9), so it cannot stall */) : x); // cp9-rc7 item 4（自訂，暫定）: a defending turn takes < defCap × max HP
+const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
@@ -65,7 +66,7 @@ export const BOSS_CHARGE_MULT = 2;
 export const BOSS_PHASE_HP = 0.3;
 export const BOSS_ENRAGED_EVERY = 3;
 /** rc11: revive clears stun/bleed (CP3-fix 8 code; not in any design doc — wording only, behaviour unchanged pending producer). */
-export const BOSS_PHASE_TEXT = '復活！第二階段・狂暴（復活清除異常狀態）';
+export const BOSS_PHASE_TEXT = '復活！第二階段・狂暴（復活清除異常狀態與蓄力，2 回合後重新蓄力）'; // cp9-rc7 item 3（自訂）
 function phaseShift(s: BattleState, ev: BEvent[]): void {
   s.monsters.forEach((m, i) => {
     if (m.hp > 0 || !m.phases) return;
@@ -74,7 +75,7 @@ function phaseShift(s: BattleState, ev: BEvent[]): void {
     m.hp = Math.round(m.maxHp * BOSS_PHASE_HP);
     m.status = { stun: 0, bleed: 0, bleedTurns: 0 };
     // cp9-rc6 item 1（自訂，暫定，非原版）: the revive (new phase) also clears any wind-up — the boss must charge again, so ⚠ shows first.
-    if (RULES.cp8) { const c = m as CM; c.charge = 0; c.heavyNext = false; c.pulseNext = false; c.drainNext = false; }
+    if (RULES.cp8) { const c = m as CM; c.charge = 0; c.heavyNext = false; c.pulseNext = false; c.drainNext = false; if (CP9.on) c.windCd = CP9.windCd; } // cp9-rc7 item 3（自訂）: no new wind-up for windCd boss turns after the revive
     for (let k = ev.length - 1; k >= 0; k--) { const e = ev[k]!; if (e.t === 'death' && e.to === i) ev.splice(k, 1); }
     ev.push({ t: 'status', to: i, text: BOSS_PHASE_TEXT, phase: true });
   });
@@ -167,6 +168,7 @@ export interface BattleState {
   /** CP3: systems not yet unlocked (early-unlock layer). */
   locked?: { skill: boolean; spell: boolean; spirit: boolean };
   defendTurns: number;
+  /** cp9-rc7 item 4（自訂）: the once-per-fight 1-HP 防禦保命 was used. */ stand9?: boolean;
   focusTurn: boolean;
   cooldowns: Record<SkillId, number>;
   itemCd: Record<PotionId, number>;
@@ -255,7 +257,8 @@ export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTu
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
-  return Math.min(raw, tc, bb);
+  const dc = boss9(s) && def && CP9.defCap > 0 ? Math.min(Math.ceil(CP9.defCap * s.d.hp) - 1, s.hp >= 2 ? s.hp - 1 : s.stand9 ? Infinity : 0) : Infinity; // cp9-rc7 item 4（自訂）: < defCap, and 防禦保命 (HP ≥ 2 → leaves ≥ 1 HP; at 1 HP once per fight)
+  return Math.min(raw, tc, bb, dc);
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
 /** rc16（製作人要求，自訂）: physical hits log resistance only when it is at least this %. */
@@ -326,6 +329,8 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   const lethal = isLethal(est, hp); // cp9-rc5 QA bug 1（自訂）: the same rounded numbers the text shows
+  // cp9-rc7 item 4（自訂，暫定）: nothing can hit next round (every monster stunned) and no potion to drink → attack; rc6 hinted D through a 5-turn stun at 1 HP
+  if (RULES.cp8 && CP9.on && est === 0 && !canUse(s, { kind: 'item', id: 'health' })) return { danger: false, est, hp, keys: ['A'], text: `A·攻擊（敵人無法行動：下回合估計 0，趁現在輸出）` };
   const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
   const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
@@ -642,7 +647,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
 export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<Prof, number>> = {}): BEvent[] {
   const ev: BEvent[] = [];
   if (!canUse(s, a)) return [{ t: 'msg', text: '無法使用' }];
-  ACT9.taken = 0; ACT9.tele = false; // cp9 (b)（自訂）
+  ACT9.taken = 0; ACT9.tele = false; ACT9.hp0 = s.hp; // cp9 (b)（自訂）; hp0: cp9-rc7 item 4
   let free = false;
   let noRegen = false;
   s.focusTurn = false;
@@ -889,6 +894,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
 function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<string, unknown>[]): void {
   if (s.over) return;
   const defending = s.defendTurns > 0;
+  if (RULES.cp8 && CP9.on && CP9.defCap > 0 && defending && s.hp === 1) s.stand9 = true; // cp9-rc7 item 4（自訂）: the 1-HP 防禦保命 is spent
   let ripostes = 0, counters = 0;
   const defBonus = RULES.cp8 && defending && (s.mods?.combo.bulwark || (s.d.style === 'oneHand' && s.d.block > 0)) ? CP8.bulwarkDefCounter : 0; // bulwark = 1H + shield layout (or the bulwark combo) // cp8-rc8 P2-1 自訂，非原版
   // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
@@ -898,6 +904,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     if (m.hp <= 0 || s.hp <= 0) return;
     if (s.cp5) { if (m.thornTurns) m.thornTurns--; if (m.ironTurns) m.ironTurns--; }
     if ((m.status.paTurns ?? 0) > 0 && --m.status.paTurns! <= 0) m.status.pa = 0;
+    const lock9 = (m.windCd ?? 0) > 0; if (lock9) m.windCd!--; // cp9-rc7 items 2/3（自訂）: wind-up lockout (counts every boss turn, stunned or not)
     if (m.status.stun > 0) {
       m.status.stun--;
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
@@ -914,12 +921,12 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     if (m.rank === 'boss' && m.pulseNext && m.charge === 0) { m.pulseNext = false; mult = CP5.pulseMult; el = m.shieldEl; label = '元素脈衝！'; }
     else if (m.rank === 'boss') {
       if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; mult = CP5.drainMult; label = '吸血重擊！'; } }
-      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0) {
+      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0 && !lock9) {
         m.charge = 1;
         if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; CP5_STAT.drainTele++; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
         else ev.push({ t: 'charge', from: i });
         return;
-      } else if (m.sig && m.sig !== 'drain' && sigTurn(s, m, i, ev)) return;
+      } else if (m.sig && m.sig !== 'drain' && !(lock9 && m.sig === 'shield') && sigTurn(s, m, i, ev)) return; // cp9-rc7（自訂）: 脈衝 wind-up also locked
     } else if (s.cp5 && m.affixes?.includes('berserk')) {
       if (!m.enraged && m.hp < m.maxHp * 0.5) { m.enraged = true; m.ownTurns = 0; ev.push({ t: 'status', to: i, text: '狂戰：狂暴！' }); }
       if (m.enraged) {
@@ -932,8 +939,9 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
     if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
-      else if (worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+      else if (!(lock9 && m.rank === 'boss') && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
+    if (RULES.cp8 && CP9.on && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) m.windCd = CP9.windCd; // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
     const zero = s.focusTurn;
     const r = resolveHit(rng, {
       raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
@@ -956,6 +964,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     }
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
   });
+  if (s.stand9 && !defending && ACT9.taken === 0) s.stand9 = false; // cp9-rc7 item 4（自訂）: a non-defending act that took no damage (stun / evade / kill) re-arms the 1-HP 防禦保命
   if (s.defendTurns > 0) s.defendTurns--;
 }
 

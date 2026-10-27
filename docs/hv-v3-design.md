@@ -140,3 +140,9 @@
 - **首領復活清除蓄力**：進入新階段時清掉 charge、heavyNext、pulseNext、drainNext，首領須重新蓄力，⚠ 預告照常出現。
 - **生命藥水冷卻 2 → 1**：cp8 規則下 `RC22.potCd` 預設 1（`SIM_POTCD` 可覆寫）。
 - **冷卻中不提示 Z**：決策（chargeAdvice，UI 與 sim 共用）只在藥水可用時給 Z；致命且 Z 不可用時改提示打斷技、S·靈動架勢或 D·防禦（減傷），不再提示 A。
+
+## cp9-rc7（自訂，暫定，WIP — 未打 tag）
+- 自訂 item 1: boss30 2 → 1.5；根因：sim bossT 為全 boss 中位數，掩蓋 F30；藥水庫存越多（QA 買 +10）F30 拖越久（中位 10 → 14，p90 32）；F30+ 提示 D 41–45%、A 僅 21–25%。
+- 自訂 item 2/3: CP9.windCd=2（SIM_WINDCD）：重擊/蓄力後與復活後 2 回合內不得再蓄力；復活文字「2 回合後重新蓄力」。
+- 自訂 item 4: CP9.defCap=0.35（SIM_DEFCAP）：防禦回合承傷 < 35% maxHP；防禦保命（HP≥2 留 1；HP 1 每場一次，stand9）；敵全暈時提示 A。
+- 暫定：cb max 仍 2–3（標準 sim oc/bulwark），未達 ≤1 gate。

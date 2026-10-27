@@ -922,7 +922,7 @@ export class App {
         if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }
-      if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，蓄力變快）</span>`);
+      if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，2 回合後重新蓄力）</span>`);
       // CP3-bugfix 6: skill / stance feedback in the log.
       if (e.t === 'status' && !e.phase && typeof e.to === 'number') this.log.push(`<span class="statusfx" data-status>${esc(b.monsters[e.to]!.name)} ${esc(e.text)}</span>`);
       if (e.t === 'hit' && e.from === 'player' && e.label && !e.weak) this.log.push(`<span class="skillhit" data-skillhit>${esc(e.label)} → ${esc(b.monsters[e.to as number]!.name)} ${e.dmg > 0 ? e.dmg : '未命中'}${e.spirit && e.dmg > 0 ? '（架勢 ×2）' : ''}</span>`);

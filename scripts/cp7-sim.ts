@@ -127,3 +127,4 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
 console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, ...(RULES.cp8 ? { rd1, rdAll, rd1raw, rdSt, rdCl } : {}), knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10, cp8: RULES.cp8, naive: !!E.SIM_AI && E.SIM_AI === 'naive', second, p3d21, p5, potDeath, diag: SIM_DIAG }));
+if (process.env.SIM_CBLOG) (await import("node:fs")).writeFileSync(process.env.SIM_CBLOG_OUT ?? "/tmp/cblog.json", JSON.stringify({ cbLog: SIM_DIAG.cbLog, cbWhy: SIM_DIAG.cbWhy, cbRun: SIM_DIAG.cbRun })); // cp9-rc7 diag（自訂）
