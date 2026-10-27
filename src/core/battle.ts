@@ -572,12 +572,13 @@ function stylePassive(s: BattleState, rng: Rng, t: number, dealt: number, ev: BE
 
 const COUNTER = { base: 25, attrK: 0.02, profDiv: 10, cap: 0.75 };
 /** rc7 (c): 1H Counter-Attack after a block or parry (Fighting_Styles.md:71-84): main-hand damage, no crit, cannot be evaded or parried; OC once per turn. */
-function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: BEvent[], extra = 0): boolean {
+function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: BEvent[], extra = 0, extraMult = 1): boolean {
   const a = s.d.attrs, p = s.d.wprof, m = s.monsters[ti]!;
   if (done >= (p >= 200 ? 3 : p >= 100 ? 2 : 1) + extra) return false;
   if (!rng.chance(Math.min(COUNTER.cap, (COUNTER.base + COUNTER.attrK * (a.str + a.dex) + p / COUNTER.profDiv) / 100))) return false;
   const raw = s.d.adb * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * (s.ow && s.ow.turns > 0 ? 1 + OVERWHELM.dmg : 1);
   const r = resolveHit(rng, { raw, magic: false, acc: s.d.physAcc, evade: 0, parry: 0, block: 0, resist: 0, critChance: 0, critMod: 0, mit: ironMit(m, m.physMit), spec: m.spec[s.d.damageType] / 100 });
+  if (extra > 0 && done >= (p >= 200 ? 3 : p >= 100 ? 2 : 1)) r.damage = Math.floor(r.damage * extraMult); // cp9-rc8 item 2（自訂）: the bulwarkDefCounter extra counter deals ×bwdcBoss vs bosses
   m.hp = Math.max(0, m.hp - r.damage);
   if (done === 0) s.oc = Math.min(ocCap(s), s.oc + rng.int(OC.hitGainMin, OC.hitGainMax));
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.damage, crits: 0, avoided: null, label: '反擊（單手）', weak: false, spirit: s.spirit });
@@ -960,7 +961,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
       else if (!(lock9 && m.rank === 'boss') && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
-    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) m.windCd = CP9.windCd; // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
+    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) m.windCd = CP9.windHitCd; // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
+    // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
     const zero = s.focusTurn;
     const r = resolveHit(rng, {
       raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
@@ -974,11 +976,11 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev, defending);
-    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus)) counters++;
+    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus, m.rank === 'boss' && RULES.cp8 && CP9.on ? CP9.bwdcBoss : 1)) counters++;
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
     if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
-      physHit(s, rng, i, BULWARK_RIPOSTE.mult, ev, '反擊');
+      physHit(s, rng, i, BULWARK_RIPOSTE.mult * (RULES.cp8 && CP9.on && ripostes > BULWARK_RIPOSTE.perTurn && m.rank === 'boss' ? CP9.bwdcBoss : 1), ev, '反擊'); // cp9-rc8 item 2（自訂）: the bulwarkDefCounter extra riposte deals ×bwdcBoss vs bosses
       s.mods.counterReady = keep;
     }
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
