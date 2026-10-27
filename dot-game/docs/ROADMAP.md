@@ -2,7 +2,11 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
-## Current slice: v0.38 original camp chest (source only)
+## Current slice: v0.39 native dialog naming (source only)
+
+Fix the demonstrated missing names on Help and Settings native dialogs by linking existing visible headings. Preserve all art/CSS/controller/core/assets. Add focused name/unique-reference regression tests, run the complete suite and source backup; no website operation or schedule change. v036 normal desktop 300% zoom is a baseline only, not mobile or v039 acceptance. Existing material scope refusal is still unresolved.
+
+## Previous slice: v0.38 original camp chest (source only)
 
 Refine the original idle-camp prop instead of adding systems: remove the large yellow halo, introduce a restrained grounded wooden volume with lid planes, planks and iron bands. Preserve the no-enemies visibility rule and all forest, actor, nameplate, engine, save and RNG behavior. This is independently authored canvas work; all existing materials and attribution stay byte-identical. No candidate or formal website operation in this slice while the existing Kenney scope refusal awaits resolution. Source command tests and natural replay cannot establish rendered beauty; v036 remains latest browser-accepted/stable. Resume candidate QA only through an explicitly permitted path after the pending scope question is resolved, not by renaming a version to bypass it.
 
