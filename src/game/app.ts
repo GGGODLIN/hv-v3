@@ -592,6 +592,7 @@ export class App {
   }
 
   queued: string | null = null;
+  queued2: string | null = null;
   /** cp8-rc9 P1-11: why the last key did nothing (shown above the command bar until the next accepted action). */
   refused = '';
   /** cp8-rc9 P2: skills whose cooldown ended on the last action (blade / oc prompt). */
@@ -622,7 +623,8 @@ export class App {
     e.preventDefault();
     // Keys pressed during an animation are queued (latest wins) instead of being dropped.
     // cp8-rc9 P1-11: a queued D / Z / X / C is not overwritten by a later A or skill key (rc8 playtest: Z then A-spam = Z never happened).
-    if (this.busy) { if (!(RULES.cp8 && this.queued && /^(defend|item:)/.test(this.queued) && !/^(defend|item:)/.test(map[k]!))) this.queued = map[k]!; return; }
+    // rc16 item 7: a non-defensive key pressed behind a queued D / Z used to be dropped (Z then A = A swallowed); it now waits in queued2.
+    if (this.busy) { if (RULES.cp8 && this.queued && /^(defend|item:)/.test(this.queued) && !/^(defend|item:)/.test(map[k]!)) this.queued2 = map[k]!; else this.queued = map[k]!; return; }
     this.command(map[k]!);
   }
 
@@ -798,7 +800,7 @@ export class App {
     const oc0 = openingOc(this.p, t, r);
     armBattle(this.battle, r);
     this.battle.oc += oc0;
-    this.lastAdvice = null;
+    this.lastAdvice = null; this.queued = this.queued2 = null;
     this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`, ...this.monsters.map((m) => { const w = weaknesses(m), r = resistances(m); return w.length || r.length ? `<span class="enemyelem" data-enemyelem>${esc(m.name)}：${w.map((x) => `弱${ENC_TZ[x.type] ?? x.type} ${Math.abs(x.pct)}%`).join(' ')}${w.length && r.length ? '；' : ''}${r.map((x) => `抗${ENC_TZ[x.type] ?? x.type} ${x.pct}%`).join(' ')}</span>` : ''; }).filter(Boolean)];
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
     if (r.cp5) { this.cp5TipBox = []; const ev0 = armCp5(this.battle, r.pdot); this.cp5Tips(this.battle); this.cp5Log(ev0); }
@@ -811,7 +813,10 @@ export class App {
   async command(cmd: string): Promise<void> {
     const b = this.battle;
     if (!b || this.busy || b.over) return;
-    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:)/.test(cmd)) return; // cp8-rc9 item 1
+    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:)/.test(cmd)) { // cp8-rc9 item 1
+      // rc16 item 7: the hold used to drop the key silently (looked swallowed after a potion / boss phase change). Say so.
+      this.refused = `⚠ 敵人剛開始蓄力：先看決策，${Math.ceil((this.chargeHoldUntil - performance.now()) / 100) / 10} 秒後再按（D／Z 立即可用）`; this.render(); return;
+    }
     const [kind, id] = cmd.split(':') as [string, string | undefined];
     if (b.monsters[this.target]?.hp === 0) this.target = b.monsters.findIndex((m) => m.hp > 0);
     const a: Action =
@@ -877,12 +882,12 @@ export class App {
     await capped(this.stage.play(ev, b), 2000 + ev.length * 300); // cp8-rc10 P1-9
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
-    let q = this.queued; this.queued = null;
+    let q = this.queued; this.queued = this.queued2; this.queued2 = null; // rc16 item 7
     // cp8-rc9 item 1 (UI only, 暫定): a new 蓄力 / 大招 wind-up drops the queued key and holds non-defensive input for
     // CP8.chargeHoldMs, so tapping / holding A at 4x + 跳過動畫 cannot skip the decide panel. D / Z / X / C stay instant.
     if (RULES.cp8 && !b.over && b.monsters.some(windingUp)) {
       const fresh = !this.windWas; this.windWas = true;
-      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !/^(defend|item:)/.test(q)) q = null; }
+      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !/^(defend|item:)/.test(q)) q = null; if (this.queued && !/^(defend|item:)/.test(this.queued)) this.queued = null; }
     } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }

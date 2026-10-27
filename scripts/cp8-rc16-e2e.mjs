@@ -44,5 +44,28 @@ for (const [name, school, hp, max] of [['arcaneFull', 'arcane', 724, 724], ['bul
   }
   await pg.close();
 }
+// item 7: Z then A pressed during one animation -> both run (A used to be swallowed)
+{
+  const pg = await battle('blade');
+  await pg.evaluate(() => { const s = window.hv.battle; const m = s.monsters.find((x) => x.hp > 0); s.monsters = [{ ...m, hp: 1e6, maxHp: 1e6, charge: 0 }]; s.hp = 100; s.potions.health = 3; s.itemCd.health = 0; window.hv.target = 0; window.hv.render(); });
+  const t0 = await pg.evaluate(() => window.hv.battle.turn);
+  await pg.keyboard.press('KeyF'); await w(20); await pg.keyboard.press('KeyZ'); await w(20); await pg.keyboard.press('KeyA');
+  await pg.waitForFunction(() => !window.hv.busy && !window.hv.queued && !window.hv.queued2, { timeout: 15000 }).catch(() => {}); await w(300);
+  const r = await pg.evaluate(() => ({ turn: window.hv.battle?.turn, pots: window.hv.battle?.potions.health }));
+  R.queue = { t0, ...r }; if (r.turn - t0 < 3 || r.pots !== 2) fail.push(`queue: ${JSON.stringify(R.queue)}`);
+  await pg.close();
+}
+{ // item 3: map potion + low-HP warning (map before the first fight)
+  const pg = await b.newPage(); pg.on('pageerror', (e) => errs.push(String(e)));
+  await pg.goto(BASE + '?cp6&cp8&debug&fresh&preset=postF20-blade', { waitUntil: 'networkidle0' }); await w(300);
+  await pg.click('[data-abyss]'); await w(300);
+  for (let i = 0; i < 3 && (await pg.$('[data-modal-ok]')); i++) { await pg.click('[data-modal-ok]'); await w(300); }
+  await pg.evaluate(() => { window.hv.run.hp = 10; window.hv.render(); });
+  const warn = !!(await pg.$('[data-lowhp]')); const p0 = await pg.evaluate(() => window.hv.p.potions.health);
+  await pg.keyboard.press('KeyZ'); await w(200);
+  const after = await pg.evaluate(() => ({ hp: window.hv.run.hp, pots: window.hv.p.potions.health }));
+  R.map = { warn, p0, ...after }; if (!warn || after.hp <= 10 || after.pots !== p0 - 1) fail.push(`map potion: ${JSON.stringify(R.map)}`);
+  await pg.close();
+}
 R.fail = fail; R.errs = errs; console.log(JSON.stringify(R));
 const ok = !fail.length && !errs.length; console.log(ok ? 'CP8 RC16 E2E PASS' : 'CP8 RC16 E2E FAIL'); await b.close(); process.exit(ok ? 0 : 1);
