@@ -296,9 +296,28 @@ export function drainStunKey(s: BattleState, target = 0): string | null {
   const kit = skillKit(s), id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target }));
   return id ? `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}` : null;
 }
+/** cp9-rc5 QA3（自訂，暫定）: true only when a stun on `target` surely cancels every point of next round's damage.
+ *  Not guaranteed when: another monster can still act; a burn/bleed ticks on the player; the target reflects (反傷) the stun hit;
+ *  or the stun hit may drop a boss with a phase left — the revive (BOSS_PHASE_TEXT) clears the stun but keeps the charge
+ *  (QA oc4 F25 285 vs HP 265, oc5 F15 185 vs 168). */
+export function stunGuaranteed(s: BattleState, target: number, id: SkillId): boolean {
+  const m = s.monsters[target] as CM | undefined;
+  if (!m || m.hp <= 0) return false;
+  if (s.monsters.some((o, i) => i !== target && o.hp > 0 && !(o.status.stun > 1))) return false;
+  const d = s.cp5?.pdot; if (d && (d.burnTurns > 0 || d.bleedTurns > 0)) return false;
+  if (id === 'shieldBash' && (m.thornTurns || m.affixes?.includes('spikes'))) return false;
+  const hitMax = (id === 'shieldBash' ? physExp(s, m, SK.shieldBash.multiplier, { dtype: 'crushing' }) : s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit)) * 2.5; // crit / top-roll margin
+  if (m.phases && hitMax >= m.hp) return false;
+  return true;
+}
+/** cp9-rc5 QA3: the stun-skill id behind a drainStunKey label. */
+const stunIdOf = (s: BattleState, k: string): SkillId => (skillKit(s)['QWE'.indexOf(k[0]!)] ?? 'shieldBash') as SkillId;
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const a = chargeAdvice0(s, target), k = drainStunKey(s, target);
   if (!k) return a;
+  // cp9-rc5 QA3（自訂）: lethal + potion usable → Z before the stun unless the stun surely cancels all incoming damage
+  if (isLethal(a.est, a.hp) && canUse(s, { kind: 'item', id: 'health' }) && !stunGuaranteed(s, target, stunIdOf(s, k)))
+    return { ...a, keys: ['Z', k, ...a.keys.filter((x) => x !== k && x !== 'Z')], text: `Z·喝藥（下回合全體暴擊估計 ${a.est} ≥ HP ${a.hp}，${k} 不保證擋下全部傷害）；否則 ${k}` };
   return { ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text: `${k}（打斷${(s.monsters[target] as { drainNext?: boolean } | undefined)?.drainNext ? '吸血重擊' : '蓄力'}）；否則 ${a.text}` };
 }
 function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
