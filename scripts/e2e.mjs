@@ -122,6 +122,7 @@ let bagSnap=[],shotModal=false,guard=0;
 while(guard++<600){
   const st=await pg.evaluate(()=>({s:hv.screen,over:hv.battle?.over,busy:hv.busy,done:hv.data.run?.done,bag:(hv.data.run?.bag||[]).map(e=>e.id)}));
   if(st.bag.length)bagSnap=st.bag;
+  await pg.evaluate(()=>{const b=hv.battle;if(b&&!b.over&&b.hp<b.d.hp)b.hp=b.d.hp;}); // rc20: HP is now clamped to max after loot (the carried ×100 HP from the UI checks is gone); the test shortcut keeps the boosted player at full HP
   if(st.s==='result')break;
   if(st.s==='map'){if(await pg.$('[data-buff]')){await pg.click('[data-buff]');await w(150);continue;}await pg.click('[data-node]');await w(300);continue;}
   if(await pg.$('.modal')){await pg.click('[data-modal-ok]');await w(150);continue;}

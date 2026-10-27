@@ -31,8 +31,8 @@ const idle = (pg) => pg.waitForFunction(() => !window.hv.busy, { timeout: 5000 }
   for (let i = 0; i < 40; i++) { const ok = await pg.evaluate(() => { const h = window.hv, s = h.battle, m = s.monsters[0]; m.adb *= 1.4; s.hp = s.d.hp; h.render(); return !!document.querySelector('[data-chargeest]') || m.adb > 1e7; }); if (ok) break;
     const big = await pg.evaluate(() => { const s = window.hv.battle; return s.monsters[0].adb; }); void big; }
   await pg.evaluate(() => { const s = window.hv.battle; s.hp = s.d.hp; });
-  for (let t = 0; t < 30 && !(await pg.$('[data-decide]')); t++) { await pg.evaluate(() => { const s = window.hv.battle; s.hp = s.d.hp; s.monsters[0].adb *= 1.3; }); await pg.keyboard.press('KeyF'); await idle(pg); await w(800); }
-  R.heavy = await pg.evaluate(() => ({ txt: document.querySelector('[data-decide]')?.textContent ?? '', est: document.querySelector('[data-chargeest]')?.getAttribute('data-chargeest'), payoff: document.querySelector('[data-payoff]')?.textContent }));
+  for (let t = 0; t < 30 && !(await pg.$('div[data-decide]:not([data-lowhp])')); t++) { await pg.evaluate(() => { const s = window.hv.battle; s.hp = s.d.hp; s.monsters[0].adb *= 1.3; }); await pg.keyboard.press('KeyF'); await idle(pg); await w(800); }
+  R.heavy = await pg.evaluate(() => ({ txt: document.querySelector('div[data-decide]:not([data-lowhp])')?.textContent ?? '', est: document.querySelector('[data-chargeest]')?.getAttribute('data-chargeest'), payoff: document.querySelector('[data-payoff]')?.textContent }));
   if (!/蓄力一擊/.test(R.heavy.txt) || !R.heavy.est || !R.heavy.payoff) fail.push('P0-1 heavy panel / estimate / payoff');
   // P1-11: Z queued while busy is not overwritten by A spam; Z with no potions shows a refusal note
   await pg.evaluate(() => { const s = window.hv.battle; s.monsters[0].adb = 1; s.monsters[0].heavyNext = false; s.potions.health = 2; s.itemCd.health = 0; s.hp = Math.round(s.d.hp * 0.5); window.hv.render(); });
