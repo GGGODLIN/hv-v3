@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.45 source-only slice: quality-first inventory ordering
+
+Sort all currently matching items by the existing quality tiers descending, retaining newest-acquired order within each quality. Quality is not a build recommendation or power promise. Preserve exact IDs, selection, transactions, save data and source attribution. No website operations; real browser acceptance remains pending.
+
 ## v0.44 source-only slice: exact-quality inventory view
 
 Use the existing quality tiers as a transient exact-match filter intersected with the existing criteria. Preserve exact item selection, pending/worn visibility and manual-sale protections. No gameplay change or publication. Browser layout acceptance remains pending.

@@ -1339,6 +1339,8 @@ function renderInventory() {
   $('reset-inventory-filters').disabled = labels.length === 0;
   if (sort === 'power') items.sort((a, b) => (b.power || 0) - (a.power || 0));
   if (sort === 'level') items.sort((a, b) => b.level - a.level);
+  // Stable sort retains latest-acquired order within the same quality.
+  if (sort === 'quality') items.sort((a, b) => QUALITY_TIERS.findIndex(tier => tier.name === b.quality) - QUALITY_TIERS.findIndex(tier => tier.name === a.quality));
   if (!items.length) {
     const empty = node('div', 'empty-inventory');
     empty.append(node('span', '', labels.length ? '背包中沒有同時符合這些篩選的裝備；已穿裝備不在背包清單內。' : '背包還很輕。出發帶回第一件寶物吧；已穿裝備另列於旅者面板。'));
