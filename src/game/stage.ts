@@ -3,6 +3,7 @@ import type { BEvent, BattleState } from '../core/battle';
 import type { Monster } from '../core/monsters';
 import { QUALITY_COLOR, type Quality } from '../core/items';
 import { bodyOf } from '../core/bodies';
+import { AFFIXES, type AffixId } from '../core/cp5';
 /** rc15 (2): short element names for the enemy label (display only). */
 const STAGE_ELEM_ZH: Record<string, string> = { fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗', crushing: '打', slashing: '斬', piercing: '刺', void: '虛' };
 
@@ -120,7 +121,7 @@ export class Stage extends Phaser.Scene {
       const ek = (Object.keys(m.spec) as (keyof Monster['spec'])[]);
       const wk = ek.filter((k) => m.spec[k] < 0).map((k) => STAGE_ELEM_ZH[k] ?? k).join(''), rs = ek.filter((k) => m.spec[k] > 0).map((k) => STAGE_ELEM_ZH[k] ?? k).join('');
       const elemTag = [wk && `弱${wk}`, rs && `抗${rs}`].filter(Boolean).join('｜');
-      const label = this.add.text(x, top - (elemTag ? 34 : 26), `${m.rank === 'elite' ? '☠' : ''}${m.name} Lv${m.level}${elemTag ? `\n${elemTag}` : ''}`, { fontFamily: '"Noto Sans TC", sans-serif', fontSize: '13px', fontStyle: 'bold', color: m.rank === 'normal' ? '#ece6f2' : '#e8b04a', stroke: '#100d16', strokeThickness: 4, align: 'center' }).setOrigin(0.5).setDepth(20);
+      const label = this.add.text(x, top - (elemTag ? 34 : 26), `${m.rank === 'elite' ? '☠' : ''}${m.name}${((m as Monster & { affixes?: AffixId[] }).affixes ?? []).map((a) => `【${AFFIXES[a]?.zh ?? a}】`).join('')} Lv${m.level}${elemTag ? `\n${elemTag}` : ''}`, { fontFamily: '"Noto Sans TC", sans-serif', fontSize: '13px', fontStyle: 'bold', color: m.rank === 'normal' ? '#ece6f2' : '#e8b04a', stroke: '#100d16', strokeThickness: 4, align: 'center' }).setOrigin(0.5).setDepth(20);
       const bar = this.add.graphics().setDepth(20);
       const v: MonView = { m, sprite, kind, x, y, scale, bar, label, ring };
       this.mons.push(v);
