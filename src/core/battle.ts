@@ -4,7 +4,9 @@ import { CP8, CP9, RC22 } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
-const def9 = (s: BattleState, x: number): number => (CP9.defCap > 0 && s.defendTurns > 0 ? Math.min(x, Math.ceil(CP9.defCap * s.d.hp) - 1, ACT9.hp0 >= 2 ? ACT9.hp0 - 1 : s.stand9 ? Infinity : 0 /* 防禦保命: a defending act at HP ≥ 2 leaves ≥ 1 HP; at 1 HP it holds once per fight (stand9), so it cannot stall */) : x); // cp9-rc7 item 4（自訂，暫定）: a defending turn takes < defCap × max HP
+const def9 = (s: BattleState, x: number): number => (CP9.defCap > 0 && s.defendTurns > 0 ? Math.min(x, Math.ceil(CP9.defCap * s.d.hp) - 1, save9(s, ACT9.hp0) /* 防禦保命: a defending act at HP ≥ 2 leaves ≥ 1 HP; at 1 HP it holds once per fight (stand9), so it cannot stall */) : x); // cp9-rc7 item 4（自訂，暫定）: a defending turn takes < defCap × max HP
+/** cp9-rc8（自訂，暫定）: 防禦保命 cap for a defending act that starts at hp. save9 off → no cap; saveOnce → at most once per fight regardless of HP (used9). */
+const save9 = (s: BattleState, hp: number): number => !CP9.save9 ? Infinity : CP9.saveOnce ? (s.used9 ? Infinity : hp >= 2 ? hp - 1 : 0) : hp >= 2 ? hp - 1 : s.stand9 ? Infinity : 0;
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
@@ -170,6 +172,7 @@ export interface BattleState {
   locked?: { skill: boolean; spell: boolean; spirit: boolean };
   defendTurns: number;
   /** cp9-rc7 item 4（自訂）: the once-per-fight 1-HP 防禦保命 was used. */ stand9?: boolean;
+  /** cp9-rc8（自訂）: the once-per-fight 防禦保命 (CP9.saveOnce) was used. */ used9?: boolean;
   focusTurn: boolean;
   cooldowns: Record<SkillId, number>;
   itemCd: Record<PotionId, number>;
@@ -258,7 +261,7 @@ export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTu
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
-  const dc = boss9(s) && def && CP9.defCap > 0 ? Math.min(Math.ceil(CP9.defCap * s.d.hp) - 1, s.hp >= 2 ? s.hp - 1 : s.stand9 ? Infinity : 0) : Infinity; // cp9-rc7 item 4（自訂）: < defCap, and 防禦保命 (HP ≥ 2 → leaves ≥ 1 HP; at 1 HP once per fight)
+  const dc = boss9(s) && def && CP9.defCap > 0 ? Math.min(Math.ceil(CP9.defCap * s.d.hp) - 1, save9(s, s.hp)) : Infinity; // cp9-rc7 item 4（自訂）: < defCap, and 防禦保命 (HP ≥ 2 → leaves ≥ 1 HP; at 1 HP once per fight)
   return Math.min(raw, tc, bb, dc);
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
@@ -346,7 +349,7 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   const lethal = isLethal(est, hp); // cp9-rc5 QA bug 1（自訂）: the same rounded numbers the text shows
   // cp9-rc7 item 4（自訂，暫定）: nothing can hit next round (every monster stunned) and no potion to drink → attack; rc6 hinted D through a 5-turn stun at 1 HP
-  if (RULES.cp8 && CP9.on && est === 0 && !canUse(s, { kind: 'item', id: 'health' })) return { danger: false, est, hp, keys: ['A'], text: `A·攻擊（敵人無法行動：下回合估計 0，趁現在輸出）` };
+  if (RULES.cp8 && CP9.on && CP9.stunA && est === 0 && !canUse(s, { kind: 'item', id: 'health' })) return { danger: false, est, hp, keys: ['A'], text: `A·攻擊（敵人無法行動：下回合估計 0，趁現在輸出）` };
   const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
   const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
@@ -980,6 +983,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     }
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;
   });
+  if (CP9.saveOnce && defending && boss9(s) && s.hp === 1 && ACT9.taken < ACT9.hp0) s.used9 = true; // cp9-rc8（自訂）: survived a defended act at 1 HP → save spent for this fight
   if (s.stand9 && !defending && ACT9.taken === 0) s.stand9 = false; // cp9-rc7 item 4（自訂）: a non-defending act that took no damage (stun / evade / kill) re-arms the 1-HP 防禦保命
   if (s.defendTurns > 0) s.defendTurns--;
 }
