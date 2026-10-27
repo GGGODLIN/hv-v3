@@ -16,8 +16,6 @@ import type { BattleState, PotionId } from './battle';
 import { ADVICE_DIAG } from './battle';
 import { combos, formed, schoolCounts, sumMods } from './buffs';
 /** cp9-rc7 producer item 2（自訂，暫定）: an oc-dominant build's F30+ bosses use boss30oc instead of boss30. */
-// note: abyss bosses (F21+) use bossHp9(20) = ×3.0, not boss30; for an oc build at depth ≥ 30 the whole multiplier becomes boss30oc.
-export const oc30 = (run: { buffs?: string[] }, depth: number, m: number): number => { if (depth < 30) return m; const c = schoolCounts(run.buffs ?? []); const top = Math.max(c.blade, c.oc, c.arcane, c.bulwark); return top > 0 && c.oc === top ? Math.min(m, CP9.boss30oc) : m; };
 import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
@@ -312,7 +310,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
         m.phases = RULES.bossPhases;
         // CP3-bugfix 4 (暫定): boss HP grows with player level over the free level so trips 2+ last 10-15 turns.
         const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(ab ? 20 : run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
-        m.maxHp = m.hp = Math.round(m.maxHp * g * (RULES.cp8 && CP9.on ? oc30(run, depthOf(run) || run.floor, bossHp9(ab ? 20 : run.floor)) : 1)); // cp9 rc2 (2)（自訂，暫定，無來源）: per-floor boss HP curve
+        m.maxHp = m.hp = Math.round(m.maxHp * g * (RULES.cp8 && CP9.on ? bossHp9(ab ? 20 : run.floor) : 1)); /* cp9-rc7（自訂）: the oc-only ×1.3 was removed (producer) */ // cp9 rc2 (2)（自訂，暫定，無來源）: per-floor boss HP curve
       }
       if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }

@@ -152,3 +152,9 @@
 - 自訂（QA 4）: windSafeKey — 新蓄力出現時，排隊中的暈眩技（Q）不再被丟棄、也不被 charge hold 擋住（rc6 根因：app.ts fresh wind-up 規則把排隊的 Q 設為 null）。
 - 自訂（QA 5）: lethal 但防禦後撐得住的 D 提示改為「HP 危險…；防禦後估計 X < HP，防禦後撐得住，先不喝藥」。
 - 自訂（QA 6 診斷）: SIM_QSPAM=1 模擬 Q 連打；st9 計數 boss 暈眩 / 打斷 / 落地重擊。未證實「Q 一直打斷」，未加暈眩遞減。
+
+### cp9-rc7 追加（4:20 製作人決策，自訂/暫定）
+- **移除** oc 專屬 Boss ×1.3（`CP9.boss30oc`、`oc30` 已刪）；任何流派皆無專屬 Boss 倍率；深淵 bossHp9(20)=×3.0 不變。
+- oc 強度消融（標準 sim seed0，128×4，自訂診斷 `SIM_ABL=<BMods key|freeskill>`，僅 sim 用，瀏覽器為空）：base 34；ocCarry=0 → 29；skillOcPct 關 → 29.5；bossOc+ocOpen 關 → 29.5；ocGain 關 → 34；STUNALL=0 → 34；ssDamage 關 → 34；freeskill/ocCap 關 → 34（未出現）。
+  沒有單一主因（各項 ≤5 層），且移除 ×1.3 後 oc 34/34 已在其他三派（34–49）10 層內 → **不做削弱**（暫定）。
+- QA oc2 F101：jsonl 只有摘要（drinks 60、無逐回合資料），`/workspace/qa-oc2-save/` 不存在，無法重現。推測：喝藥數為其他局 2 倍（27–34），主要是藥水供給，而非 oc 機制。

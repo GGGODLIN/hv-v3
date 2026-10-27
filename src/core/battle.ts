@@ -7,6 +7,7 @@ const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap ||
 const def9 = (s: BattleState, x: number): number => (CP9.defCap > 0 && s.defendTurns > 0 ? Math.min(x, Math.ceil(CP9.defCap * s.d.hp) - 1, ACT9.hp0 >= 2 ? ACT9.hp0 - 1 : s.stand9 ? Infinity : 0 /* 防禦保命: a defending act at HP ≥ 2 leaves ≥ 1 HP; at 1 HP it holds once per fight (stand9), so it cannot stall */) : x); // cp9-rc7 item 4（自訂，暫定）: a defending turn takes < defCap × max HP
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
+import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
 import { CONSTANTS as C } from './data/constants';
 import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
 import type { Monster } from './monsters';
@@ -604,7 +605,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
     const cap = ocCap(s);
     s.oc = Math.min(cap, s.oc + rng.int(OC.hitGainMin, OC.hitGainMax) + (M?.ocGain ?? 0) + (M?.combo.blade && r.crits > 0 ? 5 : 0));
     if (M?.combo.blade && r.crits > 0) fire(s);
-    if (M?.combo.oc && s.oc >= cap && !M.freeSkill) { M.freeSkill = true; fire(s); }
+    if (M?.combo.oc && !ABL9.includes('freeskill') && s.oc >= cap && !M.freeSkill) { M.freeSkill = true; fire(s); }
   }
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit, ...(r.avoidMult > 0 && m.spec[dtype] >= PHYS_RESIST_LOG ? { resisted: m.spec[dtype], rtype: dtype } : {}) });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;

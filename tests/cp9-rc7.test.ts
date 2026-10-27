@@ -6,7 +6,7 @@ import { starterKit } from '../src/core/auto';
 import { CP9 } from '../src/core/cp8';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
 import { derive, newPlayer } from '../src/core/player';
-import { RULES, oc30 } from '../src/core/run';
+import { RULES } from '../src/core/run';
 import { Rng } from '../src/core/rng';
 
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
@@ -20,7 +20,7 @@ const withCp8 = (f: () => void) => { const o = RULES.cp8; RULES.cp8 = true; try 
 type WM = { windCd?: number; charge: number; heavyNext?: boolean };
 
 describe('cp9-rc7', () => {
-  it('knobs', () => { expect(CP9.windCd).toBe(2); expect(CP9.defCap).toBe(0.35); expect(CP9.dMin).toBe(0.2); expect(CP9.boss30).toBe(1.5); expect(CP9.boss30oc).toBe(1.3); });
+  it('knobs', () => { expect(CP9.windCd).toBe(2); expect(CP9.defCap).toBe(0.35); expect(CP9.dMin).toBe(0.2); expect(CP9.boss30).toBe(1.5); expect((CP9 as Record<string, unknown>).boss30oc).toBeUndefined(); /* no per-school boss multiplier */ });
   it('item 2: after a charged / heavy boss hit, no new charge for ≥ 2 turns', () => withCp8(() => {
     for (let seed = 1; seed <= 30; seed++) {
       const b = mk(0.01); const m = b.monsters[0] as unknown as WM; const rng = new Rng(seed); let lock = 0;
@@ -56,11 +56,6 @@ describe('cp9-rc7', () => {
       const a = chargeAdvice(b, 0); if (a.keys[0] === 'D') expect(a.est).toBeGreaterThanOrEqual(b.d.hp * 0.2);
     }
   }));
-  it('producer 2: oc-dominant build, depth ≥ 30 → boss multiplier 1.3; others unchanged', () => {
-    expect(oc30({ buffs: ['O2', 'O3'] }, 30, 3)).toBe(1.3);
-    expect(oc30({ buffs: ['O2'] }, 29, 3)).toBe(3);
-    expect(oc30({ buffs: [] }, 35, 3)).toBe(3);
-  });
   it('QA item 4: a queued stun skill (Q) survives a fresh wind-up and the charge hold; A does not', () => {
     expect(windSafeKey('skill:shieldBash')).toBe(true); expect(windSafeKey('skill:concussiveStrike')).toBe(true);
     expect(windSafeKey('defend')).toBe(true); expect(windSafeKey('item:health')).toBe(true);

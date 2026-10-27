@@ -102,6 +102,8 @@ export function formed(ids: string[]): Exclude<School, 'none'>[] {
 }
 
 /** Sum the mods of all held buffs. */
+/** cp9-rc7（自訂，sim-only diag）: SIM_ABL=key,key drops those run-buff BMods (oc strength ablation). Empty in the browser. */
+export const ABL9: string[] = (((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_ABL) ?? '').split(',').filter(Boolean);
 export function sumMods(ids: string[]): { d: DMods; b: BMods; r: RMods } {
   const d: Record<string, any> = {}, b: Record<string, any> = {}, r: Record<string, any> = {};
   const add = (into: Record<string, any>, m?: object) => {
@@ -111,6 +113,7 @@ export function sumMods(ids: string[]): { d: DMods; b: BMods; r: RMods } {
     }
   };
   for (const id of ids) { const x = BUFF[id]; if (x) { add(d, x.d); add(b, x.b); add(r, x.r); } }
+  for (const k of ABL9) if (k in b) delete b[k]; // cp9-rc7 ablation diag（自訂，sim only）
   return { d, b, r };
 }
 
