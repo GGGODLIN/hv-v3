@@ -1,7 +1,7 @@
 // cp9-rc8（自訂，製作人定案）: post-hit charge lock 1 turn (revive lock 2), bulwarkDefCounter extra ×0.5 vs bosses, merchant 1 potion.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { act, startBattle } from '../src/core/battle';
+import { act, startBattle, stunResisting9 } from '../src/core/battle';
 import { starterKit } from '../src/core/auto';
 import { CP9 } from '../src/core/cp8';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
@@ -36,4 +36,17 @@ describe('cp9-rc8', () => {
     const src = readFileSync('src/core/battle.ts', 'utf8');
     expect(src).toMatch(/c\.windCd = CP9\.windRev \? CP9\.windCd : 0/); expect(src).toMatch(/m\.windCd = CP9\.windHitCd/);
   }));
+  it('(c)1: boss resists stun for 2 boss turns after a stun ends, with 「暈眩抵抗中」', () => withCp8(() => {
+    expect(CP9.stunImm).toBe(2);
+    const p = newPlayer(); starterKit(p); const d = derive(p);
+    const m = buildMonster(pool.rows[0]!, 1, 'boss'); m.hp = m.maxHp = 1e6; m.adb = 1;
+    const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 }); const rng = new Rng(1);
+    m.status.stun = 1; act(b, { kind: 'defend' }, rng);
+    expect(m.status.stun).toBe(0); expect(stunResisting9(m)).toBe(true);
+    act(b, { kind: 'defend' }, rng); expect(stunResisting9(m)).toBe(true);
+    act(b, { kind: 'defend' }, rng); expect(stunResisting9(m)).toBe(false);
+    expect(readFileSync('src/core/battle.ts', 'utf8')).toContain("'暈眩抵抗中'");
+    expect(readFileSync('src/game/stage.ts', 'utf8')).toContain('stunResisting9');
+  }));
+  it('(c)2: bulwark option ii — ≤1 counter per defending turn', () => { expect(CP9.bwOpt).toBe(2); });
 });

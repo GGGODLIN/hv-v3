@@ -65,6 +65,8 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
   /** cp9-rc8 step1（自訂，ablation）: windCd triggers — after revive / after a telegraphed hit lands. */ windRev: (num('SIM_WINDREV') ?? 1) > 0, windHit: (num('SIM_WINDHIT') ?? 1) > 0,
   /** cp9-rc8 item 1（自訂，製作人定案）: lock after a telegraphed hit lands (revive lock stays windCd = 2). */ windHitCd: num('SIM_WINDCDHIT') ?? 1,
   /** cp9-rc8 item 2（自訂，製作人定案）: bulwarkDefCounter extra counter/riposte damage vs bosses (normal monsters ×1). */ bwdcBoss: num('SIM_BWDCBOSS') ?? 0.5,
+  /** cp9-rc8 (c)1（自訂，製作人定案）: boss stun immunity turns after a stun ends (0 = off). */ stunImm: num('SIM_STUNIMM') ?? 2,
+  /** cp9-rc8 (c)2（自訂）: bulwark option — 1 = defend counter ×0.5 all targets, 2 = ≤1 counter/turn. */ bwOpt: num('SIM_BWOPT') ?? 2, // sim: option ii mr 49 vs option i 100
   dMin: num('SIM_DMIN') ?? 0.2, // cp9-rc7 producer item 2（自訂，暫定）: D hint only when next-round intent ≥ 20% max HP
   hp1A: (num('SIM_HP1A') ?? 1) > 0, // cp9-rc7 producer item 1（自訂，暫定）: no potion + HP 1 → hint A
   

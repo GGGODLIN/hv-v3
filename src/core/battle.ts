@@ -7,6 +7,10 @@ const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap ||
 const def9 = (s: BattleState, x: number): number => (CP9.defCap > 0 && s.defendTurns > 0 ? Math.min(x, Math.ceil(CP9.defCap * s.d.hp) - 1, save9(s, ACT9.hp0) /* 防禦保命: a defending act at HP ≥ 2 leaves ≥ 1 HP; at 1 HP it holds once per fight (stand9), so it cannot stall */) : x); // cp9-rc7 item 4（自訂，暫定）: a defending turn takes < defCap × max HP
 /** cp9-rc8（自訂，暫定）: 防禦保命 cap for a defending act that starts at hp. save9 off → no cap; saveOnce → at most once per fight regardless of HP (used9). */
 const save9 = (s: BattleState, hp: number): number => !CP9.save9 ? Infinity : CP9.saveOnce ? (s.used9 ? Infinity : hp >= 2 ? hp - 1 : 0) : hp >= 2 ? hp - 1 : s.stand9 ? Infinity : 0;
+/** cp9-rc8 (c)1（自訂，製作人定案）: boss stun immunity after a stun. Shared by sim and UI (stage.ts / log text 「暈眩抵抗中」). */
+export const stunImmOn9 = (m: Monster): boolean => RULES.cp8 && CP9.on && CP9.stunImm > 0 && m.rank === 'boss';
+export const stunResisting9 = (m: Monster): boolean => stunImmOn9(m) && ((m as CM).stunImm9 ?? 0) > 0;
+const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!stunResisting9(m)) return false; ev.push({ t: 'status', to, text: '暈眩抵抗中' }); return true; };
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
@@ -656,7 +660,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element), resisted: r.avoidMult > 0 && m.spec[def.element] > 0 ? m.spec[def.element] : undefined });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
-    if (def.element === 'cold' || def.element === 'elec') { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); }
+    if (def.element === 'cold' || def.element === 'elec') { if (!stunResist9(m, ev, ti)) { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); } }
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
   }
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
@@ -691,7 +695,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
       s.cooldowns[a.id] = skillCd(s, a.id) + 1;
       if (a.id === 'shieldBash') {
         physHit(s, rng, t, SK.shieldBash.multiplier, ev, '盾擊', 'crushing');
-        if (m.hp > 0) { m.status.stun = SK.shieldBash.stunTicks + (s.mods?.bashStun ?? 0); ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
+        if (m.hp > 0 && !stunResist9(m, ev, t)) { m.status.stun = SK.shieldBash.stunTicks + (s.mods?.bashStun ?? 0); ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
       } else if (a.id === 'vitalStrike') {
         const stunned = m.status.stun > 0;
         const dmg = physHit(s, rng, t, stunned ? SK.vitalStrike.multiplierVsStunned + (s.mods?.combo.bulwarkBlade ? 0.5 : 0) : SK.vitalStrike.multiplier, ev, stunned ? '要害！' : '要害打擊');
@@ -705,7 +709,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
         stylePassive(s, rng, t, physHit(s, rng, t, SK.greatCleave.multiplier, ev, '巨力劈砍', s.d.damageType, 1), ev);
       } else if (a.id === 'concussiveStrike') {
         magicStrike(s, rng, t, SK.concussiveStrike.multiplier, ev);
-        if (m.hp > 0 && m.status.stun <= 0) { m.status.stun = SK.concussiveStrike.stunTicks; ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
+        if (m.hp > 0 && m.status.stun <= 0 && !stunResist9(m, ev, t)) { m.status.stun = SK.concussiveStrike.stunTicks; ev.push({ t: 'status', to: t, text: `暈眩 ${m.status.stun} 回合（無法行動、無法迴避）` }); }
       } else if (a.id === 'rendingBlow') {
         // Skills.md:73: up to 5 targets, damage bypasses monster physical mitigation, then 3 stacks of Penetrated Armor (applied after the damage).
         for (const ti of areaOrder(s, t, SK.rendingBlow.targets)) {
@@ -719,7 +723,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
           const mm = s.monsters[ti]!;
           const had = (mm.status.pa ?? 0) > 0 && (mm.status.paTurns ?? 0) > 0;
           physHit(s, rng, ti, SK.shatterStrike.multiplier, ev, '粉碎擊');
-          if (mm.hp > 0 && had && mm.status.stun <= 0) { mm.status.stun = SK.shatterStrike.stunTicks; ev.push({ t: 'status', to: ti, text: `暈眩 ${mm.status.stun} 回合（無法行動、無法迴避）` }); }
+          if (mm.hp > 0 && had && mm.status.stun <= 0 && !stunResist9(mm, ev, ti)) { mm.status.stun = SK.shatterStrike.stunTicks; ev.push({ t: 'status', to: ti, text: `暈眩 ${mm.status.stun} 回合（無法行動、無法迴避）` }); }
         }
       } else {
         // Skills.md:61 / 103: x10 damage; on a target with Bleeding Wound below 25% HP it kills instantly (rc13; rc12 wrongly gated the skill on HP < 25%).
@@ -916,6 +920,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   const defending = s.defendTurns > 0;
   if (RULES.cp8 && CP9.on && CP9.defCap > 0 && defending && s.hp === 1) s.stand9 = true; // cp9-rc7 item 4（自訂）: the 1-HP 防禦保命 is spent
   let ripostes = 0, counters = 0;
+  const bw1x9 = RULES.cp8 && CP9.on && CP9.bwOpt === 2 && defending; // cp9-rc8 (c)2 option ii（自訂）: ≤1 counter per defending turn
   const defBonus = RULES.cp8 && defending && (s.mods?.combo.bulwark || (s.d.style === 'oneHand' && s.d.block > 0)) ? CP8.bulwarkDefCounter : 0; // bulwark = 1H + shield layout (or the bulwark combo) // cp8-rc8 P2-1 自訂，非原版
   // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
   const hp0 = s.hp, cap = Math.min(RULES.cp8 && CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, budget9(s, (ACT9.tele = s.monsters.some(windingUp)))); let took9 = 0; // cp9 (b)（自訂）: boss-fight burst ≤ 50% telegraphed / 30% plain
@@ -925,8 +930,10 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     if (s.cp5) { if (m.thornTurns) m.thornTurns--; if (m.ironTurns) m.ironTurns--; }
     if ((m.status.paTurns ?? 0) > 0 && --m.status.paTurns! <= 0) m.status.pa = 0;
     const lock9 = (m.windCd ?? 0) > 0; if (lock9) m.windCd!--; // cp9-rc7 items 2/3（自訂）: wind-up lockout (counts every boss turn, stunned or not)
+    if ((m.stunImm9 ?? 0) > 0 && m.status.stun <= 0) m.stunImm9!--; // cp9-rc8 (c)1（自訂）: stun-immunity countdown (boss turns)
     if (m.status.stun > 0) {
       m.status.stun--;
+      if (m.status.stun <= 0 && stunImmOn9(m)) m.stunImm9 = CP9.stunImm; // cp9-rc8 (c)1（自訂）: a boss whose stun just ended resists stuns for CP9.stunImm turns
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
       if (m.pulseNext) { m.pulseNext = false; ev.push({ t: 'status', to: i, text: '元素脈衝被打斷！' }); }
@@ -976,11 +983,11 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev, defending);
-    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus, m.rank === 'boss' && RULES.cp8 && CP9.on ? CP9.bwdcBoss : 1)) counters++;
+    if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && !(bw1x9 && counters + ripostes >= 1) && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus, (m.rank === 'boss' || CP9.bwOpt === 1) && RULES.cp8 && CP9.on ? CP9.bwdcBoss : 1)) counters++;
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
-    if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {
+    if (s.mods?.combo.bulwark && !(bw1x9 && counters + ripostes >= 1) && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {
       const keep = s.mods.counterReady; s.mods.counterReady = false;
-      physHit(s, rng, i, BULWARK_RIPOSTE.mult * (RULES.cp8 && CP9.on && ripostes > BULWARK_RIPOSTE.perTurn && m.rank === 'boss' ? CP9.bwdcBoss : 1), ev, '反擊'); // cp9-rc8 item 2（自訂）: the bulwarkDefCounter extra riposte deals ×bwdcBoss vs bosses
+      physHit(s, rng, i, BULWARK_RIPOSTE.mult * (RULES.cp8 && CP9.on && ripostes > BULWARK_RIPOSTE.perTurn && (m.rank === 'boss' || CP9.bwOpt === 1) ? CP9.bwdcBoss : 1), ev, '反擊'); // cp9-rc8 item 2（自訂）: the bulwarkDefCounter extra riposte deals ×bwdcBoss vs bosses
       s.mods.counterReady = keep;
     }
     for (const p of s.d.armorProfs) s.used[p] = (s.used[p] ?? 0) + 1;

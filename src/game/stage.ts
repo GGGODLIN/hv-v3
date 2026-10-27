@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import type { BEvent, BattleState } from '../core/battle';
+import { stunResisting9, type BEvent, type BattleState } from '../core/battle';
 import type { Monster } from '../core/monsters';
 import { QUALITY_COLOR, type Quality } from '../core/items';
 import { bodyOf } from '../core/bodies';
@@ -145,6 +145,7 @@ export class Stage extends Phaser.Scene {
     if (f > 0) { v.bar.fillStyle(c, 1).fillRoundedRect(x, y, Math.max(2, w * f), 7, 2); v.bar.fillStyle(0xffffff, 0.28).fillRect(x + 1, y + 1, Math.max(0, w * f - 2), 2); }
     v.bar.fillStyle(0x000000, 0.5); for (let k = 1; k < 4; k++) v.bar.fillRect(x + (w * k) / 4, y, 1, 7);
     if (v.m.status.stun > 0) v.bar.fillStyle(0x7fd8ff, 1).fillRect(x, y + 8, 18, 3);
+    if (stunResisting9(v.m)) v.bar.fillStyle(0x8a8a9a, 1).fillRect(x, y + 8, 18, 3); // cp9-rc8 (c)1（自訂）: 暈眩抵抗中 (gray), same helper as the sim
     if (v.m.status.bleed > 0) v.bar.fillStyle(0xd02020, 1).fillRect(x + 20, y + 8, 18, 3);
   }
 
