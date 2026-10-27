@@ -290,7 +290,8 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
   if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
   // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
-  const pn = `生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}`;
+  // rc21 QA (arcane3 F11/F15): give the real reason Z is out — full HP, none left, or on cooldown (never 「冷卻 0 回合」).
+  const pn = `生命藥水${s.potions.health <= 0 ? '已用完' : s.itemCd.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : s.hp >= s.d.hp ? '用不了：HP 已滿' : '目前不能用'}`;
   if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
   const sp = guardHint(s) === 'spirit';
   return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}${pn}，${why}）` };

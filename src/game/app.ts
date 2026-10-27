@@ -60,6 +60,12 @@ export const SETTINGS_KEY = 'hv-v3-settings';
  *  loot screen's 「繼續前進」 never appears. Animation awaits are capped by a wall-clock timer; the battle state is unaffected. */
 const capped = (p: Promise<unknown>, ms: number): Promise<unknown> => Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
 const ENC_MS = 2500; // 2 s 顯示 + 0.5 s 淡出（自訂，非原版）
+/** rc21 QA bug 3 (bulwark5 F30): each charger gets its own wind-up text. The panel used to print every name followed by the
+ *  first charger's kind only, so a boss 重擊 and a minion's 蓄力一擊 in the same round read as one boss attack. */
+export function chargeKind(m: { charge: number; heavyNext?: boolean }): string {
+  return m.charge > 0 ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！（重擊）` : m.heavyNext ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！';
+}
+
 export class App {
   data: SaveData;
   screen: Screen = 'town';
@@ -339,7 +345,7 @@ export class App {
     const ids0 = skillKit(b);
     const readyHint = ready.length && !skillHint ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 可以用了（冷卻結束／OC 已夠）（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
     const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>`
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => `<span data-charger="${esc(m.name)}">${esc(m.name)} ${chargeKind(m)}</span>`).join('；')}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>`
       : dangerNow && !b.over ? `<div class="decide" data-decide data-lowhp>⚠ HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}<br>${this.decideLine(b, hpPot)}</div>` : ''; // rc20 item 1: low HP / danger on a non-charge turn
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging || dangerNow ? ` · <b class="warn" data-chargestatus>${charging ? `${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！` : 'HP 危險！'}建議 ${((k) => k.map((x) => ({ A: 'A·攻擊', D: 'D·防禦', Z: 'Z·喝藥', S: 'S·靈動架勢' } as Record<string, string>)[x] ?? x).join(' 或 '))(chargeAdvice(b, this.target).keys)}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
