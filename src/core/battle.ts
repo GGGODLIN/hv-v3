@@ -263,7 +263,7 @@ export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !
 /** cp9-rc9 item 1（自訂）: damage the hint used to leave out — the player's burn/bleed tick next round and the worst 反傷 (尖刺 / 守門者)
  *  if the player attacks a reflecting monster (upper bound: CP5.reflectCapHp × max HP). Defending cleanses DoTs and does not attack → 0. */
 export function extra9(s: BattleState, def: boolean): number {
-  if (def) return 0;
+  if (def || NOEXTRA9) return 0;
   const p = s.cp5?.pdot; const dot = p ? (p.burnTurns > 0 ? p.burn : 0) + (p.bleedTurns > 0 ? p.bleed : 0) : 0;
   const refl = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && (!!m.thornTurns || !!m.affixes?.includes('spikes')); }) ? Math.round(s.d.hp * CP5.reflectCapHp) : 0;
   return dot + refl;
@@ -919,6 +919,8 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 /** cp9-rc8 備案實驗（自訂，僅 sim，預設關）: SIM_ARCINT=1 → a boss whose wind-up was interrupted by an arcane cold/elec stun skips the post-hit lock on its next telegraphed hit. */
 /** cp9-rc9 item 2（自訂）: minions (non-boss) get the same post-hit wind-up lock (CP9.windHitCd) after their own telegraphed hit. */
 const MIN9 = true;
+/** cp9-rc9 item 4 diag（自訂，僅 sim）: SIM_NOEXTRA9=1 → estimate without item 1's DoT/reflect (before/after comparison). */
+const NOEXTRA9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_NOEXTRA9;
 const ARCINT9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_ARCINT;
 export const WIND9 = { hits: 0, viol: 0, minHits: 0, minViol: 0, minion: 0, ex: [] as string[] };
 function wind9diag(s: BattleState, ev: BEvent[], e0: number): void {

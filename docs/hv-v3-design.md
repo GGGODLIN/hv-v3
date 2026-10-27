@@ -188,3 +188,8 @@
 - **rc9 備案實驗（自訂，僅 sim，預設關）**：`SIM_ARCINT=1` 時，若 boss 的蓄力被秘法 cold/elec 暈眩打斷，它下一次預告重擊命中後不套用 windHit 鎖。
 - **rc9 item 1（自訂）**：`nextRoundEstimate` 新增 `extra9`：下回合玩家燃燒/流血的跳傷，加上場上有反傷怪（尖刺／守門者）時的反傷上限 `CP5.reflectCapHp × 最大 HP`（上界估計）。防禦會解除 DoT、也不攻擊，所以防禦後估計的 extra9 = 0。暴擊估計、防禦後估計、isLethal、urgentLine、chargeAdvice 以及 sim 都走同一個函式。反魔反傷（看法術傷害）未納入。
 - **rc9 item 2（自訂）**：小怪在自己的預告重擊命中後，也套用 `CP9.windHitCd` 的 1 回合蓄力鎖（`MIN9`），bigTele 和狂戰兩條路徑都套用。WIND9 加上 minHits／minViol，回歸測試涵蓋小怪。
+
+### cp9-rc9 診斷（自訂，僅 sim，預設關）
+- 自訂：`SIM_EST9=1` → auto.ts `EST9`/`est9diag`：F21–29 boss 戰，比較「下回合估計（暴擊、含 DoT/反傷）」與實際受傷，輸出 gap 分佈（占 maxHP）、低估來源、Z 回復比例。
+- 自訂：`SIM_NOEXTRA9=1` → `extra9` 回 0（重現 rc9 item 1 之前的估計），只供 before/after 比較。
+- 自訂：auto.ts `POTSRC` 生命藥水來源計數（town/merchant/drop/elite/chest/used）；`scripts/rc9-oc-save.ts` 讀 QA 存檔玩家、從指定深淵起點多 seed 續跑。不改任何預設。
