@@ -59,6 +59,7 @@ export const SETTINGS_KEY = 'hv-v3-settings';
  *  target is destroyed never calls onComplete — the awaited animation then never resolves, `busy` stays true and the
  *  loot screen's 「繼續前進」 never appears. Animation awaits are capped by a wall-clock timer; the battle state is unaffected. */
 const capped = (p: Promise<unknown>, ms: number): Promise<unknown> => Promise.race([p, new Promise((r) => setTimeout(r, ms))]);
+const ENC_MS = 2500; // 2 s 顯示 + 0.5 s 淡出（自訂，非原版）
 export class App {
   data: SaveData;
   screen: Screen = 'town';
@@ -294,6 +295,13 @@ export class App {
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。${r.abyss ? `<span data-bossnext>每 5 層是首領（下一個：深淵 ${Math.ceil(depthOf(r) / 5) * 5} 層）。</span>` : `第 ${towerRules(r.cp5).bossFloors.join('、')} 層是首領。`}</span></div></div>`;
   }
 
+  enc: string[] = []; encAt = 0;
+  /** rc17: encounter box shown for the first ENC_MS of a battle, then fades out (CSS); not rendered afterwards. */
+  encHtml(): string {
+    const t = Date.now() - this.encAt;
+    if (!this.enc.length || t >= ENC_MS) return '';
+    return `<div class="encounter" data-encounter style="animation-delay:${-t}ms">${this.enc.map((l) => `<div>${l}</div>`).join('')}</div>`;
+  }
   battleHtml(): string {
     const b = this.battle!;
     const lean = this.p.lean;
@@ -314,7 +322,7 @@ export class App {
     const chargers = b.monsters.filter((m) => (RULES.cp8 ? windingUp(m) : m.hp > 0 && m.charge > 0)); // cp8-rc7 P1 item 3: 元素脈衝 too
     const charging = chargers.length > 0;
     const TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
-    const weakRow = b.monsters.map((m, i) => m.hp <= 0 ? '' : `<div class="wk ${i === this.target ? 'tgt' : ''}" data-weak="${i}">${i === this.target ? '▶ ' : ''}${esc(m.name)}${this.plateHtml(m)}：<span data-wkl>${weaknesses(m).map((w) => `<b class="${w.type === b.d.damageType ? 'mine' : ''}" data-wk="${w.type}:${w.pct}">${TZ[w.type]} ${w.pct}%</b>`).join(' ') || '<span class="hint">無弱點</span>'}</span> <span class="res" data-resl>抗：${resistances(m).map((r) => `<i class="${r.type === b.d.damageType ? 'mine' : ''}" data-res="${r.type}:${r.pct}">${TZ[r.type]} ${r.pct}%</i>`).join(' ') || '<span class="hint">無</span>'}</span></div>`).join('');
+    // rc17 製作人決定：弱點／抗性只留怪物頭上的簡短版，右上列表拿掉。
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     // cp8-rc8 P2 item 2: blade / oc see which skills they can use (or what unlocks them) on turn 1 of every fight.
     const skillHint = RULES.cp8 && b.turn === 0 && (lean === 'blade' || lean === 'oc') ? (() => {
@@ -330,8 +338,8 @@ export class App {
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
         <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ` · <b class="warn" data-chargestatus>${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！建議 ${((k) => k.map((x) => ({ A: 'A·攻擊', D: 'D·防禦', Z: 'Z·喝藥', S: 'S·靈動架勢' } as Record<string, string>)[x] ?? x).join(' 或 '))(chargeAdvice(b, this.target).keys)}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
-        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox">${spellSug ? `<div class="sugtitle" data-sugtitle="${spellSug.id}">建議：<b>${(Object.keys(SPELLS) as SpellId[]).indexOf(spellSug.id) + 1}·${SPELLS[spellSug.id].zh}</b>（${spellSug.pct > 0 ? `弱${TZ[spellSug.type] ?? spellSug.type}` : `${TZ[spellSug.type] ?? spellSug.type}傷害較高`}）</div>` : ''}<span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}${readyHint}${elemHint}
-        ${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
+        ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox">${spellSug ? `<div class="sugtitle" data-sugtitle="${spellSug.id}">建議：<b>${(Object.keys(SPELLS) as SpellId[]).indexOf(spellSug.id) + 1}·${SPELLS[spellSug.id].zh}</b>（${spellSug.pct > 0 ? `弱${TZ[spellSug.type] ?? spellSug.type}` : `${TZ[spellSug.type] ?? spellSug.type}傷害較高`}）</div>` : ''}</div>${decide}${skillHint}${readyHint}${elemHint}
+        ${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="logwrap">${this.encHtml()}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
         <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊${((q) => (q.kind === 'spell' ? `<small data-quick="${q.id}">${SPELLS[q.id].zh}</small>` : ''))(quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none'))}</button><button data-act="defend" class="${charging && !this.guardOnly(b) && (!RULES.cp8 || hpDanger(b)) ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${RULES.cp8 && guardHint(b) === 'spirit' ? 'class="suggest" data-guardhint ' : ''}${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
@@ -801,7 +809,9 @@ export class App {
     armBattle(this.battle, r);
     this.battle.oc += oc0;
     this.lastAdvice = null; this.queued = this.queued2 = null;
-    this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`, ...this.monsters.map((m) => { const w = weaknesses(m), r = resistances(m); return w.length || r.length ? `<span class="enemyelem" data-enemyelem>${esc(m.name)}：${w.map((x) => `弱${ENC_TZ[x.type] ?? x.type} ${Math.abs(x.pct)}%`).join(' ')}${w.length && r.length ? '；' : ''}${r.map((x) => `抗${ENC_TZ[x.type] ?? x.type} ${x.pct}%`).join(' ')}</span>` : ''; }).filter(Boolean)];
+    this.encAt = Date.now(); this.enc = [`遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`, ...this.monsters.map((m) => { const w = weaknesses(m), r = resistances(m); return w.length || r.length ? `<span class="enemyelem" data-enemyelem>${esc(m.name)}：${w.map((x) => `弱${ENC_TZ[x.type] ?? x.type} ${Math.abs(x.pct)}%`).join(' ')}${w.length && r.length ? '；' : ''}${r.map((x) => `抗${ENC_TZ[x.type] ?? x.type} ${x.pct}%`).join(' ')}</span>` : ''; }).filter(Boolean)];
+    this.log = this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`);
+    setTimeout(() => { if (this.screen === 'battle') this.render(); }, ENC_MS + 50);
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
     if (r.cp5) { this.cp5TipBox = []; const ev0 = armCp5(this.battle, r.pdot); this.cp5Tips(this.battle); this.cp5Log(ev0); }
     this.target = 0;

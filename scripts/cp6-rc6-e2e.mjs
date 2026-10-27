@@ -14,10 +14,13 @@ for (const [k, type] of [['abyss15', 'battle'], ['abyss15', 'elite'], ['postF20-
     const hv = window.hv, out = [];
     hv.battle.monsters.forEach((m, i) => {
       if (m.hp <= 0) return;
-      const row = document.querySelector(`[data-weak="${i}"]`);
-      const shown = [...(row?.querySelectorAll('[data-wk],[data-res]') ?? [])].map((e) => e.dataset.wk ? `${e.dataset.wk.split(':')[0]}:-${e.dataset.wk.split(':')[1]}` : e.dataset.res).sort();
-      const want = Object.entries(m.spec).filter(([, v]) => v !== 0).map(([t, v]) => `${t}:${v}`).sort();
-      out.push({ i, name: m.name, row: !!row, resLabel: !!row?.querySelector('[data-resl]'), ok: JSON.stringify(shown) === JSON.stringify(want), shown, want });
+      // rc17: the weak/resist list is gone; the head label's short form must match monsters.json spec signs
+      const Z = { piercing: '刺', crushing: '打', slashing: '斬', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
+      const lab = hv.stage.mons?.[i]?.label?.text ?? '';
+      const wk = (lab.match(/弱([^｜\n]*)/) ?? [])[1] ?? '', rs = (lab.match(/抗([^｜\n]*)/) ?? [])[1] ?? '';
+      const shown = [...[...wk].map((c) => c + '-'), ...[...rs].map((c) => c + '+')].sort();
+      const want = Object.entries(m.spec).filter(([, v]) => v !== 0).map(([t, v]) => Z[t] + (v < 0 ? '-' : '+')).sort();
+      out.push({ i, name: m.name, row: !document.querySelector('[data-weak]'), resLabel: true, ok: JSON.stringify(shown) === JSON.stringify(want), shown, want, lab });
     });
     return out;
   });

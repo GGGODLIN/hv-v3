@@ -170,7 +170,7 @@ if(!R.cp2townModal||!R.cp2townModal.includes('比較弱')||!R.cp2townKept)fails.
 if(!R.cp2lootModal||!R.cp2lootModal.includes('比較弱'))fails.push('CP2 loot weaker modal');
 if(!R.cp2cEnemyHits.length||!R.cp2cEnemyHits.every(t=>/對你造成 \d+ 傷害/.test(t)))fails.push('CP2c enemy hit log');
 if(!R.cp2regen.length||!R.cp2regen.every(t=>/HP \+\d+ · MP \+\d+ · SP \+\d+/.test(t)))fails.push('CP2 regen line');
-if(!R.cp2weakHud.some(t=>t.includes('25%'))||!R.cp2weakLog.length)fails.push('CP2 weakness');
+if(R.cp2weakHud.length||!R.cp2weakLog.length)fails.push('CP2 weakness');
 if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
 // cp8-rc2: the label became 「冷卻 N 回合」 (spaces + 回合); only the countdown is checked; cp8-rc11: 5..1 (P-health-potion-cd 5, 暫定、非原版).
 {const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻')).map(t=>Number(t.match(/\d+/)[0]));if(cd.length!==3||cd[0]!==3||cd[2]!==1)/* rc13: P-health-potion-cd 3 (暫定) */fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}

@@ -235,3 +235,7 @@ button.node:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-
 /* element skills keep their color as a bottom stripe (border-image replaced the colored border) */
 .cmdbar button.el-fire { box-shadow: inset 0 -3px 0 #ff6a2a; } .cmdbar button.el-cold { box-shadow: inset 0 -3px 0 #7fd8ff; } .cmdbar button.el-elec { box-shadow: inset 0 -3px 0 #fff04a; }
 .cmdbar button.el-wind { box-shadow: inset 0 -3px 0 #8affb0; } .cmdbar button.el-holy { box-shadow: inset 0 -3px 0 #fff8c8; } .cmdbar button.el-dark { box-shadow: inset 0 -3px 0 #b060ff; }
+/* rc17: encounter box over the log — 2 s, then 0.5 s fade */
+.logwrap { position: relative; }
+.encounter { position: absolute; left: 0; right: 0; top: 0; z-index: 5; background: linear-gradient(#1c1626f5, #100d16f5); border: 1px solid var(--gold); border-radius: 6px; padding: 6px 9px; font-size: 14px; line-height: 1.45; pointer-events: none; animation: encfade 2.5s linear forwards; }
+@keyframes encfade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }

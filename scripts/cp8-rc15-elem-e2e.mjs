@@ -17,7 +17,7 @@ await pg.click(`button[data-node="${ni}"]`); await w(600);
 for (let k = 0; k < 3 && !(await pg.$('.cmdbar')); k++) { const c = await pg.$('[data-continue],[data-fight],[data-modal-ok]'); if (c) await c.click(); await w(400); }
 // (2) encounter log + stage label, from the real fight's monsters.json rows
 R.enc = await pg.evaluate(() => { const s = window.hv.battle; const any = s.monsters.some((m) => Object.values(m.spec).some((v) => v !== 0));
-  return { any, lines: [...document.querySelectorAll('[data-enemyelem]')].map((x) => x.textContent), labels: (window.hv.stage.mons ?? []).map((v) => v.label.text) }; });
+  return { any, lines: [...document.querySelectorAll('[data-encounter] [data-enemyelem]')].map((x) => x.textContent), labels: (window.hv.stage.mons ?? []).map((v) => v.label.text) }; });
 if (R.enc.any && !R.enc.lines.length) fail.push('(2) encounter weak/resist line missing');
 if (R.enc.any && !R.enc.labels.some((t) => /\n.*[弱抗]/.test(t))) fail.push('(2) stage label weak/resist missing');
 // one tough foe: cold weakness, fire resistance
@@ -29,8 +29,7 @@ R.t1 = await pg.evaluate(() => ({ title: document.querySelector('[data-sugtitle]
   res: [...document.querySelectorAll('[data-res]')].map((x) => x.getAttribute('data-res')), wk: [...document.querySelectorAll('[data-wk]')].map((x) => x.getAttribute('data-wk')) }));
 if (!/^建議：\d·冰封（弱冰）$/.test(R.t1.title)) fail.push('(1) title ' + R.t1.title);
 if (R.t1.lit !== 'spell:freeze') fail.push('(1) highlighted key ' + R.t1.lit);
-if (!R.t1.res.some((x) => /fire/.test(x))) fail.push('(2) weakbox resist fire missing');
-if (!R.t1.wk.some((x) => /cold/.test(x))) fail.push('(2) weakbox weak cold missing');
+if (R.t1.res.length || R.t1.wk.length) fail.push('(2) rc17: weak/resist list should be gone');
 // (3) real click on the resisted element's spell button
 R.t3 = '';
 for (let k = 0; k < 6 && !R.t3; k++) {
