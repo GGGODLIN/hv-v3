@@ -451,6 +451,7 @@ export function applyLoot(p: Player, run: RunState, loot: Loot): void {
     // CP8 P1 (暫定): wear a badged drop at once so it survives death; the replaced piece goes to the (persistent) inventory.
     equip(p, e); run.bag = run.bag.filter((x) => x !== e); (run.worn ??= []).push(e.id);
   }
+  { const d = runDerived(p, run); run.hp = Math.min(run.hp, d.hp); run.mp = Math.min(run.mp, d.mp); run.sp = Math.min(run.sp, d.sp); } // rc20 item 5: auto-wear can lower max HP (QA 786/756)
   run.credits += loot.credits;
   run.exp += loot.exp;
   for (const [k, v] of Object.entries(loot.potions)) p.potions[k as PotionId] += v!;

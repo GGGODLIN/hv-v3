@@ -66,3 +66,13 @@ describe('rc20 item 4: elite battle guarantees 1 health potion (自訂)', () => 
     expect(readFileSync('src/core/run.ts', 'utf8')).toMatch(/eliteHealthPotion[\s\S]*自訂，非原版/);
   }));
 });
+import { applyLoot, runDerived } from '../src/core/run';
+describe('rc20 item 5: HP never above max after equipment changes', () => {
+  it('applyLoot clamps HP/MP/SP to the new max', () => withCp8(() => {
+    const p = newPlayer(); starterKit(p); const run = startRun(p, 3);
+    run.hp = 99999; run.mp = 99999; run.sp = 99999;
+    applyLoot(p, run, { equips: [], credits: 0, potions: {}, exp: 0 });
+    const d = runDerived(p, run); expect(run.hp).toBe(d.hp); expect(run.mp).toBe(d.mp); expect(run.sp).toBe(d.sp);
+  }));
+  it('decision text names skills with their hotkey', () => expect(readFileSync('src/core/battle.ts', 'utf8')).toContain("'QWE'[skillKit(s).indexOf(g)] ?? '?'}·"));
+});
