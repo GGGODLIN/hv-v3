@@ -265,6 +265,10 @@ export function guardHint(s: BattleState): 'spirit' | null {
 /** rc16 items 1–2（自訂，非原版）: the single charge-turn decision used by the battle panel, the status bar, the urgent line and the
  *  death screen. keys: what to press, in order of preference. */
 export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: string[]; text: string };
+/** rc21 sim diagnostics only (set by auto.ts from SIM_ZRULE; the game never changes it). 'rc21' = default.
+ *  'rc20order' = ablation: only the Z-first ordering reverts to rc20 (lethal → D,Z; low → Z,D).
+ *  'lethal' = variant (非預設，自訂): Z forced only when the estimate ≥ HP; HP ≤ 35% but survivable → A first, Z second. */
+export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal' } = { zRule: 'rc21' };
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
@@ -276,6 +280,11 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
   // rc21 item 2（暫定，自訂）: on a survivable ≥ 40% warning, Z only when at least half of its heal would land (rc14 POT_HINT.minUseful, same rule as potHint).
   const zUseful = !big || s.d.hp - s.hp >= Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful;
+  const zr = ADVICE_DIAG.zRule;
+  if (zr !== 'rc21' && canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) {
+    if (zr === 'rc20order') return { danger, est, hp, keys: lethal ? ['D', 'Z'] : ['Z', 'D'], text: 'diag rc20order' };
+    if (!lethal && !big) return { danger, est, hp, keys: ['A', 'Z'], text: 'diag lethal-only Z' };
+  }
   if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
   if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
   // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.

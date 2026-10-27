@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -22,7 +22,10 @@ import type { NodeType } from './tower';
 /** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
 /** sim diag only (never read by the game): battle-entry HP buckets and HP potions left at each death. */
-export const SIM_DIAG = { battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number> };
+export const SIM_DIAG = { battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number>,
+  /** rc21 diag: health potions drunk in battle — by HP% decile at the drink, by floor, and by reason (lethal / low / big). */
+  zHp: {} as Record<number, number>, zFloor: {} as Record<number, number>, zWhy: {} as Record<string, number>, floorBattles: {} as Record<number, number> };
+let DIAG_FLOOR = 0;
 export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
 /** cp8-rc6 Part B (暫定，缺原版出處): per-lean 自動分配 weights under cp8; a lean missing here uses phys (arcane: ALLOC_WEIGHTS.arcane). Sim override: K_ALLOC_<lean>=str,dex,end,agi,int,wis. */
 /** cp8-rc7 P0 bug 1 (暫定，缺原版出處，our own AI knob — not a game value): rc6 only had arcane here, so blade / oc / bulwark all used phys
@@ -169,6 +172,7 @@ function autoEquip0(p: Player, extra: Equip[], style: GearStyle): Equip[] {
  * decision rc6) play physically: no offensive spells. SIM_AI=omni (env) = the pre-rc6 all-knowing AI (raw spec, every school
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+if (ENV?.SIM_ZRULE === 'rc20order' || ENV?.SIM_ZRULE === 'lethal') ADVICE_DIAG.zRule = ENV.SIM_ZRULE; // rc21 diag (sim only)
 export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
   /** CP8 P1: SIM_AI=naive — a real first-time player: only normal attacks (cp8-rc5: UI default target), a health potion below 40% HP; no skills,
    *  spells, Spirit Stance, defend or CP5 telegraph counters. Town prep = 「全部處理」 (prepAll); loot is worn only in town (docs/cp8-real-play.md). */
@@ -178,13 +182,13 @@ export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
   // rc11 「只按 A」 comparison (no skills).
   add: new Set([...(ENV?.SIM_ADD ?? '').split(',').filter(Boolean), ...(ENV?.SIM_NAIVE_AONLY === '1' ? [] : ['skills'])].filter((x) => !(ENV?.SIM_NAIVE_AONLY === '1' && x === 'skills'))) };
 /** CP8 naive battle choice. */
-export function chooseNaive(b: BattleState): Action {
+export function chooseNaive(b: BattleState, noDrink = false): Action {
   const live = alive(b);
   // cp8-rc5 (blade sim d22 vs playtest d11–20): naive = what 「A」 hits with no clicking — the UI default target, the first live
   // monster (app.ts command()). Lowest-HP targeting needs reading every HP bar + Tab; kept as SIM_TGT=low (diagnosis). Preset sim: blade trip-1 22→17.
   const target = ENV?.SIM_TGT !== 'low' ? b.monsters.findIndex((m) => m.hp > 0) : b.monsters.indexOf(live.reduce((a, m) => (m.hp < a.hp ? m : a)));
   // cp8-rc11 item 2 (diagnosis): SIM_NAIVE40=0 = the playtester pattern 「只按 A，pothint 亮才喝」 — no 40% HP drink of its own.
-  if (ENV?.SIM_NAIVE40 !== '0' && b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
+  if (!noDrink && ENV?.SIM_NAIVE40 !== '0' && b.hp < b.d.hp * 0.4 && canUse(b, { kind: 'item', id: 'health' })) return { kind: 'item', id: 'health' };
   const A = SIM_AI.add;
   if (A.has('defend') && b.monsters.some((m) => m.hp > 0 && m.charge > 0)) return { kind: 'defend' };
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
@@ -402,7 +406,7 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
 }
 function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
   // rc20 diagnostic (sim only): SIM_POTPOLICY=ui follows the battle panel's decision (chargeAdvice → Z/D/S) instead of potHint, like a playtester.
-  if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTPOLICY === 'ui') { const a = chargeAdvice(b); if (a.danger) { const k = a.keys[0]; if (k === 'Z') return { kind: 'item', id: 'health' }; if (k === 'D') return { kind: 'defend' }; if (k === 'S' && !b.spirit) return { kind: 'spirit' }; } }
+  if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTPOLICY === 'ui') { const a = chargeAdvice(b); if (a.danger) { const k = a.keys[0]; if (k === 'Z') return { kind: 'item', id: 'health' }; if (k === 'D') return { kind: 'defend' }; if (k === 'S' && !b.spirit) return { kind: 'spirit' }; if (k === 'A' && ADVICE_DIAG.zRule === 'lethal' && a.text === 'diag lethal-only Z') return chooseNaive(b, true); /* rc21 variant: the player follows A (no own 40% drink) */ } }
   else if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP
   if (SIM_AI.naive && RULES.cp8 && SIM_AI.add.has('skills') && ENV?.SIM_GUARDHINT !== '0') { const g = guardHint(b); if (g) return { kind: g }; } // cp8-rc12 item 5: hinted mode follows the D hint (HP danger, potion unusable)
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
@@ -415,7 +419,7 @@ function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Act
 export const FIGHT_LOG: Record<string, number | string | boolean>[] = []; export const FIGHT_CTX = { depth: 0, type: '' };
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
   const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
-  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; act(b, a, rng, profs); if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
+  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; act(b, a, rng, profs); if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
   if (dbg) FIGHT_LOG.push({ ...dbg, depth: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: b.turn, won: b.over === 'win', maxHp: Math.round(b.d.hp), maxMp: Math.round(b.d.mp ?? 0), mpEnd: Math.round(b.mp), hpEnd: Math.round(b.hp) });
   if (!b.over) b.over = 'lose';
 }
@@ -454,7 +458,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (ENV?.SIM_MAPPOT === '1') while (run.hp < runDerived(p, run).hp * MAP_LOW_HP && mapPotion(p, run) > 0);
       const ms = encounter(run, pool, type);
       const d = runDerived(p, run);
-      const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions); const hp0Pct = run.hp / d.hp; // sim diag
+      const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions); const hp0Pct = run.hp / d.hp; DIAG_FLOOR = run.floor; SIM_DIAG.floorBattles[run.floor] = (SIM_DIAG.floorBattles[run.floor] ?? 0) + 1; // sim diag
       SIM_DIAG.battles++; if (hp0Pct < 0.5) SIM_DIAG.low50++; if (hp0Pct < 0.3) SIM_DIAG.low30++;
       b.locked = battleLocks(p);
       const oc0 = openingOc(p, type, run);
