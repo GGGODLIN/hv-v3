@@ -69,7 +69,9 @@ export const SHRINES: Shrine[] = [
 
 /** rc19 item 3（製作人要求，自訂，非原版）: hpLeft = health potions this merchant still sells (MERCHANT_HP_POTIONS each, town price). */
 export interface MerchantStock { equips: { e: Equip; price: number }[]; hpLeft?: number }
-export const MERCHANT_HP_POTIONS = 3;
+/** cp9-rc8 WIP（自訂，暫定，非原版）: 3 → 1. Original HV has no in-tower merchant (findings 004: only the town shop, Health Potion 50C, unlimited = 原版, kept).
+ *  Potion analysis: merchant-first QA-like route bought 73–80 potions per trip at 3/merchant (net +16…+59) → F100 76–100%. */
+export const MERCHANT_HP_POTIONS = 1;
 
 export interface RunState {
   seed: number;

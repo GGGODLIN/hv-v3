@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { MERCHANT_HP_POTIONS, RULES } from '../src/core/run';
 describe('rc19 item 3 merchant health potions (自訂，非原版)', () => {
-  it('3 per merchant at the town price 50C', () => { expect(MERCHANT_HP_POTIONS).toBe(3); expect(RULES.potionPrice.health).toBe(50); });
+  it('1 per merchant (cp9-rc8 WIP 自訂: was 3) at the town price 50C', () => { expect(MERCHANT_HP_POTIONS).toBe(1); expect(RULES.potionPrice.health).toBe(50); });
   it('merchantStock sets hpLeft under cp8; UI and sim respect it', () => {
     expect(readFileSync('src/core/run.ts', 'utf8')).toMatch(/RULES\.cp8 \? \{ hpLeft: MERCHANT_HP_POTIONS \}/);
     const app = readFileSync('src/game/app.ts', 'utf8');

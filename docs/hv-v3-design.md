@@ -158,3 +158,8 @@
 - oc 強度消融（標準 sim seed0，128×4，自訂診斷 `SIM_ABL=<BMods key|freeskill>`，僅 sim 用，瀏覽器為空）：base 34；ocCarry=0 → 29；skillOcPct 關 → 29.5；bossOc+ocOpen 關 → 29.5；ocGain 關 → 34；STUNALL=0 → 34；ssDamage 關 → 34；freeskill/ocCap 關 → 34（未出現）。
   沒有單一主因（各項 ≤5 層），且移除 ×1.3 後 oc 34/34 已在其他三派（34–49）10 層內 → **不做削弱**（暫定）。
 - QA oc2 F101：jsonl 只有摘要（drinks 60、無逐回合資料），`/workspace/qa-oc2-save/` 不存在，無法重現。推測：喝藥數為其他局 2 倍（27–34），主要是藥水供給，而非 oc 機制。
+
+### cp9-rc8 WIP：塔內商人生命藥水 3 → 1（自訂，暫定，非原版）
+- 原版比對（Clean Room）：findings 004 表 1.2A 中，Health Potion 售價 50C、城鎮店無限供應、回復 100% Base HP，這三項是**原版**，保留不改。原版**沒有**塔內商人，`MERCHANT_HP_POTIONS` 本來就是自訂值（rc19）。
+- 依據是藥水供給分析（postF20 preset，256 seeds，出發前城鎮先買 +10 瓶 = 13 瓶，路線採「有商人就先進商人、把庫存買完」）。rc7 每家商人 3 瓶時，一趟能買到 73–80 瓶，淨值 +16～+59，F100 達成率 76–100%。改成 1 瓶後，oc F100 為 25%、blade 20%，藥水淨值轉為負。
+- 標準 sim 和 battle-route preset 這兩條路線幾乎不進商人（商人購買數為 0），所以這次改動不影響其數值。
