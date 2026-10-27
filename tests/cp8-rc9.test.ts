@@ -1,3 +1,4 @@
+import { CP9 } from '../src/core/cp8';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, afterEach } from 'vitest';
 import { act, chargeEstimate, potHint, startBattle, windingUp, worstHit } from '../src/core/battle';
@@ -48,7 +49,7 @@ describe('cp8-rc9 P0-2 potion hint uses HP − next hit estimate', () => {
     expect(potHint(b)).toBe(false);
     const m = b.monsters[0]!; while (chargeEstimate(b, m) < b.d.hp * 0.6) m.adb *= 1.5;
     expect(potHint(b)).toBe(false); // rc14 item 4: at 80% HP a full-heal potion would mostly be wasted
-    b.hp = b.d.hp * 0.5; expect(potHint(b)).toBe(true); // 50% missing: lights on the deadly-hit estimate
+    { const o5 = CP9.bossPlain; CP9.bossPlain = 0.3; b.hp = b.d.hp * 0.5; expect(potHint(b)).toBe(true); CP9.bossPlain = o5; } // cp9-rc5（自訂）: rc9 premise = 30% plain cap (at 20% a plain hit can no longer be deadly here); 50% missing: lights on the deadly-hit estimate
   });
 });
 import { autoAllocate, allocWeights, autoEquip, leanStyle } from '../src/core/auto';

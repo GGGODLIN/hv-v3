@@ -53,6 +53,6 @@ describe('cp9-rc4 (C2): drain wind-up → stun skill first in chargeAdvice', () 
     const b = mk(300); const m = b.monsters[0]! as typeof b.monsters[0] & { sig?: string; drainNext?: boolean }; m.sig = 'drain'; m.drainNext = true; m.charge = 1;
     const k = drainStunKey(b, 0); expect(k).toMatch(/^[QWE]·(盾擊|震盪打擊)$/); expect(chargeAdvice(b, 0).keys[0]).toBe(k);
     expect(skillKit(b).length).toBeGreaterThan(0);
-    b.oc = 0; expect(drainStunKey(b, 0)).toBeNull(); m.drainNext = false; b.oc = 300; expect(drainStunKey(b, 0)).toBeNull();
+    b.oc = 0; expect(drainStunKey(b, 0)).toBeNull(); m.drainNext = false; b.oc = 300; { const o5 = CP9.stunAll; CP9.stunAll = false; expect(drainStunKey(b, 0)).toBeNull(); CP9.stunAll = o5; } // cp9-rc5 (1)（自訂）: rc4 behaviour = stunAll off
   }));
 });

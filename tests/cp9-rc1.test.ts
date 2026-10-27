@@ -15,7 +15,7 @@ const fresh = (adb: number) => { const p = newPlayer(); starterKit(p); const d =
 
 describe('cp9 rc1', () => {
   it('defaults: normalCap 2, boss burst 50% / plain 30%, Z-hold above 40% HP', () => {
-    expect(RC22.normalCap).toBe(2); expect(CP9).toMatchObject({ on: true, bossBurst: 0.5, bossPlain: 0.3, zHp: 0.4 });
+    expect(RC22.normalCap).toBe(2); expect(CP9).toMatchObject({ on: true, bossBurst: 0.5, bossPlain: 0.2 /* cp9-rc5 (2)（自訂） */, zHp: 0.4 });
   });
   it('(b) a boss turn never takes more than 50% max HP, and more than 30% only after a telegraph', () => withCp8(() => {
     for (let seed = 1; seed <= 40; seed++) {
@@ -23,7 +23,7 @@ describe('cp9 rc1', () => {
       for (let t = 0; t < 6 && !b.over; t++) {
         b.hp = b.d.hp; const tele = b.monsters.some((m) => m.charge > 0 || (m as { heavyNext?: boolean }).heavyNext);
         const f = turnDamage(act(b, { kind: 'defend' }, rng)) / b.d.hp;
-        expect(f).toBeLessThanOrEqual(0.5 + 1e-9); if (!tele) expect(f).toBeLessThanOrEqual(0.3 + 1e-9); if (tele) teleSeen = true;
+        expect(f).toBeLessThanOrEqual(0.5 + 1e-9); if (!tele) expect(f).toBeLessThanOrEqual(0.2 + 1e-9); if (tele) teleSeen = true;
       }
       void teleSeen;
     }

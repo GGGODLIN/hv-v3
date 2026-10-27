@@ -59,13 +59,15 @@ export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, 
  *  turn, so a big turn always has a one-turn warning. */
 export const CP9 = { on: num('SIM_CP9') !== 0, 
   /** rc4 (C1)（自訂，暫定，無來源）: lifesteal share of a 吸血重擊 that lands while the player defends (1 = rc3). */ drainDef: num('SIM_DRAINDEF') ?? 0.5,
-  bossBurst: num('SIM_BOSSBURST') ?? 0.5, bossPlain: num('SIM_BOSSPLAIN') ?? 0.3,
+  bossBurst: num('SIM_BOSSBURST') ?? 0.5, bossPlain: num('SIM_BOSSPLAIN') ?? 0.2 /* cp9-rc5 (2)（自訂，暫定）: unannounced per-turn cap 30% → 20% */,
+  /** cp9-rc5 (1)（自訂，暫定，無來源）: share of a telegraphed (charged / 蓄力 / 脈衝 / 吸血) hit still taken while defending (plain hits keep DEF.mitigation). */ chargeDef: num('SIM_CHARGEDEF') ?? 0.5,
+  /** cp9-rc5 (1)（自訂，暫定）: a stun cancels every wind-up (rc4: only drain / heavy / pulse; a boss 重擊 charge survived the stun). */ stunAll: (num('SIM_STUNALL') ?? 1) > 0,
   /** (c): above this HP share the advice keeps the potion unless D cannot save the turn (≤ the producer's 50%). */ zHp: num('SIM_ZHP') ?? 0.4,
   /** (a): weight of the hit a stun skill cancels when its target is winding up (skill-hint value). */ stunW: num('SIM_STUNW') ?? 1,
   /** rc2 (b)（自訂，暫定）: boss max-HP multiplier so the median boss fight lasts 6–18 turns. */ bossHp: num('SIM_BOSSHP') ?? 1,
   /** rc2 (a)（自訂，暫定，無來源）: share of end-of-fight OC kept for the next fight of the trip (0 = off, the CP3 0-start). */ ocCarry: num('SIM_OCCARRY') ?? 1,
   /** rc3 (2)（自訂，暫定）: apply the bossBurst / bossPlain per-turn caps in normal and elite fights too. */ allCap: (num('SIM_ALLCAP') ?? 1) > 0,
-  /** rc2 (2)（自訂，暫定，無來源）: per-floor boss HP multiplier: ×boss5 at floor ≤5, linear to ×boss15 at floor 15, linear to ×boss30 at floor bossEnd (25), flat after. */ boss5: num('SIM_BOSS5') ?? 3, boss15: num('SIM_BOSS15') ?? 4.5, bossEnd: num('SIM_BOSSEND') ?? 25, boss30: num('SIM_BOSS30') ?? 1,
+  /** rc2 (2)（自訂，暫定，無來源）: per-floor boss HP multiplier: ×boss5 at floor ≤5, linear to ×boss15 at floor 15, linear to ×boss30 at floor bossEnd (25), flat after. */ boss5: num('SIM_BOSS5') ?? 3, boss15: num('SIM_BOSS15') ?? 4.5, bossEnd: num('SIM_BOSSEND') ?? 25, boss30: num('SIM_BOSS30') ?? 2 /* cp9-rc5 (3)（自訂，暫定）: 1 → 2 so the preset boss fight is blade ≥3 / others ≥6 turns */,
   /** rc2 (3)（自訂，暫定，無來源）: blade skill OC cost multiplier (producer cap: ≥0.7). */ bladeOc: num('SIM_BLADEOC') ?? 0.7 };
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */
 export const bossHp9 = (f: number): number => CP9.bossHp * (f <= 5 ? CP9.boss5 : f >= CP9.bossEnd ? CP9.boss30 : f <= 15 ? CP9.boss5 + (CP9.boss15 - CP9.boss5) * (f - 5) / 10 : CP9.boss15 + (CP9.boss30 - CP9.boss15) * (f - 15) / (CP9.bossEnd - 15));

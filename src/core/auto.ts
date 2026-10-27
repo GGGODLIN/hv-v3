@@ -26,6 +26,8 @@ export const SIM_DIAG = { zHpNL: {} as Record<number, number> /* cp9 rc2 (c)（�
   /** rc21 diag: health potions drunk in battle — by HP% decile at the drink, by floor, and by reason (lethal / low / big). */
   zHp: {} as Record<number, number>, zFloor: {} as Record<number, number>, zWhy: {} as Record<string, number>, floorBattles: {} as Record<number, number>,
   /** cp9 diag（自訂）: boss fight turns, worst single enemy turn in a boss fight (share of max HP), player action mix in normal fights. */
+  /** cp9-rc5 diag（自訂）: turns showing 「防禦也擋不住」 (cb, per run in cbRun), turns ≥ 20% max HP (big20) and how many were announced (big20a). */
+  cb: 0, cbPrev: false, cbRun: [] as number[], big20: 0, big20a: 0, big20u: [] as number[],
   bossTurns: [] as number[], bossBurst: [] as number[], normBurst: [] as number[], normActs: {} as Record<string, number> };
 let DIAG_FLOOR = 0;
 const FIGHT_BURST = { v: 0 };
@@ -386,6 +388,7 @@ export const BUFF_PLAY = { attackOnly: [] as string[] };
 const aimWeak = (s: string) => s !== 'noweak' && !BUFF_PLAY.attackOnly.includes(s);
 
 export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: Strategy = 'auto', cp5?: Cp5Sim): RunReport {
+  const cb5 = SIM_DIAG.cb; // cp9-rc5 diag（自訂）
   // Town prep. CP8 naive: the 出發前整備 「全部處理」 button (prepAll: alloc → equip (slot by slot, no school layout) → potions).
   // rc14 diagnosis (sim only): SIM_NOPREP=1 = the player pressed 「忽略並出發」 (no alloc / equip / potion top-up).
   if (ENV?.SIM_NOPREP === '1') { /* skip town prep */ }
@@ -402,7 +405,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   if (bs) RULES.cp4RunBuffs = true;
   if (cp5) RULES.cp5Bosses = true;
   if (strategy.endsWith('-nofloor')) coreFloor.on = false; // r3 step 2 control: both core guarantees off for this run
-  try { return autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); } finally { RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; }
+  try { return autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); } finally { RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; SIM_DIAG.cbRun.push(SIM_DIAG.cb - cb5); /* cp9-rc5 diag（自訂） */ }
 }
 /** Play one battle to the end with a strategy (+ CP5 layer). */
 /** One sim decision for a strategy (the same call fight() makes each turn). */
@@ -428,7 +431,7 @@ function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Act
 export const FIGHT_LOG: Record<string, number | string | boolean>[] = []; export const FIGHT_CTX = { depth: 0, type: '' };
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
   const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
-  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; if (w !== 'lethal') SIM_DIAG.zHpNL[q] = (SIM_DIAG.zHpNL[q] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; const ev9 = act(b, a, rng, profs); FIGHT_BURST.v = Math.max(FIGHT_BURST.v, turnDamage(ev9) / b.d.hp); /* cp9 rc3 diag（自訂）: every fight */ if (!b.monsters.some((m) => m.rank === 'boss') && FIGHT_CTX.type === 'battle') { const k9 = a.kind === 'skill' ? 'skill' : a.kind === 'spell' ? 'spell' : a.kind; SIM_DIAG.normActs[k9] = (SIM_DIAG.normActs[k9] ?? 0) + 1; } if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
+  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; if (w !== 'lethal') SIM_DIAG.zHpNL[q] = (SIM_DIAG.zHpNL[q] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; const tele5 = b.monsters.some(windingUp); { const ad5 = chargeAdvice(b, Math.max(0, b.monsters.findIndex((e) => e.hp > 0))); const c5 = ad5.danger && ad5.text.includes('防禦也擋不住'); if (c5 && !SIM_DIAG.cbPrev) SIM_DIAG.cb++; SIM_DIAG.cbPrev = c5; } /* counted once per wind-up episode (consecutive turns showing it) */ /* cp9-rc5 diag（自訂） */ const ev9 = act(b, a, rng, profs); FIGHT_BURST.v = Math.max(FIGHT_BURST.v, turnDamage(ev9) / b.d.hp); { const f5 = turnDamage(ev9) / b.d.hp; if (f5 >= 0.2) { SIM_DIAG.big20++; if (tele5) SIM_DIAG.big20a++; else SIM_DIAG.big20u.push(+f5.toFixed(3)); } } /* cp9 rc3 diag（自訂）: every fight */ if (!b.monsters.some((m) => m.rank === 'boss') && FIGHT_CTX.type === 'battle') { const k9 = a.kind === 'skill' ? 'skill' : a.kind === 'spell' ? 'spell' : a.kind; SIM_DIAG.normActs[k9] = (SIM_DIAG.normActs[k9] ?? 0) + 1; } if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
   if (dbg) FIGHT_LOG.push({ ...dbg, depth: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: b.turn, won: b.over === 'win', maxHp: Math.round(b.d.hp), maxMp: Math.round(b.d.mp ?? 0), mpEnd: Math.round(b.mp), hpEnd: Math.round(b.hp) });
   if (!b.over) b.over = 'lose';
 }

@@ -5,7 +5,7 @@ import { CP9 } from '../src/core/cp8';
 import { deathTip } from '../src/core/battle';
 
 describe('cp9-rc3 caps', () => {
-  it('the 50% / 30% per-turn cap covers normal fights (allCap on by default)', () => { expect(CP9.allCap).toBe(true); expect(CP9.bossBurst).toBe(0.5); expect(CP9.bossPlain).toBe(0.3); });
+  it('the 50% / 30% per-turn cap covers normal fights (allCap on by default)', () => { expect(CP9.allCap).toBe(true); expect(CP9.bossBurst).toBe(0.5); expect(CP9.bossPlain).toBe(0.2) /* cp9-rc5 (2)（自訂） */; });
 });
 describe('cp9-rc3 bug 1: death headline', async () => {
   const { App } = await import('../src/game/app');

@@ -4,7 +4,7 @@ import { CP8, CP9, RC22 } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
-const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, Math.floor((tele ? CP9.bossBurst : CP9.bossPlain) * s.d.hp - ACT9.taken)) : Infinity);
+const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, (tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
@@ -229,7 +229,7 @@ export function chargeEstimate(s: BattleState, m0: Monster, defending = false, c
   const pulse = m.rank === 'boss' && !!m.pulseNext && m.charge === 0; // cp8-rc7 P1 item 3: 元素脈衝 is a telegraphed big move too
   const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : m.charge > 0 ? BOSS_CHARGE_MULT : 1; // rc9 P0-1: heavyNext / plain hit = ×1
   const el = pulse ? m.shieldEl : m.elemAttack;
-  const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1);
+  const mit = 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || !!m.heavyNext) : 1); // cp9-rc5 (1)
   const raw = m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), spec = s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0;
   // rc21 item 2（暫定，自訂，非原版）: the crit case is the worst hit — top roll (F-002-5.1D 120%) × monster crit, the same definition
   // worstHit / bigTele use. rc16–rc20 used the mean roll (100%) × crit, which under-reads a real top-roll crit by up to 1/6 (QA rc20 oc1 F16).
@@ -244,6 +244,8 @@ export function worstHit(s: BattleState, m0: Monster, defending = false): number
   return maxHit(m.adb * (el ? CP5.frostMult : 1), mit, s.d.specMit[(el ?? m.attackType) as keyof typeof s.d.specMit] ?? 0, 1 + MCRIT.critDamageBonus);
 }
 /** cp8-rc7 P1 item 3: a monster whose next attack is a telegraphed big move (charge / drain / 元素脈衝). */
+/** cp9-rc5 (1)（自訂，暫定）: damage factor left after the player's defend for one hit — a telegraphed hit takes CP9.chargeDef, a plain hit 1 − DEF.mitigation. */
+export const defFactor = (charged: boolean): number => (charged && RULES.cp8 && CP9.on ? CP9.chargeDef : 1 - DEF.mitigation);
 export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
 /** rc9 P0-2: summed estimate of every live monster's next hit (wind-ups at their release multiplier; stunned monsters skip). */
 export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1): number {
@@ -288,14 +290,14 @@ export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike'];
 export function drainStunKey(s: BattleState, target = 0): string | null {
   if (!RULES.cp8 || !CP9.on || ADVICE_DIAG.revert.has('drainstun')) return null;
   const m = s.monsters[target] as (Monster & { drainNext?: boolean }) | undefined;
-  if (!m || m.hp <= 0 || !m.drainNext || m.status.stun > 0) return null;
+  if (!m || m.hp <= 0 || !(m.drainNext || (CP9.stunAll && windingUp(m))) || m.status.stun > 0) return null; // cp9-rc5 (1)（自訂）: any wind-up
   const kit = skillKit(s), id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target }));
   return id ? `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}` : null;
 }
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const a = chargeAdvice0(s, target), k = drainStunKey(s, target);
   if (!k) return a;
-  return { ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text: `${k}（打斷吸血重擊）；否則 ${a.text}` };
+  return { ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text: `${k}（打斷${(s.monsters[target] as { drainNext?: boolean } | undefined)?.drainNext ? '吸血重擊' : '蓄力'}）；否則 ${a.text}` };
 }
 function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
@@ -877,6 +879,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
       if (m.pulseNext) { m.pulseNext = false; ev.push({ t: 'status', to: i, text: '元素脈衝被打斷！' }); }
       if (m.heavyNext) { m.heavyNext = false; ev.push({ t: 'status', to: i, text: '蓄力一擊被打斷！' }); }
+      if (RULES.cp8 && CP9.on && CP9.stunAll && m.charge > 0) { m.charge = 0; ev.push({ t: 'status', to: i, text: '蓄力被打斷！' }); } // cp9-rc5 (1)（自訂）
       return;
     }
     let mult = 1;
@@ -911,12 +914,12 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
       evade: zero ? 0 : s.d.evade, parry: zero ? 0 : s.d.parry, block: zero ? 0 : s.d.block, resist: 0,
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
-      mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1), spec: s.d.specMit[el ?? m.attackType],
+      mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1), spec: s.d.specMit[el ?? m.attackType], // cp9-rc5 (1)（自訂）
     });
     const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
     s.hp = Math.max(0, s.hp - dmg); took9 += dmg; ACT9.taken += dmg; // cp9 (b): reflect / burn / bleed later this act share the budget;（自訂）: count hits, not net HP (mid-round heals no longer reopen the cap)
     RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
-    hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
+    hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev, defending);
     if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus)) counters++;
