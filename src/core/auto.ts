@@ -315,7 +315,8 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   const coin = new Rng(run.floor * 7919 + run.kills * 131 + Math.round(run.hp)).chance(HUMAN_COMBAT_SHARE);
   const calm: NodeType[] = ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'];
   const lr = (RULES.cp8 && p.lean && LEAN_ROUTE[p.lean]) || { restBelow: 0.55, eliteAbove: 0 };
-  const pref: NodeType[] = ENV?.SIM_ROUTE === 'battle' /* rc14: QA-like route, fights 戰 before 菁英 — sim acceptance baseline (scripts set it; SIM_ROUTE=elite / unset = elite-first reference) */ ? (frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : frac < lr.eliteAbove ? ['rest', 'chest', 'battle', 'shrine', 'merchant', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
+  const pref: NodeType[] = (ENV?.SIM_ROUTE === 'battle' || ENV?.SIM_ROUTE === 'mr') /* rc14: QA-like route, fights 戰 before 菁英 — sim acceptance baseline (scripts set it; SIM_ROUTE=elite / unset = elite-first reference) */ ? (frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : frac < lr.eliteAbove ? ['rest', 'chest', 'battle', 'shrine', 'merchant', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
+  if (ENV?.SIM_ROUTE === 'mr' && opts.includes('merchant')) return opts.indexOf('merchant'); // cp9-rc8（自訂）: mr = QA-like 'enter every merchant'
   for (const t of pref) { const i = opts.indexOf(t); if (i >= 0) return i; }
   return 0;
 }
@@ -519,7 +520,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     } else if (type === 'merchant') {
       const st = merchantStock(run);
       let left = ENV?.SIM_NOMERCHCAP === '1' ? Infinity : st.hpLeft ?? Infinity; // SIM_NOMERCHCAP: sim diag (rc18 unlimited) // rc19 item 3（自訂，非原版）: per-merchant cap
-      while (left > 0 && p.potions.health < 4 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; }
+      while (left > 0 && (ENV?.SIM_ROUTE === 'mr' || p.potions.health < 4) && /* cp9-rc8（自訂）: mr buys the merchant out */ p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; }
       if (bs) for (const x of merchantBuffs(p, run)) {
         const ok = strategy === 'buff:random' ? prng.chance(0.5) : BUFF[x.id]!.school === buffSchool(strategy as BuffStrategy);
         if (!ok || run.credits + p.credits < x.price) continue;
