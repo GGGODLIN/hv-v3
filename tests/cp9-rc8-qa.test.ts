@@ -1,3 +1,4 @@
+import { BUFF } from '../src/core/buffs';
 // cp9-rc8 QA（自訂）: bug b banner copy; QA c boss never winds up on the boss turn right after its own telegraphed heavy hit.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
@@ -120,5 +121,8 @@ describe('cp9-rc8 QA', () => {
       mn.charge = 0; boss.charge = 1; expect(chargeAdvice(b).text).not.toContain('小怪不受蓄力鎖');
       expect(readFileSync('src/core/battle.ts', 'utf8')).toMatch(/^const MIN9 = false;/m);
     } finally { RULES.cp8 = o; }
+  });
+  it('rc9 step 2: 大秘儀 MDB nerfed 25% → 5% (自訂), desc follows the value', () => {
+    expect(BUFF.A9!.d!.mdbPct).toBe(0.05); expect(BUFF.A9!.d!.spellCritMod).toBe(0.5); expect(BUFF.A9!.desc).toBe('MDB +5%、法術暴擊倍率 +0.5');
   });
 });

@@ -675,7 +675,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   const M = s.mods;
   let raw = s.d.mdb * (1 + s.d.edb[def.element] / 100) * def.mod;
   if (M) {
-    if (M.combo.arcane && M.lastElem === def.element) { raw = s.d.mdb * (1 + (s.d.edb[def.element] + 20) / 100) * def.mod; fire(s); }
+    if (M.combo.arcane && !ABL9.includes('resonance') && M.lastElem === def.element) { raw = s.d.mdb * (1 + (s.d.edb[def.element] + 20) / 100) * def.mod; fire(s); }
     if (M.weakMult && isWeak(m, def.element)) raw *= 1 + M.weakMult;
   }
   const r = resolveHit(rng, {
@@ -686,7 +686,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element), resisted: r.avoidMult > 0 && m.spec[def.element] > 0 ? m.spec[def.element] : undefined });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
-    if (def.element === 'cold' || def.element === 'elec') { if (!stunResist9(m, ev, ti)) { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); (m as CM).arcStun9 = true; ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); } }
+    if (def.element === 'cold' || def.element === 'elec') { if (!ABL9.includes('arcstun') /* rc9 step 2 ablation（自訂，sim only） */ && !stunResist9(m, ev, ti)) { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); (m as CM).arcStun9 = true; ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); } }
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
   }
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });

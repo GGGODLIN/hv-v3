@@ -28,6 +28,9 @@ export interface BMods {
 export interface RMods { dropAccelMult?: number; priceMult?: number; qualityBump?: number }
 export interface BuffDef { id: string; zh: string; rarity: Rarity; school: School; desc: string; core?: boolean; d?: DMods; b?: BMods; r?: RMods; needs?: 'spirit' | 'spell' | 'skill' }
 
+const A9E = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_A9MDB;
+/** cp9-rc9 step 2（自訂，製作人定案）: 大秘儀 MDB bonus 0.25 → 0.05 (arcane mr ablation: largest single arcane contributor); SIM_A9MDB overrides in sims. */
+export const A9MDB = A9E !== undefined && A9E !== '' ? Number(A9E) : 0.05;
 const B = (id: string, zh: string, rarity: Rarity, school: School, desc: string, m: Partial<BuffDef> = {}): BuffDef => ({ id, zh, rarity, school, desc, ...m });
 export const BUFFS: BuffDef[] = [
   // ---- common (21)
@@ -70,7 +73,7 @@ export const BUFFS: BuffDef[] = [
   B('B8', '千刃', 'legend', 'blade', '物理暴擊率 +8%、暴擊倍率 +0.5', { d: { physCrit: 0.08, critMod: 0.5 } }),
   B('O8', '無盡戰意', 'legend', 'oc', '技能 OC 消耗 −40%', { b: { skillOcPct: -0.4 }, needs: 'skill' }),
   B('O9', '王者氣魄', 'legend', 'oc', 'Boss 戰開場 OC 再 +50', { b: { bossOc: 50 }, needs: 'spirit' }),
-  B('A9', '大秘儀', 'legend', 'arcane', 'MDB +25%、法術暴擊倍率 +0.5', { d: { mdbPct: 0.25, spellCritMod: 0.5 }, needs: 'spell' }),
+  B('A9', '大秘儀', 'legend', 'arcane', `MDB +${Math.round(A9MDB * 100)}%、法術暴擊倍率 +0.5`, { d: { mdbPct: A9MDB, spellCritMod: 0.5 }, needs: 'spell' }),
   B('W6', '不滅', 'legend', 'bulwark', '最大 HP +25%、全種類減傷 +5%', { d: { hpPct: 0.25, specMitAll: 0.05 } }),
   B('N4', '迅捷調和', 'legend', 'none', '藥水冷卻 −1 回合', { b: { itemCd: -1 } }),
 ];
@@ -113,7 +116,7 @@ export function sumMods(ids: string[]): { d: DMods; b: BMods; r: RMods } {
     }
   };
   for (const id of ids) { const x = BUFF[id]; if (x) { add(d, x.d); add(b, x.b); add(r, x.r); } }
-  for (const k of ABL9) if (k in b) delete b[k]; // cp9-rc7 ablation diag（自訂，sim only）
+  for (const k of ABL9) { if (k in b) delete b[k]; if (k in d) delete d[k]; } // cp9-rc7 / rc9 step 2 ablation diag（自訂，sim only）
   return { d, b, r };
 }
 
