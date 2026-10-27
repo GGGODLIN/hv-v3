@@ -21,7 +21,8 @@ let pg = await open(); R.ys = [];
 for (let k = 0; k < 10 && (await pg.$('[data-startpick] [data-buff]')); k++) { R.ys.push(await top(pg)); await pg.click('[data-startpick] [data-buff]'); await w(200); }
 R.ys.push(await top(pg));
 // cp8-rc5: the flake was the buff strip wrapping to a 2nd row once the picked names got long — force many long buffs.
-R.many = await pg.evaluate(() => { const a = window.hv, y0 = document.querySelector('button[data-node]').getBoundingClientRect().y; const keep = a.run.buffs.slice(); const pool = Object.keys(window.hvBuffs ?? {}); a.run.buffs = keep.concat(keep, keep, keep); a.render(); const y1 = document.querySelector('button[data-node]').getBoundingClientRect().y; a.run.buffs = keep; a.render(); return Math.round(Math.abs(y1 - y0) * 10) / 10; });
+// rc19: hold HP above max for both measurements so 4× max-HP buffs do not add the low-HP warning (content, not strip wrap).
+R.many = await pg.evaluate(() => { const a = window.hv, hp0 = a.run.hp; a.run.hp = 1e9; a.render(); const y0 = document.querySelector('button[data-node]').getBoundingClientRect().y; const keep = a.run.buffs.slice(); const pool = Object.keys(window.hvBuffs ?? {}); a.run.buffs = keep.concat(keep, keep, keep); a.render(); const y1 = document.querySelector('button[data-node]').getBoundingClientRect().y; a.run.buffs = keep; a.run.hp = hp0; a.render(); return Math.round(Math.abs(y1 - y0) * 10) / 10; });
 await pg.close();
 const ys = R.ys.map((x) => x[0]); R.maxJump = Math.max(...ys.map((y) => Math.abs(y - ys[0]))); R.disabledDuring = R.ys.slice(0, -1).some((x) => x[1]);
 // B: click a node in the middle of the picks.
