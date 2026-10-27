@@ -1,5 +1,10 @@
 # Independent development roadmap
 
+## v0.41 current slice: latest selected import wins (source only)
+
+Fix a reproduced async file-read race, not add another system: a slow older import must not replace a newer accepted file, resurrect a canceled selection, or overwrite current feedback on late read failure. A generation token invalidates prior reads on new import entry, file change and pagehide. Preserve validation, explicit replacement confirmation and live ownership checks. Engine, RNG, assets and save format remain unchanged. Source/controller evidence is not actual OS file-picker/browser acceptance. No website operation while the existing material scope question remains unresolved; stable remains v036.
+
+
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
 ## Current slice: v0.40 adopted-journey event observation (source only)

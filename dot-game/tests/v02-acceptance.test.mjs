@@ -121,7 +121,7 @@ test('v0.2 integration source contract: rAF renders only; import and persistence
   assert.doesNotMatch(frame,/advance\(|pump\.tick\(/);
   assert.equal((ui.match(/step: seconds => advance\(state, seconds\)/g)||[]).length,1);
   assert.match(ui,/if \(!ownership.supported \|\| !tabOwner/);
-  const imports=ui.slice(ui.indexOf("$('save-file').addEventListener"),ui.indexOf("window.addEventListener('pagehide'"));
+  const imports=ui.slice(ui.indexOf("let importGeneration = 0;"),ui.indexOf("window.addEventListener('pagehide'"));
   assert.ok(imports.indexOf('if(!claimLease')<imports.indexOf('state=restored'));
   assert.match(ui,/storageScope.*save-v1/);
   assert.match(ui,/pageActive = false; releaseLease\(\); pump.reset\(\)/);

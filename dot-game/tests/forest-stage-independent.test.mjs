@@ -1,3 +1,4 @@
+import { beforeImportOrdering } from './helpers/import-order-baseline.mjs';
 import { beforeEventObservationReset } from './helpers/event-observation-baseline.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -7,7 +8,7 @@ import { runInNewContext } from 'node:vm';
 
 // Independent source/Canvas-command checks. No pixels, browser or accessibility claim.
 const read = p => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
-const source = read('src/ui.js');
+const source = beforeImportOrdering(read('src/ui.js'));
 const sha = s => createHash('sha256').update(s).digest('hex');
 const actorStart = source.indexOf('function rect('), sceneStart = source.indexOf('function drawScene(');
 const helperSource = source.slice(actorStart, sceneStart);

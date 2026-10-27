@@ -2062,20 +2062,25 @@ $('export-save').addEventListener('click',()=>{
     const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=node('a');link.href=url;link.download=`hv-v3-dot-lv${state.hero.level}-${new Date().toISOString().slice(0,10)}.json`;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);showToast('存檔已準備下載，請確認檔案保存位置。');
   }catch{showToast('匯出失敗，請稍後再試。');}
 });
-$('import-save').addEventListener('click',()=>$('save-file').click());
+// New choices and leaving the page invalidate any older asynchronous file read.
+let importGeneration = 0;
+$('import-save').addEventListener('click',()=>{importGeneration++;$('save-file').click();});
 $('save-file').addEventListener('change',async event=>{
+  const generation=++importGeneration;
   const file=event.target.files?.[0];event.target.value='';if(!file)return;
   if(file.size>2*1024*1024){showToast('存檔過大，請選擇小於 2 MB 的 JSON 存檔。');return;}
   try{
-    const restored=validateSave(JSON.parse(await file.text()));
+    const raw=await file.text();
+    if(generation!==importGeneration)return;
+    const restored=validateSave(JSON.parse(raw));
     if(!claimLease(true)){showToast('此分頁已失去進度控制權，未匯入；請接手後重新選擇檔案。');return;}
     if(!confirm(`匯入 Lv.${restored.hero.level} 的旅程並取代目前進度？建議先匯出備份。`))return;
     if(!claimLease(true)){showToast('請先關閉另一個正在進行遊戲的分頁。');return;}
     closeSafeSalePreview();state=restored;preventOverwrite=false;selectedId=null;selectedSlot=null;syncSelection();seenEvents.clear();(state.events||[]).forEach(e=>seenEvents.add(String(e.id)));notice('');save(true);render(true);showToast('存檔已匯入，從營地安全接續。');
-  }catch(error){console.warn('Invalid save rejected',error);showToast(error?.message === '不支援的裝備欄位或格式，未載入；請保留原存檔。' ? '不支援的裝備欄位或格式，已取消匯入以避免遺失或誤售。請保留原存檔；目前進度沒有改變。' : '存檔格式不符或已損壞，目前進度沒有改變。');}
+  }catch(error){if(generation!==importGeneration)return;console.warn('Invalid save rejected',error);showToast(error?.message === '不支援的裝備欄位或格式，未載入；請保留原存檔。' ? '不支援的裝備欄位或格式，已取消匯入以避免遺失或誤售。請保留原存檔；目前進度沒有改變。' : '存檔格式不符或已損壞，目前進度沒有改變。');}
 });
 window.addEventListener('popstate', closeSafeSalePreview);
-window.addEventListener('pagehide', () => { closeSafeSalePreview(); closeWeaponCommission(); pageActive = false; releaseLease(); pump.reset(); });
+window.addEventListener('pagehide', () => { closeSafeSalePreview(); closeWeaponCommission(); importGeneration++; pageActive = false; releaseLease(); pump.reset(); });
 window.addEventListener('pageshow', () => { pageActive = true; pump.reset(); if (!handoff) ownership.resume(); });
 window.addEventListener('popstate', closeWeaponCommission);
 window.addEventListener('popstate', clearSelectedSale);

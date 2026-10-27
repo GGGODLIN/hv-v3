@@ -254,7 +254,7 @@ test('safe loot UI: unsupported imported equipment metadata shows meaningful err
   const storage = new Map([['SAVE_KEY', stored]]);
   let confirmationCount = 0;
   Object.assign(h.context, { validateSave, console: { warn() {} }, confirm() { confirmationCount++; return true; }, save() { storage.set('SAVE_KEY', JSON.stringify(h.context.state)); } });
-  h.run(extract("$('save-file').addEventListener", "window.addEventListener('popstate'"));
+  h.run(extract("let importGeneration = 0;", "window.addEventListener('popstate'"));
   for (const mutate of [save => { save.inventory[0].futureTrait = true; }, save => { save.inventory[0].stats.luck = 10; }, save => { save.inventory[0].rolls = { luck: 70 }; }]) {
     const input = structuredClone(h.state); mutate(input);
     const bytes = JSON.stringify(input), event = { target: { files: [{ size: bytes.length, text: async () => bytes }], value: 'file' } };
@@ -287,7 +287,7 @@ test('safe loot UI: ownership loss during awaited file read aborts import before
   let resolveRead, confirmations = 0;
   const read = new Promise(resolve => { resolveRead = resolve; });
   Object.assign(h.context, { validateSave, console: { warn() {} }, confirm() { confirmations++; return true; }, save() { storage.set('SAVE_KEY', JSON.stringify(h.context.state)); } });
-  h.run(extract("$('save-file').addEventListener", "window.addEventListener('popstate'"));
+  h.run(extract("let importGeneration = 0;", "window.addEventListener('popstate'"));
   const pending = h.dom['save-file'].emit('change', { target: { value: 'file', files: [{ size: 1000, text: () => read }] } });
   h.context.tabOwner = false;
   resolveRead(JSON.stringify(incoming));
