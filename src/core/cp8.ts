@@ -62,6 +62,7 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
   /** cp9-rc7 item 4（自訂，暫定，無來源）: in capped fights a defending turn takes strictly < defCap × max HP (0 = off). */ defCap: num('SIM_DEFCAP') ?? 0.35,
   /** cp9-rc8（自訂，暫定）: 防禦保命 on/off (SIM_SAVE9=0 ablation) and once-per-fight mode. */ save9: (num('SIM_SAVE9') ?? 1) > 0, saveOnce: (num('SIM_SAVEONCE') ?? 0) > 0,
   /** cp9-rc8（自訂）: rc7 「敵人無法行動 → A」 hint on/off (ablation). */ stunA: (num('SIM_STUNA') ?? 1) > 0,
+  /** cp9-rc8 step1（自訂，ablation）: windCd triggers — after revive / after a telegraphed hit lands. */ windRev: (num('SIM_WINDREV') ?? 1) > 0, windHit: (num('SIM_WINDHIT') ?? 1) > 0,
   dMin: num('SIM_DMIN') ?? 0.2, // cp9-rc7 producer item 2（自訂，暫定）: D hint only when next-round intent ≥ 20% max HP
   hp1A: (num('SIM_HP1A') ?? 1) > 0, // cp9-rc7 producer item 1（自訂，暫定）: no potion + HP 1 → hint A
   

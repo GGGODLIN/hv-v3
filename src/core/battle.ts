@@ -78,7 +78,7 @@ function phaseShift(s: BattleState, ev: BEvent[]): void {
     m.hp = Math.round(m.maxHp * BOSS_PHASE_HP);
     m.status = { stun: 0, bleed: 0, bleedTurns: 0 };
     // cp9-rc6 item 1（自訂，暫定，非原版）: the revive (new phase) also clears any wind-up — the boss must charge again, so ⚠ shows first.
-    if (RULES.cp8) { const c = m as CM; c.charge = 0; c.heavyNext = false; c.pulseNext = false; c.drainNext = false; if (CP9.on) c.windCd = CP9.windCd; } // cp9-rc7 item 3（自訂）: no new wind-up for windCd boss turns after the revive
+    if (RULES.cp8) { const c = m as CM; c.charge = 0; c.heavyNext = false; c.pulseNext = false; c.drainNext = false; if (CP9.on) c.windCd = CP9.windRev ? CP9.windCd : 0; } // cp9-rc7 item 3（自訂）: no new wind-up for windCd boss turns after the revive
     for (let k = ev.length - 1; k >= 0; k--) { const e = ev[k]!; if (e.t === 'death' && e.to === i) ev.splice(k, 1); }
     ev.push({ t: 'status', to: i, text: BOSS_PHASE_TEXT, phase: true });
   });
@@ -960,7 +960,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
       else if (!(lock9 && m.rank === 'boss') && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
-    if (RULES.cp8 && CP9.on && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) m.windCd = CP9.windCd; // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
+    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) m.windCd = CP9.windCd; // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
     const zero = s.focusTurn;
     const r = resolveHit(rng, {
       raw: m.adb * mult * (m.elemAttack ? CP5.frostMult : 1), magic: false, acc: m.acc,
