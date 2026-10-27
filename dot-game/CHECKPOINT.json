@@ -1,8 +1,8 @@
 {
-  "checkpoint": "141-v035-battle-actors-source",
+  "checkpoint": "143-v035-browser-accepted",
   "version": "0.35.0",
-  "status": "source-tested-awaiting-isolated-browser-acceptance",
-  "source_base": "7ade3e41161752c54cbfc4329000bc36e5d8716c",
+  "status": "bounded-desktop-accepted-awaiting-stable-publication",
+  "source_base": "176dfac8a96e84ceba7492e1d518e75e715e18f4",
   "base_accepted_recovery": "7ade3e41161752c54cbfc4329000bc36e5d8716c",
   "accepted_website": "e69c6b8833e41a0f2c0cc7cced3811717fcf6933",
   "scope": "Original canvas actor identity only: four existing named enemy bodies, gate boss, neutral fallback and actual equipped family. Cosmetic defeated/static appearance. Existing enemy overlay suffix, scene/background/layout/core/RNG/save unchanged; version metadata and provenance updated.",
@@ -12,7 +12,7 @@
   "new_independent_audit_tests": 19,
   "new_engine_tests": 0,
   "source_input_files_unchanged_during_final_suite": 177,
-  "audit_input_manifest_sha256": "34a9d9bb5c09d6c2a9ed2bfe02407bdb7edc0c41cedc2f6227ebf8694af4aa74",
+  "audit_input_manifest_sha256": "73f691705406e0c989c9eea49d0791600e37c347ae2012bd0c9aa32b8a568a4e",
   "full_suite_initial_failure": "One missed v034 version-only assertion in counterattack-ui; exact metadata correction then complete 1897/1897 rerun. Initial failed receipt retained outside source.",
   "natural_replay": {
     "receipt_sha256": "c968b57fe629dfcc6695c3c60d73cd549b689a453694e62fbf232c5476e3029f",
@@ -50,8 +50,93 @@
     "actor_source": "src/ui.js original code-native drawing; not Kenney or original-HV art",
     "credits": "docs/ASSET-CREDITS.md"
   },
-  "visual_acceptance": "Pending actual candidate render; source traces are not pixels or art-quality acceptance. Background and chest unchanged.",
-  "browser_acceptance": false,
+  "visual_acceptance": "Bounded actual desktop actor identity accepted by root; existing small enemy text/moon background contrast remains. Not full art/mobile/caster ornament acceptance.",
+  "browser_acceptance": {
+    "passed_at_utc": "2026-10-27T12:38:31Z",
+    "scope": "Actual cloud desktop1180x757; three weapon families and neutral starter, four named enemies/bosses, double enemies/target/dead enemy, seven natural wins across2..5, export/reload. Caster ornament not visually seen; reduced-motion only camp checked.",
+    "before": {
+      "level": 16,
+      "gold": 2583,
+      "wins": 47,
+      "inventory": 87,
+      "fragments": 20,
+      "seeds": 1,
+      "max_unlocked_route": 2
+    },
+    "after": {
+      "level": 17,
+      "gold": 3489,
+      "wins": 54,
+      "inventory": 101,
+      "fragments": 90,
+      "seeds": 8,
+      "hp": 1018
+    },
+    "ordinary_wins_seconds": [
+      10.5,
+      14.7,
+      11.4,
+      15.8,
+      15.8,
+      25.2,
+      22.1
+    ],
+    "original_held_ids_preserved": 90,
+    "original_records_exact": 87,
+    "bound_items_naturally_scaled": {
+      "loot-1": {
+        "attack": [
+          41,
+          42
+        ],
+        "power": [
+          89,
+          91
+        ]
+      },
+      "loot-9": {
+        "attack": [
+          73,
+          75
+        ],
+        "power": [
+          155,
+          159
+        ]
+      },
+      "loot-12": {
+        "attack": [
+          65,
+          67
+        ],
+        "parry": [
+          11.8152,
+          11.8211
+        ],
+        "power": [
+          159,
+          163
+        ]
+      }
+    },
+    "bound_anchors_rolls_other_fields_exact": true,
+    "new_natural_items": 14,
+    "new_ids": "loot-90..loot-103",
+    "equipped_original_ids_restored": true,
+    "gear_sets_abilities_strategy_supply_auto_advance_unchanged": true,
+    "pre_export_sha256": "89bffe67bda1a6f3f1ed9a391dfc2a750521fc2ed8ecaf4b0022e5201f78f426",
+    "post_export_sha256": "519630a0a6b0d8fa9b0c32ada8c096a79455a2d455cbbcd59e4df602e16582a4",
+    "reload_persisted": true,
+    "viewport": [
+      1180,
+      757
+    ],
+    "scroll_width": 1165,
+    "broken_images": 0,
+    "console_known_extension_entries": 94,
+    "console_app_origin_errors": 0,
+    "raw_exports_in_source": false
+  },
   "assistive_technology_acceptance": false,
   "website_staging": {
     "candidate_path": "public/play/hv-v3-dot/candidates/v0.35/",
@@ -59,14 +144,14 @@
     "candidate_before_formal": true,
     "source_backup_before_publication": true
   },
-  "publication": "Not yet attempted for this frozen candidate. Prior v034 remains accepted formal.",
+  "publication": "Candidate142 verified. Stable v034 retained until this accepted source backup, formal CI/HTTP and original-profile smoke.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T12:15:56.766987+00:00",
+  "frozen_utc": "2026-10-27T12:41:05.216979+00:00",
   "files": {
     "README.md": {
-      "bytes": 23828,
-      "sha256": "410dd903de60fc1d9bbb76a365a9d4b283ef8c8f864e53fd188fe9d73ebbe887"
+      "bytes": 25036,
+      "sha256": "d289032c923233deb2948f5746a0dd1dddcf52725a5bca753589fd483b5eb8c7"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -233,8 +318,8 @@
       "sha256": "799842a2dd8f90624600c3c39e6ed0752c475a0dc0e031457850dbd87e2903b8"
     },
     "docs/ACCEPTANCE-V035.md": {
-      "bytes": 3232,
-      "sha256": "232ede3a1ff0ce7b4f08db5e5bcc21ff33c468b0c120a40faceb872ff97a7b01"
+      "bytes": 5007,
+      "sha256": "a512e0431f46ca38bd9525a6c374b93fe554bdc54c424bfa5f97d6a2019b6677"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -431,6 +516,10 @@
     "docs/BROWSER-QA-V034.md": {
       "bytes": 6784,
       "sha256": "c8970dca29ef8e16c015cabc511c8c548b76568b148edcdf69ae074d2e714fe3"
+    },
+    "docs/BROWSER-QA-V035.md": {
+      "bytes": 5065,
+      "sha256": "82e4d0964c9670a74c412f6c0d64b3308e83ce56e96ce9883670aaa989739224"
     },
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
@@ -689,12 +778,12 @@
       "sha256": "2e455be4751cedb90d98aaf8e24ccb1fc40db105a8850a544b46c8aed411908b"
     },
     "docs/RECOVERY-V035.md": {
-      "bytes": 3188,
-      "sha256": "c69c4fdcb4c938bd136ce3f081ed65f9588edc1c74487d4102a3b0b9223ef7aa"
+      "bytes": 4963,
+      "sha256": "ebd30e62befca51d066545d0ea1bb624baed023875eb8394dceae0ab647f6810"
     },
     "docs/RELEASES.md": {
-      "bytes": 46989,
-      "sha256": "a5b4459e687202093324d08797eca88111889f648a819b7209657f67c1338109"
+      "bytes": 48192,
+      "sha256": "424f3d35f2bd5c34da7db844f4ca1e52f18488d8163ff72bac16676f960933e5"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
@@ -733,8 +822,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 26604,
-      "sha256": "1a2e716d8998fc4b8153dcb1fa378e742fa783a21e091d4917cad14b7858467d"
+      "bytes": 27807,
+      "sha256": "99c6f13c9904fce95d60793841e5bc72b751f8fe0ad6fa4ee1e49419f1b3fd7e"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -942,7 +1031,7 @@
     },
     "index.html": {
       "bytes": 44796,
-      "sha256": "64a0846f4e41cb305597364f02ed5dc7178198fb0b85f0156783236ebc15e6ce"
+      "sha256": "16a8c6a41ab02d11326b3a8a7f1cfd720dca03355f48a5536eb74b496c656bd3"
     },
     "package.json": {
       "bytes": 207,
@@ -1058,7 +1147,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "18728bf93f9505eb6937c372ff8d0e9dc4005f8bef6bba3581303e53cb55913d"
+      "sha256": "5bad1feca9ed512fa60bd3239f898f1679cafd763333900035a1c9a96c2ec4e2"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1114,7 +1203,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18314,
-      "sha256": "2fc08ae6da93ad39e1a8560208bca1757e031c709c14b3194293179178861e31"
+      "sha256": "0feaf7e940f414b3ff4215ae25942c4208ed1f578829851a718bd735535d9d13"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1154,7 +1243,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "283a2b8a9324601f52363a95050abd8ad35e6bc12fa4a6fa744c43145d8776e1"
+      "sha256": "89074a78ab7e8284b3d27743dc4375267ab7b25c819c57f2b75e4f74f2317439"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1418,7 +1507,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "478264d5e078c9e120855cfb9f3f03d1ade1638cf9ecd39683a5dec0a13c3dae"
+      "sha256": "c0b58229ab3a318e90e2c57c9cbbb0cefb1407aaf4f41400e7045d5cb4dc2afb"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1474,7 +1563,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "c5ef37bc815a0110d8aa40e0beb017a0cebf4b8569d378e79c8d66f766dedce4"
+      "sha256": "dd06e25b0f6c5df60e1236fd563999d96618f4b5c0cd51b84634157fd905deb0"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1502,7 +1591,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9533,
-      "sha256": "ca0898c9de3ca50996f42b64a82dda044d5f73ef6af61fb5aa2b0b82459c8440"
+      "sha256": "daad172ded47ad95389d8fb9379eb4b9defcc49e030c4e85472070d2bcd11d20"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1566,7 +1655,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "341c174a16f9bc720dbe9038857e1dd99cf197f86dab4a02f29a85f7cd35d01d"
+      "sha256": "0376b791eba5eb0ac6223075eebde2572e1e57f050f17e3ecd7717537dc286c5"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1650,7 +1739,12 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15068,
-      "sha256": "43aaa45b507f2e4b23663d064e3de2d85b6e3b150867c470382d96df6c5b2efa"
+      "sha256": "a8ecf79ca77b99c613a6140979e909db9bd4141a0edbaedb2bea2ce880ddacab"
     }
-  }
+  },
+  "full_suite_rerun_for_accepted_phase": true,
+  "candidate_website": "d91d18cb9663e41637f6016a411ff7668db32cf4",
+  "candidate_ci_run": 40504194422,
+  "candidate_http_exact_files": 21,
+  "runtime_acceptance_transition": "Only index phase and eight corresponding exact test labels; all functional runtime/styles/assets same as source141; full suite rerun."
 }
