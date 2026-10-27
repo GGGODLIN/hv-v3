@@ -62,6 +62,7 @@ export const CP9 = { on: num('SIM_CP9') !== 0, bossBurst: num('SIM_BOSSBURST') ?
   /** (a): weight of the hit a stun skill cancels when its target is winding up (skill-hint value). */ stunW: num('SIM_STUNW') ?? 1,
   /** rc2 (b)（自訂，暫定）: boss max-HP multiplier so the median boss fight lasts 6–18 turns. */ bossHp: num('SIM_BOSSHP') ?? 1,
   /** rc2 (a)（自訂，暫定，無來源）: share of end-of-fight OC kept for the next fight of the trip (0 = off, the CP3 0-start). */ ocCarry: num('SIM_OCCARRY') ?? 1,
+  /** rc3 (2)（自訂，暫定）: apply the bossBurst / bossPlain per-turn caps in normal and elite fights too. */ allCap: (num('SIM_ALLCAP') ?? 1) > 0,
   /** rc2 (2)（自訂，暫定，無來源）: per-floor boss HP multiplier: ×boss5 at floor ≤5, linear to ×boss15 at floor 15, linear to ×boss30 at floor bossEnd (25), flat after. */ boss5: num('SIM_BOSS5') ?? 3, boss15: num('SIM_BOSS15') ?? 4.5, bossEnd: num('SIM_BOSSEND') ?? 25, boss30: num('SIM_BOSS30') ?? 1,
   /** rc2 (3)（自訂，暫定，無來源）: blade skill OC cost multiplier (producer cap: ≥0.7). */ bladeOc: num('SIM_BLADEOC') ?? 0.7 };
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */

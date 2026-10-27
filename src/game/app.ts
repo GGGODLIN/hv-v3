@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { deathHint, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { deathHint, deathTip, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -369,7 +369,7 @@ export class App {
   dotHtml(p?: { burn: number; burnTurns: number; bleed: number; bleedTurns: number }): string {
     if (!this.run?.cp5 || !p || (!p.burnTurns && !p.bleedTurns)) return '';
     const parts = [p.bleedTurns ? `<b class="dot-bleed" data-pdot="bleed">🩸流血 ${p.bleed}/回合 ×${p.bleedTurns}</b>` : '', p.burnTurns ? `<b class="dot-burn" data-pdot="burn">🔥燃燒 ${p.burn}/回合 ×${p.burnTurns}</b>` : ''].filter(Boolean).join(' ');
-    return `<div class="pdot" data-pdotbox>${parts} <span class="hint">解除：Z·生命藥水 或 D·防禦</span></div>`;
+    return `<div class="pdot" data-pdotbox>${parts} <span class="hint">解除：${this.battle && canUse(this.battle, { kind: 'item', id: 'health' }) ? 'Z·生命藥水 或 ' : ''}D·防禦</span></div>`; // cp9-rc3 bug 2（自訂）: no Z while the potion is on cooldown / gone
   }
   /** CP5: affix nameplate + boss signature state for one monster (weak panel). */
   plateHtml(m: Monster): string {
@@ -391,7 +391,7 @@ export class App {
   cp5Log(ev: BEvent[]): void {
     for (const e of ev) {
       if (e.t === 'sig') this.log.push(`<span class="warn" data-sig="${e.sig}">${SIG_TEXT[e.sig].icon} ${esc(e.text)}</span>`);
-      if (e.t === 'pdot') this.log.push(`<span class="dot-${e.kind}" data-pdotlog>${e.kind === 'burn' ? '🔥燃燒' : '🩸流血'} -${e.dmg}（Z·生命藥水 或 D·防禦 可解除）</span>`);
+      if (e.t === 'pdot') this.log.push(`<span class="dot-${e.kind}" data-pdotlog>${e.kind === 'burn' ? '🔥燃燒' : '🩸流血'} -${e.dmg}（${this.battle && canUse(this.battle, { kind: 'item', id: 'health' }) ? 'Z·生命藥水 或 ' : ''}D·防禦 可解除）</span>`); // cp9-rc3 bug 2（自訂）
       if (e.t === 'status' && e.to === 'player') this.log.push(`<span class="statusfx" data-status>${esc(e.text)}</span>`);
     }
   }
@@ -479,7 +479,7 @@ export class App {
 
   lastSettlement: Settlement | null = null;
   /** cp8-rc6 item 6: the last enemy hit that did damage this run (for the 死因 line on the death screen). */
-  lastHit: { who: string; label?: string; dmg: number; maxHp: number; charged: boolean } | null = null;
+  lastHit: { who: string; label?: string; dmg: number; maxHp: number; charged: boolean; reflect?: boolean } | null = null;
   /** cp8-rc7 P1 item 5: damage taken in each of the last DEATH_TURNS enemy turns (biggest single hit + any charged / big-move hit). */
   recent: { turn: number; taken: number; big?: { who: string; label?: string; dmg: number; charged: boolean } }[] = [];
   /** cp8-rc6 items 3 + 6: estimated heavy-hit damage and, when the health potion is on cooldown, a hint to use 防禦 / 靈動 instead. */
@@ -537,12 +537,14 @@ export class App {
       // rc21 item 3: the burst line (兩回合內被打穿) and the charge text are shown together, never one replacing the other.
       const hint = [deathHint(top.dmg, last.dmg, maxHp, last2), ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : ''].filter(Boolean).join('<br>');
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
-      const lastLine = `<br><span data-deathlast="${last.dmg}">最後一擊：${last.charged ? '（蓄力大招）' : ''}${esc(last.who)}${last.label ? ' ' + esc(last.label) : ''} ${last.dmg}</span>`;
-      return `<p data-deathcause="${top.dmg}" data-deathbiggest="${top.dmg}" ${top.charged ? `data-deathcharge="${top.dmg}"` : ''}>死因：最後 2 回合最大單擊 ${top.charged ? '（蓄力大招）' : ''}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）${lastLine}<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
+      const lastLine = `<span data-deathlast="${last.dmg}" hidden>最後一擊：${last.charged ? '（蓄力大招）' : ''}${esc(last.who)}${last.label ? ' ' + esc(last.label) : ''} ${last.dmg}</span>`;
+      const same = top.dmg === last.dmg && top.who === last.who, tip9 = deathTip({ lastDmg: last.dmg, maxHp, reflect: !!(last as { reflect?: boolean }).reflect, pots: this.battle?.potions.health ?? 0, potCd: this.battle?.itemCd.health ?? 0, charged: last.charged }); // cp9-rc3 bugs 1/5（自訂）
+      const bigLine = same ? '' : `<br><span data-deathtop="${top.dmg}">最後 2 回合最大單擊：${top.charged ? '（蓄力大招）' : ''}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} ${top.dmg}（${Math.round((top.dmg / maxHp) * 100)}%）</span>`;
+      return `<p data-deathcause="${last.dmg}" data-deathbiggest="${top.dmg}" ${last.charged ? `data-deathcharge="${last.dmg}"` : ''}>死因：${last.charged ? '（蓄力大招）' : ''}${esc(last.who)}${last.label ? ' ' + esc(last.label) : ''} 最後一擊 ${last.dmg} 傷害（佔最大 HP ${Math.round((last.dmg / maxHp) * 100)}%）${lastLine}${bigLine}<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}<br><span data-deathtip>${esc(tip9)}</span></span></p>`;
     }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
-    const hint = h.charged ? `首領蓄力（⚠）。${this.adviceNote()}` : deathHint(h.dmg, h.dmg, h.maxHp);
+    const hint = (h.charged ? `首領蓄力（⚠）。${this.adviceNote()}` : deathHint(h.dmg, h.dmg, h.maxHp)) + `<br><span data-deathtip>${esc(deathTip({ lastDmg: h.dmg, maxHp: h.maxHp, reflect: !!h.reflect, pots: this.battle?.potions.health ?? 0, potCd: this.battle?.itemCd.health ?? 0, charged: h.charged }))}</span>`; // cp9-rc3 bug 5（自訂）
     return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（佔最大 HP ${Math.round((h.dmg / h.maxHp) * 100)}%）<br><span class="hint">建議：${hint}</span></p>`;
   }
   resultHtml(): string {
@@ -857,7 +859,7 @@ export class App {
       // rc16 item 7: the hold used to drop the key silently (looked swallowed after a potion / boss phase change). Say so.
       // rc19 (c) producer 2026-10-27: a key pressed during the hold is queued and runs when the hold ends (was refused = looked swallowed). 自訂，非原版
       const wait = this.chargeHoldUntil - performance.now(); this.holdKey = cmd;
-      this.refused = `⏳ 敵人剛開始蓄力：先看決策，已排隊，${Math.ceil(wait / 100) / 10} 秒後自動執行（D／Z／S 立即可用）`; this.render();
+      /* cp9-rc3 bug 4（自訂）: the key stays queued and runs when the hold ends; the 「N 秒後」 nag line is gone (QA: shown too often) */
       setTimeout(() => this.flushHold(), wait + 20); return;
     }
     const [kind, id] = cmd.split(':') as [string, string | undefined];
@@ -901,8 +903,10 @@ export class App {
       if (e.t === 'hit' && e.to === 'player' && typeof e.from === 'number') {
         const who = esc(b.monsters[e.from]!.name);
         const how = e.avoided === 'evade' ? '（閃避）' : e.avoided === 'parry' ? '（招架）' : e.avoided === 'block' ? '（格擋）' : e.avoided ? '（未命中）' : '';
-        if (e.dmg > 0) this.lastHit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, maxHp: Math.round(b.d.hp), charged: !!e.label && /重擊|蓄力一擊/.test(e.label) };
-        if (e.dmg > 0) { const hit = { who: b.monsters[e.from]!.name, ...(e.label ? { label: e.label } : {}), dmg: e.dmg, charged: !!e.label && /重擊|脈衝|蓄力一擊/.test(e.label) }; turnHits.push(hit); }
+        // cp9-rc3 bug 1（自訂）: a 反傷 event is the player's own reflected damage, not a monster attack (bulwark8 −77) — named as such.
+        const refl = !!e.label && e.label.startsWith('反傷'), who9 = refl ? `反傷（你攻擊 ${b.monsters[e.from]!.name}）` : b.monsters[e.from]!.name;
+        if (e.dmg > 0) this.lastHit = { who: who9, ...(e.label && !refl ? { label: e.label } : {}), dmg: e.dmg, maxHp: Math.round(b.d.hp), charged: !refl && !!e.label && /重擊|蓄力一擊/.test(e.label), ...(refl ? { reflect: true } : {}) };
+        if (e.dmg > 0) { const hit = { who: who9, ...(e.label && !refl ? { label: e.label } : {}), dmg: e.dmg, charged: !refl && !!e.label && /重擊|脈衝|蓄力一擊/.test(e.label) }; turnHits.push(hit); }
         if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
         this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
       }

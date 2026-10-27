@@ -3,7 +3,7 @@ import { RULES } from './run';
 import { CP8, CP9, RC22 } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false };
-const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && s.monsters.some((m) => m.rank === 'boss');
+const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, Math.floor((tele ? CP9.bossBurst : CP9.bossPlain) * s.d.hp - ACT9.taken)) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
@@ -921,6 +921,15 @@ export function turnDamage(ev: BEvent[]): number {
  *  charged hit of the last 2 turns (rc22 took the first one, so a mid-turn charger was named instead of the killer). */
 export function deathCharge<T extends { charged: boolean }>(h2: T[], last: T): T | undefined {
   return last.charged ? last : [...h2].reverse().find((x) => x.charged);
+}
+/** cp9-rc3 bug 5（自訂，暫定）: one concrete, never-empty death tip from the potion state and the killing hit (bulwark4: no tip; bulwark6/8: generic). */
+export function deathTip(o: { lastDmg: number; maxHp: number; reflect?: boolean; pots: number; potCd: number; charged?: boolean }): string {
+  const pct = Math.round((o.lastDmg / Math.max(1, o.maxHp)) * 100);
+  if (o.reflect) return `致命的是你自己攻擊時的反傷（${o.lastDmg}，${pct}%）：HP 低於反傷值的兩倍時，先喝藥或改打別的怪，不要再普攻有反傷的敵人。`;
+  if (o.pots > 0 && o.potCd > 0) return `倒下時生命藥水還在冷卻（剩 ${o.pots} 瓶）：藥水有冷卻，HP 高時不要連喝；HP ≤ ${Math.min(100, pct * 2)}% 時就要預留這一瓶。`;
+  if (o.pots > 0) return `倒下時還剩 ${o.pots} 瓶生命藥水：最後一擊 ${pct}%，HP 低於 ${Math.min(100, pct * 2)}% 時就按 Z。`;
+  if (o.charged) return `生命藥水已用完，最後是蓄力大招（${pct}%）：看到 ⚠ 蓄力就按 D·防禦，出發前多買藥水。`;
+  return `生命藥水已用完：出發前多買藥水，或 HP 低於一半時在休息點回復、撤退。`;
 }
 export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2Taken = 0): string {
   if (last2Taken >= maxHp * DEATH_BURST_2T) return `最後兩回合共受 ${last2Taken} 傷害（佔最大 HP ${Math.round((last2Taken / maxHp) * 100)}%）：兩回合內就會被打穿，HP 低於這個數字前就先喝藥或防禦。`;
