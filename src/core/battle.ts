@@ -851,3 +851,12 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   });
   if (s.defendTurns > 0) s.defendTurns--;
 }
+
+/** rc19 (e)（製作人要求，自訂，非原版）: death-screen hint for a non-charged death. A last hit ≥ 15% of max HP is never
+ *  called 「被慢慢磨光」. topDmg = biggest single hit of the last turns, lastDmg = the killing hit. */
+export const DEATH_BIG_LAST = 0.15;
+export function deathHint(topDmg: number, lastDmg: number, maxHp: number): string {
+  if (topDmg >= maxHp * 0.3) return '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。';
+  if (lastDmg >= maxHp * DEATH_BIG_LAST) return `最後一擊佔最大 HP ${Math.round((lastDmg / maxHp) * 100)}%（≥ ${DEATH_BIG_LAST * 100}%）：HP 低於這一擊的兩倍前就先喝藥或防禦。`;
+  return 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+}

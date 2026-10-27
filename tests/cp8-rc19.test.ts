@@ -67,3 +67,11 @@ describe('rc19 (d) potion unusable + estimate ≥ HP → D / S / A through charg
   }));
   it('potion usable keeps D/Z', () => withCp8(() => { const b = setup(1.1, 3); expect(chargeAdvice(b).keys).toEqual(['D', 'Z']); }));
 });
+import { deathHint } from '../src/core/battle';
+describe('rc19 (e) death hint: last hit ≥ 15% max HP is not 「被慢慢磨光」', () => {
+  it('last hit 15% → no 慢慢磨光', () => { const t = deathHint(150, 150, 1000); expect(t).not.toContain('慢慢磨光'); expect(t).toContain('15%'); });
+  it('last hit 20%, biggest earlier hit 25% → no 慢慢磨光', () => expect(deathHint(250, 200, 1000)).not.toContain('慢慢磨光'));
+  it('last hit 14%, all small → 慢慢磨光', () => expect(deathHint(140, 140, 1000)).toContain('慢慢磨光'));
+  it('≥ 30% keeps the 三成 text', () => expect(deathHint(300, 100, 1000)).toContain('三成'));
+  it('both death-screen branches use deathHint', () => { const s = readFileSync('src/game/app.ts', 'utf8'); expect(s.match(/deathHint\(/g)!.length).toBe(2); expect(s).not.toContain('慢慢磨光'); });
+});

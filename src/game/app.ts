@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { deathHint, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -520,13 +520,13 @@ export class App {
     const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);
     if (r.length) { // cp8-rc7 P1 item 5: the charged / big-move hit (if any) or the biggest single hit of the last turns, plus damage per turn
       const ch = hb.find((x) => x.charged), top = ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), maxHp = this.lastHit?.maxHp ?? 1;
-      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : top.dmg >= maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : deathHint(top.dmg, this.lastHit?.dmg ?? r[r.length - 1]!.big?.dmg ?? 0, maxHp);
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
       return `<p data-deathcause="${top.dmg}" ${ch ? `data-deathcharge="${ch.dmg}"` : ''}>死因：${ch ? '蓄力大招 ' : '最後幾回合最大單擊 '}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
     }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
-    const hint = h.charged ? `首領蓄力（⚠）。${this.adviceNote()}` : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+    const hint = h.charged ? `首領蓄力（⚠）。${this.adviceNote()}` : deathHint(h.dmg, h.dmg, h.maxHp);
     return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（佔最大 HP ${Math.round((h.dmg / h.maxHp) * 100)}%）<br><span class="hint">建議：${hint}</span></p>`;
   }
   resultHtml(): string {
