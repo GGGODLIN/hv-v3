@@ -202,3 +202,7 @@ Keep this a bounded UI adapter, not a general accessibility rewrite. Combat, ite
 ### v0.36 正式完成
 
 接受來源148備份後正式149已發布／exact CI和HTTP通過，原正式profile正常route1與重載通過，原44持有紀錄exact保留。150僅最後文件／manifest收據，不重部署。下一輪依ROADMAP選有價值改善，仍保留本版手機／極端狀態目視限制。
+
+### v0.37 發布範圍卡點（2026-10-27 14:22 UTC）
+
+來源151已完整備份驗證，但候選152的既有未改Kenney PROVENANCE blob遭拒；在拒絕後核對適用使用者素材請求與官方CC0，再對同一操作一次重試仍拒。已停網站寫入、保留正式v036，無候選browser接受。不得藉移除授權檔／重用SHA／改route繞過；等待使用者針對既有Kenney範圍的明確授權後依原流程處理，不把阻塞當新功能。

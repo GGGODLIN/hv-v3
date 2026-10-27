@@ -1,8 +1,8 @@
 {
-  "checkpoint": "151-v037-forest-stage-source",
+  "checkpoint": "153-v037-publication-blocked-receipt",
   "version": "0.37.0",
-  "status": "source-tested-awaiting-isolated-browser-acceptance",
-  "source_base": "2a5354689165d7512d279327db8935c3bbef8570",
+  "status": "source-verified-candidate-publication-blocked-not-browser-accepted",
+  "source_base": "abb79f61d45ddc356559e8af7ffab55a6ac4b1c4",
   "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
   "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
   "scope": "Original canvas woodland backdrop only: receding trunks and mist, irregular broadleaf side canopy, old earthen path and sparse paving. All actors/nameplates/chest/foreground/controller/core/RNG/save unchanged. Version metadata updated.",
@@ -60,14 +60,14 @@
     "candidate_before_formal": true,
     "source_backup_before_publication": true
   },
-  "publication": "Not yet attempted for this frozen candidate. Prior v036 remains accepted formal.",
+  "publication": "Candidate152 stopped after existing unchanged Kenney provenance blob refusal and one same-operation retry with newly verified relevant material request still refused. No candidate tree/commit/ref exists; stable v036 untouched. Await explicit user material-scope decision. This153 is source docs/manifest-only receipt, no runtime/test rerun or redeploy.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T14:10:20.140114+00:00",
+  "frozen_utc": "2026-10-27T14:23:50.384635+00:00",
   "files": {
     "README.md": {
-      "bytes": 30867,
-      "sha256": "dd97dbe7b5076fa5030c6ef950fd86a0e5ac717830b66ffa537528fa8c27d07f"
+      "bytes": 32028,
+      "sha256": "2007da99011aa1ab473e5a5fec36ca10b447b62556b7623705293993e0d129d1"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -242,8 +242,8 @@
       "sha256": "5520e2de3fdac432e763bee84ce0b9582ed3571cbe409837d000206eae2b0b9b"
     },
     "docs/ACCEPTANCE-V037.md": {
-      "bytes": 2032,
-      "sha256": "2624639db2fcedb58ab9aec0a77d9c26e86795553ee02ebf3edecca1932dbe3e"
+      "bytes": 3666,
+      "sha256": "c137a374f095f2bc3c43bc4c6e6ee880cb31fda36632f12833959dea4f59c01d"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -730,20 +730,20 @@
       "sha256": "71d69468abc8f35063f5535c9f3ab5b32157eb0171b8e91bf73421ef80b6ba17"
     },
     "docs/RECOVERY-V037.md": {
-      "bytes": 2021,
-      "sha256": "b6ed20dfbd0628658f095d23d0244d7e7e9a17740c0002c893c48441abfcc5b0"
+      "bytes": 3655,
+      "sha256": "6ece0b313ed5903455f5a7816bfea1a3df3e4e5d00fcd8a321625896f11a8f47"
     },
     "docs/RELEASES.md": {
-      "bytes": 53093,
-      "sha256": "0791f3566df0949375d9b6a4df543e45776a3ce16043566ca9ca3ffd9d0529f4"
+      "bytes": 54254,
+      "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 30817,
-      "sha256": "b09f6697c5d59c1de664e45a787b4691408fd07f488df56c78ca2927a9c3846f"
+      "bytes": 31291,
+      "sha256": "dcc79f80fd506f03389d6c9d3db2e3ef2cd2ab798e73bca7ec6150d654aafafe"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -774,8 +774,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 33593,
-      "sha256": "37dcc0f809bba824b7ad2b2639ab6d976a1b8b9f5b74187859d0a4f3d4ecb4f0"
+      "bytes": 34754,
+      "sha256": "4f12f0d0a4dc6f5c36c2a7d3895192e7089f710d6d4c76901bd6da00bfaa1160"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1725,5 +1725,25 @@
       "bytes": 15077,
       "sha256": "30431299748748a6cda621aea5e6f5fdc607cc6a896ea377ec4bf080076915bb"
     }
-  }
+  },
+  "candidate_source": "abb79f61d45ddc356559e8af7ffab55a6ac4b1c4",
+  "publication_blocker": {
+    "operation": "create_blob",
+    "repository": "GGGODLIN/GGGODLIN.github.io",
+    "target": "public/play/hv-v3-dot/candidates/v0.37/assets/kenney-ui/PROVENANCE.json",
+    "source_file_unchanged_from_v036": true,
+    "official_license_verified": "CC0",
+    "same_blob_retry_after_new_relevant_evidence": 1,
+    "retry_result": "denied-not-executed",
+    "successful_unattached_blobs": 14,
+    "candidate_tree_created": false,
+    "candidate_commit_created": false,
+    "candidate_ref_updated": false,
+    "website_head_readback": "f192fec4eff401948d80156f941c01404816cbba",
+    "root_user_question": "Sentinel_2cbc287da5cc819199d4a87ab088ec7e",
+    "question_utc": "2026-10-27T14:22:35.860022+00:00",
+    "no_workaround": true
+  },
+  "receipt_runtime_tests_assets_exact_source151": true,
+  "receipt_additional_full_suite": false
 }
