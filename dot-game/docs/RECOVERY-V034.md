@@ -1,5 +1,15 @@
 # v0.34 完整來源恢復與發布界線
 
+## 已驗收候選與新完整來源
+
+- 已凍結、完整備份／讀回的來源 checkpoint136：`d14be20c66eee1d659b7f81ae82547c76c176a78`，389 檔／388 payload，CHECKPOINT SHA256 `76671c198189afdbd570bbdf0a41177d3ce2463487d3bd860846bc034e676b3c`。27 修改檔提交前後 exact-content readback、362 不變 identities、409 範圍外 blob／mode 均通過。
+- 候選網站 `e9b661262a22eacab8000f89e8968b3cb0c99796`，Pages `40495402879` 成功、21 檔公開 HTTP exact bytes；其他 3,984 個網站 blob／mode 與正式 v0.33 的 21 個 HTTP bytes 不變。此次候選沒有拒絕或不確定寫入。
+- 真正候選桌面操作、普通通關／重載已通過；正常匯出確認全部 88 件原持有物完全保留，見 [BROWSER-QA-V034](BROWSER-QA-V034.md)。沒有把候選進度匯入正式 profile。
+- 接受 checkpoint `138-v034-browser-accepted` 新增瀏覽器驗收文件，更新 index phase 與八個精確 phase-label 測試斷言，重跑完整套件。新完整來源的 exact commit／readback 另以外部收據核對，不預填成功；其他 runtime／assets／fixtures 等同 checkpoint136。
+- 正式根目錄仍是已驗收 v0.33。正式推廣必須等待新完整來源備份／讀回，再驗證正式 exact Pages／21 檔 HTTP 與保留原正式 profile 的實玩／重載。
+
+下方是來源 checkpoint136 凍結時的恢復界線；其「尚未瀏覽器」由上述新證據補充，不修改歷史量測或原始 snapshot。
+
 ## 基點與範圍
 
 - 個人 `GGGODLIN/hv-v3`，只更新 `bot/dot` 的本作 `dot-game/`；基點 exact `9e43771c5ea729d328f465ee5ce91cfcc6e8c90f`，checkpoint `135-v033-publication-receipt`，381 檔／380 manifest payload。

@@ -62,3 +62,10 @@ The fixed acquisition protocol makes 20 attempts and earns 20 wins in 237 one-se
 - `evidence/audit-v034-replay.json` and `audit-v034-replay.log`
 
 Remaining actual-UI gates include native keyboard expand/collapse, focus after item selection and repaint, readability of the compact comparison, and ordinary play/reload on the isolated candidate. No browser result is inferred from this audit.
+
+
+## Accepted-phase restore verification
+
+After actual bounded desktop candidate acceptance, only the index phase label changes to `v0.34 · 持續開發` with eight matching exact text assertions. The accepted source then receives a fresh full run: **1,862/1,862 pass and four runtime syntax checks pass**, with all 189 executable/test/replay/asset inputs identical before and after. The accepted-input manifest SHA256 is `8e530b6b92780f9455f823afb7092084aa601347d75132abdf3d1710dc9c6cf3`; this is distinct from the earlier source136 digest above. The old source136 natural replay receipt is historical and remains unchanged. Functional JS/CSS/assets and all fixtures are exact candidate bytes.
+
+Accepted v0.33 had changed the visible phase without updating eight old phase-text assertions; its earlier full-suite result preceded that label transition and was reused, not a post-transition rerun. The v0.34 metadata synchronization corrects restore-time test consistency without weakening behavioral assertions or changing gameplay. Actual candidate evidence is in BROWSER-QA-V034.md; root promotion and stable-profile smoke remain separate.
