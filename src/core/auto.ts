@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -22,7 +22,7 @@ import type { NodeType } from './tower';
 /** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
 /** sim diag only (never read by the game): battle-entry HP buckets and HP potions left at each death. */
-export const SIM_DIAG = { battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number>,
+export const SIM_DIAG = { zHpNL: {} as Record<number, number> /* cp9 rc2 (c)（自訂）: potion HP deciles, telegraphed-lethal drinks excluded */, skillHint: SKILL_HINT_STATS, battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number>,
   /** rc21 diag: health potions drunk in battle — by HP% decile at the drink, by floor, and by reason (lethal / low / big). */
   zHp: {} as Record<number, number>, zFloor: {} as Record<number, number>, zWhy: {} as Record<string, number>, floorBattles: {} as Record<number, number>,
   /** cp9 diag（自訂）: boss fight turns, worst single enemy turn in a boss fight (share of max HP), player action mix in normal fights. */
@@ -175,6 +175,7 @@ function autoEquip0(p: Player, extra: Equip[], style: GearStyle): Equip[] {
  * decision rc6) play physically: no offensive spells. SIM_AI=omni (env) = the pre-rc6 all-knowing AI (raw spec, every school
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+if (ENV?.SIM_HINTSTATS === '1') SKILL_HINT_STATS.on = true; // cp9 rc2 diag (sim only)（自訂）
 if (ENV?.SIM_ZRULE === 'rc20order' || ENV?.SIM_ZRULE === 'lethal') ADVICE_DIAG.zRule = ENV.SIM_ZRULE; // rc21 diag (sim only)
 // rc22 diag (sim only): SIM_REVERT=warn40,zfirst,elitepot,hpclamp,lowz,zuseful,crit|all reverts single rc20/rc21 changes.
 for (const t of (ENV?.SIM_REVERT ?? '').split(',').filter(Boolean)) for (const x of t === 'all' ? ['warn40', 'zfirst', 'elitepot', 'hpclamp', 'lowz', 'zuseful', 'crit'] : [t]) ADVICE_DIAG.revert.add(x);
@@ -427,7 +428,7 @@ function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Act
 export const FIGHT_LOG: Record<string, number | string | boolean>[] = []; export const FIGHT_CTX = { depth: 0, type: '' };
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
   const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
-  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; const ev9 = act(b, a, rng, profs); if (b.monsters.some((m) => m.rank === 'boss')) { const f9 = turnDamage(ev9) / b.d.hp; if (ENV?.DBG9 && f9 > 0.5) console.error('B9', f9.toFixed(3), b.d.hp, h0, b.hp, JSON.stringify(ev9.filter((e) => e.t === 'hit' && e.to === 'player' || e.t === 'pdot'))); FIGHT_BURST.v = Math.max(FIGHT_BURST.v, f9); } else if (FIGHT_CTX.type === 'battle') { const k9 = a.kind === 'skill' ? 'skill' : a.kind === 'spell' ? 'spell' : a.kind; SIM_DIAG.normActs[k9] = (SIM_DIAG.normActs[k9] ?? 0) + 1; } if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
+  while (!b.over && b.turn < 400) { const a = decide(b, strategy, mode); if (a.kind === 'item' && a.id === 'health') { const q = Math.min(9, Math.floor((b.hp / b.d.hp) * 10)); SIM_DIAG.zHp[q] = (SIM_DIAG.zHp[q] ?? 0) + 1; SIM_DIAG.zFloor[DIAG_FLOOR] = (SIM_DIAG.zFloor[DIAG_FLOOR] ?? 0) + 1; const w = nextRoundEstimate(b, true) >= b.hp ? 'lethal' : lowHp(b) ? 'low' : 'other'; SIM_DIAG.zWhy[w] = (SIM_DIAG.zWhy[w] ?? 0) + 1; if (w !== 'lethal') SIM_DIAG.zHpNL[q] = (SIM_DIAG.zHpNL[q] ?? 0) + 1; } if (dbg && ENV?.DBGSK) { const t = b.monsters.findIndex((e) => e.hp > 0); const ok = [...skillKit(b)].filter((id) => canUse(b, { kind: 'skill', id, target: t })); dbg.ocmax = Math.max(dbg.ocmax ?? 0, Math.round(b.oc)); if (ok.length) dbg.canSk = (dbg.canSk ?? 0) + 1; dbg.kit = [...skillKit(b)].length; } if (dbg) { const k = a.kind === 'skill' ? 'sk:' + a.id : a.kind === 'item' ? 'it:' + a.id : a.kind; dbg[k] = (dbg[k] ?? 0) + 1; } if (dbg && a.kind === 'attack' && b.d.style === 'staff') dbg.mpStarved = (dbg.mpStarved ?? 0) + 1; if (dbg && a.kind === 'spell') dbg['sp:' + a.id] = (dbg['sp:' + a.id] ?? 0) + 1; const h0 = b.hp; const ev9 = act(b, a, rng, profs); if (b.monsters.some((m) => m.rank === 'boss')) { const f9 = turnDamage(ev9) / b.d.hp; FIGHT_BURST.v = Math.max(FIGHT_BURST.v, f9); } else if (FIGHT_CTX.type === 'battle') { const k9 = a.kind === 'skill' ? 'skill' : a.kind === 'spell' ? 'spell' : a.kind; SIM_DIAG.normActs[k9] = (SIM_DIAG.normActs[k9] ?? 0) + 1; } if (dbg && b.hp < h0) { dbg.taken = (dbg.taken ?? 0) + h0 - b.hp; dbg.maxHit = Math.max(dbg.maxHit ?? 0, (h0 - b.hp) / b.d.hp); } }
   if (dbg) FIGHT_LOG.push({ ...dbg, depth: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: b.turn, won: b.over === 'win', maxHp: Math.round(b.d.hp), maxMp: Math.round(b.d.mp ?? 0), mpEnd: Math.round(b.mp), hpEnd: Math.round(b.hp) });
   if (!b.over) b.over = 'lose';
 }
@@ -466,7 +467,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (ENV?.SIM_MAPPOT === '1') while (run.hp < runDerived(p, run).hp * MAP_LOW_HP && mapPotion(p, run) > 0);
       const ms = encounter(run, pool, type);
       const d = runDerived(p, run);
-      const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions); const hp0Pct = run.hp / d.hp; DIAG_FLOOR = run.floor; SIM_DIAG.floorBattles[run.floor] = (SIM_DIAG.floorBattles[run.floor] ?? 0) + 1; // sim diag
+      const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp, oc: run.oc }, ms, p.potions); const hp0Pct = run.hp / d.hp; DIAG_FLOOR = run.floor; SIM_DIAG.floorBattles[run.floor] = (SIM_DIAG.floorBattles[run.floor] ?? 0) + 1; // sim diag
       SIM_DIAG.battles++; if (hp0Pct < 0.5) SIM_DIAG.low50++; if (hp0Pct < 0.3) SIM_DIAG.low30++;
       b.locked = battleLocks(p);
       const oc0 = openingOc(p, type, run);

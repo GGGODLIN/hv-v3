@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, RC22, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC22, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -74,6 +74,8 @@ export interface RunState {
   seed: number;
   /** CP3-bugfix 4: player level at trip start (monster level follow). */
   plv?: number;
+  /** cp9 rc2 (a)（自訂）: OC carried from the last fight (CP9.ocCarry). */
+  oc?: number;
   rng: number;
   tower: Tower;
   floor: number;
@@ -306,7 +308,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
         m.phases = RULES.bossPhases;
         // CP3-bugfix 4 (暫定): boss HP grows with player level over the free level so trips 2+ last 10-15 turns.
         const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(ab ? 20 : run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
-        m.maxHp = m.hp = Math.round(m.maxHp * g);
+        m.maxHp = m.hp = Math.round(m.maxHp * g * (RULES.cp8 && CP9.on ? CP9.bossHp : 1)); // cp9 rc2 (b)（自訂，暫定，無來源）: boss fights 6–18 turns
       }
       if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }
@@ -463,6 +465,7 @@ export function applyLoot(p: Player, run: RunState, loot: Loot): void {
 
 export function finishBattle(p: Player, run: RunState, b: BattleState, monsters: Monster[], type: NodeType): Loot | null {
   run.hp = b.hp; run.mp = b.mp; run.sp = b.sp;
+  if (RULES.cp8 && CP9.on && CP9.ocCarry > 0) run.oc = Math.round(b.oc * CP9.ocCarry); // cp9 rc2 (a)（自訂，暫定）: part of the OC carries to the next fight of the trip
   p.potions = { ...b.potions };
   if (run.cp5) run.pdot = undefined; // CP5 rc2 fix 2: all DoTs end with the battle (was carried into the next fight)
   if (b.over !== 'win') { run.done = 'dead'; return null; }

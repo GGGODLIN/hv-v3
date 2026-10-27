@@ -59,4 +59,6 @@ export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, 
  *  turn, so a big turn always has a one-turn warning. */
 export const CP9 = { on: num('SIM_CP9') !== 0, bossBurst: num('SIM_BOSSBURST') ?? 0.5, bossPlain: num('SIM_BOSSPLAIN') ?? 0.3,
   /** (c): above this HP share the advice keeps the potion unless D cannot save the turn (≤ the producer's 50%). */ zHp: num('SIM_ZHP') ?? 0.4,
-  /** (a): weight of the hit a stun skill cancels when its target is winding up (skill-hint value). */ stunW: num('SIM_STUNW') ?? 1 };
+  /** (a): weight of the hit a stun skill cancels when its target is winding up (skill-hint value). */ stunW: num('SIM_STUNW') ?? 1,
+  /** rc2 (b)（自訂，暫定）: boss max-HP multiplier so the median boss fight lasts 6–18 turns. */ bossHp: num('SIM_BOSSHP') ?? 1,
+  /** rc2 (a)（自訂，暫定，無來源）: share of end-of-fight OC kept for the next fight of the trip (0 = off, the CP3 0-start). */ ocCarry: num('SIM_OCCARRY') ?? 0 };

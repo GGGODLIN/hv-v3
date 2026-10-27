@@ -821,7 +821,7 @@ export class App {
     this.battleType = t;
     this.monsters = encounter(r, this.pool, t);
     this.recent = [];
-    this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp }, this.monsters, this.p.potions);
+    this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp, oc: r.oc }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);
     const oc0 = openingOc(this.p, t, r);
     armBattle(this.battle, r);

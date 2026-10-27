@@ -1,3 +1,4 @@
+import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
 import { CP8, CP9, RC22 } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
@@ -180,9 +181,9 @@ export interface BattleState {
   ow?: { turns: number; stacks: number };
 }
 
-export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {
+export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number; oc?: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {
   return {
-    d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: C['P-oc-start'].value.initial,
+    d, hp: vitals.hp, mp: vitals.mp, sp: vitals.sp, oc: vitals.oc ?? C['P-oc-start'].value.initial, // cp9 rc2 (a)（自訂）: OC may carry between fights of one trip
     monsters, turn: 0, spirit: false, defendTurns: 0, focusTurn: false,
     cooldowns: { shieldBash: 0, vitalStrike: 0, mercifulBlow: 0, greatCleave: 0, concussiveStrike: 0, rendingBlow: 0, shatterStrike: 0 },
     itemCd: { health: 0, mana: 0, spirit: 0 }, potions: { ...potions }, over: null, used: {}, bossTurns: 0, regen: { hp: 0, mp: 0, sp: 0 },
@@ -362,10 +363,10 @@ export function suggestSpell(s: BattleState, target: number, mode: 'old' | 'new'
 }
 /** rc13 item 3(b)（自訂，非原版）: a skill is hinted only when its expected damage beats the quick attack by > SKILL_HINT_EDGE (same edge as the spell hint). */
 export const SKILL_HINT_EDGE = SPELL_HINT_EDGE;
-const physExp = (s: BattleState, m: Monster, mult: number, opts: { noMit?: boolean; crit?: boolean } = {}) => {
+const physExp = (s: BattleState, m: Monster, mult: number, opts: { noMit?: boolean; crit?: boolean; dtype?: DmgType } = {}) => {
   const ce = opts.crit ? 1 + s.d.critMod : 1 + Math.min(1, s.d.physCrit) * s.d.critMod;
   const mit = opts.noMit ? 0 : ironMit(m, m.physMit);
-  return Math.min(m.hp, s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * ce * (1 - mit) * (1 - m.spec[s.d.damageType] / 100));
+  return Math.min(m.hp, s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * ce * (1 - mit) * (1 - m.spec[opts.dtype ?? s.d.damageType] / 100)); // cp9 rc2 (a)（自訂）: a skill's own damage type meets the monster's (sourced) weakness/resistance
 };
 /** rc13 item 3(b): expected damage of one skill this turn (overkill capped at each target's HP; area skills sum their targets). */
 /** cp9 (a)（自訂，非原版）: a stun that lands on a monster winding up (蓄力／重擊預告) is worth the hit it cancels for a turn,
@@ -378,7 +379,7 @@ export function skillValue(s: BattleState, id: SkillId, target: number): number 
   const t0 = s.monsters[target]?.hp ? target : s.monsters.findIndex((m) => m.hp > 0); if (t0 < 0) return 0;
   const m = s.monsters[t0]!;
   switch (id) {
-    case 'shieldBash': return physExp(s, m, SK.shieldBash.multiplier) + stunWorth9(s, m);
+    case 'shieldBash': return physExp(s, m, SK.shieldBash.multiplier, { dtype: 'crushing' }) + stunWorth9(s, m);
     case 'vitalStrike': return physExp(s, m, m.status.stun > 0 ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier);
     case 'mercifulBlow': return m.status.bleedTurns > 0 && m.status.bleed > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction ? m.hp : physExp(s, m, SK.mercifulBlow.multiplier);
     case 'greatCleave': return physExp(s, m, SK.greatCleave.multiplier, { crit: true });
@@ -401,7 +402,7 @@ export function suggestSkill(s: BattleState, target: number): SkillId | null {
   const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }));
   if (!ids.length) { if (!H.on) return null; if (skillKit(s).some((id) => !s.locked?.skill && s.cooldowns[id] <= 0 && s.oc < skillOc(s, id))) H.noOc++; else H.other++; return null; }
   const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
-  const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on) H.ratios.push(ratio);
+  const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on && H.ratios.length < 200) H.ratios.push(ratio);
   if (ratio > 1 + SKILL_HINT_EDGE) { if (H.on) H.lit++; return best; } if (H.on) H.belowEdge++; return null;
 }
 const ELEM_OF: Record<string, true> = { fire: true, cold: true, elec: true, wind: true, holy: true, dark: true };
