@@ -2,6 +2,10 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## Current delivery: v0.35 bounded desktop release complete
+
+v0.35 actor identity is now published and accepted on both isolated candidate and the original stable profile. Source143 backup precedes stable144; exact Pages/21HTTP and seven candidate wins plus one original-profile win/reload are verified. Full source evidence and residual limits are in BROWSER-QA-V035.md. Do not revive the resolved candidate refusal or claim all visual work is finished: forest/chest, small enemy text against moon, narrow/mobile and observed caster ornament remain future work. The following slice descriptions preserve their original intent/status.
+
 ## Current slice: v0.35 readable original battle actors
 
 v0.34 is published and bounded desktop-accepted, not blocked on the historical v0.26/v0.33 publication refusals. The latest actual cloud screenshot still shows generic shared pointed enemy geometry and a fixed hero sword. Give the four existing named enemies and boss distinct original canvas silhouettes and make the hero's displayed weapon match the existing equipment family. Keep the current layout, background, HP/status/target overlays, complete rules and all game state untouched. This is presentation only, not new combat roles or a claim of complete art direction.

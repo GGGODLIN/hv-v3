@@ -1,10 +1,10 @@
 {
-  "checkpoint": "143-v035-browser-accepted",
+  "checkpoint": "145-v035-publication-receipt",
   "version": "0.35.0",
-  "status": "bounded-desktop-accepted-awaiting-stable-publication",
-  "source_base": "176dfac8a96e84ceba7492e1d518e75e715e18f4",
-  "base_accepted_recovery": "7ade3e41161752c54cbfc4329000bc36e5d8716c",
-  "accepted_website": "e69c6b8833e41a0f2c0cc7cced3811717fcf6933",
+  "status": "published-bounded-desktop-accepted-complete-recovery-record",
+  "source_base": "94c8048e64e2895d426593b2bbd846cdb8ad42a1",
+  "base_accepted_recovery": "94c8048e64e2895d426593b2bbd846cdb8ad42a1",
+  "accepted_website": "46c3d758e435adcde0e77456f296b7dccd26fbae",
   "scope": "Original canvas actor identity only: four existing named enemy bodies, gate boss, neutral fallback and actual equipped family. Cosmetic defeated/static appearance. Existing enemy overlay suffix, scene/background/layout/core/RNG/save unchanged; version metadata and provenance updated.",
   "source_tests_passed": 1897,
   "runtime_syntax_checks": 4,
@@ -144,14 +144,14 @@
     "candidate_before_formal": true,
     "source_backup_before_publication": true
   },
-  "publication": "Candidate142 verified. Stable v034 retained until this accepted source backup, formal CI/HTTP and original-profile smoke.",
+  "publication": "Stable144 exact CI/21HTTP complete; original stable profile natural win/export/reload passed. Documentation-only final checkpoint, no runtime changes or redeploy.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T12:41:05.216979+00:00",
+  "frozen_utc": "2026-10-27T12:52:58.095929+00:00",
   "files": {
     "README.md": {
-      "bytes": 25036,
-      "sha256": "d289032c923233deb2948f5746a0dd1dddcf52725a5bca753589fd483b5eb8c7"
+      "bytes": 26468,
+      "sha256": "a7636bdc87d0b544b2d6bd724130318a8732c5190146be314fbf81996e34adad"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -318,8 +318,8 @@
       "sha256": "799842a2dd8f90624600c3c39e6ed0752c475a0dc0e031457850dbd87e2903b8"
     },
     "docs/ACCEPTANCE-V035.md": {
-      "bytes": 5007,
-      "sha256": "a512e0431f46ca38bd9525a6c374b93fe554bdc54c424bfa5f97d6a2019b6677"
+      "bytes": 6434,
+      "sha256": "864b463428f8278fcee02958b1669b581e9310f7177e78d1a57df61b4d57fedb"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -518,8 +518,8 @@
       "sha256": "c8970dca29ef8e16c015cabc511c8c548b76568b148edcdf69ae074d2e714fe3"
     },
     "docs/BROWSER-QA-V035.md": {
-      "bytes": 5065,
-      "sha256": "82e4d0964c9670a74c412f6c0d64b3308e83ce56e96ce9883670aaa989739224"
+      "bytes": 6610,
+      "sha256": "e1e1433254230caef8303549e97dc561a79e9a6102e2feaba117098f009fdc1e"
     },
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
@@ -778,20 +778,20 @@
       "sha256": "2e455be4751cedb90d98aaf8e24ccb1fc40db105a8850a544b46c8aed411908b"
     },
     "docs/RECOVERY-V035.md": {
-      "bytes": 4963,
-      "sha256": "ebd30e62befca51d066545d0ea1bb624baed023875eb8394dceae0ab647f6810"
+      "bytes": 6390,
+      "sha256": "3939f22ce2d99c90c93b964622348ca155df6cc6c4e389ddadcd7aac8fdb3188"
     },
     "docs/RELEASES.md": {
-      "bytes": 48192,
-      "sha256": "424f3d35f2bd5c34da7db844f4ca1e52f18488d8163ff72bac16676f960933e5"
+      "bytes": 49619,
+      "sha256": "63d68cac931a54c17a12584d2a2c36308a869f343449916d166c6a46d55f1a14"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 28137,
-      "sha256": "b005ac6c02d1632bf1dd8f474cb9e6d1951964d6599b30cd6840105458d0d68e"
+      "bytes": 28773,
+      "sha256": "52e6d44a236dc268b62dee4afd008164632f51a0e6c7c6331b2156f6ef5f9d27"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -822,8 +822,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 27807,
-      "sha256": "99c6f13c9904fce95d60793841e5bc72b751f8fe0ad6fa4ee1e49419f1b3fd7e"
+      "bytes": 29234,
+      "sha256": "a9e8777b42ce9674ce2ba6d8a018c14fd425b04399f22f75374b6f5da6cb6ec5"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1746,5 +1746,62 @@
   "candidate_website": "d91d18cb9663e41637f6016a411ff7668db32cf4",
   "candidate_ci_run": 40504194422,
   "candidate_http_exact_files": 21,
-  "runtime_acceptance_transition": "Only index phase and eight corresponding exact test labels; all functional runtime/styles/assets same as source141; full suite rerun."
+  "runtime_acceptance_transition": "Only index phase and eight corresponding exact test labels; all functional runtime/styles/assets same as source141; full suite rerun.",
+  "finalization_docs_only": true,
+  "runtime_unchanged_from_accepted_source143": true,
+  "full_suite_rerun_for_docs_finalization": false,
+  "source_test_count_note": "1897 freshly rerun after accepted phase-label/test synchronization in source143; this final documentation update does not claim another full run.",
+  "stable_publication": {
+    "commit": "46c3d758e435adcde0e77456f296b7dccd26fbae",
+    "tree": "fc781c8d6cc6e3dd06542d42b01ebce7af1720bf",
+    "parent": "d91d18cb9663e41637f6016a411ff7668db32cf4",
+    "ci_run": 40506632908,
+    "ci_conclusion": "success",
+    "http_exact_files": 21,
+    "directory_http_exact": true,
+    "candidate_unchanged": true,
+    "other_website_blobs_modes_preserved": 4005,
+    "write_denials": 0,
+    "uncertain_writes": 0
+  },
+  "stable_original_profile_smoke": {
+    "passed_at_utc": "2026-10-27T12:51:51Z",
+    "actual_cloud_browser": true,
+    "ordinary_stage1_win_seconds": 10.6,
+    "before": {
+      "level": 11,
+      "gold": 1066,
+      "wins": 20,
+      "inventory": 38,
+      "hp": 872,
+      "fragments": 50,
+      "seeds": 4
+    },
+    "after": {
+      "level": 11,
+      "gold": 1142,
+      "wins": 21,
+      "inventory": 41,
+      "hp": 872,
+      "fragments": 60,
+      "seeds": 5
+    },
+    "reload_persisted": true,
+    "original_41_item_records_exact": true,
+    "new_items": [
+      "loot-39",
+      "loot-40",
+      "loot-41"
+    ],
+    "old_unbound_level7_loot12_exact": true,
+    "equipment_abilities_policies_exact": true,
+    "gear_sets_absent_before_and_after": true,
+    "pre_export_sha256": "fb9d171993945abdadcf275b8cd68bdb0052371d7d00827278ac19954af04e3d",
+    "post_export_sha256": "68eee9a9e1b53172794d56613ea3d56b38c2eb849518d1bce87e5aafcc994f2e",
+    "raw_exports_in_source": false,
+    "candidate_progress_imported": false,
+    "actual_rapier_hero_and_shadow_enemy_seen": true,
+    "console_app_origin_errors": 0,
+    "console_known_extension_entries": 30
+  }
 }

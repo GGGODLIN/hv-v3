@@ -1,5 +1,15 @@
 # v0.35 真正瀏覽器驗收：戰場角色辨識
 
+## 正式頁：原profile smoke通過
+
+root於2026-10-27 12:51:51 UTC回報正式原profile實玩／重載通過。先備份接受來源 `94c8048e64e2895d426593b2bbd846cdb8ad42a1` 後，正式網站 `46c3d758e435adcde0e77456f296b7dccd26fbae` 的exact Pages `40506632908`成功，21HTTP檔＋directory index吻合，隔離候選21HTTP與4005外部blob/mode保留。正式ref無拒絕。
+
+原tab25從v0.34重新整理成v0.35持續開發，自己的Lv11／1066金幣／20勝／38背包／HP872／舊未綁定Lv7 loot-12保留，沒有匯入候選。普通路線1預約通關回營10.6秒後：Lv11／1142金幣／21勝／41背包／HP872／60碎片／5種子；再次重載一致。真正看見新英雄刺劍與影獸，場景正常。
+
+正常匯出SHA256 `68eee9a9e1b53172794d56613ea3d56b38c2eb849518d1bce87e5aafcc994f2e`，對比原v0.34匯出 `fb9d171993945abdadcf275b8cd68bdb0052371d7d00827278ac19954af04e3d`：所有原41件持有record逐byte完全不變，只新增loot-39／40／41。現穿、能力、strategy、emergencySupply、autoAdvance全部不變；gearSets在前後都不存在，不聲稱保留了不存在的預設配裝。console30項全部是下述相同已知extension來源，app來源0。候選tab關閉，正式保留營地並標示deliverable。
+
+這是既有正式進度smoke，不是重做所有候選流程或手機驗收。最後checkpoint145只更新文件與manifest，功能runtime／CSS／素材／測試／量測保持接受來源143，不重部署或宣稱額外全套執行。原始匯出未複製進repo。
+
 ## 隔離候選：有限桌面通過
 
 2026-10-27 12:38:31 UTC，root回報實際cloud Chrome候選驗收通過。不是來源DOM、假canvas、私改存檔或使用者電腦；本文件依root實際操作與正常匯出唯讀核對記錄，不把來源測試當成像素證據。
