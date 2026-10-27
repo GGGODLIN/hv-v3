@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, turnHints, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -203,7 +203,7 @@ export function chooseNaive(b: BattleState, noDrink = false): Action {
   if (A.has('spirit') && !b.spirit && live.some((m) => m.rank === 'boss') && canUse(b, { kind: 'spirit' })) return { kind: 'spirit' };
   // rc13 item 3(b): hinted mode presses the skill the UI hints (suggestSkill: beats A by > 10%). SIM_SKILLHINT=any = rc12 「first usable skill」.
   // rc15 item 2 (diag): SIM_SKILLHINT=off = hinted mode without skill presses (S / spell hints stay).
-  if (ENV?.SIM_SKILLHINT === 'off') { /* skills off */ } else if (A.has('skills') && ENV?.SIM_SKILLHINT !== 'any' && !ENV?.SIM_SKILLS) { const g = suggestSkill(b, target); if (g) return { kind: 'skill', id: g, target }; }
+  if (ENV?.SIM_SKILLHINT === 'off') { /* skills off */ } else if (A.has('skills') && ENV?.SIM_SKILLHINT !== 'any' && !ENV?.SIM_SKILLS) { const g = turnHints(b, target).skill; if (g) return { kind: 'skill', id: g, target }; } // cp9-rc4 (A)（自訂）: same function as the UI
   else if (A.has('skills')) for (const id of ((ENV?.SIM_SKILLS?.split(',') ?? [...skillKit(b)].reverse()) as SkillId[])) if (canUse(b, { kind: 'skill', id, target })) return { kind: 'skill', id, target };
   const qa = quickAttack(b, target);
   // rc15 arcane diag (sim only): SIM_ARC_MELEE=1 = staff A is a plain melee hit (no fiery quick-cast); SIM_ARC_FORCE=<spell> = the player
@@ -211,7 +211,7 @@ export function chooseNaive(b: BattleState, noDrink = false): Action {
   if (ENV?.SIM_ARC_MELEE === '1' && qa.kind === 'spell') return { kind: 'attack', target };
   if (ENV?.SIM_ARC_FORCE && qa.kind === 'spell') { const f: Action = { kind: 'spell', id: ENV.SIM_ARC_FORCE as SpellId, target }; if (canUse(b, f)) return f; }
   // cp8-rc12 item 2: hinted mode follows the arcane 💡 element suggestion (app.ts arcaneSpell). SIM_SPELLHINT=old = rc11 rule, off = only A.
-  if (A.has('skills') && qa.kind === 'spell' && ENV?.SIM_SPELLHINT !== 'off') { const g = suggestSpell(b, target, ENV?.SIM_SPELLHINT === 'old' ? 'old' : 'new'); if (g) return { kind: 'spell', id: g.id, target }; }
+  if (A.has('skills') && qa.kind === 'spell' && ENV?.SIM_SPELLHINT !== 'off') { const g = ENV?.SIM_SPELLHINT === 'old' ? suggestSpell(b, target, 'old') : turnHints(b, target).spell; if (g) return { kind: 'spell', id: g.id, target }; }
   return qa;
 }
 const seen = (m: Monster): Monster['spec'] => (SIM_AI.omni ? m.spec : panelSpec(m));
@@ -415,7 +415,7 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
 }
 function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
   // rc20 diagnostic (sim only): SIM_POTPOLICY=ui follows the battle panel's decision (chargeAdvice → Z/D/S) instead of potHint, like a playtester.
-  if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTPOLICY === 'ui') { const a = chargeAdvice(b); if (a.danger) { const k = a.keys[0]; if (k === 'Z') return { kind: 'item', id: 'health' }; if (k === 'D') return { kind: 'defend' }; if (k === 'S' && !b.spirit) return { kind: 'spirit' }; if (k === 'A' && ADVICE_DIAG.zRule === 'lethal' && a.text === 'diag lethal-only Z') return chooseNaive(b, true); /* rc21 variant: the player follows A (no own 40% drink) */ } }
+  if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTPOLICY === 'ui') { const t0 = b.monsters.findIndex((m) => m.hp > 0), a = chargeAdvice(b, Math.max(0, t0)); { const k = a.keys[0] ?? '', sk = /^[QWE]·/.test(k) && ENV?.SIM_SKILLHINT !== 'off' && SIM_AI.add.has('skills') ? skillKit(b)['QWE'.indexOf(k[0]!)] : undefined; if (sk && canUse(b, { kind: 'skill', id: sk, target: t0 })) return { kind: 'skill', id: sk, target: t0 }; } /* cp9-rc4 (C2)（自訂）: a skill key first in the panel (drain → stun) is pressed */ if (a.danger) { const k = a.keys[0]; if (k === 'Z') return { kind: 'item', id: 'health' }; if (k === 'D') return { kind: 'defend' }; if (k === 'S' && !b.spirit) return { kind: 'spirit' }; if (k === 'A' && ADVICE_DIAG.zRule === 'lethal' && a.text === 'diag lethal-only Z') return chooseNaive(b, true); /* rc21 variant: the player follows A (no own 40% drink) */ } }
   else if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP
   if (SIM_AI.naive && RULES.cp8 && SIM_AI.add.has('skills') && ENV?.SIM_GUARDHINT !== '0') { const g = guardHint(b); if (g) return { kind: g }; } // cp8-rc12 item 5: hinted mode follows the D hint (HP danger, potion unusable)
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);

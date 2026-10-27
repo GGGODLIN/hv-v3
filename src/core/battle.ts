@@ -282,7 +282,22 @@ export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: str
  *  'rc20order' = ablation: only the Z-first ordering reverts to rc20 (lethal → D,Z; low → Z,D).
  *  'lethal' = variant (非預設，自訂): Z forced only when the estimate ≥ HP; HP ≤ 35% but survivable → A first, Z second. */
 export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null; revert: Set<string> } = { zRule: 'rc21', critRoll: 1, revert: new Set() }; // rc22 decision (a): mean roll is the default (自訂); null = rc21 top roll (SIM_CRITROLL=max)
+/** cp9-rc4 (C2)（自訂，暫定，無來源）: the targeted monster is winding up a 吸血重擊 and a stun skill is usable on it → that skill
+ *  key comes first (a stun cancels the drain, battle.ts monstersAct0). The rest of the advice is unchanged. */
+export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike'];
+export function drainStunKey(s: BattleState, target = 0): string | null {
+  if (!RULES.cp8 || !CP9.on || ADVICE_DIAG.revert.has('drainstun')) return null;
+  const m = s.monsters[target] as (Monster & { drainNext?: boolean }) | undefined;
+  if (!m || m.hp <= 0 || !m.drainNext || m.status.stun > 0) return null;
+  const kit = skillKit(s), id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target }));
+  return id ? `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}` : null;
+}
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
+  const a = chargeAdvice0(s, target), k = drainStunKey(s, target);
+  if (!k) return a;
+  return { ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text: `${k}（打斷吸血重擊）；否則 ${a.text}` };
+}
+function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   const lethal = nextRoundEstimate(s, true) >= s.hp;
@@ -313,6 +328,15 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
   const sp = guardHint(s) === 'spirit';
   return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}${pn}，${why}）` };
+}
+/** cp9-rc4 (A)（自訂，暫定）: the ONE source of the per-turn battle hints, shared by the UI (app.ts battleHtml) and the sim's naive/ui
+ *  policy (auto.ts chooseNaive / decide0). rc3 bug: the UI gated the skill hint on lean blade/oc while the sim pressed it for every
+ *  school (bulwark sim boss 3–5 turns vs QA 8–10). No lean gate here: every school gets the skill hint; staff users get the spell hint. */
+export function turnHints(s: BattleState, target: number): { adv: ChargeAdvice | null; danger: boolean; skill: SkillId | null; spell: { id: SpellId; type: string; pct: number } | null } {
+  const adv = RULES.cp8 ? chargeAdvice(s, target) : null, danger = !!adv?.danger;
+  const skill = RULES.cp8 && !danger ? suggestSkill(s, target) : null;
+  const spell = RULES.cp8 && !danger && quickAttack(s, target).kind === 'spell' ? suggestSpell(s, target) : null;
+  return { adv, danger, skill, spell };
 }
 /** rc19 (a)（自訂，非原版）: the Z·生命藥水 button highlight. QA rc16 oc4 F6: HP 357/792 (45%), biggest hit 44, decision said A, yet Z
  *  lit — the button used potHint, whose "HP < 50%" branch ignores the estimate and so bypassed chargeAdvice. In cp8 the button now
@@ -800,9 +824,9 @@ export function rotateShield(m: CM, i: number, ev: BEvent[]): void {
   ev.push({ t: 'sig', from: i, sig: 'shield', text: `深淵之王展開 ${Z[m.shieldEl]} 之盾，破綻：${Z[m.breachEl]}` });
 }
 /** CP5 on-hit: vampire strike heal, 嗜血 heal + bleed, 烈焰 burn. */
-function cp5OnHit(s: BattleState, m: CM, i: number, dmg: number, drain: boolean, ev: BEvent[]): void {
+function cp5OnHit(s: BattleState, m: CM, i: number, dmg: number, drain: boolean, ev: BEvent[], defending = false): void {
   const heal = (f: number, t: string) => { const h = Math.min(m.maxHp - m.hp, Math.round(dmg * f)); if (h > 0) { m.hp += h; ev.push({ t: 'status', to: i, text: `${t} +${h}` }); } };
-  if (drain) { CP5_STAT.drainHits++; heal(CP5.drainFrac, '吸血'); }
+  if (drain) { CP5_STAT.drainHits++; heal(CP5.drainFrac * (RULES.cp8 && CP9.on && defending ? CP9.drainDef : 1), defending && RULES.cp8 && CP9.on && CP9.drainDef < 1 ? '吸血（防禦減半）' : '吸血'); } // cp9-rc4 (C1)（自訂，暫定）: D halves the lifesteal
   const p = s.cp5!.pdot;
   if (m.affixes?.includes('leech')) {
     heal(CP5.leechFrac, '嗜血');
@@ -894,7 +918,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? 1 - DEF.mitigation : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
-    if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev);
+    if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev, defending);
     if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus)) counters++;
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
     if (s.mods?.combo.bulwark && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {

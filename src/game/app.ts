@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { deathHint, deathTip, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { deathHint, deathTip, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -317,15 +317,17 @@ export class App {
     // once, so the prompt is no longer lost when the turn it comes off cooldown is short on OC. Reset per battle.
     if (this.cdBattle !== b) { this.cdBattle = b; this.cdShown = []; this.cdPending = skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target })); } // cp8-rc11 4(a): opening OC (blade 50) can already pay a skill
     // rc20 items 1–2（自訂，非原版）: while HP is in danger / low the only hint is chargeAdvice (no skill / spell suggestion: QA rc19 oc2 HP 3/1044 → Q·盾擊).
-    const adv = RULES.cp8 ? chargeAdvice(b, this.target) : null, dangerNow = !!adv?.danger;
-    const sugSk = RULES.cp8 && !dangerNow ? suggestSkill(b, this.target) : null; // rc13 item 3(b): only the skill whose expected damage beats A by > 10% lights
-    const ready = RULES.cp8 && (lean === 'blade' || lean === 'oc') ? this.cdPending.filter((id) => id === sugSk) : [];
+    // cp9-rc4 (A)（自訂，暫定）: every hint comes from core turnHints — the same function the sim's naive/ui policy presses — with no lean
+    // gate (rc3: bulwark / arcane never saw the skill hint the sim used). The skill hint lights whenever turnHints suggests a skill.
+    const th = turnHints(b, this.target), adv = th.adv, dangerNow = th.danger;
+    const sugSk = th.skill;
+    const ready = sugSk ? [sugSk] : [];
     this.cdShown = ready;
-    const spellSug = RULES.cp8 && lean === 'arcane' && !dangerNow ? this.arcaneSpell(b) : null;
+    const spellSug = th.spell;
     const sk = skillKit(b).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
-      return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : RULES.cp8 && (lean === 'blade' || lean === 'oc') && canUse(b, { kind: 'skill', id, target: this.target }) ? 'class="castable" data-castable ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${SKILL_ICON[id] ?? id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
+      return `<button ${ready.includes(id) ? 'class="suggest" data-readybtn ' : RULES.cp8 && canUse(b, { kind: 'skill', id, target: this.target }) ? 'class="castable" data-castable ' : ''}data-act="skill:${id}" ${gate(b, { kind: 'skill', id, target: this.target }, s.desc)}><img class="icon sp" src="assets/icons/k-${SKILL_ICON[id] ?? id}.png" alt="" width="32" height="32">${'QWE'[i]}·${s.zh}<small>${cd > 0 ? `冷卻${cd}` : `${s.oc}OC`}</small></button>`;
     }).join('');
     const sp = (Object.keys(SPELLS) as SpellId[]).map((id, i) => `<button class="spell el-${SPELLS[id].element}${spellSug?.id === id ? ' suggest" data-sugbtn="1' : ''}" data-act="spell:${id}" ${gate(b, { kind: 'spell', id, target: this.target })}><img class="icon sp" src="assets/icons/sp-${id}.png" alt="" width="32" height="32">${i + 1}·${SPELLS[id].zh}<small>${spellCost(b, id)}MP${SPELLS[id].targets > 1 ? '·群體' : ''}</small></button>`).join('');
     const po = (['health', 'mana', 'spirit'] as PotionId[]).map((id, i) => `<button data-act="item:${id}" ${b.potions[id] <= 0 ? 'data-potempty' : b.itemCd[id] > 0 ? `data-potcd="${b.itemCd[id]}"` : ''} ${id === 'health' && RULES.cp8 ? (zHint(b, this.target) ? 'class="suggest pothint" data-pothint' : '') : id === 'health' && b.itemCd.health <= 0 && b.monsters.some((m) => m.hp > 0 && m.charge > 0) ? 'class="suggest"' : ''} ${gate(b, { kind: 'item', id })}><img class="icon sp" src="assets/icons/p-${id}.png" alt="" width="32" height="32">${'ZXC'[i]}·${POTION_ZH[id]}<small>${b.potions[id] <= 0 ? '用完' : b.itemCd[id] > 0 ? `冷卻 ${b.itemCd[id]}｜剩 ${b.potions[id]}` : `×${b.potions[id]}`}</small></button>`).join('');
@@ -335,7 +337,7 @@ export class App {
     // rc17 製作人決定：弱點／抗性只留怪物頭上的簡短版，右上列表拿掉。
     const hpPot = b.potions.health > 0 && b.itemCd.health <= 0;
     // cp8-rc8 P2 item 2: blade / oc see which skills they can use (or what unlocks them) on turn 1 of every fight.
-    const skillHint = RULES.cp8 && b.turn === 0 && (lean === 'blade' || lean === 'oc') ? (() => {
+    const skillHint = RULES.cp8 && b.turn === 0 ? (() => { // cp9-rc4 (A)（自訂）: all schools
       const ids = skillKit(b);
       const now = ids.filter((id) => canUse(b, { kind: 'skill', id, target: this.target })).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}`);
       const later = ids.filter((id) => !canUse(b, { kind: 'skill', id, target: this.target }) && b.cooldowns[id] <= 0 && /OC/.test(whyNot(b, { kind: 'skill', id, target: this.target }) ?? '')).map((id) => `${'QWE'[ids.indexOf(id)]}·${SKILLS[id].zh}（${SKILLS[id].oc}OC）`);
@@ -343,7 +345,7 @@ export class App {
       return `<div class="hint" data-skillhint>💡 本場可用：${now.length ? now.join('、') + sp : `攻擊累積 OC 後可用 ${later.join('、') || '—'}${sp}`}</div>`;
     })() : '';
     const ids0 = skillKit(b);
-    const readyHint = ready.length && !skillHint ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 可以用了（冷卻結束／OC 已夠）（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
+    const readyHint = ready.length ? /* cp9-rc4 (A)（自訂）: also on turn 0 */ `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 可以用了（冷卻結束／OC 已夠）（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
     const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => `<span data-charger="${esc(m.name)}">${esc(m.name)} ${chargeKind(m)}</span>`).join('；')}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>`
       : dangerNow && !b.over ? `<div class="decide" data-decide data-lowhp>⚠ HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}<br>${this.decideLine(b, hpPot)}</div>` : ''; // rc20 item 1: low HP / danger on a non-charge turn
