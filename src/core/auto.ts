@@ -173,6 +173,10 @@ function autoEquip0(p: Player, extra: Equip[], style: GearStyle): Equip[] {
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
 if (ENV?.SIM_ZRULE === 'rc20order' || ENV?.SIM_ZRULE === 'lethal') ADVICE_DIAG.zRule = ENV.SIM_ZRULE; // rc21 diag (sim only)
+// rc22 diag (sim only): SIM_REVERT=warn40,zfirst,elitepot,hpclamp,lowz,zuseful,crit|all reverts single rc20/rc21 changes.
+for (const t of (ENV?.SIM_REVERT ?? '').split(',').filter(Boolean)) for (const x of t === 'all' ? ['warn40', 'zfirst', 'elitepot', 'hpclamp', 'lowz', 'zuseful', 'crit'] : [t]) ADVICE_DIAG.revert.add(x);
+if (ADVICE_DIAG.revert.has('zfirst')) ADVICE_DIAG.zRule = 'rc20order';
+if (ADVICE_DIAG.revert.has('crit')) ADVICE_DIAG.critRoll = null;
 if (ENV?.SIM_CRITROLL === 'mean') ADVICE_DIAG.critRoll = 1; else if (ENV?.SIM_CRITROLL === 'mean110') ADVICE_DIAG.critRoll = 1.1; else if (ENV?.SIM_CRITROLL === 'max') ADVICE_DIAG.critRoll = null; // rc21 diag (sim only): crit-estimate roll
 export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
   /** CP8 P1: SIM_AI=naive — a real first-time player: only normal attacks (cp8-rc5: UI default target), a health potion below 40% HP; no skills,

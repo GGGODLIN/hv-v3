@@ -13,6 +13,7 @@ import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
+import { ADVICE_DIAG } from './battle';
 import { combos, formed, schoolCounts, sumMods } from './buffs';
 import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
@@ -394,7 +395,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
+    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot')) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
@@ -452,6 +453,7 @@ export function applyLoot(p: Player, run: RunState, loot: Loot): void {
     // CP8 P1 (暫定): wear a badged drop at once so it survives death; the replaced piece goes to the (persistent) inventory.
     equip(p, e); run.bag = run.bag.filter((x) => x !== e); (run.worn ??= []).push(e.id);
   }
+  if (ADVICE_DIAG.revert.has('hpclamp')) { const d = runDerived(p, run); if (d.hp < hp0) loot.hpDrop = hp0 - d.hp; } else // rc22 diag: SIM_REVERT=hpclamp = rc19 (no clamp)
   { const d = runDerived(p, run); run.hp = Math.min(run.hp, d.hp); run.mp = Math.min(run.mp, d.mp); run.sp = Math.min(run.sp, d.sp); if (d.hp < hp0) loot.hpDrop = hp0 - d.hp; } // rc20 item 5: auto-wear can lower max HP (QA 786/756)
   run.credits += loot.credits;
   run.exp += loot.exp;

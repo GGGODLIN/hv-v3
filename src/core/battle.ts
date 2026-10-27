@@ -248,12 +248,12 @@ export const PHYS_RESIST_LOG = 25;
 /** rc20 item 1（自訂，非原版）: HP ≤ POT_HINT.low of max (暫定 35%). */
 /** rc21 item 2（製作人 40%）: the next round could take ≥ this share of max HP → show the decision even when HP survives it. */
 export const BIG_NEXT = 0.4;
-export const bigNext = (s: BattleState): boolean => s.hp > 0 && nextRoundEstimate(s, true) >= s.d.hp * BIG_NEXT;
+export const bigNext = (s: BattleState): boolean => !ADVICE_DIAG.revert.has('warn40') && s.hp > 0 && nextRoundEstimate(s, true) >= s.d.hp * BIG_NEXT;
 export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
 export function hpDanger(s: BattleState): boolean {
   // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
   // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
-  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp || lowHp(s) || bigNext(s); // rc21 item 2: …or the next round could take ≥ 40% max HP
+  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp || (!ADVICE_DIAG.revert.has('lowz') && lowHp(s)) || bigNext(s); // rc22 diag: SIM_REVERT=lowz drops the rc20 low-HP trigger // rc21 item 2: …or the next round could take ≥ 40% max HP
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
@@ -270,7 +270,7 @@ export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: str
 /** rc21 sim diagnostics only (set by auto.ts from SIM_ZRULE; the game never changes it). 'rc21' = default.
  *  'rc20order' = ablation: only the Z-first ordering reverts to rc20 (lethal → D,Z; low → Z,D).
  *  'lethal' = variant (非預設，自訂): Z forced only when the estimate ≥ HP; HP ≤ 35% but survivable → A first, Z second. */
-export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null } = { zRule: 'rc21', critRoll: 1 }; // rc22 decision (a): mean roll is the default (自訂); null = rc21 top roll (SIM_CRITROLL=max)
+export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null; revert: Set<string> } = { zRule: 'rc21', critRoll: 1, revert: new Set() }; // rc22 decision (a): mean roll is the default (自訂); null = rc21 top roll (SIM_CRITROLL=max)
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
@@ -281,7 +281,7 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
   const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
   // rc21 item 2（暫定，自訂）: on a survivable ≥ 40% warning, Z only when at least half of its heal would land (rc14 POT_HINT.minUseful, same rule as potHint).
-  const zUseful = !big || s.d.hp - s.hp >= Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful;
+  const zUseful = !big || ADVICE_DIAG.revert.has('zuseful') || s.d.hp - s.hp >= Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful;
   const zr = ADVICE_DIAG.zRule;
   if (zr !== 'rc21' && canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) {
     if (zr === 'rc20order') return { danger, est, hp, keys: lethal ? ['D', 'Z'] : ['Z', 'D'], text: 'diag rc20order' };
