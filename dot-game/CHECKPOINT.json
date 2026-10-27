@@ -1,24 +1,24 @@
 {
-  "checkpoint": "161-v045-quality-sort-source",
-  "version": "0.45.0",
+  "checkpoint": "162-v046-name-search-source",
+  "version": "0.46.0",
   "status": "source-tested-not-browser-accepted-not-published",
-  "source_base": "ce0cd4b9efd1a48fca46e71428718cf5f6b88020",
+  "source_base": "1fdb61a42e656c6fb880e9a5ad78d576434b1981",
   "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
   "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
-  "scope": "Optional quality-first ordering uses existing tiers and keeps newest acquisition within ties. Exact-ID inspection and manual sale are preserved. No gameplay, RNG, save, CSS or asset changes.",
-  "source_tests_passed": 2014,
+  "scope": "Literal case-insensitive backpack name lookup intersects existing filters and preserves comparison and sale IDs. Scoped search-control CSS only; no gameplay, RNG, save or asset changes.",
+  "source_tests_passed": 2025,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "new_focused_tests": 3,
+  "new_focused_tests": 5,
   "independent_focused_tests_passed": 6,
   "browser_acceptance": "Not performed; full production UI tests simulate browser APIs. Inherited v037/v038 art remains unaccepted.",
   "publication": "Not attempted; existing Kenney website scope refusal unresolved. Zero website operations.",
-  "recovery": "docs/RECOVERY-V045.md",
+  "recovery": "docs/RECOVERY-V046.md",
   "files": {
     "README.md": {
-      "bytes": 40012,
-      "sha256": "357def1515b7b4c43bfad6b7acce6b4487378a1f545ec60d37104f596b260124"
+      "bytes": 41012,
+      "sha256": "a2bf4cc2fbc643b828381ce17da54f9db28969be2fbbe18a2fd02463b7d44adb"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -231,6 +231,10 @@
     "docs/ACCEPTANCE-V045.md": {
       "bytes": 931,
       "sha256": "86759d57920e256c962dade5553928c19382a891790566c7e46f7a7bcd69b447"
+    },
+    "docs/ACCEPTANCE-V046.md": {
+      "bytes": 1419,
+      "sha256": "95f7f83e8415b9c564ed80f68b9657d2dbee128ed83e0f13904d008470cb4a7e"
     },
     "docs/ACCEPTANCE-V05.md": {
       "bytes": 11090,
@@ -760,6 +764,10 @@
       "bytes": 1367,
       "sha256": "8feaf2378d81d42f93a786f3c27a24455271c9cdbc6a22e8faf3abb2f4acb91c"
     },
+    "docs/RECOVERY-V046.md": {
+      "bytes": 1366,
+      "sha256": "c388365431022c7333b946415be7c68df2751a69dba8b7d7095e5c5ece962d79"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -769,8 +777,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 35451,
-      "sha256": "94b2082671837c4f1d24c97d0a8c1a804e28aad67258ba5a6fc463439b34574f"
+      "bytes": 35900,
+      "sha256": "4eca92f590ebefb9e644361f6274304a6dd2e6cc7cb47113d675fce920ccb91b"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -801,8 +809,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 42723,
-      "sha256": "d526d8dcb7ea29efbbaf6a90aa3c35b1a33db7fcbe19c8748abd0c566d217a68"
+      "bytes": 43723,
+      "sha256": "f125116a1cfcfaecfe182a71939c661c80430d464182d7ad69fa9ef1fc1f932a"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1021,12 +1029,12 @@
       "sha256": "003a05f8a794baa96cee54bad6a9c4c1ba380f226f1fd4196f7cf5d3b9cf1ddf"
     },
     "index.html": {
-      "bytes": 45282,
-      "sha256": "fb0ddc33e1de7c87908953e99cdbaae03fcf0fd4dd94b9eebfc3f9be467ac998"
+      "bytes": 45719,
+      "sha256": "8c953cd2d34d5f479b0b3b197a878841164d40a646b54dec47cc8539f494875a"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "bdc2160331f88d4edc0590261acdc9df04279da927d39c0b2136692397fa9873"
+      "sha256": "4d5fb94989919f6c5d418be858dbc50d9f7a91966551f59281e9526fd11b1b1c"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1113,12 +1121,12 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 168408,
-      "sha256": "222d81f5186225816bbb75519801e08d8fd7f7408151943bf40f63715ba99ec0"
+      "bytes": 168742,
+      "sha256": "68ac93d36cbbdc4a65023fad2a384742084799d7bfd59d06c535a474b80e6fd1"
     },
     "style.css": {
-      "bytes": 73406,
-      "sha256": "c92d96b2648f0ea908daa1e4849b4b1681e0a14d8177a41d24ce04b07b249225"
+      "bytes": 73906,
+      "sha256": "22338db6247cdd6b08d804319e8c98d620bcec541d0cdde89149ca189e5d6f1c"
     },
     "tests/ability-growth.test.mjs": {
       "bytes": 17442,
@@ -1150,7 +1158,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "bc6f8e7b30b2adb4625b3b83483e68e35fe9e7dca0fd3fab1fdfa5129bf4d166"
+      "sha256": "20fe31d1997f5af4de12d25cde9fddc46b40a4146944684696edc9b351bde14d"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1165,8 +1173,8 @@
       "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
     },
     "tests/camp-chest-independent.test.mjs": {
-      "bytes": 8509,
-      "sha256": "5c3a3063565bf76e7f0f6d14a5a85fba471866f78b142ab4cf50b698e2d39915"
+      "bytes": 8603,
+      "sha256": "1b23661d5c0f66f1c9f9dd252922efa6aa4e71b991162b625b31a0fb34538031"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1210,7 +1218,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18341,
-      "sha256": "2942316d85ec672a720270420ffbd946905cdce0b887e6d8773619042e639fb6"
+      "sha256": "2b145c62a6edba111b8b7677a7a806cb530d1f1d8840f9ab976f0d4973687692"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1226,7 +1234,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "9511f17e5391c49a6ad6fcadca91dab836d85f14a81d3750c50f3c850a8fbcb1"
+      "sha256": "2393b4962dbb1e8b9e3c9bdad37e61117ab77013a6f135a28b43e350d994ef04"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1262,7 +1270,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "aea032bd4d15237a430483447c5b50e6006dbbbe0e92cc6dc9855096c17de6bf"
+      "sha256": "b3fcb7cf9067559adc8cce6477fadbfe60230e9337bf9c7873eb982223ff1c4b"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1477,8 +1485,8 @@
       "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
     },
     "tests/forest-stage-independent.test.mjs": {
-      "bytes": 7317,
-      "sha256": "21486977a513ffc4e3d4662d919c490f5d7dd577895218db834644f1a42868eb"
+      "bytes": 7408,
+      "sha256": "618745ff83838ca56ee85ad7b77390f49fd1121db2a73a51236a2bba632b4b2e"
     },
     "tests/forest-stage.test.mjs": {
       "bytes": 4749,
@@ -1536,6 +1544,10 @@
       "bytes": 2755,
       "sha256": "073537c3b8eb1d9e1ababe400a75e4e01fdf8c1764e2270a589a5e4c765c23da"
     },
+    "tests/helpers/name-search-baseline.mjs": {
+      "bytes": 2336,
+      "sha256": "7e3d40fee80a6063ce43ff4636a04555a243adc9cd3b8d433886aa9ff267daf1"
+    },
     "tests/helpers/quality-filter-baseline.mjs": {
       "bytes": 1581,
       "sha256": "982e873468b92fb68db2d50fbcd464a57bd06c65c0a26c02a1478cd07169b2d0"
@@ -1569,8 +1581,8 @@
       "sha256": "6346ff604eb1fc237a5aa67d7f7b1ead46aef542af65d34f92db1afc0b5ed39c"
     },
     "tests/inventory-workbench-ui.test.mjs": {
-      "bytes": 15534,
-      "sha256": "3c8538dc29b3e3ae6f0bab7dd88e93e013f7fcf9bfd6022de4a6070cf316db3e"
+      "bytes": 15584,
+      "sha256": "46297fc0a1e74bbbd80b889112d5b56748b1ea968d2702961efff25600236c8f"
     },
     "tests/item-world-audit.test.mjs": {
       "bytes": 33650,
@@ -1586,7 +1598,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "d0749a3575a6baccddaa8817c48fb9ab0d48d73ffffa512ef4932e2ff49e84c1"
+      "sha256": "75360902a86e389b45753195c1b137b163b06d87074dee9a5d80e1dfe0220b4c"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1603,6 +1615,14 @@
     "tests/magical-encounters.test.mjs": {
       "bytes": 7167,
       "sha256": "f2a01aea094369b47cee8757794e0c72837501a037a82236a808aba609f58875"
+    },
+    "tests/name-search-audit.test.mjs": {
+      "bytes": 4334,
+      "sha256": "a8456424b9532fada7f833523743bbafa15a807dd62d9da2ce152978199211a0"
+    },
+    "tests/name-search.test.mjs": {
+      "bytes": 2871,
+      "sha256": "9e0a6b2ffdd763105f9a768ebc6a56f0e6e77fbfacb653647677832f24b838b9"
     },
     "tests/parry-acceptance.test.mjs": {
       "bytes": 10738,
@@ -1658,7 +1678,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "e20f6e2e189e87cf966c1c3d5739d22defdc1d841b1c769e5055f9d55aebb359"
+      "sha256": "511027dad2f7c9d118eefa7a08479503554de50d7f665d3de6b2eee87f6ea38d"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1686,7 +1706,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "bc4d4de35c49da7fb15c1e35ad63014aa1dce23ba3be6967467d69db83d64ab2"
+      "sha256": "8555dfbd5ce2458942ade2c08e59dd3d22f99d2ad85de4a0b54fbf23fec0fc67"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1750,7 +1770,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "f07f7b7de61f3b51bc999f30be254dae11cf7dd159ddfe49980f11bc45f9ee77"
+      "sha256": "2d19ed607d1b117ae10c0b8b63ef11a00f35c71e5bf2f104d4db7a6010dc675a"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1785,8 +1805,8 @@
       "sha256": "9c5e38faf8deb0c03a7d9e5d4fad6f298ea94b57a8a7b504d590268b330f9e72"
     },
     "tests/v025-independent-audit.test.mjs": {
-      "bytes": 18622,
-      "sha256": "48c67154a0972dac099819fc07cb82264e848b60fad6d2b52c35f33beeb7a9c2"
+      "bytes": 18630,
+      "sha256": "ce9cafd35e97017392fa9bc6f87861fdb4bdb1ab3082d17fca82271733b435bf"
     },
     "tests/v03-acceptance.test.mjs": {
       "bytes": 18736,
@@ -1834,7 +1854,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "5a9020fa900210cb93f057772380a3ea8fc4729cadc05d84dbfe5bd9112e198e"
+      "sha256": "a348ca66e57fa5163d8317b0582742308750bc5a59a92c02b5996c464dbdaef5"
     }
   }
 }

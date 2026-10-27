@@ -758,3 +758,9 @@ dialog::backdrop { background: #071016d9; backdrop-filter: none; }
   .weapon-rule-details { border-color: CanvasText; }
   .weapon-rule-summary:focus-visible { outline-color: ButtonText; }
 }
+
+/* Transient literal-name lookup; scoped to the inventory workbench. */
+.loot-workbench .inventory-name-filter { grid-template-columns: minmax(0, 1fr); }
+.inventory-name-filter label { display: grid; gap: 5px; min-width: 0; font-size: 12px; }
+.inventory-name-filter input { width: 100%; min-width: 0; min-height: 40px; padding: 9px 10px; color: var(--text); background: #17282e; border: 1px solid var(--line); border-radius: 7px; }
+.inventory-name-filter input::placeholder { color: var(--muted); }

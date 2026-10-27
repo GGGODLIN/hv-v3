@@ -1,3 +1,4 @@
+import { beforeNameSearch } from './helpers/name-search-baseline.mjs';
 import { beforeQualitySort } from './helpers/quality-sort-baseline.mjs';
 import { beforeQualityFilter } from './helpers/quality-filter-baseline.mjs';
 import { beforeDetailActionFocus } from './helpers/detail-action-baseline.mjs';
@@ -10,7 +11,7 @@ import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 
 // Independent source/Canvas-command checks. No pixels, browser or accessibility claim.
-const read = p => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
+const read = p => beforeNameSearch(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'),p);
 const source = beforeImportOrdering(beforeDetailActionFocus(beforeQualityFilter(beforeQualitySort(read('src/ui.js')))));
 const sha = s => createHash('sha256').update(s).digest('hex');
 const actorStart = source.indexOf('function rect('), sceneStart = source.indexOf('function drawScene(');

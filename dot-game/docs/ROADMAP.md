@@ -1,5 +1,10 @@
 # Independent development roadmap
 
+
+## v0.46 source-only slice: literal name lookup
+
+Find backpack equipment by visible-name substring while retaining existing intersected filters and ordering. Search is a transient view, not equipment advice, a transaction or a new loot system. Keep exact comparison/sale IDs, hidden selection disclosure and pending/worn lists. Scope styling to the new control. No website operations; actual browser, IME and responsive acceptance remain pending.
+
 ## v0.45 source-only slice: quality-first inventory ordering
 
 Sort all currently matching items by the existing quality tiers descending, retaining newest-acquired order within each quality. Quality is not a build recommendation or power promise. Preserve exact IDs, selection, transactions, save data and source attribution. No website operations; real browser acceptance remains pending.
