@@ -276,6 +276,8 @@ export const PHYS_RESIST_LOG = 25;
 export const BIG_NEXT = 0.4;
 export const bigNext = (s: BattleState): boolean => !ADVICE_DIAG.revert.has('warn40') && s.hp > 0 && nextRoundEstimate(s, true) >= s.d.hp * BIG_NEXT;
 export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
+/** cp9-rc8 QA bug b（自訂）: the post-defend estimate the decision line uses (null when D is unavailable) — shared by the banner. */
+export function defendEst9(s: BattleState): number | null { return RULES.cp8 && canUse(s, { kind: 'defend' }) ? Math.round(nextRoundEstimate(s, true, true)) : null; }
 /** cp9-rc5 QA bug 1（自訂，暫定）: one rule for 「下回合全體暴擊估計 ≥ HP」 — the rounded estimate vs the rounded HP, exactly what is printed. */
 export const isLethal = (est: number, hp: number): boolean => Math.round(est) >= Math.round(hp);
 export function hpDanger(s: BattleState): boolean {
@@ -905,12 +907,27 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
   return ev;
 }
 
+/** cp9-rc8 QA (c) diag（自訂，sim only）: boss wind-up on the boss turn right after one of its telegraphed hits landed (windHitCd bypass). */
+export const WIND9 = { hits: 0, viol: 0, minion: 0, ex: [] as string[] };
+function wind9diag(s: BattleState, ev: BEvent[], e0: number): void {
+  const nw = ev.slice(e0) as (BEvent & { from?: number | string; label?: string; to?: unknown; t: string })[];
+  s.monsters.forEach((m0, i) => {
+    const m = m0 as CM & { hit9?: boolean }; if (m.rank !== 'boss') return;
+    const hitNow = nw.some((e) => e.t === 'hit' && e.from === i && e.to === 'player' && /重擊|脈衝|蓄力一擊/.test(e.label ?? ''));
+    const wind = nw.find((e) => (e.t === 'charge' || (e.t === 'sig' && !/召喚|援軍|尖刺/.test(String((e as { text?: string }).text)) && e.sig !== 'summon' && e.sig !== 'thorns')) && e.from === i);
+    if (m.hit9 && wind) { WIND9.viol++; if (WIND9.ex.length < 8) WIND9.ex.push(`turn ${s.turn} ${wind.t} ${JSON.stringify(wind).slice(0, 80)} windCd=${m.windCd} n=${s.monsters.length} stun=${m.status.stun} phases=${(m as { phases?: number }).phases}`); }
+    if (m.hit9 && !wind && nw.some((e) => e.t === 'charge' && e.from !== i)) WIND9.minion++;
+    if (hitNow) WIND9.hits++;
+    m.hit9 = hitNow;
+  });
+}
+if ((globalThis as { process?: { env?: Record<string, string | undefined>; on?: (e: string, f: () => void) => void } }).process?.env?.SIM_WIND9) (globalThis as unknown as { process: { on: (e: string, f: () => void) => void } }).process.on('exit', () => console.error('WIND9', JSON.stringify(WIND9)));
 /** cp8-rc4 diagnostic: worst single monster round (fraction of max HP) since the last reset, with its hits. */
 export const RDMG = { max: 0, raw: 0 /* cp8-rc5 injury p95: same round before CP8.turnCap */, clip: 0, hits: [] as Record<string, unknown>[], av: {} as Record<string, number> };
 function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
   const hits: Record<string, unknown>[] = [], h0 = s.hp;
   RDMG.clip = 0;
-  monstersAct0(s, rng, ev, hits);
+  const e0 = ev.length; monstersAct0(s, rng, ev, hits); wind9diag(s, ev, e0);
   const f = (h0 - s.hp) / s.d.hp;
   RDMG.raw = Math.max(RDMG.raw, f + RDMG.clip / s.d.hp);
   if (f > RDMG.max) { RDMG.max = f; RDMG.hits = hits; RDMG.av = { hp: s.d.hp, evade: s.d.evade, parry: s.d.parry, block: s.d.block, physMit: s.d.physMit, magMit: s.d.magMit }; }

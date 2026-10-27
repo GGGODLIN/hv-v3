@@ -180,3 +180,7 @@
   - 檢查：秘術 mr s0 86.5 → 74。stunImm 999 也只到 74，所以暈眩不是秘術的主因。主因是重擊命中後的鎖（WINDHIT=0 → 49），但製作人要求保留 1 回合鎖，所以沒有改。
 - 磐石：option ii（每個防禦回合最多 1 次反擊，CP9.bwOpt 2）。mr s0 49 / battle 34，option i 是 mr 100 / battle 35。
 - c8 sim（標準 128×4）：battle 中位 34–44；mr 刃鋒 44/45、奔流 44/41.5、磐石 49/49、秘術 79/76.5。mr F100 22–35%、battle 刃鋒 F100 12–13%：gate 未全過，依製作人指示仍然 tag cp9-rc8。
+
+### cp9-rc8 QA 後續（自訂，未打 tag）
+- **bug b（自訂）**：暴擊估 ≥ HP、但防禦後估計 < HP 時，改顯示橘色「不防禦會死：暴擊估 X ≥ HP Y，防禦後 Z」（`.warn-def`）。防禦也會死時才維持紅色。估計值來自 `defendEst9` = `nextRoundEstimate(s, true, true)`。測試：tests/cp9-rc8-qa.test.ts。
+- **QA c（自訂診斷）**：`WIND9`（SIM_WIND9=1）會計算「boss 重擊/脈衝/蓄力一擊命中後的下一個 boss 回合，同一隻 boss 又蓄力」的次數。4 流派 × battle/mr、64×4 下皆為 0，未重現。同一時機的蓄力全都來自小怪（小怪的「正在蓄力一擊」= heavyNext，本來就不受 windHit 鎖限制）。回歸測試：tests/cp9-rc8-qa.test.ts，拿掉鎖時會失敗。
