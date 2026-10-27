@@ -261,7 +261,7 @@ export class App {
     return `<div class="panel town"><div class="head"><h2>城鎮</h2><span>Lv ${lv} · ${p.credits.toLocaleString()} C · 藥水 ❤${p.potions.health} ✦${p.potions.mana} ☯${p.potions.spirit}</span>
       <span class="spacer"></span><span class="hint" data-runs>${sortieLabel(st.runs, RULES.cp6Abyss && abyssOpen(this.p) ? loadRecord(localStorage.getItem(ABYSS_KEY)).trips : 0)} · 最高 ${st.bestFloor} 層 · 通關 ${st.clears} 次</span></div>
       ${this.noticeHtml()}<div class="tabs">${tabs}</div>${lockedHint ? `<div class="hint locks">🔒 ${lockedHint}</div>` : ''}<div class="body">${body}</div>
-      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span><button data-start class="big">進入試煉之塔 ▶</button>${this.abyssBtn()}</div>${this.abyssRecordHtml()}</div>`;
+      <div class="foot"><button data-newgame class="ghost">新角色</button><span class="spacer"></span><span class="hint" data-deathrule>⚠ 死亡會把帶回折半（EXP、熟練度、Credits 只留 50%）</span>${RULES.cp8 ? '<span class="hint warn" data-departtip>出發提醒：帶藥 + 優先走商人（地圖上標 🧪 的節點）</span>' : ''}<button data-start class="big">進入試煉之塔 ▶</button>${this.abyssBtn()}</div>${this.abyssRecordHtml()}</div>`;
   }
 
   mapHtml(): string {
@@ -275,7 +275,9 @@ export class App {
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         // CP5 rc2 fix 3: the death-combo ⚔ warning sits on the elite node itself (the floor banner stays).
         const ew = r.abyss && RULES.cp6Abyss && t === 'elite' ? `<b class="ewarn warn" data-elitemark title="深淵精英可能帶 3 個詞綴，或克制物理的【尖刺】【堅硬】">⚔</b>` : r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
-        return cur ? `<button class="node n-${t}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
+        // rc21 item 4（製作人，自訂，非原版）: merchant nodes are marked on the route map (they restock health potions). No numbers changed.
+        const mm = RULES.cp8 && t === 'merchant' ? '<small class="mmark" data-merchantmark>🧪 可補藥</small>' : '';
+        return cur ? `<button class="node n-${t}${mm ? ' mhl' : ''}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t}${mm ? ' mhl' : ''} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
@@ -736,7 +738,7 @@ export class App {
     const body = iss.length
       ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
       : `<p data-prepbox data-prep-done>整備完成。</p>`;
-    const tip = RULES.cp8 ? `<p class="hint" data-prep-towntip>可在城鎮買藥：生命藥水 ${RULES.potionPrice.health}C，不限量（一趟裡的商人每位只賣 ${MERCHANT_HP_POTIONS} 瓶）。</p>` : ''; // rc19 item 3（自訂，非原版）
+    const tip = RULES.cp8 ? `<p class="hint" data-prep-towntip>可在城鎮買藥：生命藥水 ${RULES.potionPrice.health}C，不限量（一趟裡的商人每位只賣 ${MERCHANT_HP_POTIONS} 瓶）。<br><b data-departtip>帶藥 + 優先走商人</b>（rc21，製作人）</p>` : ''; // rc19 item 3（自訂，非原版）
     if (worn.length) p.lastWorn = []; // shown once
     this.modal = { title: '出發前整備', body: (worn.length && !iss.length ? `<ul class="prep" data-prepbox>${rows}</ul>` : body) + tip, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
     this.render();

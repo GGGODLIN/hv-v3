@@ -57,3 +57,8 @@ describe('rc21 item 3: death screen', async () => {
     expect(h).toContain('兩回合'); expect(h).toContain('蓄力／大招');
   });
 });
+describe('rc21 item 4: merchant visibility + departure reminder (no numbers changed)', () => {
+  const s = readFileSync('src/game/app.ts', 'utf8');
+  it('merchant nodes carry a map mark on current and other floors', () => { expect(s.match(/\$\{mm\}/g)?.length).toBe(2); expect(s).toContain('data-merchantmark'); expect(readFileSync('src/style.css', 'utf8')).toContain('.node.mhl'); });
+  it('town and prep modal say 帶藥 + 優先走商人', () => expect(s.match(/data-departtip[^<]*>[^<]*帶藥 \+ 優先走商人/g)?.length).toBe(2));
+});
