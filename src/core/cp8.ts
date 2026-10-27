@@ -60,6 +60,8 @@ export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, 
 export const CP9 = { on: num('SIM_CP9') !== 0,
   /** cp9-rc7 items 2/3（自訂，暫定，無來源）: boss turns after a charged/telegraphed hit lands, and after a revive, during which it cannot start a new wind-up (charge / 蓄力 / 脈衝). */ windCd: num('SIM_WINDCD') ?? 2,
   /** cp9-rc7 item 4（自訂，暫定，無來源）: in capped fights a defending turn takes strictly < defCap × max HP (0 = off). */ defCap: num('SIM_DEFCAP') ?? 0.35,
+  dMin: num('SIM_DMIN') ?? 0.2, // cp9-rc7 producer item 2（自訂，暫定）: D hint only when next-round intent ≥ 20% max HP
+  hp1A: (num('SIM_HP1A') ?? 1) > 0, // cp9-rc7 producer item 1（自訂，暫定）: no potion + HP 1 → hint A
   
   /** rc4 (C1)（自訂，暫定，無來源）: lifesteal share of a 吸血重擊 that lands while the player defends (1 = rc3). */ drainDef: num('SIM_DRAINDEF') ?? 0.5,
   bossBurst: num('SIM_BOSSBURST') ?? 0.5, bossPlain: num('SIM_BOSSPLAIN') ?? 0.2 /* cp9-rc5 (2)（自訂，暫定）: unannounced per-turn cap 30% → 20% */,
@@ -70,7 +72,7 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
   /** rc2 (b)（自訂，暫定）: boss max-HP multiplier so the median boss fight lasts 6–18 turns. */ bossHp: num('SIM_BOSSHP') ?? 1,
   /** rc2 (a)（自訂，暫定，無來源）: share of end-of-fight OC kept for the next fight of the trip (0 = off, the CP3 0-start). */ ocCarry: num('SIM_OCCARRY') ?? 1,
   /** rc3 (2)（自訂，暫定）: apply the bossBurst / bossPlain per-turn caps in normal and elite fights too. */ allCap: (num('SIM_ALLCAP') ?? 1) > 0,
-  /** rc2 (2)（自訂，暫定，無來源）: per-floor boss HP multiplier: ×boss5 at floor ≤5, linear to ×boss15 at floor 15, linear to ×boss30 at floor bossEnd (25), flat after. */ boss5: num('SIM_BOSS5') ?? 3, boss15: num('SIM_BOSS15') ?? 4.5, bossEnd: num('SIM_BOSSEND') ?? 25, boss30: num('SIM_BOSS30') ?? 1.5 /* cp9-rc7 item 1（自訂，暫定）: 2 → 1.5 */ /* cp9-rc5 (3)（自訂，暫定）: 1 → 2 so the preset boss fight is blade ≥3 / others ≥6 turns */,
+  /** rc2 (2)（自訂，暫定，無來源）: per-floor boss HP multiplier: ×boss5 at floor ≤5, linear to ×boss15 at floor 15, linear to ×boss30 at floor bossEnd (25), flat after. */ boss5: num('SIM_BOSS5') ?? 3, boss15: num('SIM_BOSS15') ?? 4.5, bossEnd: num('SIM_BOSSEND') ?? 25, boss30: num('SIM_BOSS30') ?? 1.5, boss30oc: num('SIM_BOSS30OC') ?? 1.3 /* cp9-rc7 producer item 2（自訂，暫定）: oc-dominant build, floor ≥ 30 */ /* cp9-rc7 item 1（自訂，暫定）: 2 → 1.5 */ /* cp9-rc5 (3)（自訂，暫定）: 1 → 2 so the preset boss fight is blade ≥3 / others ≥6 turns */,
   /** rc2 (3)（自訂，暫定，無來源）: blade skill OC cost multiplier (producer cap: ≥0.7). */ bladeOc: num('SIM_BLADEOC') ?? 0.7 };
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */
 export const bossHp9 = (f: number): number => CP9.bossHp * (f <= 5 ? CP9.boss5 : f >= CP9.bossEnd ? CP9.boss30 : f <= 15 ? CP9.boss5 + (CP9.boss15 - CP9.boss5) * (f - 5) / 10 : CP9.boss15 + (CP9.boss30 - CP9.boss15) * (f - 15) / (CP9.bossEnd - 15));

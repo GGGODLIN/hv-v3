@@ -24,6 +24,6 @@ describe('cp9 (d) qa-rc22 bugs', () => {
   it('bug 3: S is not held behind the charge hold (so the S hint clears once pressed)', () => {
     const app = readFileSync('src/game/app.ts', 'utf8');
     expect(app).not.toMatch(/\/\^\(defend\|item:\)\//);
-    expect(app).toMatch(/performance\.now\(\) < this\.chargeHoldUntil && !\/\^\(defend\|item:\|spirit\)\//);
+    expect(app).toMatch(/performance\.now\(\) < this\.chargeHoldUntil && !windSafeKey\(cmd\)/); expect(readFileSync('src/core/battle.ts', 'utf8')).toContain('/^(defend|item:|spirit)/.test(cmd) || STUN_SKILLS'); // cp9-rc7 QA item 4（自訂）: S still instant via windSafeKey
   });
 });

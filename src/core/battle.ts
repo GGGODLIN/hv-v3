@@ -294,6 +294,10 @@ export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: nu
 /** cp9-rc4 (C2)（自訂，暫定，無來源）: the targeted monster is winding up a 吸血重擊 and a stun skill is usable on it → that skill
  *  key comes first (a stun cancels the drain, battle.ts monstersAct0). The rest of the advice is unchanged. */
 export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike'];
+/** cp9-rc7 QA item 4（自訂，暫定）: UI keys that are never held or dropped when a boss starts a wind-up — D / Z / X / C / S and the
+ *  stun skills (the interrupt the hint asks for). rc6 bug (QA oc F35 T4): Q pressed while the previous turn animated was queued, the boss
+ *  then began charging, and the fresh-wind-up rule (app.ts) dropped the queued Q — only the 2nd press ran and showed 「蓄力被打斷」. */
+export const windSafeKey = (cmd: string): boolean => /^(defend|item:|spirit)/.test(cmd) || STUN_SKILLS.some((id) => cmd === `skill:${id}`);
 export function drainStunKey(s: BattleState, target = 0): string | null {
   if (!RULES.cp8 || !CP9.on || ADVICE_DIAG.revert.has('drainstun')) return null;
   const m = s.monsters[target] as (Monster & { drainNext?: boolean }) | undefined;
@@ -325,7 +329,18 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
     return { ...a, keys: ['Z', k, ...a.keys.filter((x) => x !== k && x !== 'Z')], text: `Z·喝藥（下回合全體暴擊估計 ${a.est} ≥ HP ${a.hp}，${k} 不保證擋下全部傷害）；否則 ${k}` };
   return { ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text: `${k}（打斷${(s.monsters[target] as { drainNext?: boolean } | undefined)?.drainNext ? '吸血重擊' : '蓄力'}）；否則 ${a.text}` };
 }
+/** cp9-rc7 producer items 1/2（自訂，暫定）: post-filter of the shared hint (UI + sim use this same function).
+ *  (1) no usable potion and HP 1 → A directly (no 「擋不住」 text). (2) D only when next round's intent is ≥ CP9.dMin (20%) of max HP; else skill or A. */
 function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
+  const a = chargeAdvice00(s, target);
+  if (!(RULES.cp8 && CP9.on)) return a;
+  const pot = canUse(s, { kind: 'item', id: 'health' });
+  const alt = (why: string): ChargeAdvice => { const g = a.danger ? null /* rc20 item 2: potion-unusable danger → never a skill */ : suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; return { ...a, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（${why}）` }; };
+  if (CP9.hp1A && !pot && Math.round(s.hp) <= 1 && a.keys[0] !== 'A') return alt(`HP ${a.hp}、沒有可用藥水：直接輸出`);
+  if (CP9.dMin > 0 && a.keys[0] === 'D' && a.est < s.d.hp * CP9.dMin) return alt(`下回合估計 ${a.est} < 最大 HP ${Math.round(CP9.dMin * 100)}%，不必防禦`);
+  return a;
+}
+function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   const lethal = isLethal(est, hp); // cp9-rc5 QA bug 1（自訂）: the same rounded numbers the text shows
@@ -347,7 +362,7 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   // a lethal estimate that D brings under HP also gets D (the potion is kept for when D is not enough).
   if (RULES.cp8 && CP9.on && (!lethal || dOk) && s.hp > s.d.hp * CP9.zHp) {
     const tele = s.monsters.some(windingUp), dCan = canUse(s, { kind: 'defend' });
-    if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
+    if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: lethal ? `D·防禦（${why}；防禦後估計 ${estD} < HP ${hp}，防禦後撐得住，先不喝藥）` /* cp9-rc7 QA item 5（自訂）: same judgement as the 「HP 危險」 line — only the defended estimate is survivable */ : `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
     return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 還夠，不必喝藥）` };
   }
   if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };

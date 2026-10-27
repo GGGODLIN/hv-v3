@@ -1,6 +1,6 @@
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
-import { isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { windSafeKey, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -867,7 +867,7 @@ export class App {
     // stance stayed off and the hint kept saying S after S was pressed (bulwark6). S now runs at once like D / Z.
     const b = this.battle;
     if (!b || this.busy || b.over) return;
-    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !/^(defend|item:|spirit)/.test(cmd)) { // cp8-rc9 item 1
+    if (RULES.cp8 && performance.now() < this.chargeHoldUntil && !windSafeKey(cmd)) { // cp9-rc7 QA item 4（自訂）: stun skills run at once too // cp8-rc9 item 1
       // rc16 item 7: the hold used to drop the key silently (looked swallowed after a potion / boss phase change). Say so.
       // rc19 (c) producer 2026-10-27: a key pressed during the hold is queued and runs when the hold ends (was refused = looked swallowed). 自訂，非原版
       const wait = this.chargeHoldUntil - performance.now(); this.holdKey = cmd;
@@ -946,7 +946,7 @@ export class App {
     // CP8.chargeHoldMs, so tapping / holding A at 4x + 跳過動畫 cannot skip the decide panel. D / Z / X / C stay instant.
     if (RULES.cp8 && !b.over && b.monsters.some(windingUp)) {
       const fresh = !this.windWas; this.windWas = true;
-      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !/^(defend|item:|spirit)/.test(q)) q = null; if (this.queued && !/^(defend|item:|spirit)/.test(this.queued)) this.queued = null; }
+      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; } // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
     } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }

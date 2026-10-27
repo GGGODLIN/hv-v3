@@ -8,7 +8,7 @@ describe('cp9-rc5 knobs', () => {
     expect(CP9.chargeDef).toBe(0.5);
     expect(CP9.stunAll).toBe(true);
     expect(CP9.bossPlain).toBe(0.2);
-    expect(CP9.boss30).toBe(2);
+    expect(CP9.boss30).toBe(1.5); // cp9-rc7（自訂）: 2 → 1.5
     expect(defFactor(false)).toBeCloseTo(1 - DEF.mitigation);
   });
 });

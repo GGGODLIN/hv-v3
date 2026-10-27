@@ -36,9 +36,9 @@ describe('rc20 item 2: potion unusable → D / S / A, never a skill', () => {
     const b = qa(3, 1044, 9, 2, 0.0001); b.oc = 30; const a = chargeAdvice(b);
     expect(a.danger).toBe(true); expect(a.keys.join()).not.toMatch(/盾擊|Q/); expect(['D', 'S', 'A']).toContain(a.keys[0]);
   }));
-  it('D cannot hold, OC ≥ spirit threshold → S', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); b.oc = 250; expect(chargeAdvice(b).keys).toEqual(['S']); }));
+  it('D cannot hold, OC ≥ spirit threshold → S', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); b.oc = 250; expect(chargeAdvice(b).keys).toEqual([CP9.defCap > 0 ? 'D' : 'S']); /* cp9-rc7 item 4（自訂）: the 35% defending cap makes D hold */ }));
   it('D cannot hold, no OC, lethal → D (cp9-rc6 item 3 自訂: was A; non-cp9 still A)', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); expect(chargeAdvice(b).keys).toEqual([CP9.on ? 'D' : 'A']); }));
-  it('D holds → D', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 0.0001); expect(chargeAdvice(b).keys).toEqual(['D']); }));
+  it('D holds → D (cp9-rc7 自訂: only on a ≥ 20% estimate, else A)', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 0.0001); expect(chargeAdvice(b).keys).toEqual([CP9.on && CP9.dMin > 0 ? 'A' : 'D']); }));
   it('UI drops skill / spell suggestions while in danger', () => {
     const s = readFileSync('src/core/battle.ts', 'utf8'); expect(s).toMatch(/const skill = !danger \? suggestSkill/); expect(s).toMatch(/const spell = !danger && quickAttack/); // cp9-rc4 (A)（自訂）: gate moved into turnHints
   });
