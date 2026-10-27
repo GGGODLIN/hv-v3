@@ -1,5 +1,14 @@
 # v0.34 完整來源恢復與發布界線
 
+## 正式發布後的完整恢復點
+
+- 已驗收來源：`e61ad65af2708480133a4547ceb0e8fc28776a49`，checkpoint138，390 檔／389 payload，CHECKPOINT SHA256 `330ae1f83a1bc8330e73733968b8881f3d9a33dab32576bee858dbdf4c1f5fdd`。17 修改檔提交前後 exact-content readback、373 不變 identities、409 範圍外 source blob／mode 均通過。一次 RELEASES.md 讀取斷線在同一 read-only route 重讀恢復後才移動 ref，沒有不明寫入。
+- 正式網站：`e69c6b8833e41a0f2c0cc7cced3811717fcf6933`，exact Pages `40497206404` 成功；21 檔 root 與目錄 index HTTP bytes 完全相符。所有候選、其他 3,984 blob／mode 保留；v0.34 候選 21 檔 HTTP 另再次確認不變。初次過早 HTTP 看見前版三個 runtime 檔，CI 完成後同一路徑重驗已精確相符。
+- 正式原 profile 普通通關／重載已通過：Lv11／1,066 金幣／20 勝／38 背包／50 碎片／4 種子。正常匯出 SHA256 `fb9d171993945abdadcf275b8cd68bdb0052371d7d00827278ac19954af04e3d`，39 件原 held records 完全不變，只自然新增兩件；舊未綁定 Lv7 `loot-12` 保持原樣。私人匯出不包含於 source，未以候選進度取代正式 profile。
+- 最後 checkpoint `140-v034-publication-receipt` 是文件／manifest-only 的完整恢復記錄，不改 runtime／assets／tests、不重部署、不聲稱再跑完整套件。其 exact commit 及讀回另以外部收據確認；已知可用來源138和前版 v0.33 `9e43771c5ea729d328f465ee5ce91cfcc6e8c90f` 保留。
+
+本版未發生候選或正式寫入拒絕；已知讀取／部署等待問題已釐清，沒有替代 host／API 繞路。手機／窄視窗／輔助技術與其他未測界線仍見 [BROWSER-QA-V034](BROWSER-QA-V034.md)。以下保留較早階段說明；其尚待發布內容不代表最新正式狀態。
+
 ## 已驗收候選與新完整來源
 
 - 已凍結、完整備份／讀回的來源 checkpoint136：`d14be20c66eee1d659b7f81ae82547c76c176a78`，389 檔／388 payload，CHECKPOINT SHA256 `76671c198189afdbd570bbdf0a41177d3ce2463487d3bd860846bc034e676b3c`。27 修改檔提交前後 exact-content readback、362 不變 identities、409 範圍外 blob／mode 均通過。
