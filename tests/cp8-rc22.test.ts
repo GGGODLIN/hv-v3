@@ -12,8 +12,8 @@ const withCp8 = (f: () => void) => { const o = [RULES.cp7, RULES.cp8]; RULES.cp7
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 describe('rc22 defaults', () => {
   it('decision (a): crit estimate defaults to the mean roll; SIM_REVERT off by default', () => { expect(ADVICE_DIAG.critRoll).toBe(1); expect(ADVICE_DIAG.revert.size).toBe(0); expect(ADVICE_DIAG.zRule).toBe('rc21'); });
-  it('item 2 tuning: potCd 2, multiK 0.65, normalCap 1, all marked 自訂', () => {
-    expect(RC22).toEqual({ potCd: 2, multiK: 0.65, normalCap: 1 });
+  it('item 2 tuning: potCd 2, multiK 0.65, normalCap 2 (cp9 自訂), all marked 自訂', () => {
+    expect(RC22).toEqual({ potCd: 2, multiK: 0.65, normalCap: 2 });
     expect(readFileSync('src/core/cp8.ts', 'utf8')).toMatch(/rc22 defaults（自訂/);
   });
   it('decision (b): loot screen shows 「最大 HP −N」', () => expect(readFileSync('src/game/app.ts', 'utf8')).toContain('最大 HP −${l.hpDrop}'));
@@ -24,7 +24,7 @@ describe('rc22 defaults', () => {
     act(b, { kind: 'item', id: 'health' }, new Rng(1));
     expect(b.itemCd.health).toBeLessThanOrEqual(3); expect(b.itemCd.health).toBeGreaterThanOrEqual(2);
   }));
-  it('normal fights have 1 monster under cp8', () => withCp8(() => {
-    const p = newPlayer(); starterKit(p); for (let i = 0; i < 10; i++) expect(encounter(startRun(p, i), pool, 'normal').length).toBe(1);
+  it('cp9（自訂）: normal fights have 1–2 monsters under cp8', () => withCp8(() => {
+    const p = newPlayer(); starterKit(p); for (let i = 0; i < 10; i++) { const n = encounter(startRun(p, i), pool, 'battle').length; expect(n).toBeGreaterThanOrEqual(1); expect(n).toBeLessThanOrEqual(2); } // cp9: NodeType is 'battle' (was 'normal', a tsc error)
   }));
 });

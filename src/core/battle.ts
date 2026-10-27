@@ -297,10 +297,10 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   }
   // cp9 (c)（自訂，非原版）: Z only when the estimate ≥ HP or HP ≤ 50%; a telegraphed charge above that → D (else A).
   // a lethal estimate that D brings under HP also gets D (the potion is kept for when D is not enough).
-  if (RULES.cp8 && CP9.on && (!lethal || dOk) && s.hp > s.d.hp * 0.5) {
+  if (RULES.cp8 && CP9.on && (!lethal || dOk) && s.hp > s.d.hp * CP9.zHp) {
     const tele = s.monsters.some(windingUp), dCan = canUse(s, { kind: 'defend' });
     if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
-    return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 過半，不必喝藥）` };
+    return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 還夠，不必喝藥）` };
   }
   if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
   if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
