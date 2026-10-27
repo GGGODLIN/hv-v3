@@ -260,8 +260,16 @@ export function worstHit(s: BattleState, m0: Monster, defending = false): number
 export const defFactor = (charged: boolean): number => (charged && RULES.cp8 && CP9.on ? CP9.chargeDef : 1 - DEF.mitigation);
 export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !!(m as CM).heavyNext || (m.rank === 'boss' && !!(m as CM).pulseNext));
 /** rc9 P0-2: summed estimate of every live monster's next hit (wind-ups at their release multiplier; stunned monsters skip). */
+/** cp9-rc9 item 1（自訂）: damage the hint used to leave out — the player's burn/bleed tick next round and the worst 反傷 (尖刺 / 守門者)
+ *  if the player attacks a reflecting monster (upper bound: CP5.reflectCapHp × max HP). Defending cleanses DoTs and does not attack → 0. */
+export function extra9(s: BattleState, def: boolean): number {
+  if (def) return 0;
+  const p = s.cp5?.pdot; const dot = p ? (p.burnTurns > 0 ? p.burn : 0) + (p.bleedTurns > 0 ? p.bleed : 0) : 0;
+  const refl = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && (!!m.thornTurns || !!m.affixes?.includes('spikes')); }) ? Math.round(s.d.hp * CP5.reflectCapHp) : 0;
+  return dot + refl;
+}
 export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1): number {
-  const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0);
+  const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
@@ -909,17 +917,19 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 
 /** cp9-rc8 QA (c) diag（自訂，sim only）: boss wind-up on the boss turn right after one of its telegraphed hits landed (windHitCd bypass). */
 /** cp9-rc8 備案實驗（自訂，僅 sim，預設關）: SIM_ARCINT=1 → a boss whose wind-up was interrupted by an arcane cold/elec stun skips the post-hit lock on its next telegraphed hit. */
+/** cp9-rc9 item 2（自訂）: minions (non-boss) get the same post-hit wind-up lock (CP9.windHitCd) after their own telegraphed hit. */
+const MIN9 = true;
 const ARCINT9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_ARCINT;
-export const WIND9 = { hits: 0, viol: 0, minion: 0, ex: [] as string[] };
+export const WIND9 = { hits: 0, viol: 0, minHits: 0, minViol: 0, minion: 0, ex: [] as string[] };
 function wind9diag(s: BattleState, ev: BEvent[], e0: number): void {
   const nw = ev.slice(e0) as (BEvent & { from?: number | string; label?: string; to?: unknown; t: string })[];
   s.monsters.forEach((m0, i) => {
-    const m = m0 as CM & { hit9?: boolean }; if (m.rank !== 'boss') return;
+    const m = m0 as CM & { hit9?: boolean }; const boss = m.rank === 'boss';
     const hitNow = nw.some((e) => e.t === 'hit' && e.from === i && e.to === 'player' && /重擊|脈衝|蓄力一擊/.test(e.label ?? ''));
     const wind = nw.find((e) => (e.t === 'charge' || (e.t === 'sig' && !/召喚|援軍|尖刺/.test(String((e as { text?: string }).text)) && e.sig !== 'summon' && e.sig !== 'thorns')) && e.from === i);
-    if (m.hit9 && wind) { WIND9.viol++; if (WIND9.ex.length < 8) WIND9.ex.push(`turn ${s.turn} ${wind.t} ${JSON.stringify(wind).slice(0, 80)} windCd=${m.windCd} n=${s.monsters.length} stun=${m.status.stun} phases=${(m as { phases?: number }).phases}`); }
-    if (m.hit9 && !wind && nw.some((e) => e.t === 'charge' && e.from !== i)) WIND9.minion++;
-    if (hitNow) WIND9.hits++;
+    if (m.hit9 && wind && !boss) WIND9.minViol++; if (m.hit9 && wind && boss) { WIND9.viol++; if (WIND9.ex.length < 8) WIND9.ex.push(`turn ${s.turn} ${wind.t} ${JSON.stringify(wind).slice(0, 80)} windCd=${m.windCd} n=${s.monsters.length} stun=${m.status.stun} phases=${(m as { phases?: number }).phases}`); }
+    if (boss && m.hit9 && !wind && nw.some((e) => e.t === 'charge' && e.from !== i)) WIND9.minion++;
+    if (hitNow) { if (boss) WIND9.hits++; else WIND9.minHits++; }
     m.hit9 = hitNow;
   });
 }
@@ -979,7 +989,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (!m.enraged && m.hp < m.maxHp * 0.5) { m.enraged = true; m.ownTurns = 0; ev.push({ t: 'status', to: i, text: '狂戰：狂暴！' }); }
       if (m.enraged) {
         if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
-        else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0) { m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
+        else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0 && !(lock9 && MIN9)) { /* cp9-rc9 item 2（自訂） */ m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
       }
     }
     // rc9 P0-1（自訂，非原版，暫定）: a boss / elite plain hit estimated ≥ CP8.bigTele × max HP winds up for 1 round first.
@@ -987,9 +997,9 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
     if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
-      else if (!(lock9 && m.rank === 'boss') && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
-    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) { if (ARCINT9 && m.int9) m.int9 = false; else m.windCd = CP9.windHitCd; } // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
+    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && (m.rank === 'boss' || MIN9) && (mult !== 1 || label)) { if (ARCINT9 && m.int9) m.int9 = false; else m.windCd = CP9.windHitCd; } // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
     // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
     const zero = s.focusTurn;
     const r = resolveHit(rng, {

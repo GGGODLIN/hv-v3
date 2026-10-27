@@ -186,3 +186,5 @@
 - **QA c（自訂診斷）**：`WIND9`（SIM_WIND9=1）會計算「boss 重擊/脈衝/蓄力一擊命中後的下一個 boss 回合，同一隻 boss 又蓄力」的次數。4 流派 × battle/mr、64×4 下皆為 0，未重現。同一時機的蓄力全都來自小怪（小怪的「正在蓄力一擊」= heavyNext，本來就不受 windHit 鎖限制）。回歸測試：tests/cp9-rc8-qa.test.ts，拿掉鎖時會失敗。
 - **rc9 item 4（自訂）**：`cp5Tips` 每回合都會執行（為了新召喚的怪），而沒有 tip() 守門的「⚠ 高危險精英」警告就每回合疊加一次（blade7 F30 T22）。改用 `pushOnce9`，每場只顯示一次；`.cp5tips` 加上 `max-height: 30vh; overflow-y: auto`。
 - **rc9 備案實驗（自訂，僅 sim，預設關）**：`SIM_ARCINT=1` 時，若 boss 的蓄力被秘法 cold/elec 暈眩打斷，它下一次預告重擊命中後不套用 windHit 鎖。
+- **rc9 item 1（自訂）**：`nextRoundEstimate` 新增 `extra9`：下回合玩家燃燒/流血的跳傷，加上場上有反傷怪（尖刺／守門者）時的反傷上限 `CP5.reflectCapHp × 最大 HP`（上界估計）。防禦會解除 DoT、也不攻擊，所以防禦後估計的 extra9 = 0。暴擊估計、防禦後估計、isLethal、urgentLine、chargeAdvice 以及 sim 都走同一個函式。反魔反傷（看法術傷害）未納入。
+- **rc9 item 2（自訂）**：小怪在自己的預告重擊命中後，也套用 `CP9.windHitCd` 的 1 回合蓄力鎖（`MIN9`），bigTele 和狂戰兩條路徑都套用。WIND9 加上 minHits／minViol，回歸測試涵蓋小怪。

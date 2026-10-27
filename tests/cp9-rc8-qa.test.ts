@@ -1,7 +1,8 @@
 // cp9-rc8 QA（自訂）: bug b banner copy; QA c boss never winds up on the boss turn right after its own telegraphed heavy hit.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { act, startBattle, WIND9 } from '../src/core/battle';
+import { act, startBattle, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
+import { CP5 } from '../src/core/cp5';
 import { urgentLine, pushOnce9 } from '../src/game/app';
 import { starterKit } from '../src/core/auto';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
@@ -28,17 +29,32 @@ describe('cp9-rc8 QA', () => {
   it('QA c: no boss wind-up on the boss turn after its telegraphed heavy hit (boss + minions, many seeds)', () => {
     const o = RULES.cp8; RULES.cp8 = true;
     try {
-      WIND9.hits = 0; WIND9.viol = 0; WIND9.minion = 0; WIND9.ex.length = 0;
+      WIND9.hits = 0; WIND9.viol = 0; WIND9.minion = 0; WIND9.minHits = 0; WIND9.minViol = 0; WIND9.ex.length = 0;
       for (let seed = 1; seed <= 150; seed++) {
         const p = newPlayer(); starterKit(p); const d = derive(p);
         const boss = buildMonster(pool.rows[seed % pool.rows.length]!, 30, 'boss'); boss.hp = boss.maxHp = 1e6; boss.adb = d.hp * (0.3 + (seed % 5) * 0.2);
-        const mins = [1, 2].map((k) => { const m = buildMonster(pool.rows[(seed * 7 + k) % pool.rows.length]!, 30, 'normal'); m.hp = m.maxHp = 1e6; m.adb = d.hp * 0.05; return m; });
+        const mins = [1, 2].map((k) => { const m = buildMonster(pool.rows[(seed * 7 + k) % pool.rows.length]!, 30, 'normal'); m.hp = m.maxHp = 1e6; m.adb = d.hp * (seed % 3 ? 0.05 : 0.6); return m; });
         const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [boss, ...mins], { health: 0, mana: 0, spirit: 0 });
         const rng = new Rng(seed);
         for (let t = 0; t < 40 && !b.over; t++) { b.hp = b.d.hp; act(b, t % 3 ? { kind: 'attack', target: 0 } : { kind: 'defend' }, rng); }
       }
       expect(WIND9.hits).toBeGreaterThan(0);
       expect(WIND9.viol, WIND9.ex.join('\n')).toBe(0);
+      expect(WIND9.minHits).toBeGreaterThan(0); expect(WIND9.minViol).toBe(0); // cp9-rc9 item 2: minions too
+    } finally { RULES.cp8 = o; }
+  });
+  it('rc9 item 1: estimate includes burn/bleed tick and 反傷 cap; defended estimate drops both', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      const p = newPlayer(); starterKit(p); const d = derive(p);
+      const m = buildMonster(pool.rows[3]!, 25, 'boss'); m.hp = m.maxHp = 1e6;
+      const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 }); armCp5(b);
+      const base = nextRoundEstimate(b, true, false);
+      b.cp5!.pdot.burn = 40; b.cp5!.pdot.burnTurns = 2; b.cp5!.pdot.bleed = 25; b.cp5!.pdot.bleedTurns = 1;
+      (m as { affixes?: string[] }).affixes = ['spikes'];
+      const refl = Math.round(d.hp * CP5.reflectCapHp);
+      expect(extra9(b, false)).toBe(65 + refl); expect(extra9(b, true)).toBe(0);
+      expect(nextRoundEstimate(b, true, false)).toBeGreaterThan(base);
     } finally { RULES.cp8 = o; }
   });
 });
