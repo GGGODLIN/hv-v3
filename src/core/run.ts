@@ -295,7 +295,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
     const plan: Rank[] =
       type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
       type === 'elite' ? (run.weakNext || (run.cp5 && CP5.eliteSolo) ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
-      ['normal', 'normal'] /* 暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
+      (['normal', 'normal'] as Rank[]).slice(0, RULES.cp8 && RC22.normalCap > 0 ? RC22.normalCap : 2) /* rc22 normalCap（自訂）;  暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
     const th = run.cp5 && !CP5_FORCE.themeOff ? themeOf(f) : null;
     const w = th ? (r: MonsterRow) => themeWeight(th, r) : undefined;
     const out = plan.map((rank) => {
