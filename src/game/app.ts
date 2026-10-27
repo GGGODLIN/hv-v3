@@ -482,7 +482,7 @@ export class App {
     const cd = b.itemCd.health;
     const urgent = RULES.cp8 ? hpDanger(b) : estC >= b.hp * 0.5; // rc16 item 1: same single rule as the decision // cp8-rc7 P1 item 3: ≥ 50% of current HP; rc13 item 2: judged on the crit value
     return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
-      + (urgent && (!RULES.cp8 || hpDanger(b)) ? `<br><b class="warn" data-urgent="${estC}:${Math.round(b.hp)}">預估暴擊傷害 ≥ 目前 HP（${estC} ≥ ${Math.round(b.hp)}）：照上面的決策按鍵</b>` : '')
+      + (urgent && (!RULES.cp8 || hpDanger(b)) ? `<br><b class="warn" data-urgent="${estC}:${Math.round(b.hp)}">下回合全體暴擊估計 ≥ 目前 HP（${chargeAdvice(b, this.target).est} ≥ ${Math.round(b.hp)}）：照上面的決策按鍵</b>` : '')
       + (this.guardOnly(b) || (RULES.cp8 && !hpDanger(b)) ? '' : this.chargePayoff(b, chargers, est, estD))
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${guardHint(b) === 'spirit' ? '這回合改用 <b>S·靈動架勢</b>' : '繼續攻擊、儘快收掉怪物'}（D·防禦 在 OC 不足 25 時只減傷不回血，又放棄攻擊，此時不建議）</b>` : '');
   }

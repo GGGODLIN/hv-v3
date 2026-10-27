@@ -27,12 +27,12 @@ const zText = (pg) => pg.evaluate(() => document.querySelector('[data-act="item:
   const snap = () => pg.evaluate(() => ({ dec: document.querySelector('[data-decide]')?.textContent ?? '', st: document.querySelector('[data-chargestatus]')?.textContent ?? '',
     dSug: document.querySelector('[data-act="defend"]')?.classList.contains('suggest') ?? null, sSug: !!document.querySelector('[data-act="spirit"].suggest'), pot: !!document.querySelector('[data-pothint]'), boss: window.hv.battle.monsters.some((m) => m.rank === 'boss') }));
   const set = (hpF, cd, oc, pots) => pg.evaluate((hpF, cd, oc, pots) => { const h = window.hv, b = h.battle; const m = b.monsters.find((x) => x.hp > 0); m.charge = 1; b.hp = Math.max(1, Math.round(b.d.hp * hpF)); b.itemCd.health = cd; b.potions.health = pots; b.oc = oc; b.spirit = false; h.render(); }, hpF, cd, oc, pots);
-  await set(0.2, 2, 120, 3); R.s = await snap();
+  await set(0.05, 2, 120, 3); R.s = await snap();
   if (!/S·靈動架勢/.test(R.s.dec) || /D·防禦 或|改用 D/.test(R.s.dec) || R.s.dSug || !R.s.sSug) fail.push('1 danger+cd: only S');
   if (!R.s.boss && !/敵人蓄力中/.test(R.s.st)) fail.push('3 normal fight status says 敵人'); if (/首領/.test(R.s.st) && !R.s.boss) fail.push('3 首領 on normal fight');
-  await set(0.2, 2, 0, 3); R.n = await snap();
+  await set(0.05, 2, 0, 3); R.n = await snap();
   if (/D·防禦 或|改用 D/.test(R.n.dec) || R.n.dSug || R.n.sSug || !/繼續攻擊|A·攻擊/.test(R.n.dec)) fail.push('1 danger+cd, S unusable: attack, no D');
-  await set(0.2, 0, 0, 0); R.e = await snap();
+  await set(0.05, 0, 0, 0); R.e = await snap();
   if (/D·防禦 或|改用 D/.test(R.e.dec) || R.e.dSug) fail.push('1 danger+no potions: no D');
   await set(1, 0, 0, 3); R.f = await snap();
   if (R.f.pot) fail.push('4 pothint at full HP');

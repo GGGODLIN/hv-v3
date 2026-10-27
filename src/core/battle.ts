@@ -258,10 +258,10 @@ export function guardHint(s: BattleState): 'spirit' | null {
 export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: string[]; text: string };
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
-  if (!danger) { const g = suggestSkill(s, target); return { danger, est, hp, keys: g ? [SKILLS[g].zh, 'A'] : ['A'], text: `${g ? `${SKILLS[g].zh} 或 ` : ''}A·攻擊（HP 安全：預估暴擊 ${est} < HP ${hp}，不需防禦）` }; }
-  if (canUse(s, { kind: 'item', id: 'health' })) return { danger, est, hp, keys: ['D', 'Z'], text: `D·防禦（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%）或 Z·生命藥水（剩 ${s.potions.health} 瓶）（HP 危險：預估暴擊 ${est} ≥ HP ${hp}）` };
+  if (!danger) { const g = suggestSkill(s, target); return { danger, est, hp, keys: g ? [SKILLS[g].zh, 'A'] : ['A'], text: `${g ? `${SKILLS[g].zh} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
+  if (canUse(s, { kind: 'item', id: 'health' })) return { danger, est, hp, keys: ['D', 'Z'], text: `D·防禦（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%）或 Z·生命藥水（剩 ${s.potions.health} 瓶）（HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
   const sp = guardHint(s) === 'spirit';
-  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：預估暴擊 ${est} ≥ HP ${hp}）` };
+  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
 }
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;
