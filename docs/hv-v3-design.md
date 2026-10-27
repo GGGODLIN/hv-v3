@@ -169,3 +169,8 @@
 - 秘術主因：windHit（遙測重擊命中後 2 回合鎖蓄力）。WINDHIT=0：mr 96.5→49、preset 60→45。保命 save0 只 −1.5～−5，不是主因。
 - 磐石主因：bulwarkDefCounter（防禦中反擊）。BWDC=0：mr 71.5→39、preset battle 100→60。
 - 候選 WINDHIT=0 + BWDC=0 未達 gate（D 佔比、mr F100、bulwark mr bossT 20），所以預設值沒改。
+
+### cp9-rc8 製作人定案（自訂）— 已套用為預設，但 gate 未過，未 tag
+- windHitCd 1（重擊命中後鎖 1 回合；復活後仍是 windCd 2）。tests/cp9-rc8.test.ts 證明不會連續兩回合吃 ≥50% HP（SIM_WINDCDHIT=0 時這個測試會失敗）。
+- bwdcBoss 0.5（bulwarkDefCounter 額外反擊對首領 ×0.5，一般怪 ×1）。
+- f8 結果：mr 秘術中位 86.5/74、磐石 91.5/100；mr F100 最高 52%；battle 刃鋒 F100 12–14%。超出容差，停止。
