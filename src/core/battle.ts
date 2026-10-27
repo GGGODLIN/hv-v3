@@ -270,12 +270,12 @@ export function extra9(s: BattleState, def: boolean): number {
   const refl = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && (!!m.thornTurns || !!m.affixes?.includes('spikes')); }) ? Math.round(s.d.hp * CP5.reflectCapHp) : 0;
   return dot + refl;
 }
-export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1): number {
+export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number {
   const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
-  const dc = boss9(s) && def && CP9.defCap > 0 ? Math.min(Math.ceil(CP9.defCap * s.d.hp) - 1, save9(s, s.hp)) : Infinity; // cp9-rc7 item 4（自訂）: < defCap, and 防禦保命 (HP ≥ 2 → leaves ≥ 1 HP; at 1 HP once per fight)
+  const dc = boss9(s) && def && CP9.defCap > 0 ? Math.min(Math.ceil(CP9.defCap * s.d.hp) - 1, noSave ? Infinity : save9(s, s.hp)) : Infinity; /* cp9-rc9 item 8（自訂）: noSave = without the 防禦保命 clamp (hp−1) */ // cp9-rc7 item 4（自訂）: < defCap, and 防禦保命 (HP ≥ 2 → leaves ≥ 1 HP; at 1 HP once per fight)
   return Math.min(raw, tc, bb, dc);
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
@@ -288,6 +288,8 @@ export const bigNext = (s: BattleState): boolean => !ADVICE_DIAG.revert.has('war
 export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
 /** cp9-rc8 QA bug b（自訂）: the post-defend estimate the decision line uses (null when D is unavailable) — shared by the banner. */
 export function defendEst9(s: BattleState): number | null { return RULES.cp8 && canUse(s, { kind: 'defend' }) ? Math.round(nextRoundEstimate(s, true, true)) : null; }
+/** cp9-rc9 item 8（自訂）: defended estimate without the 防禦保命 clamp. */
+export function defendRaw9(s: BattleState): number | null { return RULES.cp8 && canUse(s, { kind: 'defend' }) ? Math.round(nextRoundEstimate(s, true, true, true)) : null; }
 /** cp9-rc5 QA bug 1（自訂，暫定）: one rule for 「下回合全體暴擊估計 ≥ HP」 — the rounded estimate vs the rounded HP, exactly what is printed. */
 export const isLethal = (est: number, hp: number): boolean => Math.round(est) >= Math.round(hp);
 export function hpDanger(s: BattleState): boolean {
@@ -369,7 +371,12 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   if (RULES.cp8 && CP9.on && CP9.stunA && est === 0 && !canUse(s, { kind: 'item', id: 'health' })) return { danger: false, est, hp, keys: ['A'], text: `A·攻擊（敵人無法行動：下回合估計 0，趁現在輸出）` };
   const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
   const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
-  const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
+  // cp9-rc9 item 8（自訂，QA oc2 F30 T38–39）: estD is clamped to hp−1 by 防禦保命, so 「estD < HP」 always held and read 「撐得住」 while HP drained 272→177→1.
+  // saveOnly = only the save keeps HP ≥ 1. Then a usable potion beats D, and the text says so.
+  const estDR = Math.round(nextRoundEstimate(s, true, true, true)), saveOnly = RULES.cp8 && CP9.on && estDR >= hp && estD < hp;
+  const potOk9 = canUse(s, { kind: 'item', id: 'health' });
+  const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp && !(saveOnly && potOk9);
+  const dTxt = saveOnly ? `防禦只靠保命剩 1 HP（未保命估 ${estDR} ≥ HP ${hp}）` : `防禦後估計 ${estD} < HP ${hp}，防禦後撐得住`;
   // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
   const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
   // rc21 item 2（暫定，自訂）: on a survivable ≥ 40% warning, Z only when at least half of its heal would land (rc14 POT_HINT.minUseful, same rule as potHint).
@@ -383,15 +390,15 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   // a lethal estimate that D brings under HP also gets D (the potion is kept for when D is not enough).
   if (RULES.cp8 && CP9.on && (!lethal || dOk) && s.hp > s.d.hp * CP9.zHp) {
     const tele = s.monsters.some(windingUp), dCan = canUse(s, { kind: 'defend' });
-    if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: lethal ? `D·防禦（${why}；防禦後估計 ${estD} < HP ${hp}，防禦後撐得住，先不喝藥）` /* cp9-rc7 QA item 5（自訂）: same judgement as the 「HP 危險」 line — only the defended estimate is survivable */ : `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
+    if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: lethal ? `D·防禦（${why}；${dTxt}${saveOnly ? '' : '，先不喝藥'}）` /* cp9-rc7 QA item 5（自訂）: same judgement as the 「HP 危險」 line — only the defended estimate is survivable */ : `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
     return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 還夠，不必喝藥）` };
   }
-  if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
+  if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : saveOnly ? `（${dTxt}，先喝藥）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
   if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
   // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
   // rc21 QA (arcane3 F11/F15): give the real reason Z is out — full HP, none left, or on cooldown (never 「冷卻 0 回合」).
   const pn = `生命藥水${s.potions.health <= 0 ? '已用完' : s.itemCd.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : s.hp >= s.d.hp ? '滿血無需喝藥' : '目前不能用'}`;
-  if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
+  if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；${saveOnly ? dTxt : `防禦後估計 ${estD} < HP ${hp}`}，${why}）` };
   const sp = guardHint(s) === 'spirit';
   // cp9-rc6 item 3（自訂，暫定）: lethal and Z unavailable → never A; S if it is the guard, else D (still cuts the hit) — never hint Z here.
   if (RULES.cp8 && CP9.on && lethal && !sp && canUse(s, { kind: 'defend' })) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住，但能減傷；${why}）` };

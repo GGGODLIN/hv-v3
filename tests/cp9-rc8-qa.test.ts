@@ -1,7 +1,7 @@
 // cp9-rc8 QA（自訂）: bug b banner copy; QA c boss never winds up on the boss turn right after its own telegraphed heavy hit.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
+import { defendEst9, defendRaw9, act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
 import { CP5 } from '../src/core/cp5';
 import { urgentLine, pushOnce9 } from '../src/game/app';
 import { starterKit } from '../src/core/auto';
@@ -66,9 +66,9 @@ describe('cp9-rc8 QA', () => {
         const ms = [0, 1].map((k) => buildMonster(pool.rows[(r * 3 + k) % pool.rows.length]!, 40, 'normal'));
         const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, ms, { health: 0, mana: 0, spirit: 0 });
         const est = chargeAdvice(b).est; if (est < 2 || est >= d.hp * 0.2) continue;
-        b.hp = est - 1; const a = chargeAdvice(b); n++;
+        for (const hp of [est - 1, Math.round(est * 83 / 169)] /* oc1 F73 243 vs 163; oc3 F36 169 vs 83 */) { b.hp = Math.max(2, hp); const a = chargeAdvice(b); n++;
         expect(a.text, `row ${r}: ${a.text}`).not.toContain('不必防禦');
-        expect(a.keys[0]).not.toBe('A');
+        expect(a.keys[0]).not.toBe('A'); }
       }
       expect(n).toBeGreaterThan(5);
     } finally { RULES.cp8 = o; }
@@ -85,6 +85,27 @@ describe('cp9-rc8 QA', () => {
       expect(tags.filter((x) => x.startsWith('暈眩抵抗')).length).toBeGreaterThan(0);
       expect(tags[tags.length - 1]).toBe('');
       expect(readFileSync('src/game/stage.ts', 'utf8')).toMatch(/stunTag9\(v\.m\)/);
+    } finally { RULES.cp8 = o; }
+  });
+  it('rc9 item 8: a defended estimate held under HP only by 防禦保命 is not 「撐得住」; potion usable → no D-first (QA oc2 F30 T38–39)', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      let n = 0, np = 0;
+      for (let r = 0; r < 40; r++) {
+        const p = newPlayer(); starterKit(p); const d = derive(p);
+        const boss = buildMonster(pool.rows[r % pool.rows.length]!, 30, 'boss'); boss.hp = boss.maxHp = 1e6; boss.adb = d.hp * 0.9;
+        const min = buildMonster(pool.rows[(r * 7 + 1) % pool.rows.length]!, 30, 'normal'); min.hp = min.maxHp = 1e6; min.adb = d.hp * 0.5;
+        for (const pots of [0, 2]) {
+          const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [boss, min], { health: pots, mana: 0, spirit: 0 });
+          (boss as { heavyNext?: boolean }).heavyNext = true; b.hp = Math.round(d.hp * 0.15); const eD = defendEst9(b)!, eR = defendRaw9(b)!;
+          if (!(eD < b.hp && eR >= b.hp)) continue;
+          const a = chargeAdvice(b); n++;
+          expect(a.text, a.text).not.toContain('撐得住'); if (a.keys[0] === 'D' || a.text.includes('防禦後')) expect(a.text, a.text).toContain('保命');
+          if (pots) { np++; expect(a.keys[0], a.text).not.toBe('D'); }
+          expect(urgentLine(a, eD, eR)).toContain('保命剩 1 HP');
+        }
+      }
+      expect(n).toBeGreaterThan(3); expect(np).toBeGreaterThan(0);
     } finally { RULES.cp8 = o; }
   });
 });
