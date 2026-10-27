@@ -1,3 +1,4 @@
+import { CP9 } from '../src/core/cp8';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { chargeAdvice, hpDanger, lowHp, POT_HINT, startBattle, zHint } from '../src/core/battle';
@@ -36,7 +37,7 @@ describe('rc20 item 2: potion unusable → D / S / A, never a skill', () => {
     expect(a.danger).toBe(true); expect(a.keys.join()).not.toMatch(/盾擊|Q/); expect(['D', 'S', 'A']).toContain(a.keys[0]);
   }));
   it('D cannot hold, OC ≥ spirit threshold → S', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); b.oc = 250; expect(chargeAdvice(b).keys).toEqual(['S']); }));
-  it('D cannot hold, no OC → A', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); expect(chargeAdvice(b).keys).toEqual(['A']); }));
+  it('D cannot hold, no OC, lethal → D (cp9-rc6 item 3 自訂: was A; non-cp9 still A)', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); expect(chargeAdvice(b).keys).toEqual([CP9.on ? 'D' : 'A']); }));
   it('D holds → D', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 0.0001); expect(chargeAdvice(b).keys).toEqual(['D']); }));
   it('UI drops skill / spell suggestions while in danger', () => {
     const s = readFileSync('src/core/battle.ts', 'utf8'); expect(s).toMatch(/const skill = !danger \? suggestSkill/); expect(s).toMatch(/const spell = !danger && quickAttack/); // cp9-rc4 (A)（自訂）: gate moved into turnHints

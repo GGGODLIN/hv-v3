@@ -73,6 +73,8 @@ function phaseShift(s: BattleState, ev: BEvent[]): void {
     m.enraged = true;
     m.hp = Math.round(m.maxHp * BOSS_PHASE_HP);
     m.status = { stun: 0, bleed: 0, bleedTurns: 0 };
+    // cp9-rc6 item 1（自訂，暫定，非原版）: the revive (new phase) also clears any wind-up — the boss must charge again, so ⚠ shows first.
+    if (RULES.cp8) { const c = m as CM; c.charge = 0; c.heavyNext = false; c.pulseNext = false; c.drainNext = false; }
     for (let k = ev.length - 1; k >= 0; k--) { const e = ev[k]!; if (e.t === 'death' && e.to === i) ev.splice(k, 1); }
     ev.push({ t: 'status', to: i, text: BOSS_PHASE_TEXT, phase: true });
   });
@@ -350,6 +352,8 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   const pn = `生命藥水${s.potions.health <= 0 ? '已用完' : s.itemCd.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : s.hp >= s.d.hp ? '滿血無需喝藥' : '目前不能用'}`;
   if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
   const sp = guardHint(s) === 'spirit';
+  // cp9-rc6 item 3（自訂，暫定）: lethal and Z unavailable → never A; S if it is the guard, else D (still cuts the hit) — never hint Z here.
+  if (RULES.cp8 && CP9.on && lethal && !sp && canUse(s, { kind: 'defend' })) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住，但能減傷；${why}）` };
   return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}${pn}，${why}）` };
 }
 /** cp9-rc4 (A)（自訂，暫定）: the ONE source of the per-turn battle hints, shared by the UI (app.ts battleHtml) and the sim's naive/ui

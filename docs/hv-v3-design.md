@@ -135,3 +135,8 @@
 - **配點成本**：只查沒改，沿用 `F-002-1.1C-attribute-cost`，出處是 findings/002 1.1(C)、Character_Stats.md 的 "Experience Point Allocation" 一節。
 - **裝備名稱**：沒有改。前綴與後綴名稱出自 findings/003 1.4(A)；後綴從 Fair 品質才會出現，出自 Loot_Drop_Rolls.md。
   - 用 5 萬件抽樣檢查：Crude 品質不會帶後綴，也沒有大寫的 "Of"、重複字詞。
+
+## cp9-rc6（自訂，暫定，非原版）
+- **首領復活清除蓄力**：進入新階段時清掉 charge、heavyNext、pulseNext、drainNext，首領須重新蓄力，⚠ 預告照常出現。
+- **生命藥水冷卻 2 → 1**：cp8 規則下 `RC22.potCd` 預設 1（`SIM_POTCD` 可覆寫）。
+- **冷卻中不提示 Z**：決策（chargeAdvice，UI 與 sim 共用）只在藥水可用時給 Z；致命且 Z 不可用時改提示打斷技、S·靈動架勢或 D·防禦（減傷），不再提示 A。
