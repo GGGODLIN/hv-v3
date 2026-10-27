@@ -30,3 +30,15 @@
 ## 候選已接受（尚待正式發布）
 
 root已於2026-10-27 13:28 UTC明確接受有限桌面候選，詳見 BROWSER-QA-V036.md。接受phase完成1919測試與四語法重新驗證；148完整備份後才可發布正式149。上節「尚非browser accepted」保留其當時狀態，不代表目前仍阻擋。
+
+## 正式發布與原profile驗收通過
+
+接受來源148 `969aae334786a54086b1689c5dbf85b80dbf9293` 完整408檔／407payload已備份讀回，18變更逐檔exact、390不變檔與409範圍外blob/mode保留。正式149 `f192fec4eff401948d80156f941c01404816cbba`、Pages `40513626492` exact SHA success，21runtime＋directory index HTTP200且bytes一致；candidate21runtime＋directory也保持原樣。
+
+發布前網站出現外部並行提交 `277a8d04fc0639f9190de8b5ee439a6116810ab5`，在149任何寫入前停止舊base計畫，以fresh tree唯讀核對：dot區不變，外部44 blob paths（compare43項含rename）變更均完整保留。只用fresh expectedHEAD非force更新dot正式index/ui兩檔；其餘19runtime及4064範圍外blob/mode不動。這不是拒絕或重試繞過，不讀取／沿用別人的遊戲內容。
+
+root於2026-10-27 13:42 UTC真正原正式profile驗收通過：重載v0.36保留Lv11／1142金幣／21勝／41背包、原未綁定Lv7 loot-12。普通route1預約回營11.6秒通關，正常成長至Lv12／1218金幣／22勝／42背包／HP897／70碎片／6種子；重載保留。新名牌HP73%、集火與飄字35清楚分離。
+
+原44件held records全部逐byte EXACT不變，只新增loot-42；equipment、gearSets（原本與現在都不存在）、abilities、strategy、emergencySupply、autoAdvance不變。正常前匯出SHA `68eee9a9e1b53172794d56613ea3d56b38c2eb849518d1bce87e5aafcc994f2e`；後匯出SHA `9ed2d675bba5528fb933215722e634ba98a9712d465bc34712bedf31b3d4d0ec`。從未匯入候選進度到正式；原始匯出未收進repo。
+
+46則console皆既知擴充套件來源，app-origin錯誤0。候選分頁已關，正式停於營地。最後150只保存文件／manifest收據，不修改runtime／tests／assets，不重部署；接受phase實際1919測試／四syntax記錄仍有效，不把文件收據說成另一次測試。

@@ -1,5 +1,15 @@
 # 霧境遠征 · hv-v3 dot
 
+## v0.36 已正式發布，原正式進度實玩通過
+
+[正式遊戲](https://gggodlin.github.io/play/hv-v3-dot/) · [真正瀏覽器證據與限制](docs/BROWSER-QA-V036.md)
+
+已驗收完整來源 `969aae334786a54086b1689c5dbf85b80dbf9293` 先備份／exact讀回，再發布正式 `f192fec4eff401948d80156f941c01404816cbba`；Pages `40513626492` exact SHA success，21runtime＋directory HTTP全200/exact。發布前有外部並行提交，重新核對fresh `277a8d04fc0639f9190de8b5ee439a6116810ab5` 後只改正式index/ui兩檔，完整保留4064範圍外blobs/modes與所有候選，沒有force push或覆蓋別人的變更。
+
+原正式profile未匯入候選：Lv11／1142金幣／21勝／41背包，普通route1預約回營11.6秒勝後Lv12／1218金幣／22勝／42背包／HP897／70碎片／6種子，重載保留。原44件held records逐byte完全不變，只新增自然loot-42；原未綁定Lv7 loot-12與配裝／能力／政策保留。實際新名牌HP73%、集火與傷害35清楚分離；app console錯誤0。
+
+最後收據只更新文件／manifest，runtime／素材／測試仍與接受來源相同，不重部署，也不虛稱額外重跑全套。這是有限桌面名牌改善：手機／窄窗、三effect疊合／READY／極低HP的實際目視仍未驗；背景／寶箱不變，不宣稱全美術完成。以下保留較早階段歷史。
+
 ## v0.36 隔離候選已通過有限桌面驗收
 
 [候選遊戲](https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.36/) · [真正瀏覽器驗收](docs/BROWSER-QA-V036.md)

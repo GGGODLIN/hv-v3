@@ -194,3 +194,7 @@ Keep this a bounded UI adapter, not a general accessibility rewrite. Combat, ite
 ### v0.36 接受進度
 
 有限桌面candidate已通過（單／雙／Boss名牌，4場自然stage5，重載與held-ID保留）；接受phase全套1919與四syntax重新通過。先接受來源備份、再正式發布與原正式profile驗收。手機／READY／三effect同時目視仍未驗，不擴張本輪範圍。
+
+### v0.36 正式完成
+
+接受來源148備份後正式149已發布／exact CI和HTTP通過，原正式profile正常route1與重載通過，原44持有紀錄exact保留。150僅最後文件／manifest收據，不重部署。下一輪依ROADMAP選有價值改善，仍保留本版手機／極端狀態目視限制。

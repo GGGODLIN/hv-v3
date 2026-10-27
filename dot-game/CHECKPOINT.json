@@ -1,10 +1,10 @@
 {
-  "checkpoint": "148-v036-browser-accepted",
+  "checkpoint": "150-v036-publication-receipt",
   "version": "0.36.0",
-  "status": "bounded-desktop-accepted-awaiting-stable-publication",
-  "source_base": "f079b8ffec04f7834768461bde8d809cab749711",
+  "status": "bounded-desktop-accepted-published-original-profile-verified",
+  "source_base": "969aae334786a54086b1689c5dbf85b80dbf9293",
   "base_accepted_recovery": "609cf796630d03973ccf0a3d4a9f224b848b00c4",
-  "accepted_website": "46c3d758e435adcde0e77456f296b7dccd26fbae",
+  "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
   "scope": "Opaque compact enemy nameplates with name, explicitly percentage HP, target and active effect rows. Repeated canvas role/defense lines removed; exact existing DOM details retained. Actor bodies, scene/background/layout/core/RNG/save unchanged; canvas aria and version metadata updated.",
   "source_tests_passed": 1919,
   "runtime_syntax_checks": 4,
@@ -106,14 +106,14 @@
     "candidate_before_formal": true,
     "source_backup_before_publication": true
   },
-  "publication": "Candidate147 verified and bounded desktop accepted. Stable v035 retained until accepted-source backup, formal CI/HTTP and original-profile smoke.",
+  "publication": "Accepted source148 backed up first. Formal149 exact CI/HTTP and original-profile battle/reload/export passed. Final150 docs/manifest only; no redeploy or additional full-test claim.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T13:30:33.441908+00:00",
+  "frozen_utc": "2026-10-27T13:43:33.009307+00:00",
   "files": {
     "README.md": {
-      "bytes": 28585,
-      "sha256": "4ea38fa885869890cad62b1a31465541023b91fa6cd103ae93aa480de9c106fc"
+      "bytes": 29956,
+      "sha256": "283b9f33c38e2ea1cdb6974b9a5f31c3238a0d3e2b2d392dac5202ef35901dd0"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -284,8 +284,8 @@
       "sha256": "864b463428f8278fcee02958b1669b581e9310f7177e78d1a57df61b4d57fedb"
     },
     "docs/ACCEPTANCE-V036.md": {
-      "bytes": 3392,
-      "sha256": "81e428a7eab8467c8953a8334f4b74fb42de798e4269af658a1447d2fb3d0ae9"
+      "bytes": 5286,
+      "sha256": "5520e2de3fdac432e763bee84ce0b9582ed3571cbe409837d000206eae2b0b9b"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -492,8 +492,8 @@
       "sha256": "e1e1433254230caef8303549e97dc561a79e9a6102e2feaba117098f009fdc1e"
     },
     "docs/BROWSER-QA-V036.md": {
-      "bytes": 3380,
-      "sha256": "f14bc545a77ff35586869537128742f6693aa03aa52c60cef723cd433ed218ac"
+      "bytes": 5274,
+      "sha256": "a07b827dae5fa22fed29d4102d5ff97dd30484e82087e2c354720c97db76cdf0"
     },
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
@@ -760,20 +760,20 @@
       "sha256": "3939f22ce2d99c90c93b964622348ca155df6cc6c4e389ddadcd7aac8fdb3188"
     },
     "docs/RECOVERY-V036.md": {
-      "bytes": 3385,
-      "sha256": "52f060907828613046e297dea1aa0742b8c586749d1262c68e798e0a212be25f"
+      "bytes": 5279,
+      "sha256": "71d69468abc8f35063f5535c9f3ab5b32157eb0171b8e91bf73421ef80b6ba17"
     },
     "docs/RELEASES.md": {
-      "bytes": 51727,
-      "sha256": "72bc5916f8c2cbff9b55eab489be88a8d740cf990c60d99a5acfb54ed3f895c0"
+      "bytes": 53093,
+      "sha256": "0791f3566df0949375d9b6a4df543e45776a3ce16043566ca9ca3ffd9d0529f4"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 29800,
-      "sha256": "4a9b2e3b3190fd829be149b6cbc36dc5147cdc91a7acd2fbacf33339fb6ed713"
+      "bytes": 30116,
+      "sha256": "952658825026c6c46f16cab085774a3cc1ca99cee95725b41469eaf049459014"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -804,8 +804,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 31326,
-      "sha256": "964df7cc326afbb432d95b1612ef2d234a3ed18dcaac3234d9cef6318f9aa488"
+      "bytes": 32692,
+      "sha256": "5130ac60e6ae5497b7d1e3bf0dc17f5fc37f86d1495c977642187a9300c89e12"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1744,5 +1744,54 @@
   "candidate_website": "1b84676530bb34b8c62fc44025fa00b0642ff9bf",
   "candidate_ci_run": 40511494672,
   "candidate_http_exact_files": 21,
-  "runtime_acceptance_transition": "Only index phase and eight exact corresponding test labels; functional runtime/styles/assets identical to146. Full suite freshly rerun."
+  "runtime_acceptance_transition": "Only index phase and eight exact corresponding test labels; functional runtime/styles/assets identical to146. Full suite freshly rerun.",
+  "accepted_source": "969aae334786a54086b1689c5dbf85b80dbf9293",
+  "formal_ci_run": 40513626492,
+  "formal_http_exact_files": 21,
+  "formal_directory_index_exact": true,
+  "formal_original_profile": {
+    "passed_utc": "2026-10-27T13:42:44Z",
+    "candidate_imported": false,
+    "normal_route": 1,
+    "win_seconds": 11.6,
+    "before": {
+      "level": 11,
+      "gold": 1142,
+      "wins": 21,
+      "inventory": 41
+    },
+    "after": {
+      "level": 12,
+      "gold": 1218,
+      "wins": 22,
+      "inventory": 42,
+      "hp": 897,
+      "fragments": 70,
+      "seeds": 6
+    },
+    "reload_preserved": true,
+    "original_held_records_exact": 44,
+    "new_ids": [
+      "loot-42"
+    ],
+    "equipment_abilities_policies_unchanged": true,
+    "pre_export_sha256": "68eee9a9e1b53172794d56613ea3d56b38c2eb849518d1bce87e5aafcc994f2e",
+    "post_export_sha256": "9ed2d675bba5528fb933215722e634ba98a9712d465bc34712bedf31b3d4d0ec",
+    "known_extension_console_entries": 46,
+    "app_console_errors": 0,
+    "raw_exports_in_source": false
+  },
+  "concurrent_publication": {
+    "fresh_parent": "277a8d04fc0639f9190de8b5ee439a6116810ab5",
+    "external_changed_blob_paths_preserved": 44,
+    "formal_runtime_changed_files": [
+      "index.html",
+      "src/ui.js"
+    ],
+    "unchanged_runtime_files": 19,
+    "outside_blobs_modes_preserved": 4064,
+    "non_force_expected_head": true
+  },
+  "final_receipt_runtime_tests_assets_exact_accepted148": true,
+  "final_receipt_extra_test_run": false
 }
