@@ -46,3 +46,24 @@ describe('rc19 (b) supply', () => {
     expect(RULES.origPotionDrop).toBe(true);
   });
 });
+describe('rc19 (d) potion unusable + estimate ≥ HP → D / S / A through chargeAdvice', () => {
+  // defended estimate = est × (1 − DEF.mitigation)-ish; pick adb so est ≥ HP but defended < HP, then so both ≥ HP.
+  const setup = (ratio: number, pots: number) => { const b = mk((hp) => hp); b.potions.health = pots; b.itemCd.health = 0; b.oc = 0;
+    const m = b.monsters[0]!; const unit = chargeAdvice(b).est; m.adb = m.adb * (b.hp * ratio) / Math.max(1, unit); return b; };
+  it('defended estimate below HP → D', () => withCp8(() => {
+    const b = setup(1.1, 0); const a = chargeAdvice(b);
+    expect(a.danger).toBe(true); expect(a.keys).toEqual(['D']); expect(a.text).toContain('防禦後估計');
+  }));
+  it('defence cannot hold, spirit usable → S', () => withCp8(() => {
+    const b = setup(5, 0); b.oc = 250; const a = chargeAdvice(b);
+    expect(a.danger).toBe(true); expect(a.keys).toEqual(['S']);
+  }));
+  it('defence cannot hold, spirit unusable → A', () => withCp8(() => {
+    const b = setup(5, 0); b.oc = 0; const a = chargeAdvice(b);
+    expect(a.keys).toEqual(['A']);
+  }));
+  it('potion on cooldown counts as unusable too', () => withCp8(() => {
+    const b = setup(1.1, 3); b.itemCd.health = 2; expect(chargeAdvice(b).keys).toEqual(['D']);
+  }));
+  it('potion usable keeps D/Z', () => withCp8(() => { const b = setup(1.1, 3); expect(chargeAdvice(b).keys).toEqual(['D', 'Z']); }));
+});

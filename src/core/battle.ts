@@ -260,8 +260,12 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target); return { danger, est, hp, keys: g ? [SKILLS[g].zh, 'A'] : ['A'], text: `${g ? `${SKILLS[g].zh} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   if (canUse(s, { kind: 'item', id: 'health' })) return { danger, est, hp, keys: ['D', 'Z'], text: `D·防禦（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%）或 Z·生命藥水（剩 ${s.potions.health} 瓶）（HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
+  // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
+  const estD = Math.round(s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, true, true) : 0), 0));
+  const pn = `生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}`;
+  if (RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
   const sp = guardHint(s) === 'spirit';
-  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
+  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
 }
 /** rc19 (a)（自訂，非原版）: the Z·生命藥水 button highlight. QA rc16 oc4 F6: HP 357/792 (45%), biggest hit 44, decision said A, yet Z
  *  lit — the button used potHint, whose "HP < 50%" branch ignores the estimate and so bypassed chargeAdvice. In cp8 the button now
