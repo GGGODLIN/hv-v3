@@ -312,3 +312,41 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
    onto the monsters (913 width). */
 .hud > .hudl, .hud > .logwrap, .hud > .refused { grid-column: 1; }
 .hud > .hudr { grid-column: 2; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+/* ===== rc19 item 1: same Kenney RPG style on the map / town / equipment (town 裝備 tab) screens (視覺，只改外觀) ===== */
+.screen-town .topbar .title, .screen-map .topbar .title { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 900; font-size: 20px; letter-spacing: .08em; color: #ffd27a; text-shadow: 0 2px 0 #5a2a08, 0 0 8px #ffb04a88; }
+.screen-town .panel, .screen-map .panel { border: 16px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 stretch; background: linear-gradient(#2b1a0ef2, #1d1209f2) padding-box; border-radius: 0; box-shadow: 0 8px 24px #000c; }
+.screen-town .panel::before, .screen-map .panel::before { display: none; }
+.screen-town h2, .screen-town h3, .screen-map h2, .screen-map h3 { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 900; color: #ffd27a; text-shadow: 0 2px 0 #5a2a08; }
+.screen-town button, .screen-map button { border: 0; border-style: solid; border-width: 8px 8px 11px; border-image: url("/assets/kenney-rpg/buttonLong_beige.png") 10 10 13 fill stretch; background: transparent; color: #3b2412; text-shadow: none; padding: 0 8px; border-radius: 0; font-weight: 700; }
+.screen-town button small, .screen-map button small { color: #6a4320; }
+.screen-town button:hover:not(:disabled):not([aria-disabled="true"]), .screen-map button:hover:not(:disabled):not([aria-disabled="true"]) { border-image-source: url("/assets/kenney-rpg/buttonLong_beige.png"); filter: brightness(1.08); background: transparent; }
+.screen-town button:active:not(:disabled):not([aria-disabled="true"]), .screen-map button:active:not(:disabled):not([aria-disabled="true"]) { border-width: 10px 8px 9px; border-image: url("/assets/kenney-rpg/buttonLong_beige_pressed.png") 10 10 9 fill stretch; transform: translateY(1px); }
+.screen-town button.on, .screen-town button.big, .screen-town button.suggest, .screen-map button.on, .screen-map button.big, .screen-map button.suggest { border-image-source: url("/assets/kenney-rpg/buttonLong_blue.png"); color: #fff; text-shadow: 0 1px 0 #0a2a5a; }
+.screen-town button.on small, .screen-town button.big small, .screen-map button.on small, .screen-map button.big small { color: #d8ecff; }
+.screen-town button.on:active, .screen-town button.big:active, .screen-map button.on:active, .screen-map button.big:active { border-image-source: url("/assets/kenney-rpg/buttonLong_blue_pressed.png") !important; }
+.screen-town button:disabled, .screen-town button[aria-disabled="true"], .screen-map button:disabled, .screen-map button[aria-disabled="true"] { border-image: url("/assets/kenney-rpg/buttonLong_grey.png") 10 10 13 fill stretch; color: #6d6d6d; opacity: 1; }
+.screen-town button.node, .screen-map button.node { border-image-source: url("/assets/kenney-rpg/buttonLong_brown.png"); color: #fff2d8; text-shadow: 0 1px 0 #000; }
+.screen-town button.node .tick, .screen-town button.node small, .screen-map button.node .tick, .screen-map button.node small { color: #ffd27a; }
+.screen-town .node:not(button), .screen-map .node:not(button) { background: #3a2614; border: 2px solid #8a5a2a; border-radius: 0; color: #f4e6cc; }
+.screen-town .node.chosen, .screen-map .node.chosen { outline: 3px solid #ffd27a; background: #6a4320; }
+.screen-town .hint, .screen-town .notice, .screen-town .cp5tips, .screen-map .hint, .screen-map .notice, .screen-map .cp5tips { border: 8px solid transparent; border-image: url("/assets/kenney-rpg/panelInset_beige.png") 10 fill stretch; background: transparent; color: #3b2412; border-radius: 0; }
+.screen-town .hint b, .screen-town .hint .warn, .screen-map .hint b, .screen-map .hint .warn { color: #8a2a10; }
+.screen-town .hint.warn, .screen-map .hint.warn { color: #8a2a10; font-weight: 700; }
+.screen-town .item, .screen-map .item { background: linear-gradient(90deg, color-mix(in srgb, var(--q) 22%, #2b1a0e), #2b1a0e); border-radius: 0; box-shadow: 0 0 0 2px #6a4320, 0 3px 0 #0008; }
+.screen-town .tabs, .screen-map .tabs { border-bottom: 2px solid #8a5a2a; }
+.screen-town .foot, .screen-map .foot { border-top: 2px solid #8a5a2a; }
+.screen-town .stats td:last-child, .screen-town .num, .screen-map .stats td:last-child, .screen-map .num { font-family: "HVNum", "Noto Sans TC", sans-serif; font-weight: 400; color: #ffe2a8; }
+.screen-town .stats tr, .screen-map .stats tr { border-color: #6a432088; }
+.screen-town .bar, .screen-map .bar { height: 18px; border: 0; border-radius: 0; background: url("/assets/kenney-rpg/bar-back.png") 0 0 / 100% 18px no-repeat; border-image: url("/assets/kenney-rpg/bar-back.png") 0 9 fill / 0 9px stretch; box-shadow: none; overflow: visible; margin-left: 24px; }
+.screen-town .bar > div, .screen-map .bar > div { min-width: 18px; border-radius: 0; box-shadow: none; background: none !important; border-image: url("/assets/kenney-rpg/bar-red.png") 0 9 fill / 0 9px stretch; }
+.screen-town .bar.mp > div, .screen-map .bar.mp > div { border-image-source: url("/assets/kenney-rpg/bar-blue.png"); }
+.screen-town .bar.sp > div, .screen-map .bar.sp > div { border-image-source: url("/assets/kenney-rpg/bar-green.png"); }
+.screen-town .bar::before, .screen-map .bar::before { content: ""; position: absolute; left: -22px; top: -2px; width: 22px; height: 22px; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px #000); }
+.screen-town .bar.hp::before, .screen-map .bar.hp::before { background-image: url("/assets/icons/p-health.png"); }
+.screen-town .bar.mp::before, .screen-map .bar.mp::before { background-image: url("/assets/icons/p-mana.png"); }
+.screen-town .bar.sp::before, .screen-map .bar.sp::before { background-image: url("/assets/icons/p-spirit.png"); }
+.screen-town .bar span, .screen-map .bar span { font-family: "HVNum", "Noto Sans TC", sans-serif; font-weight: 400; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; }
+.screen-town td .hint, .screen-town label.hint, .screen-town small.hint, .screen-town span.hint, .screen-map td .hint, .screen-map label.hint, .screen-map small.hint, .screen-map span.hint { border: 0; border-image: none; background: transparent; color: #cdb48e; }
+.screen-town td .dim, .screen-town td small, .screen-map td .dim, .screen-map td small { color: #b89c74; }
+.screen-town td.hint { border: 0; border-image: none; background: transparent; color: #cdb48e; opacity: 1; }
