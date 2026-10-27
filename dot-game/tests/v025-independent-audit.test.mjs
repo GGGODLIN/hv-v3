@@ -62,7 +62,7 @@ function fullUI(initial=fixture()){
 }
 const choose=(h,id)=>h.run(`toggleSelectedSale(${JSON.stringify(id)},true)`);
 const visibleIds=h=>[...h.run('selectedSaleCheckboxes.keys()')];
-const filter=(slot='all',family='all',investment='all')=>({slot,family,investment});
+const filter=(slot='all',family='all',investment='all')=>({slot,family,investment,quality:'all'});
 const matches=(h,item,filters)=>h.run(`inventoryMatchesFilters(${JSON.stringify(item)},${JSON.stringify(filters)})`);
 
 test('v026 compatibility: frozen v025 gameplay/session preserve v024 identities; current session and prior31 fixtures stay exact',()=>{

@@ -119,7 +119,7 @@ test('empty reset restores criteria but not sorting or selections, and returns k
   await filter(h, { slot: 'armor', family: 'rapier', investment: 'iw1', sort: 'level' });
   assert.match(collect(h.dom['inventory-list']), /背包中沒有同時符合.*已穿裝備不在背包/);
   const reset = find(h.dom['inventory-list'], el => el.tag === 'button'); assert.ok(reset); await reset.click();
-  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all' });
+  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all', quality: 'all' });
   assert.equal(h.dom['sort-select'].value, 'level'); assert.equal(ids(h).length, 8);
   assert.equal(h.run('selectedId'), 'loose-rapier'); assert.deepEqual(clone(h.run('[...selectedSaleIds]')), ['loose-axe']);
   assert.equal(h.document.activeElement, h.dom['slot-filter']);
@@ -166,7 +166,7 @@ test('commission delivery explicitly clears conflicting criteria and retains est
   const h = fullUI(); await filter(h, { slot: 'armor', family: 'club', investment: 'iw1', sort: 'power' });
   h.run("openWeaponCommission('rapier');confirmWeaponCommission();");
   assert.equal(h.calls.filter(call => call.action === 'commissionWeapon').length, 1);
-  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'weapon', family: 'all', investment: 'all' });
+  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'weapon', family: 'all', investment: 'all', quality: 'all' });
   assert.equal(h.dom['sort-select'].value, 'new'); assert.equal(ids(h)[0], h.run('selectedId'));
   assert.match(h.dom['toast'].textContent, /已重設背包篩選.*武器／最新取得.*未自動裝備/);
 });
@@ -182,14 +182,14 @@ test('live binding changes membership without losing inspected ID', async () => 
 test('filters never serialize and reload/import/adopted progress starts with all criteria', async () => {
   const h = fullUI(), before = clone(h.state); await filter(h, { family: 'rapier', investment: 'iw1' }); assert.deepEqual(clone(h.state), before);
   const reloaded = fullUI(clone(h.state)); assert.equal(ids(reloaded).length, 8);
-  h.run('syncSelection();render(true);'); assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all' });
+  h.run('syncSelection();render(true);'); assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all', quality: 'all' });
   await filter(h, { family: 'rapier', investment: 'iw1' }); await h.import(fixture());
-  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all' }); assert.equal(ids(h).length, 8);
+  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all', quality: 'all' }); assert.equal(ids(h).length, 8);
 });
 
 
 test('startup explicitly resets browser-restored native filter values before acquiring a writer lock', () => {
   const h = fullUI(fixture(), { restoredFilters: { 'slot-filter': 'armor', 'family-filter': 'rapier', 'investment-filter': 'iw1' } });
-  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all' });
+  assert.deepEqual(clone(h.run('inventoryFilters()')), { slot: 'all', family: 'all', investment: 'all', quality: 'all' });
   assert.equal(ids(h).length, 8); assert.equal(h.calls.length, 0);
 });

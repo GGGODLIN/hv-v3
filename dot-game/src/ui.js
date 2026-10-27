@@ -449,10 +449,12 @@ function inventoryFilters() {
   return {
     slot: choice('slot-filter', ['all', 'weapon', 'armor', 'accessory']),
     family: choice('family-filter', ['all', 'axe', 'rapier', 'club', 'unknown']),
-    investment: choice('investment-filter', ['all', 'unbound', 'bound', 'iw1'])
+    investment: choice('investment-filter', ['all', 'unbound', 'bound', 'iw1']),
+    quality: choice('quality-filter', ['all', ...QUALITY_TIERS.map(tier => tier.name)])
   };
 }
 function inventoryMatchesFilters(item, filters) {
+  if (filters.quality && filters.quality !== 'all' && item.quality !== filters.quality) return false;
   if (filters.slot !== 'all' && item.slot !== filters.slot) return false;
   if (filters.family !== 'all') {
     if (item.slot !== 'weapon') return false;
@@ -466,7 +468,7 @@ function inventoryMatchesFilters(item, filters) {
   return true;
 }
 function inventoryFilterLabels(filters) {
-  return [filters.slot !== 'all' ? slotNames[filters.slot] : '',
+  return [filters.quality && filters.quality !== 'all' ? `${qualityName(filters.quality)}品質` : '', filters.slot !== 'all' ? slotNames[filters.slot] : '',
     filters.family !== 'all' ? weaponFamilyNames[filters.family] || '未辨識武器' : '',
     ({ unbound: '未綁定裝備', bound: '已綁定・未升 IW', iw1: 'IW1 已完成' })[filters.investment] || ''].filter(Boolean);
 }
@@ -474,7 +476,7 @@ function hiddenSelectedSaleCount(filters = inventoryFilters()) {
   return state.inventory.filter(item => selectedSaleIds.has(item.id) && !inventoryMatchesFilters(item, filters)).length;
 }
 function resetInventoryFilters() {
-  for (const id of ['slot-filter', 'family-filter', 'investment-filter']) $(id).value = 'all';
+  for (const id of ['slot-filter', 'family-filter', 'investment-filter', 'quality-filter']) $(id).value = 'all';
   // Both inspected items and exact personal sale selections survive a view reset.
 }
 function resetInventoryFilterView() {
@@ -2036,7 +2038,8 @@ $('emergency-supply')?.addEventListener('change', event => {
 });
 $('stage-select').addEventListener('change',event=>dispatch('selectStage',Number(event.target.value)));
 $('auto-advance').addEventListener('change',event=>dispatch('setAutoAdvance',event.target.checked));
-for (const id of ['slot-filter', 'family-filter', 'investment-filter', 'sort-select']) $(id).addEventListener('change', () => render(true));
+for (const id of ['slot-filter', 'family-filter', 'investment-filter', 'quality-filter', 'sort-select']) $(id).addEventListener('change', () => render(true));
+for (const tier of QUALITY_TIERS) { const option=node('option','',`${tier.label} · ${tier.name}`); option.value=tier.name; $('quality-filter').append(option); }
 $('reset-inventory-filters').addEventListener('click', resetInventoryFilterView);
 $('item-world-confirm').addEventListener('click', confirmItemWorld);
 $('item-world-dialog').addEventListener('close', closeItemWorld);

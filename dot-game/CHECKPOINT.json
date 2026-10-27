@@ -1,26 +1,24 @@
 {
-  "checkpoint": "159-v043-detail-action-focus-source",
-  "version": "0.43.0",
+  "checkpoint": "160-v044-quality-filter-source",
+  "version": "0.44.0",
   "status": "source-tested-not-browser-accepted-not-published",
-  "source_base": "bbb2e0956856160bf024728dde2046ec97ee8da6",
+  "source_base": "5514d48f3cbce9c81b8b43cf1d28940dbb8e8af9",
   "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
   "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
-  "scope": "Exact-item keyboard action focus survives UI repaint, equip follows worn card and sale uses safe fallback. No engine, transaction, save, RNG, CSS or asset changes.",
-  "source_tests_passed": 1988,
+  "scope": "Exact-quality backpack view intersects existing filters and preserves exact-ID comparison/sale selection. No engine, transaction, RNG, save, CSS or asset changes.",
+  "source_tests_passed": 2005,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "new_focused_tests": 8,
-  "independent_focused_tests_passed": 7,
-  "baseline_expected_failures": 7,
-  "independent_baseline_expected_failures": 4,
+  "new_focused_tests": 11,
+  "independent_focused_tests_passed": 6,
   "browser_acceptance": "Not performed; full production UI tests simulate browser APIs. Inherited v037/v038 art remains unaccepted.",
   "publication": "Not attempted; existing Kenney website scope refusal unresolved. Zero website operations.",
-  "recovery": "docs/RECOVERY-V043.md",
+  "recovery": "docs/RECOVERY-V044.md",
   "files": {
     "README.md": {
-      "bytes": 38386,
-      "sha256": "0a81b0bfc33986cc72eaf2f068c20989749653432aa6967e65bf432a108bb57a"
+      "bytes": 39268,
+      "sha256": "e0d94bf4e106def00e999048224fd665ac5a723dd4017e43f7d009987b62f0b1"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -225,6 +223,10 @@
     "docs/ACCEPTANCE-V043.md": {
       "bytes": 1499,
       "sha256": "1b15c437a86a475c47fb4a01484d77e7d05e4c8936d094737f67676242078987"
+    },
+    "docs/ACCEPTANCE-V044.md": {
+      "bytes": 1160,
+      "sha256": "d12dc4730a9f9eb9b11e520503853780bb653a752568609775ac49dce3eddd90"
     },
     "docs/ACCEPTANCE-V05.md": {
       "bytes": 11090,
@@ -746,6 +748,10 @@
       "bytes": 1374,
       "sha256": "d6cb405e66f1f228163aed76a4acc1efacc2a3e6ef6f098c40df7fad9af838b8"
     },
+    "docs/RECOVERY-V044.md": {
+      "bytes": 1369,
+      "sha256": "774ab7a3cb046daf54aaaae793d4334649bbca24696d5cf5e26e9b355116f807"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -755,8 +761,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 34734,
-      "sha256": "a91d27244e3511de82beeb6a130d60987bc4a857ab8b592548f0cae89f7a3652"
+      "bytes": 35060,
+      "sha256": "12f2d33118b527ba2b23653dafd7eb655cba742de6e88f7a0d1d44a1d89c0043"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -787,8 +793,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 41097,
-      "sha256": "c42c877449a522cc4eebfebd616cf8602e495fdfc91fe94fc45c555ec275826b"
+      "bytes": 41979,
+      "sha256": "81b75141a6e84f9fd3af201149eef9bda5fb6cfc5c4051a9ec0ccd4f7a832d73"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1007,12 +1013,12 @@
       "sha256": "003a05f8a794baa96cee54bad6a9c4c1ba380f226f1fd4196f7cf5d3b9cf1ddf"
     },
     "index.html": {
-      "bytes": 45061,
-      "sha256": "1c1e689b5a80cfacfef12429064f795ac592ccaa17b3f360f72896d26061bdd8"
+      "bytes": 45222,
+      "sha256": "808c6d39b649a24da330164fae3fa3dcbe8dabe6f9aa2ef152a3af0035518f0b"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "dd37c279b8894545d668a9110cea5e1f61dc01d563440e125e13aad55bcec3bb"
+      "sha256": "f2eb167df2813d14921bffca021cee14839c6c915befa5727db2c4b0ebf5d985"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1099,8 +1105,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 167689,
-      "sha256": "165af761f464b0f344eed8aa9ffa7e3b495056c5ffd6015ba514b177f655f39c"
+      "bytes": 168171,
+      "sha256": "829f862ef32caf6e44ea182f2cd29887af86c926fa880195ee822e1fb1879e46"
     },
     "style.css": {
       "bytes": 73406,
@@ -1136,7 +1142,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "2ec5babd1ad76ef8e608654d826695108e31ea7e9c8d6f21e6348640482bb411"
+      "sha256": "de7919cc08bf2c980f3904c75334274e9ba955d2195fe55fe06936f3e004604e"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1151,8 +1157,8 @@
       "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
     },
     "tests/camp-chest-independent.test.mjs": {
-      "bytes": 8040,
-      "sha256": "38ba65afca952aaced0cf0f04effbed599bcc5f866f7597a84bb3f91abddc92f"
+      "bytes": 8341,
+      "sha256": "162acd14cfda1fce632f0b248de6494625b65cf8c602cbb984903419618175e6"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1196,7 +1202,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18341,
-      "sha256": "90a5ac39bf0baf7e6e03c40e2ca29ac3f55d874dd83783960a91e84baf73cabc"
+      "sha256": "58552e581e31320983c667c7e2c6f5fda4bdc3d2fa3a3544eee2e4fcf4f6b440"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1212,7 +1218,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "ba18b4bad4e3e1edd57a15d6462bba25e82acd9a69a97872af11cb6ac7070089"
+      "sha256": "8444f9a20a346ff63391cd65231e93af110fcb5b49101fdb7c2a692f98cfd9ae"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1248,7 +1254,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "31712579eb406dcd9ed9581128dc99adeeaed3a04d624a88a5819d603e6200d7"
+      "sha256": "fdfa542ea7e5437ae392c92a70703cfbce980d01485f779cf1f5ff0939e8079b"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1463,8 +1469,8 @@
       "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
     },
     "tests/forest-stage-independent.test.mjs": {
-      "bytes": 7127,
-      "sha256": "cb1125af84cba03e943765a58a5bdc436a9b8300b4316d8cc1e9ebe31c2c30b7"
+      "bytes": 7225,
+      "sha256": "8640919e0e374a556efb24255d7e66751758a6e6fdba95b248f137ecb86ef00d"
     },
     "tests/forest-stage.test.mjs": {
       "bytes": 4749,
@@ -1522,6 +1528,10 @@
       "bytes": 2755,
       "sha256": "073537c3b8eb1d9e1ababe400a75e4e01fdf8c1764e2270a589a5e4c765c23da"
     },
+    "tests/helpers/quality-filter-baseline.mjs": {
+      "bytes": 1581,
+      "sha256": "982e873468b92fb68db2d50fbcd464a57bd06c65c0a26c02a1478cd07169b2d0"
+    },
     "tests/helpers/soulbind-compat.mjs": {
       "bytes": 1684,
       "sha256": "91a080ce3908a8a3b2a453f2bbb71aaefd68745eb6dd5525e4ebd1b8b94713fa"
@@ -1547,8 +1557,8 @@
       "sha256": "6346ff604eb1fc237a5aa67d7f7b1ead46aef542af65d34f92db1afc0b5ed39c"
     },
     "tests/inventory-workbench-ui.test.mjs": {
-      "bytes": 15454,
-      "sha256": "77534cf256a86d586cafc403535340b65c9f49b5ecb522a979dadde2483c3c6d"
+      "bytes": 15534,
+      "sha256": "3c8538dc29b3e3ae6f0bab7dd88e93e013f7fcf9bfd6022de4a6070cf316db3e"
     },
     "tests/item-world-audit.test.mjs": {
       "bytes": 33650,
@@ -1564,7 +1574,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "f618c2496403e69fc1aa513f7cb1fb6dd1efde2b88099ee15db8d11b9726eea9"
+      "sha256": "c0048ef2fe5e3c2488dc35b079e98ef36eac684c8edfe980d8e993154881e877"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1614,13 +1624,21 @@
       "bytes": 12409,
       "sha256": "ec104f6f56dfc0b1a60b3c61c73920a559a1cb43af120af4959e51bb9a09ca6a"
     },
+    "tests/quality-filter-audit.test.mjs": {
+      "bytes": 3954,
+      "sha256": "9dcbfc822ce7c4cb97fd380081de34b73d5f7485916e67c52adfdceebd660060"
+    },
+    "tests/quality-filter.test.mjs": {
+      "bytes": 2384,
+      "sha256": "512a9cc7d24c6260df76df5950b263965ca93cccd1077398f47ad888dff474ad"
+    },
     "tests/ranked-abilities-acceptance.test.mjs": {
       "bytes": 21562,
       "sha256": "ed7aa2a82dfe856000e0d7d11b9ed473b898dc5c9dd4665a611b17b0c90ae838"
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "932a1e9b71c22e46030197d9e5c6202e41600be458b653839e7558471da21952"
+      "sha256": "b22e092e7ed8999e4bb538bef768e9d4c5abba6a9ade229e2e2e521d4d879b78"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1648,7 +1666,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "cd44596d102c1eddf11f4ae05df03a994cd4974daafa3c2f441cd82df15d2838"
+      "sha256": "1ca2bd3d991ca86994f180d1e2d08788485ee032b31901601adce204a4d79fa4"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1712,7 +1730,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "ba30714a9269a6aa0005a6ec01f2dff1ce49ecd79cca87cb1e87c93ed977afc3"
+      "sha256": "c4a0fec4c904282aea33aefa464ce0c36781ad2e5faf70654e5a0d21a464c95c"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1747,8 +1765,8 @@
       "sha256": "9c5e38faf8deb0c03a7d9e5d4fad6f298ea94b57a8a7b504d590268b330f9e72"
     },
     "tests/v025-independent-audit.test.mjs": {
-      "bytes": 18608,
-      "sha256": "f90fe4030a18260e681dd14709d71bea8fd3b68d3398cc7c1a6c897ec830cf3e"
+      "bytes": 18622,
+      "sha256": "48c67154a0972dac099819fc07cb82264e848b60fad6d2b52c35f33beeb7a9c2"
     },
     "tests/v03-acceptance.test.mjs": {
       "bytes": 18736,
@@ -1796,7 +1814,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "341d3c6f5303c727e527052ab32ae6452f52bcc75b462b548bdbfe96c276824a"
+      "sha256": "b7f48949da39b27ea7ccc05ff0cf4679923fd24f8d39dfc4346e1eda7674d2fe"
     }
   }
 }

@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.44 source-only slice: exact-quality inventory view
+
+Use the existing quality tiers as a transient exact-match filter intersected with the existing criteria. Preserve exact item selection, pending/worn visibility and manual-sale protections. No gameplay change or publication. Browser layout acceptance remains pending.
+
 ## v0.43 source-only slice: continuous keyboard inventory work
 
 Retain exact-item basic action focus after repaint; equip follows the same item to its worn card, sale falls back to a safe filter. Never select a different destructive action, steal unrelated focus, or mutate gameplay to restore focus. Preserve material provenance, no website operations and no browser-acceptance claim.
