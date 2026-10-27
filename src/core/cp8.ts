@@ -21,7 +21,7 @@ export const CP8 = {
    *  can be used — the toggle is free, but a player who never presses it loses the SS damage bonus in every boss fight. */
   bossSpirit: true,
   /** cp8-rc8 P2 item 1（自訂，非原版，暫定）: bulwark defending gets +1 block-counter per turn (riposte allowed while defending, 1H counter cap +1). 0 = off. */
-  bulwarkDefCounter: 1,
+  bulwarkDefCounter: num('SIM_BWDC') ?? 1, // cp9-rc8 step2 ablation knob（自訂）
   /** rc9 item 1 (UI only, 自訂，非原版，暫定): ms a fresh 蓄力 / 大招 panel ignores A / skills / spells (D / potions stay instant). */
   chargeHoldMs: 700,
   /** rc9 P0-1（自訂，非原版，暫定）: a boss / elite normal hit whose estimate is ≥ this × max HP is wound up for 1 round first
