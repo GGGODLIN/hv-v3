@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, act, alive, armCp5, canUse, potHint, guardHint, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -13,7 +13,7 @@ import { BUFF, formed } from './buffs';
 import { merchantBuffs, openOffer, openShrine, takeBuff, winOffers } from './buffoffer';
 import { Rng } from './rng';
 import {
-  type RunState, advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, runDerived, settle, shrine, startRun, withRng, startAbyss, depthOf, abyssCleared, abyssSchool,
+  type RunState, advance, applyLoot, chestLoot, encounter, finishBattle, merchantStock, rest, runDerived, settle, shrine, startRun, withRng, startAbyss, depthOf, abyssCleared, abyssSchool, mapPotion, MAP_LOW_HP,
   RULES, type Settlement, battleLocks, enterNode, openingOc, armBattle,
 } from './run';
 import { generateEquip } from './items';
@@ -446,6 +446,8 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     cp5?.snap?.(p, run);
     enterNode(p, run, type);
     if (type === 'battle' || type === 'elite' || type === 'boss') {
+      // rc16 item 3 sim: SIM_MAPPOT=1 drinks map potions (no CD) before a fight while HP < 50% (what the new map warning asks).
+      if (ENV?.SIM_MAPPOT === '1') while (run.hp < runDerived(p, run).hp * MAP_LOW_HP && mapPotion(p, run) > 0);
       const ms = encounter(run, pool, type);
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions); const hp0Pct = run.hp / d.hp; // sim diag
@@ -453,6 +455,8 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       const oc0 = openingOc(p, type, run);
       armBattle(b, run);
       b.oc += oc0;
+      // rc16 item 4 sim only（自訂，非原版 test）: SIM_OPEN_OC=N gives N OC at every abyss battle start (run it on the blade preset).
+      if (ENV?.SIM_OPEN_OC && run.abyss) b.oc = Math.min(ocCap(b), b.oc + Number(ENV.SIM_OPEN_OC));
       if (run.cp5) armCp5(b, run.pdot);
       const profs = profsOf(p);
       const pot0 = potCount(b);

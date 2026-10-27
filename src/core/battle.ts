@@ -186,7 +186,7 @@ export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: nu
 }
 
 export const alive = (s: BattleState) => s.monsters.filter((m) => m.hp > 0);
-const ocCap = (s: BattleState) => (s.mods ? OC.cap + (s.mods.ocCap ?? 0) : OC.cap);
+export const ocCap = (s: BattleState) => (s.mods ? OC.cap + (s.mods.ocCap ?? 0) : OC.cap);
 /** OC cost of a skill after CP4 mods (O8, oc combo). */
 export function skillOc(s: BattleState, id: SkillId): number {
   const M = s.mods;
@@ -333,10 +333,15 @@ export function attackValue(s: BattleState, target: number): number {
   const m = s.monsters[target] ?? s.monsters.find((x) => x.hp > 0); return m ? physExp(s, m, 1) : 0;
 }
 /** rc13 item 3(b): the skill worth pressing now, or null when none beats A by more than the edge (e.g. A already kills the target). */
+/** rc16 item 5 diag: why the skill hint did or did not light (counts only, no behaviour). */
+export const SKILL_HINT_STATS = { on: false, calls: 0, lit: 0, noOc: 0, belowEdge: 0, other: 0, ratios: [] as number[] };
 export function suggestSkill(s: BattleState, target: number): SkillId | null {
-  const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target })); if (!ids.length) return null;
+  const H = SKILL_HINT_STATS; if (H.on) H.calls++;
+  const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }));
+  if (!ids.length) { if (!H.on) return null; if (skillKit(s).some((id) => !s.locked?.skill && s.cooldowns[id] <= 0 && s.oc < skillOc(s, id))) H.noOc++; else H.other++; return null; }
   const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
-  return skillValue(s, best, target) > attackValue(s, target) * (1 + SKILL_HINT_EDGE) ? best : null;
+  const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on) H.ratios.push(ratio);
+  if (ratio > 1 + SKILL_HINT_EDGE) { if (H.on) H.lit++; return best; } if (H.on) H.belowEdge++; return null;
 }
 const ELEM_OF: Record<string, true> = { fire: true, cold: true, elec: true, wind: true, holy: true, dark: true };
 export function canUse(s: BattleState, a: Action): boolean {
