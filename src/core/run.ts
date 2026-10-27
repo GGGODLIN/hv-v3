@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC22, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC22, bossHp9, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -234,7 +234,8 @@ export function openingOc(p: Player, type: NodeType, run?: RunState): number {
 export const cp4On = (run?: RunState): boolean => RULES.cp4RunBuffs && !!run?.buffs?.length;
 
 /** CP4: attach run-buff battle mods (combo triggers included). No-op with the flag off. */
-export function armBattle(b: BattleState, run: RunState): void {
+export function armBattle(b: BattleState, run: RunState, lean?: string): void {
+  if (RULES.cp8 && CP9.on && lean === 'blade' && CP9.bladeOc < 1) b.ocCost9 = CP9.bladeOc; // cp9 rc2 (3)（自訂，暫定，無來源）: blade skill OC cost cut
   if (!RULES.cp4RunBuffs) return;
   if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }
   if (!cp4On(run)) return;
@@ -308,7 +309,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
         m.phases = RULES.bossPhases;
         // CP3-bugfix 4 (暫定): boss HP grows with player level over the free level so trips 2+ last 10-15 turns.
         const g = 1 + RULES.monLvFollow.bossHp * Math.max(0, (run.plv ?? 0) - (floorLevel(ab ? 20 : run.floor) / 2 - 1)); // free level for bosses = half the floor level - 1
-        m.maxHp = m.hp = Math.round(m.maxHp * g * (RULES.cp8 && CP9.on ? CP9.bossHp : 1)); // cp9 rc2 (b)（自訂，暫定，無來源）: boss fights 6–18 turns
+        m.maxHp = m.hp = Math.round(m.maxHp * g * (RULES.cp8 && CP9.on ? bossHp9(ab ? 20 : run.floor) : 1)); // cp9 rc2 (2)（自訂，暫定，無來源）: per-floor boss HP curve
       }
       if (rank === 'boss' && run.cp5 && BOSS_BY_FLOOR[f]) m.name = `${BOSS_BY_FLOOR[f]!.title}${BOSS_SEP}${row![2]}`;
       if (rank === 'boss' && cp4On(run)) { m.maxHp = Math.round(m.maxHp * (1 + RULES.cp4BossHpPerBuff * run.buffs!.length)); m.hp = m.maxHp; }

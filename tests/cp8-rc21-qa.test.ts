@@ -35,7 +35,8 @@ describe('rc21 QA bug 1: full HP → the reason Z is out is 「HP 已滿」, nev
 });
 
 describe('rc21 QA bug 2: build badge lists CP8', () => {
-  it('main.ts badge has · CP8', () => expect(readFileSync('src/main.ts', 'utf8')).toContain("RULES.cp8 ? ' · CP8' : ''"));
+  // cp9 rc2 (5)（自訂）: badge is now one CP list; CP8 and CP9 must both be in it.
+  it('main.ts badge has · CP8', () => { const t = readFileSync('src/main.ts', 'utf8'); expect(t).toContain("['CP8', RULES.cp8]"); expect(t).toContain("['CP9', RULES.cp8 && CP9.on]"); });
 });
 
 describe('rc21 QA bug 3: each charger gets its own wind-up text', () => {

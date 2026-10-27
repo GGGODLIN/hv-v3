@@ -158,6 +158,8 @@ export interface BattleState {
   monsters: Monster[];
   turn: number;
   spirit: boolean;
+  /** cp9 rc2 (3)（自訂，暫定）: skill OC cost multiplier (blade). */
+  ocCost9?: number;
   /** CP3-fix 10: set once Spirit Stance was entered in this battle (sim usage rate). */
   spiritUsed?: boolean;
   /** CP3: systems not yet unlocked (early-unlock layer). */
@@ -194,10 +196,10 @@ export const alive = (s: BattleState) => s.monsters.filter((m) => m.hp > 0);
 export const ocCap = (s: BattleState) => (s.mods ? OC.cap + (s.mods.ocCap ?? 0) : OC.cap);
 /** OC cost of a skill after CP4 mods (O8, oc combo). */
 export function skillOc(s: BattleState, id: SkillId): number {
-  const M = s.mods;
-  if (!M) return SKILLS[id].oc;
+  const M = s.mods; const k9 = s.ocCost9 ?? 1; // cp9 rc2 (3)（自訂，暫定）
+  if (!M) return Math.round(SKILLS[id].oc * k9);
   if (M.freeSkill) return 0;
-  return Math.round(SKILLS[id].oc * (1 + (M.skillOcPct ?? 0)));
+  return Math.round(SKILLS[id].oc * k9 * (1 + (M.skillOcPct ?? 0)));
 }
 const skillCd = (s: BattleState, id: SkillId) => (s.mods ? Math.max(0, SKILLS[id].cd + (s.mods.skillCd?.[id] ?? 0)) : SKILLS[id].cd);
 const spPerTurn = (s: BattleState) => (s.mods?.ssSpPct ? Math.max(1, Math.round(SS.spPerTurn * (1 + s.mods.ssSpPct))) : SS.spPerTurn);

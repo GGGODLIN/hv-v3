@@ -1,3 +1,4 @@
+import { CP9 } from './core/cp8'; // cp9 rc2 (5)
 import * as Phaser from 'phaser';
 import './style.css';
 import { makePool, type MonsterRow } from './core/monsters';
@@ -9,7 +10,9 @@ import { H, Stage, W } from './game/stage';
 function buildBadge() {
   const el = document.createElement('div');
   el.id = 'build';
-  el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}${RULES.cp7 ? ' · CP7' : ''}${RULES.cp8 ? ' · CP8' : ''}`; // rc21 QA: CP8 was missing
+  // cp9 rc2 (5)（自訂）: badge lists every CP that is on; add future CPs to this one list.
+  const cps: [string, boolean][] = [['CP4', RULES.cp4RunBuffs], ['CP5', RULES.cp5Bosses], ['CP6', RULES.cp6Abyss], ['CP7', RULES.cp7], ['CP8', RULES.cp8], ['CP9', RULES.cp8 && CP9.on]];
+  el.textContent = `build ${__BUILD__}${cps.filter(([, on]) => on).map(([n]) => ` · ${n}`).join('')}`;
   el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#a89cb8;opacity:1;pointer-events:none;z-index:9999';
   document.body.appendChild(el);
 }
