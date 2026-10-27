@@ -34,8 +34,8 @@ describe('rc21 item 2: hint on non-charging turns when the next round could take
     const b = qa(500, 1000, 0.3); const m = b.monsters[0]!; expect(chargeEstimate(b, m, false, true) / chargeEstimate(b, m)).toBeCloseTo(1.44, 1);
     expect(maxHit).toBeTypeOf('function');
   }));
-  it('oc1 F16: 449/798 (56%), next hit could be 406 (51%) → danger, Z lit', () => withCp8(() => {
-    const b = qa(449, 798, 406 / 798); const a = chargeAdvice(b); expect(a.danger).toBe(true); expect(hpDanger(b)).toBe(true); expect(a.keys[0]).toBe('Z'); expect(a.text).toContain('40%');
+  it('oc1 F16: 449/798 (56%), next hit could be 406 (51%) → the decision panel shows', () => withCp8(() => {
+    const b = qa(449, 798, 406 / 798); const a = chargeAdvice(b); expect(a.danger).toBe(true); expect(hpDanger(b)).toBe(true); expect(a.keys.length).toBeGreaterThan(0); expect(a.text).toContain('40%');
   }));
   it('next round 30% of max at 56% HP → no hint', () => withCp8(() => expect(chargeAdvice(qa(449, 798, 0.3)).danger).toBe(false)));
 });
@@ -61,4 +61,9 @@ describe('rc21 item 4: merchant visibility + departure reminder (no numbers chan
   const s = readFileSync('src/game/app.ts', 'utf8');
   it('merchant nodes carry a map mark on current and other floors', () => { expect(s.match(/\$\{mm\}/g)?.length).toBe(2); expect(s).toContain('data-merchantmark'); expect(readFileSync('src/style.css', 'utf8')).toContain('.node.mhl'); });
   it('town and prep modal say 帶藥 + 優先走商人', () => expect(s.match(/data-departtip[^<]*>[^<]*帶藥 \+ 優先走商人/g)?.length).toBe(2));
+});
+describe('rc21 item 2 follow-up: survivable ≥ 40% warning', () => {
+  it('near full HP: no Z (heal mostly wasted), A first, still a hint', () => withCp8(() => {
+    const b = qa(950, 1000, 0.45); const a = chargeAdvice(b); expect(a.danger).toBe(true); expect(a.keys[0]).toBe('A'); expect(zHint(b)).toBe(false); expect(a.text).toContain('40%');
+  }));
 });

@@ -273,8 +273,11 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const estD = Math.round(s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, true, true) : 0), 0));
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp;
   // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
-  if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
-  if (!lethal && !lowHp(s)) return { danger, est, hp, keys: dOk ? ['D', 'A'] : ['A'], text: `${dOk ? `D·防禦（防禦後估計 ${estD}）或 ` : ''}A·攻擊（${why}，HP ${hp} 撐得住）` };
+  const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
+  // rc21 item 2（暫定，自訂）: on a survivable ≥ 40% warning, Z only when at least half of its heal would land (rc14 POT_HINT.minUseful, same rule as potHint).
+  const zUseful = !big || s.d.hp - s.hp >= Math.round(s.d.hp * ITEMS.healthPotion.fraction) * POT_HINT.minUseful;
+  if (canUse(s, { kind: 'item', id: 'health' }) && s.hp < s.d.hp && zUseful) return { danger, est, hp, keys: dOk ? ['Z', 'D'] : ['Z'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）${dOk ? `或 D·防禦（防禦後估計 ${estD} < HP ${hp}）` : `（防禦後估計 ${estD} ≥ HP ${hp}，防禦擋不住）`}（${why}）` };
+  if (big) return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 撐得住）` }; // rc21（暫定，自訂）: survivable warning → A first; D-first here made the UI-following sim defend every turn (blade s0 median 22 → 9)
   // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
   const pn = `生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}`;
   if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
