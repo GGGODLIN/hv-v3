@@ -263,6 +263,13 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const sp = guardHint(s) === 'spirit';
   return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
 }
+/** rc19 (a)（自訂，非原版）: the Z·生命藥水 button highlight. QA rc16 oc4 F6: HP 357/792 (45%), biggest hit 44, decision said A, yet Z
+ *  lit — the button used potHint, whose "HP < 50%" branch ignores the estimate and so bypassed chargeAdvice. In cp8 the button now
+ *  lights only when chargeAdvice itself recommends Z (HP danger + potion usable), never at full HP. potHint stays as the sim policy. */
+export function zHint(s: BattleState, target = 0): boolean {
+  if (!RULES.cp8) return potHint(s);
+  return s.hp < s.d.hp && chargeAdvice(s, target).keys.includes('Z');
+}
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;
   if (s.hp >= s.d.hp) return false; // rc13 item 4: never at full HP (Z would heal +0)
