@@ -10,7 +10,7 @@ function buildBadge() {
   const el = document.createElement('div');
   el.id = 'build';
   el.textContent = `build ${__BUILD__}${RULES.cp4RunBuffs ? ' · CP4' : ''}${RULES.cp5Bosses ? ' · CP5' : ''}${RULES.cp6Abyss ? ' · CP6' : ''}${RULES.cp7 ? ' · CP7' : ''}`;
-  el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#8a7f99;opacity:.8;pointer-events:none;z-index:9999';
+  el.style.cssText = 'position:fixed;right:6px;bottom:4px;font:11px monospace;color:#a89cb8;opacity:1;pointer-events:none;z-index:9999';
   document.body.appendChild(el);
 }
 

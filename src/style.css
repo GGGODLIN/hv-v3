@@ -350,3 +350,11 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
 .screen-town td .hint, .screen-town label.hint, .screen-town small.hint, .screen-town span.hint, .screen-map td .hint, .screen-map label.hint, .screen-map small.hint, .screen-map span.hint { border: 0; border-image: none; background: transparent; color: #cdb48e; }
 .screen-town td .dim, .screen-town td small, .screen-map td .dim, .screen-map td small { color: #b89c74; }
 .screen-town td.hint { border: 0; border-image: none; background: transparent; color: #cdb48e; opacity: 1; }
+
+/* rc19 AA contrast pass (視覺，只改外觀): text ≥ 4.5:1 on shop / 道具界 / prep modal */
+.screen-town button.on, .screen-town button.big, .screen-town button.suggest, .screen-town .tabs button.on, .screen-map button.on, .screen-map button.big, .screen-map button.suggest, .screen-map .tabs button.on { border-image: url("/assets/kenney-rpg/buttonLong_blue.png") 10 10 13 stretch; background: #1f4a85 padding-box; color: #fff; text-shadow: 0 1px 0 #0a1a33; }
+.screen-town button.on:active:not(:disabled), .screen-town button.big:active:not(:disabled), .screen-map button.on:active:not(:disabled), .screen-map button.big:active:not(:disabled) { border-image: url("/assets/kenney-rpg/buttonLong_blue_pressed.png") 10 10 9 stretch !important; background: #1a3f72 padding-box; }
+.screen-town button b, .screen-town button .iwgain, .screen-map button b, .screen-map button .iwgain { color: inherit; }
+.screen-town .hint .iwgain, .screen-town .hint b, .screen-map .hint .iwgain, .screen-map .hint b { color: #3b2412; }
+.screen-town .hint .iwgain b, .screen-map .hint .iwgain b { color: #1d5a1d; }
+.screen-town button:disabled, .screen-town button[aria-disabled="true"], .screen-map button:disabled, .screen-map button[aria-disabled="true"] { color: #565656; }
