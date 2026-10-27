@@ -71,6 +71,8 @@ export function urgentLine(a: { est: number; hp: number }, estD: number | null =
   return isLethal(e, h) ? `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ≥ 目前 HP（${e} ≥ ${h}）：照上面的決策按鍵</b>`
     : `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ${e} < 目前 HP ${h}，但仍屬危險（HP 偏低或可能大傷）：照上面的決策按鍵</b>`;
 }
+/** cp9-rc9 item 4（自訂）: cp5Tips runs every round (new summons), so the untipped danger warning was appended each round (blade7 F30 T22). */
+export function pushOnce9(box: string[], html: string): void { if (!box.includes(html)) box.push(html); }
 export function chargeKind(m: { charge: number; heavyNext?: boolean }): string {
   return m.charge > 0 ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！（重擊）` : m.heavyNext ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！';
 }
@@ -411,7 +413,7 @@ export class App {
   cp5Tips(b: BattleState): void {
     for (const m of b.monsters as (Monster & Cp5Mon)[]) {
       if (m.sig) { const t = tip(this.p, `cp5sig:${m.sig}`, SIG_TEXT[m.sig].tip); if (t) this.cp5TipBox.push(`<div class="unlock" data-cp5tip="${m.sig}">💡 ${esc(t)}</div>`); }
-      { const h = m.affixes ? (RULES.cp6Abyss && this.data.run?.abyss ? abyssDangerHint : dangerHint)(m.affixes) : null; if (h) this.cp5TipBox.push(`<div class="unlock warn" data-cp5danger>${esc(h)}</div>`); }
+      { const h = m.affixes ? (RULES.cp6Abyss && this.data.run?.abyss ? abyssDangerHint : dangerHint)(m.affixes) : null; if (h) pushOnce9(this.cp5TipBox, `<div class="unlock warn" data-cp5danger>${esc(h)}</div>`); } // cp9-rc9 item 4（自訂）: once per fight
       for (const a of m.affixes ?? []) { const t = tip(this.p, `cp5aff:${a}`, `精英詞綴【${AFFIXES[a].zh}】：${AFFIXES[a].desc}${a === 'flame' || a === 'leech' ? '。中了可用生命藥水或防禦解除' : a === 'antimagic' || a === 'warded' ? '。改用普攻或技能比較划算' : a === 'spikes' || a === 'hard' ? '。改用法術比較划算' : ''}`); if (t) this.cp5TipBox.push(`<div class="unlock" data-cp5tip="${a}">💡 ${esc(t)}</div>`); }
     }
   }

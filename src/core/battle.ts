@@ -88,7 +88,7 @@ function phaseShift(s: BattleState, ev: BEvent[]): void {
   });
   if (s.cp5) cp5Split(s, ev);
 }
-type CM = Monster & Cp5Mon;
+type CM = Monster & Cp5Mon & { arcStun9?: boolean; int9?: boolean };
 /** CP5 分裂: a dead split elite becomes 2 normals (monster cap CP5.maxMonsters alive). */
 function cp5Split(s: BattleState, ev: BEvent[]): void {
   s.monsters.forEach((m0) => {
@@ -662,7 +662,7 @@ function spellHit(s: BattleState, rng: Rng, ti: number, def: SpellDef, profVal: 
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, element: def.element, weak: r.avoidMult > 0 && isWeak(m, def.element), resisted: r.avoidMult > 0 && m.spec[def.element] > 0 ? m.spec[def.element] : undefined });
   if (m.hp > 0 && r.full && def.statusChance && rng.chance(def.statusChance)) {
-    if (def.element === 'cold' || def.element === 'elec') { if (!stunResist9(m, ev, ti)) { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); } }
+    if (def.element === 'cold' || def.element === 'elec') { if (!stunResist9(m, ev, ti)) { m.status.stun = Math.max(m.status.stun, M?.combo.bulwarkArcane ? 2 : 1); (m as CM).arcStun9 = true; ev.push({ t: 'status', to: ti, text: def.element === 'cold' ? '凍結' : '麻痺' }); } }
     else { m.status.bleed = Math.max(m.status.bleed, Math.ceil(r.damage * 0.15 * (1 + (M?.bleedMult ?? 0)))); m.status.bleedTurns = 3; ev.push({ t: 'status', to: ti, text: def.element === 'fire' ? '燃燒' : '撕裂' }); }
   }
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
@@ -908,6 +908,8 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 }
 
 /** cp9-rc8 QA (c) diag（自訂，sim only）: boss wind-up on the boss turn right after one of its telegraphed hits landed (windHitCd bypass). */
+/** cp9-rc8 備案實驗（自訂，僅 sim，預設關）: SIM_ARCINT=1 → a boss whose wind-up was interrupted by an arcane cold/elec stun skips the post-hit lock on its next telegraphed hit. */
+const ARCINT9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_ARCINT;
 export const WIND9 = { hits: 0, viol: 0, minion: 0, ex: [] as string[] };
 function wind9diag(s: BattleState, ev: BEvent[], e0: number): void {
   const nw = ev.slice(e0) as (BEvent & { from?: number | string; label?: string; to?: unknown; t: string })[];
@@ -950,6 +952,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     if ((m.stunImm9 ?? 0) > 0 && m.status.stun <= 0) m.stunImm9!--; // cp9-rc8 (c)1（自訂）: stun-immunity countdown (boss turns)
     if (m.status.stun > 0) {
       m.status.stun--;
+      if (ARCINT9 && m.arcStun9 && (m.heavyNext || m.pulseNext || m.drainNext || m.charge > 0)) m.int9 = true; // cp9-rc8 備案實驗（自訂，僅 sim，預設關）
+      if (m.status.stun <= 0) m.arcStun9 = false;
       if (m.status.stun <= 0 && stunImmOn9(m)) m.stunImm9 = CP9.stunImm; // cp9-rc8 (c)1（自訂）: a boss whose stun just ended resists stuns for CP9.stunImm turns
       if (m.sig === 'summon' && m.sigPending) { m.sigPending = false; ev.push({ t: 'status', to: i, text: '召喚被打斷！' }); }
       if (m.sig === 'drain' && m.drainNext) { m.drainNext = false; m.charge = 0; ev.push({ t: 'status', to: i, text: '吸血重擊被打斷！' }); }
@@ -985,7 +989,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
       else if (!(lock9 && m.rank === 'boss') && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
-    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) m.windCd = CP9.windHitCd; // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
+    if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && m.rank === 'boss' && (mult !== 1 || label)) { if (ARCINT9 && m.int9) m.int9 = false; else m.windCd = CP9.windHitCd; } // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
     // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
     const zero = s.focusTurn;
     const r = resolveHit(rng, {

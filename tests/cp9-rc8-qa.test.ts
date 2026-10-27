@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { act, startBattle, WIND9 } from '../src/core/battle';
-import { urgentLine } from '../src/game/app';
+import { urgentLine, pushOnce9 } from '../src/game/app';
 import { starterKit } from '../src/core/auto';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
 import { derive, newPlayer } from '../src/core/player';
@@ -18,6 +18,12 @@ describe('cp9-rc8 QA', () => {
     const r = urgentLine({ est: 425, hp: 384 }, 400);
     expect(r).toContain('class="warn"'); expect(r).not.toContain('不防禦會死');
     expect(urgentLine({ est: 425, hp: 384 })).toContain('class="warn"');
+  });
+  it('rc9 item 4: danger warning shown once per fight even though cp5Tips runs every round', () => {
+    const box: string[] = []; for (let i = 0; i < 30; i++) pushOnce9(box, '<div data-cp5danger>⚠ 高危險精英（尖刺）</div>');
+    expect(box.length).toBe(1);
+    const src = readFileSync('src/game/app.ts', 'utf8'); expect(src).toMatch(/pushOnce9\(this\.cp5TipBox, `<div class="unlock warn" data-cp5danger>/);
+    expect(readFileSync('src/style.css', 'utf8')).toMatch(/\.cp5tips \{[^}]*max-height/);
   });
   it('QA c: no boss wind-up on the boss turn after its telegraphed heavy hit (boss + minions, many seeds)', () => {
     const o = RULES.cp8; RULES.cp8 = true;
