@@ -4,7 +4,7 @@
  * from the snapshot at best ≥ 15). No character cache (CP7 changes the main tower too).
  * Env: SC=<school> SEED0 CP7=0|1 (default 1) PITY WINHEAL (CP7 knobs) ; Usage: npx tsx scripts/cp7-sim.ts [N=256] [F=4] */
 import { readFileSync } from 'node:fs';
-import { SIM_AI, autoRun, fight, profsOf, starterKit, type Strategy } from '../src/core/auto';
+import { SIM_AI, SIM_DIAG, autoRun, fight, profsOf, starterKit, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { level, newPlayer, type Player } from '../src/core/player';
 import { RULES, abyssOpen, armBattle, battleLocks, encounter, openingOc, runDerived, startAbyss } from '../src/core/run';
@@ -126,4 +126,4 @@ for (let s = S0 + 1; s <= S0 + N; s++) {
   for (let f = 1; f <= F; f++) for (const [d, ty] of [[13, 'battle'], [18, 'battle'], [16, 'battle'], [20, 'boss']] as const) { c[`d${d}`]!.n++; if (one(snap, d, ty, s * 100 + f)) c[`d${d}`]!.w++; }
 }
 const win = Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.n ? v.w / v.n : null]));
-console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, ...(RULES.cp8 ? { rd1, rdAll, rd1raw, rdSt, rdCl } : {}), knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10, cp8: RULES.cp8, naive: !!E.SIM_AI && E.SIM_AI === 'naive', second, p3d21, p5, potDeath }));
+console.log(JSON.stringify({ sc, S0, N, cp7: RULES.cp7, ...(RULES.cp8 ? { rd1, rdAll, rd1raw, rdSt, rdCl } : {}), knobs: Object.fromEntries(Object.entries(CP7).filter(([, v]) => typeof v === "number")), built, deep, zero, shallow, cpTrips, cpDeadFirst, upgWon, first, firstClear, upgMain, upgAbyss, depthClip, reach, endAt, p3, win, b10, cp8: RULES.cp8, naive: !!E.SIM_AI && E.SIM_AI === 'naive', second, p3d21, p5, potDeath, diag: SIM_DIAG }));

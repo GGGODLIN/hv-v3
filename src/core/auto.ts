@@ -21,6 +21,8 @@ import type { NodeType } from './tower';
 
 /** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
+/** sim diag only (never read by the game): battle-entry HP buckets and HP potions left at each death. */
+export const SIM_DIAG = { battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number> };
 export const ALLOC_WEIGHTS = { phys: { str: 3, dex: 2, end: 3, agi: 2, int: 1, wis: 1 }, arcane: { str: 1, dex: 1, end: 3, agi: 2, int: 3, wis: 2 } } as const;
 /** cp8-rc6 Part B (暫定，缺原版出處): per-lean 自動分配 weights under cp8; a lean missing here uses phys (arcane: ALLOC_WEIGHTS.arcane). Sim override: K_ALLOC_<lean>=str,dex,end,agi,int,wis. */
 /** cp8-rc7 P0 bug 1 (暫定，缺原版出處，our own AI knob — not a game value): rc6 only had arcane here, so blade / oc / bulwark all used phys
@@ -451,6 +453,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       const ms = encounter(run, pool, type);
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp }, ms, p.potions); const hp0Pct = run.hp / d.hp; // sim diag
+      SIM_DIAG.battles++; if (hp0Pct < 0.5) SIM_DIAG.low50++; if (hp0Pct < 0.3) SIM_DIAG.low30++;
       b.locked = battleLocks(p);
       const oc0 = openingOc(p, type, run);
       armBattle(b, run);
@@ -476,7 +479,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
       const loot = finishBattle(p, run, b, ms, type);
-      if (!loot) { end = { why: 'dead', floor: run.floor, type, hpPots: b.potions.health, bturns: b.turn, mp: b.mp, mpMax: b.d.mp, mpPots: b.potions.mana, hpCd: b.itemCd.health, mpCd: b.itemCd.mana, hp0: hp0Pct, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
+      if (!loot) { SIM_DIAG.deathPots[b.potions.health] = (SIM_DIAG.deathPots[b.potions.health] ?? 0) + 1; end = { why: 'dead', floor: run.floor, type, hpPots: b.potions.health, bturns: b.turn, mp: b.mp, mpMax: b.d.mp, mpPots: b.potions.mana, hpCd: b.itemCd.health, mpCd: b.itemCd.mana, hp0: hp0Pct, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
       if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e)); }
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
@@ -487,7 +490,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       run.bag = run.bag.filter((e) => !used.includes(e)); }
     } else if (type === 'merchant') {
       const st = merchantStock(run);
-      let left = st.hpLeft ?? Infinity; // rc19 item 3（自訂，非原版）: per-merchant cap
+      let left = ENV?.SIM_NOMERCHCAP === '1' ? Infinity : st.hpLeft ?? Infinity; // SIM_NOMERCHCAP: sim diag (rc18 unlimited) // rc19 item 3（自訂，非原版）: per-merchant cap
       while (left > 0 && p.potions.health < 4 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; }
       if (bs) for (const x of merchantBuffs(p, run)) {
         const ok = strategy === 'buff:random' ? prng.chance(0.5) : BUFF[x.id]!.school === buffSchool(strategy as BuffStrategy);
