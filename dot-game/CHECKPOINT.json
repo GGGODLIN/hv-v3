@@ -1,21 +1,21 @@
 {
-  "checkpoint": "150-v036-publication-receipt",
-  "version": "0.36.0",
-  "status": "bounded-desktop-accepted-published-original-profile-verified",
-  "source_base": "969aae334786a54086b1689c5dbf85b80dbf9293",
-  "base_accepted_recovery": "609cf796630d03973ccf0a3d4a9f224b848b00c4",
+  "checkpoint": "151-v037-forest-stage-source",
+  "version": "0.37.0",
+  "status": "source-tested-awaiting-isolated-browser-acceptance",
+  "source_base": "2a5354689165d7512d279327db8935c3bbef8570",
+  "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
   "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
-  "scope": "Opaque compact enemy nameplates with name, explicitly percentage HP, target and active effect rows. Repeated canvas role/defense lines removed; exact existing DOM details retained. Actor bodies, scene/background/layout/core/RNG/save unchanged; canvas aria and version metadata updated.",
-  "source_tests_passed": 1919,
+  "scope": "Original canvas woodland backdrop only: receding trunks and mist, irregular broadleaf side canopy, old earthen path and sparse paving. All actors/nameplates/chest/foreground/controller/core/RNG/save unchanged. Version metadata updated.",
+  "source_tests_passed": 1934,
   "runtime_syntax_checks": 4,
-  "new_source_ui_tests": 8,
-  "new_independent_audit_tests": 14,
+  "new_source_ui_tests": 7,
+  "new_independent_audit_tests": 8,
   "new_engine_tests": 0,
-  "source_input_files_unchanged_during_final_suite": 179,
-  "audit_input_manifest_sha256": "6d16bf1abb1f187c886cc47aa3d62e604b20347b190ec6ce90b98fd8da4e8aa5",
-  "historical_test_adjustments": "Only old canvas overlay expectations changed in battle-actors, battle-actors-audit, role-ui and weapon-ui; earlier defense DOM, body and gameplay assertions retained. Version-only assertions moved to v036 source candidate.",
+  "source_input_files_unchanged_during_final_suite": 181,
+  "audit_input_manifest_sha256": "a56b0506593ae72e8cba472f9ecef42a51c057a150400df7e73c9b3a0dc83b8d",
+  "historical_test_adjustments": "Version-only assertions moved to v037 source candidate. Initial integration suite caught one missed counterattack-ui version regex; corrected before complete final rerun, no production behavior changed.",
   "natural_replay": {
-    "receipt_sha256": "a88d761a503f239f9558c30abe3bb881e46403d02779bd50d6b18ba69c92fa80",
+    "receipt_sha256": "205d65e3585f01533d26df6de225260dd44d0444e0ffeb972942940065c23163",
     "separate_process_exact": true,
     "natural_attempts": 20,
     "natural_wins": 20,
@@ -28,14 +28,14 @@
     ],
     "source_parity_checks": 432,
     "controller_wins": 15,
-    "controller_parity_checks": 2453,
-    "frame_calls": 6080,
-    "frame_noninterference_checks": 3040,
+    "controller_parity_checks": 2455,
+    "frame_calls": 6084,
+    "frame_noninterference_checks": 3042,
     "source_only_not_browser": true,
-    "synthetic_unknown_fallback_not_natural_evidence": true
+    "natural_final_serialization_validateSave_ui_reload_parity": true
   },
   "save_format": 3,
-  "save_compatibility": "No state, preference, storage key, import/export, migration, item, policy or RNG changes from v035. Earlier Exquisite IW1/emergencySupply historical-reader restrictions remain.",
+  "save_compatibility": "No state, preference, storage key, import/export, migration, item, policy or RNG changes from v036. Earlier Exquisite IW1/emergencySupply historical-reader restrictions remain.",
   "unchanged_core_files": [
     "src/engine.js",
     "src/loot.js",
@@ -48,72 +48,26 @@
     "existing_files_unchanged": 14,
     "new_binary_assets": 0,
     "new_external_sources": 0,
-    "nameplate_source": "src/ui.js original code-native labels; existing actor bodies and all asset bytes unchanged",
+    "backdrop_source": "src/ui.js original code-native woodland. Existing actor bodies/nameplates/foreground and all asset bytes unchanged",
     "credits": "docs/ASSET-CREDITS.md"
   },
-  "visual_acceptance": "Actual desktop single/double/boss labels and PA/HP/target separate from body and sampled damage numbers. Not full art, narrow/mobile, compound effects, READY or extreme HP acceptance.",
-  "browser_acceptance": {
-    "accepted_utc": "2026-10-27T13:28:44Z",
-    "viewport": [
-      1180,
-      757
-    ],
-    "scroll_width": 1165,
-    "broken_images": 0,
-    "app_console_errors": 0,
-    "known_extension_console_entries": 62,
-    "natural_stage5_wins_seconds": [
-      15.8,
-      21.0,
-      15.8,
-      15.8
-    ],
-    "before": {
-      "level": 17,
-      "gold": 3489,
-      "wins": 54,
-      "inventory": 101,
-      "fragments": 90,
-      "seeds": 8
-    },
-    "after": {
-      "level": 18,
-      "gold": 4065,
-      "wins": 58,
-      "inventory": 106,
-      "hp": 1042,
-      "fragments": 130,
-      "seeds": 12
-    },
-    "original_held_ids_preserved": 104,
-    "exact_original_records": 101,
-    "naturally_scaled_bound_records": 3,
-    "bound_anchor_roll_fields_unchanged": true,
-    "new_natural_items": 5,
-    "new_ids": "loot-104..loot-108",
-    "original_equipment_restored": true,
-    "other_policy_ability_gear_set_fields_unchanged": true,
-    "reload_preserved": true,
-    "pre_export_sha256": "519630a0a6b0d8fa9b0c32ada8c096a79455a2d455cbbcd59e4df602e16582a4",
-    "post_export_sha256": "32dd76295d58bff694dc4cf3f9e8ae13524dde7a00297efeb653f42a58a9d0f9",
-    "raw_exports_in_source": false,
-    "limits": "BW DOM only; active STUN not captured; triple effects/READY/extreme HP source-only; reduced-motion not retested in browser; mobile/narrow/AT untested."
-  },
+  "visual_acceptance": "Pending actual candidate render; command traces are not pixels or art-quality acceptance. Chest/actors/nameplates unchanged; not comprehensive art direction.",
+  "browser_acceptance": false,
   "assistive_technology_acceptance": false,
   "website_staging": {
-    "candidate_path": "public/play/hv-v3-dot/candidates/v0.36/",
+    "candidate_path": "public/play/hv-v3-dot/candidates/v0.37/",
     "formal_path": "public/play/hv-v3-dot/",
     "candidate_before_formal": true,
     "source_backup_before_publication": true
   },
-  "publication": "Accepted source148 backed up first. Formal149 exact CI/HTTP and original-profile battle/reload/export passed. Final150 docs/manifest only; no redeploy or additional full-test claim.",
+  "publication": "Not yet attempted for this frozen candidate. Prior v036 remains accepted formal.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T13:43:33.009307+00:00",
+  "frozen_utc": "2026-10-27T14:10:20.140114+00:00",
   "files": {
     "README.md": {
-      "bytes": 29956,
-      "sha256": "283b9f33c38e2ea1cdb6974b9a5f31c3238a0d3e2b2d392dac5202ef35901dd0"
+      "bytes": 30867,
+      "sha256": "dd97dbe7b5076fa5030c6ef950fd86a0e5ac717830b66ffa537528fa8c27d07f"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -287,6 +241,10 @@
       "bytes": 5286,
       "sha256": "5520e2de3fdac432e763bee84ce0b9582ed3571cbe409837d000206eae2b0b9b"
     },
+    "docs/ACCEPTANCE-V037.md": {
+      "bytes": 2032,
+      "sha256": "2624639db2fcedb58ab9aec0a77d9c26e86795553ee02ebf3edecca1932dbe3e"
+    },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
       "sha256": "3fa178df14a831b59a4a83247e25cafbc1a827e504b1fe2eacceb10b3f012511"
@@ -320,8 +278,8 @@
       "sha256": "f7c5cd76c6b3d088dbf71cf55ca411e04151fe8a2ec30dbe6f8d9aa1c8f6cacd"
     },
     "docs/ASSET-CREDITS.md": {
-      "bytes": 4426,
-      "sha256": "3faaf5a74138ebd5883346d10e09484a4dfcc2199b548fce0aa224c528384fb6"
+      "bytes": 5048,
+      "sha256": "a806a72980982ebb277611ae6979514f42a1b359cbb88384c97809b06ac93216"
     },
     "docs/AUDIT-V021.md": {
       "bytes": 3060,
@@ -398,6 +356,10 @@
     "docs/AUDIT-V036.md": {
       "bytes": 13040,
       "sha256": "3275dffd623d21a80e1407aae20ce2fed5f6f08649a7cbe0c7a997a56597faa6"
+    },
+    "docs/AUDIT-V037.md": {
+      "bytes": 7625,
+      "sha256": "9163e5831b0a425b350fa6d77934ff0f7e3f2906c90e5e4c00af445a281e6b78"
     },
     "docs/BATTLE-ACTORS-MEASUREMENTS.md": {
       "bytes": 7611,
@@ -603,6 +565,10 @@
       "bytes": 1567,
       "sha256": "2e0db95731613fe78001458bd9db675fcc7854046ce15b52cc20cf21959f472a"
     },
+    "docs/FOREST-STAGE-MEASUREMENTS.md": {
+      "bytes": 5552,
+      "sha256": "61f4dea7f89bf3359e923f714748487f9788b1975575d47a13afd2bcb3865edb"
+    },
     "docs/GEAR-SET-CONTEXT-MEASUREMENTS.md": {
       "bytes": 6040,
       "sha256": "018fb4d5cc7e0b29285227ef70d0e2290e6357a34144b22a59d760c03cb26bbf"
@@ -763,6 +729,10 @@
       "bytes": 5279,
       "sha256": "71d69468abc8f35063f5535c9f3ab5b32157eb0171b8e91bf73421ef80b6ba17"
     },
+    "docs/RECOVERY-V037.md": {
+      "bytes": 2021,
+      "sha256": "b6ed20dfbd0628658f095d23d0244d7e7e9a17740c0002c893c48441abfcc5b0"
+    },
     "docs/RELEASES.md": {
       "bytes": 53093,
       "sha256": "0791f3566df0949375d9b6a4df543e45776a3ce16043566ca9ca3ffd9d0529f4"
@@ -772,8 +742,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 30116,
-      "sha256": "952658825026c6c46f16cab085774a3cc1ca99cee95725b41469eaf049459014"
+      "bytes": 30817,
+      "sha256": "b09f6697c5d59c1de664e45a787b4691408fd07f488df56c78ca2927a9c3846f"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -804,8 +774,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 32692,
-      "sha256": "5130ac60e6ae5497b7d1e3bf0dc17f5fc37f86d1495c977642187a9300c89e12"
+      "bytes": 33593,
+      "sha256": "37dcc0f809bba824b7ad2b2639ab6d976a1b8b9f5b74187859d0a4f3d4ecb4f0"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -822,6 +792,10 @@
     "docs/enemy-nameplates-measurements.json": {
       "bytes": 16962,
       "sha256": "a88d761a503f239f9558c30abe3bb881e46403d02779bd50d6b18ba69c92fa80"
+    },
+    "docs/forest-stage-measurements.json": {
+      "bytes": 17494,
+      "sha256": "205d65e3585f01533d26df6de225260dd44d0444e0ffeb972942940065c23163"
     },
     "docs/measurements/comparison-focus.json": {
       "bytes": 12742,
@@ -1017,11 +991,11 @@
     },
     "index.html": {
       "bytes": 44963,
-      "sha256": "35c587dd790ca7619a2a16aec79d1fd43f880add7a7f3c2c0413f40c0e07db2d"
+      "sha256": "5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "ff63def1a1aa2f72f5c461eb4735255253b8a003b2dfcd74a84079f652bca0e4"
+      "sha256": "6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1042,6 +1016,10 @@
     "scripts/exquisite-item-world-measure.mjs": {
       "bytes": 8277,
       "sha256": "a3ca6f5ef308247ebf9387d05dd4cce725e09bb6b2baf9301454e1934efb2d47"
+    },
+    "scripts/forest-stage-measurement.mjs": {
+      "bytes": 20630,
+      "sha256": "ff040e597bfa35b99a678ad6c7ed9f8dbb5a3cae98e20834badc0b5a29484a9a"
     },
     "scripts/gear-set-context-measurement.mjs": {
       "bytes": 12272,
@@ -1100,8 +1078,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 161886,
-      "sha256": "b9d2e32cc38e7ab19284347ee4586139e4fc65950586347b0e00add5955be1c6"
+      "bytes": 164340,
+      "sha256": "ddfdb6cacd727a421c0387d5a257ef98df65a3ba16333db8bee1eee956399f48"
     },
     "style.css": {
       "bytes": 73406,
@@ -1137,7 +1115,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "7b53a2e36aaa6bd2c37e9543d766d4d3da16cdc2165d8c77ff7b71f28ba48015"
+      "sha256": "8032c3c0a2c7f508cf58a2eb40ab46d9a82417adc814bc6e9758f49d2a659c37"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1193,7 +1171,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18314,
-      "sha256": "9c5f4e7c90a2bfa48d430afa88646a12d018e53ec4839ce83ead865f623f4b9f"
+      "sha256": "07e58996f34a46b7dc637b8a66f375a4c3778cb04a211680b1d3cfbb0f05a7f4"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1209,7 +1187,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "28e896b3d3c228be85e87d08f84f0c13215d9feba2d71dad203ccb0305d21ead"
+      "sha256": "22727354aded4ec0309f8ef564e6e2fdfdc0c6099accbb156f88d77783b3fbaa"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1233,7 +1211,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "50c68b389d0386ae45933a8774fdd2a05ed9919402a71f89c9ccea9f950c21d6"
+      "sha256": "6ff69ffd09906e0972227196876e4453c02f9af1fb1f315b0577122cd1d875b0"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1439,6 +1417,14 @@
       "bytes": 22261,
       "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
     },
+    "tests/forest-stage-independent.test.mjs": {
+      "bytes": 6347,
+      "sha256": "8aeaf46a95e76147d3f92f9c0eea9abb82ea6555608e467617ddc913abe75abe"
+    },
+    "tests/forest-stage.test.mjs": {
+      "bytes": 4749,
+      "sha256": "00dd681c7c83e5f13d082c34bbeb6be29d25e890b8074ca8c8e14cb39c6b6b8f"
+    },
     "tests/gear-set-context-audit.test.mjs": {
       "bytes": 11767,
       "sha256": "5477313a3e1bc6b47a19b423d6ba410a882f8ee305a671381c0c7b4e7ffda9af"
@@ -1505,7 +1491,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "8e19fe7b4356c9115bb414fbafd5dc9cbc6e1851f719bffd10b4adeddf271892"
+      "sha256": "609ba60d7dbeef7c3489ca1dfe0997c43e4b8b7576e2aeb51b275fb5606e0c30"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1561,7 +1547,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "1f066abcefaadbbed5e6d9cd2df937c1e2ffc4d38e2d4d41108b7f9b322b572a"
+      "sha256": "cc8a3804cc1e1ae0f469d5eb01b8a65511a5fa36bf589dfcb8e4ede5c98fc17d"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1589,7 +1575,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "eb5044c29cd0eacc7fdbdfd6eedb509e25cb15efb379cb4f9abb152bbf45fa70"
+      "sha256": "36775dfdc6cea2d6d8f8ec13b17a7be91181caae94921e0d3580ada003aa8eed"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1653,7 +1639,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "45c26c822873db816c2954fca2532814b2af3d25de84440c8f4bb96ec4f435c7"
+      "sha256": "ddbca5c1d89f4024f8664c1db39ee85cc3dcfc5c97983b636a37cdb78ecdead2"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1737,61 +1723,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "d2cfc6dfc721ff04048eea14ffbadb7e4fe599614db9cd81541dd36e68f11de2"
+      "sha256": "30431299748748a6cda621aea5e6f5fdc607cc6a896ea377ec4bf080076915bb"
     }
-  },
-  "full_suite_rerun_for_accepted_phase": true,
-  "candidate_website": "1b84676530bb34b8c62fc44025fa00b0642ff9bf",
-  "candidate_ci_run": 40511494672,
-  "candidate_http_exact_files": 21,
-  "runtime_acceptance_transition": "Only index phase and eight exact corresponding test labels; functional runtime/styles/assets identical to146. Full suite freshly rerun.",
-  "accepted_source": "969aae334786a54086b1689c5dbf85b80dbf9293",
-  "formal_ci_run": 40513626492,
-  "formal_http_exact_files": 21,
-  "formal_directory_index_exact": true,
-  "formal_original_profile": {
-    "passed_utc": "2026-10-27T13:42:44Z",
-    "candidate_imported": false,
-    "normal_route": 1,
-    "win_seconds": 11.6,
-    "before": {
-      "level": 11,
-      "gold": 1142,
-      "wins": 21,
-      "inventory": 41
-    },
-    "after": {
-      "level": 12,
-      "gold": 1218,
-      "wins": 22,
-      "inventory": 42,
-      "hp": 897,
-      "fragments": 70,
-      "seeds": 6
-    },
-    "reload_preserved": true,
-    "original_held_records_exact": 44,
-    "new_ids": [
-      "loot-42"
-    ],
-    "equipment_abilities_policies_unchanged": true,
-    "pre_export_sha256": "68eee9a9e1b53172794d56613ea3d56b38c2eb849518d1bce87e5aafcc994f2e",
-    "post_export_sha256": "9ed2d675bba5528fb933215722e634ba98a9712d465bc34712bedf31b3d4d0ec",
-    "known_extension_console_entries": 46,
-    "app_console_errors": 0,
-    "raw_exports_in_source": false
-  },
-  "concurrent_publication": {
-    "fresh_parent": "277a8d04fc0639f9190de8b5ee439a6116810ab5",
-    "external_changed_blob_paths_preserved": 44,
-    "formal_runtime_changed_files": [
-      "index.html",
-      "src/ui.js"
-    ],
-    "unchanged_runtime_files": 19,
-    "outside_blobs_modes_preserved": 4064,
-    "non_force_expected_head": true
-  },
-  "final_receipt_runtime_tests_assets_exact_accepted148": true,
-  "final_receipt_extra_test_run": false
+  }
 }

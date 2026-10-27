@@ -2,6 +2,10 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## Current slice: v0.37 original woodland stage
+
+v0.36 is published and original-profile verified. Replace the repeated geometric tree triangles and flat-topped pillars with a restrained original canvas woodland: visible trunks, irregular grouped canopy, distant haze and a receding old path. Keep a quiet middle lane for the existing actors/nameplates; preserve all actor/overlay/chest drawing and core/save/RNG behavior. This is a bounded backdrop improvement, not complete art direction or a new mechanic. Source parity and exact backup precede isolated candidate publication; actual browser acceptance is still required before stable replacement. Earlier milestone sections below are historical.
+
 ## Current slice: v0.36 readable combat nameplates
 
 The v0.35 actor release is complete. Actual desktop play exposed multiple tiny canvas defense lines over the moon; improve the hierarchy rather than adding systems. Keep names, HP, target and active effects in opaque compact labels, while the existing full DOM enemy-status details retain the exact defense probabilities, attack information and model caveats. Do not change actor bodies, engine, RNG or saves. Test source boundary/contrast/semantic cases and natural replay, then back up before isolated publication and actual browser acceptance. Narrow/mobile and native screen-reader behavior remain separate evidence, not implied by coordinate tests.

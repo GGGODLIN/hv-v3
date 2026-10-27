@@ -1865,21 +1865,54 @@ function drawEnemy(enemy, x, y, index, t) {
 }
 function drawScene(t, dt) {
   const w = sceneWidth, h = sceneHeight;
-  const gradient = ctx.createLinearGradient(0,0,0,h); gradient.addColorStop(0,'#112730'); gradient.addColorStop(.5,'#28534e'); gradient.addColorStop(1,'#152a2b');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);
-  // Moon, layered fir forest, stone ruins and narrow path.
-  ctx.fillStyle='#becdb13b';ctx.beginPath();ctx.arc(w*.72,h*.22,18,0,Math.PI*2);ctx.fill();ctx.fillStyle='#e3dec77d';ctx.beginPath();ctx.arc(w*.72,h*.22,12,0,Math.PI*2);ctx.fill();
-  for(let layer=0;layer<3;layer++)for(let i=0;i<13;i++){
-    const x=i*w/11+(layer%2)*17-20,base=h*(.58+layer*.09),height=h*(.28+((i*7+layer*3)%9)/35),color=['#23443f','#1b3b37','#132e2d'][layer];
-    rect(x-2,base-height*.35,4,height*.5,color);polygon([[x,base-height],[x-13-layer*4,base-12],[x+15+layer*3,base-12]],color);
+  // Original woodland stage: a quiet clearing framed by broadleaf trunks, not a repeated icon forest.
+  // Normalised landscape coordinates preserve the combat lane at every canvas size.
+  const land = (points, color) => polygon(points.map(([x, y]) => [x * w, y * h]), color);
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, '#172d32'); sky.addColorStop(.52, '#50675e'); sky.addColorStop(1, '#243a35');
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+  // Receding trunks are low contrast; their uneven fork heights leave a light central opening.
+  for (const [x, base, width, fork, lean] of [
+    [.08,.68,.013,.19,.018], [.18,.66,.009,.12,-.02], [.29,.65,.011,.26,.015],
+    [.38,.64,.007,.09,-.012], [.54,.64,.006,.2,.01], [.63,.65,.009,.13,-.015],
+    [.78,.67,.012,.24,.02], [.88,.68,.01,.08,-.014], [.97,.69,.014,.18,.01]
+  ]) {
+    land([[x-width,base],[x-width*.45,fork],[x+lean,0],[x+lean+width*.45,0],[x+width*.35,fork],[x+width,base]], '#3b564f');
+    land([[x,fork+.1],[x-.035,fork-.025],[x-.055,fork-.08],[x-.042,fork-.074],[x+.005,fork+.015]], '#3b564f');
   }
-  rect(0,h*.75,w,h*.25,'#172e2e');
-  polygon([[0,h*.94],[w*.25,h*.72],[w*.62,h*.71],[w,h*.89],[w,h],[0,h]],'#344b42');
-  polygon([[0,h*.97],[w*.25,h*.77],[w*.62,h*.77],[w,h*.94],[w,h],[0,h]],'#415649');
-  // Broken pillars, never generated from another game's artwork.
-  rect(w*.12,h*.39,11,h*.37,'#344e48');rect(w*.1,h*.39,17,5,'#547168');rect(w*.13,h*.45,3,h*.29,'#43635b');
-  rect(w*.9,h*.4,13,h*.37,'#344e48');rect(w*.89,h*.4,18,5,'#5d7869');
-  for(let i=0;i<26;i++){const x=(i*37+13)%w,y=h*.79+(i*11)%Math.max(1,h*.18);rect(x,y,3+(i%4),1,'#60705966');}
-  for(let i=0;i<14;i++){const x=(i*71+9)%w,y=h*.44+(i*19)%(h*.28);const drift=prefs.reducedMotion?0:Math.sin(t*.5+i)*3;ctx.fillStyle=i%2?'#d5cb8359':'#b1ddbd55';ctx.fillRect(x+drift,y,1,1);}
+  // A translucent horizontal veil softens distant branches, without moving the background.
+  const mist = ctx.createLinearGradient(0, h*.28, 0, h*.74);
+  mist.addColorStop(0, '#78867500'); mist.addColorStop(.62, '#8b998137'); mist.addColorStop(1, '#78867500');
+  ctx.fillStyle = mist; ctx.fillRect(0, h*.28, w, h*.46);
+  land([[0,.64],[.16,.61],[.3,.65],[.48,.62],[.65,.65],[.83,.61],[1,.65],[1,1],[0,1]], '#263e35');
+  // The worn trail recedes into the clearing; broad unmarked earth sits under all actors.
+  land([[.47,.61],[.53,.61],[.59,.69],[.7,.77],[1,.92],[1,1],[0,1],[0,.94],[.28,.8],[.4,.69]], '#4a5846');
+  land([[.48,.63],[.52,.63],[.56,.71],[.65,.8],[.88,.94],[.97,1],[.12,1],[.36,.83],[.45,.71]], '#58604c');
+  // Crooked side trunks and forked limbs frame rather than cross the hero/enemy lane.
+  land([[0,.84],[.035,.79],[.052,.6],[.048,.34],[.025,.09],[.003,0],[.056,0],[.076,.28],[.077,.56],[.069,.75],[.11,.84],[.064,.82],[.043,.86]], '#1a302b');
+  land([[.048,.35],[.115,.21],[.15,.08],[.166,.06],[.135,.22],[.069,.43]], '#1a302b');
+  land([[.052,.73],[.061,.54],[.058,.31],[.043,.11],[.049,.1],[.069,.31],[.069,.56],[.061,.76]], '#314a39');
+  land([[1,.84],[.96,.8],[.946,.62],[.95,.38],[.974,.16],[.963,0],[.925,0],[.94,.16],[.924,.39],[.929,.65],[.934,.79],[.9,.85],[.948,.82],[.974,.86]], '#1b312c');
+  land([[.94,.41],[.883,.27],[.85,.13],[.861,.14],[.899,.25],[.95,.33]], '#1b312c');
+  land([[.938,.71],[.938,.43],[.954,.22],[.961,.2],[.945,.46],[.947,.76]], '#344b39');
+  // Irregular, overlapping broadleaf masses only occupy the upper frame, never actor bodies.
+  land([[0,0],[.36,0],[.35,.06],[.29,.08],[.26,.14],[.2,.12],[.17,.19],[.11,.17],[.07,.23],[0,.21]], '#203b32');
+  land([[.57,0],[1,0],[1,.24],[.94,.2],[.9,.23],[.85,.17],[.78,.18],[.75,.12],[.67,.13],[.64,.07],[.58,.06]], '#243f34');
+  land([[0,0],[.24,0],[.23,.055],[.17,.075],[.145,.12],[.09,.1],[.065,.15],[0,.13]], '#172f29');
+  land([[.76,0],[1,0],[1,.14],[.93,.12],[.9,.16],[.84,.12],[.83,.07],[.78,.08]], '#19322b');
+  // Sparse moss and old paving fragments belong at the edge/foreground, below nameplates.
+  land([[0,.85],[.055,.81],[.11,.83],[.15,.87],[.1,.86],[.05,.87]], '#3c5238');
+  land([[.88,.86],[.925,.82],[.98,.83],[1,.86],[.95,.86],[.91,.88]], '#3a5037');
+  for (const [x, y, length, depth] of [[.39,.91,.055,.018],[.51,.87,.043,.013],[.64,.95,.068,.023],[.24,.97,.073,.02]]) {
+    land([[x,y],[x+length*.83,y-.006],[x+length,y+depth*.6],[x+length*.2,y+depth]], '#6a6d54');
+    land([[x+length*.2,y+depth],[x+length,y+depth*.6],[x+length*.94,y+depth],[x+length*.22,y+depth+.004]], '#414c3c');
+  }
+  // Six dim motes remain decorative; reduced motion freezes them and no game RNG is consumed.
+  for (let i=0;i<6;i++) {
+    const x=w*(.15+i*.137), y=h*(.48+(i%3)*.08);
+    const drift=prefs.reducedMotion?0:Math.sin(t*.5+i)*2;
+    rect(x+drift,y,1,1,'#c5cf9950');
+  }
   const ground=h*.79;
   drawHero(w*.28,ground,t);
   const enemies=(state.enemies||[]).slice(0,3);
