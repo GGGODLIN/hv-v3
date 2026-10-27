@@ -2076,7 +2076,7 @@ $('save-file').addEventListener('change',async event=>{
     if(!claimLease(true)){showToast('此分頁已失去進度控制權，未匯入；請接手後重新選擇檔案。');return;}
     if(!confirm(`匯入 Lv.${restored.hero.level} 的旅程並取代目前進度？建議先匯出備份。`))return;
     if(!claimLease(true)){showToast('請先關閉另一個正在進行遊戲的分頁。');return;}
-    closeSafeSalePreview();state=restored;preventOverwrite=false;selectedId=null;selectedSlot=null;syncSelection();seenEvents.clear();(state.events||[]).forEach(e=>seenEvents.add(String(e.id)));notice('');save(true);render(true);showToast('存檔已匯入，從營地安全接續。');
+    closeSafeSalePreview();state=restored;preventOverwrite=false;selectedId=null;selectedSlot=null;syncSelection();seenEvents.clear();(state.events||[]).forEach(e=>seenEvents.add(String(e.id)));notice('');const persisted=save(true);render(true);showToast(persisted ? '存檔已匯入，進度已保存；從營地接續。' : '存檔僅在此分頁載入，尚未保存；請立即匯出備份。');
   }catch(error){if(generation!==importGeneration)return;console.warn('Invalid save rejected',error);showToast(error?.message === '不支援的裝備欄位或格式，未載入；請保留原存檔。' ? '不支援的裝備欄位或格式，已取消匯入以避免遺失或誤售。請保留原存檔；目前進度沒有改變。' : '存檔格式不符或已損壞，目前進度沒有改變。');}
 });
 window.addEventListener('popstate', closeSafeSalePreview);

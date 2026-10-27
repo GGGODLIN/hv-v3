@@ -1,5 +1,10 @@
 # Independent development roadmap
 
+## v0.42 source-only slice: honest import persistence feedback
+
+Use the actual save result, not a successful JSON import, to announce durable progress. Distinguish browser persistence from memory-only load and point to export when unavailable. Preserve validated imported memory, original stored bytes on failed writes, ownership/confirmation and all gameplay. No website operations or browser acceptance claim.
+
+
 ## v0.41 current slice: latest selected import wins (source only)
 
 Fix a reproduced async file-read race, not add another system: a slow older import must not replace a newer accepted file, resurrect a canceled selection, or overwrite current feedback on late read failure. A generation token invalidates prior reads on new import entry, file change and pagehide. Preserve validation, explicit replacement confirmation and live ownership checks. Engine, RNG, assets and save format remain unchanged. Source/controller evidence is not actual OS file-picker/browser acceptance. No website operation while the existing material scope question remains unresolved; stable remains v036.
