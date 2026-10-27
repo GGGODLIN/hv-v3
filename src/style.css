@@ -239,3 +239,9 @@ button.node:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-
 .logwrap { position: relative; }
 .encounter { position: absolute; left: 0; right: 0; top: 0; z-index: 5; background: linear-gradient(#1c1626f5, #100d16f5); border: 1px solid var(--gold); border-radius: 6px; padding: 6px 9px; font-size: 14px; line-height: 1.45; pointer-events: none; animation: encfade 2.5s linear forwards; }
 @keyframes encfade { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* 自訂，非原版：rc18 低血量「喝藥再出發」 */
+.potgo{border:2px solid #e05050;background:rgba(224,80,80,.12);border-radius:8px;padding:8px 10px;margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.potgo .hint{margin:0}
+.potgobtn{font-size:1.1em;font-weight:700;padding:8px 18px;animation:potpulse 1.4s ease-in-out infinite}
+@keyframes potpulse{50%{filter:brightness(1.25)}}
