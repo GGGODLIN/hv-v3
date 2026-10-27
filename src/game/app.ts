@@ -67,7 +67,7 @@ export class App {
   /** CP3 unlock / tutorial notices shown on the current screen. */
   notice: string[] = [];
   /** rc16 item 2: last charge-turn decision shown in battle (reused by the death screen). */
-  lastAdvice: { turn: number; a: ChargeAdvice } | null = null;
+  lastAdvice: { turn: number; a: ChargeAdvice; charge?: boolean } | null = null;
   /** CP7: chosen abyss start checkpoint. */
   abyssStart: number | null = null;
   noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
@@ -308,10 +308,12 @@ export class App {
     // cp8-rc10 P0-4: a skill that came off cooldown stays "pending" until it is castable (OC permitting) and has been shown
     // once, so the prompt is no longer lost when the turn it comes off cooldown is short on OC. Reset per battle.
     if (this.cdBattle !== b) { this.cdBattle = b; this.cdShown = []; this.cdPending = skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target })); } // cp8-rc11 4(a): opening OC (blade 50) can already pay a skill
-    const sugSk = RULES.cp8 ? suggestSkill(b, this.target) : null; // rc13 item 3(b): only the skill whose expected damage beats A by > 10% lights
+    // rc20 items 1–2（自訂，非原版）: while HP is in danger / low the only hint is chargeAdvice (no skill / spell suggestion: QA rc19 oc2 HP 3/1044 → Q·盾擊).
+    const adv = RULES.cp8 ? chargeAdvice(b, this.target) : null, dangerNow = !!adv?.danger;
+    const sugSk = RULES.cp8 && !dangerNow ? suggestSkill(b, this.target) : null; // rc13 item 3(b): only the skill whose expected damage beats A by > 10% lights
     const ready = RULES.cp8 && (lean === 'blade' || lean === 'oc') ? this.cdPending.filter((id) => id === sugSk) : [];
     this.cdShown = ready;
-    const spellSug = RULES.cp8 && lean === 'arcane' ? this.arcaneSpell(b) : null;
+    const spellSug = RULES.cp8 && lean === 'arcane' && !dangerNow ? this.arcaneSpell(b) : null;
     const sk = skillKit(b).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
@@ -335,13 +337,14 @@ export class App {
     const ids0 = skillKit(b);
     const readyHint = ready.length && !skillHint ? `<div class="hint suggest" data-skillready="${ready.join(',')}">💡 ${ready.map((id) => `${'QWE'[ids0.indexOf(id)]}·${SKILLS[id].zh}`).join('、')} 可以用了（冷卻結束／OC 已夠）（${ready.map((id) => SKILLS[id].desc).join('；')}）</div>` : '';
     const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
+    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>`
+      : dangerNow && !b.over ? `<div class="decide" data-decide data-lowhp>⚠ HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}<br>${this.decideLine(b, hpPot)}</div>` : ''; // rc20 item 1: low HP / danger on a non-charge turn
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ` · <b class="warn" data-chargestatus>${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！建議 ${((k) => k.map((x) => ({ A: 'A·攻擊', D: 'D·防禦', Z: 'Z·喝藥', S: 'S·靈動架勢' } as Record<string, string>)[x] ?? x).join(' 或 '))(chargeAdvice(b, this.target).keys)}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
+        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging || dangerNow ? ` · <b class="warn" data-chargestatus>${charging ? `${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！` : 'HP 危險！'}建議 ${((k) => k.map((x) => ({ A: 'A·攻擊', D: 'D·防禦', Z: 'Z·喝藥', S: 'S·靈動架勢' } as Record<string, string>)[x] ?? x).join(' 或 '))(chargeAdvice(b, this.target).keys)}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         <div class="hudr">${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox">${spellSug ? `<div class="sugtitle" data-sugtitle="${spellSug.id}">建議：<b>${(Object.keys(SPELLS) as SpellId[]).indexOf(spellSug.id) + 1}·${SPELLS[spellSug.id].zh}</b>（${spellSug.pct > 0 ? `弱${TZ[spellSug.type] ?? spellSug.type}` : `${TZ[spellSug.type] ?? spellSug.type}傷害較高`}）</div>` : ''}</div>${decide}${skillHint}${readyHint}${elemHint}
         </div>${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="logwrap">${this.encHtml()}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
-        <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊${((q) => (q.kind === 'spell' ? `<small data-quick="${q.id}">${SPELLS[q.id].zh}</small>` : ''))(quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none'))}</button><button data-act="defend" class="${charging && !this.guardOnly(b) && (!RULES.cp8 || hpDanger(b)) ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${RULES.cp8 && guardHint(b) === 'spirit' && chargeAdvice(b, this.target).keys[0] === 'S' ? 'class="suggest" data-guardhint ' : ''}${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
+        <div class="grp"><button class="main" data-act="attack"><img class="icon sp" src="assets/icons/c-attack.png" alt="" width="32" height="32">A·攻擊${((q) => (q.kind === 'spell' ? `<small data-quick="${q.id}">${SPELLS[q.id].zh}</small>` : ''))(quickAttack(b, this.target, this.p.equipped.mainHand?.group ?? 'none'))}</button><button data-act="defend" class="${RULES.cp8 ? (adv!.danger && adv!.keys.includes('D') ? 'suggest' : '') : charging && !this.guardOnly(b) ? 'suggest' : ''}"><img class="icon sp" src="assets/icons/c-defend.png" alt="" width="32" height="32">D·防禦</button><button data-act="focus"><img class="icon sp" src="assets/icons/c-focus.png" alt="" width="32" height="32">F·專注</button><button data-act="spirit" ${RULES.cp8 && adv!.keys[0] === 'S' ? 'class="suggest" data-guardhint ' : ''}${gate(b, { kind: 'spirit' }, '需 OC ≥ ' + SPIRIT_MIN_OC + '：技能、防禦、專注都會花 OC，想開架勢就先連續攻擊')}>S·${b.spirit ? '解除架勢' : '靈動架勢'}<small>${b.spirit ? '' : b.locked?.spirit ? 'F4 解鎖' : `OC ${Math.floor(b.oc)}/${SPIRIT_MIN_OC}`}</small></button></div>
         <div class="grp">${sk}</div><div class="grp">${sp}</div><div class="grp">${po}</div>
         <div class="hint">點擊怪物選擇目標 · Tab 切換目標</div></div>`;
   }
@@ -478,7 +481,7 @@ export class App {
    *  is A or the hinted skill only (never D). Danger + potion unusable → S / A (rc14 guardOnly). Danger + potion usable → D or Z (unchanged). */
   decideLine(b: BattleState, _hpPot: boolean): string {
     // rc16 items 1–2: one decision function (core chargeAdvice) for the panel, status bar, urgent line and death screen.
-    const a = chargeAdvice(b, this.target); this.lastAdvice = { turn: b.turn, a };
+    const a = chargeAdvice(b, this.target); this.lastAdvice = { turn: b.turn, a, charge: b.monsters.some((m) => windingUp(m)) };
     return `<span data-decide="${a.danger ? 'danger' : 'safe'}" data-keys="${a.keys.join(',')}">決策：<b>${a.text}</b></span>`;
   }
   guardOnly(b: BattleState): boolean { return RULES.cp8 && !canUse(b, { kind: 'item', id: 'health' }); }
@@ -515,7 +518,7 @@ export class App {
   /** rc16 item 2: the death screen repeats the decision the battle panel showed on the last charge turn (same chargeAdvice). */
   adviceNote(): string {
     const l = this.lastAdvice;
-    return l ? `<span data-deathadvice="${l.a.keys.join(',')}">第 ${l.turn} 回合蓄力時的提示：${l.a.text}</span>` : '看到 ⚠ 預告時，照戰鬥面板的「決策」按鍵。';
+    return l ? `<span data-deathadvice="${l.a.keys.join(',')}">第 ${l.turn} 回合${l.charge ? '蓄力時' : ''}的提示：${l.a.text}</span>` : '看到 ⚠ 預告時，照戰鬥面板的「決策」按鍵。';
   }
   deathCause(): string {
     const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);

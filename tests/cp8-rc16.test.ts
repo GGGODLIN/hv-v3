@@ -18,7 +18,7 @@ describe('rc16 single danger rule + shared advice', () => {
     try {
       const b = fight(); b.monsters[0]!.charge = 1;
       const est = nextRoundEstimate(b, true);
-      b.hp = Math.ceil(est) + 1; expect(hpDanger(b)).toBe(false);
+      b.hp = Math.max(Math.ceil(est) + 1, Math.ceil(b.d.hp * 0.35) + 1); expect(hpDanger(b)).toBe(false); // rc20: also above the low-HP line
       expect(chargeAdvice(b).keys.some((k) => k === 'D' || k === 'Z')).toBe(false);
       b.hp = Math.floor(est); expect(hpDanger(b)).toBe(true);
       expect(chargeAdvice(b).danger).toBe(true);

@@ -213,7 +213,7 @@ export function quickAttack(s: BattleState, target: number, main?: string): Acti
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
 /** rc13 item 2: pothint / danger read the crit-case estimate (SIM_EST_CRIT=0 → rc12 normal estimate, for comparison only). */
 const ENV_EST_CRIT = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_EST_CRIT !== '0';
-export const POT_HINT = { hp: 0.5, charging: 0.75, /** rc14 item 4（暫定）: share of the heal that must land */ minUseful: 0.5 };
+export const POT_HINT = { hp: 0.5, charging: 0.75, /** rc14 item 4（暫定）: share of the heal that must land */ minUseful: 0.5, /** rc20 item 1（暫定，製作人舉例 ≤35%；自訂，非原版）: HP at or below this share is 「HP 偏低」 even without a big estimate */ low: 0.35 };
 /** cp8-rc6 item 6: estimate of a charging monster's next heavy hit (mult as enemyTurn: drain → CP5.drainMult else BOSS_CHARGE_MULT,
  *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance and the per-turn cap.
  *  rc13 item 2: crit = true → the same hit as a monster crit (× 1 + F-002-5.1B critDamageBonus 0.2, Battles.md:45). */
@@ -240,9 +240,12 @@ export function nextRoundEstimate(s: BattleState, crit = false): number {
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
 /** rc16（製作人要求，自訂）: physical hits log resistance only when it is at least this %. */
 export const PHYS_RESIST_LOG = 25;
+/** rc20 item 1（自訂，非原版）: HP ≤ POT_HINT.low of max (暫定 35%). */
+export const lowHp = (s: BattleState): boolean => s.hp > 0 && s.hp <= s.d.hp * POT_HINT.low;
 export function hpDanger(s: BattleState): boolean {
-  // rc16 item 1（自訂，非原版）: one rule only — danger when the next round's crit-case estimate reaches current HP.
-  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp;
+  // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
+  // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
+  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp || lowHp(s);
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
@@ -258,14 +261,17 @@ export function guardHint(s: BattleState): 'spirit' | null {
 export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: string[]; text: string };
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
-  if (!danger) { const g = suggestSkill(s, target); return { danger, est, hp, keys: g ? [SKILLS[g].zh, 'A'] : ['A'], text: `${g ? `${SKILLS[g].zh} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
+  if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
+  const why = nextRoundEstimate(s, true) >= s.hp ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）`;
+  // rc20 item 1（自訂，非原版）: low HP + potion usable → Z first.
+  if (canUse(s, { kind: 'item', id: 'health' }) && lowHp(s)) return { danger, est, hp, keys: ['Z', 'D'], text: `Z·生命藥水（剩 ${s.potions.health} 瓶）或 D·防禦（${why}）` };
   if (canUse(s, { kind: 'item', id: 'health' })) return { danger, est, hp, keys: ['D', 'Z'], text: `D·防禦（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%）或 Z·生命藥水（剩 ${s.potions.health} 瓶）（HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
   // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
   const estD = Math.round(s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, true, true) : 0), 0));
   const pn = `生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}`;
-  if (RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
+  if (RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；防禦後估計 ${estD} < HP ${hp}，${why}）` };
   const sp = guardHint(s) === 'spirit';
-  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}）` };
+  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（${RULES.cp8 ? `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住；` : ''}${pn}，${why}）` };
 }
 /** rc19 (a)（自訂，非原版）: the Z·生命藥水 button highlight. QA rc16 oc4 F6: HP 357/792 (45%), biggest hit 44, decision said A, yet Z
  *  lit — the button used potHint, whose "HP < 50%" branch ignores the estimate and so bypassed chargeAdvice. In cp8 the button now
