@@ -193,3 +193,5 @@
 - 自訂：`SIM_EST9=1` → auto.ts `EST9`/`est9diag`：F21–29 boss 戰，比較「下回合估計（暴擊、含 DoT/反傷）」與實際受傷，輸出 gap 分佈（占 maxHP）、低估來源、Z 回復比例。
 - 自訂：`SIM_NOEXTRA9=1` → `extra9` 回 0（重現 rc9 item 1 之前的估計），只供 before/after 比較。
 - 自訂：auto.ts `POTSRC` 生命藥水來源計數（town/merchant/drop/elite/chest/used）；`scripts/rc9-oc-save.ts` 讀 QA 存檔玩家、從指定深淵起點多 seed 續跑。不改任何預設。
+- 自訂（rc9 item 6，QA oc1 F65）：怪物血條下常駐文字 `stunTag9`：暈眩中顯示「暈眩 N」，結束後抵抗期顯示「暈眩抵抗 N」（原本只有一次性 log 與 18px 色條）。
+- 自訂（rc9 item 7，QA oc1 F73）：chargeAdvice0 的「下回合估計 < 最大 HP 20%，不必防禦」豁免，在估計 ≥ 目前 HP（isLethal）時不適用，致死判定優先。

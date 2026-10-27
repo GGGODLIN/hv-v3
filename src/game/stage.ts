@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { stunResisting9, type BEvent, type BattleState } from '../core/battle';
+import { stunResisting9, stunTag9, type BEvent, type BattleState } from '../core/battle';
 import type { Monster } from '../core/monsters';
 import { QUALITY_COLOR, type Quality } from '../core/items';
 import { bodyOf } from '../core/bodies';
@@ -16,7 +16,7 @@ interface Manifest { bg: string; chars: Record<string, { scale: number; actions:
 const ELEMENT_COLOR: Record<string, number> = { fire: 0xff6a2a, cold: 0x7fd8ff, elec: 0xfff04a, wind: 0x8affb0, holy: 0xfff8c8, dark: 0xb060ff };
 const AVOID_ZH: Record<string, string> = { evade: '閃避', parry: '招架', block: '格擋', resist: '抵抗' };
 
-interface MonView { m: Monster; sprite: Phaser.GameObjects.Sprite; kind: string; x: number; y: number; scale: number; bar: Phaser.GameObjects.Graphics; label: Phaser.GameObjects.Text; ring: Phaser.GameObjects.Ellipse; charge?: Phaser.Tweens.Tween; chargeFx?: Phaser.GameObjects.Ellipse }
+interface MonView { m: Monster; sprite: Phaser.GameObjects.Sprite; kind: string; x: number; y: number; scale: number; bar: Phaser.GameObjects.Graphics; label: Phaser.GameObjects.Text; st9?: Phaser.GameObjects.Text; ring: Phaser.GameObjects.Ellipse; charge?: Phaser.Tweens.Tween; chargeFx?: Phaser.GameObjects.Ellipse }
 
 /** CP3-bugfix 8 (暫定): retries per asset. */
 export const ASSET_RETRIES = 3;
@@ -98,7 +98,7 @@ export class Stage extends Phaser.Scene {
   }
 
   clearMonsters() {
-    for (const v of this.mons) { v.sprite.destroy(); v.bar.destroy(); v.label.destroy(); v.ring.destroy(); v.chargeFx?.destroy(); }
+    for (const v of this.mons) { v.sprite.destroy(); v.bar.destroy(); v.label.destroy(); v.st9?.destroy(); v.ring.destroy(); v.chargeFx?.destroy(); }
     this.mons = [];
   }
 
@@ -136,7 +136,7 @@ export class Stage extends Phaser.Scene {
     const top = v.y - (v.kind === 'beast' ? 95 : 148) * v.scale;
     const w = 100, x = v.x - w / 2, y = top - 14;
     v.bar.clear();
-    if (v.m.hp <= 0) return;
+    if (v.m.hp <= 0) { v.st9?.setText(""); return; }
     // rc17 視覺：framed rounded bar, palette colors, 25% ticks (display only)
     v.bar.fillStyle(0x000000, 0.85).fillRoundedRect(x - 2, y - 2, w + 4, 11, 3);
     v.bar.fillStyle(0x2a2436, 1).fillRoundedRect(x - 1, y - 1, w + 2, 9, 2);
@@ -145,6 +145,7 @@ export class Stage extends Phaser.Scene {
     if (f > 0) { v.bar.fillStyle(c, 1).fillRoundedRect(x, y, Math.max(2, w * f), 7, 2); v.bar.fillStyle(0xffffff, 0.28).fillRect(x + 1, y + 1, Math.max(0, w * f - 2), 2); }
     v.bar.fillStyle(0x000000, 0.5); for (let k = 1; k < 4; k++) v.bar.fillRect(x + (w * k) / 4, y, 1, 7);
     if (v.m.status.stun > 0) v.bar.fillStyle(0x7fd8ff, 1).fillRect(x, y + 8, 18, 3);
+    { const tag = stunTag9(v.m); v.st9 ??= this.add.text(x, y + 12, '', { fontFamily: '"Noto Sans TC", sans-serif', fontSize: '12px', color: '#7fd8ff', stroke: '#140e1c', strokeThickness: 3 }).setDepth(21); v.st9.setText(tag).setColor(v.m.status.stun > 0 ? '#7fd8ff' : '#b0b0c0').setPosition(x, y + 12); } // cp9-rc9 item 6（自訂）
     if (stunResisting9(v.m)) v.bar.fillStyle(0x8a8a9a, 1).fillRect(x, y + 8, 18, 3); // cp9-rc8 (c)1（自訂）: 暈眩抵抗中 (gray), same helper as the sim
     if (v.m.status.bleed > 0) v.bar.fillStyle(0xd02020, 1).fillRect(x + 20, y + 8, 18, 3);
   }

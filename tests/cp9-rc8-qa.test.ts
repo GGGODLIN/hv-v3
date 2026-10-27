@@ -1,7 +1,7 @@
 // cp9-rc8 QA（自訂）: bug b banner copy; QA c boss never winds up on the boss turn right after its own telegraphed heavy hit.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { act, startBattle, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
+import { act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
 import { CP5 } from '../src/core/cp5';
 import { urgentLine, pushOnce9 } from '../src/game/app';
 import { starterKit } from '../src/core/auto';
@@ -55,6 +55,36 @@ describe('cp9-rc8 QA', () => {
       const refl = Math.round(d.hp * CP5.reflectCapHp);
       expect(extra9(b, false)).toBe(65 + refl); expect(extra9(b, true)).toBe(0);
       expect(nextRoundEstimate(b, true, false)).toBeGreaterThan(base);
+    } finally { RULES.cp8 = o; }
+  });
+  it('rc9 item 7: estimate ≥ current HP never gets the 「< 最大 HP 20%，不必防禦」 exemption (QA oc1 F73)', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      let n = 0;
+      for (let r = 0; r < 60; r++) {
+        const p = newPlayer(); starterKit(p); const d0 = derive(p); const d = { ...d0, hp: d0.hp * 20 };
+        const ms = [0, 1].map((k) => buildMonster(pool.rows[(r * 3 + k) % pool.rows.length]!, 40, 'normal'));
+        const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, ms, { health: 0, mana: 0, spirit: 0 });
+        const est = chargeAdvice(b).est; if (est < 2 || est >= d.hp * 0.2) continue;
+        b.hp = est - 1; const a = chargeAdvice(b); n++;
+        expect(a.text, `row ${r}: ${a.text}`).not.toContain('不必防禦');
+        expect(a.keys[0]).not.toBe('A');
+      }
+      expect(n).toBeGreaterThan(5);
+    } finally { RULES.cp8 = o; }
+  });
+  it('rc9 item 6: stun / stun-resist tag stays on the monster for every turn it applies', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      const p = newPlayer(); starterKit(p); const d = derive(p);
+      const m = buildMonster(pool.rows[5]!, 30, 'boss'); m.hp = m.maxHp = 1e6; m.adb = 1;
+      const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 });
+      m.status.stun = 3; const tags: string[] = [stunTag9(m)]; const rng = new Rng(1);
+      for (let t = 0; t < 6; t++) { b.hp = b.d.hp; act(b, { kind: 'defend' }, rng); tags.push(stunTag9(m)); }
+      expect(tags.slice(0, 3)).toEqual(['暈眩 3', '暈眩 2', '暈眩 1']);
+      expect(tags.filter((x) => x.startsWith('暈眩抵抗')).length).toBeGreaterThan(0);
+      expect(tags[tags.length - 1]).toBe('');
+      expect(readFileSync('src/game/stage.ts', 'utf8')).toMatch(/stunTag9\(v\.m\)/);
     } finally { RULES.cp8 = o; }
   });
 });

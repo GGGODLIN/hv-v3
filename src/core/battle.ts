@@ -10,6 +10,8 @@ const save9 = (s: BattleState, hp: number): number => !CP9.save9 ? Infinity : CP
 /** cp9-rc8 (c)1（自訂，製作人定案）: boss stun immunity after a stun. Shared by sim and UI (stage.ts / log text 「暈眩抵抗中」). */
 export const stunImmOn9 = (m: Monster): boolean => RULES.cp8 && CP9.on && CP9.stunImm > 0 && m.rank === 'boss';
 export const stunResisting9 = (m: Monster): boolean => stunImmOn9(m) && ((m as CM).stunImm9 ?? 0) > 0;
+/** cp9-rc9 item 6（自訂，QA oc1 F65）: persistent stun / stun-resist tag under a monster's HP bar (the log line alone vanished after T2). */
+export const stunTag9 = (m: Monster): string => m.hp <= 0 ? '' : m.status.stun > 0 ? `暈眩 ${m.status.stun}` : stunResisting9(m) ? `暈眩抵抗 ${(m as CM).stunImm9}` : '';
 const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!stunResisting9(m)) return false; ev.push({ t: 'status', to, text: '暈眩抵抗中' }); return true; };
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
@@ -355,7 +357,8 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   const pot = canUse(s, { kind: 'item', id: 'health' });
   const alt = (why: string): ChargeAdvice => { const g = a.danger ? null /* rc20 item 2: potion-unusable danger → never a skill */ : suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; return { ...a, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（${why}）` }; };
   if (CP9.hp1A && !pot && Math.round(s.hp) <= 1 && a.keys[0] !== 'A') return alt(`HP ${a.hp}、沒有可用藥水：直接輸出`);
-  if (CP9.dMin > 0 && a.keys[0] === 'D' && a.est < s.d.hp * CP9.dMin) return alt(`下回合估計 ${a.est} < 最大 HP ${Math.round(CP9.dMin * 100)}%，不必防禦`);
+  // cp9-rc9 item 7（自訂，QA oc1 F73）: lethal vs current HP wins over the 20%-of-max exemption.
+  if (CP9.dMin > 0 && a.keys[0] === 'D' && a.est < s.d.hp * CP9.dMin && !isLethal(a.est, a.hp)) return alt(`下回合估計 ${a.est} < 最大 HP ${Math.round(CP9.dMin * 100)}%，不必防禦`);
   return a;
 }
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
