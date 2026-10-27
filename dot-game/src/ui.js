@@ -1175,6 +1175,8 @@ function itemContent(item) {
   return [icon, info];
 }
 function renderEquipment() {
+  const currentWeapon = $('current-weapon-label');
+  if (currentWeapon) currentWeapon.textContent = state.equipment.weapon.name;
   comparisonButtons.equipment.clear();
   $('equipment').replaceChildren(...Object.entries(state.equipment).map(([slot, item]) => {
     const button = node('button', 'gear-button'); comparisonButtons.equipment.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));

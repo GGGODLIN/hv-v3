@@ -375,3 +375,164 @@
 .pending-loot-detail { display: block; margin-top: 10px; color: var(--gold); }
 @media (min-width:681px) and (max-width:1150px) { .loot-panel>.pending-loot { grid-column: 1; } .loot-panel>.item-detail { grid-row: 1 / 10; } }
 @media (max-width:680px) { .pending-loot p { font-size: 11px; } }
+
+/* Scene-first source layout: keep the fight and its actions together.
+   Existing independent canvas art is temporary; no external asset is implied. */
+:root { --bg: #101817; --panel: #192321; --line: #35423b; --muted: #a4b4a6; --radius: 3px; font-family: "Noto Sans TC", system-ui, -apple-system, sans-serif; }
+body { background: var(--bg); }
+button, select, .badge, .status-pill { border-radius: 3px; }
+button { background: #223029; }
+button:hover:not(:disabled) { background: #304035; border-color: #85917c; }
+select { background: #15231e; }
+.panel { background: var(--panel); box-shadow: none; }
+.primary-button { background: #d3b778; border-color: #dfc48b; }
+.primary-button:hover:not(:disabled) { background: #e2c88f; }
+.secondary-button { background: #223029; }
+.app-shell { max-width: 1500px; padding: 0 20px; }
+.masthead { min-height: 64px; margin-bottom: 12px; gap: 14px; }
+.brand { gap: 0; min-width: 0; }
+.brand h1 { margin: 0; font-size: 23px; letter-spacing: .08em; }
+.version { display: inline; font-size: 10px; margin-left: 10px; }
+.header-tools { flex-wrap: wrap; justify-content: flex-end; }
+.save-indicator { display: inline; margin-right: 4px; overflow-wrap: anywhere; }
+.icon-button { min-height: 40px; }
+.game-grid { display: grid; grid-template-columns: minmax(0, 1fr) 312px; gap: 14px 18px; align-items: start; }
+.hero-panel { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(190px, 1fr) minmax(300px, 1.55fr) minmax(185px, 1fr); gap: 6px 24px; padding: 10px 14px; border-width: 0 0 1px; border-radius: 0; background: #17211c; }
+.traveler-identity { min-width: 0; }
+.traveler-identity h2 { font-size: 16px; letter-spacing: .03em; }
+.traveler-identity .section-heading { justify-content: flex-start; }
+.current-weapon { display: flex; flex-direction: column; margin-top: 3px; font-size: 11px; min-width: 0; }
+.current-weapon > span { font-size: 10px; color: var(--muted); }
+.current-weapon strong { font-weight: 500; overflow-wrap: anywhere; }
+.traveler-resources { min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 16px; align-content: center; }
+.traveler-resources .resource { margin: 0; }
+.traveler-resources .resource.small { grid-column: 1 / -1; margin: 0; }
+.resource > div:first-child { font-size: 11px; margin-bottom: 3px; }
+.resource.small > div:first-child { font-size: 10px; }
+.meter, .meter i { border-radius: 0; }
+.hp i { background: #99b780; }.mp i { background: #7ea7ba; }.xp i { background: #bc9d63; }
+.traveler-balances { min-width: 0; align-self: center; }
+.traveler-balances > p { display: flex; gap: 12px; align-items: baseline; font-size: 12px; }
+.traveler-balances > p span { color: var(--muted); font-size: 11px; }
+.traveler-balances .investment-balances { gap: 2px 12px; margin: 4px 0 0; padding: 0; border: 0; }
+.traveler-balances .investment-balances strong { font-size: 11px; font-weight: 500; }
+.ownership-status { grid-column: 1 / -1; font-size: 11px; line-height: 1.5; color: #c2cbb7; overflow-wrap: anywhere; }
+.ownership-status:empty { display: none; }
+.expedition-column { grid-column: 1; min-width: 0; width: 100%; }
+.expedition-header { min-height: 30px; margin-bottom: 8px; gap: 10px; }
+.expedition-header h2 { font-size: 19px; margin: 0; letter-spacing: .04em; }
+.status-pill { font-size: 11px; padding: 3px 8px; background: #253629; }
+.battle-scene { height: clamp(260px, calc(100dvh - 420px), 390px); border-radius: 3px 3px 0 0; border-color: #52604b; }
+.scene-top, .scene-bottom { left: 16px; right: 16px; }
+.scene-top { top: 12px; letter-spacing: .06em; }
+.scene-top span { background: #101c18cc; border-color: #59644b; border-radius: 2px; }
+.scene-bottom { bottom: 12px; }
+.scene-message { background: none; }
+.scene-message h3 { font-size: 19px; letter-spacing: .04em; }
+.scene-message p { font-size: 12px; }
+.scene-bottom .eyebrow { font-size: 10px; letter-spacing: .04em; color: #c4d0bd; }
+.battle-controls { padding: 10px 12px; border-top: 0; border-color: #52604b; border-radius: 0 0 3px 3px; }
+.route-select { display: flex; flex-wrap: nowrap; gap: 8px; margin-bottom: 8px; }
+.route-select > label:first-child { font-size: 11px; }
+.route-select select { min-width: 0; min-height: 36px; padding-top: 5px; padding-bottom: 5px; font-size: 12px; }
+.route-select .toggle { margin-left: 0; font-size: 11px; }
+.action-row { display: flex; flex-wrap: nowrap; gap: 7px; }
+.action-row .primary-button { flex: 1.25 1 140px; padding: 8px 12px; min-height: 44px; font-size: 13px; }
+.action-row .secondary-button { flex: 1 1 auto; min-height: 44px; padding: 8px 9px; font-size: 11px; white-space: normal; }
+.control-hint { text-align: left; margin-top: 6px; color: #b1bea9; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.control-hint:empty { display: none; }
+.tactics-disclosure { margin-top: 12px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.tactics-disclosure > summary { cursor: pointer; padding: 10px 4px; color: #d4ddcb; font-size: 12px; }
+.tactics-disclosure > summary span { margin-left: 12px; color: var(--muted); font-size: 10px; }
+.tactics-content { padding: 0 12px 12px; }
+.tactics-content .route-preview { margin-top: 0; }
+summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.run-strip { margin: 0; padding: 10px 0; }
+.run-strip span { font-size: 10px; margin-bottom: 2px; }
+.run-strip strong { font-size: 14px; }
+.loot-panel { grid-column: 2; grid-row: 2 / span 2; display: block; min-width: 0; padding: 12px; border-color: #44503f; }
+.equipped-strip { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.equipped-strip .gear-heading { margin-bottom: 6px; }
+.equipped-strip .gear-heading h3 { font-size: 12px; }
+.equipment-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.gear-button { display: block; padding: 7px 5px; min-width: 0; background: #14201a; }
+.gear-button .item-icon { display: none; }
+.gear-button .gear-info strong { white-space: normal; font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+.gear-button .gear-info span { display: block; font-size: 9px; line-height: 1.45; }
+.loot-panel > .section-heading h2 { font-size: 16px; margin: 0; }
+.panel-description { margin: 5px 0 10px; font-size: 11px; line-height: 1.5; }
+.loot-tools select { min-height: 38px; font-size: 11px; }
+.inventory-filter-details { margin-top: 6px; font-size: 11px; }
+.inventory-filter-details > summary { padding: 7px 0; cursor: pointer; color: #c0cdb5; }
+.loot-investment-filters { margin-top: 5px; }
+#inventory-filter-help, #inventory-filter-status { font-size: 11px; line-height: 1.55; margin: 6px 0; }
+#reset-inventory-filters { min-height: 36px; padding: 5px 8px; font-size: 11px; }
+.inventory-list { max-height: 360px; min-height: 110px; margin-top: 10px; }
+.item-icon { display: none; }
+.empty-inventory b, .detail-placeholder > span { display: none; }
+.inventory-card { border-radius: 2px; background: #14201a; }
+.inventory-card .gear-info strong { font-size: 12px; }
+.inventory-card .gear-info span { font-size: 10px; }
+.selected-sale-tools { margin-top: 12px; }
+.selected-sale-tools > p { font-size: 11px; line-height: 1.6; }
+.loot-panel > .item-detail { grid-column: auto; grid-row: auto; border-left: 0; border-top: 1px solid var(--line); margin-top: 12px; padding: 12px 0 0; }
+.pending-loot { border-radius: 3px; background: #28291c; }
+.pending-loot p { font-size: 11px; }
+.camp-workspace { grid-column: 1; grid-row: 3; margin-top: 0; min-width: 0; }
+.camp-navigation { gap: 0; border-bottom: 1px solid #617052; }
+.camp-navigation [role="tab"] { border-radius: 0; min-height: 52px; background: transparent; }
+.camp-navigation [aria-selected="true"] { background: #293426; border-color: #617052; color: #e3d2a4; }
+.camp-navigation-hint { font-size: 11px; }
+.character-sheet { padding: 14px; margin-top: 14px; }
+.character-sheet .stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 8px 0; padding: 8px 0; }
+.character-sheet .player-parry { margin: 0; padding: 6px 0; border: 0; }
+.notice { border-radius: 3px; background: #302a1c; margin-bottom: 12px; overflow-wrap: anywhere; }
+.page-footer { font-size: 10px; color: #a1b09f; }
+@media (max-width: 1023px) {
+  .game-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .hero-panel { grid-column: 1; grid-template-columns: minmax(150px, 1fr) minmax(260px, 1.6fr); gap: 7px 20px; }
+  .traveler-balances { grid-column: 1 / -1; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 20px; }
+  .traveler-balances .investment-balances { margin: 0; }
+  .expedition-column, .loot-panel, .camp-workspace { grid-column: 1; grid-row: auto; }
+  .loot-panel { width: 100%; display: block; padding: 14px; }
+  .equipment-list { gap: 8px; }
+  .gear-button { padding: 8px; }
+  .gear-button .gear-info strong { font-size: 12px; }
+  .gear-button .gear-info span { font-size: 10px; }
+  .battle-scene { height: clamp(260px, 45dvh, 390px); }
+  .save-indicator { display: inline; }
+}
+@media (max-width: 680px) {
+  .app-shell { padding: 0 10px; }
+  .masthead { min-height: 64px; gap: 6px; flex-wrap: wrap; padding: 10px 0; }
+  .brand h1 { font-size: 21px; }
+  .version { font-size: 9px; margin-left: 7px; }
+  .header-tools { width: 100%; justify-content: flex-start; gap: 7px; }
+  .save-indicator { display: inline; flex: 1 1 100px; font-size: 11px; }
+  .icon-button { min-height: 40px; padding: 6px 9px; font-size: 11px; }
+  .hero-panel { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 10px; }
+  .traveler-identity { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; }
+  .traveler-identity .section-heading { flex-direction: column; align-items: flex-start; gap: 3px; }
+  .current-weapon { margin: 0; }
+  .traveler-resources { gap: 5px 12px; }
+  .traveler-balances { gap: 4px 12px; }
+  .ownership-status { font-size: 11px; }
+  .battle-scene { height: clamp(240px, 42dvh, 340px); }
+  .expedition-header h2 { font-size: 19px; }
+  .scene-message h3 { font-size: 17px; }
+  .battle-controls { padding: 10px; }
+  .route-select { flex-wrap: wrap; }
+  .route-select > label:first-child { flex: 0 0 auto; }
+  .route-select select { flex: 1 1 150px; }
+  .route-select .toggle { flex: 1 1 100%; margin-left: 0; min-height: 30px; }
+  .action-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .action-row .primary-button, .action-row .secondary-button { min-height: 44px; padding: 8px 6px; font-size: 12px; }
+  .tactics-disclosure > summary span { display: block; margin-left: 16px; }
+  .tactics-content { padding: 0 4px 10px; }
+  .tactics-content .toggle { white-space: normal; }
+  .loot-panel { padding: 12px; }
+  .inventory-list { max-height: 380px; }
+  .character-sheet .stat-grid { display: grid; gap: 10px; }
+  .character-sheet .stat-grid > div { white-space: normal; gap: 5px; }
+  .camp-navigation [role="tab"] { min-height: 54px; }
+}

@@ -73,7 +73,7 @@ test('selection is transient and independent of readonly, progress, import and b
 test('original panels remain in the intended groups, with all dialogs outside main', () => {
   const groups = Object.fromEntries(names.map((name, i) => {
     const start = html.indexOf(`id="camp-panel-${name}"`);
-    const end = i + 1 < names.length ? html.indexOf(`id="camp-panel-${names[i + 1]}"`) : html.indexOf('<aside class="loot-panel');
+    const end = i + 1 < names.length ? html.indexOf(`id="camp-panel-${names[i + 1]}"`) : html.indexOf('</main>');
     return [name, html.slice(start, end)];
   }));
   for (const cls of ['counterattack-panel', 'expedition-reports', 'combat-log']) assert.ok(groups.battle.includes(`class="${cls}`));

@@ -8,34 +8,34 @@
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span class="brand-mark" aria-hidden="true">✦</span><span><span class="eyebrow">HV / DOT · INDEPENDENT EXPEDITION</span><h1>霧境遠征<span class="version">v0.30 · 來源候選</span></h1></span></a>
+    <a class="brand" href="#main"><span><h1>霧境遠征<span class="version">v0.31 · 來源候選</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
   <main id="main" class="game-grid">
-    <aside class="hero-panel panel">
-      <div class="section-heading"><span class="eyebrow">YOUR WAYFARER</span><span id="level-badge" class="badge">LV. 1</span></div>
-      <div class="portrait" aria-hidden="true"><svg viewBox="0 0 180 148"><defs><linearGradient id="cloak" x2="0" y2="1"><stop stop-color="#5d9393"/><stop offset="1" stop-color="#1e454b"/></linearGradient></defs><circle cx="90" cy="67" r="49" fill="none" stroke="#9b835d" stroke-width="1"/><path d="M48 139 62 79 75 70 109 70 121 83 135 139Z" fill="url(#cloak)"/><path d="M68 68 70 41 86 26 104 31 115 51 112 73 100 86 81 85Z" fill="#263d46"/><path d="m78 51 25-1 2 20-13 9-14-9Z" fill="#d9ba8d"/><path d="m68 55 6-20 13-10 17 7 12 22-19-10Z" fill="#609291"/><path d="m81 59 5 0m11 0 5 0" stroke="#202c34" stroke-width="3"/><path d="m111 92 21 9-5 19-22-13" fill="#adb2a3"/><path d="m126 107 18-66 6 1-12 69" fill="#d8dcc7"/><path d="m128 100 17 5" stroke="#cba76f" stroke-width="5"/><path d="m61 88-13 33 19 4 13-32" fill="#638b89"/><path d="m79 84 15 16 17-18-17 34Z" fill="#192f39"/><path d="m78 112 30 0" stroke="#c9a765" stroke-width="5"/></svg><span class="portrait-orbit"></span></div>
-      <div class="hero-name"><h2>無名旅者</h2><p>以每一次遠征，留下自己的名字。</p></div>
-      <div class="resource"><div><span>生命</span><strong id="hp-label">—</strong></div><div class="meter hp"><i id="hp-bar"></i></div></div>
-      <div class="resource"><div><span>魔力</span><strong id="mp-label">—</strong></div><div class="meter mp"><i id="mp-bar"></i></div></div>
-      <div class="resource small"><div><span>成長</span><strong id="xp-label">—</strong></div><div class="meter xp"><i id="xp-bar"></i></div></div>
-      <div class="stat-grid"><div><span>攻擊</span><strong id="stat-attack">—</strong></div><div><span>防禦</span><strong id="stat-defense">—</strong></div><div><span>暴擊</span><strong id="stat-crit">—</strong></div><div><span>金幣</span><strong id="stat-gold" class="gold">—</strong></div></div>
-      <div class="investment-balances" aria-label="武器成長資源"><strong id="soul-fragment-balance" class="soul-fragment-balance">0 靈魂碎片</strong><strong id="world-seed-balance" class="world-seed-balance">0 世界之種</strong></div>
-      <section class="player-parry" aria-label="角色招架判定率"><p><span>招架判定率</span><strong id="stat-parry">—</strong></p><details><summary>招架值不是百分比</summary><p>本作將裝備招架值合計除以 100，再加既有基礎 3.5%，最高 50%。這是單次判定機率的本作適配，不是原版依攻擊者命中計算的公式，也不是完全招架率。</p><p>新產出的刺劍有招架值，靈巧（Nimble）詞綴提高此值，取代屠戮／平衡路線的加成；不是同時疊加。舊裝備未列招架值時為 0，不會自動回填。較高招架值可能增加反擊資格，仍不保證更快通關。</p><p>舊版無法理解新裝備招架欄位；請先匯出備份，並重新整理舊分頁再接手進度。</p></details></section>
-      <div class="section-heading gear-heading"><h3>目前裝備</h3><span class="muted">點擊檢視</span></div>
-      <div id="equipment" class="equipment-list"></div>
-      <div class="hero-footnote"><span class="tiny-diamond">◆</span> 裝備決定上限，下一件好物就在前方。</div>
+    <aside class="hero-panel panel" aria-label="旅者與目前資源">
+      <div class="traveler-identity"><div class="section-heading"><h2>無名旅者</h2><span id="level-badge" class="badge">LV. 1</span></div><p class="current-weapon"><span>現用武器</span><strong id="current-weapon-label">—</strong></p></div>
+      <div class="traveler-resources">
+        <div class="resource"><div><span>生命</span><strong id="hp-label">—</strong></div><div class="meter hp"><i id="hp-bar"></i></div></div>
+        <div class="resource"><div><span>魔力</span><strong id="mp-label">—</strong></div><div class="meter mp"><i id="mp-bar"></i></div></div>
+        <div class="resource small"><div><span>成長</span><strong id="xp-label">—</strong></div><div class="meter xp"><i id="xp-bar"></i></div></div>
+      </div>
+      <div class="traveler-balances"><p><span>金幣</span><strong id="stat-gold" class="gold">—</strong></p><div class="investment-balances" aria-label="武器成長資源"><strong id="soul-fragment-balance" class="soul-fragment-balance">0 靈魂碎片</strong><strong id="world-seed-balance" class="world-seed-balance">0 世界之種</strong></div></div>
+      <p id="tab-status" class="ownership-status" role="status"></p>
     </aside>
     <section class="expedition-column">
-      <div class="expedition-header"><div><span class="eyebrow">THE EXPEDITION</span><h2 id="zone-title">霧松邊境</h2></div><span id="mode-badge" class="status-pill">整備中</span></div>
+      <div class="expedition-header"><div><h2 id="zone-title">霧松邊境</h2></div><span id="mode-badge" class="status-pill">整備中</span></div>
       <div class="battle-scene" id="battle-scene">
         <canvas id="battle-canvas" aria-label="像素風遠征戰鬥場景；現減為目前一般物理減傷，閃招擋為單次判定機率；BW 為流血傷口、PA 為穿透護甲、STUN 為暈眩；金色圈與集火箭頭標示目前攻擊目標；完整數字與特效見下方敵方狀態"></canvas>
         <div class="scene-top"><span id="stage-label">遠征 01</span><span id="wave-label">準備出發</span></div>
-        <div class="scene-bottom"><div><span class="eyebrow">EXPEDITION TIME</span><strong id="run-time">00:00</strong></div><div class="scene-best"><span>同關最佳</span><strong id="best-time">尚無紀錄</strong></div></div>
-        <div id="scene-message" class="scene-message"><span class="scene-emblem">✦</span><h3>下一段旅程，準備好了嗎？</h3><p>選好裝備，剩下的交給戰鬥。</p></div>
+        <div class="scene-bottom"><div><span class="eyebrow">本次遠征</span><strong id="run-time">00:00</strong></div><div class="scene-best"><span>同關最佳</span><strong id="best-time">尚無紀錄</strong></div></div>
+        <div id="scene-message" class="scene-message"><h3>下一段旅程，準備好了嗎？</h3><p>選好裝備，剩下的交給戰鬥。</p></div>
         <div id="floating-layer" class="floating-layer" aria-hidden="true"></div>
         <div id="reward-banner" class="reward-banner" role="status" hidden></div>
+      </div>
+      <div class="battle-controls panel" aria-label="遠征主要操作">
+        <div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div>
+        <div class="action-row"><button id="start-button" class="primary-button">開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="finish-camp-button" type="button" class="secondary-button" aria-pressed="false" aria-describedby="finish-camp-status" disabled>本次通關後回營</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="finish-camp-status" role="status" aria-live="polite"></p><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p>
       </div>
       <section id="enemy-status-panel" class="enemy-status-panel" aria-label="敵方角色、目前防線與武器特效狀態" hidden>
         <div class="enemy-status-heading"><h3>敵方狀態</h3><span>1 Tick ≈ 1.05 秒戰鬥時間</span></div>
@@ -51,7 +51,42 @@
       <p id="emergency-supply-live" class="emergency-supply-live" hidden></p>
       <p id="counter-notice" class="counter-damage-notice" role="status" aria-live="polite" aria-atomic="true" hidden></p>
       <div class="run-strip"><div><span>已擊敗</span><strong id="kill-count">0</strong></div><div><span>完成遠征</span><strong id="win-count">0</strong></div><div><span>最深解鎖</span><strong id="deepest-stage">01</strong></div><div><span>本輪進度</span><strong id="progress-label">0 / 0</strong></div></div>
-      <div class="battle-controls panel"><div class="route-select"><label for="stage-select">遠征路線</label><select id="stage-select"></select><label class="toggle"><input type="checkbox" id="auto-advance"><span>勝利後繼續推進</span></label></div><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；流血須先打出傷害再觸發，之後每 Tick 的無類型傷害不受減傷影響，但需要時間累積，並非每次命中都會觸發。沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><section class="emergency-supply-panel" aria-labelledby="emergency-supply-heading"><h3 id="emergency-supply-heading">均衡／猛攻 · 額外緊急補給</h3><label class="toggle emergency-supply-toggle"><input type="checkbox" id="emergency-supply" aria-describedby="emergency-supply-status emergency-supply-rules"><span>啟用緊急補給（保留 1 瓶手動）</span></label><p id="emergency-supply-status" class="muted" role="status" aria-live="polite"></p><details id="emergency-supply-rules"><summary>判斷時機與持久戰術的差別</summary><p>預設關閉，僅補充均衡／猛攻的藥水策略。每個我方回合先依原戰術判斷是否治癒（需足夠 MP），之後 HP 仍低於 30% 且庫存超過 1 瓶時，最多自動喝 1 瓶；剛好 30% 不使用。保留的 1 瓶仍可隨時手動使用，不會自動購買。</p><p>持久戰術維持原有規則：治癒後仍低於 30% 時自動喝藥，可以用到最後 1 瓶；不受此開關控制，切換持久時這個開關暫停調整但保留選擇。</p><p>沿用每次出征補到 3 瓶、每瓶恢復最大 HP 的 40%，不另外花金幣、MP 或攻擊回合。這些與自動補給均為本作掛機改編，不是原版 HV 藥水公式；不保證能防止戰敗。此選擇會保存；舊版會忽略並在儲存時移除此選項，回到均衡／猛攻手動喝藥。請先匯出並重新整理舊分頁以保留設定；這與 Exquisite IW1 的舊版拒讀限制分開。</p></details></section><div class="strategy-row target-priority-row"><label for="target-priority-select">集火策略</label><select id="target-priority-select" aria-describedby="target-priority-description target-priority-scope"></select><p id="target-priority-description" class="muted"></p><p id="target-priority-scope" class="muted">本作自動選敵改編，非原版自動 AI。僅影響普攻與攻擊技能；不改治癒、護盾、反擊與已施加的流血。沒有保證最佳策略。</p></div><div class="action-row"><button id="start-button" class="primary-button"><span>✦</span> 開始遠征</button><button id="heal-button" class="secondary-button">恢復生命</button><button id="finish-camp-button" type="button" class="secondary-button" aria-pressed="false" aria-describedby="finish-camp-status" disabled>本次通關後回營</button><button id="retreat-button" class="secondary-button">回營整備</button></div><p class="control-hint" id="finish-camp-status" role="status" aria-live="polite"></p><p class="control-hint" id="control-hint">自動戰鬥 · 不考手速 · 隨時回營換裝</p></div>
+      <details class="tactics-disclosure"><summary>戰術與路線情報<span>出發前調整，戰鬥規則另列</span></summary><div class="tactics-content"><section id="route-preview" class="route-preview" aria-label="營地四波路線與基礎防線預覽"><div class="route-preview-heading"><h3 id="route-preview-title">四波路線</h3><span>基礎值 · 未套用特效</span></div><p id="route-preview-intro" class="route-preview-intro"></p><ol id="route-preview-list" class="route-preview-list"></ol><details class="route-advice"><summary>配裝取捨與數值怎麼讀</summary><p>刺劍可能有助於較高的一般物理減傷；戰棍須先打出傷害，暈眩才可壓制閃避與招架，不能忽略格擋。戰斧的直接攻擊力仍有價值；流血須先打出傷害再觸發，之後每 Tick 的無類型傷害不受減傷影響，但需要時間累積，並非每次命中都會觸發。沒有通吃所有敵人的最佳武器。</p><p>閃＝閃避、招＝招架、擋＝格擋。百分比是各次判定機率：每一環節判定兩次，一次成功減半、兩次成功才完全擋下；不是最終完全迴避率。一般物理減傷不含這些判定。角色與配裝提示為本作改編，不是原版固定敵人資料。</p></details></section><div class="strategy-row"><label for="strategy-select">戰術</label><select id="strategy-select"></select><p id="strategy-description" class="muted"></p></div><section class="emergency-supply-panel" aria-labelledby="emergency-supply-heading"><h3 id="emergency-supply-heading">均衡／猛攻 · 額外緊急補給</h3><label class="toggle emergency-supply-toggle"><input type="checkbox" id="emergency-supply" aria-describedby="emergency-supply-status emergency-supply-rules"><span>啟用緊急補給（保留 1 瓶手動）</span></label><p id="emergency-supply-status" class="muted" role="status" aria-live="polite"></p><details id="emergency-supply-rules"><summary>判斷時機與持久戰術的差別</summary><p>預設關閉，僅補充均衡／猛攻的藥水策略。每個我方回合先依原戰術判斷是否治癒（需足夠 MP），之後 HP 仍低於 30% 且庫存超過 1 瓶時，最多自動喝 1 瓶；剛好 30% 不使用。保留的 1 瓶仍可隨時手動使用，不會自動購買。</p><p>持久戰術維持原有規則：治癒後仍低於 30% 時自動喝藥，可以用到最後 1 瓶；不受此開關控制，切換持久時這個開關暫停調整但保留選擇。</p><p>沿用每次出征補到 3 瓶、每瓶恢復最大 HP 的 40%，不另外花金幣、MP 或攻擊回合。這些與自動補給均為本作掛機改編，不是原版 HV 藥水公式；不保證能防止戰敗。此選擇會保存；舊版會忽略並在儲存時移除此選項，回到均衡／猛攻手動喝藥。請先匯出並重新整理舊分頁以保留設定；這與 Exquisite IW1 的舊版拒讀限制分開。</p></details></section><div class="strategy-row target-priority-row"><label for="target-priority-select">集火策略</label><select id="target-priority-select" aria-describedby="target-priority-description target-priority-scope"></select><p id="target-priority-description" class="muted"></p><p id="target-priority-scope" class="muted">本作自動選敵改編，非原版自動 AI。僅影響普攻與攻擊技能；不改治癒、護盾、反擊與已施加的流血。沒有保證最佳策略。</p></div></div></details>
+    </section>
+    <aside class="loot-panel panel">
+      <section class="equipped-strip" aria-label="目前三件裝備">
+      <div class="section-heading gear-heading"><h3>目前裝備</h3><span class="muted">點擊檢視</span></div>
+      <div id="equipment" class="equipment-list"></div>
+      </section>
+      <div class="section-heading"><div><h2>背包與戰利品</h2></div><span id="inventory-count" class="badge">0</span></div>
+      <p class="panel-description">屬性評分不含特效效益；不同武器路線，各有取捨。</p>
+      <section id="pending-loot" class="pending-loot" aria-labelledby="pending-loot-heading" hidden>
+        <h3 id="pending-loot-heading">待領戰利品 · 依取得順序保留</h3>
+        <p id="pending-loot-summary" role="status" aria-live="polite" aria-atomic="true"></p>
+        <p class="pending-loot-help">點選即可比較，不必先出售其他裝備才能查看。待領區不受背包篩選影響；領取前不能換裝、鎖定、出售或投資。</p>
+        <div id="pending-loot-list" class="pending-loot-list" aria-label="依取得先後排列的待領裝備"></div>
+        <button id="claim-pending" type="button" class="secondary-button" aria-describedby="pending-loot-status" disabled>依序領入背包</button>
+        <p id="pending-loot-status"></p>
+      </section>
+      <div class="loot-workbench" aria-label="背包篩選工作台">
+        <div class="loot-tools"><select id="slot-filter" aria-label="篩選裝備部位"><option value="all">全部部位</option><option value="weapon">武器</option><option value="armor">護甲</option><option value="accessory">飾品</option></select><select id="sort-select" aria-label="排序戰利品（屬性評分不含特效）"><option value="new">最新取得</option><option value="power">屬性評分</option><option value="level">等級優先</option></select></div>
+        <details class="inventory-filter-details"><summary>武器路線與投入篩選</summary>
+        <div class="loot-tools loot-investment-filters"><label for="family-filter">武器路線<select id="family-filter" aria-describedby="inventory-filter-help"><option value="all">全部路線／部位</option><option value="axe">戰斧</option><option value="rapier">刺劍</option><option value="club">戰棍</option><option value="unknown">未辨識武器</option></select></label><label for="investment-filter">投入狀態<select id="investment-filter" aria-describedby="inventory-filter-help"><option value="all">全部投入狀態</option><option value="unbound">未綁定裝備</option><option value="bound">已綁定・未升 IW</option><option value="iw1">IW1 已完成</option></select></label></div>
+        <p id="inventory-filter-help">條件同時符合才顯示；只篩選背包，不影響已穿裝備。篩選只保留於此分頁，重載／匯入／接手進度恢復全部；不自動選售或換裝。</p>
+        </details>
+        <p id="inventory-filter-status" role="status" aria-live="polite" aria-atomic="true"></p><button id="reset-inventory-filters" type="button" class="secondary-button" disabled>清除背包篩選</button>
+      </div>
+      <div id="inventory-list" class="inventory-list"></div>
+      <section class="selected-sale-tools" aria-label="自行選取出售"><p>勾選要出售的裝備，再逐件預覽。鎖定品不會被選取；不會依評分自動挑選。</p><p id="selected-sale-status" role="status" aria-live="polite"></p><div><button id="review-selected-sale" class="secondary-button" disabled>預覽自選出售</button><button id="clear-selected-sale" class="secondary-button" disabled>清除選取</button></div></section>
+      <section class="safe-loot-controls" aria-label="安全戰利品整理">
+        <label class="safe-loot-toggle" for="auto-sell-toggle"><input id="auto-sell-toggle" type="checkbox" aria-describedby="auto-sell-description"><span>安全自動出售</span><strong id="auto-sell-state">關 · 預設</strong></label>
+        <p id="auto-sell-description">只檢查之後的新掉落；開啟不清理既有背包。</p>
+        <button id="sell-safe" class="secondary-button" aria-haspopup="dialog">預覽安全整理</button>
+        <p id="safe-loot-status" role="status" aria-live="polite">確認前不會出售。</p>
+        <details class="safe-loot-rules"><summary>哪些會留，哪些可出售？</summary><p>只考慮未鎖定的粗製／尚可／普通裝備。必須有已裝備、或背包中已鎖定的同型裝備作為保留者：攻擊、防禦、生命、暴擊、閃避、格擋、招架值七項均不低，且至少一項較高。鎖定也能把備用裝備設為保留者。</p><p>同型須是本作可辨識的相同基底，不跨武器路線，也不以評分判定。屬性相同、有高有低的取捨、優良（Superior）以上、未辨識裝備都會留下。沒有受保護的保留者，就不自動出售。</p><p>這不是無限掛機：背包仍可能滿、戰鬥仍可能失敗；無離線補算。舊版分頁可能移除自動出售設定，回到本版時請確認是否需要重新開啟。</p></details>
+      </section>
+      <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><span>◇</span><h3>看看下一件好東西</h3><p>選擇一件裝備，比較它會為旅者帶來什麼改變。</p></div></section>
+    </aside>
       <section class="camp-workspace" aria-label="營地與遠征工具">
         <div class="camp-navigation" role="tablist" aria-label="切換營地工具">
           <button type="button" id="camp-tab-battle" role="tab" aria-selected="true" aria-controls="camp-panel-battle" tabindex="0">戰況<span>反擊 · 戰報</span></button>
@@ -81,6 +116,10 @@
       <div class="combat-log panel"><div class="section-heading"><h3>遠征紀錄</h3><span class="live-dot">LIVE</span></div><ol id="combat-log"></ol></div>
         </div>
         <div id="camp-panel-gear" class="camp-tab-panel" role="tabpanel" aria-labelledby="camp-tab-gear" tabindex="0" hidden>
+      <section class="character-sheet panel" aria-label="角色屬性與招架"><div class="section-heading"><h3>角色屬性</h3><span class="muted">目前配裝</span></div>
+      <div class="stat-grid"><div><span>攻擊</span><strong id="stat-attack">—</strong></div><div><span>防禦</span><strong id="stat-defense">—</strong></div><div><span>暴擊</span><strong id="stat-crit">—</strong></div></div>
+      <section class="player-parry" aria-label="角色招架判定率"><p><span>招架判定率</span><strong id="stat-parry">—</strong></p><details><summary>招架值不是百分比</summary><p>本作將裝備招架值合計除以 100，再加既有基礎 3.5%，最高 50%。這是單次判定機率的本作適配，不是原版依攻擊者命中計算的公式，也不是完全招架率。</p><p>新產出的刺劍有招架值，靈巧（Nimble）詞綴提高此值，取代屠戮／平衡路線的加成；不是同時疊加。舊裝備未列招架值時為 0，不會自動回填。較高招架值可能增加反擊資格，仍不保證更快通關。</p><p>舊版無法理解新裝備招架欄位；請先匯出備份，並重新整理舊分頁再接手進度。</p></details></section>
+      </section>
       <section class="soulbind-panel panel" aria-labelledby="soulbind-heading">
         <div class="section-heading"><h3 id="soulbind-heading">Soulbind · 靈魂綁定</h3><span class="badge">綁定 → IW1</span></div>
         <p>將原有武器永久綁定，立即對齊角色等級，之後隨升級成長。不能解除、解鎖或出售；不是必選強化。</p>
@@ -132,37 +171,8 @@
 
         </div>
       </section>
-    </section>
-    <aside class="loot-panel panel">
-      <div class="section-heading"><div><span class="eyebrow">THE SPOILS</span><h2>遠征戰利品</h2></div><span id="inventory-count" class="badge">0</span></div>
-      <p class="panel-description">屬性評分不含特效效益；不同武器路線，各有取捨。</p>
-      <section id="pending-loot" class="pending-loot" aria-labelledby="pending-loot-heading" hidden>
-        <h3 id="pending-loot-heading">待領戰利品 · 依取得順序保留</h3>
-        <p id="pending-loot-summary" role="status" aria-live="polite" aria-atomic="true"></p>
-        <p class="pending-loot-help">點選即可比較，不必先出售其他裝備才能查看。待領區不受背包篩選影響；領取前不能換裝、鎖定、出售或投資。</p>
-        <div id="pending-loot-list" class="pending-loot-list" aria-label="依取得先後排列的待領裝備"></div>
-        <button id="claim-pending" type="button" class="secondary-button" aria-describedby="pending-loot-status" disabled>依序領入背包</button>
-        <p id="pending-loot-status"></p>
-      </section>
-      <div class="loot-workbench" aria-label="背包篩選工作台">
-        <div class="loot-tools"><select id="slot-filter" aria-label="篩選裝備部位"><option value="all">全部部位</option><option value="weapon">武器</option><option value="armor">護甲</option><option value="accessory">飾品</option></select><select id="sort-select" aria-label="排序戰利品（屬性評分不含特效）"><option value="new">最新取得</option><option value="power">屬性評分</option><option value="level">等級優先</option></select></div>
-        <div class="loot-tools loot-investment-filters"><label for="family-filter">武器路線<select id="family-filter" aria-describedby="inventory-filter-help"><option value="all">全部路線／部位</option><option value="axe">戰斧</option><option value="rapier">刺劍</option><option value="club">戰棍</option><option value="unknown">未辨識武器</option></select></label><label for="investment-filter">投入狀態<select id="investment-filter" aria-describedby="inventory-filter-help"><option value="all">全部投入狀態</option><option value="unbound">未綁定裝備</option><option value="bound">已綁定・未升 IW</option><option value="iw1">IW1 已完成</option></select></label></div>
-        <p id="inventory-filter-help">條件同時符合才顯示；只篩選背包，不影響已穿裝備。篩選只保留於此分頁，重載／匯入／接手進度恢復全部；不自動選售或換裝。</p>
-        <p id="inventory-filter-status" role="status" aria-live="polite" aria-atomic="true"></p><button id="reset-inventory-filters" type="button" class="secondary-button" disabled>清除背包篩選</button>
-      </div>
-      <section class="selected-sale-tools" aria-label="自行選取出售"><p>勾選要出售的裝備，再逐件預覽。鎖定品不會被選取；不會依評分自動挑選。</p><p id="selected-sale-status" role="status" aria-live="polite"></p><div><button id="review-selected-sale" class="secondary-button" disabled>預覽自選出售</button><button id="clear-selected-sale" class="secondary-button" disabled>清除選取</button></div></section>
-      <div id="inventory-list" class="inventory-list"></div>
-      <section class="safe-loot-controls" aria-label="安全戰利品整理">
-        <label class="safe-loot-toggle" for="auto-sell-toggle"><input id="auto-sell-toggle" type="checkbox" aria-describedby="auto-sell-description"><span>安全自動出售</span><strong id="auto-sell-state">關 · 預設</strong></label>
-        <p id="auto-sell-description">只檢查之後的新掉落；開啟不清理既有背包。</p>
-        <button id="sell-safe" class="secondary-button" aria-haspopup="dialog">預覽安全整理</button>
-        <p id="safe-loot-status" role="status" aria-live="polite">確認前不會出售。</p>
-        <details class="safe-loot-rules"><summary>哪些會留，哪些可出售？</summary><p>只考慮未鎖定的粗製／尚可／普通裝備。必須有已裝備、或背包中已鎖定的同型裝備作為保留者：攻擊、防禦、生命、暴擊、閃避、格擋、招架值七項均不低，且至少一項較高。鎖定也能把備用裝備設為保留者。</p><p>同型須是本作可辨識的相同基底，不跨武器路線，也不以評分判定。屬性相同、有高有低的取捨、優良（Superior）以上、未辨識裝備都會留下。沒有受保護的保留者，就不自動出售。</p><p>這不是無限掛機：背包仍可能滿、戰鬥仍可能失敗；無離線補算。舊版分頁可能移除自動出售設定，回到本版時請確認是否需要重新開啟。</p></details>
-      </section>
-      <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><span>◇</span><h3>看看下一件好東西</h3><p>選擇一件裝備，比較它會為旅者帶來什麼改變。</p></div></section>
-    </aside>
   </main>
-  <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。支援背景線上掛機；關閉後不計離線收益。</span><span id="tab-status"></span></footer>
+  <footer class="page-footer"><span>HV × dot · 獨立探索版本</span><span>原版研究為基礎，掛機節奏為本作設計。支援背景線上掛機；關閉後不計離線收益。</span></footer>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
 <dialog id="soulbind-dialog" class="soulbind-dialog" aria-labelledby="soulbind-title" aria-describedby="soulbind-warning">
@@ -202,6 +212,6 @@
   <div class="commission-actions"><button data-close="commission-dialog" class="secondary-button" autofocus>取消，返回營地</button><button id="commission-confirm" class="primary-button" disabled>確認委託</button></div>
 </dialog>
 <dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>回營配置能力。</strong>AP 學習與裝入能力槽是兩個步驟；5 格 Major 槽免費，可免費遺忘退還 AP。達到下一階門檻後可花額外 AP 升階，但未裝配仍不生效。營地能力區分開列出本階與下一階的假設裝配預覽，預設不自動配置。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景掛機預設開啟；瀏覽器可能節流，關閉後無離線收益。停頓超過 5 秒整段不補算。</p><p class="muted">目前實作 HP Tank／MP Tank 各 10 階與 1H Damage 3 階，仍不是完整原版能力樹；其他能力後續擴充。營地免費重配、固定裝備 HP 加在 Tank 之後，以及自動治癒／藥水／換波恢復按最大 HP 計算，皆為本作整合或既有改編；Tank 會提升這些恢復量，不代表原版 Cure 規則。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
-<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><p class="save-version-warning">v0.30 使用資料格式 v3；舊資料格式 v1／v2 會升級，世界之種從 0 開始，既有碎片保留；v1 的碎片從 0 開始。請先匯出備份並重新整理所有舊版分頁，再接手進度：v0.24／v0.25 不能讀取含 Exquisite IW1 的進度，即使資料格式同為 v3；v0.23 及更舊版不能讀取新格式。不要用舊分頁覆寫。仍沿用 v3 儲存命名空間，與資料格式版本不同。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
+<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><p class="save-version-warning">v0.31 使用資料格式 v3；舊資料格式 v1／v2 會升級，世界之種從 0 開始，既有碎片保留；v1 的碎片從 0 開始。請先匯出備份並重新整理所有舊版分頁，再接手進度：v0.24／v0.25 不能讀取含 Exquisite IW1 的進度，即使資料格式同為 v3；v0.23 及更舊版不能讀取新格式。不要用舊分頁覆寫。仍沿用 v3 儲存命名空間，與資料格式版本不同。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
 <script type="module" src="./src/ui.js"></script>
 </body></html>

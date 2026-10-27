@@ -1,0 +1,36 @@
+{
+  "label": "Independent JSDOM/source DOM emulation only. No browser, layout geometry, screen reader, native dialog, or real Web Locks acceptance.",
+  "cases": 7,
+  "uiSha256": "d6957762a63725e9d37df3ffcba30069903bbaae5e782ffd690c379e3d5101a4",
+  "htmlSha256": "27864e272c3251002f103f9599fc65c97d13f268b1debcd5aa9c700499253434",
+  "results": [
+    {
+      "name": "actual HTML parse keeps every primary status/control exposed in readonly camp",
+      "passed": true
+    },
+    {
+      "name": "corrupt save startup leaves original data protected and warning outside every collapsed tool",
+      "passed": true
+    },
+    {
+      "name": "equipment comparisons retain connected exact replacement focus under actual parsed ancestry",
+      "passed": true
+    },
+    {
+      "name": "removed exact item falls back to visible slot filter, not collapsed advanced filters",
+      "passed": true
+    },
+    {
+      "name": "keyboard tab transitions keep exactly one tab stop and primary controls exposed",
+      "passed": true
+    },
+    {
+      "name": "closing advanced filters never hides active filter summary or complete selected-sale warning",
+      "passed": true
+    },
+    {
+      "name": "new disclosure summaries use native semantics with no extra focusable child controls",
+      "passed": true
+    }
+  ]
+}
