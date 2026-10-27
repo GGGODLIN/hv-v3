@@ -256,3 +256,50 @@ svg.routes path { fill: none; }
 svg.routes .e-future { stroke: #ffffff2e; stroke-width: 1.5; stroke-dasharray: 3 4; }
 svg.routes .e-next { stroke: #ffe8b0; stroke-width: 2.5; filter: drop-shadow(0 0 3px #e8b04a); }
 svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
+
+/* ===== rc19 battle-screen revamp (視覺，只改外觀；只作用在戰鬥畫面 .screen-battle) =====
+   Kenney UI Pack RPG Expansion + Game Icons (CC0, public/assets/kenney-rpg|kenney-icons/License.txt).
+   Fonts: Cinzel (titles) + Bungee (numbers), SIL OFL 1.1 (public/assets/fonts/*-OFL.txt); Chinese falls back to Noto Sans TC. */
+@font-face { font-family: "HVTitle"; src: url("/assets/fonts/Cinzel.ttf") format("truetype"); font-weight: 400 900; font-display: swap; }
+@font-face { font-family: "HVNum"; src: url("/assets/fonts/Bungee.ttf") format("truetype"); font-display: swap; }
+.screen-battle { --rpgtext: #3b2412; --rpgnum: "HVNum", "Noto Sans TC", sans-serif; }
+.screen-battle .topbar .title { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 900; font-size: 20px; letter-spacing: .08em; color: #ffd27a; text-shadow: 0 2px 0 #5a2a08, 0 0 8px #ffb04a88; }
+/* buttons: whole Kenney beige button, 9-slice, pressed state */
+.screen-battle .cmdbar button { border: 0; border-style: solid; border-width: 10px 10px 13px; border-image: url("/assets/kenney-rpg/buttonLong_beige.png") 10 10 13 fill stretch; background: transparent; color: var(--rpgtext); text-shadow: 0 1px 0 #fff8; font-weight: 700; box-shadow: none; padding: 0 4px; }
+.screen-battle .cmdbar button small { color: #6a4320; font-family: var(--rpgnum); font-weight: 400; letter-spacing: .02em; }
+.screen-battle .cmdbar button:hover:not(:disabled):not([aria-disabled="true"]) { border-image-source: url("/assets/kenney-rpg/buttonLong_beige.png"); filter: brightness(1.08); }
+.screen-battle .cmdbar button:active:not(:disabled):not([aria-disabled="true"]) { border-width: 12px 10px 9px; border-image: url("/assets/kenney-rpg/buttonLong_beige_pressed.png") 10 10 9 fill stretch; transform: translateY(3px); }
+.screen-battle .cmdbar button.main, .screen-battle .cmdbar button.suggest { border-image-source: url("/assets/kenney-rpg/buttonLong_blue.png"); color: #fff; text-shadow: 0 1px 0 #0a2a5a; }
+.screen-battle .cmdbar button.main small, .screen-battle .cmdbar button.suggest small { color: #d8ecff; }
+.screen-battle .cmdbar button.main:active, .screen-battle .cmdbar button.suggest:active { border-image-source: url("/assets/kenney-rpg/buttonLong_blue_pressed.png") !important; }
+.screen-battle .cmdbar button.suggest { filter: drop-shadow(0 0 6px #6cc0ff); }
+.screen-battle .cmdbar button.pothint { border-image-source: url("/assets/kenney-rpg/buttonLong_brown.png"); color: #fff; filter: drop-shadow(0 0 7px #ff5040); }
+.screen-battle .cmdbar button[aria-disabled="true"], .screen-battle .cmdbar button:disabled { border-image: url("/assets/kenney-rpg/buttonLong_grey.png") 10 10 13 fill stretch; color: #6d6d6d; text-shadow: none; opacity: .75; }
+.screen-battle .cmdbar button[class*="el-"] { box-shadow: none; }
+/* panels: Kenney wood panel (status bar, skill bar), parchment inset (hints, encounter box) */
+.screen-battle .cmdbar { border: 14px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 fill stretch; background: transparent; padding: 2px; }
+.screen-battle .hudl { border: 12px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 fill stretch; background: transparent; border-radius: 0; box-shadow: 0 6px 16px #000a; padding: 0 2px; }
+.screen-battle .hudl .status { color: #fff2d8; text-shadow: 0 1px 0 #000; }
+.screen-battle .hint, .screen-battle .weakbox, .screen-battle .encounter, .screen-battle .cp5tips { border: 8px solid transparent; border-image: url("/assets/kenney-rpg/panelInset_beige.png") 10 fill stretch; background: transparent; color: var(--rpgtext); text-shadow: none; border-radius: 0; }
+.screen-battle .hint b, .screen-battle .encounter b, .screen-battle .weakbox b { color: #8a2a10; }
+.screen-battle .log { background: #1b0f07e0; border: 2px solid #8a5a2a; color: #f4e6cc; }
+.screen-battle .decide { border: 10px solid transparent; border-image: url("/assets/kenney-rpg/panel_brown.png") 14 fill stretch; background: transparent; color: #fff; box-shadow: 0 0 0 2px #ff4a3a, 0 0 14px #ff3a2a; }
+.screen-battle .decide[data-decide="safe"], .screen-battle .decide:has([data-decide="safe"]) { box-shadow: 0 0 0 2px #5fd47a, 0 0 12px #3fb764; }
+/* bars: Kenney RPG bar art (trough + colored fill, 9-slice) with an icon in front */
+.screen-battle .bar { height: 18px; border: 0; border-radius: 0; background: url("/assets/kenney-rpg/bar-back.png") 0 0 / 100% 18px no-repeat; border-image: url("/assets/kenney-rpg/bar-back.png") 0 9 fill / 0 9px stretch; box-shadow: none; margin-left: 20px; overflow: visible; }
+.screen-battle .bar > div { min-width: 18px; border-radius: 0; box-shadow: none; background: none !important; border-image: url("/assets/kenney-rpg/bar-red.png") 0 9 fill / 0 9px stretch; }
+.screen-battle .bar.mp > div { border-image-source: url("/assets/kenney-rpg/bar-blue.png"); }
+.screen-battle .bar.sp > div { border-image-source: url("/assets/kenney-rpg/bar-green.png"); }
+.screen-battle .bar.oc > div { border-image-source: url("/assets/kenney-rpg/bar-yellow.png"); }
+.screen-battle .bar::before { content: ""; position: absolute; left: -22px; top: -2px; width: 22px; height: 22px; background: center / contain no-repeat; filter: drop-shadow(0 1px 1px #000); }
+.screen-battle .bar.hp::before { background-image: url("/assets/icons/p-health.png"); }
+.screen-battle .bar.mp::before { background-image: url("/assets/icons/p-mana.png"); }
+.screen-battle .bar.sp::before { background-image: url("/assets/icons/p-spirit.png"); }
+.screen-battle .bar.oc::before { background-image: url("/assets/kenney-icons/star.png"); filter: sepia(1) saturate(6) hue-rotate(5deg) drop-shadow(0 1px 1px #000); }
+.screen-battle .bar span { font-family: var(--rpgnum); font-weight: 400; font-size: 11px; line-height: 18px; color: #fff; text-shadow: 0 1px 0 #000, 0 0 3px #000; letter-spacing: .03em; }
+.screen-battle .status, .screen-battle [data-bfloor] { font-family: "HVTitle", "Noto Sans TC", serif; font-weight: 700; }
+.screen-battle .hud > * { align-self: start; }
+.screen-battle .weakbox:empty { display: none; }
+.screen-battle .encounter *, .screen-battle .weakbox * { color: inherit !important; }
+.screen-battle .encounter { color: #3b2412; }
+.screen-battle .cmdbar .hint { border: 0; border-image: none; color: #f4e6cc; align-self: center; }
