@@ -179,3 +179,4 @@
 - 首領暈眩結束後抵抗暈眩 2 回合（CP9.stunImm 2）。sim 和 UI 共用 stunResisting9：log 顯示「暈眩抵抗中」，stage 用灰色條。所有暈眩來源都適用，包括盾擊。
   - 檢查：秘術 mr s0 86.5 → 74。stunImm 999 也只到 74，所以暈眩不是秘術的主因。主因是重擊命中後的鎖（WINDHIT=0 → 49），但製作人要求保留 1 回合鎖，所以沒有改。
 - 磐石：option ii（每個防禦回合最多 1 次反擊，CP9.bwOpt 2）。mr s0 49 / battle 34，option i 是 mr 100 / battle 35。
+- c8 sim（標準 128×4）：battle 中位 34–44；mr 刃鋒 44/45、奔流 44/41.5、磐石 49/49、秘術 79/76.5。mr F100 22–35%、battle 刃鋒 F100 12–13%：gate 未全過，依製作人指示仍然 tag cp9-rc8。
