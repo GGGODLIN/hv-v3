@@ -928,7 +928,7 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 /** cp9-rc8 QA (c) diag（自訂，sim only）: boss wind-up on the boss turn right after one of its telegraphed hits landed (windHitCd bypass). */
 /** cp9-rc8 備案實驗（自訂，僅 sim，預設關）: SIM_ARCINT=1 → a boss whose wind-up was interrupted by an arcane cold/elec stun skips the post-hit lock on its next telegraphed hit. */
 /** cp9-rc9 item 2（自訂）: minions (non-boss) get the same post-hit wind-up lock (CP9.windHitCd) after their own telegraphed hit. */
-const MIN9 = true;
+const MIN9 = !(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_NOMIN9; // 自訂 ablation knob (sim only, default on)
 /** cp9-rc9 item 4 diag（自訂，僅 sim）: SIM_NOEXTRA9=1 → estimate without item 1's DoT/reflect (before/after comparison). */
 const NOEXTRA9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_NOEXTRA9;
 const ARCINT9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_ARCINT;
