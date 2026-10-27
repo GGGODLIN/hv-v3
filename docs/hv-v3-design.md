@@ -163,3 +163,9 @@
 - 原版比對（Clean Room）：findings 004 表 1.2A 中，Health Potion 售價 50C、城鎮店無限供應、回復 100% Base HP，這三項是**原版**，保留不改。原版**沒有**塔內商人，`MERCHANT_HP_POTIONS` 本來就是自訂值（rc19）。
 - 依據是藥水供給分析（postF20 preset，256 seeds，出發前城鎮先買 +10 瓶 = 13 瓶，路線採「有商人就先進商人、把庫存買完」）。rc7 每家商人 3 瓶時，一趟能買到 73–80 瓶，淨值 +16～+59，F100 達成率 76–100%。改成 1 瓶後，oc F100 為 25%、blade 20%，藥水淨值轉為負。
 - 標準 sim 和 battle-route preset 這兩條路線幾乎不進商人（商人購買數為 0），所以這次改動不影響其數值。
+
+### cp9-rc8 WIP（未 tag）— ablation knobs（自訂，sim diag，預設值不變）
+- SIM_SAVE9 / SIM_SAVEONCE（防禦保命 off / 每場一次）、SIM_STUNA（全暈 A 提示）、SIM_WINDREV / SIM_WINDHIT（windCd 兩個觸發）、SIM_BWDC（bulwarkDefCounter）。自訂。
+- 秘術主因：windHit（遙測重擊命中後 2 回合鎖蓄力）。WINDHIT=0：mr 96.5→49、preset 60→45。保命 save0 只 −1.5～−5，不是主因。
+- 磐石主因：bulwarkDefCounter（防禦中反擊）。BWDC=0：mr 71.5→39、preset battle 100→60。
+- 候選 WINDHIT=0 + BWDC=0 未達 gate（D 佔比、mr F100、bulwark mr bossT 20），所以預設值沒改。
