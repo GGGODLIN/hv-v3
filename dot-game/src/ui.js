@@ -1918,8 +1918,32 @@ function drawScene(t, dt) {
   const enemies=(state.enemies||[]).slice(0,3);
   enemies.forEach((enemy,i)=>drawEnemy(enemy,w*(enemies.length === 1 ? .72 : .6 + i * .26 / Math.max(1, enemies.length - 1)),ground-i*2,i,t));
   if(!enemies.length){
-    rect(w*.68,ground-12,19,12,'#6d6043');rect(w*.68-1,ground-14,21,5,'#9d8255');rect(w*.68+8,ground-12,3,12,'#d2ac66');
-    if(state.mode!=='battle'){ctx.fillStyle='#e2bf7660';ctx.beginPath();ctx.arc(w*.7,ground-8,20,0,Math.PI*2);ctx.fill();}
+    // Original camp chest: a grounded wooden volume, not a glowing reward marker.
+    // Keep the existing empty-lane visibility rule; this prop has no interaction or loot state.
+    const x=w*.68, y=ground;
+    polygon([[x-3,y+1],[x+18,y-2],[x+27,y+1],[x+22,y+4],[x-1,y+4]], '#18271e80');
+    // Front planks and a darker receding right side.
+    polygon([[x,y-12],[x+18,y-12],[x+18,y],[x,y]], '#796044');
+    polygon([[x+18,y-12],[x+24,y-16],[x+24,y-4],[x+18,y]], '#453e30');
+    rect(x+1,y-9,16,1,'#9b7950');
+    rect(x+1,y-5,16,1,'#594630');
+    polygon([[x+19,y-9],[x+23,y-12],[x+23,y-11],[x+19,y-8]], '#66553b');
+    // Bevelled lid: top plane, front lip and shaded end cap.
+    polygon([[x-1,y-13],[x+2,y-17],[x+20,y-17],[x+24,y-14],[x+18,y-11]], '#a18459');
+    polygon([[x-1,y-13],[x+18,y-13],[x+18,y-10],[x-1,y-10]], '#87683f');
+    polygon([[x+18,y-13],[x+24,y-16],[x+25,y-13],[x+18,y-10]], '#625136');
+    rect(x+1,y-13,16,1,'#baa079');
+    // Two iron straps follow the lid perspective and continue down the body.
+    for (const offset of [3,13]) {
+      polygon([[x+offset,y-13],[x+offset+3,y-17],[x+offset+5,y-17],[x+offset+2,y-13]], '#687068');
+      rect(x+offset,y-13,2,13,'#4c5651');
+      rect(x+offset,y-12,1,2,'#9da28b');
+      rect(x+offset,y-2,1,1,'#919680');
+    }
+    // Small central lock, low contrast enough to leave combat labels as the focal point.
+    rect(x+8,y-11,4,5,'#b29b64');
+    rect(x+9,y-9,2,2,'#443e2e');
+    rect(x,y,18,1,'#343829');
   }
   // Front grass and vignette.
   for(let i=0;i<16;i++){const x=(i*43)%w;polygon([[x,h],[x+2,h-10-(i%3)*3],[x+5,h-3],[x+10,h-8],[x+9,h]],'#0d2326');}

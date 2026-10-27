@@ -1,73 +1,38 @@
 {
-  "checkpoint": "153-v037-publication-blocked-receipt",
-  "version": "0.37.0",
-  "status": "source-verified-candidate-publication-blocked-not-browser-accepted",
-  "source_base": "abb79f61d45ddc356559e8af7ffab55a6ac4b1c4",
+  "checkpoint": "154-v038-original-camp-chest-source",
+  "version": "0.38.0",
+  "status": "source-tested-not-browser-accepted-not-published",
+  "source_base": "0de5f53220a7660c1fb0c7a304fcd6aa4ebcac8c",
   "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
   "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
-  "scope": "Original canvas woodland backdrop only: receding trunks and mist, irregular broadleaf side canopy, old earthen path and sparse paving. All actors/nameplates/chest/foreground/controller/core/RNG/save unchanged. Version metadata updated.",
-  "source_tests_passed": 1934,
+  "scope": "Original static canvas chest only: grounded wood volume, lid, iron straps; removed yellow halo. Entire UI outside chest, forest/actors/nameplates, engine/loot/session/CSS/assets/RNG/save unchanged. Two HTML version labels and package metadata updated. No website operation.",
+  "source_tests_passed": 1941,
+  "source_tests_failed": 0,
+  "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "new_source_ui_tests": 7,
-  "new_independent_audit_tests": 8,
+  "new_independent_audit_tests": 7,
   "new_engine_tests": 0,
-  "source_input_files_unchanged_during_final_suite": 181,
-  "audit_input_manifest_sha256": "a56b0506593ae72e8cba472f9ecef42a51c057a150400df7e73c9b3a0dc83b8d",
-  "historical_test_adjustments": "Version-only assertions moved to v037 source candidate. Initial integration suite caught one missed counterattack-ui version regex; corrected before complete final rerun, no production behavior changed.",
+  "historical_test_adjustments": "Exact version-only assertions updated to v038; prior forest full suffix hash replaced with two pinned v037 pre/post-chest hashes because only chest intentionally changed. No mechanics fixtures relaxed.",
   "natural_replay": {
-    "receipt_sha256": "205d65e3585f01533d26df6de225260dd44d0444e0ffeb972942940065c23163",
+    "receipt_sha256": "bd671053219a5c79665da299058a6a558f954c0092a662fe3fadc1b9bae95c4c",
     "separate_process_exact": true,
     "natural_attempts": 20,
     "natural_wins": 20,
-    "stages": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
-    "source_parity_checks": 432,
+    "controller_attempts": 15,
     "controller_wins": 15,
+    "source_parity_checks": 432,
     "controller_parity_checks": 2455,
+    "frame_nonmutation_checks": 3042,
     "frame_calls": 6084,
-    "frame_noninterference_checks": 3042,
-    "source_only_not_browser": true,
-    "natural_final_serialization_validateSave_ui_reload_parity": true
+    "baseline_manifest_payloads_verified": 415
   },
-  "save_format": 3,
-  "save_compatibility": "No state, preference, storage key, import/export, migration, item, policy or RNG changes from v036. Earlier Exquisite IW1/emergencySupply historical-reader restrictions remain.",
-  "unchanged_core_files": [
-    "src/engine.js",
-    "src/loot.js",
-    "src/session.js"
-  ],
-  "historical_fixture_files_unchanged": 40,
-  "browser_fixture_files_unchanged": 2,
-  "new_fixture_files": 0,
-  "assets": {
-    "existing_files_unchanged": 14,
-    "new_binary_assets": 0,
-    "new_external_sources": 0,
-    "backdrop_source": "src/ui.js original code-native woodland. Existing actor bodies/nameplates/foreground and all asset bytes unchanged",
-    "credits": "docs/ASSET-CREDITS.md"
-  },
-  "visual_acceptance": "Pending actual candidate render; command traces are not pixels or art-quality acceptance. Chest/actors/nameplates unchanged; not comprehensive art direction.",
-  "browser_acceptance": false,
-  "assistive_technology_acceptance": false,
-  "website_staging": {
-    "candidate_path": "public/play/hv-v3-dot/candidates/v0.37/",
-    "formal_path": "public/play/hv-v3-dot/",
-    "candidate_before_formal": true,
-    "source_backup_before_publication": true
-  },
-  "publication": "Candidate152 stopped after existing unchanged Kenney provenance blob refusal and one same-operation retry with newly verified relevant material request still refused. No candidate tree/commit/ref exists; stable v036 untouched. Await explicit user material-scope decision. This153 is source docs/manifest-only receipt, no runtime/test rerun or redeploy.",
-  "outside_source_blobs_to_preserve": 409,
-  "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T14:23:50.384635+00:00",
+  "browser_acceptance": "not performed; inherited v037 forest and v038 chest remain source candidates",
+  "publication": "not attempted; existing v037 Kenney website create_blob scope refusal remains pending explicit user answer; no retry or bypass",
+  "recovery": "docs/RECOVERY-V038.md",
   "files": {
     "README.md": {
-      "bytes": 32028,
-      "sha256": "2007da99011aa1ab473e5a5fec36ca10b447b62556b7623705293993e0d129d1"
+      "bytes": 33207,
+      "sha256": "ad53a643182c468a712e4f24bcea7498d80d6dce4f6c35012ebcd79c6782a86a"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -244,6 +209,10 @@
     "docs/ACCEPTANCE-V037.md": {
       "bytes": 3666,
       "sha256": "c137a374f095f2bc3c43bc4c6e6ee880cb31fda36632f12833959dea4f59c01d"
+    },
+    "docs/ACCEPTANCE-V038.md": {
+      "bytes": 2972,
+      "sha256": "c50d2ee6787a1eb68f093b1f85521f6643075f5fac002c178ab1e8fd3d12654d"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -489,6 +458,14 @@
       "bytes": 5042,
       "sha256": "2ec741bdc4da9334797129de8366fb9b4fd2786657f8a8ec29e1659b29eddeaf"
     },
+    "docs/CAMP-CHEST-AUDIT.md": {
+      "bytes": 2863,
+      "sha256": "00aab4454376e7960bf117fbff8c3226e6714661973bf9ad71577a707c440634"
+    },
+    "docs/CAMP-CHEST-REGRESSION.md": {
+      "bytes": 5416,
+      "sha256": "a72354ee9ced0a6bdbb24c017a8752a34773a3ce3510235934ff1b42ef8396de"
+    },
     "docs/CAMP-NAVIGATION.md": {
       "bytes": 3398,
       "sha256": "daaf532a2f1bac54f792f5c1bca1380b8c0bc5b9c31742b0ee7abd5e166b8d90"
@@ -733,6 +710,10 @@
       "bytes": 3655,
       "sha256": "6ece0b313ed5903455f5a7816bfea1a3df3e4e5d00fcd8a321625896f11a8f47"
     },
+    "docs/RECOVERY-V038.md": {
+      "bytes": 2128,
+      "sha256": "6354f79737df883d3faae78fbb3a2d91dad178c8519e5558efc413a9fc6457fb"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -742,8 +723,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 31291,
-      "sha256": "dcc79f80fd506f03389d6c9d3db2e3ef2cd2ab798e73bca7ec6150d654aafafe"
+      "bytes": 32119,
+      "sha256": "019d0b6718cc3f2ecb929294963f7eeb5af305cc990f6b59edb8b484532c4fdd"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -774,8 +755,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 34754,
-      "sha256": "4f12f0d0a4dc6f5c36c2a7d3895192e7089f710d6d4c76901bd6da00bfaa1160"
+      "bytes": 35928,
+      "sha256": "60593a00bd426b2cc73cbeb4559467699d54b11e79501b684e3a32616891dafa"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -788,6 +769,10 @@
     "docs/battle-actors-measurements.json": {
       "bytes": 22121,
       "sha256": "c968b57fe629dfcc6695c3c60d73cd549b689a453694e62fbf232c5476e3029f"
+    },
+    "docs/camp-chest-measurements.json": {
+      "bytes": 18051,
+      "sha256": "bd671053219a5c79665da299058a6a558f954c0092a662fe3fadc1b9bae95c4c"
     },
     "docs/enemy-nameplates-measurements.json": {
       "bytes": 16962,
@@ -991,15 +976,19 @@
     },
     "index.html": {
       "bytes": 44963,
-      "sha256": "5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade"
+      "sha256": "1106fca652ca61326b9edc95be112aee94515ab283e011f72a7399d6bcce9a98"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3"
+      "sha256": "b8f9ceece1b2c184ccd8353a23141639dc736a3b691f7519c9fb89c56c4a7007"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
       "sha256": "f7f4cbb7c0ccb74804dd1d04d6a126810df4eebbac739e2006f47ae142190762"
+    },
+    "scripts/camp-chest-measurement.mjs": {
+      "bytes": 22041,
+      "sha256": "f919d03f8e1f9317c5c4a43034d7e1daf3cc379338166e88c856c871f12e3e62"
     },
     "scripts/effect-readability-measurement.mjs": {
       "bytes": 14346,
@@ -1078,8 +1067,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 164340,
-      "sha256": "ddfdb6cacd727a421c0387d5a257ef98df65a3ba16333db8bee1eee956399f48"
+      "bytes": 165574,
+      "sha256": "fb0e874e9a185fb7797148aeeb854e3210e6c0af19ab465e499c0c12196a3a2c"
     },
     "style.css": {
       "bytes": 73406,
@@ -1115,7 +1104,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "8032c3c0a2c7f508cf58a2eb40ab46d9a82417adc814bc6e9758f49d2a659c37"
+      "sha256": "9cfdc0c7a7c1f2604e24d4ceb7f7855c394ae5911c76c9684db3d6c298edc3ff"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1128,6 +1117,10 @@
     "tests/browser-fixtures/unsupported-import.json": {
       "bytes": 2227,
       "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
+    },
+    "tests/camp-chest-independent.test.mjs": {
+      "bytes": 7526,
+      "sha256": "972ccc27caa39f4f91bf333495db54ef3e1d9e08ce7d996ca067b1d08686006a"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1171,7 +1164,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18314,
-      "sha256": "07e58996f34a46b7dc637b8a66f375a4c3778cb04a211680b1d3cfbb0f05a7f4"
+      "sha256": "1dbe44fb64a4d2ba966ca8cf29098566d477bea2ed1839d35f3b6f63b27c9a34"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1187,7 +1180,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "22727354aded4ec0309f8ef564e6e2fdfdc0c6099accbb156f88d77783b3fbaa"
+      "sha256": "7fb8a360a759cd789e84c180ce699b624242177fd2761c85e394fef60ef06929"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1211,7 +1204,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "6ff69ffd09906e0972227196876e4453c02f9af1fb1f315b0577122cd1d875b0"
+      "sha256": "b1d390c55ee1d75d511567bab2a912d2cf26992393b26742aa30cdfd3eef6b46"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1418,8 +1411,8 @@
       "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
     },
     "tests/forest-stage-independent.test.mjs": {
-      "bytes": 6347,
-      "sha256": "8aeaf46a95e76147d3f92f9c0eea9abb82ea6555608e467617ddc913abe75abe"
+      "bytes": 6778,
+      "sha256": "37fd8cca3bcb370a8cea65c1f3b2bf9d3d74304a683190cfdfd69ca177119d4e"
     },
     "tests/forest-stage.test.mjs": {
       "bytes": 4749,
@@ -1491,7 +1484,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "609ba60d7dbeef7c3489ca1dfe0997c43e4b8b7576e2aeb51b275fb5606e0c30"
+      "sha256": "128dd01884529cbe40d02bd5598e36d3b9ba1492feea0158d2fa2e0414b364a2"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1547,7 +1540,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "cc8a3804cc1e1ae0f469d5eb01b8a65511a5fa36bf589dfcb8e4ede5c98fc17d"
+      "sha256": "fa07c8dd668e450205dcbebb3a1a40c08d92d4ca8a86f1234c292a0ce344710b"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1575,7 +1568,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "36775dfdc6cea2d6d8f8ec13b17a7be91181caae94921e0d3580ada003aa8eed"
+      "sha256": "66abf8edb82494e7530035db9024ec0fd874debf9633aa6063d2e123f71dab5c"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1639,7 +1632,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "ddbca5c1d89f4024f8664c1db39ee85cc3dcfc5c97983b636a37cdb78ecdead2"
+      "sha256": "e5b1e5e7c46dfc11f791a3559c37e8e8994fb49524b98a0cb9a26e9574a3df45"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1723,27 +1716,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "30431299748748a6cda621aea5e6f5fdc607cc6a896ea377ec4bf080076915bb"
+      "sha256": "5b2654f40f6359413da0a38d776159a8e7a0b762bb583c92f56fe42309bd5bad"
     }
-  },
-  "candidate_source": "abb79f61d45ddc356559e8af7ffab55a6ac4b1c4",
-  "publication_blocker": {
-    "operation": "create_blob",
-    "repository": "GGGODLIN/GGGODLIN.github.io",
-    "target": "public/play/hv-v3-dot/candidates/v0.37/assets/kenney-ui/PROVENANCE.json",
-    "source_file_unchanged_from_v036": true,
-    "official_license_verified": "CC0",
-    "same_blob_retry_after_new_relevant_evidence": 1,
-    "retry_result": "denied-not-executed",
-    "successful_unattached_blobs": 14,
-    "candidate_tree_created": false,
-    "candidate_commit_created": false,
-    "candidate_ref_updated": false,
-    "website_head_readback": "f192fec4eff401948d80156f941c01404816cbba",
-    "root_user_question": "Sentinel_2cbc287da5cc819199d4a87ab088ec7e",
-    "question_utc": "2026-10-27T14:22:35.860022+00:00",
-    "no_workaround": true
-  },
-  "receipt_runtime_tests_assets_exact_source151": true,
-  "receipt_additional_full_suite": false
+  }
 }

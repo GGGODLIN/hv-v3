@@ -27,8 +27,14 @@ test('forest independent: actor and opaque-nameplate functions byte-identical to
   const expected = ['df232efe89c962a0fc76c55f5c618f3b2d5e5223b991ee7f46610768ad855850', '4647670fd3f08643c47babe8962e6ccd86a69d6b035fb46bc8b1003d43d3926e', '727e5b1e275b4f96158a69c70917ff44e9aa1bb8ec6cb2e9bfb674e499f2a7ec', '51b3d4dcd75f5a198b6f2e0d2b78cbd081f34f7af94cbe3af460db8f52324f71'];
   functions.forEach((fn, i) => assert.equal(sha(fn), expected[i]));
 });
-test('forest independent: actor positioning, chest, effects and lifecycle suffix exactly retained', () => {
-  assert.equal(sha(source.slice(source.indexOf('  const ground=h*.79;'))), 'ee92553b5e7ca17f7f98732780194634bc5eb03a2d3f64462dfe3272935c1b83');
+test('forest independent: actor positioning, effects and lifecycle retained outside v038 chest slice', () => {
+  // v038 intentionally redraws only the chest; retain independent pre/post slice hashes from v037.
+  const ground = source.indexOf('  const ground=h*.79;');
+  const chest = source.indexOf('  if(!enemies.length){', ground);
+  const front = source.indexOf('  // Front grass', chest);
+  assert.ok(ground >= 0 && chest > ground && front > chest);
+  assert.equal(sha(source.slice(ground, chest)), 'b47b06ebd0df3ae7e5dcde3502fad0bee22c1a88ecafe8a45f98347b4fc52b6c');
+  assert.equal(sha(source.slice(front)), 'ad0f67d080f29a5f5f4e4bfaaa0e7c243602a1c678d1c0052c46902bcb35482c');
 });
 
 const backgroundEnd = source.indexOf('  const ground=h*.79;', sceneStart);

@@ -2,6 +2,10 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## Current slice: v0.38 original camp chest (source only)
+
+Refine the original idle-camp prop instead of adding systems: remove the large yellow halo, introduce a restrained grounded wooden volume with lid planes, planks and iron bands. Preserve the no-enemies visibility rule and all forest, actor, nameplate, engine, save and RNG behavior. This is independently authored canvas work; all existing materials and attribution stay byte-identical. No candidate or formal website operation in this slice while the existing Kenney scope refusal awaits resolution. Source command tests and natural replay cannot establish rendered beauty; v036 remains latest browser-accepted/stable. Resume candidate QA only through an explicitly permitted path after the pending scope question is resolved, not by renaming a version to bypass it.
+
 ## Current slice: v0.37 original woodland stage
 
 v0.36 is published and original-profile verified. Replace the repeated geometric tree triangles and flat-topped pillars with a restrained original canvas woodland: visible trunks, irregular grouped canopy, distant haze and a receding old path. Keep a quiet middle lane for the existing actors/nameplates; preserve all actor/overlay/chest drawing and core/save/RNG behavior. This is a bounded backdrop improvement, not complete art direction or a new mechanic. Source parity and exact backup precede isolated candidate publication; actual browser acceptance is still required before stable replacement. Earlier milestone sections below are historical.
