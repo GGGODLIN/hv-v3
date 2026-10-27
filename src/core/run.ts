@@ -63,7 +63,9 @@ export const SHRINES: Shrine[] = [
   { id: 'gamble', zh: '血之賭注', desc: '失去 30% 目前 HP，換一件優良以上裝備' },
 ];
 
-export interface MerchantStock { equips: { e: Equip; price: number }[] }
+/** rc19 item 3（製作人要求，自訂，非原版）: hpLeft = health potions this merchant still sells (MERCHANT_HP_POTIONS each, town price). */
+export interface MerchantStock { equips: { e: Equip; price: number }[]; hpLeft?: number }
+export const MERCHANT_HP_POTIONS = 3;
 
 export interface RunState {
   seed: number;
@@ -477,6 +479,7 @@ export function merchantStock(run: RunState): MerchantStock {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
       return { e, price: Math.round(sellPrice(e) * RULES.merchantMarkup * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.priceMult ?? 0) : 1)) };
     }),
+   ...(RULES.cp8 ? { hpLeft: MERCHANT_HP_POTIONS } : {}),
   }));
 }
 

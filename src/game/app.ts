@@ -16,7 +16,7 @@ import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, wi
 import { mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
-import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
+import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, MERCHANT_HP_POTIONS, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
 import { CP7, betterThanWorn, checkpointOptions, gearVerdict } from '../core/cp7';
@@ -446,7 +446,8 @@ export class App {
         <div class="inv">${l.equips.map((e) => this.lootCard(e, l)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
-      const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] ? 'disabled' : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C</button>`).join(' ');
+      const lim = (k: PotionId) => k === 'health' && st.hpLeft !== undefined; // rc19 item 3（自訂，非原版）: health potions capped per merchant
+      const pot = (Object.keys(RULES.potionPrice) as PotionId[]).map((k) => `<button data-mbuyp="${k}" ${this.p.credits + r.credits < RULES.potionPrice[k] || (lim(k) && st.hpLeft! <= 0) ? 'disabled' : ''}${lim(k) ? ` data-mhpleft="${st.hpLeft}"` : ''}>${POTION_ZH[k]} ${RULES.potionPrice[k]}C${lim(k) ? `<small>（每位商人限 ${MERCHANT_HP_POTIONS} 瓶，剩 ${st.hpLeft}）</small>` : ''}</button>`).join(' ');
       body = `<h2>$ 流浪商人</h2><div>可用：${(this.p.credits + r.credits).toLocaleString()} C（先扣本趟所得）</div><div class="row">${pot}</div>
         <div class="inv">${st.equips.map((x, i) => this.itemCard(x.e, `<button data-mbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`) + this.compare(x.e)).join('') || '<div class="empty">賣完了</div>'}</div>
         ${RULES.cp4RunBuffs ? `<h3>Buff（本趟有效）</h3><div class="buffrow">${(r.buffStock ?? []).map((x, i) => this.buffCard(x.id, `${this.previewHtml(x.id)}<button data-bbuy="${i}" ${this.p.credits + r.credits < x.price ? 'disabled' : ''}>買 ${x.price}C</button>`)).join('') || '<div class="empty">Buff 賣完了</div>'}</div>` : ''}`;
@@ -596,7 +597,7 @@ export class App {
     on('[data-buffskip]', () => { if (RULES.cp6Abyss && !confirm('確定不拿？這次的 buff 放棄後不能再選。')) return; skipOffer(this.run); this.run.risk = null; this.nextOffer(); });
     on('[data-risk]', (el) => { const [k, id] = el.dataset.risk!.split(':'); this.pending.text = takeRisk(this.p, this.run, k as RiskId, id); this.save(); this.render(); });
     on('[data-bbuy]', (el) => { const r = this.run; const i = Number(el.dataset.bbuy); const x = r.buffStock?.[i]; if (x && this.pay(x.price)) { this.pending.text = takeBuff(this.p, r, x.id); r.buffStock!.splice(i, 1); } this.save(); this.render(); });
-    on('[data-mbuyp]', (el) => { const k = el.dataset.mbuyp as PotionId; if (this.pay(RULES.potionPrice[k])) this.p.potions[k]++; this.save(); this.render(); });
+    on('[data-mbuyp]', (el) => { const k = el.dataset.mbuyp as PotionId, st = this.run.merchant; const lim = k === 'health' && st?.hpLeft !== undefined; if (lim && st!.hpLeft! <= 0) return; if (this.pay(RULES.potionPrice[k])) { this.p.potions[k]++; if (lim) st!.hpLeft!--; } this.save(); this.render(); });
     on('[data-town]', () => this.go('town'));
   }
 
@@ -728,8 +729,9 @@ export class App {
     const body = iss.length
       ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
       : `<p data-prepbox data-prep-done>整備完成。</p>`;
+    const tip = RULES.cp8 ? `<p class="hint" data-prep-towntip>可在城鎮買藥：生命藥水 ${RULES.potionPrice.health}C，不限量（一趟裡的商人每位只賣 ${MERCHANT_HP_POTIONS} 瓶）。</p>` : ''; // rc19 item 3（自訂，非原版）
     if (worn.length) p.lastWorn = []; // shown once
-    this.modal = { title: '出發前整備', body: worn.length && !iss.length ? `<ul class="prep" data-prepbox>${rows}</ul>` : body, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
+    this.modal = { title: '出發前整備', body: (worn.length && !iss.length ? `<ul class="prep" data-prepbox>${rows}</ul>` : body) + tip, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
     this.render();
   }
   prepFix(k: PrepIssue | 'all') {

@@ -487,8 +487,8 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       run.bag = run.bag.filter((e) => !used.includes(e)); }
     } else if (type === 'merchant') {
       const st = merchantStock(run);
-      while (p.potions.health < 4 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; }
-      void st;
+      let left = st.hpLeft ?? Infinity; // rc19 item 3（自訂，非原版）: per-merchant cap
+      while (left > 0 && p.potions.health < 4 && p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; }
       if (bs) for (const x of merchantBuffs(p, run)) {
         const ok = strategy === 'buff:random' ? prng.chance(0.5) : BUFF[x.id]!.school === buffSchool(strategy as BuffStrategy);
         if (!ok || run.credits + p.credits < x.price) continue;
