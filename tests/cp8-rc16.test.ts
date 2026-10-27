@@ -26,10 +26,20 @@ describe('rc16 single danger rule + shared advice', () => {
   });
   it('physical hit logs resistance only at >= 25%', () => {
     for (const [spec, want] of [[PHYS_RESIST_LOG, true], [PHYS_RESIST_LOG - 1, false]] as const) {
-      const b = fight(); for (const k of Object.keys(b.monsters[0]!.spec)) b.monsters[0]!.spec[k] = spec;
+      const b = fight(); for (const k of Object.keys(b.monsters[0]!.spec)) (b.monsters[0]!.spec as Record<string, number>)[k] = spec;
       b.d = { ...b.d, physAcc: 9 };
       const hit = act(b, { kind: 'attack', target: 0 }, new Rng(1)).find((e) => e.t === 'hit' && e.from === 'player' && e.dmg > 0) as any;
       expect(!!hit?.resisted).toBe(want);
     }
+  });
+});
+import { mapPotion, startRun } from '../src/core/run';
+describe('rc16 map potion (自訂)', () => {
+  it('heals like the battle potion, no cooldown, uses one bottle', () => {
+    const p = newPlayer(); starterKit(p); p.potions.health = 2;
+    const r = startRun(p, 1); p.potions.health = 2; r.hp = 1;
+    expect(mapPotion(p, r)).toBeGreaterThan(0); expect(p.potions.health).toBe(1);
+    r.hp = 1; expect(mapPotion(p, r)).toBeGreaterThan(0); expect(p.potions.health).toBe(0);
+    r.hp = 1; expect(mapPotion(p, r)).toBe(0);
   });
 });

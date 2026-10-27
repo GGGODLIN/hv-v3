@@ -13,7 +13,7 @@ import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
-import { abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
+import { mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
@@ -289,7 +289,7 @@ export class App {
     const bag = r.bag.map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
-      ${r.startPick && r.offer && !RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
+      ${r.startPick && r.offer && !RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${r.hp < d.hp ? `<div class="mappot"><button data-mappot ${this.p.potions.health > 0 ? '' : 'disabled'}>Z·喝生命藥水（剩 ${this.p.potions.health} 瓶，地圖上無冷卻）</button></div>` : ''}${r.hp < d.hp * MAP_LOW_HP ? `<div class="hint warn" data-lowhp>HP ${Math.round(r.hp)}/${d.hp} 低於一半：進戰鬥前先喝藥或走休息節點</div>` : ''}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div>${r.startPick && r.offer && RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${RULES.cp8 && r.held && !r.startPick ? this.heldHtml() : ''}<h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
       <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。${r.abyss ? `<span data-bossnext>每 5 層是首領（下一個：深淵 ${Math.ceil(depthOf(r) / 5) * 5} 層）。</span>` : `第 ${towerRules(r.cp5).bossFloors.join('、')} 層是首領。`}</span></div></div>`;
   }
@@ -572,6 +572,7 @@ export class App {
     on('[data-prep]', (el) => this.prepFix(el.dataset.prep as PrepIssue | 'all'));
     document.querySelector('[data-abyss-start]')?.addEventListener('change', (ev) => { this.abyssStart = Number((ev.target as HTMLSelectElement).value); const b = document.querySelector('[data-abyss]'); if (b) b.textContent = `進入深淵塔（第 ${this.abyssStart} 層起）▶`; });
     on('[data-node]', (el) => this.enterNode(Number(el.dataset.node)));
+    on('[data-mappot]', () => this.drinkMap());
     on('[data-retreat]', () => { if (confirm('撤退回城？本趟所得全部保留。')) { this.run.done = 'retreat'; this.endRun(); } });
     on('[data-bequip]', (el) => this.bagEquip(el.dataset.bequip!));
     on('[data-act]', (el) => this.command(el.dataset.act!));
@@ -600,6 +601,7 @@ export class App {
   windWas = false;
 
   key(e: KeyboardEvent) {
+    if (this.screen === 'map' && this.run && e.code === 'KeyZ' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); return this.drinkMap(); } // rc16 item 3
     if (this.screen !== 'battle' || !this.battle) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const tg = e.target as HTMLElement | null;
@@ -767,6 +769,10 @@ export class App {
     this.go('map');
   }
 
+  /** rc16 item 3（自訂，非原版）: health potion on the map, no cooldown. */
+  drinkMap() {
+    const g = mapPotion(this.p, this.run!); if (g > 0) { this.save(); this.render(); }
+  }
   enterNode(i: number) {
     const r = this.run;
     // cp8-rc4: nodes stay clickable during the start-buff picks; entering a node forgoes the picks still open.

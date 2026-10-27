@@ -562,3 +562,14 @@ export function score(e: Equip): number {
 }
 
 export { powerScore, profValue };
+
+/** rc16 item 3（自訂，非原版）: drink a health potion on the map, no cooldown. parsed_wiki only describes Restoratives as Battle Items,
+ *  so out-of-battle use is our own rule; the heal amount is the same as in battle. Returns HP gained (0 = nothing done). */
+export const MAP_LOW_HP = 0.5; // 暫定: map warning below this HP fraction
+export function mapPotion(p: Player, run: RunState): number {
+  const d = runDerived(p, run);
+  if (p.potions.health <= 0 || run.hp >= d.hp) return 0;
+  const before = run.hp; p.potions.health--;
+  run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * C['F-002-items'].value.healthPotion.fraction));
+  return run.hp - before;
+}
