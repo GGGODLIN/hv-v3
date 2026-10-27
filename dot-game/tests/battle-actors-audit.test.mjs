@@ -182,7 +182,7 @@ test('actor audit: defeated enemy silhouettes differ, stay static and show no li
     const alive=renderActor('enemy',{target:copy(target)}),dead={...target,hp:0};
     const a=renderActor('enemy',{target:copy(dead),reducedMotion:false}),b=renderActor('enemy',{target:copy(dead),reducedMotion:false,t:92.1,pulse:1,index:2});
     assert.notEqual(bodyTrace(alive),bodyTrace(a));assert.equal(bodyTrace(a),bodyTrace(b));
-    assert.deepEqual(a.labels.map(l=>l.text),[name]);
+    assert.deepEqual(a.labels.map(l=>l.text),[name,'HP 0%']);
     assert.ok(a.body.some(p=>p.globalAlpha<1),'defeated actor visibly muted in canvas instructions');
   }
 });
@@ -192,17 +192,19 @@ test('actor audit: defeated hero is static and does not show a fresh attack arc'
   assert.equal(bodyTrace(a),bodyTrace(b));
   assert.ok(a.body.some(p=>p.globalAlpha<1));
 });
-test('actor audit: target, defense, HP, PA, stun, bleed and recovery overlays survive new bodies',()=>{
+test('actor audit: compact target, HP, PA, stun, bleed and recovery nameplates preserve truth',()=>{
   for(const target of [...names.map(name=>enemy(name,{roleId:'armored'})),enemy('boss',{boss:true,roleId:'armored'})]) {
     Object.assign(target,{penetratedArmor:{stacks:2,expiresAtTick:17},stun:{expiresAtTick:14},bleeding:{stacks:3,expiresAtTick:17,damagePerTick:2}});
     const rec=renderActor('enemy',{target:copy(target),x:230,y:140});
-    for(const text of [target.name,'▼ 集火','▣ 厚甲','現減 20% · 閃 0%','招 0% · 擋 6%','PA 2 · 7T','STUN 4T','BW 3 · 7T']) assert.ok(rec.labels.some(l=>l.text===text),text);
-    const statusY=rec.labels.filter(l=>/^(PA |STUN |BW )/.test(l.text)).map(l=>l.y);assert.equal(new Set(statusY).size,3);
-    const width=target.boss?57:40, hpBars=rec.paints.filter(p=>!p.body&&p.kind==='rect'&&p.points[2][1]-p.points[1][1]===3);
+    for(const text of [target.name,'▼ 集火','HP 80%','PA 2 · 7T','STUN 4T','BW 3 · 7T']) assert.ok(rec.labels.some(l=>l.text===text),text);
+    const statusY=rec.labels.filter(l=>/^(PA |STUN |BW )/.test(l.text)).map(l=>l.y);assert.equal(new Set(statusY).size,target.boss?1:2);
+    assert.ok(!rec.labels.some(l=>/厚甲|現減|閃|招|擋/.test(l.text)), 'redundant role/defense lines stay in DOM');
+    const width=target.boss?106:66, hpBars=rec.paints.filter(p=>!p.body&&p.kind==='rect'&&p.points[2][1]-p.points[1][1]===3);
     assert.ok(hpBars.some(p=>Math.abs(p.points[1][0]-p.points[0][0]-Math.round(width*.8))<=1));
     const recovery=copy(target);delete recovery.stun;recovery.stunRecoveryPending=true;
     const recovered=renderActor('enemy',{target:recovery});
-    assert.ok(recovered.labels.some(l=>l.text==='READY'));assert.ok(recovered.labels.some(l=>l.text==='現減 20% · 閃 10%'));
+    assert.ok(recovered.labels.some(l=>l.text==='READY'));assert.ok(recovered.labels.some(l=>l.text==='HP 80%'));
+    assert.ok(!recovered.labels.some(l=>/現減|閃|招|擋/.test(l.text)));
     assert.ok(!recovered.labels.some(l=>l.text.startsWith('STUN')));
   }
 });

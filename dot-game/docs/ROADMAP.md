@@ -2,6 +2,10 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## Current slice: v0.36 readable combat nameplates
+
+The v0.35 actor release is complete. Actual desktop play exposed multiple tiny canvas defense lines over the moon; improve the hierarchy rather than adding systems. Keep names, HP, target and active effects in opaque compact labels, while the existing full DOM enemy-status details retain the exact defense probabilities, attack information and model caveats. Do not change actor bodies, engine, RNG or saves. Test source boundary/contrast/semantic cases and natural replay, then back up before isolated publication and actual browser acceptance. Narrow/mobile and native screen-reader behavior remain separate evidence, not implied by coordinate tests.
+
 ## Current delivery: v0.35 bounded desktop release complete
 
 v0.35 actor identity is now published and accepted on both isolated candidate and the original stable profile. Source143 backup precedes stable144; exact Pages/21HTTP and seven candidate wins plus one original-profile win/reload are verified. Full source evidence and residual limits are in BROWSER-QA-V035.md. Do not revive the resolved candidate refusal or claim all visual work is finished: forest/chest, small enemy text against moon, narrow/mobile and observed caster ornament remain future work. The following slice descriptions preserve their original intent/status.

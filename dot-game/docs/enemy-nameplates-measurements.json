@@ -1,0 +1,502 @@
+{
+  "kind": "v036 natural source plus simulated-DOM/canvas-command regression, NOT browser/raster acceptance",
+  "baseline": {
+    "commit": "609cf796630d03973ccf0a3d4a9f224b848b00c4",
+    "pins": {
+      "CHECKPOINT.json": "e05d572d913ca7fc697c258aeed6ea8cca0cbf4663f47618c5c45edf9d8aad6f",
+      "src/ui.js": "3453008a505fd769a04ae459db953cecfa4aadeedb9867c1aefcead55c9ffe5b",
+      "index.html": "16a8c6a41ab02d11326b3a8a7f1cfd720dca03355f48a5536eb74b496c656bd3",
+      "style.css": "c92d96b2648f0ea908daa1e4849b4b1681e0a14d8177a41d24ce04b07b249225",
+      "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
+    },
+    "fullManifestFilesVerified": 398
+  },
+  "inputSha256": {
+    "src/ui.js": "b9d2e32cc38e7ab19284347ee4586139e4fc65950586347b0e00add5955be1c6",
+    "index.html": "f3a2abab16b01ae78681b25637ce0744b06ce295f2b782f96acc8f0a64e7f456",
+    "style.css": "c92d96b2648f0ea908daa1e4849b4b1681e0a14d8177a41d24ce04b07b249225",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "tests/helpers/comparison-focus-harness.mjs": "4dc392fd8bb125f6f91d4a536c99725248bd157bc7e3222a702189a30aab7470"
+  },
+  "runnerSha256": "8925151681f85c08ef8b84a9d342fc9e05cb2ec86ae15f1adcdcf978660e2c72",
+  "unchangedActorBodySha256": "17d8694b70aef6c9d36bb796361ae371a531923f251834222a195f1ae2af9ff7",
+  "preservedInputs": {
+    "fixtures": 40,
+    "browserFixtures": 2,
+    "helpers": 2,
+    "manifestSha256": "2cd5982c7ecc89155d003510f60729f0249c6cceec114f9fae22520b34dbb119",
+    "exactAcceptedV035Bytes": true,
+    "noFilesAddedOrDeleted": true
+  },
+  "protocol": {
+    "seed": 42,
+    "acquisitionAttempts": 20,
+    "maximumStage": 5,
+    "maximumFightSeconds": 1000,
+    "acquisition": "Fresh unedited createGame(42), default Balanced. Before each attempt equip the highest-scored already-owned item per slot (later wins ties), select min(5, already-unlocked stage), start and queue finishThenCamp. Advance 1-second pulses; retain all outcomes and retreat on defeat. No grants, progress injection, sales, commissions, AP, binding, IW, rerolls or outcome-conditioned extra attempts.",
+    "replay": "Load the exact naturally earned canonical camp result into accepted v035 UI, candidate UI and candidate no-frame control. First owned axe/rapier/club in inventory-then-equipment order, equipped through actual item-detail buttons; each attempts routes 1–5 once. Use existing stage/start/finish-to-camp handlers, 250ms pump pulses, reduced motion on odd routes and off on even routes. Compare full state (including RNG/events), full reports, action log and tracked writes after every action/pulse. Two frame calls before and after every battle pulse must preserve those complete snapshots. No-frame control performs identical pump/render/actions.",
+    "canvas": "Script-local adapter on unchanged fullUI empty canvas context; finite command arguments and balanced save/restore. No pixels, CSS, browser, native input, AT or rAF scheduling. Cosmetic VM Math.random fixed at .42; state-seeded engine RNG unmodified. Old/new overlay commands intentionally differ; complete drawEnemy actor body remains byte-identical."
+  },
+  "acquisition": {
+    "attempts": 20,
+    "wins": 20,
+    "sourcePulses": 363,
+    "fullParityChecks": 432,
+    "orderedFullSnapshotLedgerSha256": "35bb7a05e7c45e4872c662773c1d03d60e97d58f6fdfb6f07617b40cf32bc42d",
+    "reachedStages": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "level": 13,
+    "gold": 2710,
+    "inventory": 33,
+    "pending": 0,
+    "fragments": 200,
+    "worldSeeds": 20,
+    "canonicalSaveSha256": "ab33eb6db47190714dd0a22bb70b2728af3c6225693fb9b1b41cf22a8849a744",
+    "observations": {
+      "enemyKinds": [
+        "boss",
+        "灰霧獵犬",
+        "碎晶甲蟲",
+        "荒野影獸",
+        "赤砂守衛"
+      ],
+      "stages": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "activeEffectSamples": {
+        "penetration": 0,
+        "stun": 62,
+        "recoveryPending": 0,
+        "bleed": 40
+      },
+      "firstActiveEffectWitnesses": {
+        "stun": {
+          "id": "e-1-2-1-0",
+          "name": "赤砂守衛",
+          "stage": 2,
+          "wave": 1,
+          "tick": 31,
+          "value": {
+            "ticksRemaining": 4,
+            "recoveryPending": false
+          },
+          "stateSha256": "8e0f327a14cd3195f2a04eb645787af20cdc72b66fe4f7ea1a8208ffc0656c3c"
+        },
+        "bleed": {
+          "id": "e-5-5-2-1",
+          "name": "灰霧獵犬",
+          "stage": 5,
+          "wave": 2,
+          "tick": 108,
+          "value": {
+            "stacks": 1,
+            "ticksRemaining": 7,
+            "damagePerTick": 12
+          },
+          "stateSha256": "cd4daefe50003e1633aeb2e09623f9211aca09dfaa82b91252e1c80e7fc53a9e"
+        }
+      },
+      "effectsNotObserved": [
+        "penetration",
+        "recoveryPending"
+      ]
+    },
+    "outcomes": [
+      {
+        "attempt": 1,
+        "stage": 1,
+        "pulses": 32,
+        "outcome": "win",
+        "completeSnapshotSha256": "878208af45aff1e60af6d9eb507a5216a2dc61034676f3ad0235f44df2bc6546"
+      },
+      {
+        "attempt": 2,
+        "stage": 2,
+        "pulses": 14,
+        "outcome": "win",
+        "completeSnapshotSha256": "20bb5b6f70d923e33a0b550f78a442e25554ac709e24db28d505c5a37a338341"
+      },
+      {
+        "attempt": 3,
+        "stage": 3,
+        "pulses": 20,
+        "outcome": "win",
+        "completeSnapshotSha256": "9681ad062061ea0d9bcc334bb157ce1227dc07f0d939f903e94cbd4985a04636"
+      },
+      {
+        "attempt": 4,
+        "stage": 4,
+        "pulses": 20,
+        "outcome": "win",
+        "completeSnapshotSha256": "81113c9ec53227c9143bebc5e1f5a8fb935cee04d9b54e0c703ad2c163b8e738"
+      },
+      {
+        "attempt": 5,
+        "stage": 5,
+        "pulses": 23,
+        "outcome": "win",
+        "completeSnapshotSha256": "005bcab4bd05d8fd46b57bcdd358f5dc0ec4de0d9d8ed655f420f2c405ee68cf"
+      },
+      {
+        "attempt": 6,
+        "stage": 5,
+        "pulses": 20,
+        "outcome": "win",
+        "completeSnapshotSha256": "948daae4008ab047a53bf3a3302ce06cb4be4d6e18913acbfc43b5fc2d83f48d"
+      },
+      {
+        "attempt": 7,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "70e19d092af5b021bd7130c796e978d21eead7d78fa090d39999409115416483"
+      },
+      {
+        "attempt": 8,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "3fa5713766ae828a7998830d6b8182bd22c0c047a93deaea049c8f15e51f75be"
+      },
+      {
+        "attempt": 9,
+        "stage": 5,
+        "pulses": 18,
+        "outcome": "win",
+        "completeSnapshotSha256": "564ab510bc90b36dde5f0da74a7631777f001ffb9f6f251b1ceb47b25805c231"
+      },
+      {
+        "attempt": 10,
+        "stage": 5,
+        "pulses": 20,
+        "outcome": "win",
+        "completeSnapshotSha256": "ac7e53fed70db3a7d0c6c6791a8552c380b10f40dc350be924358e41522167db"
+      },
+      {
+        "attempt": 11,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "0fda5c29200888f01bbc73b08b7ee99320aeff3eb9b47dcb2a50693fcd85b59b"
+      },
+      {
+        "attempt": 12,
+        "stage": 5,
+        "pulses": 19,
+        "outcome": "win",
+        "completeSnapshotSha256": "5c3fa9b9c2706f48ec499e0215286dafc18a01d60ff29de775970971ee44b71a"
+      },
+      {
+        "attempt": 13,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "36343394766a24f1d31e948491e9f55b52cae1dc55ddb8965e25ae0940e21044"
+      },
+      {
+        "attempt": 14,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "27da576dff00d047ec08bbd611124867b93afad8fadce11f0e82b1051ca13eba"
+      },
+      {
+        "attempt": 15,
+        "stage": 5,
+        "pulses": 17,
+        "outcome": "win",
+        "completeSnapshotSha256": "5669a11b6a933479854bef176da4215ac7d84fe8babfbbc136cb188008fef634"
+      },
+      {
+        "attempt": 16,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "d636523510ec25720d5983555d9f6d9973087f8fff91d8a010d41ae703da9d31"
+      },
+      {
+        "attempt": 17,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "7ddb207e66b129f38d3db22539309fc1792fc7d74c69a7678f86d6218c3083ad"
+      },
+      {
+        "attempt": 18,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "8fe99d3ea2b17a66e39f80941597e4e372646cd9574dfedec2edb60b268a3797"
+      },
+      {
+        "attempt": 19,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "0138a32a81c2c019a518e87a79419c6e4aaaf0dcc4541b2ae0163d2161f37df8"
+      },
+      {
+        "attempt": 20,
+        "stage": 5,
+        "pulses": 16,
+        "outcome": "win",
+        "completeSnapshotSha256": "8b00fd7310621173b73489fe20b9a79c4308c1c450a243c1f145f09f74f565a1"
+      }
+    ]
+  },
+  "replay": {
+    "weapons": [
+      {
+        "family": "axe",
+        "id": "loot-2",
+        "name": "優良・暮鋼戰斧・屠戮"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-23",
+        "name": "優良・獵隙逐風刺劍・屠戮"
+      },
+      {
+        "family": "club",
+        "id": "loot-1",
+        "name": "傳奇・獵隙裂岩戰棍・平衡"
+      }
+    ],
+    "attempts": 15,
+    "wins": 15,
+    "controllerPulses": 749,
+    "postFinishPulses": 120,
+    "fullParityChecks": 2453,
+    "orderedFullSnapshotLedgerSha256": "648e0149caa7ebf32b3f230af04671967103593eca33e6ef8b80492e3d4855ff",
+    "frameNonmutationChecks": 3040,
+    "frameCalls": 6080,
+    "finalWins": 35,
+    "finalCanonicalSaveSha256": "e8cf92d81835e551b4de1f1bb76ae1e398024e0d7f106004c98691f205e8a164",
+    "canvas": [
+      {
+        "controller": "baseline",
+        "commands": 2469589,
+        "depth": 0,
+        "scenes": 3036
+      },
+      {
+        "controller": "candidate",
+        "commands": 2474689,
+        "depth": 0,
+        "scenes": 3036
+      },
+      {
+        "controller": "noFrameControl",
+        "commands": 0,
+        "depth": 0,
+        "scenes": 0
+      }
+    ],
+    "observations": {
+      "enemyKinds": [
+        "boss",
+        "灰霧獵犬",
+        "碎晶甲蟲",
+        "荒野影獸",
+        "赤砂守衛"
+      ],
+      "stages": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "activeEffectSamples": {
+        "penetration": 41,
+        "stun": 52,
+        "recoveryPending": 0,
+        "bleed": 24
+      },
+      "firstActiveEffectWitnesses": {
+        "bleed": {
+          "id": "e-23-4-4-0",
+          "name": "裂隙守門者 · 4",
+          "stage": 4,
+          "wave": 4,
+          "tick": 41,
+          "value": {
+            "stacks": 1,
+            "ticksRemaining": 7,
+            "damagePerTick": 15
+          },
+          "stateSha256": "75c8d56a4a89300717f8f43c5181b63906b2deb2c2a79873c7e0eb2b38276d48"
+        },
+        "penetration": {
+          "id": "e-25-1-1-0",
+          "name": "荒野影獸",
+          "stage": 1,
+          "wave": 1,
+          "tick": 58,
+          "value": {
+            "stacks": 1,
+            "ticksRemaining": 7,
+            "mitigationMultiplier": 0.75
+          },
+          "stateSha256": "9b1557b365c200ce6872f33b4004911f6dbd75885b4df0c7085e70b0fd6d8c79"
+        },
+        "stun": {
+          "id": "e-31-2-3-1",
+          "name": "荒野影獸",
+          "stage": 2,
+          "wave": 3,
+          "tick": 132,
+          "value": {
+            "ticksRemaining": 4,
+            "recoveryPending": false
+          },
+          "stateSha256": "aa94042f9f27149172a6666362a64de05278a565f5f505c4817ba1d302671b35"
+        }
+      },
+      "effectsNotObserved": [
+        "recoveryPending"
+      ]
+    },
+    "outcomes": [
+      {
+        "family": "axe",
+        "stage": 1,
+        "reducedMotion": true,
+        "pulses": 34,
+        "outcome": "win",
+        "completeSnapshotSha256": "8a1ad705a8a8b0dba5399404017746ab81eb830b9a972444d7fa4e22ab76c19d"
+      },
+      {
+        "family": "axe",
+        "stage": 2,
+        "reducedMotion": false,
+        "pulses": 47,
+        "outcome": "win",
+        "completeSnapshotSha256": "85109f499eb4e8f4b4eabcca4d4b08df36ed0274bd69e622cdf9c422cb1ed05c"
+      },
+      {
+        "family": "axe",
+        "stage": 3,
+        "reducedMotion": true,
+        "pulses": 55,
+        "outcome": "win",
+        "completeSnapshotSha256": "ecb626f5e8a51e652a784966c2865dfbe7a1462a16a8b419858a0aa027f84755"
+      },
+      {
+        "family": "axe",
+        "stage": 4,
+        "reducedMotion": false,
+        "pulses": 42,
+        "outcome": "win",
+        "completeSnapshotSha256": "5fba564512fd78ffd9d8e51375495b8edaacb12b0341204d077fcce02c80d01d"
+      },
+      {
+        "family": "axe",
+        "stage": 5,
+        "reducedMotion": true,
+        "pulses": 63,
+        "outcome": "win",
+        "completeSnapshotSha256": "1850ba94b40195fd7220a56632cd96e1677eeb6a94eff2f47f5848f387cfb998"
+      },
+      {
+        "family": "rapier",
+        "stage": 1,
+        "reducedMotion": true,
+        "pulses": 42,
+        "outcome": "win",
+        "completeSnapshotSha256": "564b99718c62df41ac50e85c606616be857cef84a72554d323da2499be0ddb8d"
+      },
+      {
+        "family": "rapier",
+        "stage": 2,
+        "reducedMotion": false,
+        "pulses": 47,
+        "outcome": "win",
+        "completeSnapshotSha256": "1785bf237c0b4fb628bc563fd6f57e44e5a03f545771c0685590c4e2cbe9cda2"
+      },
+      {
+        "family": "rapier",
+        "stage": 3,
+        "reducedMotion": true,
+        "pulses": 47,
+        "outcome": "win",
+        "completeSnapshotSha256": "3a12a81080a5ea2158f6f1b58f4580467f1d177e188a178842c2a16188633e00"
+      },
+      {
+        "family": "rapier",
+        "stage": 4,
+        "reducedMotion": false,
+        "pulses": 63,
+        "outcome": "win",
+        "completeSnapshotSha256": "1ab6cce64a94f75e110f711596adf26b6ce228ab6bd3b966771020936e073dbc"
+      },
+      {
+        "family": "rapier",
+        "stage": 5,
+        "reducedMotion": true,
+        "pulses": 63,
+        "outcome": "win",
+        "completeSnapshotSha256": "501adecb9594501376a4ac9c644469c0382731b16f73bb2488730d980bde5387"
+      },
+      {
+        "family": "club",
+        "stage": 1,
+        "reducedMotion": true,
+        "pulses": 30,
+        "outcome": "win",
+        "completeSnapshotSha256": "66c892439de52afeb336c4ae0d5c484941b6e2e23e76f29d2c1240a987cdc565"
+      },
+      {
+        "family": "club",
+        "stage": 2,
+        "reducedMotion": false,
+        "pulses": 38,
+        "outcome": "win",
+        "completeSnapshotSha256": "83799d9db99bd9b99d9b66f32a340498f4e1caa1c43acbbdac86293586a946c4"
+      },
+      {
+        "family": "club",
+        "stage": 3,
+        "reducedMotion": true,
+        "pulses": 51,
+        "outcome": "win",
+        "completeSnapshotSha256": "8066eafa55d12a61ee04ee321ef3bb836dc03f85358febd9ab97573353842f3c"
+      },
+      {
+        "family": "club",
+        "stage": 4,
+        "reducedMotion": false,
+        "pulses": 59,
+        "outcome": "win",
+        "completeSnapshotSha256": "6f09552aebc93eb83f819627d612944ad9e82e12b6daa7817bef4333cc5f0c73"
+      },
+      {
+        "family": "club",
+        "stage": 5,
+        "reducedMotion": true,
+        "pulses": 68,
+        "outcome": "win",
+        "completeSnapshotSha256": "f5d7c2e385e84a6bc40fc3de853bf3460c23add3c73223c27c2e8dd2aac0cef5"
+      }
+    ]
+  },
+  "gaps": [
+    "acquisition: active penetration not naturally observed; no synthetic substitute claimed.",
+    "acquisition: active recoveryPending not naturally observed; no synthetic substitute claimed.",
+    "controller: active recoveryPending not naturally observed; no synthetic substitute claimed."
+  ],
+  "limitations": "Fixed deterministic sample, not balance/win-rate/visual-readability/performance evidence. Existing fullUI uses unsupported-Web-Locks temporary mode; tracked writes are not real browser persistence/cross-tab evidence. Canonical earned save is protocol-generated, not a private user export. No synthetic effects, new fixture, pending-overflow, IW/binding, unknown enemy or defeat fabrication. Baseline identity supplied by accepted recovery handoff and pinned complete manifest; no Git metadata or remote lookup. Body byte equality is source evidence, not pixels; overlay commands are deliberately not compared for equality."
+}

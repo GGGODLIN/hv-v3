@@ -1803,44 +1803,65 @@ function drawEnemy(enemy, x, y, index, t) {
     }
   }
   ctx.restore();
-  const width = boss ? 57 : 40;
-  const sy = y - (boss ? 80 : 57);
-  if (enemy.hp > 0 && enemy.id === targetPriorityView(state).targetId) {
-    ctx.save(); ctx.strokeStyle = '#e8ca82'; ctx.lineWidth = 1;
+  // Compact nameplates are screen-space overlays, never part of the animated body.
+  // Keep exact defenses/role and longer explanations in the existing DOM cards.
+  const tick = state.timing?.ticks || 0;
+  const status = !defeated && penetratedArmorStatus(enemy, tick);
+  const stun = !defeated && stunStatus(enemy, tick);
+  const bleed = !defeated && bleedStatus(enemy, tick);
+  const targeted = !defeated && enemy.id === targetPriorityView(state).targetId;
+  const effects = [];
+  if (status) effects.push({ text: `PA ${status.stacks} · ${status.ticksRemaining}T`, color: '#abe4d8' });
+  if (stun) effects.push({ text: stun.recoveryPending ? 'READY' : `STUN ${stun.ticksRemaining}T`, color: stun.recoveryPending ? '#f3bd91' : '#ddd0ff' });
+  if (bleed) effects.push({ text: `BW ${bleed.stacks} · ${bleed.ticksRemaining}T`, color: '#ffb6bb', droplet: true });
+  const width = boss ? 116 : 76;
+  const effectRows = (boss ? [effects] : [effects.filter(effect => !effect.droplet), effects.filter(effect => effect.droplet)]).filter(row => row.length);
+  const height = 32 + effectRows.length * 10;
+  const viewportWidth = typeof sceneWidth === 'number' ? sceneWidth : 320;
+  // The normal two-enemy formation leaves a central lane for damage numbers.
+  // This is a fixed screen-space offset, not a pulse, attack prediction or state.
+  const shift = !boss && (state.enemies?.length || 0) > 1 ? (x < viewportWidth * .73 ? -18 : 4) : 0;
+  const left = Math.round(Math.max(4, Math.min(viewportWidth - width - 4, x + shift - width / 2)));
+  const top = Math.round(Math.max(4, y - (boss ? 115 : 105)));
+  const hp = Number.isFinite(Number(enemy.hp)) ? Number(enemy.hp) : 0;
+  const maxHp = Number.isFinite(Number(enemy.maxHp)) ? Math.max(1, Number(enemy.maxHp)) : 1;
+  const ratio = Math.max(0, Math.min(1, hp / maxHp));
+  const hpPercent = ratio > 0 && ratio < .01 ? '<1' : ratio < 1 && ratio >= .995 ? '<100' : Math.round(ratio * 100);
+  ctx.save();
+  if (targeted) {
+    ctx.strokeStyle = '#e8ca82'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.ellipse(x, y + 6, boss ? 25 : 18, 5, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#f0dba4';
-    ctx.fillText('▼ 集火', x, sy - 39); ctx.restore();
   }
-  rect(x - width/2, sy, width, 3, '#10222a'); rect(x-width/2, sy, width * Math.max(0, enemy.hp) / Math.max(1,enemy.maxHp),3,boss?'#d29a76':'#b4a778');
-  ctx.font = '5px system-ui'; ctx.textAlign = 'center'; ctx.fillStyle = '#d8ded0'; ctx.fillText(enemy.name,x,sy-5,width+25);
-  if (enemy.hp > 0) {
-    const defense = enemyDefenseView(enemy, state.timing?.ticks || 0);
-    ctx.fillStyle = role.id === 'armored' ? '#e1cfa3' : role.id === 'agile' ? '#a9e2d8' : '#cedad1';
-    ctx.fillText(`${role.mark} ${role.label}`, x, sy - 29, width + 22);
-    ctx.fillStyle = '#d8ded0';
-    ctx.fillText(`現減 ${defenseRate(defense.mitigation)} · 閃 ${defenseRate(defense.evade)}`, x, sy - 21, width + 26);
-    ctx.fillText(`招 ${defenseRate(defense.parry)} · 擋 ${defenseRate(defense.block)}`, x, sy - 13, width + 26);
+  // Opaque backing removes the moon/forest from the glyph contrast calculation.
+  rect(left, top, width, height, targeted ? '#bda66f' : '#617474');
+  rect(left + 1, top + 1, width - 2, height - 2, '#0d191f');
+  ctx.textAlign = 'center'; ctx.font = '600 8px system-ui';
+  ctx.fillStyle = defeated ? '#9eaaa8' : '#f1eee1';
+  ctx.fillText(enemy.name, left + width / 2, top + 11, width - 10);
+  ctx.textAlign = 'left'; ctx.font = '7px system-ui'; ctx.fillStyle = '#c9d9d2';
+  ctx.fillText(`HP ${hpPercent}%`, left + 5, top + 22, width / 2 - 7);
+  if (targeted) {
+    ctx.textAlign = 'right'; ctx.font = '600 6.5px system-ui'; ctx.fillStyle = '#f0dba4';
+    ctx.fillText('▼ 集火', left + width - 5, top + 22, width / 2 - 7);
   }
-  const status = penetratedArmorStatus(enemy, state.timing?.ticks || 0);
-  if (enemy.hp > 0 && status) {
-    rect(x - width / 2, sy + 5, width, 10, '#132c32e8');
-    ctx.fillStyle = '#abe4d8'; ctx.fillText(`PA ${status.stacks} · ${status.ticksRemaining}T`, x, sy + 12, width);
-  }
-  const stun = stunStatus(enemy, state.timing?.ticks || 0);
-  if (enemy.hp > 0 && stun) {
-    const top = sy + (status ? 16 : 5);
-    rect(x - width / 2, top, width, 10, '#30273ae8');
-    ctx.fillStyle = stun.recoveryPending ? '#f3bd91' : '#ddd0ff';
-    ctx.fillText(stun.recoveryPending ? 'READY' : `STUN ${stun.ticksRemaining}T`, x, top + 7, width);
-  }
-  const bleed = bleedStatus(enemy, state.timing?.ticks || 0);
-  if (enemy.hp > 0 && bleed) {
-    const top = sy + 5 + (status ? 11 : 0) + (stun ? 11 : 0);
-    rect(x - width / 2, top, width, 10, '#3d222ce8');
-    ctx.fillStyle = '#ffb6bb'; ctx.fillText(`BW ${bleed.stacks} · ${bleed.ticksRemaining}T`, x, top + 7, width);
-    // A fixed droplet silhouette distinguishes bleeding even without animation or color.
-    polygon([[x + width / 2 + 5, top], [x + width / 2 + 2, top + 6], [x + width / 2 + 5, top + 9], [x + width / 2 + 8, top + 6]], '#ffb6bb');
-  }
+  rect(left + 5, top + 25, width - 10, 3, '#354447');
+  rect(left + 5, top + 25, (width - 10) * ratio, 3, boss ? '#d29a76' : '#b4a778');
+  ctx.font = '600 6.5px system-ui'; ctx.textAlign = 'center';
+  effectRows.forEach((row, rowIndex) => {
+    const cellWidth = (width - 12 - (row.some(effect => effect.droplet) ? 8 : 0)) / row.length;
+    row.forEach((effect, column) => {
+      const cellLeft = left + 6 + column * cellWidth;
+      const baseline = top + 38 + rowIndex * 10;
+      ctx.fillStyle = effect.color;
+      ctx.fillText(effect.text, cellLeft + cellWidth / 2, baseline, cellWidth - 2);
+      // Fixed in-plate droplet: recognizable without animation or color, never outside bounds.
+      if (effect.droplet) {
+        const dx = cellLeft + cellWidth + 4;
+        polygon([[dx, baseline - 6], [dx - 2, baseline - 2], [dx, baseline], [dx + 2, baseline - 2]], effect.color);
+      }
+    });
+  });
+  ctx.restore();
 }
 function drawScene(t, dt) {
   const w = sceneWidth, h = sceneHeight;

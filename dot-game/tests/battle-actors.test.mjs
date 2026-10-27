@@ -142,14 +142,15 @@ test('normal living animation still uses existing pulse/bob, while defeated acto
   }
 });
 
-test('live HP, role, target and stacked PA/STUN/BW overlays retain truth outside body styling', () => {
+test('live HP, target and stacked PA/STUN/BW nameplates retain truth outside body styling', () => {
   const state = engine.createGame(42); engine.act(state, 'start'); state.timing.ticks = 10;
   const target = enemy('碎晶甲蟲', { roleId: 'armored', penetratedArmor: { stacks: 2, expiresAtTick: 17 }, stun: { expiresAtTick: 14 }, bleeding: { stacks: 2, expiresAtTick: 16, damagePerTick: 2 } });
   state.enemies = [target]; const h = harness({ state });
   const trace = h.enemy(target), labels = trace.filter(row => row.op === 'fillText');
-  for (const text of ['▼ 集火', '碎晶甲蟲', '▣ 厚甲', 'PA 2 · 7T', 'STUN 4T', 'BW 2 · 6T']) assert.ok(labels.some(row => row.args[0] === text), text);
+  for (const text of ['▼ 集火', '碎晶甲蟲', 'HP 100%', 'PA 2 · 7T', 'STUN 4T', 'BW 2 · 6T']) assert.ok(labels.some(row => row.args[0] === text), text);
   assert.ok(labels.every(row => row.paint.globalAlpha === 1));
-  assert.ok(trace.some(row => row.op === 'fillRect' && row.args[2] === 40 && row.args[3] === 3), 'full-health bar still drawn at existing dimensions');
+  assert.ok(!labels.some(row => /厚甲|現減|閃|招|擋/.test(row.args[0])), 'duplicate role/defense text stays in existing DOM cards');
+  assert.ok(trace.some(row => row.op === 'fillRect' && row.args[2] === 66 && row.args[3] === 3), 'full-health bar fills the 76px nameplate inset');
 });
 
 test('actor draws never mutate game/enemies/items, consume random numbers, dispatch, save or load media', () => {

@@ -201,7 +201,7 @@ test('canvas preserves PA alongside stun and recovery-ready labels, including re
   labels.length = 0;
   enemy.hp = 0;
   runInNewContext('drawEnemy(enemy, 200, 150, 0, 0);', context);
-  assert.deepEqual(labels, ['守門者']);
+  assert.deepEqual(labels, ['守門者', 'HP 0%']);
 });
 
 test('gear detail uses flavor-only prose and one authoritative trait section', () => {
@@ -212,7 +212,7 @@ test('gear detail uses flavor-only prose and one authoritative trait section', (
   assert.equal(item.description, '穩定的中量武器。 戰棍：本版尚未實作武器特效。');
 });
 
-test('v0.35 retains the v3 storage namespace and candidate isolation while identifying schema v3', () => {
+test('v0.36 retains the v3 storage namespace and candidate isolation while identifying schema v3', () => {
   for (const key of ['save', 'preferences', 'writer']) assert.ok(js.includes(`${key}-v3`));
   assert.match(js, /const LEGACY_SAVE_KEYS = \[`hv-v3-dot-\$\{storageScope\}-save-v2`, `hv-v3-dot-\$\{storageScope\}-save-v1`\]/);
   assert.match(js, /legacyKeys: LEGACY_SAVE_KEYS/);
@@ -221,5 +221,5 @@ test('v0.35 retains the v3 storage namespace and candidate isolation while ident
   assert.doesNotMatch(js, /v0\.3 已讀取|請在 v0\.3 繼續/);
   assert.doesNotMatch(js, /save-v4|writer-v4|preferences-v4/);
   assert.match(js, /candidate-\$\{candidatePath\[1\]/);
-  assert.match(html, /v0\.35 · 持續開發/);
+  assert.match(html, /v0\.36 · 來源候選/);
 });
