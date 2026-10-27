@@ -126,7 +126,7 @@ export type Action =
   | { kind: 'spirit' };
 
 export type BEvent =
-  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; resisted?: number; spirit?: boolean }
+  | { t: 'hit'; from: 'player' | number; to: 'player' | number; dmg: number; crits: number; avoided: Avoid; element?: string; label?: string; weak?: boolean; resisted?: number; rtype?: string; spirit?: boolean }
   | { t: 'heal'; res: 'hp' | 'mp' | 'sp'; amount: number; label: string }
   | { t: 'status'; to: 'player' | number; text: string; phase?: boolean }
   | { t: 'death'; to: number }
@@ -238,6 +238,8 @@ export function nextRoundEstimate(s: BattleState, crit = false): number {
   return s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, s.defendTurns > 1, crit) : 0), 0);
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
+/** rc16（製作人要求，自訂）: physical hits log resistance only when it is at least this %. */
+export const PHYS_RESIST_LOG = 25;
 export function hpDanger(s: BattleState): boolean {
   // rc16 item 1（自訂，非原版）: one rule only — danger when the next round's crit-case estimate reaches current HP.
   if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp;
@@ -464,7 +466,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
     if (M?.combo.blade && r.crits > 0) fire(s);
     if (M?.combo.oc && s.oc >= cap && !M.freeSkill) { M.freeSkill = true; fire(s); }
   }
-  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit });
+  ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label, weak: r.avoidMult > 0 && isWeak(m, dtype), spirit: s.spirit, ...(r.avoidMult > 0 && m.spec[dtype] >= PHYS_RESIST_LOG ? { resisted: m.spec[dtype], rtype: dtype } : {}) });
   if (s.d.weaponProf) s.used[s.d.weaponProf] = (s.used[s.d.weaponProf] ?? 0) + 1;
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
   if (s.cp5 && r.avoidMult > 0) reflect(s, ti, r.damage, ev);
