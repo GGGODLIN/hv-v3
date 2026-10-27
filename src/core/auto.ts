@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { type Action, type BattleState, type SkillId, skillKit, suggestSkill, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, suggestSpell, quickAttack, windingUp, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -401,7 +401,9 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
   return cur;
 }
 function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
-  if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP
+  // rc20 diagnostic (sim only): SIM_POTPOLICY=ui follows the battle panel's decision (chargeAdvice → Z/D/S) instead of potHint, like a playtester.
+  if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTPOLICY === 'ui') { const a = chargeAdvice(b); if (a.danger) { const k = a.keys[0]; if (k === 'Z') return { kind: 'item', id: 'health' }; if (k === 'D') return { kind: 'defend' }; if (k === 'S' && !b.spirit) return { kind: 'spirit' }; } }
+  else if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP
   if (SIM_AI.naive && RULES.cp8 && SIM_AI.add.has('skills') && ENV?.SIM_GUARDHINT !== '0') { const g = guardHint(b); if (g) return { kind: g }; } // cp8-rc12 item 5: hinted mode follows the D hint (HP danger, potion unusable)
   if (SIM_AI.naive && !SIM_AI.add.has('counter')) return chooseNaive(b);
   if (SIM_AI.naive) { PHYS = physPlay(strategy); return mode ? chooseCp5(b, mode, () => chooseNaive(b)) : chooseNaive(b); }
