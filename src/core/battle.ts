@@ -239,7 +239,8 @@ export function nextRoundEstimate(s: BattleState, crit = false): number {
 }
 /** cp8-rc12 item 5（自訂，非原版）: the HP-danger test behind potHint, without the 「can drink now」 gate. */
 export function hpDanger(s: BattleState): boolean {
-  if (RULES.cp8 && CP8.potAfter > 0) return s.hp < s.d.hp * POT_HINT.hp || s.hp - nextRoundEstimate(s, ENV_EST_CRIT) < s.d.hp * CP8.potAfter;
+  // rc16 item 1（自訂，非原版）: one rule only — danger when the next round's crit-case estimate reaches current HP.
+  if (RULES.cp8) return nextRoundEstimate(s, true) >= s.hp;
   const th = s.monsters.some((m) => m.hp > 0 && m.charge > 0) ? POT_HINT.charging : POT_HINT.hp;
   return s.hp < s.d.hp * th;
 }
@@ -249,6 +250,16 @@ export function hpDanger(s: BattleState): boolean {
 export function guardHint(s: BattleState): 'spirit' | null {
   if (s.over || canUse(s, { kind: 'item', id: 'health' }) || !hpDanger(s)) return null;
   return !s.spirit && canUse(s, { kind: 'spirit' }) ? 'spirit' : null;
+}
+/** rc16 items 1–2（自訂，非原版）: the single charge-turn decision used by the battle panel, the status bar, the urgent line and the
+ *  death screen. keys: what to press, in order of preference. */
+export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: string[]; text: string };
+export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
+  const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
+  if (!danger) { const g = suggestSkill(s, target); return { danger, est, hp, keys: g ? [SKILLS[g].zh, 'A'] : ['A'], text: `${g ? `${SKILLS[g].zh} 或 ` : ''}A·攻擊（HP 安全：預估暴擊 ${est} < HP ${hp}，不需防禦）` }; }
+  if (canUse(s, { kind: 'item', id: 'health' })) return { danger, est, hp, keys: ['D', 'Z'], text: `D·防禦（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%）或 Z·生命藥水（剩 ${s.potions.health} 瓶）（HP 危險：預估暴擊 ${est} ≥ HP ${hp}）` };
+  const sp = guardHint(s) === 'spirit';
+  return { danger, est, hp, keys: [sp ? 'S' : 'A'], text: `${sp ? 'S·靈動架勢' : 'A·攻擊（儘快收掉怪物）'}（生命藥水${s.potions.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : '已用完'}，HP 危險：預估暴擊 ${est} ≥ HP ${hp}）` };
 }
 export function potHint(s: BattleState): boolean {
   if (!canUse(s, { kind: 'item', id: 'health' })) return false;

@@ -1,6 +1,6 @@
 import { CP8 } from '../core/cp8';
 import { iconKey } from './icons';
-import { act, alive, armCp5, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, guardHint, hpDanger, suggestSpell, quickAttack, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -65,6 +65,8 @@ export class App {
   townTab: 'char' | 'gear' | 'shop' | 'iw' = 'char';
   /** CP3 unlock / tutorial notices shown on the current screen. */
   notice: string[] = [];
+  /** rc16 item 2: last charge-turn decision shown in battle (reused by the death screen). */
+  lastAdvice: { turn: number; a: ChargeAdvice } | null = null;
   /** CP7: chosen abyss start checkpoint. */
   abyssStart: number | null = null;
   noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
@@ -327,7 +329,7 @@ export class App {
     const elemHint = spellSug ? this.arcaneHint(b, spellSug) : '';
     const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => esc(m.name)).join('、')} ${chargers.some((m) => m.charge > 0) ? `正在蓄力，下一擊 ×${BOSS_CHARGE_MULT} 傷害！` : chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext) ? '正在蓄力一擊（最大單擊可達最大 HP 一半以上）！' : '準備放出元素脈衝（大招）！'}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>` : '';
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ` · <b class="warn" data-chargestatus>${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！${this.guardOnly(b) ? (guardHint(b) === 'spirit' ? '建議 S·靈動架勢' : '建議繼續攻擊') : potHint(b) ? '建議防禦或喝藥' : '建議防禦'}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
+        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging ? ` · <b class="warn" data-chargestatus>${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！建議 ${((k) => k.map((x) => ({ A: 'A·攻擊', D: 'D·防禦', Z: 'Z·喝藥', S: 'S·靈動架勢' } as Record<string, string>)[x] ?? x).join(' 或 '))(chargeAdvice(b, this.target).keys)}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         ${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox">${spellSug ? `<div class="sugtitle" data-sugtitle="${spellSug.id}">建議：<b>${(Object.keys(SPELLS) as SpellId[]).indexOf(spellSug.id) + 1}·${SPELLS[spellSug.id].zh}</b>（${spellSug.pct > 0 ? `弱${TZ[spellSug.type] ?? spellSug.type}` : `${TZ[spellSug.type] ?? spellSug.type}傷害較高`}）</div>` : ''}<span class="hint">弱點／抗性（你的武器：${TZ[b.d.damageType] ?? b.d.damageType}）</span>${weakRow}</div>${decide}${skillHint}${readyHint}${elemHint}
         ${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
@@ -465,9 +467,10 @@ export class App {
   // rc14 item 3: the hpDanger gate let high-HP turns (741/850, 588/786, crit est ≥ HP/2) with the potion on cooldown fall through to 「D·防禦 或 Z」. Potion unusable → S/A only.
   /** rc15 item 3 (QA rc13 arcane: F10 661/724 and F13 724/724 with the potion on cooldown, F16 potions gone): outside HP danger the decision
    *  is A or the hinted skill only (never D). Danger + potion unusable → S / A (rc14 guardOnly). Danger + potion usable → D or Z (unchanged). */
-  decideLine(b: BattleState, hpPot: boolean): string {
-    if (RULES.cp8 && !hpDanger(b)) { const g = suggestSkill(b, this.target); return `<span data-decide="safe">決策：${g ? `<b>${SKILLS[g].zh}</b> 或 ` : ''}<b>A·攻擊</b>（HP 安全，不需防禦）</span>`; }
-    return `${this.guardOnly(b) ? `決策：${guardHint(b) === 'spirit' ? '<b>S·靈動架勢</b>' : '<b>A·攻擊</b>（儘快收掉怪物）'}（生命藥水${b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}${hpDanger(b) ? '，HP 危險' : ''}）` : `決策：<b>D·防禦</b>（${DEF.turns} 回合減傷 ${Math.round(DEF.mitigation * 100)}%${b.oc >= DEF.ocCost ? `，消耗 ${DEF.ocCost} OC 回 ${Math.round(DEF.hpRecover * 100)}% HP` : ''}）或 <b>Z·生命藥水</b>（${hpPot ? `剩 ${b.potions.health} 瓶` : b.potions.health > 0 ? `冷卻 ${b.itemCd.health} 回合` : '已用完'}）`}`;
+  decideLine(b: BattleState, _hpPot: boolean): string {
+    // rc16 items 1–2: one decision function (core chargeAdvice) for the panel, status bar, urgent line and death screen.
+    const a = chargeAdvice(b, this.target); this.lastAdvice = { turn: b.turn, a };
+    return `<span data-decide="${a.danger ? 'danger' : 'safe'}" data-keys="${a.keys.join(',')}">決策：<b>${a.text}</b></span>`;
   }
   guardOnly(b: BattleState): boolean { return RULES.cp8 && !canUse(b, { kind: 'item', id: 'health' }); }
   chargeExtra(b: BattleState, chargers: Monster[]): string {
@@ -477,9 +480,9 @@ export class App {
     const estDC = Math.max(...chargers.map((m) => chargeEstimate(b, m, true, true)));
     const pct = Math.round((est / b.d.hp) * 100), pctC = Math.round((estC / b.d.hp) * 100);
     const cd = b.itemCd.health;
-    const urgent = estC >= b.hp * 0.5; // cp8-rc7 P1 item 3: ≥ 50% of current HP; rc13 item 2: judged on the crit value
+    const urgent = RULES.cp8 ? hpDanger(b) : estC >= b.hp * 0.5; // rc16 item 1: same single rule as the decision // cp8-rc7 P1 item 3: ≥ 50% of current HP; rc13 item 2: judged on the crit value
     return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
-      + (urgent ? `<br><b class="warn" data-urgent="${estC}:${Math.round(b.hp)}">預估傷害 ≥ 目前 HP 一半：${this.guardOnly(b) ? (guardHint(b) === 'spirit' ? '改用 S·靈動架勢' : '繼續攻擊、儘快收掉怪物') : canUse(b, { kind: 'item', id: 'health' }) ? '先喝藥或防禦' : '先防禦'}</b>` : '')
+      + (urgent && (!RULES.cp8 || hpDanger(b)) ? `<br><b class="warn" data-urgent="${estC}:${Math.round(b.hp)}">預估暴擊傷害 ≥ 目前 HP：${chargeAdvice(b, this.target).text}</b>` : '')
       + (this.guardOnly(b) || (RULES.cp8 && !hpDanger(b)) ? '' : this.chargePayoff(b, chargers, est, estD))
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${guardHint(b) === 'spirit' ? '這回合改用 <b>S·靈動架勢</b>' : '繼續攻擊、儘快收掉怪物'}（D·防禦 在 OC 不足 25 時只減傷不回血，又放棄攻擊，此時不建議）</b>` : '');
   }
@@ -500,17 +503,22 @@ export class App {
     return `<br><span data-payoff="${save}">按 D·防禦：${parts.join('，')}${bash ? '；或 <b>Q·盾擊</b> 暈眩 → 直接打斷蓄力一擊（0 傷害）' : ''}</span>`;
   }
   /** cp8-rc6 item 6: 死因 line — source of the last hit, its damage, and one hint. */
+  /** rc16 item 2: the death screen repeats the decision the battle panel showed on the last charge turn (same chargeAdvice). */
+  adviceNote(): string {
+    const l = this.lastAdvice;
+    return l ? `<span data-deathadvice="${l.a.keys.join(',')}">第 ${l.turn} 回合蓄力時的提示：${l.a.text}</span>` : '看到 ⚠ 預告時，照戰鬥面板的「決策」按鍵。';
+  }
   deathCause(): string {
     const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);
     if (r.length) { // cp8-rc7 P1 item 5: the charged / big-move hit (if any) or the biggest single hit of the last turns, plus damage per turn
       const ch = hb.find((x) => x.charged), top = ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), maxHp = this.lastHit?.maxHp ?? 1;
-      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招：看到 ⚠ 預告：HP 危險且能喝藥就按 Z；藥水冷卻中就按 S·靈動架勢（可用時）或 A 儘快收掉怪物。` : top.dmg >= maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : top.dmg >= maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
       return `<p data-deathcause="${top.dmg}" ${ch ? `data-deathcharge="${ch.dmg}"` : ''}>死因：${ch ? '蓄力大招 ' : '最後幾回合最大單擊 '}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
     }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
-    const hint = h.charged ? '首領蓄力（⚠）時：HP 危險且能喝藥就按 Z；藥水冷卻中就按 S·靈動架勢（可用時）或 A 儘快收掉怪物。' : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
+    const hint = h.charged ? `首領蓄力（⚠）。${this.adviceNote()}` : h.dmg >= h.maxHp * 0.3 ? '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。' : 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
     return `<p data-deathcause="${h.dmg}">死因：${esc(h.who)}${h.label ? ' ' + esc(h.label) : ''} 造成 ${h.dmg} 傷害（佔最大 HP ${Math.round((h.dmg / h.maxHp) * 100)}%）<br><span class="hint">建議：${hint}</span></p>`;
   }
   resultHtml(): string {
@@ -784,6 +792,7 @@ export class App {
     const oc0 = openingOc(this.p, t, r);
     armBattle(this.battle, r);
     this.battle.oc += oc0;
+    this.lastAdvice = null;
     this.log = [...this.notice.map((n) => `<span class="unlock" data-unlock>${esc(n)}</span>`), `遭遇 ${esc(this.monsters.map((m) => m.name).join("、"))}`, ...this.monsters.map((m) => { const w = weaknesses(m), r = resistances(m); return w.length || r.length ? `<span class="enemyelem" data-enemyelem>${esc(m.name)}：${w.map((x) => `弱${ENC_TZ[x.type] ?? x.type} ${Math.abs(x.pct)}%`).join(' ')}${w.length && r.length ? '；' : ''}${r.map((x) => `抗${ENC_TZ[x.type] ?? x.type} ${x.pct}%`).join(' ')}</span>` : ''; }).filter(Boolean)];
     if (oc0) this.log.push(`<span class="unlock">首領戰意：開場 OC +${oc0}，可以直接進入靈動架勢</span>`);
     if (r.cp5) { this.cp5TipBox = []; const ev0 = armCp5(this.battle, r.pdot); this.cp5Tips(this.battle); this.cp5Log(ev0); }
