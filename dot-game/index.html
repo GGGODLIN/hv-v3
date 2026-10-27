@@ -2,13 +2,13 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#111c22"><meta name="description" content="獨立製作的 HV 風格自動戰鬥刷寶 RPG。配裝，出征，再突破。">
+  <meta name="theme-color" content="#10191f"><meta name="description" content="獨立製作的 HV 風格自動戰鬥刷寶 RPG。配裝，出征，再突破。">
   <title>霧境遠征 · HV × dot</title><link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <div class="app-shell">
   <header class="masthead">
-    <a class="brand" href="#main"><span><h1>霧境遠征<span class="version">v0.31 · 來源候選</span></h1></span></a>
+    <a class="brand" href="#main"><span><h1>霧境遠征<span class="version">v0.32 · 來源候選</span></h1></span></a>
     <div class="header-tools"><span id="save-status" class="save-indicator" role="status">準備存檔…</span><button id="sound-toggle" class="icon-button" aria-label="開啟音效" title="音效預設關閉">音效 關</button><button id="help-toggle" class="icon-button" aria-haspopup="dialog">怎麼玩</button><button id="settings-toggle" class="icon-button" aria-haspopup="dialog">存檔</button></div>
   </header>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -77,6 +77,7 @@
         <p id="inventory-filter-status" role="status" aria-live="polite" aria-atomic="true"></p><button id="reset-inventory-filters" type="button" class="secondary-button" disabled>清除背包篩選</button>
       </div>
       <div id="inventory-list" class="inventory-list"></div>
+      <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><h3>裝備檢視</h3><p>點選裝備查看屬性與差值；選售請用獨立勾選框。</p></div></section>
       <section class="selected-sale-tools" aria-label="自行選取出售"><p>勾選要出售的裝備，再逐件預覽。鎖定品不會被選取；不會依評分自動挑選。</p><p id="selected-sale-status" role="status" aria-live="polite"></p><div><button id="review-selected-sale" class="secondary-button" disabled>預覽自選出售</button><button id="clear-selected-sale" class="secondary-button" disabled>清除選取</button></div></section>
       <section class="safe-loot-controls" aria-label="安全戰利品整理">
         <label class="safe-loot-toggle" for="auto-sell-toggle"><input id="auto-sell-toggle" type="checkbox" aria-describedby="auto-sell-description"><span>安全自動出售</span><strong id="auto-sell-state">關 · 預設</strong></label>
@@ -85,7 +86,6 @@
         <p id="safe-loot-status" role="status" aria-live="polite">確認前不會出售。</p>
         <details class="safe-loot-rules"><summary>哪些會留，哪些可出售？</summary><p>只考慮未鎖定的粗製／尚可／普通裝備。必須有已裝備、或背包中已鎖定的同型裝備作為保留者：攻擊、防禦、生命、暴擊、閃避、格擋、招架值七項均不低，且至少一項較高。鎖定也能把備用裝備設為保留者。</p><p>同型須是本作可辨識的相同基底，不跨武器路線，也不以評分判定。屬性相同、有高有低的取捨、優良（Superior）以上、未辨識裝備都會留下。沒有受保護的保留者，就不自動出售。</p><p>這不是無限掛機：背包仍可能滿、戰鬥仍可能失敗；無離線補算。舊版分頁可能移除自動出售設定，回到本版時請確認是否需要重新開啟。</p></details>
       </section>
-      <section id="item-detail" class="item-detail" aria-label="裝備比較"><div class="detail-placeholder"><span>◇</span><h3>看看下一件好東西</h3><p>選擇一件裝備，比較它會為旅者帶來什麼改變。</p></div></section>
     </aside>
       <section class="camp-workspace" aria-label="營地與遠征工具">
         <div class="camp-navigation" role="tablist" aria-label="切換營地工具">
@@ -212,6 +212,6 @@
   <div class="commission-actions"><button data-close="commission-dialog" class="secondary-button" autofocus>取消，返回營地</button><button id="commission-confirm" class="primary-button" disabled>確認委託</button></div>
 </dialog>
 <dialog id="help-dialog"><div class="dialog-heading"><h2>遠征者手冊</h2><button data-close="help-dialog" aria-label="關閉說明">✕</button></div><p class="lead">不用搶按鍵。讓每次換裝，成為下一次突破。</p><ol class="help-steps"><li><strong>挑選路線，開始遠征。</strong>攻擊與技能自動進行；可以隨時回營。</li><li><strong>帶回戰利品。</strong>點裝備看比較，選擇適合的屬性，而不只看評分。</li><li><strong>換裝再出發。</strong>試著縮短同一關的時間，或打通更深的遠征。</li><li><strong>回營配置能力。</strong>AP 學習與裝入能力槽是兩個步驟；5 格 Major 槽免費，可免費遺忘退還 AP。達到下一階門檻後可花額外 AP 升階，但未裝配仍不生效。營地能力區分開列出本階與下一階的假設裝配預覽，預設不自動配置。</li><li><strong>妥善保存。</strong>遊戲存在此瀏覽器；定期匯出存檔，換裝置時再匯入。</li></ol><p class="muted">這是持續開發的獨立原型。研究模型與本作調整分開記錄；不是原版官方遊戲。背景掛機預設開啟；瀏覽器可能節流，關閉後無離線收益。停頓超過 5 秒整段不補算。</p><p class="muted">目前實作 HP Tank／MP Tank 各 10 階與 1H Damage 3 階，仍不是完整原版能力樹；其他能力後續擴充。營地免費重配、固定裝備 HP 加在 Tank 之後，以及自動治癒／藥水／換波恢復按最大 HP 計算，皆為本作整合或既有改編；Tank 會提升這些恢復量，不代表原版 Cure 規則。</p><button data-close="help-dialog" class="primary-button">知道了，出發吧</button></dialog>
-<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><p class="save-version-warning">v0.31 使用資料格式 v3；舊資料格式 v1／v2 會升級，世界之種從 0 開始，既有碎片保留；v1 的碎片從 0 開始。請先匯出備份並重新整理所有舊版分頁，再接手進度：v0.24／v0.25 不能讀取含 Exquisite IW1 的進度，即使資料格式同為 v3；v0.23 及更舊版不能讀取新格式。不要用舊分頁覆寫。仍沿用 v3 儲存命名空間，與資料格式版本不同。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
+<dialog id="settings-dialog"><div class="dialog-heading"><h2>存檔與設定</h2><button data-close="settings-dialog" aria-label="關閉設定">✕</button></div><p>自動存檔只保存在目前瀏覽器。清除網站資料或無痕模式可能讓存檔消失；匯出一份能更安心。</p><div class="save-actions"><button id="export-save" class="primary-button">匯出存檔</button><button id="import-save" class="secondary-button">匯入存檔</button><input id="save-file" type="file" accept="application/json,.json" hidden></div><label class="setting-row"><input id="background-toggle" type="checkbox" checked> 背景線上掛機（瀏覽器可能節流）</label><p class="muted">只計實際處理時間；關閉、重新整理或長時間休眠不補算。唯讀分頁不戰鬥、不寫入。接手會先保存，再安全回營；不支援接手時請關閉原分頁。</p><p class="save-version-warning">v0.32 使用資料格式 v3；舊資料格式 v1／v2 會升級，世界之種從 0 開始，既有碎片保留；v1 的碎片從 0 開始。請先匯出備份並重新整理所有舊版分頁，再接手進度：v0.24／v0.25 不能讀取含 Exquisite IW1 的進度，即使資料格式同為 v3；v0.23 及更舊版不能讀取新格式。不要用舊分頁覆寫。仍沿用 v3 儲存命名空間，與資料格式版本不同。</p><button id="takeover-button" class="secondary-button" hidden>接手此分頁</button><label class="setting-row"><input id="motion-toggle" type="checkbox"> 減少動畫與畫面震動</label><p id="save-detail" class="muted"></p><p class="muted">匯入會取代目前進度；匯入前會先要求確認。沒有離線補算。</p></dialog>
 <script type="module" src="./src/ui.js"></script>
 </body></html>

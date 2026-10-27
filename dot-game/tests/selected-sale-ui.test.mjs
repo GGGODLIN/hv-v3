@@ -70,11 +70,12 @@ test('selected sale: no implicit selection, locked check disabled and separate f
   assert.match(h.dom['selected-sale-status'].textContent, /已選 0 件/);
   assert.equal(h.dom['review-selected-sale'].disabled, true);
   for (const row of h.dom['inventory-list'].children) {
-    assert.equal(row.tag, 'div'); assert.equal(row.children[0].tag, 'label');
-    assert.equal(row.children[0].children[0].tag, 'input'); assert.equal(row.children[1].tag, 'button');
+    // v0.32 matches visual and reading order: inspect first, independently select sale second.
+    assert.equal(row.tag, 'div'); assert.equal(row.children[0].tag, 'button');
+    assert.equal(row.children[1].tag, 'label'); assert.equal(row.children[1].children[0].tag, 'input');
   }
-  const lock = h.dom['inventory-list'].children.find(row => row.children[0].children[0].attributes['aria-label'].includes('keep-locked'));
-  assert.equal(lock.children[0].children[0].disabled, true);
+  const lock = h.dom['inventory-list'].children.find(row => row.children[1].children[0].attributes['aria-label'].includes('keep-locked'));
+  assert.equal(lock.children[1].children[0].disabled, true);
   choose(h, 'keep-locked'); assert.equal(h.run('selectedSaleIds.size'), 0);
 });
 test('selected sale: filter/sort preserve exact intent and disclose hidden selection', () => {

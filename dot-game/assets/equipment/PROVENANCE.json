@@ -1,0 +1,32 @@
+{
+  "author": "dot for this independent game",
+  "date": "2026-10-27",
+  "origin": "Original hand-authored code-native SVG. Not Kenney; no screenshot-derived or generated bitmap art.",
+  "canvas": "64 64",
+  "files": {
+    "accessory.svg": {
+      "sha256": "425c1097c4adc8f3d3cb67d6860771a323e79632523f2d115c4bf978ba4ac347",
+      "bytes": 977
+    },
+    "armor.svg": {
+      "sha256": "11af46cac8a10fd5f62588d13f0f8bbc1aa2f0d7052a0eb5c127559bb7db9cd5",
+      "bytes": 819
+    },
+    "axe.svg": {
+      "sha256": "0bd8f11832e620f35d810c3764ad70864830236ecc57f352d1f20312ea9e9c70",
+      "bytes": 825
+    },
+    "club.svg": {
+      "sha256": "ef7be61d3dce617aeea381c31a8a165b52ca6e68e08eda324f976f5bd7070aef",
+      "bytes": 855
+    },
+    "rapier.svg": {
+      "sha256": "c797757ff829e27f903127f84e14439cb3ec055f7647239886c573652d1d2d2a",
+      "bytes": 843
+    },
+    "unknown.svg": {
+      "sha256": "1b72be7bc9a9959e25f14b29c48eb6c9d32404866fcb39561e13f1f7bc9d5895",
+      "bytes": 817
+    }
+  }
+}

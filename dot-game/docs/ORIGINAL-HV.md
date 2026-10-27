@@ -313,3 +313,8 @@ Only slotted abilities are presented as enabled configuration, with their curren
 ## v0.30 comparison keyboard-focus boundary
 
 Retaining keyboard focus on the same exact owned item after replacing comparison controls is an independent interface repair, not an original-HV mechanic. A visible fallback is used only for a replaced focused comparison control when no visible exact-item control remains. It does not select, equip, claim, filter, sell or invest in an item, and adds no state, RNG, save or progression rule. No new original-game research assertion is made.
+
+
+## v0.32 presentation and asset boundary
+
+Kenney UI Pack shapes and independently authored equipment icons are presentation-only; they introduce no original-HV mechanic or data claim. References to Elden Ring and Slay the Spire are structural interface study, not licensed game artwork. The unknown weapon silhouette is not an invented family classification. Candidate/current comparison values reuse the existing owned-item stats and signed difference; no gameplay, ownership or persistent schema changes are introduced. See ASSET-CREDITS.md for exact provenance.

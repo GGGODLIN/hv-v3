@@ -1,0 +1,286 @@
+{
+  "kind": "Independent v032 source-engine + JSDOM-controller replay; NOT browser/layout/actual keyboard acceptance",
+  "baselineCommit": "e5aa0213f14b9ead85e8b81c3b5b340259e469be",
+  "protocol": {
+    "seed": 42,
+    "attempts": 20,
+    "maxPulsesPerFight": 1000,
+    "pulseSeconds": 1,
+    "acquisition": "Fresh game at fixed seed42, default Balanced/stage1. Before each of 20 starts choose highest score in each slot from already-owned items (later item wins ties). Queue finishThenCamp, advance one-second source pulses until town/defeat or 1000 pulses. Retain all losses/censors; no sales, grants, stats edits, AP, commissions, binding, IW, rerolls or extra attempts. Compare full state and reports with exact v031 after public actions/pulses.",
+    "replay": "Unchanged canonical earned save loaded into candidate and v031 controller instances. Native DOM click/change/keydown/cancel dispatch under JSDOM plus deterministic source clock; complete state/RNG/action/storage-write parity at semantic checkpoints. Explicit simulated binding only for one separate naturally-earned investment branch; no real browser save.",
+    "limitation": "Ordinary replay uses ephemeral unsupported-Web-Locks mode (preference writes tracked; no automatic progress saves). Separate explicit emulated-owned lock callback checks stored progress byte parity and a synthetic version999 protection boundary; neither is a real browser lock or cross-tab test. No browser, real Tab/Enter interaction, CSS geometry, screenshots, scroll/focus visibility, hosted deployment or actual production-save validation. JSDOM dialog show/close polyfills are an explicit emulation boundary."
+  },
+  "baselineInputSha256": {
+    "index.html": "27864e272c3251002f103f9599fc65c97d13f268b1debcd5aa9c700499253434",
+    "style.css": "8ffc111e27f0c82ef938e027ba043b2ab011e6c80847e5eb49e044b3e214d1f2",
+    "src/ui.js": "d6957762a63725e9d37df3ffcba30069903bbaae5e782ffd690c379e3d5101a4",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "CHECKPOINT.json": "a3ad34af8bffb81d9a9f250c58ab04feb921429b9f4331523736c7d0b1119f6c"
+  },
+  "runnerSha256": "e1525c25164ce18fef36f50154ee00c0a71952cba0b202cf507c8d85be50aaca",
+  "jsdomVersion": "26.1.0",
+  "inputSha256": {
+    "index.html": "e6b7cf107c495072e8cb9e45923a0232f0f170398871e4e0367aad8d5d43d6c5",
+    "style.css": "fe0948b042bc8f867efe1baa8d79f91edfb442fe997aa66096102718873b333b",
+    "src/ui.js": "118b6bd1b5228c550b0244e29736649001258ebac7df317242bbdc917ee52ec7",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
+  },
+  "acquisition": {
+    "seed": 42,
+    "attempts": 20,
+    "pulses": 237,
+    "wins": 20,
+    "losses": [],
+    "rows": [
+      {
+        "attempt": 1,
+        "pulses": 32,
+        "outcome": "win"
+      },
+      {
+        "attempt": 2,
+        "pulses": 12,
+        "outcome": "win"
+      },
+      {
+        "attempt": 3,
+        "pulses": 13,
+        "outcome": "win"
+      },
+      {
+        "attempt": 4,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 5,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 6,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 7,
+        "pulses": 12,
+        "outcome": "win"
+      },
+      {
+        "attempt": 8,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 9,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 10,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 11,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 12,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 13,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 14,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 15,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 16,
+        "pulses": 8,
+        "outcome": "win"
+      },
+      {
+        "attempt": 17,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 18,
+        "pulses": 10,
+        "outcome": "win"
+      },
+      {
+        "attempt": 19,
+        "pulses": 9,
+        "outcome": "win"
+      },
+      {
+        "attempt": 20,
+        "pulses": 9,
+        "outcome": "win"
+      }
+    ],
+    "level": 11,
+    "inventory": 34,
+    "pending": 0,
+    "gold": 1520,
+    "fragments": 200,
+    "seeds": 20,
+    "canonicalSaveSha256": "b8b18fd04ff985759a2d5d2097ce177df3f4bf3970a5d78e93b2444cab5abec8",
+    "fullStateAndReportsExactV031": true
+  },
+  "replay": {
+    "checks": 30,
+    "damageQuarterSecondPulses": 8,
+    "finishQuarterSecondPulses": 122,
+    "inspectionIds": [
+      "starter-weapon",
+      "loot-34"
+    ],
+    "saleId": "loot-3",
+    "investmentId": "loot-27",
+    "investmentName": "精良・堅守暮鋼戰斧・屠戮",
+    "simulatedBindCost": 100,
+    "emulatedOwnedProgressWrites": 3,
+    "protectedRawSaveWrites": 0,
+    "results": [
+      {
+        "name": "fresh camp render",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "start uses original action",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "queue finish-to-camp",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "cancel finish-to-camp",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "naturally damaged after clock pulses",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "manual potion consumes exactly one existing potion",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "immediate retreat cancels queued finish",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "one-shot finish completes rewards then camp",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "post-finish pulses do not automatically restart",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "unchanged canonical earned save loaded",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "tab ArrowRight navigates to gear without game mutation",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "tab End navigates to growth without game mutation",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "tab Home navigates to battle without game mutation",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "tab ArrowLeft navigates to growth without game mutation",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "earned backpack starter-weapon repeated comparison/focus",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "earned backpack loot-34 repeated comparison/focus",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "equipped comparison stays state-neutral in exposed equipment area",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "self-selected sale preview/cancel consumes nothing",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "history dismissal and stale sale confirmation consume nothing",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "earned weapon bind preview/cancel leaves all resources",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "explicit simulated bind confirmation spends exact quoted fragments once",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "IW preview/cancel retains earned seed and exact weapon",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "history dismissal and stale IW confirmation consume nothing",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "actual earned weapon swap updates compact current-weapon label without gameplay divergence",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "revealed tactic select uses unchanged setting handler",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "secondary filter disclosure keeps exposed reset fallback and never changes game state",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "readonly controls refuse all battle mutations even with stale dispatch",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "emulated-owned storage writes exact state for start/queue/retreat",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "comparison under emulated ownership does not create progress save",
+        "exactStateRngActionsAndWrites": true
+      },
+      {
+        "name": "synthetic unsupported-save boundary preserves raw bytes under emulated ownership",
+        "exactStateRngActionsAndWrites": true
+      }
+    ]
+  }
+}

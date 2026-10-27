@@ -1,0 +1,61 @@
+{
+  "pack": "Kenney UI Pack 2.0",
+  "source_page": "https://kenney.nl/assets/ui-pack",
+  "license": "CC0 1.0",
+  "original_archive": "kenney_ui-pack.zip",
+  "archive_sha256": "a8a14a234911eb648c062622915c93e79e94e97cb7f9f375a70f6617f1174318",
+  "license_sha256": "69f7eaa5e05913b4d09cf5848f75390b5c3c9a409ef8555777803d9ca0c171fb",
+  "assets": [
+    {
+      "path": "assets/kenney-ui/slot-frame.svg",
+      "original_package_path": "Vector/Extra/input_square.svg",
+      "original_sha256": "ba27afcddc8685a2f7caeb388a3d5f1e0929741985974b7b24ebf71a61c972df",
+      "sha256": "747471d28de7ef6f91ab0fd2cfbbc16380de0e5089557172aaf7cc0f99325381",
+      "modifications": {
+        "added_viewBox": "0 0 64 64",
+        "color_remap": {
+          "#FFFFFF": "#182229",
+          "#DADCE7": "#73818a",
+          "#989AAF": "#43535d"
+        }
+      }
+    },
+    {
+      "path": "assets/kenney-ui/button-primary.svg",
+      "original_package_path": "Vector/Grey/button_rectangle_depth_flat.svg",
+      "original_sha256": "be71c445beb6968604a317d04616925b77c6bece00b9bba9746f4dbece3ba200",
+      "sha256": "f81100cec3262486247188874cae2e97743ca1fbfbf28e0712959e60e22448d7",
+      "modifications": {
+        "added_viewBox": "0 0 192 64",
+        "color_remap": {
+          "#989AAF": "#756143",
+          "#FFFFFF": "#d5c5a3",
+          "#DADCE7": "#bba680",
+          "#666880": "#5a4932"
+        }
+      }
+    },
+    {
+      "path": "assets/kenney-ui/button-secondary.svg",
+      "original_package_path": "Vector/Grey/button_rectangle_depth_flat.svg",
+      "original_sha256": "be71c445beb6968604a317d04616925b77c6bece00b9bba9746f4dbece3ba200",
+      "sha256": "5a35dd5a49f2b2387aaf7343e9062e44373f52be726efe75e46c286f4327d2d9",
+      "modifications": {
+        "added_viewBox": "0 0 192 64",
+        "color_remap": {
+          "#989AAF": "#34444e",
+          "#FFFFFF": "#596b76",
+          "#DADCE7": "#263640",
+          "#666880": "#111b22"
+        }
+      }
+    }
+  ],
+  "notes": [
+    "Selected vector originals and unmodified License.txt preserved alongside derived files.",
+    "No fonts, equipment art or other packs imported. All equipment-family artwork is independent dot work.",
+    "Recolor only plus SVG viewBox; path geometry is unchanged. No runtime remote asset fetch."
+  ],
+  "official_archive_url": "https://kenney.nl/media/pages/assets/ui-pack/f651646eab-1718203990/kenney_ui-pack.zip",
+  "archive_bytes": 1229750
+}

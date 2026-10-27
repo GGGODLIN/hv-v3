@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+<!-- Original dot equipment artwork, 2026. Not part of Kenney UI Pack. -->
+<g stroke="#10181d" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+<path d="M15 8c-8 15-2 30 17 36C51 38 57 23 49 8" fill="none" stroke="#10181d" stroke-width="6"/>
+<path d="M15 8c-8 15-2 30 17 36C51 38 57 23 49 8" fill="none" stroke="#b79564" stroke-width="3"/>
+<path d="m15 8 3 5m31-5-3 5M11 21l5 1m37-1-5 1M14 33l5-2m31 2-5-2" fill="none" stroke="#e4e9e5" stroke-width="2"/>
+<path d="M27 33h10v9H27z" fill="#b79564"/>
+<path d="m32 35 14 10-4 12-10 5-10-5-4-12z" fill="#b79564"/>
+<path d="m32 39 9 7-3 8-6 4-6-4-3-8z" fill="#6e9b9d"/>
+<path d="m32 39 9 7-9 3-9-3z" fill="#bdc7cb" stroke="none"/>
+<path d="m32 49 6 5-6 4z" fill="#456c78" stroke="none"/>
+<path d="m26 44 6-3" fill="none" stroke="#e4e9e5" stroke-width="2"/>
+<path d="m32 39 9 7-3 8-6 4-6-4-3-8z" fill="none"/>
+</g>
+</svg>

@@ -85,7 +85,7 @@ function renderRoutePreview() {
     return row;
   }));
 }
-const slotIcons = { weapon: '⚔', armor: '◈', accessory: '◇' };
+const slotIcons = { weapon: 'unknown', armor: 'armor', accessory: 'accessory' };
 const statNames = { attack: '攻擊', defense: '防禦', hp: '生命', crit: '暴擊', evade: '閃避', block: '格擋', parry: '招架值' };
 const rateStats = new Set(['crit', 'evade', 'block']);
 const stageNames = ['霧松邊境', '青苔古道', '斷月遺跡', '幽燈深林', '灰燼城門', '沉星聖所'];
@@ -1167,8 +1167,18 @@ function render(force = false) {
   eventEffects();
   restoreComparisonFocus(comparisonFocus);
 }
+// Local original artwork: family is resolved from owned item data, never a name guess.
+// Images are decorative; the adjacent full name/type/quality remain readable text.
+function itemIcon(item) {
+  const family = item.slot === 'weapon' ? resolveWeaponFamily(item) : null;
+  const key = ['axe', 'rapier', 'club'].includes(family) ? family : slotIcons[item.slot] || 'unknown';
+  const icon = node('span', 'item-icon'); icon.setAttribute('aria-hidden', 'true');
+  const image = node('img'); image.setAttribute('src', `./assets/equipment/${key}.svg`);
+  image.setAttribute('alt', ''); image.setAttribute('width', '64'); image.setAttribute('height', '64');
+  icon.append(image); return icon;
+}
 function itemContent(item) {
-  const icon = node('span', 'item-icon', slotIcons[item.slot] || '◇');
+  const icon = itemIcon(item);
   const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${itemTypeName(item)} · Lv.${item.level} · ${qualityName(item.quality)}`));
   if (Object.hasOwn(item, 'soulbound')) info.append(node('span', 'soulbound-badge', '靈魂綁定 · 隨等級成長'));
   if (item.itemWorld?.level === 1) info.append(node('span', 'item-world-badge', 'IW1 · 永久成長'));
@@ -1179,7 +1189,7 @@ function renderEquipment() {
   if (currentWeapon) currentWeapon.textContent = state.equipment.weapon.name;
   comparisonButtons.equipment.clear();
   $('equipment').replaceChildren(...Object.entries(state.equipment).map(([slot, item]) => {
-    const button = node('button', 'gear-button'); comparisonButtons.equipment.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));
+    const button = node('button', `gear-button${slot === selectedSlot ? ' selected' : ''}`); button.setAttribute('aria-pressed', String(slot === selectedSlot)); comparisonButtons.equipment.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));
     button.append(...itemContent(item)); button.title = `${slotNames[slot]}：${item.name}`;
     button.addEventListener('click', () => { selectedSlot = slot; selectedId = null; lastInventorySignature = ''; render(true); }); return button;
   }));
@@ -1295,7 +1305,7 @@ function renderInventory() {
   if (sort === 'level') items.sort((a, b) => b.level - a.level);
   if (!items.length) {
     const empty = node('div', 'empty-inventory');
-    empty.append(node('b', '', '◇'), node('span', '', labels.length ? '背包中沒有同時符合這些篩選的裝備；已穿裝備不在背包清單內。' : '背包還很輕。出發帶回第一件寶物吧；已穿裝備另列於旅者面板。'));
+    empty.append(node('span', '', labels.length ? '背包中沒有同時符合這些篩選的裝備；已穿裝備不在背包清單內。' : '背包還很輕。出發帶回第一件寶物吧；已穿裝備另列於旅者面板。'));
     if (labels.length) {
       const reset = node('button', 'secondary-button', '清除篩選，查看全部背包');
       reset.addEventListener('click', resetInventoryFilterView); empty.append(reset);
@@ -1325,7 +1335,7 @@ function renderInventory() {
     check.disabled = !tabOwner || state.mode !== 'town' || Object.hasOwn(item, 'soulbound') || isGearSetProtected(state,item.id) || !previewSelectedSale(state, [item.id]).available;
     selectedSaleCheckboxes.set(item.id, check);
     check.addEventListener('change', () => toggleSelectedSale(item.id, check.checked));
-    label.append(check, node('span', '', '選售')); row.append(label, button); return row;
+    label.append(check, node('span', '', '選售')); row.append(button, label); return row;
   }));
 }
 // Overflow is a separate FIFO queue, never a hidden part of the sale selection.
@@ -1368,7 +1378,7 @@ function renderItemDetail() {
   const pending = !selectedSlot && !inventoryItem && state.pendingLoot.some(item => item.id === selectedId);
   const item = selectedSlot ? state.equipment[selectedSlot] : inventoryItem || state.pendingLoot.find(item => item.id === selectedId);
   if (!item) {
-    const placeholder = node('div', 'detail-placeholder'); placeholder.append(node('span', '', '◇'), node('h3', '', '看看下一件好東西'), node('p', '', '選擇一件裝備，比較它會為旅者帶來什麼改變。')); $('item-detail').replaceChildren(placeholder); return;
+    const placeholder = node('div', 'detail-placeholder'); placeholder.append(node('h3', '', '裝備檢視'), node('p', '', '點選裝備查看屬性與差值；選售請用獨立勾選框。')); $('item-detail').replaceChildren(placeholder); return;
   }
   const restoreSoulbindFocus = document.activeElement?.dataset?.soulbindId === item.id;
   const restoreItemWorldFocus = document.activeElement?.dataset?.itemWorldId === item.id;
@@ -1386,15 +1396,17 @@ function renderItemDetail() {
     if (ruleText) trait.append(node('p', 'muted', ruleText));
   } else trait.hidden = true;
   const table = node('div', 'compare-table');
+  const tableHeading = node('div', 'compare-heading'); tableHeading.append(node('span', '', '屬性'), node('span', '', selectedSlot ? '目前裝備' : '現穿 → 選取'), node('span', '', selectedSlot ? '差值' : '比現穿')); table.append(tableHeading);
   const keys = new Set([...Object.keys(item.stats || {}), ...Object.keys(current?.stats || {})]);
   for (const key of keys) {
     if (!statNames[key]) continue;
     const value = Number(item.stats?.[key]) || 0, old = Number(current?.stats?.[key]) || 0, diff = value - old;
     const display = rateStats.has(key) ? `${(value * 100).toFixed(1)}%` : key === 'parry' ? value.toFixed(1) : format(value);
     const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : key === 'parry' ? diff.toFixed(1) : Math.round(diff)}`;
-    const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', display), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
+    const oldDisplay = rateStats.has(key) ? `${(old * 100).toFixed(1)}%` : key === 'parry' ? old.toFixed(1) : format(old);
+    const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', selectedSlot ? display : `${oldDisplay} → ${display}`), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
   }
-  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '右側差值與目前同部位裝備比較。招架值是裝備評級，不是機率百分比；未列時為 0。'}屬性評分不含流血、穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
+  const explanation = node('p', 'muted', `${selectedSlot ? '這件裝備正陪伴你的旅程。' : '中欄為現穿 → 選取，右側為同部位裝備差值。招架值是裝備評級，不是機率百分比；未列時為 0。'}屬性評分不含流血、穿透護甲、暈眩等特效效益，不是 DPS；跨武器路線不能只依高分換裝。`);
   const actions = node('div', 'detail-actions');
   if (!selectedSlot && !pending) {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (!dispatch('equip', item.id)) return; selectedId = null; showToast(`已裝備「${item.name}」`); render(true); });
@@ -1430,7 +1442,10 @@ function renderItemDetail() {
     const reason = !tabOwner ? '唯讀分頁：接手並回營後才能挑戰。' : state.mode !== 'town' ? '請先回營後預覽武器試煉。' : item.itemWorld?.level === 1 ? (item.quality === 'Exquisite' ? '原版 Exquisite 上限 IW15；本版只實作 IW1，IW2–15 尚未實作。' : '原版 Fair／Average／Superior 上限 IW10；本版只實作 IW1，IW2–10 尚未實作。') : !preview.available ? preview.reason : '1 世界之種 · 五回合 · 通關才獲永久 IW1；不自動換裝。';
     itemWorld.append(itemWorldButton, node('p', 'muted', reason));
   }
-  wrap.replaceChildren(quality, name, subtitle, description, trait, table, explanation, actions, soulbind, itemWorld);
+  const detailHeading = node('div', 'detail-item-heading');
+  const identity = node('div', 'detail-identity'); identity.append(quality, name, subtitle);
+  detailHeading.append(itemIcon(item), identity);
+  wrap.replaceChildren(detailHeading, table, actions, explanation, description, trait, soulbind, itemWorld);
   if (restoreSoulbindFocus && bindButton && !bindButton.disabled) bindButton.focus();
   if (restoreItemWorldFocus && itemWorldButton && !itemWorldButton.disabled) itemWorldButton.focus();
 }

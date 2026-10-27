@@ -124,7 +124,7 @@ test('removed comparison falls back without selecting another same-name item', a
   h.run(`act(state,'sell',${JSON.stringify(id)});render(true);`);
   assert.ok(h.document.activeElement === h.dom['slot-filter']);
   assert.equal(h.card('inventory', id), undefined);
-  assert.match(collect(h.dom['item-detail']), /看看下一件好東西/);
+  assert.match(collect(h.dom['item-detail']), /裝備檢視/);
 });
 
 test('hidden originals do not initiate fallback focus or target hidden replacements', () => {

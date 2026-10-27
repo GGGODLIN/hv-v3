@@ -2,11 +2,11 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
-## Current priority: scene-first presentation (2026-10-27)
+## Current priority: coherent scene and equipment presentation (2026-10-27)
 
-The user's latest feedback rejects the admin-panel appearance and template-like art direction. Presentation now takes priority over adding mechanics. v0.31 is one asset-independent structural slice: a compact traveler/status strip, wide battlefield, primary controls adjacent to the scene, deliberate backpack/tool hierarchy and secondary rules disclosures. Preserve visible health, current weapon, ownership/protected-save warnings and operation-time consent; retain v0.30 exact-ID focus behavior.
+v0.31 established scene-first hierarchy. The user then supplied six named resources, resolving the inaccessible X post's identity gap. v0.32 now uses two verified CC0 Kenney UI Pack shapes (three local recolored derivatives) and six original family SVGs, a regular readable inventory grid, adjacent comparison before disposal tools and consistent slate/brass controls. Reference screenshots inform organization only, never copied proprietary art.
 
-The shared X post returned403; asset identity, download source and license remain unknown. Do not retry mirrors, guess a pack, or claim the current independent canvas art is that asset set. A coherent verified-asset item grid and final scene art remain deferred. Source tests and DOM/CSS review cannot establish viewport fit or visual quality. Actual rendered desktop/responsive/keyboard review and publication remain pending the existing tool block; no extra gameplay feature is selected while this presentation request remains the priority.
+No new gameplay system is selected while presentation remains the request. Preserve names, quality text, explicit sale checkboxes, hidden selection, pending FIFO, exact-ID comparison focus and all consent/ownership warnings. Actual game render/responsive/keyboard acceptance is still pending the publication/preview constraints; source tests and static asset inspection are not viewport or beauty evidence. Existing independent canvas scene art is still temporary and was not relabeled as Kenney art.
 
 ## First playable checkpoint
 
