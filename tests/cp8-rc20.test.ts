@@ -56,3 +56,13 @@ describe('rc20 item 3: death screen', () => {
   });
   it('death-screen small text is brightened', () => expect(readFileSync('src/style.css', 'utf8')).toMatch(/\.result\.dead \.hint[^{]*\{ color: #e8dcc6/));
 });
+import { battleLoot, encounter, startRun } from '../src/core/run';
+describe('rc20 item 4: elite battle guarantees 1 health potion (自訂)', () => {
+  it('every elite battle drops ≥ 1 health potion; normal battles keep the original rolls', () => withCp8(() => {
+    for (let i = 0; i < 20; i++) {
+      const p = newPlayer(); starterKit(p); const run = startRun(p, i);
+      expect(battleLoot(run, encounter(run, pool, 'elite'), 'elite').potions.health ?? 0).toBeGreaterThanOrEqual(1);
+    }
+    expect(readFileSync('src/core/run.ts', 'utf8')).toMatch(/eliteHealthPotion[\s\S]*自訂，非原版/);
+  }));
+});

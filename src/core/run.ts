@@ -21,6 +21,8 @@ export const RULES = {
   dropAccel: 8,
   /** rc19 (b): battle potion drops use the original Restoratives rolls when cp8 is on. false = rc18 (3:1:1 on every non-equip drop). */
   origPotionDrop: true,
+  /** rc20 item 4（自訂，非原版）: with origPotionDrop the original rolls give ~0.5% potion per monster, so an elite battle also guarantees 1 health potion. */
+  eliteHealthPotion: true,
   /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
   expMult: C['P-exp-multiplier'].value.playerMultipliers,
   /** 暫定 (gameplay layer, CP3-2; CP3-fix 3 was 5/2): boss / elite kill EXP multipliers (no findings source). */
@@ -392,6 +394,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
+    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
