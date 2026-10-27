@@ -2,7 +2,7 @@ import { BUFF } from '../src/core/buffs';
 // cp9-rc8 QA（自訂）: bug b banner copy; QA c boss never winds up on the boss turn right after its own telegraphed heavy hit.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { minionLockTag9, defendEst9, defendRaw9, act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
+import { zHint, minionLockTag9, defendEst9, defendRaw9, act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
 import { CP5 } from '../src/core/cp5';
 import { urgentLine, pushOnce9 } from '../src/game/app';
 import { starterKit } from '../src/core/auto';
@@ -125,5 +125,27 @@ describe('cp9-rc8 QA', () => {
   });
   it('rc9 step 2: 大秘儀 MDB nerfed 25% → 5% (自訂), desc follows the value', () => {
     expect(BUFF.A9!.d!.mdbPct).toBe(0.05); expect(BUFF.A9!.d!.spellCritMod).toBe(0.5); expect(BUFF.A9!.desc).toBe('MDB +5%、法術暴擊倍率 +0.5');
+  });
+  it('rc9 QA A: every wind-up turn drops a queued A / spell (not only the fresh one), D/Z/X/C/Q survive', () => {
+    const src = readFileSync('src/game/app.ts', 'utf8');
+    expect(src).toMatch(/if \(fresh\) this\.chargeHoldUntil = performance\.now\(\) \+ CP8\.chargeHoldMs;\n[^\n]*\n[^\n]*\n\s*if \(q && !windSafeKey\(q\)\) q = null; if \(this\.queued && !windSafeKey\(this\.queued\)\) this\.queued = null;/);
+  });
+  it('rc9 QA C: potion on cooldown → no Z in the decision keys / text and no Z highlight, at any HP or threat', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      let n = 0;
+      for (let r = 0; r < 40; r++) {
+        const p = newPlayer(); starterKit(p); const d = derive(p);
+        const boss = buildMonster(pool.rows[r % pool.rows.length]!, 20, 'boss'); boss.hp = boss.maxHp = 1e6; boss.adb = d.hp * (0.2 + (r % 5) * 0.2);
+        const min = buildMonster(pool.rows[(r * 7 + 1) % pool.rows.length]!, 20, 'normal'); min.hp = min.maxHp = 1e6; min.adb = d.hp * 0.3;
+        for (const f of [0.08, 0.3, 0.6]) for (const heavy of [false, true]) {
+          const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [boss, min], { health: 5, mana: 0, spirit: 0 });
+          (boss as { heavyNext?: boolean }).heavyNext = heavy; b.hp = Math.round(d.hp * f); b.itemCd.health = 1 + (r % 3);
+          const a = chargeAdvice(b); n++;
+          expect(a.keys, a.text).not.toContain('Z'); expect(a.text).not.toMatch(/Z·/); expect(zHint(b)).toBe(false);
+        }
+      }
+      expect(n).toBe(240);
+    } finally { RULES.cp8 = o; }
   });
 });

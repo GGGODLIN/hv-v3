@@ -199,3 +199,8 @@
 - 自訂（rc9 定案 step 1，消融）：std sim mr arcane（seed 0/256）中位樓層：全開 99/94；關小怪鎖 79/79；關估計加總（extra9）99/94；兩者全關 79/79 → 上升全來自 item 2 小怪鎖。依製作人規則：撤回小怪鎖（`MIN9 = false`，小怪不吃 windHitCd，Boss 仍吃）；小怪蓄力時提示加「（小怪不受蓄力鎖）」(`minionLockTag9`)。估計加總（item 1）保留。
 - 自訂（rc9 定案 step 2，秘術機制消融；std sim mr arcane seed 0/256，已撤小怪鎖，基準 79/79、F100 38%/34%）：關 A9 大秘儀 MDB 54/54；全部 mdbPct（含通用力量祝福）49/54；元素印記 edb 59/59；edbAll 69/74；冰雷暈眩 69/74；stunAll 69/69；magCrit 74/74；spellCritMod 74/79；共振 64/79；manaCons、focMpPct 79/79（無影響）。只削最大單項：**A9 大秘儀 MDB +25% → +5%**（`A9MDB`，SIM_A9MDB 可覆寫；+10% → 59/59 仍 > 55，+5% → 54/54、F100 15%/21%）。法術暴擊倍率 +0.5 不變，磐石不動。
 - 自訂（rc9 定案 step 3，原 6(c)）：Boss 暈眩中標籤顯示將來的抵抗回合，例「暈眩 3（之後抵抗 2）」（值 = CP9.stunImm）；小怪無抵抗不加尾註。
+
+### cp9-rc9 QA A/B/C（自訂）
+- **A（oc7 F40 T22，自訂，UI only）**：核心 fuzz（boss+小怪、復活二階段、隨機 D，>17k 次）防禦回合實受傷害從未超過 defendEst9；378 = bossBurst 50% 上限（未防禦），故 T22 實際送出的不是 D。根因（推測，證據：T21 D 受 0、T22 受 378）：T21 D 動畫中緩衝的 A 在非「新」蓄力回合直接執行。修正：每個蓄力回合（不只第一回合）都丟棄排隊的 A／法術；D/Z/X/C/Q 照舊即時。測試：tests/cp9-rc8-qa.test.ts「rc9 QA A」。
+- **B**：10 張「HP 危險 ≥ HP」+「防禦後撐得住」截圖皆屬 estD < HP ≤ est，rc9 urgentLine 改為橘色「不防禦會死」，保命 clamp 情況為紅色「防禦只靠保命剩 1 HP」（rc9 item 8 測試）。無新增程式。
+- **C（oc6 F20 t8）**：所有 Z 提示路徑（chargeAdvice0/1、zHint、potHint、pdot 解除）都經 canUse（itemCd ≤ 0）。t8 HP 64 → t9 HP 634（+570）表示 t8 的 Z 實際喝下，截圖為 t9 冷卻 1。未找到略過 potCd 的路徑；新增回歸測試「rc9 QA C」（冷卻中 240 種狀態皆無 Z）。

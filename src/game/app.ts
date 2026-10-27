@@ -952,7 +952,10 @@ export class App {
     // CP8.chargeHoldMs, so tapping / holding A at 4x + 跳過動畫 cannot skip the decide panel. D / Z / X / C stay instant.
     if (RULES.cp8 && !b.over && b.monsters.some(windingUp)) {
       const fresh = !this.windWas; this.windWas = true;
-      if (fresh) { this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs; if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; } // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
+      if (fresh) this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs;
+      // cp9-rc9 QA item A（自訂）: every wind-up turn (not only the fresh one) drops queued A / spells, so a key buffered during the
+      // D animation cannot run into the announced 蓄力一擊 unseen (oc7 F40 T22: D at T21, buffered A at T22 took 378).
+      if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
     } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }
