@@ -516,7 +516,7 @@ export class App {
     return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
       + (urgent && (!RULES.cp8 || hpDanger(b)) ? urgentLine(chargeAdvice(b, this.target)) : '')
       + (this.guardOnly(b) || (RULES.cp8 && !hpDanger(b)) ? '' : this.chargePayoff(b, chargers, est, estD))
-      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${((k) => (k === 'D' ? `這回合按 <b>D·防禦</b>${chargeAdvice(b, this.target).text.includes('擋不住') ? '（防禦也擋不住，但能減傷）' : '（防禦後估計低於 HP）'}` : /^[QWE]·/.test(k) ? `這回合按 <b>${k}</b> 打斷` /* cp9-rc6 item 3（自訂）: never Z while on cooldown */ : k === 'S' ? '這回合改用 <b>S·靈動架勢</b>（防禦也擋不住）' : (hpDanger(b) ? '繼續攻擊、儘快收掉怪物（防禦也擋不住）' : '繼續攻擊、儘快收掉怪物')))(chargeAdvice(b, this.target).keys[0])}</b>` : '');
+      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${((k) => (k === 'D' ? `這回合按 <b>D·防禦</b>${chargeAdvice(b, this.target).text.includes('擋不住') ? '（防禦也擋不住，但能減傷）' : '（防禦後估計低於 HP）'}` : /^[QWE]·/.test(k) ? `這回合按 <b>${k}</b> 打斷` /* cp9-rc6 item 3（自訂）: never Z while on cooldown */ : k === 'S' ? '這回合改用 <b>S·靈動架勢</b>（防禦也擋不住）' : (hpDanger(b) ? '繼續攻擊、儘快收掉怪物（防禦也擋不住）' : '繼續攻擊、儘快收掉怪物')))(chargeAdvice(b, this.target).keys[0] ?? '')}</b>` : '');
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
   /** cp8-rc10 P0-4 */
