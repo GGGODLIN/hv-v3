@@ -730,3 +730,17 @@ dialog::backdrop { background: #071016d9; backdrop-filter: none; }
   .gear-button.selected, .inventory-card.selected { outline: 2px solid Highlight; }
   .selected-sale-check:has(input:checked) { border-color: Highlight; }
 }
+
+/* v0.33 — comparison state is text; keyboard rings stay inside scroll cards. */
+.gear-info .comparison-marker, .gear-button .gear-info .comparison-marker, .inventory-card .gear-info .comparison-marker {
+  display: inline-block; max-width: 100%; margin-top: 6px; padding: 1px 5px;
+  border: 1px solid #d0bc90; border-radius: 2px; color: #e4d5b0; font-size: 11px; font-weight: 650;
+  line-height: 1.5; white-space: normal; overflow-wrap: anywhere;
+}
+.inventory-card:focus-visible, .pending-loot-card:focus-visible, .gear-button:focus-visible {
+  outline: 3px solid #e4d5b0; outline-offset: -3px;
+}
+@media (forced-colors: active) {
+  .inventory-card:focus-visible, .pending-loot-card:focus-visible, .gear-button:focus-visible { outline-color: ButtonText; }
+  .gear-info .comparison-marker, .gear-button .gear-info .comparison-marker, .inventory-card .gear-info .comparison-marker { border-color: ButtonText; }
+}

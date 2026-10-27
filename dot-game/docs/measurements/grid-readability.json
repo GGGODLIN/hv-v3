@@ -1,0 +1,181 @@
+{
+  "kind": "v033 source-engine + simulated DOM replay; NOT browser, geometry, native keyboard, accessibility-tree or screen-reader acceptance",
+  "baselineCommit": "0cfde1801d288a94ff485cdc1e9a17442456bf89",
+  "baselineInputSha256": {
+    "src/ui.js": "118b6bd1b5228c550b0244e29736649001258ebac7df317242bbdc917ee52ec7",
+    "index.html": "e6b7cf107c495072e8cb9e45923a0232f0f170398871e4e0367aad8d5d43d6c5",
+    "style.css": "fe0948b042bc8f867efe1baa8d79f91edfb442fe997aa66096102718873b333b",
+    "CHECKPOINT.json": "7772c2dc1535bbfba2f44efcce8b487c47561b13264e315f3341eae14c004684"
+  },
+  "inputSha256": {
+    "src/ui.js": "40c7da091d64c8579c4bdeb5c27b745e04ac4bae202ad0655595321a57791522",
+    "style.css": "6b035814359582d91c23d0ea86c9bbedc9eb948bc4a8869a8cb21e8f8d835336",
+    "index.html": "738535bdbaaec704c6aeed656bcc86a35e38a7f05d0793fb455c9a622f7d6c96",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "tests/helpers/comparison-focus-harness.mjs": "4dc392fd8bb125f6f91d4a536c99725248bd157bc7e3222a702189a30aab7470"
+  },
+  "runnerSha256": "14906a269eb81cfe3b9f83fa49e6990344dd6c18dadc3c954e4a8b243cf77e68",
+  "protocol": "Fixed seed42, 20 attempts, stage1 Balanced, highest owned score per slot before start (later tie wins), finish-to-camp, one-second pulses, 1000 pulse cap; no grants/sales/rerolls/binding/IW or extra attempts. Reuse unchanged earned canonical save in both controller versions; manual sale preview is canceled, not committed.",
+  "acquisition": {
+    "seed": 42,
+    "attempts": 20,
+    "pulses": 237,
+    "wins": 20,
+    "losses": [],
+    "inventory": 34,
+    "canonicalSaveSha256": "b8b18fd04ff985759a2d5d2097ce177df3f4bf3970a5d78e93b2444cab5abec8",
+    "outcomes": [
+      {
+        "attempt": 1,
+        "pulses": 32,
+        "outcome": "win"
+      },
+      {
+        "attempt": 2,
+        "pulses": 12,
+        "outcome": "win"
+      },
+      {
+        "attempt": 3,
+        "pulses": 13,
+        "outcome": "win"
+      },
+      {
+        "attempt": 4,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 5,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 6,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 7,
+        "pulses": 12,
+        "outcome": "win"
+      },
+      {
+        "attempt": 8,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 9,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 10,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 11,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 12,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 13,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 14,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 15,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 16,
+        "pulses": 8,
+        "outcome": "win"
+      },
+      {
+        "attempt": 17,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 18,
+        "pulses": 10,
+        "outcome": "win"
+      },
+      {
+        "attempt": 19,
+        "pulses": 9,
+        "outcome": "win"
+      },
+      {
+        "attempt": 20,
+        "pulses": 9,
+        "outcome": "win"
+      }
+    ]
+  },
+  "replay": {
+    "checks": 9,
+    "inspectionIds": [
+      "starter-weapon",
+      "loot-18",
+      "loot-34"
+    ],
+    "repeatedComparisons": 18,
+    "saleId": "loot-3",
+    "results": [
+      {
+        "label": "unchanged naturally earned save loaded",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "repeat exact-ID inventory comparison starter-weapon",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "repeat exact-ID inventory comparison loot-18",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "repeat exact-ID inventory comparison loot-34",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "repeat exact-ID equipment comparison loot-27",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "repeat exact-ID equipment comparison loot-4",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "repeat exact-ID equipment comparison loot-15",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "hidden selected sale remains explicit exact-ID preview; cancel consumes nothing",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "readonly comparison keeps exact focus while independent sale stays disabled",
+        "exactStateRngActionsWrites": true
+      }
+    ]
+  },
+  "limitations": "Focus-faithful test DOM cannot calculate layout/paint or spoken accessibility output. Ordinary harness runs unsupported-Web-Locks mode, so no real browser lock or saved progress is exercised. Synthetic locked/bound/IW/preset/pending cases are covered separately by labeled tests, not claimed as earned in this replay."
+}

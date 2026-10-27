@@ -8,6 +8,10 @@ v0.31 established scene-first hierarchy. The user then supplied six named resour
 
 No new gameplay system is selected while presentation remains the request. Preserve names, quality text, explicit sale checkboxes, hidden selection, pending FIFO, exact-ID comparison focus and all consent/ownership warnings. Actual game render/responsive/keyboard acceptance is still pending the publication/preview constraints; source tests and static asset inspection are not viewport or beauty evidence. Existing independent canvas scene art is still temporary and was not relabeled as Kenney art.
 
+## v0.33 bounded readability correction
+
+The next source pass reproduces two concrete defects in v0.32 rather than adding another mechanic: scroll-container clearance is smaller than outward focus-ring extent, and explicit inventory/pending accessible labels omit visible identity/status text. Use inset card focus, a visible comparison-state label distinct from sale/protection, and complete concise accessible identity. Do not infer actual browser clipping or screen-reader output from source math/DOM tests. Keep assets, source controller exact-ID focus, consent and readonly rules intact. Real viewport/zoom/keyboard acceptance remains the next presentation gate, not permission to bypass the existing publication block.
+
 ## First playable checkpoint
 
 Complete expedition selection → autonomous combat → visible drops → equipment comparison/equip → persistent growth → repeat the same encounter with a measurable improvement. Keep one complete combat style before adding breadth. Distinguish original HV research rules from deliberately chosen idle adaptations in the release notes.

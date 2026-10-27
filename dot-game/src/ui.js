@@ -1177,11 +1177,18 @@ function itemIcon(item) {
   image.setAttribute('alt', ''); image.setAttribute('width', '64'); image.setAttribute('height', '64');
   icon.append(image); return icon;
 }
-function itemContent(item) {
+// Explicit card names must retain the same identity/investment text as their content.
+function itemAccessibleName(item) {
+  return [item.name, itemTypeName(item), qualityName(item.quality), `等級 ${item.level}`,
+    Object.hasOwn(item, 'soulbound') ? '靈魂綁定，永久鎖定，隨等級成長' : item.locked ? '已鎖定' : '',
+    item.itemWorld?.level === 1 ? 'IW1，永久成長' : ''].filter(Boolean).join('，');
+}
+function itemContent(item, comparing = false) {
   const icon = itemIcon(item);
   const info = node('span', 'gear-info'); info.append(node('strong', '', item.name), node('span', '', `${itemTypeName(item)} · Lv.${item.level} · ${qualityName(item.quality)}`));
   if (Object.hasOwn(item, 'soulbound')) info.append(node('span', 'soulbound-badge', '靈魂綁定 · 隨等級成長'));
   if (item.itemWorld?.level === 1) info.append(node('span', 'item-world-badge', 'IW1 · 永久成長'));
+  if (comparing) info.append(node('span', 'comparison-marker', '比較中'));
   return [icon, info];
 }
 function renderEquipment() {
@@ -1190,7 +1197,7 @@ function renderEquipment() {
   comparisonButtons.equipment.clear();
   $('equipment').replaceChildren(...Object.entries(state.equipment).map(([slot, item]) => {
     const button = node('button', `gear-button${slot === selectedSlot ? ' selected' : ''}`); button.setAttribute('aria-pressed', String(slot === selectedSlot)); comparisonButtons.equipment.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));
-    button.append(...itemContent(item)); button.title = `${slotNames[slot]}：${item.name}`;
+    button.append(...itemContent(item, slot === selectedSlot)); button.title = `${slotNames[slot]}：${item.name}`;
     button.addEventListener('click', () => { selectedSlot = slot; selectedId = null; lastInventorySignature = ''; render(true); }); return button;
   }));
 }
@@ -1313,19 +1320,21 @@ function renderInventory() {
     $('inventory-list').replaceChildren(empty); return;
   }
   $('inventory-list').replaceChildren(...items.map(item => {
-    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.dataset.inventoryId = item.id; comparisonButtons.inventory.set(item.id, button); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
+    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.dataset.inventoryId = item.id; comparisonButtons.inventory.set(item.id, button); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item, item.id === selectedId));
+    const protectedBySet = isGearSetProtected(state, item.id);
+    let comparison = '';
     if (Object.hasOwn(item, 'soulbound')) button.append(node('span', 'lock-indicator', '永久'));
-    else if (isGearSetProtected(state,item.id)) button.append(node('span', 'lock-indicator', '配裝'));
+    else if (protectedBySet) button.append(node('span', 'lock-indicator', '配裝'));
     else if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
     else {
-      const comparison = powerComparisonText(item, state.equipment[item.slot]);
+      comparison = powerComparisonText(item, state.equipment[item.slot]);
       if (comparison) {
         const marker = node('span', 'item-score-marker', comparison);
         marker.title = comparison === '異路線' ? '武器路線不同；屬性評分不含特效效益，不能視為直接升級。' : '屬性評分較高；不含特效效益，不保證更適合目前配裝。';
         button.append(marker);
       }
     }
-    button.setAttribute('aria-label', `${item.name}，${qualityName(item.quality)}，等級 ${item.level}${Object.hasOwn(item, 'soulbound') ? '，靈魂綁定，永久鎖定' : item.locked ? '，已鎖定' : ''}`);
+    button.setAttribute('aria-label', [itemAccessibleName(item), protectedBySet ? '配裝保護中' : '', comparison, item.id === selectedId ? '比較中' : ''].filter(Boolean).join('，'));
     button.setAttribute('aria-pressed', String(item.id === selectedId));
     button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
     const row = node('div', 'inventory-entry');
@@ -1354,8 +1363,8 @@ function renderPendingLoot() {
   $('pending-loot-list').replaceChildren(...state.pendingLoot.map((item, index) => {
     const button = node('button', `inventory-card pending-loot-card${item.id === selectedId ? ' selected' : ''}`);
     button.dataset.pendingLootId = item.id; comparisonButtons.pending.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));
-    button.append(node('span', 'pending-loot-order', `${index + 1}`), ...itemContent(item));
-    button.setAttribute('aria-label', `第 ${index + 1} 件待領：${item.name}，${qualityName(item.quality)}，等級 ${item.level}，ID：${item.id}，僅查看比較`);
+    button.append(node('span', 'pending-loot-order', `${index + 1}`), ...itemContent(item, item.id === selectedId));
+    button.setAttribute('aria-label', `第 ${index + 1} 件待領：${itemAccessibleName(item)}，ID：${item.id}，僅查看比較${item.id === selectedId ? '，比較中' : ''}`);
     button.setAttribute('aria-pressed', String(item.id === selectedId));
     button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
     return button;
