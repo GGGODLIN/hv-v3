@@ -174,3 +174,64 @@ button.suggest { outline: 3px solid #ffb040; box-shadow: 0 0 14px #ffb040; backg
 .loot-plain { opacity: .55; }
 .loot-plain:hover { opacity: 1; }
 .resisthit { color: #9aa8b8; } .enemyelem { color: #c0d8ff; }
+
+/* ===== rc17 visual pass (視覺改版，只改外觀，不改數值／規則) =====
+   Kenney UI Pack 2.0 (CC0, public/assets/kenney/License.txt), tinted by scripts/gen-kenney-ui.py.
+   One palette + one type scale for battle, map, town, equipment. Layout boxes keep their sizes (e2e positions). */
+:root {
+  --bg: #100d16; --panel: rgba(20, 16, 28, 0.95); --line: #3d3550; --text: #ece6f2; --dim: #9d93ad; --acc: #e8b04a;
+  --gold: #e8b04a; --hp: #d9443c; --mp: #3d86e0; --sp: #3fb764; --oc: #e8b04a; --danger: #e0483a; --good: #5fd47a;
+  --num: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif; /* 單一字族：中英數字同一套，數字用 tabular-nums */
+}
+html, body { background: radial-gradient(ellipse at 50% -10%, #2a2036, var(--bg) 65%); }
+h2 { font-size: 21px; color: var(--gold); letter-spacing: .04em; text-shadow: 0 2px 0 #0008; }
+h3 { color: #c8bcd8; border-bottom: 1px solid var(--line); padding-bottom: 3px; }
+.topbar .title { font-family: var(--num); letter-spacing: .12em; color: var(--gold); text-shadow: 0 2px 0 #000; }
+/* buttons: Kenney depth frame, 9-slice, drawn inside the existing box */
+button { border: 1px solid transparent; background: transparent; border-image: url("/assets/kenney/btn.png") 14 fill / 8px stretch; text-shadow: 0 1px 0 #000; }
+button:hover:not(:disabled):not([aria-disabled="true"]):not(.on):not(.big):not(.main):not(.suggest):not(.pothint) { background: transparent; border-color: transparent; border-image-source: url("/assets/kenney/btn-hover.png"); }
+button.on, button.big, .cmdbar button.main { border-image-source: url("/assets/kenney/btn-main.png"); background: transparent; color: #1c1206; text-shadow: 0 1px 0 #ffe2a080; font-weight: 700; }
+button.on small, button.big small, .cmdbar button.main small { color: #3a2610; }
+button.big:hover:not(:disabled), .cmdbar button.main:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-main.png"); filter: brightness(1.1); }
+button[aria-disabled="true"] { border-image: none; }
+button.ghost { border-image: none; border: 1px solid var(--line); }
+button.suggest { border-image-source: url("/assets/kenney/btn-main.png"); color: #1c1206; text-shadow: none; }
+button.pothint { border-image-source: url("/assets/kenney/btn-danger.png"); }
+/* panels: Kenney bordered square as frame */
+.panel, .cmdbar { border: 1px solid transparent; border-image: url("/assets/kenney/panel.png") 16 fill / 10px stretch; background: transparent; box-shadow: 0 10px 30px #000a; }
+.panel::before { content: ""; position: absolute; left: 14px; right: 14px; top: 46px; height: 4px; background: url("/assets/kenney/divider.png") center / 100% 2px no-repeat; opacity: .35; pointer-events: none; }
+.panel.node::before, .panel.result::before { display: none; }
+/* bars (player + map): dark trough, glossy fill, numbers in the numeric face */
+.bar { height: 18px; border: 1px solid #000; border-radius: 4px; background: #0b0910; box-shadow: inset 0 1px 3px #000, 0 0 0 1px #ffffff14; }
+.bar > div { border-radius: 3px; box-shadow: inset 0 1px 0 #ffffff55, inset 0 -3px 0 #0003; }
+.bar span { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: 11px; font-weight: 700; }
+.bar.hp > div { background: linear-gradient(#f06a5e, var(--hp) 55%, #8e2420); }
+.bar.mp > div { background: linear-gradient(#7ab0ff, var(--mp) 55%, #1f4f9a); }
+.bar.sp > div { background: linear-gradient(#7ae090, var(--sp) 55%, #1f7a3c); }
+.bar.oc > div { background: linear-gradient(#ffd98a, var(--oc) 55%, #9a6a1a); }
+/* HUD + log + hint panel */
+.hudl, .log { background: linear-gradient(#16121ff0, #0d0b12f0); border: 1px solid var(--line); box-shadow: inset 0 1px 0 #ffffff10; }
+.log .crit { color: #ffd84a; font-weight: 700; }
+.decide { border: 2px solid var(--danger); border-radius: 6px; background: linear-gradient(#5a1410e6, #3a0c08e6); }
+.decide[data-decide="safe"], .decide:has([data-decide="safe"]) { border-color: var(--good); background: linear-gradient(#123a20e6, #0b2414e6); animation: none; }
+.sugtitle { color: var(--gold); } .sugtitle b { background: var(--gold); color: #1c1206; }
+.weakbox b { color: var(--good); }
+/* map nodes: route cards on a path rail */
+.floor { border-left: 3px solid #3d355088; }
+.floor.cur { background: linear-gradient(90deg, #e8b04a22, transparent); outline: none; border-left-color: var(--gold); }
+.floor.past { opacity: .6; }
+.fn { font-family: var(--num); color: #c8bcd8; }
+.node { background: #1d1828; border-color: #ffffff30; border-radius: 6px; }
+button.node { border-image-source: url("/assets/kenney/btn.png"); }
+button.node:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-hover.png"); transform: translateY(-1px); }
+.node.chosen { outline: 2px solid var(--gold); background: #3a2c14; }
+/* town / equipment cards */
+.tabs { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.item { border-radius: 6px; box-shadow: 0 2px 0 #0006; }
+.iname { text-shadow: 0 1px 0 #000; }
+.prof { background: #ffffff0d; border: 1px solid var(--line); }
+.unlocks { border-color: var(--gold); background: #2a2210; }
+.stats td:last-child, .num { font-family: var(--num); letter-spacing: .03em; }
+/* element skills keep their color as a bottom stripe (border-image replaced the colored border) */
+.cmdbar button.el-fire { box-shadow: inset 0 -3px 0 #ff6a2a; } .cmdbar button.el-cold { box-shadow: inset 0 -3px 0 #7fd8ff; } .cmdbar button.el-elec { box-shadow: inset 0 -3px 0 #fff04a; }
+.cmdbar button.el-wind { box-shadow: inset 0 -3px 0 #8affb0; } .cmdbar button.el-holy { box-shadow: inset 0 -3px 0 #fff8c8; } .cmdbar button.el-dark { box-shadow: inset 0 -3px 0 #b060ff; }
