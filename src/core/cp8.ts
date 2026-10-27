@@ -58,4 +58,5 @@ export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, 
  *  that was telegraphed (any monster winding up at the start of the enemy phase). bossPlain: the same cap on an un-telegraphed
  *  turn, so a big turn always has a one-turn warning. */
 export const CP9 = { on: num('SIM_CP9') !== 0, bossBurst: num('SIM_BOSSBURST') ?? 0.5, bossPlain: num('SIM_BOSSPLAIN') ?? 0.3,
-  /** (c): above this HP share the advice keeps the potion unless D cannot save the turn (≤ the producer's 50%). */ zHp: num('SIM_ZHP') ?? 0.4 };
+  /** (c): above this HP share the advice keeps the potion unless D cannot save the turn (≤ the producer's 50%). */ zHp: num('SIM_ZHP') ?? 0.4,
+  /** (a): weight of the hit a stun skill cancels when its target is winding up (skill-hint value). */ stunW: num('SIM_STUNW') ?? 1 };

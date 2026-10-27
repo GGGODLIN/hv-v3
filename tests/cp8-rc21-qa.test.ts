@@ -1,5 +1,8 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it , beforeAll, afterAll} from 'vitest';
+import { CP9 } from '../src/core/cp8';
+// cp9（自訂）: these pin the rc19–rc21 advice rules, superseded by cp9 (c); run them with the CP9 layer off.
+beforeAll(() => { CP9.on = false; }); afterAll(() => { CP9.on = true; });
 import { chargeAdvice, chargeEstimate, startBattle, type BattleState } from '../src/core/battle';
 import { starterKit } from '../src/core/auto';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';

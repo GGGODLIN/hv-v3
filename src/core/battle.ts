@@ -246,7 +246,7 @@ export const windingUp = (m: Monster): boolean => m.hp > 0 && (m.charge > 0 || !
 export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1): number {
   const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
-  if (!RULES.cp8) return raw;
+  if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
   return Math.min(raw, tc, bb);
 }
@@ -368,17 +368,23 @@ const physExp = (s: BattleState, m: Monster, mult: number, opts: { noMit?: boole
   return Math.min(m.hp, s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (s.mods?.ssDamage ?? 0) : 1) * ce * (1 - mit) * (1 - m.spec[s.d.damageType] / 100));
 };
 /** rc13 item 3(b): expected damage of one skill this turn (overkill capped at each target's HP; area skills sum their targets). */
+/** cp9 (a)（自訂，非原版）: a stun that lands on a monster winding up (蓄力／重擊預告) is worth the hit it cancels for a turn,
+ *  so the skill hint lights at that moment instead of always 「A」. Counted as damage-equivalent (×CP9.stunW). */
+function stunWorth9(s: BattleState, m: Monster): number {
+  if (!RULES.cp8 || !CP9.on || m.hp <= 0 || !windingUp(m)) return 0;
+  return CP9.stunW * Math.min(chargeEstimate(s, m, s.defendTurns > 1, false), s.hp);
+}
 export function skillValue(s: BattleState, id: SkillId, target: number): number {
   const t0 = s.monsters[target]?.hp ? target : s.monsters.findIndex((m) => m.hp > 0); if (t0 < 0) return 0;
   const m = s.monsters[t0]!;
   switch (id) {
-    case 'shieldBash': return physExp(s, m, SK.shieldBash.multiplier);
+    case 'shieldBash': return physExp(s, m, SK.shieldBash.multiplier) + stunWorth9(s, m);
     case 'vitalStrike': return physExp(s, m, m.status.stun > 0 ? SK.vitalStrike.multiplierVsStunned : SK.vitalStrike.multiplier);
     case 'mercifulBlow': return m.status.bleedTurns > 0 && m.status.bleed > 0 && m.hp < m.maxHp * SK.mercifulBlow.executeBelowHpFraction ? m.hp : physExp(s, m, SK.mercifulBlow.multiplier);
     case 'greatCleave': return physExp(s, m, SK.greatCleave.multiplier, { crit: true });
     case 'rendingBlow': return areaOrder(s, t0, SK.rendingBlow.targets).reduce((a, i) => a + physExp(s, s.monsters[i]!, SK.rendingBlow.multiplier, { noMit: true }), 0);
     case 'shatterStrike': return areaOrder(s, t0, SK.shatterStrike.targets).reduce((a, i) => a + physExp(s, s.monsters[i]!, SK.shatterStrike.multiplier), 0);
-    case 'concussiveStrike': return Math.min(m.hp, s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit));
+    case 'concussiveStrike': return Math.min(m.hp, s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit)) + (m.status.stun > 0 ? 0 : stunWorth9(s, m));
   }
 }
 /** Expected damage of the quick attack (A) on this target. */
