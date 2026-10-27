@@ -43,3 +43,16 @@ describe('rc20 item 2: potion unusable → D / S / A, never a skill', () => {
   });
   it('lowHp is part of hpDanger', () => withCp8(() => { const b = qa(100, 1000, 3, 0, 0.0001); expect(lowHp(b)).toBe(true); expect(hpDanger(b)).toBe(true); }));
 });
+import { deathHint, DEATH_BURST_2T } from '../src/core/battle';
+describe('rc20 item 3: death screen', () => {
+  it('death within 2 turns (≥ 50% max HP in last 2 turns) never says 慢慢磨光', () => {
+    expect(DEATH_BURST_2T).toBe(0.5);
+    const t = deathHint(120, 120, 772, 420); expect(t).not.toContain('慢慢磨光'); expect(t).toContain('兩回合');
+  });
+  it('real slow attrition still says 慢慢磨光', () => expect(deathHint(80, 80, 772, 160)).toContain('慢慢磨光'));
+  it('headline is the lethal (last) hit, biggest shown separately', () => {
+    const s = readFileSync('src/game/app.ts', 'utf8');
+    expect(s).toMatch(/const top = this\.lastHit \?\?/); expect(s).toContain('致命一擊'); expect(s).toContain('data-deathbiggest');
+  });
+  it('death-screen small text is brightened', () => expect(readFileSync('src/style.css', 'utf8')).toMatch(/\.result\.dead \.hint[^{]*\{ color: #e8dcc6/));
+});

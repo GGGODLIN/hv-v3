@@ -358,3 +358,5 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
 .screen-town .hint .iwgain, .screen-town .hint b, .screen-map .hint .iwgain, .screen-map .hint b { color: #3b2412; }
 .screen-town .hint .iwgain b, .screen-map .hint .iwgain b { color: #1d5a1d; }
 .screen-town button:disabled, .screen-town button[aria-disabled="true"], .screen-map button:disabled, .screen-map button[aria-disabled="true"] { color: #565656; }
+/* rc20 item 3: darker small text on the death screen (contrast) */
+.result.dead .hint, .result.dead [data-deathturns], .result.dead [data-deathbiggest], .result.dead small { color: #e8dcc6; opacity: 1; }

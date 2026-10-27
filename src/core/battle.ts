@@ -861,7 +861,10 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
 /** rc19 (e)（製作人要求，自訂，非原版）: death-screen hint for a non-charged death. A last hit ≥ 15% of max HP is never
  *  called 「被慢慢磨光」. topDmg = biggest single hit of the last turns, lastDmg = the killing hit. */
 export const DEATH_BIG_LAST = 0.15;
-export function deathHint(topDmg: number, lastDmg: number, maxHp: number): string {
+/** rc20 item 3: damage in the last 2 enemy turns at or above this share of max HP counts as a burst death, never "slowly worn down". 暫定（自訂，非原版） */
+export const DEATH_BURST_2T = 0.5;
+export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2Taken = 0): string {
+  if (last2Taken >= maxHp * DEATH_BURST_2T) return `最後兩回合共受 ${last2Taken} 傷害（佔最大 HP ${Math.round((last2Taken / maxHp) * 100)}%）：兩回合內就會被打穿，HP 低於這個數字前就先喝藥或防禦。`;
   if (topDmg >= maxHp * 0.3) return '單擊佔最大 HP 三成以上：HP 低於這個數字前就先喝藥或撤退。';
   if (lastDmg >= maxHp * DEATH_BIG_LAST) return `最後一擊佔最大 HP ${Math.round((lastDmg / maxHp) * 100)}%（≥ ${DEATH_BIG_LAST * 100}%）：HP 低於這一擊的兩倍前就先喝藥或防禦。`;
   return 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';

@@ -523,10 +523,13 @@ export class App {
   deathCause(): string {
     const r = this.recent, hb = r.map((x) => x.big!).filter(Boolean);
     if (r.length) { // cp8-rc7 P1 item 5: the charged / big-move hit (if any) or the biggest single hit of the last turns, plus damage per turn
-      const ch = hb.find((x) => x.charged), top = ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), maxHp = this.lastHit?.maxHp ?? 1;
-      const hint = ch ? `${esc(ch.who)} 的${esc(ch.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : deathHint(top.dmg, this.lastHit?.dmg ?? r[r.length - 1]!.big?.dmg ?? 0, maxHp);
+      const ch = hb.find((x) => x.charged), maxHp = this.lastHit?.maxHp ?? 1;
+      const top = this.lastHit ?? ch ?? hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)); // rc20 item 3: headline = the lethal (last) hit
+      const biggest = hb.reduce((x, y) => (y.dmg > x.dmg ? y : x)), last2 = r.slice(-2).reduce((t, x) => t + x.taken, 0);
+      const hint = top.charged ? `${esc(top.who)} 的${esc(top.label ?? '重擊')}是蓄力／大招。${this.adviceNote()}` : deathHint(biggest.dmg, top.dmg, maxHp, last2);
       const per = r.map((x) => `第 ${x.turn} 回合 -${x.taken}`).join('、');
-      return `<p data-deathcause="${top.dmg}" ${ch ? `data-deathcharge="${ch.dmg}"` : ''}>死因：${ch ? '蓄力大招 ' : '最後幾回合最大單擊 '}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
+      const big = biggest.dmg > top.dmg ? `<br><span data-deathbiggest="${biggest.dmg}">最後幾回合最大單擊：${esc(biggest.who)}${biggest.label ? ' ' + esc(biggest.label) : ''} ${biggest.dmg}</span>` : '';
+      return `<p data-deathcause="${top.dmg}" ${top.charged ? `data-deathcharge="${top.dmg}"` : ''}>死因：致命一擊 ${top.charged ? '（蓄力大招）' : ''}${esc(top.who)}${top.label ? ' ' + esc(top.label) : ''} 造成 ${top.dmg} 傷害（佔最大 HP ${Math.round((top.dmg / maxHp) * 100)}%）${big}<br><span data-deathturns>最後 ${r.length} 回合受到的傷害：${per}</span><br><span class="hint">建議：${hint}</span></p>`;
     }
     const h = this.lastHit;
     if (!h) return '<p data-deathcause="none">死因：無法判定（最後一擊不是敵人的普通攻擊）</p>';
