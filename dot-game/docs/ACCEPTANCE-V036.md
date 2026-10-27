@@ -24,3 +24,7 @@ JSON SHA-256：`a88d761a503f239f9558c30abe3bb881e46403d02779bd50d6b18ba69c92fa80
 舊測試僅更新 canvas 呈現預期：battle-actors、battle-actors-audit、role-ui、weapon-ui 的 HP／role-defense 移位／特效行數與血條寬度；原角色形體、完整 DOM 防線及機制存檔斷言保留。第一個開發中全套曾漏 weapon-ui 的死亡 HP 0% 新標示預期；已精確更正並要求完整重跑，不隱藏失敗。
 
 詳見 AUDIT-V036.md 與 ENEMY-NAMEPLATES-MEASUREMENTS.md。
+
+## 接受phase後重新驗證
+
+root於2026-10-27 13:28 UTC明確接受有限desktop候選，見 BROWSER-QA-V036.md。只將index的「來源候選」改「持續開發」與8個對應精確測試標示；功能runtime/CSS/assets不改。再次完整 **1,919/1,919** 與四runtime syntax通過，179輸入前後一致，aggregate `6d16bf1abb1f187c886cc47aa3d62e604b20347b190ec6ce90b98fd8da4e8aa5`。自然receipt保留原來源phase的hash，沒有誤稱該receipt原HTML hash等於接受phase。

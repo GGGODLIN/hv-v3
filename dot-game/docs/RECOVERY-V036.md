@@ -19,3 +19,14 @@
 候選路徑限定 `public/play/hv-v3-dot/candidates/v0.36/`，正式限定 `public/play/hv-v3-dot/`。完整來源備份先於發布；隔離key不得與正式共用；exact CI／HTTP只證明部署身分，不能代替真實遊玩。候選接受後先備份接受來源，再替換正式並以其原profile實測，不匯入候選進度。
 
 所有寫入 expected HEAD、non-force，保留來源範圍外與網站其他作品／候選。拒絕或結果不明時先讀回，不盲重試或換route。舊HV與dot-archive保持暫停。測試／備份／發布各階段 exact證據後續追加，尚未完成者不預填。
+
+## 候選來源與部署證據（尚非 browser accepted）
+
+- 完整來源146：`f079b8ffec04f7834768461bde8d809cab749711`，407檔／406payload。27變更在ref前後逐檔讀回；380不變檔與409範圍外blob/mode保留。
+- 隔離候選147網站：`1b84676530bb34b8c62fc44025fa00b0642ff9bf`；Pages `40511494672` exact SHA success；21runtime與directory index共22 HTTP回應200且bytes一致。
+- 候選只位於 `public/play/hv-v3-dot/candidates/v0.36/`；原4026網站blob/mode保留，原正式v0.35之21runtime＋directory也exact核對。
+- 此時尚未真正browser驗收，也未發布正式v0.36。最新已驗收恢復版本仍是上文v0.35，不因候選較新就冒充已驗收。
+
+## 候選已接受（尚待正式發布）
+
+root已於2026-10-27 13:28 UTC明確接受有限桌面候選，詳見 BROWSER-QA-V036.md。接受phase完成1919測試與四語法重新驗證；148完整備份後才可發布正式149。上節「尚非browser accepted」保留其當時狀態，不代表目前仍阻擋。

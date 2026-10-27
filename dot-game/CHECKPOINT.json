@@ -1,8 +1,8 @@
 {
-  "checkpoint": "146-v036-enemy-nameplates-source",
+  "checkpoint": "148-v036-browser-accepted",
   "version": "0.36.0",
-  "status": "source-tested-awaiting-isolated-browser-acceptance",
-  "source_base": "609cf796630d03973ccf0a3d4a9f224b848b00c4",
+  "status": "bounded-desktop-accepted-awaiting-stable-publication",
+  "source_base": "f079b8ffec04f7834768461bde8d809cab749711",
   "base_accepted_recovery": "609cf796630d03973ccf0a3d4a9f224b848b00c4",
   "accepted_website": "46c3d758e435adcde0e77456f296b7dccd26fbae",
   "scope": "Opaque compact enemy nameplates with name, explicitly percentage HP, target and active effect rows. Repeated canvas role/defense lines removed; exact existing DOM details retained. Actor bodies, scene/background/layout/core/RNG/save unchanged; canvas aria and version metadata updated.",
@@ -12,7 +12,7 @@
   "new_independent_audit_tests": 14,
   "new_engine_tests": 0,
   "source_input_files_unchanged_during_final_suite": 179,
-  "audit_input_manifest_sha256": "acdad29b3e480974968d6aebacde9f26b3ce67f554152ddd6f6742cbc91dc6d7",
+  "audit_input_manifest_sha256": "6d16bf1abb1f187c886cc47aa3d62e604b20347b190ec6ce90b98fd8da4e8aa5",
   "historical_test_adjustments": "Only old canvas overlay expectations changed in battle-actors, battle-actors-audit, role-ui and weapon-ui; earlier defense DOM, body and gameplay assertions retained. Version-only assertions moved to v036 source candidate.",
   "natural_replay": {
     "receipt_sha256": "a88d761a503f239f9558c30abe3bb881e46403d02779bd50d6b18ba69c92fa80",
@@ -51,8 +51,54 @@
     "nameplate_source": "src/ui.js original code-native labels; existing actor bodies and all asset bytes unchanged",
     "credits": "docs/ASSET-CREDITS.md"
   },
-  "visual_acceptance": "Pending actual candidate render; source traces are not pixels or art-quality acceptance. Background and chest unchanged.",
-  "browser_acceptance": false,
+  "visual_acceptance": "Actual desktop single/double/boss labels and PA/HP/target separate from body and sampled damage numbers. Not full art, narrow/mobile, compound effects, READY or extreme HP acceptance.",
+  "browser_acceptance": {
+    "accepted_utc": "2026-10-27T13:28:44Z",
+    "viewport": [
+      1180,
+      757
+    ],
+    "scroll_width": 1165,
+    "broken_images": 0,
+    "app_console_errors": 0,
+    "known_extension_console_entries": 62,
+    "natural_stage5_wins_seconds": [
+      15.8,
+      21.0,
+      15.8,
+      15.8
+    ],
+    "before": {
+      "level": 17,
+      "gold": 3489,
+      "wins": 54,
+      "inventory": 101,
+      "fragments": 90,
+      "seeds": 8
+    },
+    "after": {
+      "level": 18,
+      "gold": 4065,
+      "wins": 58,
+      "inventory": 106,
+      "hp": 1042,
+      "fragments": 130,
+      "seeds": 12
+    },
+    "original_held_ids_preserved": 104,
+    "exact_original_records": 101,
+    "naturally_scaled_bound_records": 3,
+    "bound_anchor_roll_fields_unchanged": true,
+    "new_natural_items": 5,
+    "new_ids": "loot-104..loot-108",
+    "original_equipment_restored": true,
+    "other_policy_ability_gear_set_fields_unchanged": true,
+    "reload_preserved": true,
+    "pre_export_sha256": "519630a0a6b0d8fa9b0c32ada8c096a79455a2d455cbbcd59e4df602e16582a4",
+    "post_export_sha256": "32dd76295d58bff694dc4cf3f9e8ae13524dde7a00297efeb653f42a58a9d0f9",
+    "raw_exports_in_source": false,
+    "limits": "BW DOM only; active STUN not captured; triple effects/READY/extreme HP source-only; reduced-motion not retested in browser; mobile/narrow/AT untested."
+  },
   "assistive_technology_acceptance": false,
   "website_staging": {
     "candidate_path": "public/play/hv-v3-dot/candidates/v0.36/",
@@ -60,14 +106,14 @@
     "candidate_before_formal": true,
     "source_backup_before_publication": true
   },
-  "publication": "Not yet attempted for this frozen candidate. Prior v035 remains accepted formal.",
+  "publication": "Candidate147 verified and bounded desktop accepted. Stable v035 retained until accepted-source backup, formal CI/HTTP and original-profile smoke.",
   "outside_source_blobs_to_preserve": 409,
   "runtime_publication_files": 21,
-  "frozen_utc": "2026-10-27T13:14:04.050781+00:00",
+  "frozen_utc": "2026-10-27T13:30:33.441908+00:00",
   "files": {
     "README.md": {
-      "bytes": 27366,
-      "sha256": "b16dd28e16f3f58d594a9d57c32a8fba27a8b82c2a25bf3bbc6dc95825c55704"
+      "bytes": 28585,
+      "sha256": "4ea38fa885869890cad62b1a31465541023b91fa6cd103ae93aa480de9c106fc"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -238,8 +284,8 @@
       "sha256": "864b463428f8278fcee02958b1669b581e9310f7177e78d1a57df61b4d57fedb"
     },
     "docs/ACCEPTANCE-V036.md": {
-      "bytes": 2895,
-      "sha256": "1e200559236b378c6b19bb0098261d3a799c228c7b1466c15edd5ca7fdb8dfa1"
+      "bytes": 3392,
+      "sha256": "81e428a7eab8467c8953a8334f4b74fb42de798e4269af658a1447d2fb3d0ae9"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -350,8 +396,8 @@
       "sha256": "965a6feb4ae9eae1ebaf9d1f42dbba4bf2bbb85d6ea9849a60b3f5803be91b32"
     },
     "docs/AUDIT-V036.md": {
-      "bytes": 12543,
-      "sha256": "05c3051c4d428ce0661b48149c70d7a892541506b89544b1e42100946f048d5b"
+      "bytes": 13040,
+      "sha256": "3275dffd623d21a80e1407aae20ce2fed5f6f08649a7cbe0c7a997a56597faa6"
     },
     "docs/BATTLE-ACTORS-MEASUREMENTS.md": {
       "bytes": 7611,
@@ -444,6 +490,10 @@
     "docs/BROWSER-QA-V035.md": {
       "bytes": 6610,
       "sha256": "e1e1433254230caef8303549e97dc561a79e9a6102e2feaba117098f009fdc1e"
+    },
+    "docs/BROWSER-QA-V036.md": {
+      "bytes": 3380,
+      "sha256": "f14bc545a77ff35586869537128742f6693aa03aa52c60cef723cd433ed218ac"
     },
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
@@ -710,20 +760,20 @@
       "sha256": "3939f22ce2d99c90c93b964622348ca155df6cc6c4e389ddadcd7aac8fdb3188"
     },
     "docs/RECOVERY-V036.md": {
-      "bytes": 2364,
-      "sha256": "2bb099ec3b7c8881c3f317fc93cd71de3aec98951373465163474290e6de7123"
+      "bytes": 3385,
+      "sha256": "52f060907828613046e297dea1aa0742b8c586749d1262c68e798e0a212be25f"
     },
     "docs/RELEASES.md": {
-      "bytes": 50513,
-      "sha256": "b02d6d9ac11167a7c51e95a5e13fded405a51cf9ec77f6c0e976038c85642292"
+      "bytes": 51727,
+      "sha256": "72bc5916f8c2cbff9b55eab489be88a8d740cf990c60d99a5acfb54ed3f895c0"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 29480,
-      "sha256": "e786aa70088cc4512eaf35a9d8cc42d22c15ef940099659c1bd299cf685e2ea8"
+      "bytes": 29800,
+      "sha256": "4a9b2e3b3190fd829be149b6cbc36dc5147cdc91a7acd2fbacf33339fb6ed713"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -754,8 +804,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 30112,
-      "sha256": "a96288bebf50271f8d827f7909d80fdae6c7b6b7acc12baf4e72613174bf0c3a"
+      "bytes": 31326,
+      "sha256": "964df7cc326afbb432d95b1612ef2d234a3ed18dcaac3234d9cef6318f9aa488"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -967,7 +1017,7 @@
     },
     "index.html": {
       "bytes": 44963,
-      "sha256": "f3a2abab16b01ae78681b25637ce0744b06ce295f2b782f96acc8f0a64e7f456"
+      "sha256": "35c587dd790ca7619a2a16aec79d1fd43f880add7a7f3c2c0413f40c0e07db2d"
     },
     "package.json": {
       "bytes": 207,
@@ -1087,7 +1137,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "4b745796e943a5f9dc3bb64a6e30b563e59049eb505923c75d74e80305763baf"
+      "sha256": "7b53a2e36aaa6bd2c37e9543d766d4d3da16cdc2165d8c77ff7b71f28ba48015"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1143,7 +1193,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18314,
-      "sha256": "a5199f31b94f0c94ae4b7ab1fdc13adc7c83da3a53f6e45668576080c776fb59"
+      "sha256": "9c5f4e7c90a2bfa48d430afa88646a12d018e53ec4839ce83ead865f623f4b9f"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16570,
@@ -1183,7 +1233,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "2de5477a8e69b2761f9ff355d455d3ed6f3be63a4b8c7678327b0e2e241b0e3a"
+      "sha256": "50c68b389d0386ae45933a8774fdd2a05ed9919402a71f89c9ccea9f950c21d6"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1455,7 +1505,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "e39952993dfb7b8f3b020634debcb34990cbe772f5d20a1a12de910bf74df343"
+      "sha256": "8e19fe7b4356c9115bb414fbafd5dc9cbc6e1851f719bffd10b4adeddf271892"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1511,7 +1561,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "1e62ff4960df0954a92faf428c1eb5adb5f5f8669f21f2a5084d753ae7409d46"
+      "sha256": "1f066abcefaadbbed5e6d9cd2df937c1e2ffc4d38e2d4d41108b7f9b322b572a"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1539,7 +1589,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "e91197c40c56e6f9df9a458b75be12e9b6cba4a06926e0d45eb0a460254130dc"
+      "sha256": "eb5044c29cd0eacc7fdbdfd6eedb509e25cb15efb379cb4f9abb152bbf45fa70"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1603,7 +1653,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "fe8b848a99662c447585d7422b67ac4f3f98b4ae58b401daf3ffa4e73949d08f"
+      "sha256": "45c26c822873db816c2954fca2532814b2af3d25de84440c8f4bb96ec4f435c7"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1687,7 +1737,12 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "0c1213fc41c3a26f2dcea730c2989ad882f4496eb510d1937283c992bb1d21fb"
+      "sha256": "d2cfc6dfc721ff04048eea14ffbadb7e4fe599614db9cd81541dd36e68f11de2"
     }
-  }
+  },
+  "full_suite_rerun_for_accepted_phase": true,
+  "candidate_website": "1b84676530bb34b8c62fc44025fa00b0642ff9bf",
+  "candidate_ci_run": 40511494672,
+  "candidate_http_exact_files": 21,
+  "runtime_acceptance_transition": "Only index phase and eight exact corresponding test labels; functional runtime/styles/assets identical to146. Full suite freshly rerun."
 }

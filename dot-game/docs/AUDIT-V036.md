@@ -75,3 +75,7 @@ These new v0.36 files are in the version folder's `evidence/` directory, one lev
 - `audit-v036-initial-inputs.json`, `audit-v036-baseline-sections.json`: initial snapshot and immutable actor/DOM section identities. The initial snapshot already contains the parent's version-label edits; it is not mislabeled as an all-baseline-equal snapshot.
 
 Browser acceptance, candidate/official publication and any later accepted-phase metadata require their own root-owned evidence and, if executable/test inputs change, a fresh aggregate check.
+
+## 接受phase後重新驗證
+
+root於2026-10-27 13:28 UTC明確接受有限desktop候選，見 BROWSER-QA-V036.md。只將index的「來源候選」改「持續開發」與8個對應精確測試標示；功能runtime/CSS/assets不改。再次完整 **1,919/1,919** 與四runtime syntax通過，179輸入前後一致，aggregate `6d16bf1abb1f187c886cc47aa3d62e604b20347b190ec6ce90b98fd8da4e8aa5`。自然receipt保留原來源phase的hash，沒有誤稱該receipt原HTML hash等於接受phase。

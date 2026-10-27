@@ -190,3 +190,7 @@ Do not save/restore a full build, move controls, select a best strategy, spend A
 Repair the reproduced inventory/equipment comparison focus loss when a full render replaces the currently focused item button. Preserve the existing working pending comparison behavior and follow the exact owned ID after its location changes when a visible matching control exists; never use names or interpolate IDs into selectors. Restore only an actually replaced focused comparison control, not whichever item is selected. If that item no longer has a visible comparison control, use a visible nearby fallback without clearing filters or choosing another item.
 
 Keep this a bounded UI adapter, not a general accessibility rewrite. Combat, item identity, RNG, saves, sale consent and permissions remain unchanged. Focus-faithful emulated-DOM reproduction, unrelated-control/no-steal checks, earned-source replay and independent frozen-input tests precede complete source backup. These are not actual browser acceptance and do not resolve the known publication refusal; accepted v0.25 remains separate.
+
+### v0.36 接受進度
+
+有限桌面candidate已通過（單／雙／Boss名牌，4場自然stage5，重載與held-ID保留）；接受phase全套1919與四syntax重新通過。先接受來源備份、再正式發布與原正式profile驗收。手機／READY／三effect同時目視仍未驗，不擴張本輪範圍。
