@@ -153,3 +153,10 @@ Keep natural overflow and accepted-import boundary evidence separate. The116-bou
 Close a concrete preparation gap without expanding the gear-only preset contract: the apply dialog already compares exact items and sheet stats, but its retained abilities and combat policies were only described generically and live in other controls/tabs. Show the current strategy, target priority, Protection policy, extra emergency supply semantics and slotted ability ranks alongside that comparison. Distinguish saved policy from active effects and Sustain's independent potion rule. Invalidate visible consent if displayed settings change.
 
 Do not save/restore a full build, move controls, select a best strategy, spend AP, alter engine/loot/session behavior or add save data. Preview/cancel invariance, gear-only application, stale-context rejection, earned-source play and independent controller coverage precede complete source backup. This source-only slice cannot close the existing website review refusal or substitute for actual browser acceptance; accepted v0.25 remains separate.
+
+
+## v0.30 selected comparison keyboard-focus repair
+
+Repair the reproduced inventory/equipment comparison focus loss when a full render replaces the currently focused item button. Preserve the existing working pending comparison behavior and follow the exact owned ID after its location changes when a visible matching control exists; never use names or interpolate IDs into selectors. Restore only an actually replaced focused comparison control, not whichever item is selected. If that item no longer has a visible comparison control, use a visible nearby fallback without clearing filters or choosing another item.
+
+Keep this a bounded UI adapter, not a general accessibility rewrite. Combat, item identity, RNG, saves, sale consent and permissions remain unchanged. Focus-faithful emulated-DOM reproduction, unrelated-control/no-steal checks, earned-source replay and independent frozen-input tests precede complete source backup. These are not actual browser acceptance and do not resolve the known publication refusal; accepted v0.25 remains separate.

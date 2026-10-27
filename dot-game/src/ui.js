@@ -108,6 +108,31 @@ let selectedId = null;
 let selectedSlot = null;
 let selectedSaleIds = new Set();
 const selectedSaleCheckboxes = new Map();
+// Exact rendered nodes, not names or selector strings, identify comparison focus.
+const comparisonButtons = { inventory: new Map(), pending: new Map(), equipment: new Map() };
+function comparisonButtonVisible(button) {
+  return button && !button.disabled && button.isConnected !== false && !button.closest?.('[hidden], [inert], dialog:not([open])');
+}
+function captureComparisonFocus() {
+  const button = document.activeElement;
+  if (!comparisonButtonVisible(button)) return null;
+  for (const [location, buttons] of Object.entries(comparisonButtons)) {
+    for (const [id, rendered] of buttons) if (rendered === button) return { location, id, button };
+  }
+  return null;
+}
+function restoreComparisonFocus(previous) {
+  if (!previous || comparisonButtons[previous.location].get(previous.id) === previous.button || previous.button.isConnected === true) return;
+  const active = document.activeElement;
+  // A later renderer or explicit action may already have chosen a focus target.
+  if (active && active !== previous.button && active !== document.body && active !== document.documentElement) return;
+  const locations = [previous.location, ...Object.keys(comparisonButtons).filter(location => location !== previous.location)];
+  const replacement = locations.map(location => comparisonButtons[location].get(previous.id)).find(comparisonButtonVisible);
+  // A moved item follows its ID, not its old slot/name. A filtered/removed item
+  // leaves focus on a visible stable control, but only after losing that node.
+  const target = [replacement, $('slot-filter'), $('settings-toggle')].find(comparisonButtonVisible);
+  target?.focus({ preventScroll: true });
+}
 let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
@@ -1082,6 +1107,7 @@ function renderTargetPriority() {
   live.textContent = view.targetId === null ? '' : `目前集火：${view.targetName} · ${view.reason}。普攻與攻擊技能適用；治癒／護盾仍優先，反擊仍打攻擊者。`;
 }
 function render(force = false) {
+  const comparisonFocus = captureComparisonFocus();
   renderSoulbindStatus();
   renderItemWorldStatus();
   const trial = itemWorldView(state);
@@ -1139,6 +1165,7 @@ function render(force = false) {
   renderRoutePreview();
   renderExpeditionReports();
   eventEffects();
+  restoreComparisonFocus(comparisonFocus);
 }
 function itemContent(item) {
   const icon = node('span', 'item-icon', slotIcons[item.slot] || '◇');
@@ -1148,8 +1175,9 @@ function itemContent(item) {
   return [icon, info];
 }
 function renderEquipment() {
+  comparisonButtons.equipment.clear();
   $('equipment').replaceChildren(...Object.entries(state.equipment).map(([slot, item]) => {
-    const button = node('button', 'gear-button'); button.style.setProperty('--item-color', colorOf(item));
+    const button = node('button', 'gear-button'); comparisonButtons.equipment.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));
     button.append(...itemContent(item)); button.title = `${slotNames[slot]}：${item.name}`;
     button.addEventListener('click', () => { selectedSlot = slot; selectedId = null; lastInventorySignature = ''; render(true); }); return button;
   }));
@@ -1254,6 +1282,7 @@ function pinRecentExpeditionReport() {
   renderExpeditionReports();
 }
 function renderInventory() {
+  comparisonButtons.inventory.clear();
   selectedSaleCheckboxes.clear();
   const filters = inventoryFilters(), sort = $('sort-select').value;
   const items = state.inventory.filter(item => inventoryMatchesFilters(item, filters)).slice().reverse();
@@ -1272,7 +1301,7 @@ function renderInventory() {
     $('inventory-list').replaceChildren(empty); return;
   }
   $('inventory-list').replaceChildren(...items.map(item => {
-    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.dataset.inventoryId = item.id; button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
+    const button = node('button', `inventory-card${item.id === selectedId ? ' selected' : ''}`); button.dataset.inventoryId = item.id; comparisonButtons.inventory.set(item.id, button); button.style.setProperty('--item-color', colorOf(item)); button.append(...itemContent(item));
     if (Object.hasOwn(item, 'soulbound')) button.append(node('span', 'lock-indicator', '永久'));
     else if (isGearSetProtected(state,item.id)) button.append(node('span', 'lock-indicator', '配裝'));
     else if (item.locked) button.append(node('span', 'lock-indicator', '鎖'));
@@ -1299,6 +1328,7 @@ function renderInventory() {
 }
 // Overflow is a separate FIFO queue, never a hidden part of the sale selection.
 function renderPendingLoot() {
+  comparisonButtons.pending.clear();
   const view = pendingLootView(state), panel = $('pending-loot');
   panel.hidden = view.count === 0;
   const needed = Math.max(0, state.inventory.length + view.count - (INVENTORY_LIMIT - 5));
@@ -1309,19 +1339,15 @@ function renderPendingLoot() {
     : state.mode !== 'town' ? '待領裝備已保留；請先回營，再整理或領取。'
     : view.freeSlots === 0 ? `背包已滿；請先比較，再自行選擇要整理的背包裝備。出售會自動依序補入待領品；要領完並保留 5 格出戰空間，共需自行整理 ${needed} 件背包裝備。`
     : `可領取前 ${view.claimable} 件，不會自動換裝或出售。${needed ? `要領完並保留 5 格出戰空間，共需自行整理 ${needed} 件背包裝備。` : '領完後已保留出戰所需 5 格空位。'}`;
-  const restoreId = document.activeElement?.dataset?.pendingLootId;
-  let focus;
   $('pending-loot-list').replaceChildren(...state.pendingLoot.map((item, index) => {
     const button = node('button', `inventory-card pending-loot-card${item.id === selectedId ? ' selected' : ''}`);
-    button.dataset.pendingLootId = item.id; button.style.setProperty('--item-color', colorOf(item));
+    button.dataset.pendingLootId = item.id; comparisonButtons.pending.set(item.id, button); button.style.setProperty('--item-color', colorOf(item));
     button.append(node('span', 'pending-loot-order', `${index + 1}`), ...itemContent(item));
     button.setAttribute('aria-label', `第 ${index + 1} 件待領：${item.name}，${qualityName(item.quality)}，等級 ${item.level}，ID：${item.id}，僅查看比較`);
     button.setAttribute('aria-pressed', String(item.id === selectedId));
     button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
-    if (restoreId === item.id) focus = button;
     return button;
   }));
-  if (focus) focus.focus();
 }
 function claimPendingLoot() {
   const view = pendingLootView(state);

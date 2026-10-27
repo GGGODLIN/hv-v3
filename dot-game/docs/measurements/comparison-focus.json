@@ -1,0 +1,423 @@
+{
+  "kind": "v0.30 earned source-engine plus full-controller emulated-DOM comparison-focus replay; not actual browser acceptance",
+  "protocol": {
+    "seed": 42,
+    "maxAttempts": 315,
+    "maxPulsesPerFight": 1000,
+    "pulseSeconds": 1,
+    "acquisition": "Known v0.28 natural-overflow reproduction, not a new random sample. Fresh stage1 Balanced defaults. Before attempts1–10 equip the highest current score per slot, later entry wins ties. Before each start explicitly sell the oldest unlocked backpack item until at most115 remain. Request finishThenCamp; stop at first pending drop or315 attempts. No AP, binding, IW, commissions, potions, automatic sale, RNG/stat/resource edits or extra attempts. Retain defeat/censor/no-overflow results.",
+    "baseline": "Compare full state and all source expedition reports after every public action and one-second pulse with exact v0.29. No fields or log messages are normalized.",
+    "replay": "Load the unchanged validated earned save in a focus-faithful full-controller emulated DOM. Focus then activate first/middle/last backpack controls, each equipped slot and each naturally pending control; repeat three times per exact ID, including a forced render after each activation. Compare exact focused node replacement/identity, full game state, RNG, controller dispatches and storage writes. Repeat on exact v0.29 source to preserve pre-fix evidence.",
+    "limitations": "Programmatic focus plus native click handlers approximates keyboard activation at the controller boundary. No actual Tab/Enter browser dispatch, visual focus ring, scroll position, browser storage, hosted candidate or production acceptance is claimed."
+  },
+  "baseline": {
+    "commit": "eb134eaf7da676c2834eb5c08bf84cb957e523b4",
+    "sha256": {
+      "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+      "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+      "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+      "src/ui.js": "523c98358df0f6085ad4be47ad60c8cb09e37b0320efc970830117a7d60fbe5a",
+      "index.html": "463de63f43922948734f3bf6ecccb5d9df435bce26f25b132c9b5abb51d860ea"
+    }
+  },
+  "acquisition": {
+    "seed": 42,
+    "status": "first-natural-overflow",
+    "attempts": 315,
+    "pulses": 2746,
+    "losses": [],
+    "final": {
+      "level": 31,
+      "wins": 315,
+      "kills": 1890,
+      "inventory": 120,
+      "pending": 1,
+      "gold": 50232,
+      "fragments": 3150,
+      "seeds": 315,
+      "rng": 2505047735,
+      "itemId": 556,
+      "mode": "town"
+    },
+    "comparisons": 3817,
+    "exactFullStateAndReports": true,
+    "noNormalizedFields": true,
+    "earnedStateSha256": "ab723ca75d092cc7088e38e3c557745c1429403dc69366e2a809e5306063defd",
+    "canonicalSaveSha256": "983170cc7cb048afed5128b9900538ad03cdaede65573f9c80ca27c34b549703",
+    "ownedItemsSha256": "08950a84db23f8693a5bcb20ea3a4e0a9a56872298e5eefdf61a8bd3dec857e0",
+    "acquisitionTraceSha256": "ddee0f3aef37d74de7eb86a4f34c69aab54d9320e67c82d0b7572876281e214d",
+    "pendingItems": [
+      {
+        "id": "loot-556",
+        "name": "普通・餘燼護衣",
+        "slot": "armor",
+        "quality": "Average"
+      }
+    ]
+  },
+  "previous": {
+    "rows": [
+      {
+        "location": "inventory",
+        "id": "starter-weapon",
+        "name": "旅人的鈍劍",
+        "index": 0,
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 2,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 3,
+            "clickRetained": false,
+            "renderRetained": false
+          }
+        ]
+      },
+      {
+        "location": "inventory",
+        "id": "loot-496",
+        "name": "優良・餘燼護衣・壁壘",
+        "index": 60,
+        "sameNameOwnedCount": 2,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 2,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 3,
+            "clickRetained": false,
+            "renderRetained": false
+          }
+        ]
+      },
+      {
+        "location": "inventory",
+        "id": "loot-555",
+        "name": "精良・獵隙餘燼護衣・長夜",
+        "index": 119,
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 2,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 3,
+            "clickRetained": false,
+            "renderRetained": false
+          }
+        ]
+      },
+      {
+        "location": "equipment",
+        "slot": "weapon",
+        "id": "loot-1",
+        "name": "傳奇・獵隙裂岩戰棍・平衡",
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 2,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 3,
+            "clickRetained": false,
+            "renderRetained": false
+          }
+        ]
+      },
+      {
+        "location": "equipment",
+        "slot": "armor",
+        "id": "loot-4",
+        "name": "精良・流風鐵衛胸甲・追風",
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 2,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 3,
+            "clickRetained": false,
+            "renderRetained": false
+          }
+        ]
+      },
+      {
+        "location": "equipment",
+        "slot": "accessory",
+        "id": "loot-12",
+        "name": "華麗・守望墜飾・破陣",
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 2,
+            "clickRetained": false,
+            "renderRetained": false
+          },
+          {
+            "repeat": 3,
+            "clickRetained": false,
+            "renderRetained": false
+          }
+        ]
+      },
+      {
+        "location": "pending",
+        "id": "loot-556",
+        "name": "普通・餘燼護衣",
+        "sameNameOwnedCount": 2,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      }
+    ],
+    "controlCount": 7,
+    "activations": 21,
+    "retainedAfterClick": 3,
+    "retainedAfterForcedRender": 3,
+    "fullStateRngDispatchesAndSaveWritesUnchanged": true,
+    "initialStateSha256": "983170cc7cb048afed5128b9900538ad03cdaede65573f9c80ca27c34b549703",
+    "finalStateSha256": "983170cc7cb048afed5128b9900538ad03cdaede65573f9c80ca27c34b549703"
+  },
+  "current": {
+    "rows": [
+      {
+        "location": "inventory",
+        "id": "starter-weapon",
+        "name": "旅人的鈍劍",
+        "index": 0,
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      },
+      {
+        "location": "inventory",
+        "id": "loot-496",
+        "name": "優良・餘燼護衣・壁壘",
+        "index": 60,
+        "sameNameOwnedCount": 2,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      },
+      {
+        "location": "inventory",
+        "id": "loot-555",
+        "name": "精良・獵隙餘燼護衣・長夜",
+        "index": 119,
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      },
+      {
+        "location": "equipment",
+        "slot": "weapon",
+        "id": "loot-1",
+        "name": "傳奇・獵隙裂岩戰棍・平衡",
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      },
+      {
+        "location": "equipment",
+        "slot": "armor",
+        "id": "loot-4",
+        "name": "精良・流風鐵衛胸甲・追風",
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      },
+      {
+        "location": "equipment",
+        "slot": "accessory",
+        "id": "loot-12",
+        "name": "華麗・守望墜飾・破陣",
+        "sameNameOwnedCount": 1,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      },
+      {
+        "location": "pending",
+        "id": "loot-556",
+        "name": "普通・餘燼護衣",
+        "sameNameOwnedCount": 2,
+        "repeats": [
+          {
+            "repeat": 1,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 2,
+            "clickRetained": true,
+            "renderRetained": true
+          },
+          {
+            "repeat": 3,
+            "clickRetained": true,
+            "renderRetained": true
+          }
+        ]
+      }
+    ],
+    "controlCount": 7,
+    "activations": 21,
+    "retainedAfterClick": 21,
+    "retainedAfterForcedRender": 21,
+    "fullStateRngDispatchesAndSaveWritesUnchanged": true,
+    "initialStateSha256": "983170cc7cb048afed5128b9900538ad03cdaede65573f9c80ca27c34b549703",
+    "finalStateSha256": "983170cc7cb048afed5128b9900538ad03cdaede65573f9c80ca27c34b549703"
+  },
+  "inputSha256": {
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "src/ui.js": "51ff734d11a50d0115c7063c3649dc432c6a424b21fc78a13353b1a245ff8442",
+    "index.html": "7d3d91b7521292f3ffe4657b7c6a26fb1db221ef44668fa90fa4da53b65f23bb",
+    "tests/helpers/comparison-focus-harness.mjs": "4dc392fd8bb125f6f91d4a536c99725248bd157bc7e3222a702189a30aab7470",
+    "scripts/measure-comparison-focus.mjs": "f35d40ab9e7522cb5c2619fa2e6f5c26c325494c6268dd07da4ffddfc091ab45"
+  }
+}

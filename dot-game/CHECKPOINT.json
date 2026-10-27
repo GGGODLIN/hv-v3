@@ -1,61 +1,56 @@
 {
-  "checkpoint": "127-v029-gear-context-source",
-  "version": "0.29.0",
+  "checkpoint": "128-v030-comparison-focus-source",
+  "version": "0.30.0",
   "status": "source-complete-unpublished-publication-tool-blocked",
-  "source_base": "e4121bb89be2b9e29bdbb262c83f16d0be993267",
+  "source_base": "eb134eaf7da676c2834eb5c08bf84cb957e523b4",
   "base_accepted_recovery": "e5962e728ae4c20db80172916f3e1a9b72815a91",
   "accepted_website": "f00fdfe1fcad529081057e99592a49466341bb08",
   "prepared_unpublished_v026_website_candidate": "14524044ee864ac9ac590ed933c9fd0ef5148680",
-  "scope": "Read-only retained current settings in gear-only apply preview; stale displayed policies invalidate consent. No full-build storage or engine/economy changes.",
-  "source_tests_passed": 1699,
+  "scope": "Restore only replaced focused renderer-owned gear comparison controls by exact item ID; preserve unrelated focus and existing pending behavior. Visible stable fallback for absent/hidden exact item.",
+  "source_tests_passed": 1741,
   "runtime_syntax_checks": 4,
-  "source_input_files_unchanged_during_final_suite": 159,
-  "audit_input_manifest_sha256": "e50a9695336f5d442151ac5555adf24908878b600ab151380f5d2c151b9e7c2b",
-  "new_source_ui_tests": 14,
-  "new_independent_audit_tests": 13,
+  "source_input_files_unchanged_during_final_suite": 163,
+  "audit_input_manifest_sha256": "f75df56a6b0ad9d022c2b4a5f8fff6930566efb9fa90e638e42db9032279a534",
+  "new_source_ui_tests": 21,
+  "new_independent_audit_tests": 21,
   "new_engine_tests": 0,
-  "historical_report_dom_parity_cases": 3894,
   "save_format": 3,
   "save_compatibility": "No new saved field or namespace. Existing Exquisite IW1 old-reader rejection and emergencySupply preference fallback unchanged.",
   "previous_fixture_files_unchanged": 40,
   "previous_browser_fixture_files_unchanged": 2,
   "new_fixture_files": 0,
-  "runtime_bytes_unchanged_from_v028": [
+  "runtime_bytes_unchanged_from_v029": [
     "src/engine.js",
     "src/loot.js",
     "src/session.js",
     "style.css"
   ],
   "measurement": {
-    "fixed_seeds": [
-      29,
-      42,
-      77
-    ],
-    "natural_acquisition_attempts": 90,
-    "natural_acquisition_wins": 90,
-    "natural_acquisition_pulses": 980,
-    "context_branches": 9,
-    "actual_gear_swaps": 7,
-    "already_current_noops": 2,
-    "follow_on_wins": 9,
-    "follow_on_pulses": 85,
+    "fixed_seed": 42,
+    "natural_acquisition_attempts": 315,
+    "natural_acquisition_wins": 315,
+    "natural_acquisition_pulses": 2746,
+    "exact_v029_full_state_and_report_comparisons": 3817,
+    "earned_controls": 7,
+    "activation_and_forced_render_cycles_per_version": 21,
+    "baseline_focus_retained_each_stage": 3,
+    "candidate_focus_retained_each_stage": 21,
     "losses": 0,
     "censored": 0,
-    "receipt_bytes": 55907,
-    "receipt_sha256": "fab6c54b2a59665b1bf9f1d3c59a9508df78b9ba1d3e1874bd20af19d85fefb6",
+    "receipt_bytes": 12742,
+    "receipt_sha256": "75a8af03ef8afd3603f44ace38d235a759312addc6f54362cb9f813ffac07d34",
     "independent_rerun_exact": true,
-    "evidence_note": "Fresh earned Rank1 profiles; source-engine inspection and play, not browser or UI Cancel acceptance. No speed/survival benefit claim or added sampling for favorable outcomes."
+    "evidence_note": "Known natural overflow reproduction, not drop-frequency estimate. Full-controller DOM emulation is not browser/keyboard/layout acceptance; no gameplay benefit claim."
   },
   "browser_acceptance": "not-run",
   "website_staging": "not-attempted-known-tool-block",
   "publication": "not-run",
   "outside_source_blobs_to_preserve": 409,
-  "frozen_utc": "2026-10-27T01:14:24.407682+00:00",
+  "frozen_utc": "2026-10-27T02:11:40.004793+00:00",
   "files": {
     "README.md": {
-      "bytes": 10753,
-      "sha256": "aa2aeb3eae907f6f7b400161923fa8d101396e5229c93323514751bf6285a6f4"
+      "bytes": 12082,
+      "sha256": "464a35f7db96e7e14c83db65229a26481b3b95de79e6b852267a724013b1835e"
     },
     "docs/ABILITIES-GUIDE.md": {
       "bytes": 3972,
@@ -145,6 +140,10 @@
       "bytes": 7790,
       "sha256": "dd70e6ad478e0a78d848e4a5fff5d724cecdc834afb213d0046eecb6ec3d72a5"
     },
+    "docs/ACCEPTANCE-V030.md": {
+      "bytes": 4548,
+      "sha256": "8c1c20cd7f134f9126856909edf8f26a7adfb794e986f1eed508c63698d70de5"
+    },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
       "sha256": "3fa178df14a831b59a4a83247e25cafbc1a827e504b1fe2eacceb10b3f012511"
@@ -204,6 +203,14 @@
     "docs/AUDIT-V029.md": {
       "bytes": 6700,
       "sha256": "10ddd83072a739c742a51853caf087335eedd48dff25c5eebb460d644e4f38c0"
+    },
+    "docs/AUDIT-V030-INPUTS.json": {
+      "bytes": 25443,
+      "sha256": "f75df56a6b0ad9d022c2b4a5f8fff6930566efb9fa90e638e42db9032279a534"
+    },
+    "docs/AUDIT-V030.md": {
+      "bytes": 7566,
+      "sha256": "6738a49fb0a5461630adf0cecd117131e174de451d58703d1d35355c7c44d092"
     },
     "docs/BLEED-GUIDE.md": {
       "bytes": 15947,
@@ -337,6 +344,14 @@
       "bytes": 12709,
       "sha256": "726c72e7a3a62504dda4cd5cfd9ff67cd1ce34d7168dec5344df579db08425d5"
     },
+    "docs/COMPARISON-FOCUS-GUIDE.md": {
+      "bytes": 1344,
+      "sha256": "9fc0ae66cbdc6d48d3349dfadfe5bcd65c02448c82bc3766bf7201f9292c61ee"
+    },
+    "docs/COMPARISON-FOCUS-MEASUREMENTS.md": {
+      "bytes": 4450,
+      "sha256": "dea52712372f5e3a67ad33ae9310d6aa1407da99d7e1a12f43cb4264502050da"
+    },
     "docs/COUNTERATTACK-GUIDE.md": {
       "bytes": 9190,
       "sha256": "6fff6f386a2dd61dbce0f857bb6a920edc043044c658480acd6446d98bdffdfa"
@@ -398,8 +413,8 @@
       "sha256": "88506fe46627c24bebb634676b686b8e295bfa6952405b7263f10a377fcf995c"
     },
     "docs/INVENTORY-WORKBENCH-GUIDE.md": {
-      "bytes": 2644,
-      "sha256": "ec091efc8610e02b4dad25365f46f36d65f7e3397fd17f7ce3a7670776e9149e"
+      "bytes": 2946,
+      "sha256": "b6558c2ad50b2ce5a35c21cb73944089c4d1e8dbc8758ab74f04ec8541c1705a"
     },
     "docs/INVENTORY-WORKBENCH-MEASUREMENTS.md": {
       "bytes": 4668,
@@ -446,8 +461,8 @@
       "sha256": "8744c5ea817eeadd2319d53c4f958be8dff478658117800b01560ea0dbdf2c0e"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 51642,
-      "sha256": "8976d20c892c61e5b4182ed9a0881d10c7938c378624aec49ababb395bf06483"
+      "bytes": 52130,
+      "sha256": "76391f4be770d29c6094ea136243a8f4adac6e6ffa6199155f4c76b914e7605c"
     },
     "docs/PARRY-GEAR-GUIDE.md": {
       "bytes": 6825,
@@ -505,6 +520,10 @@
       "bytes": 4122,
       "sha256": "e613cc376da94135b27b49b5747430920fb79c973c0b5b40d5eb9a3ffa2df151"
     },
+    "docs/RECOVERY-V030.md": {
+      "bytes": 3461,
+      "sha256": "8811d20a0a71a647501da951b9a36577da5ce3c15eb47935e54d53eeb1aeba95"
+    },
     "docs/RELEASES.md": {
       "bytes": 41860,
       "sha256": "ffede4bc5af660210ae902a808a9f2187565c599c630806804155e67b2e5e354"
@@ -514,8 +533,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 23000,
-      "sha256": "1300223af36c4cf0e5a43a8f92a9ea4d89a3c9f6e09635c8e3fd94d574e08a0f"
+      "bytes": 24059,
+      "sha256": "968214b447eba7cea395cda2c47806fe2e565f51ddf1b4156f8b0c3d83c18cef"
     },
     "docs/SAVE-RECOVERY.md": {
       "bytes": 4385,
@@ -530,8 +549,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 11293,
-      "sha256": "742f39816f492fe7eca4ddb4fa85a980dbf1b8b68965f7687f4e7c44f073b17f"
+      "bytes": 13400,
+      "sha256": "213fc31ace42690b7dab41fde52ed5307b00fad7606dfa070ae1a9cac8014fcf"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -540,6 +559,10 @@
     "docs/UI-AND-SAVES.md": {
       "bytes": 5409,
       "sha256": "d17c0437d2959545cf778a0aa22ab44442a409e22bf4a5a6fd92a1d6e39a0706"
+    },
+    "docs/measurements/comparison-focus.json": {
+      "bytes": 12742,
+      "sha256": "75a8af03ef8afd3603f44ace38d235a759312addc6f54362cb9f813ffac07d34"
     },
     "docs/measurements/emergency-supply-deepest/acquisitions-000.json": {
       "bytes": 62632,
@@ -715,11 +738,11 @@
     },
     "index.html": {
       "bytes": 45391,
-      "sha256": "463de63f43922948734f3bf6ecccb5d9df435bce26f25b132c9b5abb51d860ea"
+      "sha256": "7d3d91b7521292f3ffe4657b7c6a26fb1db221ef44668fa90fa4da53b65f23bb"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "e7b061486bf0120d784cbb8d864f205af2fc7cff00817d49b24f644d417c7e04"
+      "sha256": "dadabf245c51f63e04d244513c6fd02a5738ad15182e99275585be179f314bd1"
     },
     "scripts/emergency-supply-measurement.mjs": {
       "bytes": 7635,
@@ -736,6 +759,10 @@
     "scripts/inventory-workbench-natural.mjs": {
       "bytes": 9377,
       "sha256": "a8901ceeeb0684553fa60abeaaa97ab20b6f4ec77ed828c88a3eb13743e1725c"
+    },
+    "scripts/measure-comparison-focus.mjs": {
+      "bytes": 12075,
+      "sha256": "f35d40ab9e7522cb5c2619fa2e6f5c26c325494c6268dd07da4ffddfc091ab45"
     },
     "scripts/measure-emergency-supply.mjs": {
       "bytes": 5542,
@@ -770,8 +797,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 145992,
-      "sha256": "523c98358df0f6085ad4be47ad60c8cb09e37b0320efc970830117a7d60fbe5a"
+      "bytes": 147857,
+      "sha256": "51ff734d11a50d0115c7063c3649dc432c6a424b21fc78a13353b1a245ff8442"
     },
     "style.css": {
       "bytes": 47097,
@@ -795,7 +822,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "e527b67d9dae21b9f44b2784668e94ce9ba6351fa782d461d1bc482f4875e372"
+      "sha256": "154ab178188dedaef64d201b5b76208621d1b1bc1af31d2483bdd3189ea3fb42"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -851,7 +878,15 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18314,
-      "sha256": "53beb0df0dd2bf871f025be1cd81e409d592a88d259a292cdb85d863265d2898"
+      "sha256": "09a60fb7454ffd20cee47cf008ba2368101cefb3734b286df28c0d83b55fec48"
+    },
+    "tests/comparison-focus-audit.test.mjs": {
+      "bytes": 16615,
+      "sha256": "15f203acd6bca5d807ecff5e43bb377120f95058c2ccf4544f75d276d163eba4"
+    },
+    "tests/comparison-focus-ui.test.mjs": {
+      "bytes": 11047,
+      "sha256": "cf9fbe3660ef4b8aeeb1fb73eb9196847a1e0b27a46ec9f3728fa36946c2e5ee"
     },
     "tests/counterattack-acceptance.test.mjs": {
       "bytes": 12650,
@@ -859,7 +894,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "ca9225e5d03af71cd72dbc8b1754b7ed5a5780761c794674988aff2d693abbba"
+      "sha256": "e1419918951765519cef35adda3beb168b39defe4edabda182b43748e3e7da15"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -875,7 +910,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "370a526c88b23196b88773ddc782a77459ea801d152b0729702d0ef0adce570f"
+      "sha256": "4f5b941d37d436632c2b101c39a7b7c8fc98508aeca54aa3eafe5767ae0cfb67"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1101,6 +1136,10 @@
       "bytes": 7046,
       "sha256": "70c8c1333457a5b764ba65ec0d407b4cb006dfd66c7a1cfef1416a14723015d7"
     },
+    "tests/helpers/comparison-focus-harness.mjs": {
+      "bytes": 9179,
+      "sha256": "4dc392fd8bb125f6f91d4a536c99725248bd157bc7e3222a702189a30aab7470"
+    },
     "tests/helpers/soulbind-compat.mjs": {
       "bytes": 1684,
       "sha256": "91a080ce3908a8a3b2a453f2bbb71aaefd68745eb6dd5525e4ebd1b8b94713fa"
@@ -1127,7 +1166,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "00cd4b200acf1cd8cebcdd8c3c0061adda9e2cdf3fc6ab560527907ca6876c5a"
+      "sha256": "1bab1ba9fff8903f958f3f76fd479fa3f330615e375659223c0c6107f56c7a74"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1183,7 +1222,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "c6dc14fd45343f427f88be691f15927247098919fdf55367b16fbd5d65d8cc5e"
+      "sha256": "cd6fe707c67e4493150979d1bfaf2609166871cfe12940830cec9a0611a90cea"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1211,7 +1250,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9533,
-      "sha256": "9ff7302397ac87f925595a5aee4d505d05b3c2363ead024acd28a7b8ca6c5d03"
+      "sha256": "2dd86830c8b40bf5fef63044eb3ba9efbf3a3953f8698298ea80f088d2226454"
     },
     "tests/safe-loot-actions.test.mjs": {
       "bytes": 17684,
@@ -1263,7 +1302,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18080,
-      "sha256": "77a0c2dd964262a4efafff2a0451fd6853fa242c86467511645216f78a15f164"
+      "sha256": "f0bae67aea952c984e358cc320bb31ddd85a707b486fee7f006b7b9e11ba3c82"
     },
     "tests/tactics.test.mjs": {
       "bytes": 5693,
@@ -1347,7 +1386,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15068,
-      "sha256": "71db739e7ad15b8c3d82c2b8518f1624fedf95e440f61b07d430b6aaff179db5"
+      "sha256": "293d24d060bb451facd9c25f9b1c722f742e0d325d619718e30f5c2ed24731ff"
     }
   }
 }

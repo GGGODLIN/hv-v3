@@ -308,3 +308,8 @@ Normal local encounters have five nonboss drop opportunities plus one guaranteed
 The additional combat context in a gear-set apply preview is an independent interface adaptation. It displays current validated choices; it does not add those choices to the three stored gear-ID records or implement broader original Equipment Sets/Personas. The original-versus-adapted scope documented for v0.14 remains unchanged. No new original-HV rule, statistic or source assertion is introduced.
 
 Only slotted abilities are presented as enabled configuration, with their current rank. Protection policy is not an active-buff claim; level eligibility remains separate. Extra emergency supply's stored choice is not effective under Sustain, whose existing automatic potion rule can use the last bottle. These distinctions reuse already implemented rules. Invalidating confirmation when displayed context changes is a local consent safeguard, not a gameplay mechanic or saved configuration migration.
+
+
+## v0.30 comparison keyboard-focus boundary
+
+Retaining keyboard focus on the same exact owned item after replacing comparison controls is an independent interface repair, not an original-HV mechanic. A visible fallback is used only for a replaced focused comparison control when no visible exact-item control remains. It does not select, equip, claim, filter, sell or invest in an item, and adds no state, RNG, save or progression rule. No new original-game research assertion is made.
