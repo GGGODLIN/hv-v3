@@ -343,7 +343,13 @@ export function stunGuaranteed(s: BattleState, target: number, id: SkillId): boo
 }
 /** cp9-rc5 QA3: the stun-skill id behind a drainStunKey label. */
 const stunIdOf = (s: BattleState, k: string): SkillId => (skillKit(s)['QWE'.indexOf(k[0]!)] ?? 'shieldBash') as SkillId;
+/** cp9-rc9 item 1（自訂，製作人定案）: minions are not under the post-hit wind-up lock → say so when one is winding up. */
+export const minionLockTag9 = (s: BattleState): string => (s.monsters.some((m) => m.rank !== 'boss' && windingUp(m)) ? '（小怪不受蓄力鎖）' : '');
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
+  const a1 = chargeAdvice1(s, target), tag = minionLockTag9(s);
+  return tag && !a1.text.includes(tag) ? { ...a1, text: a1.text + tag } : a1;
+}
+function chargeAdvice1(s: BattleState, target = 0): ChargeAdvice {
   const a = chargeAdvice0(s, target), k = drainStunKey(s, target);
   if (!k) return a;
   // cp9-rc5 QA3（自訂）: lethal + potion usable → Z before the stun unless the stun surely cancels all incoming damage
@@ -928,7 +934,8 @@ export function armCp5(s: BattleState, pdot?: PDot): BEvent[] {
 /** cp9-rc8 QA (c) diag（自訂，sim only）: boss wind-up on the boss turn right after one of its telegraphed hits landed (windHitCd bypass). */
 /** cp9-rc8 備案實驗（自訂，僅 sim，預設關）: SIM_ARCINT=1 → a boss whose wind-up was interrupted by an arcane cold/elec stun skips the post-hit lock on its next telegraphed hit. */
 /** cp9-rc9 item 2（自訂）: minions (non-boss) get the same post-hit wind-up lock (CP9.windHitCd) after their own telegraphed hit. */
-const MIN9 = !(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_NOMIN9; // 自訂 ablation knob (sim only, default on)
+/** cp9-rc9 step 1（自訂，製作人定案）: ablation showed the minion lock alone lifted arcane mr 79→94–99 → reverted; minions never use windHitCd. */
+const MIN9 = false;
 /** cp9-rc9 item 4 diag（自訂，僅 sim）: SIM_NOEXTRA9=1 → estimate without item 1's DoT/reflect (before/after comparison). */
 const NOEXTRA9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_NOEXTRA9;
 const ARCINT9 = !!(globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_ARCINT;

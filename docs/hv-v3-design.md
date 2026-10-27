@@ -196,3 +196,4 @@
 - 自訂（rc9 item 6，QA oc1 F65）：怪物血條下常駐文字 `stunTag9`：暈眩中顯示「暈眩 N」，結束後抵抗期顯示「暈眩抵抗 N」（原本只有一次性 log 與 18px 色條）。
 - 自訂（rc9 item 7，QA oc1 F73）：chargeAdvice0 的「下回合估計 < 最大 HP 20%，不必防禦」豁免，在估計 ≥ 目前 HP（isLethal）時不適用，致死判定優先。
 - 自訂（rc9 item 8，QA oc2 F30 T38–39）：防禦後估計被「防禦保命」夾到 HP−1，所以「estD < HP → 撐得住」恆成立。新增 `nextRoundEstimate(…, noSave)` / `defendRaw9`：未保命估計 ≥ HP 時（saveOnly），提示改寫「防禦只靠保命剩 1 HP」，可喝藥時不再 D 優先（改 Z）；urgentLine 改紅字。保命機制本身、defCap 與其他預設不變。
+- 自訂（rc9 定案 step 1，消融）：std sim mr arcane（seed 0/256）中位樓層：全開 99/94；關小怪鎖 79/79；關估計加總（extra9）99/94；兩者全關 79/79 → 上升全來自 item 2 小怪鎖。依製作人規則：撤回小怪鎖（`MIN9 = false`，小怪不吃 windHitCd，Boss 仍吃）；小怪蓄力時提示加「（小怪不受蓄力鎖）」(`minionLockTag9`)。估計加總（item 1）保留。

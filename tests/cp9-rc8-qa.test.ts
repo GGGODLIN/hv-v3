@@ -1,7 +1,7 @@
 // cp9-rc8 QA（自訂）: bug b banner copy; QA c boss never winds up on the boss turn right after its own telegraphed heavy hit.
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { defendEst9, defendRaw9, act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
+import { minionLockTag9, defendEst9, defendRaw9, act, startBattle, chargeAdvice, stunTag9, WIND9, nextRoundEstimate, extra9, armCp5 } from '../src/core/battle';
 import { CP5 } from '../src/core/cp5';
 import { urgentLine, pushOnce9 } from '../src/game/app';
 import { starterKit } from '../src/core/auto';
@@ -40,7 +40,7 @@ describe('cp9-rc8 QA', () => {
       }
       expect(WIND9.hits).toBeGreaterThan(0);
       expect(WIND9.viol, WIND9.ex.join('\n')).toBe(0);
-      expect(WIND9.minHits).toBeGreaterThan(0); expect(WIND9.minViol).toBe(0); // cp9-rc9 item 2: minions too
+      expect(WIND9.minHits).toBeGreaterThan(0); expect(WIND9.minViol).toBeGreaterThan(0); // cp9-rc9 step 1: minion lock reverted — minions may wind up right after their own hit
     } finally { RULES.cp8 = o; }
   });
   it('rc9 item 1: estimate includes burn/bleed tick and 反傷 cap; defended estimate drops both', () => {
@@ -106,6 +106,19 @@ describe('cp9-rc8 QA', () => {
         }
       }
       expect(n).toBeGreaterThan(3); expect(np).toBeGreaterThan(0);
+    } finally { RULES.cp8 = o; }
+  });
+  it('rc9 step 1: minion lock reverted; a winding-up minion adds 「小怪不受蓄力鎖」 to the hint', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      const p = newPlayer(); starterKit(p); const d = derive(p);
+      const boss = buildMonster(pool.rows[5]!, 30, 'boss'); boss.hp = boss.maxHp = 1e6; boss.adb = 1;
+      const mn = buildMonster(pool.rows[6]!, 30, 'normal'); mn.hp = mn.maxHp = 1e6; mn.adb = 1;
+      const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [boss, mn], { health: 0, mana: 0, spirit: 0 });
+      expect(chargeAdvice(b).text).not.toContain('小怪不受蓄力鎖');
+      mn.charge = 1; expect(minionLockTag9(b)).toBe('（小怪不受蓄力鎖）'); expect(chargeAdvice(b).text).toContain('小怪不受蓄力鎖');
+      mn.charge = 0; boss.charge = 1; expect(chargeAdvice(b).text).not.toContain('小怪不受蓄力鎖');
+      expect(readFileSync('src/core/battle.ts', 'utf8')).toMatch(/^const MIN9 = false;/m);
     } finally { RULES.cp8 = o; }
   });
 });
