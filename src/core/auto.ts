@@ -173,7 +173,7 @@ function autoEquip0(p: Player, extra: Equip[], style: GearStyle): Equip[] {
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
 if (ENV?.SIM_ZRULE === 'rc20order' || ENV?.SIM_ZRULE === 'lethal') ADVICE_DIAG.zRule = ENV.SIM_ZRULE; // rc21 diag (sim only)
-if (ENV?.SIM_CRITROLL === 'mean') ADVICE_DIAG.critRoll = 1; else if (ENV?.SIM_CRITROLL === 'mean110') ADVICE_DIAG.critRoll = 1.1; // rc21 diag (sim only): crit-estimate roll
+if (ENV?.SIM_CRITROLL === 'mean') ADVICE_DIAG.critRoll = 1; else if (ENV?.SIM_CRITROLL === 'mean110') ADVICE_DIAG.critRoll = 1.1; else if (ENV?.SIM_CRITROLL === 'max') ADVICE_DIAG.critRoll = null; // rc21 diag (sim only): crit-estimate roll
 export const SIM_AI = { omni: ENV?.SIM_AI === 'omni',
   /** CP8 P1: SIM_AI=naive — a real first-time player: only normal attacks (cp8-rc5: UI default target), a health potion below 40% HP; no skills,
    *  spells, Spirit Stance, defend or CP5 telegraph counters. Town prep = 「全部處理」 (prepAll); loot is worn only in town (docs/cp8-real-play.md). */

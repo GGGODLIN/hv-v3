@@ -350,7 +350,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[] }
+export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[]; /** rc22 decision (b): max HP lost to auto-wear on this loot (UI 「最大 HP −N」). */ hpDrop?: number }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -447,11 +447,12 @@ export function chestLoot(run: RunState, p?: Player): Loot {
 
 export function applyLoot(p: Player, run: RunState, loot: Loot): void {
   run.bag.push(...loot.equips);
+  const hp0 = runDerived(p, run).hp;
   if (RULES.cp8 && CP8.autoWear) for (const e of loot.equips) if (betterThanWorn(p, e)) {
     // CP8 P1 (暫定): wear a badged drop at once so it survives death; the replaced piece goes to the (persistent) inventory.
     equip(p, e); run.bag = run.bag.filter((x) => x !== e); (run.worn ??= []).push(e.id);
   }
-  { const d = runDerived(p, run); run.hp = Math.min(run.hp, d.hp); run.mp = Math.min(run.mp, d.mp); run.sp = Math.min(run.sp, d.sp); } // rc20 item 5: auto-wear can lower max HP (QA 786/756)
+  { const d = runDerived(p, run); run.hp = Math.min(run.hp, d.hp); run.mp = Math.min(run.mp, d.mp); run.sp = Math.min(run.sp, d.sp); if (d.hp < hp0) loot.hpDrop = hp0 - d.hp; } // rc20 item 5: auto-wear can lower max HP (QA 786/756)
   run.credits += loot.credits;
   run.exp += loot.exp;
   for (const [k, v] of Object.entries(loot.potions)) p.potions[k as PotionId] += v!;
