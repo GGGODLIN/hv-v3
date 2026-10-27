@@ -24,7 +24,7 @@ import { autoWorn, betterInBag, prepAlloc, prepEquip, prepIssues, prepPotions, t
 import { TOWN_HP_POTIONS } from '../core/auto';
 import { floorLevel, NODE_ICON, NODE_ZH, towerRules, type NodeType } from '../core/tower';
 import { sortieLabel } from '../core/progress';
-import { scrollToCurrentFloor } from './mapscroll';
+import { drawRoutes, scrollToCurrentFloor } from './mapscroll';
 import type { Stage } from './stage';
 import { BULWARK_CP5_ZH, AFFIXES, dangerHint, BOSS_BY_FLOOR, ELEM_ZH, SIG_TEXT, themeOf, themeRaces, type AffixId, type Cp5Mon } from '../core/cp5';
 import { ATTR_HINT, ATTR_ZH, esc, fmtChange, fmtStat, STAT_ZH } from './text';
@@ -142,7 +142,7 @@ export class App {
     this.root.innerHTML = this.topBar() + html + this.modalHtml();
     this.root.className = `screen-${this.screen}`;
     this.bind();
-    if (this.screen === 'map') scrollToCurrentFloor(this.root);
+    if (this.screen === 'map') { drawRoutes(this.root, this.run.path, this.run.floor); scrollToCurrentFloor(this.root); const rd = () => this.screen === 'map' && drawRoutes(this.root, this.run.path, this.run.floor); requestAnimationFrame(rd); void document.fonts?.ready.then(rd); }
   }
 
   topBar(): string {
@@ -275,7 +275,7 @@ export class App {
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
         // CP5 rc2 fix 3: the death-combo ⚔ warning sits on the elite node itself (the floor banner stays).
         const ew = r.abyss && RULES.cp6Abyss && t === 'elite' ? `<b class="ewarn warn" data-elitemark title="深淵精英可能帶 3 個詞綴，或克制物理的【尖刺】【堅硬】">⚔</b>` : r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
-        return cur ? `<button class="node n-${t}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}</button>` : `<span class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
+        return cur ? `<button class="node n-${t}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;

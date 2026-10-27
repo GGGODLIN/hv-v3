@@ -245,3 +245,14 @@ button.node:hover:not(:disabled) { border-image-source: url("/assets/kenney/btn-
 .potgo .hint{margin:0}
 .potgobtn{font-size:1.1em;font-weight:700;padding:8px 18px;animation:potpulse 1.4s ease-in-out infinite}
 @keyframes potpulse{50%{filter:brightness(1.25)}}
+
+/* 自訂，非原版：rc18 route map (presentation only) */
+.panel.map .tower { position: relative; gap: 22px; }
+.panel.map .tower > .floor, .panel.map .tower > .theme-sep { position: relative; z-index: 1; }
+.panel.map .floor { justify-content: center; }
+.panel.map .floor .fn { position: absolute; left: 6px; }
+.panel.map svg.routes { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 0; overflow: visible; }
+svg.routes path { fill: none; }
+svg.routes .e-future { stroke: #ffffff2e; stroke-width: 1.5; stroke-dasharray: 3 4; }
+svg.routes .e-next { stroke: #ffe8b0; stroke-width: 2.5; filter: drop-shadow(0 0 3px #e8b04a); }
+svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
