@@ -133,6 +133,23 @@ function restoreComparisonFocus(previous) {
   const target = [replacement, $('slot-filter'), $('settings-toggle')].find(comparisonButtonVisible);
   target?.focus({ preventScroll: true });
 }
+// Preserve keyboard position in the exact item's basic actions after repaint.
+const detailActionButtons = new Map();
+function captureDetailActionFocus() {
+  const button = document.activeElement;
+  if (!comparisonButtonVisible(button)) return null;
+  for (const [action, entry] of detailActionButtons) if (entry.button === button) return { action, ...entry };
+  return null;
+}
+function restoreDetailActionFocus(previous) {
+  if (!previous || previous.button.isConnected === true) return;
+  const active = document.activeElement;
+  if (active && active !== previous.button && active !== document.body && active !== document.documentElement) return;
+  const entry = detailActionButtons.get(previous.action);
+  const sameAction = entry?.id === previous.id ? entry.button : null;
+  const sameItem = Object.values(comparisonButtons).map(buttons => buttons.get(previous.id));
+  [sameAction, ...sameItem, $('slot-filter'), $('settings-toggle')].find(comparisonButtonVisible)?.focus({ preventScroll: true });
+}
 let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
@@ -1116,6 +1133,7 @@ function renderTargetPriority() {
 }
 function render(force = false) {
   const comparisonFocus = captureComparisonFocus();
+  const detailActionFocus = captureDetailActionFocus();
   renderSoulbindStatus();
   renderItemWorldStatus();
   const trial = itemWorldView(state);
@@ -1174,6 +1192,7 @@ function render(force = false) {
   renderExpeditionReports();
   eventEffects();
   restoreComparisonFocus(comparisonFocus);
+  restoreDetailActionFocus(detailActionFocus);
 }
 // Local original artwork: family is resolved from owned item data, never a name guess.
 // Images are decorative; the adjacent full name/type/quality remain readable text.
@@ -1391,6 +1410,7 @@ function claimPendingLoot() {
   else if (!state.pendingLoot.length) $('slot-filter').focus();
 }
 function renderItemDetail() {
+  detailActionButtons.clear();
   const inventoryItem = state.inventory.find(item => item.id === selectedId);
   const pending = !selectedSlot && !inventoryItem && state.pendingLoot.some(item => item.id === selectedId);
   const item = selectedSlot ? state.equipment[selectedSlot] : inventoryItem || state.pendingLoot.find(item => item.id === selectedId);
@@ -1450,6 +1470,7 @@ function renderItemDetail() {
     const protectedBySet = isGearSetProtected(state,item.id);
     const lock = node('button', 'secondary-button', bound ? '永久綁定' : protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet || bound; lock.addEventListener('click', () => { if (!Object.hasOwn(item, 'soulbound')) dispatch('lock', item.id); });
     const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || bound || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { if (Object.hasOwn(item, 'soulbound')) return; dispatch('sell', item.id); selectedId = null; render(true); }); actions.append(equip, lock, sell);
+    for (const [action, button] of [['equip', equip], ['lock', lock], ['sell', sell]]) detailActionButtons.set(action, { id: item.id, button });
   }
   if (pending) explanation.append(node('span', 'pending-loot-detail', '待領裝備只供比較，不占背包顯示件數，也不受背包篩選影響。領入背包前不能換裝、鎖定、出售、綁定或挑戰裝備界；領取依取得先後順序，不會跳過前面的裝備。'));
   if (!selectedSlot && !pending && !inventoryMatchesFilters(item, inventoryFilters())) explanation.append(node('span', 'inventory-detail-hidden', '正在比較的這件裝備位於背包篩選外；選取仍保留，篩選不會自動換裝或出售。'));

@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.43 source-only slice: continuous keyboard inventory work
+
+Retain exact-item basic action focus after repaint; equip follows the same item to its worn card, sale falls back to a safe filter. Never select a different destructive action, steal unrelated focus, or mutate gameplay to restore focus. Preserve material provenance, no website operations and no browser-acceptance claim.
+
 ## v0.42 source-only slice: honest import persistence feedback
 
 Use the actual save result, not a successful JSON import, to announce durable progress. Distinguish browser persistence from memory-only load and point to export when unavailable. Preserve validated imported memory, original stored bytes on failed writes, ownership/confirmation and all gameplay. No website operations or browser acceptance claim.
