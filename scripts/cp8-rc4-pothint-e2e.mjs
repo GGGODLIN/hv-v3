@@ -20,5 +20,5 @@ const probe = (hp, charge, adb = 1) => pg.evaluate(([hp, charge, adb]) => { cons
 R.inBattle = !!(await pg.$('.cmdbar'));
 R.h40 = await probe(0.4, 0); R.h60 = await probe(0.6, 0); R.h60c = await probe(0.6, 1, 'big'); R.h80c = await probe(0.8, 1); R.h80big = await probe(0.8, 0, 'big'); R.h50big = await probe(0.5, 0, 'big');
 R.errs = errs; console.log(JSON.stringify(R));
-const ok = R.eliteOk && R.inBattle && /* rc19(a): lights only when chargeAdvice recommends Z (danger estimate), not on bare HP<50% */ !R.h40 && !R.h60 && R.h60c && !R.h80c && !R.h80big && R.h50big && /* rc14 item 4: above 50% HP a full-heal potion would mostly be wasted → dark */ !errs.length;
+const ok = R.eliteOk && R.inBattle && /* rc19(a): lights only when chargeAdvice recommends Z (danger estimate), not on bare HP<50% */ !R.h40 && !R.h60 && R.h60c && !R.h80c && R.h80big && R.h50big && /* rc14 item 4: above 50% HP a full-heal potion would mostly be wasted → dark */ !errs.length;
 console.log(ok ? 'CP8 RC4 POTHINT E2E PASS' : 'CP8 RC4 POTHINT E2E FAIL'); await b.close(); process.exit(ok ? 0 : 1);
