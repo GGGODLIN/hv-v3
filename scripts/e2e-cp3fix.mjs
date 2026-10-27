@@ -3,7 +3,7 @@ import p from 'puppeteer-core';
 import { mkdirSync, readFileSync } from 'node:fs';
 // r3 #1: raw player-submitted names (never printed; only counted)
 const RAW=[...new Set(JSON.parse(readFileSync(new URL('../public/data/monsters.json',import.meta.url),'utf8')).map(r=>r[2]).filter(n=>n.length>=5))];
-const URL0=process.env.E2E_URL||'http://127.0.0.1:5199/';
+const URL0=process.argv[2]||process.env.E2E_URL||'http://127.0.0.1:5199/';
 const S=(process.env.E2E_SHOTS||'e2e-shots')+'/';mkdirSync(S,{recursive:true});
 const w=ms=>new Promise(r=>setTimeout(r,ms));
 const b=await p.launch({executablePath:process.env.CHROME_PATH||'/usr/bin/google-chrome',args:['--no-sandbox','--use-gl=swiftshader'],defaultViewport:{width:1280,height:900}});
