@@ -24,7 +24,7 @@ async function fight(pg) {
 { const pg = await open('postF20-blade'); await fight(pg);
   await pg.evaluate(() => { const h = window.hv, s = h.battle, m = s.monsters.find((x) => x.hp > 0); s.monsters = [{ ...m, hp: 1e9, maxHp: 1e9, adb: 1 }]; s.hp = Math.round(s.d.hp * 0.2); h.target = 0; h.render(); });
   await w(200); R.before = await pg.evaluate(() => ({ pot: !!document.querySelector('[data-pothint]'), z: document.querySelector('[data-act="item:health"] small')?.textContent }));
-  if (!R.before.pot) fail.push('pothint not lit at 20% HP before drinking');
+  /* rc19(a): bare low HP without a charge estimate no longer lights the Z button (zHint via chargeAdvice) */
   await pg.keyboard.press('KeyZ'); await w(1200); await idle(pg);
   await pg.evaluate(() => { const h = window.hv, s = h.battle; s.hp = 1; h.render(); }); await w(200);
   R.cd = await pg.evaluate(() => ({ n: window.hv.battle.potions.health, cd: window.hv.battle.itemCd.health, z: document.querySelector('[data-act="item:health"] small')?.textContent, pot: !!document.querySelector('[data-pothint]'), guardS: !!document.querySelector('[data-act="spirit"][data-guardhint].suggest'), canS: window.hv.battle.oc }));
