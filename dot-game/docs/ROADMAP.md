@@ -2,6 +2,12 @@
 
 This is dot's own planning document for the independent HV-inspired idle RPG. It is not imported from another game's plan. A milestone is an ordering choice, not a permanent scope limit. New work is selected from actual play, defects, and observed progression, not from a requirement to keep adding systems every hour.
 
+## v0.34 selected effect-detail readability
+
+Actual accepted v0.33 desktop inspection exposed a wall of repeated technical weapon-effect text below otherwise compact comparisons. Reproduce the two always-visible source paragraphs, then keep a concise correct identity/tradeoff and historical-model/adaptation caveat visible while moving the byte-identical full paragraphs into one adjacent native disclosure. This is targeted equipment-detail presentation, not a generic collapse-all pass, automatic recommendation or new mechanic.
+
+Keep exact stats/identity, pending restrictions, permanent protection and operation-time costs/risks outside the disclosure. Preserve only the currently selected exact ID's disclosure state and focused summary across rerender; another item starts closed, unrelated focus is never stolen, and nothing is persisted. Engine/loot/session, assets, art, original-HV facts, saves, RNG, transactions and dialogs stay unchanged. Source/controller and independent earned-state parity precede full source readback, isolated candidate CI/HTTP and actual browser acceptance. Accepted stable v0.33 remains until the new candidate passes; historical v0.33 refusals are resolved, not a current blanket blocker.
+
 ## Current priority: coherent scene and equipment presentation (2026-10-27)
 
 v0.31 established scene-first hierarchy. The user then supplied six named resources, resolving the inaccessible X post's identity gap. v0.32 now uses two verified CC0 Kenney UI Pack shapes (three local recolored derivatives) and six original family SVGs, a regular readable inventory grid, adjacent comparison before disposal tools and consistent slate/brass controls. Reference screenshots inform organization only, never copied proprietary art.

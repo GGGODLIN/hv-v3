@@ -318,3 +318,8 @@ Retaining keyboard focus on the same exact owned item after replacing comparison
 ## v0.32 presentation and asset boundary
 
 Kenney UI Pack shapes and independently authored equipment icons are presentation-only; they introduce no original-HV mechanic or data claim. References to Elden Ring and Slay the Spire are structural interface study, not licensed game artwork. The unknown weapon silhouette is not an invented family classification. Candidate/current comparison values reuse the existing owned-item stats and signed difference; no gameplay, ownership or persistent schema changes are introduced. See ASSET-CREDITS.md for exact provenance.
+
+
+## v0.34 effect-reading boundary
+
+No original rule or adaptation changes in this presentation-only slice. The equipment detail retains concise effect identity, meaningful tradeoffs and an always-visible historical-model/game-adaptation caveat. The existing full trait and numeric rule paragraphs remain byte-identical in a neighbouring native disclosure, including the axe's delayed snapshots and possibly weaker reapplication, PA's subsequent physical mitigation semantics, and stun's non-refreshing recovery action. This is not a new original-HV formula, damage recommendation, proc guarantee beyond established conditions, or removal of the source uncertainty above. Resource costs, pending restrictions and irreversible investment warnings remain outside this technical disclosure at their existing operations.

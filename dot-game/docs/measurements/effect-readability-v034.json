@@ -1,0 +1,255 @@
+{
+  "kind": "v034 earned source-engine + focus-faithful simulated-DOM controller replay; NOT browser/layout/native keyboard/accessibility-tree acceptance",
+  "baselineCommit": "9e43771c5ea729d328f465ee5ce91cfcc6e8c90f",
+  "baselineInputSha256": {
+    "src/ui.js": "40c7da091d64c8579c4bdeb5c27b745e04ac4bae202ad0655595321a57791522",
+    "index.html": "2c4565185b9fc510b898c0350f8f57d78f8d4d4e9903c44121cc19378eac09b2",
+    "style.css": "6b035814359582d91c23d0ea86c9bbedc9eb948bc4a8869a8cb21e8f8d835336",
+    "CHECKPOINT.json": "bf35dead4ddcb3631213f041a51e4576e733ec89d8db68761b972dc429f2871d"
+  },
+  "inputSha256": {
+    "src/ui.js": "a6d7c274be25174043e25d5882ae922bae0ba96640813e9e5d238f578cfcc90e",
+    "index.html": "5a7e73629d0c1c5aec447b4b9f09cf2258c5162d0c73b55c11ec4c3cdc0422f3",
+    "style.css": "c92d96b2648f0ea908daa1e4849b4b1681e0a14d8177a41d24ce04b07b249225",
+    "src/engine.js": "020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d",
+    "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+    "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+    "tests/helpers/comparison-focus-harness.mjs": "4dc392fd8bb125f6f91d4a536c99725248bd157bc7e3222a702189a30aab7470"
+  },
+  "runnerSha256": "c637e37a85c65b2e86046918648b3e8a18663f9849589aa0ee57db5882f35f5e",
+  "protocol": {
+    "seed": 42,
+    "attempts": 20,
+    "maxPulsesPerFight": 1000,
+    "pulseSeconds": 1,
+    "acquisition": "Fresh fixed seed42, stage1 Balanced. Before each attempt equip the highest-scored already-owned item per slot (later item wins ties). Start, queue finishThenCamp, advance one-second source pulses until town/defeat or 1000 pulses. Retain losses/censors; no grants, sales, rerolls, binding, IW, AP, commissions, fabricated items, or extra attempts. Compare complete state and expedition reports with exact accepted v033 after every public action and pulse.",
+    "replay": "Load the unchanged canonical earned save into v033 and v034 controller harnesses. Compare exact state, RNG, action log and tracked storage writes at each checkpoint. Inspect naturally earned axe/rapier/club IDs and the original unknown-family starter. Toggle only transient DOM disclosure state; exercise exact-ID rerender, summary focus, item switching, unrelated filter focus, readonly viewing and a normal source battle.",
+    "disclosureAdapter": "The existing focus-faithful test DOM does not implement native summary focus or toggle. In this script only, createElement(summary) sets tabIndex=0 to model native focus capability; disclosure.open is set directly and a toggle event emitted. These adapters are explicitly not real keyboard/browser behavior and do not edit production or shared helper files."
+  },
+  "acquisition": {
+    "attempts": 20,
+    "pulses": 237,
+    "wins": 20,
+    "lossesOrCensors": [],
+    "level": 11,
+    "gold": 1520,
+    "inventory": 34,
+    "pending": 0,
+    "fragments": 200,
+    "seeds": 20,
+    "sourceParityChecks": 286,
+    "canonicalSaveSha256": "b8b18fd04ff985759a2d5d2097ce177df3f4bf3970a5d78e93b2444cab5abec8",
+    "outcomes": [
+      {
+        "attempt": 1,
+        "pulses": 32,
+        "outcome": "win"
+      },
+      {
+        "attempt": 2,
+        "pulses": 12,
+        "outcome": "win"
+      },
+      {
+        "attempt": 3,
+        "pulses": 13,
+        "outcome": "win"
+      },
+      {
+        "attempt": 4,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 5,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 6,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 7,
+        "pulses": 12,
+        "outcome": "win"
+      },
+      {
+        "attempt": 8,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 9,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 10,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 11,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 12,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 13,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 14,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 15,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 16,
+        "pulses": 8,
+        "outcome": "win"
+      },
+      {
+        "attempt": 17,
+        "pulses": 11,
+        "outcome": "win"
+      },
+      {
+        "attempt": 18,
+        "pulses": 10,
+        "outcome": "win"
+      },
+      {
+        "attempt": 19,
+        "pulses": 9,
+        "outcome": "win"
+      },
+      {
+        "attempt": 20,
+        "pulses": 9,
+        "outcome": "win"
+      }
+    ]
+  },
+  "effectText": {
+    "unit": "Unicode code points of the two effect prose paragraphs joined by one space; excludes headings, disclosure label, stats, actions and safety text. This is not a pixel, screen-height or scrolling measurement.",
+    "rows": [
+      {
+        "family": "axe",
+        "id": "loot-7",
+        "name": "精良・暮鋼戰斧・屠戮",
+        "originalAlwaysVisibleEffectProseCodePoints": 382,
+        "v034AlwaysVisibleEffectProseCodePoints": 94,
+        "reducedCodePoints": 288,
+        "reductionPercent": 75.4,
+        "originalFullParagraphsPreserved": true
+      },
+      {
+        "family": "rapier",
+        "id": "loot-11",
+        "name": "精良・逐風刺劍・靈巧",
+        "originalAlwaysVisibleEffectProseCodePoints": 181,
+        "v034AlwaysVisibleEffectProseCodePoints": 82,
+        "reducedCodePoints": 99,
+        "reductionPercent": 54.7,
+        "originalFullParagraphsPreserved": true
+      },
+      {
+        "family": "club",
+        "id": "loot-3",
+        "name": "精良・裂岩戰棍・屠戮",
+        "originalAlwaysVisibleEffectProseCodePoints": 248,
+        "v034AlwaysVisibleEffectProseCodePoints": 82,
+        "reducedCodePoints": 166,
+        "reductionPercent": 66.9,
+        "originalFullParagraphsPreserved": true
+      }
+    ]
+  },
+  "replay": {
+    "checks": 12,
+    "disclosureCycles": 9,
+    "inspectedFamilyIds": [
+      {
+        "family": "axe",
+        "id": "loot-7"
+      },
+      {
+        "family": "rapier",
+        "id": "loot-11"
+      },
+      {
+        "family": "club",
+        "id": "loot-3"
+      }
+    ],
+    "unknownId": "starter-weapon",
+    "equippedId": "loot-27",
+    "controllerQuarterSecondPulses": 34,
+    "completeControllerParityChecks": 34,
+    "finalWins": 21,
+    "finalCanonicalSaveSha256": "17f0a7c99ccbb46e54e5b446eb2603f5e18c0a7d596408103ad54f67dfc1551f",
+    "results": [
+      {
+        "label": "unchanged earned canonical save loaded",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "axe loot-7: three disclosure cycles and summary rerenders remain read-only",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "rapier loot-11: three disclosure cycles and summary rerenders remain read-only",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "club loot-3: three disclosure cycles and summary rerenders remain read-only",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "switching exact item resets disclosure rather than remembering prior item expansion",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "same item expansion survives rerender without stealing unrelated filter focus",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "hidden selected axe retains explanation and expansion while filter changes no game state",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "unknown original starter remains explicit no-proc, without invented formula disclosure",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "readonly equipped weapon remains inspectable and same-ID summary focus survives",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "after read-only equipment inspection, ordinary start and finish-to-camp actions are identical",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "ordinary source-controller battle completes once with identical rewards and final state",
+        "exactStateRngActionsWrites": true
+      },
+      {
+        "label": "eight post-finish pulses do not restart or duplicate rewards",
+        "exactStateRngActionsWrites": true
+      }
+    ]
+  },
+  "limitations": "The source DOM does not implement CSS layout, actual details keyboard activation, browser focus visibility, zoom or accessibility-tree/screen-reader behavior. Summary focus and disclosure toggling use the declared adapter, not native browser evidence. Harness runs unsupported-Web-Locks mode; tracked writes establish source behavior, not real durable browser storage or cross-tab ownership. No real private save, pending-loot overflow, binding/IW transaction or narrow/mobile viewport was exercised by this sample. No benefit/rate/balance conclusion follows from this fixed sample."
+}

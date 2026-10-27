@@ -72,7 +72,7 @@ test('Soulbind UI: discoverable balance/rules, no automatic action and live bala
   assert.equal(h.calls.length, 0); assert.equal(h.dom['soulbind-dialog'].open, false);
   h.run('state.soulFragments += 10; render();'); assert.equal(h.dom['soul-fragment-balance'].textContent, '1,010 靈魂碎片');
   for (const copy of ['每次正常通關取得 10 靈魂碎片', '本作掛機節奏改編', '不是金幣或 AP', '精良（Exquisite）以下 100', '華麗（Magnificent）250', '傳奇（Legendary）500', '無雙（Peerless）1,000', '尚未實作鍛造', '不補發歷史獎勵']) assert.ok(html.includes(copy), copy);
-  assert.match(html, /v0\.33 · 來源候選/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
+  assert.match(html, /v0\.34 · 來源候選/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
   assert.match(html, /資料格式 v3/); assert.match(html, /v3 儲存命名空間，與資料格式版本不同/);
 });
 

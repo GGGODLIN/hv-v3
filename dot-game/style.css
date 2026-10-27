@@ -744,3 +744,17 @@ dialog::backdrop { background: #071016d9; backdrop-filter: none; }
   .inventory-card:focus-visible, .pending-loot-card:focus-visible, .gear-button:focus-visible { outline-color: ButtonText; }
   .gear-info .comparison-marker, .gear-button .gear-info .comparison-marker, .inventory-card .gear-info .comparison-marker { border-color: ButtonText; }
 }
+
+/* v0.34 — weapon identity first; exact mechanics remain adjacent and readable. */
+.weapon-trait .weapon-trait-summary { color: #d4dddc; font-size: 12px; line-height: 1.7; }
+.weapon-trait .weapon-trait-model { margin-top: 6px; }
+.weapon-rule-details { margin-top: 9px; border-top: 1px solid #3f575c; padding-top: 4px; }
+.weapon-rule-summary { min-height: 40px; padding: 9px 6px; color: #e4d5b0; font-size: 11px; cursor: pointer; overflow-wrap: anywhere; }
+.weapon-rule-summary:hover { background: #23373e; }
+.weapon-rule-summary:focus-visible { outline: 2px solid #e4d5b0; outline-offset: -2px; }
+.weapon-rule-details[open] .weapon-rule-summary { margin-bottom: 4px; }
+.weapon-rule-details p { margin: 7px 0 0; line-height: 1.75; overflow-wrap: anywhere; }
+@media (forced-colors: active) {
+  .weapon-rule-details { border-color: CanvasText; }
+  .weapon-rule-summary:focus-visible { outline-color: ButtonText; }
+}

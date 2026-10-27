@@ -1393,16 +1393,36 @@ function renderItemDetail() {
   const restoreItemWorldFocus = document.activeElement?.dataset?.itemWorldId === item.id;
   const bound = Object.hasOwn(item, 'soulbound');
   const wrap = $('item-detail'); wrap.style.setProperty('--item-color', colorOf(item));
+  // Native disclosure state belongs only to this exact inspected item, not saves.
+  const previousRules = wrap.querySelector('.weapon-rule-details');
+  const sameRuleItem = previousRules?.dataset?.weaponRuleId === item.id;
+  const restoreRuleFocus = sameRuleItem && document.activeElement === previousRules.querySelector('summary');
   const current = state.equipment[item.slot];
   const quality = node('div', 'detail-quality', `${qualityName(item.quality)}${selectedSlot ? ' · 已裝備' : pending ? ' · 待領戰利品' : ''}${bound ? ' · 靈魂綁定' : ''}${item.itemWorld?.level === 1 ? ' · IW1' : ''}`);
   const name = node('h3', 'detail-name', item.name); name.tabIndex = -1;
   const subtitle = node('div', 'detail-subtitle', `${itemTypeName(item)} · Lv.${item.level} · 品質骰 ${Number(item.roll || 0).toFixed(0)} · 屬性評分 ${format(item.power)}${pending ? ` · ID：${item.id}` : ''}`);
   const description = node('p', 'detail-description', bound ? '已永久投入靈魂碎片；武器依原始綁定基準隨角色等級成長，沒有重新抽取屬性。' : describeItemFlavor(item) || '一件等待發揮力量的裝備。');
   const trait = node('div', 'weapon-trait');
+  let ruleSummary;
   if (item.slot === 'weapon') {
-    trait.append(node('strong', '', `武器路線 · ${weaponFamilyNames[resolveWeaponFamily(item)] || '未辨識'}`), node('p', '', describeWeaponTrait(item)));
+    const family = resolveWeaponFamily(item);
+    const fullTrait = describeWeaponTrait(item);
+    const conciseTrait = {
+      axe: '流血傷口：普攻有機會觸發，之後的 Tick 才造成無類型傷害。可疊層刷新，但重新快照也可能變弱；穿透護甲不增幅流血。',
+      rapier: '穿透護甲：普攻有機會降低敵人的一般物理減傷，從後續物理攻擊生效；不是直接加傷，技能不會觸發。',
+      club: '暈眩：普攻有機會暫停敵人行動、閃避與招架，仍可格擋。不能刷新；甦醒時會先行動，可能反擊致敗。',
+    }[family];
+    trait.append(node('strong', '', `武器路線 · ${weaponFamilyNames[family] || '未辨識'}`), node('p', 'weapon-trait-summary', conciseTrait || fullTrait));
     const ruleText = weaponRuleText(item);
-    if (ruleText) trait.append(node('p', 'muted', ruleText));
+    if (ruleText) {
+      trait.append(node('p', 'weapon-trait-model muted', '採歷史特效模型；固定參數與自動戰鬥時序為本作改編，不等同原版當前規則。'));
+      const rules = node('details', 'weapon-rule-details');
+      rules.dataset.weaponRuleId = item.id;
+      rules.open = Boolean(sameRuleItem && previousRules.open);
+      ruleSummary = node('summary', 'weapon-rule-summary', '完整特效規則・觸發、公式與時序');
+      rules.append(ruleSummary, node('p', 'weapon-trait-full', fullTrait), node('p', 'weapon-rule-full muted', ruleText));
+      trait.append(rules);
+    }
   } else trait.hidden = true;
   const table = node('div', 'compare-table');
   const tableHeading = node('div', 'compare-heading'); tableHeading.append(node('span', '', '屬性'), node('span', '', selectedSlot ? '目前裝備' : '現穿 → 選取'), node('span', '', selectedSlot ? '差值' : '比現穿')); table.append(tableHeading);
@@ -1457,6 +1477,7 @@ function renderItemDetail() {
   wrap.replaceChildren(detailHeading, table, actions, explanation, description, trait, soulbind, itemWorld);
   if (restoreSoulbindFocus && bindButton && !bindButton.disabled) bindButton.focus();
   if (restoreItemWorldFocus && itemWorldButton && !itemWorldButton.disabled) itemWorldButton.focus();
+  if (restoreRuleFocus && ruleSummary) ruleSummary.focus({ preventScroll: true });
 }
 
 // Soulbind is a one-item permanent investment, never an automatic policy.
