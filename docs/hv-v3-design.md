@@ -146,3 +146,9 @@
 - 自訂 item 2/3: CP9.windCd=2（SIM_WINDCD）：重擊/蓄力後與復活後 2 回合內不得再蓄力；復活文字「2 回合後重新蓄力」。
 - 自訂 item 4: CP9.defCap=0.35（SIM_DEFCAP）：防禦回合承傷 < 35% maxHP；防禦保命（HP≥2 留 1；HP 1 每場一次，stand9）；敵全暈時提示 A。
 - 暫定：cb max 仍 2–3（標準 sim oc/bulwark），未達 ≤1 gate。
+- 自訂（製作人 1）: CP9.hp1A — 沒有可用藥水且 HP 1 → 直接提示 A（不出「擋不住」）。標準 / preset sim cb max 全部 0。
+- 自訂（製作人 2）: CP9.dMin=0.2 — 下回合估計 < 最大 HP 20% 時不提示 D（改技能或 A；藥水不可用的危險狀態只給 A）。
+- 自訂（製作人 2）: CP9.boss30oc=1.3 — oc 主流派在深度 ≥30 的 boss 倍率上限 1.3。注意：深淵 boss 實際用 bossHp9(20)=×3.0，不是 boss30；這一刀從 ×3.0 降到 ×1.3，標準 sim oc 樓層因此 34 → 100（與 QA 6「oc 不得超過其他流派 10 層」衝突，暫定）。
+- 自訂（QA 4）: windSafeKey — 新蓄力出現時，排隊中的暈眩技（Q）不再被丟棄、也不被 charge hold 擋住（rc6 根因：app.ts fresh wind-up 規則把排隊的 Q 設為 null）。
+- 自訂（QA 5）: lethal 但防禦後撐得住的 D 提示改為「HP 危險…；防禦後估計 X < HP，防禦後撐得住，先不喝藥」。
+- 自訂（QA 6 診斷）: SIM_QSPAM=1 模擬 Q 連打；st9 計數 boss 暈眩 / 打斷 / 落地重擊。未證實「Q 一直打斷」，未加暈眩遞減。
