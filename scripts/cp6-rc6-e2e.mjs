@@ -17,7 +17,9 @@ for (const [k, type] of [['abyss15', 'battle'], ['abyss15', 'elite'], ['postF20-
       // rc17: the weak/resist list is gone; the head label's short form must match monsters.json spec signs
       const Z = { piercing: '刺', crushing: '打', slashing: '斬', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
       const lab = hv.stage.mons?.[i]?.label?.text ?? '';
-      const wk = (lab.match(/弱([^｜\n]*)/) ?? [])[1] ?? '', rs = (lab.match(/抗([^｜\n]*)/) ?? [])[1] ?? '';
+      // rc18: line 1 now carries the name + 【affixes】 (法抗 contains 抗); weak/resist live on line 2 only
+      const elemLine = lab.includes('\n') ? lab.slice(lab.indexOf('\n') + 1) : '';
+      const wk = (elemLine.match(/弱([^｜\n]*)/) ?? [])[1] ?? '', rs = (elemLine.match(/抗([^｜\n]*)/) ?? [])[1] ?? '';
       const shown = [...[...wk].map((c) => c + '-'), ...[...rs].map((c) => c + '+')].sort();
       const want = Object.entries(m.spec).filter(([, v]) => v !== 0).map(([t, v]) => Z[t] + (v < 0 ? '-' : '+')).sort();
       out.push({ i, name: m.name, row: !document.querySelector('[data-weak]'), resLabel: true, ok: JSON.stringify(shown) === JSON.stringify(want), shown, want, lab });
