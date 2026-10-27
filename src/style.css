@@ -303,3 +303,12 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
 .screen-battle .encounter *, .screen-battle .weakbox * { color: inherit !important; }
 .screen-battle .encounter { color: #3b2412; }
 .screen-battle .cmdbar .hint { border: 0; border-image: none; color: #f4e6cc; align-self: center; }
+/* rc19 item 2: encounter box no longer floats over the log / scene — a small centred panel stacked above the log inside the same
+   128px block (log keeps its newest lines at the bottom), so neither covers the other at 1280 or 913. */
+.screen-battle .logwrap { display: flex; flex-direction: column; height: 128px; gap: 4px; }
+.screen-battle .encounter { position: static; flex: none; align-self: center; max-width: min(560px, 100%); font-size: 12px; line-height: 1.35; padding: 2px 6px; max-height: 66px; overflow: hidden; }
+.screen-battle .logwrap .log { flex: 1 1 auto; min-height: 0; height: auto; display: flex; flex-direction: column; justify-content: flex-end; }
+/* rc19 item 2: right-column boxes (weakness / decision / hints) live in .hudr so a tall decision box no longer pushes the log down
+   onto the monsters (913 width). */
+.hud > .hudl, .hud > .logwrap, .hud > .refused { grid-column: 1; }
+.hud > .hudr { grid-column: 2; grid-row: 1 / span 3; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
