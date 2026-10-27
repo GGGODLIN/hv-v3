@@ -1,5 +1,5 @@
 import { RULES } from './run';
-import { CP8 } from './cp8';
+import { CP8, RC22 } from './cp8';
 import type { BMods, Combos } from './buffs';
 import { CONSTANTS as C } from './data/constants';
 import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
@@ -80,7 +80,7 @@ function cp5Split(s: BattleState, ev: BEvent[]): void {
     const m = m0 as CM;
     if (m.hp > 0 || !m.splitInto || m.splitDone) return;
     m.splitDone = true;
-    for (const c of m.splitInto) if (alive(s).length < CP5.maxMonsters) { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `分裂！${c.name} 出現` }); }
+    for (const c of m.splitInto) if (alive(s).length < (RULES.cp8 && RC22.normalCap > 0 && !s.monsters.some((x) => x.rank === 'boss') ? Math.min(RC22.normalCap, CP5.maxMonsters) : CP5.maxMonsters)) /* rc22 normalCap（自訂） */ { s.monsters.push(c); ev.push({ t: 'status', to: s.monsters.length - 1, text: `分裂！${c.name} 出現` }); }
   });
 }
 /** CP5 鐵壁: damage halved on the elite's first turns. Returns mit unchanged otherwise. */
@@ -644,7 +644,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? HEALTH_POTION_CD : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1;
+      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1;
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];

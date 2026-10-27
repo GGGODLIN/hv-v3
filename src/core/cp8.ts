@@ -3,6 +3,12 @@
  * Knobs marked 暫定 have no original-game source (Clean Room rule: listed in docs/cp8-real-play.md §暫定值).
  */
 import { CP7 } from './cp7';
+const RC22_ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+const num = (k: string): number | null => (RC22_ENV?.[k] != null && RC22_ENV[k] !== '' ? Number(RC22_ENV[k]) : null);
+/** rc22 item 2 tuning（自訂，非原版，暫定）. Sim overrides: SIM_POTCD / SIM_MULTIK / SIM_NORMALCAP.
+ *  potCd: health-potion cooldown under cp8 (null = data value 3). multiK: monster damage × this in non-boss abyss fights with ≥ 2
+ *  monsters past d17 (1 = off). normalCap: max monsters alive in non-boss fights (0 = CP5.maxMonsters). */
+export const RC22 = { potCd: num('SIM_POTCD') as number | null, multiK: num('SIM_MULTIK') ?? 1, normalCap: num('SIM_NORMALCAP') ?? 0 };
 export const CP8 = {
   /** 暫定（缺原版出處；rc3 試玩 d25 首領從滿血 936 被打死）: d25 abyss boss damage × (replaces ABYSS.bossDmgAt[25]=0.6 when cp8 is on).
    *  d25 stacks tier 3→4, plevel +10 and the first boss affix on one fight; this softens only that boss. */

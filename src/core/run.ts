@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, RC22, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -317,6 +317,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
         if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
       return m;
     });
+    if (RULES.cp8 && ab && ab > 17 && type !== 'boss' && out.length >= 2 && RC22.multiK !== 1) { const k = 1 - (1 - RC22.multiK) * Math.min(1, (ab - 17) / 3); for (const m of out) m.adb *= k; } // rc22 item 2（自訂，非原版）: ramps d18→d20 to multiK
     if (type === 'elite') run.weakNext = false;
     markDuplicates(out.map((m) => m.name)).forEach((n, i) => { out[i]!.name = n; });
     return out;
