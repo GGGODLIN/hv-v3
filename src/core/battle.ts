@@ -11,7 +11,7 @@ const save9 = (s: BattleState, hp: number): number => !CP9.save9 ? Infinity : CP
 export const stunImmOn9 = (m: Monster): boolean => RULES.cp8 && CP9.on && CP9.stunImm > 0 && m.rank === 'boss';
 export const stunResisting9 = (m: Monster): boolean => stunImmOn9(m) && ((m as CM).stunImm9 ?? 0) > 0;
 /** cp9-rc9 item 6（自訂，QA oc1 F65）: persistent stun / stun-resist tag under a monster's HP bar (the log line alone vanished after T2). */
-export const stunTag9 = (m: Monster): string => m.hp <= 0 ? '' : m.status.stun > 0 ? `暈眩 ${m.status.stun}` : stunResisting9(m) ? `暈眩抵抗 ${(m as CM).stunImm9}` : '';
+export const stunTag9 = (m: Monster): string => m.hp <= 0 ? '' : m.status.stun > 0 ? `暈眩 ${m.status.stun}${stunImmOn9(m) ? `（之後抵抗 ${CP9.stunImm}）` : ''}` /* cp9-rc9 step 3（自訂）: upcoming resist shown while stunned */ : stunResisting9(m) ? `暈眩抵抗 ${(m as CM).stunImm9}` : '';
 const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!stunResisting9(m)) return false; ev.push({ t: 'status', to, text: '暈眩抵抗中' }); return true; };
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';

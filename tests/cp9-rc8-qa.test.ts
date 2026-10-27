@@ -82,7 +82,8 @@ describe('cp9-rc8 QA', () => {
       const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 });
       m.status.stun = 3; const tags: string[] = [stunTag9(m)]; const rng = new Rng(1);
       for (let t = 0; t < 6; t++) { b.hp = b.d.hp; act(b, { kind: 'defend' }, rng); tags.push(stunTag9(m)); }
-      expect(tags.slice(0, 3)).toEqual(['暈眩 3', '暈眩 2', '暈眩 1']);
+      expect(tags.slice(0, 3)).toEqual(['暈眩 3（之後抵抗 2）', '暈眩 2（之後抵抗 2）', '暈眩 1（之後抵抗 2）']); // rc9 step 3
+      const mn = buildMonster(pool.rows[6]!, 30, 'normal'); mn.hp = mn.maxHp = 10; mn.status.stun = 2; expect(stunTag9(mn)).toBe('暈眩 2'); // no resist → no suffix
       expect(tags.filter((x) => x.startsWith('暈眩抵抗')).length).toBeGreaterThan(0);
       expect(tags[tags.length - 1]).toBe('');
       expect(readFileSync('src/game/stage.ts', 'utf8')).toMatch(/stunTag9\(v\.m\)/);
