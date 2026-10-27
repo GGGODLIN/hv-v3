@@ -39,7 +39,7 @@ describe('rc20 item 2: potion unusable → D / S / A, never a skill', () => {
   it('D cannot hold, no OC → A', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 5); expect(chargeAdvice(b).keys).toEqual(['A']); }));
   it('D holds → D', () => withCp8(() => { const b = qa(100, 1000, 0, 0, 0.0001); expect(chargeAdvice(b).keys).toEqual(['D']); }));
   it('UI drops skill / spell suggestions while in danger', () => {
-    const s = readFileSync('src/core/battle.ts', 'utf8'); expect(s).toMatch(/RULES\.cp8 && !danger \? suggestSkill/); expect(s).toMatch(/RULES\.cp8 && !danger && quickAttack/); // cp9-rc4 (A)（自訂）: gate moved into turnHints
+    const s = readFileSync('src/core/battle.ts', 'utf8'); expect(s).toMatch(/const skill = !danger \? suggestSkill/); expect(s).toMatch(/const spell = !danger && quickAttack/); // cp9-rc4 (A)（自訂）: gate moved into turnHints
   });
   it('lowHp is part of hpDanger', () => withCp8(() => { const b = qa(100, 1000, 3, 0, 0.0001); expect(lowHp(b)).toBe(true); expect(hpDanger(b)).toBe(true); }));
 });

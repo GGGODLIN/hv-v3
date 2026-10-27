@@ -320,10 +320,10 @@ export class App {
     // cp9-rc4 (A)（自訂，暫定）: every hint comes from core turnHints — the same function the sim's naive/ui policy presses — with no lean
     // gate (rc3: bulwark / arcane never saw the skill hint the sim used). The skill hint lights whenever turnHints suggests a skill.
     const th = turnHints(b, this.target), adv = th.adv, dangerNow = th.danger;
-    const sugSk = th.skill;
+    const sugSk = RULES.cp8 ? th.skill : null;
     const ready = sugSk ? [sugSk] : [];
     this.cdShown = ready;
-    const spellSug = th.spell;
+    const spellSug = RULES.cp8 ? th.spell : null;
     const sk = skillKit(b).map((id, i) => {
       const s = SKILLS[id];
       const cd = b.cooldowns[id];
