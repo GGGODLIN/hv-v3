@@ -1,12 +1,12 @@
 {
-  "checkpoint": "133-v033-browser-accepted",
+  "checkpoint": "135-v033-publication-receipt",
   "version": "0.33.0",
-  "status": "bounded-desktop-browser-accepted-source-before-root-publication",
-  "source_base": "63b39c5a62193988430bdf86379b3f75c1b3a303",
-  "base_accepted_recovery": "e5962e728ae4c20db80172916f3e1a9b72815a91",
-  "accepted_website": "f00fdfe1fcad529081057e99592a49466341bb08",
+  "status": "published-bounded-desktop-accepted-complete-recovery-record",
+  "source_base": "dfd24bca81bd25259a5cc1ec56814b0b0f4667a9",
+  "base_accepted_recovery": "dfd24bca81bd25259a5cc1ec56814b0b0f4667a9",
+  "accepted_website": "d734cec7e83f43433f7f50b87710a36e779d06b7",
   "prepared_unpublished_v026_website_candidate": "14524044ee864ac9ac590ed933c9fd0ef5148680",
-  "scope": "Record actual bounded desktop candidate acceptance and recovery evidence; change only visible index label from source candidate to continuing development. No functional runtime, stylesheet, asset, gameplay, storage, schema or fixture changes.",
+  "scope": "Documentation/checkpoint-only final recovery record after exact stable publication and actual original-stable-profile browser smoke. No runtime, stylesheet, asset, storage, gameplay, schema, test or fixture change from accepted source133.",
   "source_tests_passed": 1827,
   "runtime_syntax_checks": 4,
   "source_input_files_unchanged_during_final_suite": 186,
@@ -54,16 +54,16 @@
     "not_layout_acceptance": true
   },
   "visual_acceptance": "PASS bounded actual cloud-browser 1180x757 desktop: first-screen action, loaded icons, wrapping, no observed horizontal overflow and inset focus paint; narrow/mobile/zoom/forced-color appearance not tested",
-  "browser_acceptance": "PASS bounded candidate ordinary progression/equip/reload, unchanged earned import, native Enter exact-ID focus, policy and preset context/cancel/confirm, earned Exquisite bind and paid five-wave IW1/reload, hidden selected-sale quote/cancel. See docs/BROWSER-QA-V033.md.",
+  "browser_acceptance": "PASS bounded candidate desktop plus original stable-profile smoke on the published root. No candidate progress imported into stable profile. Explicit limits retained; see docs/BROWSER-QA-V033.md.",
   "assistive_technology_acceptance": "not-run",
   "website_staging": "candidate published exact 35a4cfff40a7fab92dd1848d9db455878347a1c4; Pages 40484556586 success; all 21 files exact HTTP200",
-  "publication": "formal-root-pending-accepted-source-exact-readback; stable-profile-smoke-not-run",
+  "publication": "formal v0.33 published with exact CI/21-file HTTP; actual original stable profile ordinary clear and reload passed; candidate and other website paths preserved",
   "outside_source_blobs_to_preserve": 409,
-  "frozen_utc": "2026-10-27T10:12:54.421065+00:00",
+  "frozen_utc": "2026-10-27T10:26:26.114683+00:00",
   "files": {
     "README.md": {
-      "bytes": 16945,
-      "sha256": "017f5ed39fe3cd81658ee9d423005a07e65dabc90bcb6190a5e75d49ec8d6772"
+      "bytes": 18288,
+      "sha256": "7c4b5c8f7d0ea397498ffdb9ceb46eca1695b7261280525aed60eb4b7ecee820"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -222,8 +222,8 @@
       "sha256": "d1bc3b905411afdb42ec00209302d10248658b55ba820a0f59ac4941eaed20c5"
     },
     "docs/ACCEPTANCE-V033.md": {
-      "bytes": 5565,
-      "sha256": "80aceb7dbfd7c074c81cea334dd7d7c8aba25faeb540868fd99ccd01d009b31f"
+      "bytes": 6546,
+      "sha256": "620f9043053da60b043bc7f23e7c3ed58ae4c08974a5136827361be48dbf630b"
     },
     "docs/ACCEPTANCE-V04.md": {
       "bytes": 11620,
@@ -402,8 +402,8 @@
       "sha256": "f7d08605e9876f5ff78e3a59a11b99b6a245ecfa4edfa6717fdebd8f23832420"
     },
     "docs/BROWSER-QA-V033.md": {
-      "bytes": 11670,
-      "sha256": "5f38fc793baf2b167fb756a3caa1dac274a2edf9ef0cd72b0b8cf7eb720675f6"
+      "bytes": 16587,
+      "sha256": "d53444dffcc861778fabef233d8a88d7a00798e296ce9a9adfab0bd9366160a6"
     },
     "docs/BROWSER-QA-V04.md": {
       "bytes": 5782,
@@ -650,12 +650,12 @@
       "sha256": "254a2e2ce12d54c2016fab6d9c340806d3e3df231f2f7d17ae55eacbcfc02324"
     },
     "docs/RECOVERY-V033.md": {
-      "bytes": 4121,
-      "sha256": "76c87070007d05fc0fa1381bc1cd09d87c79667cf192e8a427b2506415b1d15d"
+      "bytes": 5736,
+      "sha256": "20b7ea2a178606652cc41fd34eacbb5f76b13f93bd312aaad8c931df453d5d28"
     },
     "docs/RELEASES.md": {
-      "bytes": 42816,
-      "sha256": "1c65e2b4204595b6378056337c2dfdbc707fe4755c9b87de729d3ca05ac4774c"
+      "bytes": 43918,
+      "sha256": "a49e84ce6bc86ca71c58e447693a5f5c4097b1e565f57197fce9c7b37514e7b5"
     },
     "docs/REPORT-BUILD-GUIDE.md": {
       "bytes": 1549,
@@ -694,8 +694,8 @@
       "sha256": "f51ee92f0f00048b87a288986686043d9d690fc9a9e9dd61f27a575d6c480d60"
     },
     "docs/STATUS.md": {
-      "bytes": 19765,
-      "sha256": "d5e6023eb007369a7f2ca2000e620528f9c6204e260e258e95f671a8d29fbbae"
+      "bytes": 21104,
+      "sha256": "3690b4e253eb8459812758792d162cbeea7d19e5d57ecd58f4bc83823e6c1872"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1603,5 +1603,58 @@
     "actual pending FIFO overflow/claim",
     "automatic low-HP supply trigger",
     "hostile or malformed browser imports"
-  ]
+  ],
+  "previous_v025_accepted_recovery": "e5962e728ae4c20db80172916f3e1a9b72815a91",
+  "finalization_docs_only": true,
+  "runtime_unchanged_from_accepted_source133": true,
+  "full_suite_rerun_for_docs_finalization": false,
+  "source_test_count_note": "1827 passing tests from prior exact functional source checks; final changes are documentation only; no new full-suite claim",
+  "stable_publication": {
+    "commit": "d734cec7e83f43433f7f50b87710a36e779d06b7",
+    "tree": "29c7da7d09a0f6c54b1f6c62fc9273363e43ac58",
+    "parent": "35a4cfff40a7fab92dd1848d9db455878347a1c4",
+    "ci_run": 40487617128,
+    "ci_conclusion": "success",
+    "http_exact_files": 21,
+    "candidate_unchanged": true,
+    "other_website_blobs_modes_preserved": 3963,
+    "initial_ref_denial_known_unexecuted": true,
+    "fresh_specific_owner_grant_message": "Sentinel_2ff4df3d003081918d9bad0d7efca1ae",
+    "fresh_specific_owner_grant_sent_at": "2026-10-27T10:18:51.753384+00:00",
+    "one_same_commit_retry_after_new_grant_succeeded": true
+  },
+  "stable_original_profile_smoke": {
+    "passed_at_utc": "2026-10-27T10:22:56Z",
+    "actual_cloud_browser": true,
+    "ordinary_stage1_win_seconds": 10.5,
+    "before": {
+      "level": 11,
+      "gold": 914,
+      "wins": 18,
+      "inventory": 34,
+      "fragments": 30,
+      "seeds": 2
+    },
+    "after": {
+      "level": 11,
+      "gold": 990,
+      "wins": 19,
+      "inventory": 36,
+      "fragments": 40,
+      "seeds": 3,
+      "hp": 872,
+      "mp": 49
+    },
+    "reload_persisted": true,
+    "original_37_item_records_exact": true,
+    "old_unbound_level7_loot12_exact": true,
+    "equipped_preset_abilities_exact": true,
+    "pre_export_sha256": "9f4bc472b1c7549c367550169279d932be6d36c89a28b10f08ca6e7f047e0f60",
+    "post_export_sha256": "ed794afa75b2cba0d64609975e2b33b68bf05090029f89d67dfe36e5448ef3bf",
+    "raw_exports_in_source": false,
+    "candidate_progress_imported": false,
+    "observed_images_loaded": true,
+    "console_app_origin_errors_in_bounded_capture": 0,
+    "console_known_extension_entries": 16
+  }
 }

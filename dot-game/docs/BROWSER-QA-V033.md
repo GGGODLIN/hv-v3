@@ -1,6 +1,6 @@
-# v0.33 actual cloud-browser candidate acceptance
+# v0.33 actual cloud-browser acceptance and publication
 
-**Bounded desktop candidate acceptance: PASS, 2026-10-27 10:06 UTC.** Actual viewport was 1180 × 757. This is not narrow/mobile, comprehensive accessibility, cross-tab, completed scene-art, or formal-root acceptance. The candidate-tested JavaScript, CSS and assets remain unchanged from source freeze. The staged candidate index uses its expected isolated-test title/label. Complete accepted-source documentation backup/readback is the next gate; formal promotion is separate and not performed by this record.
+**Published v0.33 with bounded desktop candidate and original-profile formal smoke PASS, 2026-10-27.** Candidate viewport was 1180 × 757. This is not narrow/mobile, comprehensive accessibility, cross-tab or completed scene-art acceptance. The later formal publication/smoke is recorded at the end; earlier candidate-only checkpoints remain chronological history. The candidate-tested JavaScript, CSS and assets remain unchanged from source freeze. The staged candidate index uses its expected isolated-test title/label. Candidate acceptance initially preceded the separate complete-source backup, fresh formal grant, promotion and stable-profile smoke; those completed gates are recorded below.
 
 ## Exact candidate and scope
 
@@ -75,4 +75,28 @@ Two semantic summary-locator queries did not match; clicking the already observe
 
 Not claimed: actual pending FIFO overflow/comparison/claim, automatic emergency-supply trigger, narrow/mobile/touch/high zoom, forced-color appearance, spoken screen-reader output, physical keyboard hardware, OS sleep, comprehensive cross-tab/ownership transitions, hostile or malformed browser imports. Pending FIFO and adversarial cases retain their explicitly labeled source-test coverage; the browser used only normal earned progress and did not manufacture pending state.
 
-**Verdict:** bounded desktop candidate PASS, with the limits above. Keep formal v0.25 unchanged until separate authorization and the required accepted-source backup/readback, exact promotion verification and independent stable-profile smoke are satisfied. Do not import candidate progress into the formal profile.
+**Candidate verdict at10:06:** bounded desktop PASS, with the limits above. At that point formalv0.25 remained unchanged pending separate authorization, accepted-source backup/readback, exact promotion verification and independent stable-profile smoke. Those later gates are recorded next; candidate progress was never imported into the formal profile.
+
+## Formal-root publication and original-profile smoke — 10:18–10:23 UTC
+
+**Published and bounded-desktop accepted.** Complete accepted source `dfd24bca81bd25259a5cc1ec56814b0b0f4667a9` (checkpoint133,381files/380payloads) was backed up and exact-content read back before formal promotion. An independent local check verified its entire manifest, CHECKPOINT SHA256 `2ad4fd7727c38e22f0d299a93aa0b2c8a087a465f07495bd1168e9521e2b17f2`, and the sole authorized source-index label transition. JavaScript, CSS, assets and tests stayed exact to the candidate-tested source.
+
+The first formal ref update at10:16:50 was denied and read-only reconciliation confirmed it unexecuted: main still pointed to the candidate commit and the formal root was still v0.25. The root requested a new exact formal-scope grant, disclosing the untested narrow/mobile boundaries. Fresh owner approval arrived at **2026-10-27T10:18:51.753384+00:00**, after which the publisher made one authorized retry of the same prepared formal commit. That update succeeded with non-force/expected-head protection and confirmed post-ref identity. No denial was silently relabeled as success or bypassed with another host.
+
+Formal website `d734cec7e83f43433f7f50b87710a36e779d06b7`, tree `29c7da7d09a0f6c54b1f6c62fc9273363e43ac58`, passed exact [Pages40487617128](https://github.com/GGGODLIN/GGGODLIN.github.io/actions/runs/40487617128). All21 root files and the stable directory returned exact expected HTTP bodies; candidate directory bytes also remained exact. The21-file scope changed20 files and retained one; all3963 outside blobs/modes, including the isolated candidate and other website paths, were preserved. Stable index uses the original title and `v0.33 · 持續開發`; candidate retains its isolated title/label. Storage scope is selected by unchanged pathname logic, not by importing candidate progress.
+
+### Actual original-profile smoke
+
+Before promotion, parent opened the existing formal profile in a **new** main cloud tab, bound as`hvRoot33`; the historical tab2 is not claimed still open. Its own v0.25 save remained level11,HP872,MP49,914gold,18wins,34backpack,30fragments,two seeds and the original unbound level7 weapon`loot-12`. No candidate save was imported.
+
+At10:22:15 actual formal tab25 reload showed `v0.33 · 持續開發`, loaded all assets and retained that original profile. Parent started normal route1 and queued finish-after-clear. Actual10.5 processed-second victory returned to camp: level11,990gold,19wins,36backpack,HP872,MP49,40fragments and three seeds. Real reload retained all those values and the original unbound level7`loot-12`; no unwanted repeat began.
+
+The original v0.25 normal export SHA256 `9f4bc472b1c7549c367550169279d932be6d36c89a28b10f08ca6e7f047e0f60` (21,796bytes) and the new normal stable export SHA256 `ed794afa75b2cba0d64609975e2b33b68bf05090029f89d67dfe36e5448ef3bf` (22,829bytes) independently validate as format3. Exact read-only comparison proves all37 original held records unchanged; only actual drops`loot-35` and`loot-36` were added, with no removal. Equipped records, preset references and abilities are identical. Both raw exports remained unmodified and are excluded from source backup.
+
+The bounded stable console capture contained16 errors, all the same known extension metadata source already named above; no other/app-origin source was captured. All assets loaded. Parent left formal tab25 at camp and marked it deliverable, closed completed candidate tab24, and notified the user after the root smoke. This is an actual original-profile check, not reuse of the candidate's advanced progress.
+
+### Final recovery receipt and remaining limits
+
+The final publication-receipt checkpoint changes only documentation and its manifest. The existing1827-test/four-syntax source results, bounded candidate pass, exact Pages/HTTP verification and actual stable-profile smoke apply to the unchanged published runtime; no extra full-suite rerun, deployment or fabricated mobile pass is claimed. The final complete-source checkpoint SHA and successful exact readback must be established by its external backup receipt, not predeclared in this precommit text. Accepted checkpoint133/source`dfd24bca81bd25259a5cc1ec56814b0b0f4667a9` remains a known recovery point; priorv0.25 recovery is retained historically.
+
+Narrow/mobile/touch/zoom, forced colors, screen-reader output, actual pending FIFO overflow/claim, automatic low-HP extra-supply firing, OS sleep and comprehensive cross-tab behavior remain untested in this browser acceptance. Original canvas art remains unchanged. Publishing does not turn these limits into passes or mean all art is complete.
