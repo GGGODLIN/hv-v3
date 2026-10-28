@@ -264,6 +264,8 @@ export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
 }
 
 /** rc12o（自訂）: boss guaranteed piece minimum quality = abyss guarantee + RUN12O.bossGear tiers. */
+/** rc12p（自訂）: health potions for an abyss boss kill at depth ab — deterministic, shared by sim and game. */
+export const bossPot12p = (ab: number): number => (RUN12M.on && RUN12O.on && ab >= RUN12O.bossPotFrom ? Math.round(RUN12O.bossPot) : 0);
 export const bossGearQ12o = (q: Quality): Quality => QUALITIES[Math.min(QUALITIES.length - 1, QUALITIES.indexOf(q) + Math.max(0, Math.round(RUN12O.bossGear)))]!;
 /** Derived stats with run bonuses applied. */
 export function runDerived(p: Player, run: RunState) {
@@ -382,7 +384,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { /** rc12g: weapon swap log lines */ swaps?: string[]; equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[]; /** rc22 decision (b): max HP lost to auto-wear on this loot (UI 「最大 HP −N」). */ hpDrop?: number }
+export interface Loot { /** rc12p（自訂）: abyss boss clear reward shown as 「王戰獎勵：藥水 ×N、裝備保底 X 階」 */ bossReward?: { potions: number; quality: Quality }; /** rc12g: weapon swap log lines */ swaps?: string[]; equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[]; /** rc22 decision (b): max HP lost to auto-wear on this loot (UI 「最大 HP −N」). */ hpDrop?: number }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -427,7 +429,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot') && (!RULES.cp8 || r12m(p && curveSchool12g(p), 'elite') >= 1 || rng.chance(r12m(p && curveSchool12g(p), 'elite')))) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
+    if (type === 'elite' && !(run.abyss && RUN12M.on && RUN12O.on && RULES.cp8) /* rc12p（自訂）: abyss potions only from boss kills (QA rc12o 'normal' drops were elites) */ && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot') && (!RULES.cp8 || r12m(p && curveSchool12g(p), 'elite') >= 1 || rng.chance(r12m(p && curveSchool12g(p), 'elite')))) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
@@ -437,9 +439,9 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
       loot.credits += 40 * run.floor;
       // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
       const o12 = !!ab && RULES.cp8 && RUN12M.on && RUN12O.on;
-      if (ab) { const g = generateEquip(rng, L, { minQuality: o12 ? bossGearQ12o(guaranteeQuality(ab)) : guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); }
+      if (ab) { const q12 = o12 ? bossGearQ12o(guaranteeQuality(ab)) : guaranteeQuality(ab); const g = generateEquip(rng, L, { minQuality: q12 }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); if (o12) loot.bossReward = { potions: 0, quality: q12 }; }
       if (o12) { // rc12o（自訂）: every abyss boss kill = a clear reward (guaranteed piece +bossGear quality; potions concentrated here)
-        if (ab >= RUN12O.bossPotFrom && RUN12O.bossPot > 0) { const n = Math.floor(RUN12O.bossPot) + (rng.chance(RUN12O.bossPot % 1) ? 1 : 0); if (n) loot.potions.health = (loot.potions.health ?? 0) + n; }
+        if (ab >= RUN12O.bossPotFrom && RUN12O.bossPot > 0) { const n = bossPot12p(ab); if (n) { loot.potions.health = (loot.potions.health ?? 0) + n; loot.bossReward!.potions = n; } } // rc12p: deterministic (no roll)
       }
       // CP6 r2 decision 9 (暫定): first clear of every 10th depth → 1 more guaranteed piece + a title.
       if (ab && ab % ABYSS.milestoneEvery === 0 && ab > (run.abyss!.ms ?? 0)) {

@@ -497,7 +497,7 @@ export class App {
     if (this.pending.loot) {
       const l = this.pending.loot;
       const pots = Object.entries(l.potions).filter(([, v]) => v).map(([k, v]) => `${POTION_ZH[k as PotionId]} ×${v}`).join('、');
-      body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>${l.swaps?.length ? `<div class="hint" data-swap>${l.swaps.map(esc).join('<br>')}</div>` : ''}${l.hpDrop ? `<div class="hint" data-hpdrop="${l.hpDrop}">自動換裝：最大 HP −${l.hpDrop}</div>` : ''}
+      body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>${l.bossReward ? `<div class="hint bossreward" data-bossreward="${l.bossReward.potions}:${l.bossReward.quality}">王戰獎勵：藥水 ×${l.bossReward.potions}、裝備保底 ${QUALITY_ZH[l.bossReward.quality]} 階</div>` : ''}${l.swaps?.length ? `<div class="hint" data-swap>${l.swaps.map(esc).join('<br>')}</div>` : ''}${l.hpDrop ? `<div class="hint" data-hpdrop="${l.hpDrop}">自動換裝：最大 HP −${l.hpDrop}</div>` : ''}
         <div class="inv">${l.equips.map((e) => this.lootCard(e, l)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
