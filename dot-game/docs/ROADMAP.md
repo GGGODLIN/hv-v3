@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.47 source-only slice: protection collection view
+
+Expose existing locked, soulbound and saved-set protection as a transient AND filter. Preserve exact IDs, sale consent and all transaction constraints. Unprotected is not an immediate-sale guarantee. No website operations or browser acceptance claim.
+
 
 ## v0.46 source-only slice: literal name lookup
 

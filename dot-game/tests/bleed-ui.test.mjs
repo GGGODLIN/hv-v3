@@ -148,6 +148,6 @@ test('bleeding readouts remain accessible, narrow-screen wrapping and separate f
   assert.match(css, /\.bleed-damage-notice\[hidden\] \{ display: none; \}/);
   assert.match(css, /@media\(max-width:680px\) \{ \.enemy-status-list \{ grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(css, /\.floating-number\.bleed/);
-  assert.match(html, /v0\.46 · 來源候選/);
+  assert.match(html, /v0\.47 · 來源候選/);
   assert.doesNotMatch(js, /\.innerHTML\s*=/);
 });
