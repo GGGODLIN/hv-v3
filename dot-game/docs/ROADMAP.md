@@ -1,3 +1,9 @@
+## v069 已正式發布並通過桌面實玩（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 已為v069：websitee5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84，exact Pages40786260803成功。原正式Lv9／1150金profile選2×成長遠征固定Lv10，自然兩場後達標；第4波已升級仍提示完成當場，完整獎勵結算後停營，超過15秒未自啟。重載保留永久進度、清除目標並回1×，最終Lv10／1302金／16勝／bag24，未匯入候選進度。
+
+最新完整恢復來源為攜帶CHECKPOINT `222-v069-restorable` 的exact commit，runtime/tests/assets/index與220來源f1da8e983ad90f8d16c220fb163a50eb51ac6f56逐byte不變。完整來源、素材授權、測試、候選／正式browser與發布收據及恢復說明已納入，詳見docs/PUBLICATION-V069.md、RECOVERY-V069.md。正式首場結束邊界未即時截到，跨兩場由兩份戰報確認；候選才有直接首場邊界證據。Lv500、敗北／滿包／失敗出發、控制權／唯讀與精確2×第一小步仍來源測試；非手機／完整無障礙，未宣稱公開HTTP逐檔hash或Library同步。以下狀態為歷史。
+
 ## v069 桌面候選已驗收；正式待發布（2026-10-29 台北）
 
 隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.69/ 正常 UI 實玩 PASS：website8647ea6659496500a7471d5aede6b8762959cca0，exact Pages40785220830成功。真實Lv9／XP196基線以2×出發固定Lv10，第一場後仍Lv9／XP301，自動下一場目標不重設；第二場完整結算升Lv10／XP64／1302金後停營，超過15秒未自啟。

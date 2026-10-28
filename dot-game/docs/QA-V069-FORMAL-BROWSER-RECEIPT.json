@@ -1,0 +1,76 @@
+{
+  "version": "v0.69",
+  "result": "PASS",
+  "tested_at": "2026-10-28T23:20:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "website_commit": "e5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84",
+  "pages_run": "40786260803",
+  "ci": "Parent exactsuccess/21bytes4274outside verified before reload",
+  "method": "Cloud CUA normal original formalprofile, no candidateimport or stateinjection",
+  "baseline": {
+    "level": 9,
+    "gold": 1150,
+    "wins": 14,
+    "xp": 196
+  },
+  "checks": [
+    "Pre-upgrade normalexport SHA equals previous acceptedv068 baseline2b3229…84a61d. Reload visiblyv069 with originalprofile.",
+    "Selected2x; growthstart visiblylockedLv10 fromLv9. Naturallycompletedtwoexpeditions. ObservedLv10 atwave4 withsameLv10target and achieved-but-finish-allwaves message; didnotstopmidfight.",
+    "Afterfullsettlement campLv10 XP64/401 gold1302/wins16/kills96; twowinreports10.5seconds each, rewards/loot retained.",
+    "Campstillunchanged morethan15seconds later, noautostart andtargetcleared.",
+    "Normalexport/reload/export preservesall permanentfields, clears session goal andresets2x→1x. Only8knowntransientfield differences.",
+    "Nohorizontaloverflow viewport1180/document1165; brokenimages0."
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 10,
+    "xp": 64,
+    "xpNext": 401,
+    "hp": 773,
+    "mp": 46,
+    "gold": 1302,
+    "proficiency": 11.04,
+    "attributes": {
+      "str": 26,
+      "dex": 26,
+      "agi": 26,
+      "end": 26,
+      "int": 26,
+      "wis": 26
+    }
+  },
+  "final_wins": 16,
+  "final_kills": 96,
+  "final_bag_count": 24,
+  "final_fragments": 60,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/a2fddb94-292b-44ff-a9db-f72672ed6263",
+      "sha256": "2b3229e8d9a87541759f5398a91e58f3d4dadc1f99decc56efb7cc95ec84a61d"
+    },
+    "after_play": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/5f615aea-624b-45c5-a3ff-b7f674802b39",
+      "sha256": "dae384cc4d97b097dee138f71be61a2460acdfc0b513747686d2e16cd9e197b7"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/00a4ffe7-cdd1-44e4-af38-d0d1f4a558e5",
+      "sha256": "60879a7eb3d1d5edbe8052458dfbca17d4bda62b03601c1575f3c8e6df4def36"
+    }
+  },
+  "limitations": [
+    "Formal first-to-second expedition boundary not directly sampled at2x; two reports/rewards corroborate it. Candidate directly observed firstwinLv9XP301→nextwave1 withsameLv10goal.",
+    "Candidate separatelycoverscancel/finish-runoverride/activereload/ordinarysingle/keyboard. Formalreloadaftercompletion only.",
+    "Lv500/death/fullbag/ownership/failedstart andexactpumpboundaries source-only.",
+    "No mobile/fullaccessibilityaudit."
+  ],
+  "candidate_profile_imported": false
+}

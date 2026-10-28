@@ -1,3 +1,7 @@
+# v069 complete restorable release checkpoint222
+
+Restore the exact commit carrying CHECKPOINT `222-v069-restorable`, not moving HEAD. This adds formal/candidate acceptance and publication evidence while retaining220 runtime/tests/assets/index exactly. Formal websitee5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84 and exact Pages40786260803 succeeded; original-profile normal desktop smoke PASS. Verify every payload path/hash in CHECKPOINT before restoring. Tests are2202403/2403+4syntax; no222 rerun claimed. Source index remains candidate-labeled by design; formal index differs only by phase wrapper. See PUBLICATION-V069.md and original browser receipts for explicit scope/limits.
+
 # v069 desktop-accepted source checkpoint220
 
 Restore the exact commit carrying CHECKPOINT `220-v069-accepted`. Runtime/tests/assets/index are byte-identical to218 `d50c7adf3fe9260f0a04ad29d3aa6f063389764c`; only acceptance evidence/status/manifest changed. Normal desktop candidate PASS at website8647ea6659496500a7471d5aede6b8762959cca0, Pages40785220830 success. Formal promotion remains pending; retainv068 until root completes it. Source index stays candidate-labeled; see QA-V069-BROWSER.md for bounded evidence and residual limits.

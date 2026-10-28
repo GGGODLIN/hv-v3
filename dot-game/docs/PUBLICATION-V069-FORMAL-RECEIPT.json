@@ -1,0 +1,31 @@
+{
+  "status": "formal-deployed-desktop-smoke-passed",
+  "source_commit": "f1da8e983ad90f8d16c220fb163a50eb51ac6f56",
+  "commit": "e5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84",
+  "tree": "dd9b7967b0fafd86e590edd4194e2c7154e51fa1",
+  "expected_head": "8647ea6659496500a7471d5aede6b8762959cca0",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "runtime_exact_git_blob_readbacks": 21,
+  "outside_blobs_modes_preserved": 4274,
+  "changed": [
+    "index.html",
+    "src/engine.js",
+    "src/ui.js"
+  ],
+  "exact_source_runtime_files": 20,
+  "index_only_phase_wrapper": true,
+  "stable_storage_namespace_unchanged": true,
+  "candidate_browser_acceptance": true,
+  "formal_browser_smoke": true,
+  "force": false,
+  "ci": {
+    "run": 40786260803,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "e5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84"
+  },
+  "limitations": "No public HTTP per-file hash claim. Normal cloud desktop acceptance only; edge cases remain source/unit-only; not mobile/full accessibility. Final source222 separately pending.",
+  "updated_at_utc": "2026-10-28T23:21:00.591350+00:00",
+  "formal_browser_receipt": "dot-probe/qa-v069/formal-browser-receipt.json",
+  "formal_browser_receipt_sha256": "e1e62f5d9874b26bc099c8a3430118078e9d8c3188b28aa7ecfd408f74e401c7"
+}
