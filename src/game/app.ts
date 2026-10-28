@@ -65,10 +65,16 @@ const ENC_MS = 2500; // 2 s 顯示 + 0.5 s 淡出（自訂，非原版）
  *  first charger's kind only, so a boss 重擊 and a minion's 蓄力一擊 in the same round read as one boss attack. */
 /** cp9-rc5 QA bug 1（自訂，暫定）: rc5 printed 「全體暴擊估計 ≥ 目前 HP」 whenever hpDanger held — also for low HP / the 40% trigger,
  *  e.g. 「428 ≥ 700」. Now the claim comes only from isLethal on the same numbers it prints; otherwise the true comparison is shown. */
-export function urgentLine(a: { est: number; hp: number }, estD: number | null = null, estDR: number | null = null): string {
+// rc12e QA bug (oc2 F40t14): with a potion the ★ was Z·喝藥 but the red line said 「只能靠保命」 and the payoff line 「按 D·防禦」.
+// Root cause: both texts were built from the defend verdict alone, never from primaryKey. Now the ★ (pk) picks the wording; a
+// line may name only the ★ key (tests/rc12e-key-invariant.test.ts).
+export function urgentLine(a: { est: number; hp: number }, estD: number | null = null, estDR: number | null = null, pk: { key: string; label: string } | null = null): string {
   const e = Math.round(a.est), h = Math.round(a.hp);
   // cp9-rc9 item 8（自訂）: survivable only through 防禦保命 (clamped to HP−1) → say so in red, not 「防禦後 HP−1」.
   const v = defendVerdict9(estD, estDR, h); // rc10 item 1（自訂）: the same verdict chargeAdvice uses
+  const notD = !!pk && pk.key !== 'D';
+  if (isLethal(e, h) && v === 'saveOnly' && notD) return `<br><b class="warn" data-urgent="${e}:${h}:${estD}:${estDR}">暴擊估 ${e}；防禦只靠保命剩 1 HP（未保命估 ${estDR ?? e} ≥ HP ${h}），所以這回合按 <b>★${pk!.label}</b></b>`;
+  if (isLethal(e, h) && v === 'safe' && notD) return `<br><b class="warn-def" data-urgent="${e}:${h}:${estD}">暴擊估 ${e} ≥ HP ${h}（防禦後 ${estD}）：這回合按 <b>★${pk!.label}</b></b>`;
   if (isLethal(e, h) && v === 'saveOnly') return `<br><b class="warn" data-urgent="${e}:${h}:${estD}:${estDR}">暴擊估 ${e}；${saveOnlyNote9(estDR ?? e, h)}</b>`;
   // cp9-rc8 QA bug b（自訂）: lethal but survivable by defending → orange 「不防禦會死」, not the red banner (the decision line says 撐得住). Red only when defending still dies.
   if (isLethal(e, h) && v === 'safe') return `<br><b class="warn-def" data-urgent="${e}:${h}:${estD}">不防禦會死：暴擊估 ${e} ≥ HP ${h}，防禦後 ${estD}</b>`;
@@ -544,7 +550,7 @@ export class App {
     const cd = b.itemCd.health;
     const urgent = RULES.cp8 ? hpDanger(b) : estC >= b.hp * 0.5; // rc16 item 1: same single rule as the decision // cp8-rc7 P1 item 3: ≥ 50% of current HP; rc13 item 2: judged on the crit value
     return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
-      + (urgent && (!RULES.cp8 || hpDanger(b)) ? urgentLine(chargeAdvice(b, this.target), defendEst9(b), defendRaw9(b)) : '')
+      + (urgent && (!RULES.cp8 || hpDanger(b)) ? urgentLine(chargeAdvice(b, this.target), defendEst9(b), defendRaw9(b), this.pk) : '')
       + (this.guardOnly(b) || (RULES.cp8 && !hpDanger(b)) ? '' : this.chargePayoff(b, chargers, est, estD))
       + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${((k) => (k === 'D' ? `這回合按 <b>D·防禦</b>${cdDefNote9(defendVerdict9(defendEst9(b), defendRaw9(b), b.hp))}` /* rc10 item 1（自訂）: shared verdict, not a text match */ : /^[QWE]·/.test(k) ? `這回合按 <b>${k}</b> 打斷` /* cp9-rc6 item 3（自訂）: never Z while on cooldown */ : k === 'S' ? '這回合改用 <b>S·靈動架勢</b>（防禦也擋不住）' : (hpDanger(b) ? '繼續攻擊、儘快收掉怪物（防禦也擋不住）' : '繼續攻擊、儘快收掉怪物')))(this.pk ? (/^[QWE]$/.test(this.pk.key) ? this.pk.label : this.pk.key) : chargeAdvice(b, this.target).keys[0] ?? '') /* rc12c: same ★ key */}</b>` : '');
   }
@@ -562,7 +568,8 @@ export class App {
     if (b.mods?.combo.bulwark) parts.push(`下一擊反擊 ×${BULWARK_COUNTER_MULT}`);
     const heavy = chargers.some((m) => (m as { heavyNext?: boolean }).heavyNext);
     const bash = heavy && canUse(b, { kind: 'skill', id: 'shieldBash', target: b.monsters.indexOf(chargers.find((m) => (m as { heavyNext?: boolean }).heavyNext)!) });
-    return `<br><span data-payoff="${save}">按 D·防禦：${parts.join('，')}${bash && (!this.pk || this.pk.key === 'Q') ? '；或 <b>Q·盾擊</b> 暈眩 → 直接打斷蓄力一擊（0 傷害）' : ''}</span>`;
+    const head = !this.pk || this.pk.key === 'D' ? '按 D·防禦：' : `防禦的效果（本回合 ★ 是 ${this.pk.label}）：`; // rc12e QA bug: only the ★ key is named
+    return `<br><span data-payoff="${save}">${head}${parts.join('，')}${bash && (!this.pk || this.pk.key === 'Q') ? '；或 <b>Q·盾擊</b> 暈眩 → 直接打斷蓄力一擊（0 傷害）' : ''}</span>`;
   }
   /** cp8-rc6 item 6: 死因 line — source of the last hit, its damage, and one hint. */
   /** rc16 item 2: the death screen repeats the decision the battle panel showed on the last charge turn (same chargeAdvice). */
