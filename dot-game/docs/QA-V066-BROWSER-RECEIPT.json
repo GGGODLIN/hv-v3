@@ -1,0 +1,88 @@
+{
+  "version": "0.66",
+  "kind": "candidate-browser-qa",
+  "testedAtUtc": "2026-10-28T20:16:11Z",
+  "result": "PASS within normal desktop scope",
+  "sourceCommit": "a1830417cd4dcaaafd58ec91e3c95243f14ed321",
+  "websiteCommit": "80c51ea2b504b1e2947234775a00f3f5ef1327e9",
+  "pagesRun": "40761026923",
+  "ciEvidence": "Parent exact CI and21runtime bytes confirmed beforeopen",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.66/",
+  "method": "dot cloud cua normalUI genuineexport/import only; no state injection",
+  "tabs": {
+    "candidate": "9",
+    "formal": "2"
+  },
+  "baseline": {
+    "version": "0.65",
+    "level": 6,
+    "gold": 542,
+    "wins": 6,
+    "bag": 6,
+    "exportSha256": "03c451d439104d1e2fa029dc34a2af925c0630519c7159fc1613f8a4ca796eb2"
+  },
+  "checks": [
+    {
+      "name": "single dispatch",
+      "result": "PASS",
+      "observed": "Oneclick Single Expedition immediately battle and cancel-finish pressed/booking text; no second scheduling click needed. Both startbuttons disabled in battle."
+    },
+    {
+      "name": "full clear and stay camp",
+      "result": "PASS",
+      "observed": "Natural4waves10.5s,wins6->7,kills36->42,gold542->618,XP84->189/197,fragments60->70,seeds6->7,loot-8 Superior wardpendant andloot-9 Average leather,bag6->8. Both startbuttons reenabled,mode town. Atleast17secondsafter firstcamp observation stilltown618/wins7; no autorestart."
+    },
+    {
+      "name": "cancel resumes repeat",
+      "result": "PASS",
+      "observed": "Second Single Expedition immediatelycancelbooking. Firstclearwins8/gold694 at4/4;nextobservationnewwave3/4 withwins8 provesautostart. Continuedtowins9;rebookedfinishwhile nextbattlealreadyactive;completedwins10,campLvl8/gold846,bag13. No claim only2wins;normalUItiming letthirdclearbeforebooking."
+    },
+    {
+      "name": "persistence",
+      "result": "PASS",
+      "observed": "Camp export/reload/export all except expectedtransient wave/events/timing/logs/battle/_turns/_tuCompensation/_eventId identical."
+    },
+    {
+      "name": "active booking reload reset",
+      "result": "PASS",
+      "observed": "Afterpersistencecheck clickedSingleagain;pressedCancel andbooking textverified thenimmediatereload. Returnedcamp,noactivebooking,finishbuttondisabled,displayLvl8/846/XP65/289/HP729/MP40 intact."
+    },
+    {
+      "name": "formal isolation",
+      "result": "PASS",
+      "observed": "Formalv065 postQA exportbyteidentical baseline Lv6/542."
+    },
+    {
+      "name": "visual",
+      "result": "PASS",
+      "observed": "Screenshotinspected;two startbuttons + fullfourwaveexplanation visible;viewport1180/document1165,brokenimages0."
+    }
+  ],
+  "exports": {
+    "afterPlay": {
+      "sha256": "f05c9fca4d196c48a4c77947e2b46c5004e75faf61dd7fba1988f87eb380e346",
+      "bytes": 14563
+    },
+    "afterReload": {
+      "sha256": "b8ac950bee70ea40e119f1c5070fdc5943b9d7d534b46f45ef80058f46190fbd",
+      "bytes": 9778
+    }
+  },
+  "final": {
+    "level": 8,
+    "gold": 846,
+    "bag": 13,
+    "wins": 10,
+    "kills": 60,
+    "hp": 729,
+    "mp": 40,
+    "xp": 65,
+    "mode": "town",
+    "formalUnchanged": true
+  },
+  "limitations": [
+    "Readonly/fullbag/pendingloot/IW/defeat/repeatedstaleactions remain unit-only.",
+    "No physicalmobile/fullaccessibility certification.",
+    "One visiblecamp wait returned earlytimeout before naturalclear;fresh readback established completion withoutworkaround."
+  ]
+}

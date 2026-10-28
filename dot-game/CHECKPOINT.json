@@ -1,8 +1,8 @@
 {
-  "checkpoint": "203-v066-candidate",
+  "checkpoint": "205-v066-accepted",
   "version": "0.66.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "8ad50429da453977a4c2cc2a4b5d4ef855938e60",
+  "status": "complete-source-candidate-desktop-accepted",
+  "source_base": "a1830417cd4dcaaafd58ec91e3c95243f14ed321",
   "base_accepted_recovery": "8ad50429da453977a4c2cc2a4b5d4ef855938e60",
   "accepted_website": "018d4c3a1068c58ea2546752b63ccab2336a6f35",
   "scope": "Camp one-expedition entry atomically starts ordinary four-wave expedition and queues existing session-only return on complete victory; continuous start unchanged.",
@@ -12,13 +12,13 @@
   "runtime_syntax_checks": 4,
   "independent_focused_tests_passed": 22,
   "primary_focused_tests_passed": 4,
-  "browser_acceptance": "pending",
-  "publication": "Not published; formal remains accepted v065",
+  "browser_acceptance": "Normal desktop candidate PASS; readonly/fullbag/pending/IW/defeat/stale unit-only; no mobile/full accessibility or public HTTP per-file hashes.",
+  "publication": "v066 candidate80c51ea2b504b1e2947234775a00f3f5ef1327e9 Pages40761026923 success; formal remains v065",
   "recovery": "docs/RECOVERY-V066.md",
   "files": {
     "README.md": {
-      "bytes": 70372,
-      "sha256": "c7290e7ab42ddd74d10304122ab4cce99edefb70d57cba91b53b259cb9fc5025"
+      "bytes": 71410,
+      "sha256": "4bdc7e2617822949c74ae2aed634126c8db29c6f4d5db37500d011eadb1055fb"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -864,6 +864,14 @@
       "bytes": 2228,
       "sha256": "25f7879eb5c76a9d6af4bae63e6021acab3eeceff5ef024afa302abebfae6eb1"
     },
+    "docs/QA-V066-BROWSER-RECEIPT.json": {
+      "bytes": 3432,
+      "sha256": "6a7ef8bb1c43a06af34088a9084dc55b836e1813beab310b8ecf68befa9444d8"
+    },
+    "docs/QA-V066-BROWSER.md": {
+      "bytes": 1562,
+      "sha256": "6dc6bd7ce9cd4406bfc2eab11486b30feae33a37ad9c4dffd1fae720e1f5a719"
+    },
     "docs/QA-V066-INDEPENDENT.md": {
       "bytes": 3307,
       "sha256": "ba5a6de4217e36f7df13c9055dad4e46e507b0b7221e172deabe9bba77d99925"
@@ -1049,8 +1057,8 @@
       "sha256": "2df4d68f420ed60622c7ccd6f5a758dbdb1fc23870e16b04b334dc98e12fb6ba"
     },
     "docs/RECOVERY-V066.md": {
-      "bytes": 1397,
-      "sha256": "cb21bcedfd8ad8c9fb7cb45cd259e655fa361d53708cea8936221c067d262f29"
+      "bytes": 1451,
+      "sha256": "cdafdb12d25f9e6ce23314e287d43161165fa3f7a1e4bd87ac14a7781d2681ab"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1061,8 +1069,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 53138,
-      "sha256": "d4ef2cd90090e8e1151c2cd9d09cf5355027695364ffe0c59c3c4c264c5d9a72"
+      "bytes": 54176,
+      "sha256": "7ae75f04a39f6bb67ae40ef01222dba14dfb64db025226a15f34eb928b7fe978"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1097,8 +1105,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 73083,
-      "sha256": "c0d0aacfd36a133300186adfd62f963183bd80ada87b2774e5f6f00519fc9454"
+      "bytes": 74121,
+      "sha256": "33deed16578521b2a9497e6c47a4c27c77fd5dad47dc9ded7ea35a12cf530163"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2376,5 +2384,6 @@
       "bytes": 15077,
       "sha256": "41957f57efa8dc19a28faf26cf0df3f8ef831bc56ac4ad5e6dbac36e7411b960"
     }
-  }
+  },
+  "test_evidence": "Fresh2340 tests+4syntax PASS; runtime/tests unchanged203"
 }

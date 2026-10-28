@@ -1,3 +1,9 @@
+## v066 桌面候選已驗收；正式升版待完成（2026-10-29 台北）
+
+隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.66/ 已正常瀏覽器實玩 PASS：website80c51ea2b504b1e2947234775a00f3f5ef1327e9，exact Pages40761026923成功。單次完整四波10.5秒通關、wins6→7／金542→618，掉loot8與9後停營且等候不自啟；取消預約後確實開啟下一場連刷，再預約可回營。活躍預約重載清除，營地匯出重載持久欄位一致；正式v065存檔逐byte未變。
+
+完整來源checkpoint205與203來源a1830417cd4dcaaafd58ec91e3c95243f14ed321的runtime/tests/assets/index逐byte相同，只補驗收文件、收據與manifest。詳見docs/QA-V066-BROWSER.md、docs/RECOVERY-V066.md。正式仍v065 website018d4c3a1068c58ea2546752b63ccab2336a6f35；此處不代表正式已升版。唯讀／滿背包／待領／IW／敗北／stale仍unit-only；未做實體手機／完整無障礙或公開HTTP逐檔hash，未宣稱Library同步。以下來源候選文字為歷史。
+
 ## v066 來源候選：出發就選單次遠征（2026-10-29 台北）
 
 營地新增「單次遠征」：完成目前層全部四波、結算完整通關獎勵後回營，不會自動開下一場；不是只打一波。「連續遠征」維持原本自動重刷。單次出發後可按既有「取消通關後回營」改回連刷。預約僅本次分頁工作階段有效，戰敗／撤退／重載／進度接手清除，不保存新偏好；Item World 原本結束必回營，不適用此入口。
