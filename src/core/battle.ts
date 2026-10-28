@@ -18,6 +18,9 @@ export const plain12h = (s: BattleState): number => Math.max(CP9.bossPlain, ...s
 /** rc12h（自訂）: extra health-potion cooldown from a live deep-curve boss. */
 /** rc12k round 2 製作人決定（自訂）: health-potion cooldown never exceeds this many turns (any school / floor / mods). */
 export const POT_CD_MAX12K = 8;
+/** rc12m item 4（自訂）: health-potion cooldown floor under cp8 — 迅捷調和 (−1) used to push the 1-turn cd to 0, so after the drink
+ *  turn the Z button showed no cooldown (QA rc12l bl3 F70+). SIM_POTFLOOR=0 restores the rc12l behaviour for calibration. */
+export const POT_FLOOR12M = Number(typeof process !== 'undefined' ? process.env?.SIM_POTFLOOR ?? 1 : 1);
 export const potCd12h = (s: BattleState): number => Math.max(0, ...s.monsters.map((m) => (m.hp > 0 && (m as { potCd12h?: number }).potCd12h) || 0));
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * (s.bwCap12i ?? 1) * s.d.hp) : Math.ceil(plain12h(s) * (s.bwCap12i ?? 1) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
@@ -930,7 +933,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) + potCd12h(s) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1; if (a.id === 'health' && RULES.cp8) s.itemCd.health = Math.min(POT_CD_MAX12K, s.itemCd.health!); // rc12h（自訂）: deep boss potion pressure; rc12k（自訂）: total ≤ 8
+      s.itemCd[a.id] = Math.max(a.id === 'health' && RULES.cp8 ? POT_FLOOR12M : 0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) + potCd12h(s) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1; if (a.id === 'health' && RULES.cp8) s.itemCd.health = Math.min(POT_CD_MAX12K, s.itemCd.health!); // rc12h（自訂）: deep boss potion pressure; rc12k（自訂）: total ≤ 8
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];
