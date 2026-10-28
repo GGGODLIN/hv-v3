@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS, scaleSoulboundItem } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -336,9 +336,9 @@ function dispatch(action, payload) {
     act(state, action, payload);
     // A successful lifecycle change cannot credit time from the previous mode.
     // Rejected/repeated starts and ordinary combat actions keep their interval.
-    if ((action === 'start' || action === 'startOnce' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
-    if (action === 'start' || action === 'startOnce' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
-    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'startOnce' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
+    if ((action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
+    if (action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
+    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 // Gear-only plans reference owned items; they never copy items or save abilities.
@@ -1189,6 +1189,7 @@ function renderTargetPriority() {
   live.textContent = view.targetId === null ? '' : `目前集火：${view.targetName} · ${view.reason}。普攻與攻擊技能適用；治癒／護盾仍優先，反擊仍打攻擊者。`;
 }
 function render(force = false) {
+  renderLevelCamp();
   renderBattleTempo();
   const saleCheckboxFocus = captureSaleCheckboxFocus();
   const comparisonFocus = captureComparisonFocus();
@@ -2161,6 +2162,16 @@ function drawScene(t, dt) {
 }
 
 // One-shot idle adaptation: not a saved policy or original HV mechanic.
+function renderLevelCamp() {
+  const goal=levelThenCampView(state),button=$('level-camp-button');
+  button.textContent=goal.active?'取消升級回營目標':'升級後回營';
+  button.disabled=!tabOwner||(!goal.active&&(!goal.available||!departureReadiness().ready));
+  button.setAttribute('aria-pressed',String(goal.active));
+  $('level-camp-status').textContent=goal.active
+    ? `目標 Lv.${goal.targetLevel}（出發時鎖定） · ${goal.reached?'已達成；完成本次全部四波並領完獎勵後回營。':'未達標則連續遠征；升級後仍打完當場才回營。'} 取消只恢復連刷，不撤退；「本次通關後回營」會取代此目標。`
+    : state.hero.level>=500?'已達 Lv.500，沒有下一級目標。'
+      : '成長遠征：以出發等級 +1 為目標；達標後完成當場再回營配置 AP。滿包或戰敗仍會停止；目標不保存，重載／匯入／接手清除。';
+}
 function renderFinishCamp() {
   const trial = itemWorldView(state);
   if (trial.active) {
@@ -2199,6 +2210,13 @@ $('battle-tempo').addEventListener('change', event => {
   battleTempo = Number(requested);
   pump.reset(); // Never revalue time accumulated under the previous tempo.
   renderBattleTempo();
+});
+$('level-camp-button').addEventListener('click',()=>{
+  if (!claimLease()) { renderLevelCamp(); return; }
+  const goal=levelThenCampView(state);
+  if (goal.active) { dispatch('cancelLevelThenCamp'); return; }
+  if (!goal.available||!departureReadiness().ready) return;
+  if (dispatch('startUntilLevel')&&levelThenCampView(state).active) playSound('win');
 });
 $('start-once-button').addEventListener('click',()=>{
   if (state.mode !== 'town' || !departureReadiness().ready || itemWorldView(state).active) return;

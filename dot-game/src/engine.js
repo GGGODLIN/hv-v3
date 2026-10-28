@@ -103,11 +103,19 @@ export const PROTECTION_RULES = Object.freeze({unlockLevel:10,durationTicks:15,r
 const protectionSessions = new WeakMap();
 // One-shot idle UX adaptation, never an original-HV rule or saved preference.
 const finishThenCampSessions = new WeakSet();
+// Growth-goal farming is a local idle adaptation, not original HV or save data.
+const levelThenCampSessions = new WeakMap();
+export function levelThenCampView(s) {
+  const targetLevel=levelThenCampSessions.get(s);
+  const active=Number.isInteger(targetLevel)&&s?.mode==='battle'&&!itemWorldSessions.has(s);
+  return {active,targetLevel:active?targetLevel:null,reached:active&&s.hero.level>=targetLevel,
+    available:s?.mode==='town'&&!itemWorldSessions.has(s)&&Number.isInteger(s?.hero?.level)&&s.hero.level>=1&&s.hero.level<500};
+}
 export function finishThenCampView(s) {
   const available=!itemWorldSessions.has(s)&&s?.mode==='battle'&&['fight','intermission'].includes(s?._phase);
   return {available,queued:available&&finishThenCampSessions.has(s)};
 }
-export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); }
+export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); levelThenCampSessions.delete(s); }
 function finishThenCamp(s) {
   clearFinishThenCamp(s);s.mode='town';s._phase='idle';s._rest=0;
   s._clock=0;s._enemyClock=0;s.enemies=[];
@@ -575,7 +583,8 @@ function enemiesFor(s) {
 }
 function start(s) {
   if(s.pendingLoot.length||s.inventory.length>INVENTORY_LIMIT-5){log(s,'背包空間不足，請先整理戰利品再出戰。');return;}
-  clearFinishThenCamp(s);protectionSessions.delete(s);
+  // Automatic next expedition preserves its original level target.
+  finishThenCampSessions.delete(s);protectionSessions.delete(s);
   s.mode='battle';s.wave=1;s.battle.elapsed=0;s.battle.actions=freshActions();s._clock=0;s._enemyClock=0;s._turns=0;s._phase='fight';s._rest=0;s.totalWaves=itemWorldSessions.has(s)?ITEM_WORLD_ROUNDS:4;
   resetCounterBudget(s,s.timing.turns,true);recover(s);s.potions=3;s.enemies=enemiesFor(s);log(s,itemWorldSessions.has(s)?`進入裝備界 · ${itemWorldSessions.get(s).targetName} · IW1 · 5 回合；已消耗 1 世界之種。`:`進入第 ${s.stage} 層。`);
   beginExpeditionReport(s);
@@ -1035,8 +1044,8 @@ function win(s) {
   // or evicts historical event/log entries from their bounded buffers.
   settleExpeditionReport(s,'win');
   protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
-  if(finishThenCampSessions.has(s)){finishThenCamp(s);return;}
-  if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
+  if(finishThenCampSessions.has(s)||levelThenCampView(s).reached){finishThenCamp(s);return;}
+  if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){clearFinishThenCamp(s);s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 // Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
 // another pulse, or an already consumed boundary cannot repeat its rewards.
@@ -1269,9 +1278,14 @@ export function act(s, action, payload) {
     s.inventory=inventory;s.pendingLoot=pendingLoot;return s;
   }
   if(action==='enterItemWorld'){enterItemWorld(s,payload);return s;}
+  if(action==='cancelLevelThenCamp'){
+    if(payload===undefined)levelThenCampSessions.delete(s);
+    return s;
+  }
   if(action==='finishThenCamp'){
     if(typeof payload!=='boolean'||!finishThenCampView(s).available)return s;
     if(!payload){clearFinishThenCamp(s);return s;}
+    levelThenCampSessions.delete(s); // Explicit current-expedition stop supersedes growth goal.
     // Intermission already settled the win. Only leave; never settle it again.
     if(s._phase==='intermission')finishThenCamp(s);
     else finishThenCampSessions.add(s);
@@ -1464,11 +1478,18 @@ export function act(s, action, payload) {
   // Camp-only ordinary expedition: queue only after start succeeds. No durable preference.
   if(action==='startOnce'){
     if(s.mode!=='town'||itemWorldSessions.has(s))return s;
-    start(s);
+    clearFinishThenCamp(s);start(s);
     if(s.mode==='battle'&&s._phase==='fight')finishThenCampSessions.add(s);
     return s;
   }
-  if(action==='start'){start(s);return s;}
+  if(action==='startUntilLevel'){
+    if(payload!==undefined||!levelThenCampView(s).available)return s;
+    const target=s.hero.level+1;
+    clearFinishThenCamp(s);start(s);
+    if(s.mode==='battle'&&s._phase==='fight')levelThenCampSessions.set(s,target);
+    return s;
+  }
+  if(action==='start'){clearFinishThenCamp(s);start(s);return s;}
   const item=s.inventory.find(i=>i.id===payload);
   if(action==='lock'&&item){if(boundMetadata(item)||isGearSetProtected(s,item.id))return s;item.locked=!item.locked;return s;}
   if(action==='equip'&&item){const old=s.equipment[item.slot];s.inventory.splice(s.inventory.indexOf(item),1,old);s.equipment[item.slot]=item;recover(s);event(s,'loot',`已裝備 ${item.name}`);return s;}
