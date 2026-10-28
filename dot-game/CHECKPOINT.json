@@ -1,10 +1,10 @@
 {
-  "checkpoint": "177-v055-browser-accepted",
+  "checkpoint": "179-v055-publication-receipt",
   "version": "0.55.0",
-  "status": "normal-desktop-candidate-browser-accepted-formal-pending",
-  "source_base": "19fbd1772b1aa0a806d093fcd7c3c529dfca302b",
+  "status": "normal-desktop-browser-accepted-formal-published-verified",
+  "source_base": "42637d01d5a46afcfdd148559de6c6af785fbaad",
   "base_accepted_recovery": "c2a048fbadd2c90c536037300463db8a297dec83",
-  "accepted_website": "7bc2b344733ba500429de2a52c3d64d87bbad128",
+  "accepted_website": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
   "scope": "Read-only same-slot derived character stat preview; no engine, economy, RNG, persistence, assets or HV formula changes.",
   "source_tests_passed": 2134,
   "source_tests_failed": 0,
@@ -12,13 +12,13 @@
   "runtime_syntax_checks": 4,
   "new_focused_tests": 8,
   "independent_focused_tests_passed": 12,
-  "browser_acceptance": "Normal public desktop candidate gameplay accepted; see docs/QA-V055-BROWSER.md and receipt. Not physical mobile/full accessibility.",
-  "publication": "Candidate 2ed06f9a320729048429d6ed5045a7e965748dd5 exact CI40663150260 success; formal still v054. Full public HTTP byte/hash verification incomplete, explicitly not claimed.",
+  "browser_acceptance": "Normal public candidate and formal desktop gameplay accepted; see browser/formal receipts. Not physical mobile/full accessibility.",
+  "publication": "Formal a99ec0252386bb21b94cdec3ae54645805a6b94f exact tree/ref/runtime Git blob SHA checks; Pages40665432751 success and normal public browser smoke. Full HTTP file byte/hash verification incomplete, not claimed.",
   "recovery": "docs/RECOVERY-V055.md",
   "files": {
     "README.md": {
-      "bytes": 52665,
-      "sha256": "41fc517c826fddfa52d6154c68271fb97b9171649a26c804a9371d393d64b6fb"
+      "bytes": 53898,
+      "sha256": "8a02a1b88ab8b3f6f6d40fe5d001dc8e6ed34822d2c14a29244222e1cff1536e"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -680,6 +680,10 @@
       "bytes": 2944,
       "sha256": "42c220a62f3d3553d32a20280fad15ce6679ed4110ad0fd3ada6658a5c35a684"
     },
+    "docs/PUBLICATION-V055.md": {
+      "bytes": 2118,
+      "sha256": "81ad667b75d0c83a165a0cf1f5908398a5ee100433d91a996c394d8f9a22fa01"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -711,6 +715,10 @@
     "docs/QA-V055-BROWSER.md": {
       "bytes": 1930,
       "sha256": "845dce616f426d0d622241ef782e43f904b17d6b184804b826f9b6aa667c04d1"
+    },
+    "docs/QA-V055-FORMAL-RECEIPT.json": {
+      "bytes": 1735,
+      "sha256": "ed3efacf7a4e34502f61ac9aec95e0780d79a1987487f07e9a662c26905bb9fc"
     },
     "docs/QA-V055-INDEPENDENT.md": {
       "bytes": 2728,
@@ -853,8 +861,8 @@
       "sha256": "4ae6eae3ff242889cc608b9358995cedf1f2566bb77060849380fe582374a554"
     },
     "docs/RECOVERY-V055.md": {
-      "bytes": 1586,
-      "sha256": "9b375da611d8cc12d491924f209dc3e5346669831ed7666c385776c242f7e0b8"
+      "bytes": 1707,
+      "sha256": "13c3196af9b07f76b05d8048900a95e8bd01c6d3588e1c6113332cbd2866025b"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -865,8 +873,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 39470,
-      "sha256": "fa0b47fd53e6448fbd4e228e4e5edcbed87ace4c9462ad7fa38442b03fa436e1"
+      "bytes": 39767,
+      "sha256": "9f09f92f9a454672ce1f04761f52700d77ce94a40fe4f1ca437600436e4d5117"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -901,8 +909,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 55376,
-      "sha256": "abbabcb22801ad302035dac76c5ca1be7ebd909c3d4320d6dfec0b872e0f1175"
+      "bytes": 56609,
+      "sha256": "69f0dfddff9cea6044ed2f082a6df438dd3f1ec23066775f0127954954e39c11"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,

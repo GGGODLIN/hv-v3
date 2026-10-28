@@ -1,9 +1,9 @@
 # 恢復 v0.55 已通過正常桌面候選驗收的完整來源
 
-取得 GGGODLIN/hv-v3 bot/dot 中攜帶 CHECKPOINT.json `177-v055-browser-accepted` 的 exact commit，恢復完整 dot-game/。先核對 manifest 每個檔案的 bytes / SHA-256；manifest 不包含自身。保存全部來源、測試、腳本、必要素材及授權檔，不以網站編譯／部署副本代替完整來源。GitHub 讀回驗證完成前不宣稱備份完成。
+取得 GGGODLIN/hv-v3 bot/dot 中攜帶 CHECKPOINT.json `179-v055-publication-receipt` 的 exact commit，恢復完整 dot-game/。先核對 manifest 每個檔案的 bytes / SHA-256；manifest 不包含自身。保存全部來源、測試、腳本、必要素材及授權檔，不以網站編譯／部署副本代替完整來源。GitHub 讀回驗證完成前不宣稱備份完成。
 
 在 dot-game/ 使用 Node.js 執行 `npm test`，對四個 src/*.js 執行 `node --check`；無依賴安裝、無建置步驟。以 `python3 -m http.server 8000` 啟動，開啟 http://localhost:8000/。請先匯出真正遊戲存檔；戰報 JSON 不是可恢復存檔。候選 /candidates/<version>/ 使用獨立命名空間，不自動匯入正式存檔。
 
-v055 正常桌面候選瀏覽器驗收已通過；正式發布仍待執行。詳見 QA-V055-BROWSER.md。公開HTTP逐檔hash未完成，不宣稱完成；177接受依據為來源exact讀回、部署Git tree/ref、exactCI及公開瀏覽器正常遊玩。需要已驗收版時選 v054 完整來源 c2a048fbadd2c90c536037300463db8a297dec83，對應正式網站 7bc2b344733ba500429de2a52c3d64d87bbad128；先比較後續版本證據，勿因本文件方便而無視新已驗收版。舊來源及歷史測試完整保留。
+v055 正常桌面候選與正式公開頁瀏覽器驗收均已通過；正式網站a99ec0252386bb21b94cdec3ae54645805a6b94f，Pages40665432751success。見PUBLICATION-V055.md。詳見 QA-V055-BROWSER.md。公開HTTP逐檔hash未完成，不宣稱完成；本次接受依據為來源exact讀回、部署Git tree/ref、exactCI及公開瀏覽器正常遊玩。若需要上一個已驗收版，可選 v054 完整來源 c2a048fbadd2c90c536037300463db8a297dec83，對應正式網站 7bc2b344733ba500429de2a52c3d64d87bbad128；先比較後續版本證據，勿因本文件方便而無視新已驗收版。舊來源及歷史測試完整保留。
 
 本輪只修改 UI 投影與樣式、版本標記、測試及說明。engine/loot/session、素材／授權與資料格式 v3 未變。沒有 GPT Library 雙邊同步、登入或排程恢復保證；沒有蒐集玩家原始存檔、公司資料或聊天。

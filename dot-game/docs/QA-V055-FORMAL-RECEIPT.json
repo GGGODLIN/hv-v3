@@ -1,0 +1,45 @@
+{
+  "version": "v0.55",
+  "status": "formal-normal-desktop-smoke-passed",
+  "completedAt": "2026-10-28T09:38:55Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "tab": "2",
+  "websiteCommit": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
+  "pagesRun": "40665432751",
+  "provenance": "Reloaded original formal v054 LV3/gold152 profile; no candidate import or fabricated state.",
+  "visibleVersion": "v0.55 · 持續開發",
+  "checks": [
+    "Original LV3/gold152/club retained after reload.",
+    "Normal rapier selection showed all 7 preview rows matching candidate values; normal equip succeeded.",
+    "Natural first-stage fight 15.8 seconds, LV3→4, gold152→228, kills12→18,wins2→3,Superior axe and rapier drops.",
+    "Normal export→reload→export preserved all durable fields; safe camp, start enabled.",
+    "Desktop1180px documentScroll1165, brokenImages0; public forest/chest/hero actual screenshot viewed."
+  ],
+  "durableEqual": {
+    "hero": true,
+    "inventory": true,
+    "equipment": true,
+    "seed": true,
+    "wins": true,
+    "kills": true,
+    "soulFragments": true,
+    "worldSeeds": true
+  },
+  "exports": [
+    {
+      "bytes": 8684,
+      "sha256": "87bfc9c7fd0c7280b6ff32cc6c86f1499d1648826a80fd32a4905d109c9818f2",
+      "readableJson": true
+    },
+    {
+      "bytes": 4572,
+      "sha256": "49b4cf1645ed29f4324f6b6ae6bfb7a3ff299d241595a7d0f13a139ba5c0c85d",
+      "readableJson": true
+    }
+  ],
+  "limits": [
+    "Public HTTP file-by-file byte/hash verification remains uncompleted independently; this is real browser UI smoke, not replacement hash evidence.",
+    "No mobile/full accessibility/extreme caps/pending loot/defeat coverage implied."
+  ],
+  "rawProfilesCommitted": false
+}

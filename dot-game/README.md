@@ -1,3 +1,11 @@
+## v055 已正式發布並通過正常桌面遊玩（2026-10-28）
+
+公開遊玩：https://gggodlin.github.io/play/hv-v3-dot/ 。正式網站 commit `a99ec0252386bb21b94cdec3ae54645805a6b94f`，Pages CI `40665432751` success；來源已驗收 commit `42637d01d5a46afcfdd148559de6c6af785fbaad`。21個正式runtime Git blob SHA與來源核對，僅index/style/ui三檔異於舊正式版，4124其他blob及mode／全部候選保留，無force。
+
+正式頁原本v054正常LV3／152gold存檔重載後保留，正常預覽→換上刺劍→15.8秒戰鬥→LV4／228gold與Superior掉寶→匯出／重載，八項永久進度欄位一致。公開畫面已真實查看，桌面無水平溢出／破圖。詳見 `docs/PUBLICATION-V055.md` 與 `docs/QA-V055-FORMAL-RECEIPT.json`。
+
+最新完整恢復來源為攜帶 checkpoint `179-v055-publication-receipt` 的 bot/dot exact commit；只增加發布證據與恢復說明，runtime與已驗收來源177完全一致。公開HTTP逐檔bytes/hash仍未完成，**不宣稱22檔HTTP exact**；採完整來源exact讀回、部署Git tree/ref、exact SHA CI成功及公開頁真實遊玩作接受依據。沒有GPT Library雙邊同步宣稱。下方候選／待發布段落為歷史紀錄。
+
 ## v055 正常桌面候選已驗收；正式發布待執行（2026-10-28）
 
 候選 `2ed06f9a320729048429d6ed5045a7e965748dd5` 的 Pages CI `40663150260` success，雲端 Chromium 已完成真實公開頁正常遊玩：正式 v054 存檔經使用者介面匯出→隔離候選匯入→7項面板預覽→實際換裝一致→自然戰鬥／升級／掉寶→再次換裝→匯出／重載。預覽不改存檔或 RNG，候選操作不污染正式進度，皆以匯出 JSON bytes/hash 確認。
