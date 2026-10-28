@@ -1,3 +1,9 @@
+## v066 已正式發布並通過桌面實玩（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 已為v066：website426e77fffe719de19eef7927dcf18e705d081030，exact Pages40762476547成功。原正式profile單次完整四波10.5秒通關後停營，15秒觀察未自啟；wins6→7／金542→618／XP84→189/197，loot8與9入包。營地匯出重載持久資料一致、無預約，沒有把候選進度匯入正式。
+
+最新完整桌面已驗收恢復來源為攜帶CHECKPOINT `207-v066-restorable` 的exact commit；runtime/tests/assets/index與205來源07dbdb366b99572216b29c355b7010cb21980e6e逐byte一致。完整來源、素材授權、測試、候選與正式browser收據及恢復說明均納入。詳見docs/PUBLICATION-V066.md、docs/RECOVERY-V066.md。正式僅單次路徑smoke，取消續刷與活躍預約重載於候選驗過；唯讀／滿包／待領／IW／敗北／stale仍unit-only，非手機或完整無障礙；未宣稱公開HTTP逐檔hash或Library同步。以下狀態保留為歷史。
+
 ## v066 桌面候選已驗收；正式升版待完成（2026-10-29 台北）
 
 隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.66/ 已正常瀏覽器實玩 PASS：website80c51ea2b504b1e2947234775a00f3f5ef1327e9，exact Pages40761026923成功。單次完整四波10.5秒通關、wins6→7／金542→618，掉loot8與9後停營且等候不自啟；取消預約後確實開啟下一場連刷，再預約可回營。活躍預約重載清除，營地匯出重載持久欄位一致；正式v065存檔逐byte未變。

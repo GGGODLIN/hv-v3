@@ -1,0 +1,79 @@
+{
+  "version": "0.66",
+  "kind": "formal-browser-qa",
+  "testedAtUtc": "2026-10-28T20:24:11Z",
+  "result": "PASS within normal desktop scope",
+  "websiteCommit": "426e77fffe719de19eef7927dcf18e705d081030",
+  "pagesRun": "40762476547",
+  "ciEvidence": "Parent exactCI and21runtime byteverification before formalreload",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "method": "dot cloud cua normalUI originalformalprofile, no candidateimport/injection",
+  "baseline": {
+    "version": "0.65",
+    "level": 6,
+    "gold": 542,
+    "wins": 6,
+    "bag": 6,
+    "exportSha256": "03c451d439104d1e2fa029dc34a2af925c0630519c7159fc1613f8a4ca796eb2",
+    "download": "06bb9dcd-391d-445a-a73b-889bdcb5b120"
+  },
+  "checks": [
+    {
+      "name": "upgrade",
+      "result": "PASS",
+      "observed": "Formalreloadv066 retainedLv6/542/XP84/197 andoriginalgear."
+    },
+    {
+      "name": "single full expedition",
+      "result": "PASS",
+      "observed": "Singleclick immediatelyscheduledfinishthen camp,pressedCancel andbothstartbuttonsdisabled. Natural4waveclear10.5s wins6->7,kills36->42,XP84->189/197,gold542->618,fragments60->70,seeds6->7,loot-8 Superior wardpendant andloot-9 Average leather,bag6->8. Levelremained6;growthwasXP/proficiency7.2 notlevelup."
+    },
+    {
+      "name": "stop without autorestart",
+      "result": "PASS",
+      "observed": "Atcamp bothstartbuttonsreenabled;atleast15seconds laterstillcamp618/wins7,no secondautostart."
+    },
+    {
+      "name": "persistence flags",
+      "result": "PASS",
+      "observed": "Normalexport/reload/export identical alldurablefields;onlyexpectedtransient logs/_turns/_tuCompensation/battle/_eventId/timing/events/wave reset. Returnedcamp, no activebooking. Activebookingreload testedseparatelyoncandidate, not repeatedformal."
+    },
+    {
+      "name": "visual",
+      "result": "PASS",
+      "observed": "Screenshotinspectedtwo buttons andfullfourwaveexplanation;viewport1180/document1165,brokenimages0."
+    }
+  ],
+  "exports": {
+    "afterPlay": {
+      "sha256": "d84d9c162b4c1a3181f71c1276ae526acd8c2ff0aebd7d1c50eb8b2a659f0745",
+      "bytes": 10671,
+      "download": "a17347d7-cd61-4132-a8ca-209d47ed591c"
+    },
+    "afterReload": {
+      "sha256": "426115f383f5704b23eb3559c969db65446c8076b4e01f4a2a1935d0cdf8370b",
+      "bytes": 6842,
+      "download": "373bc62e-2574-41e0-b249-8ff622b1bf1f"
+    }
+  },
+  "final": {
+    "tab": "2",
+    "version": "0.66",
+    "level": 6,
+    "gold": 618,
+    "xp": 189,
+    "hp": 685,
+    "mp": 34,
+    "bag": 8,
+    "wins": 7,
+    "kills": 42,
+    "equippedWeapon": "loot-5",
+    "mode": "town",
+    "saved": true
+  },
+  "limitations": [
+    "Formal singlepath smoke only;cancelrepeat andactivebookingreload in candidate receipt.",
+    "Readonly/fullbag/IW/stale/defeated edgecases unit-only;no physicalmobile/fullaccessibility certification."
+  ],
+  "candidateSeparation": "No candidateprofile imported;candidate tab9 remainsseparateLv8/846."
+}

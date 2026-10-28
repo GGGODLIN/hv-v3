@@ -1,10 +1,10 @@
 {
-  "checkpoint": "205-v066-accepted",
+  "checkpoint": "207-v066-restorable",
   "version": "0.66.0",
-  "status": "complete-source-candidate-desktop-accepted",
-  "source_base": "a1830417cd4dcaaafd58ec91e3c95243f14ed321",
-  "base_accepted_recovery": "8ad50429da453977a4c2cc2a4b5d4ef855938e60",
-  "accepted_website": "018d4c3a1068c58ea2546752b63ccab2336a6f35",
+  "status": "complete-source-formal-desktop-accepted",
+  "source_base": "07dbdb366b99572216b29c355b7010cb21980e6e",
+  "base_accepted_recovery": "07dbdb366b99572216b29c355b7010cb21980e6e",
+  "accepted_website": "426e77fffe719de19eef7927dcf18e705d081030",
   "scope": "Camp one-expedition entry atomically starts ordinary four-wave expedition and queues existing session-only return on complete victory; continuous start unchanged.",
   "source_tests_passed": 2340,
   "source_tests_failed": 0,
@@ -12,13 +12,13 @@
   "runtime_syntax_checks": 4,
   "independent_focused_tests_passed": 22,
   "primary_focused_tests_passed": 4,
-  "browser_acceptance": "Normal desktop candidate PASS; readonly/fullbag/pending/IW/defeat/stale unit-only; no mobile/full accessibility or public HTTP per-file hashes.",
-  "publication": "v066 candidate80c51ea2b504b1e2947234775a00f3f5ef1327e9 Pages40761026923 success; formal remains v065",
+  "browser_acceptance": "Normal desktop candidate and formal PASS; readonly/fullbag/pending/IW/defeat/stale unit-only; no mobile/full accessibility or public HTTP per-file hashes.",
+  "publication": "v066 formal426e77fffe719de19eef7927dcf18e705d081030 Pages40762476547 success; normal desktop smoke PASS",
   "recovery": "docs/RECOVERY-V066.md",
   "files": {
     "README.md": {
-      "bytes": 71410,
-      "sha256": "4bdc7e2617822949c74ae2aed634126c8db29c6f4d5db37500d011eadb1055fb"
+      "bytes": 72451,
+      "sha256": "8f04f509b7305fe8dbdfbcea79950bbed1ea157fa1b2efcda3e8566fa9a17cba"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -704,6 +704,14 @@
       "bytes": 1720,
       "sha256": "c3af0bd19d8b913b46f0d8cf184346369e0bc52a6fa90c506919bf2dc5c1a4b7"
     },
+    "docs/PUBLICATION-V066-RECEIPT.json": {
+      "bytes": 1286,
+      "sha256": "e724036ac1a8dd341f7855c19a8e4a2d9d38cd850df5ea7ee81761d0abc2a889"
+    },
+    "docs/PUBLICATION-V066.md": {
+      "bytes": 1335,
+      "sha256": "78fabc685029894b57f295c6ea346e0fa3cae89f6a8e8fdf26c3ac23d4eb17e4"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -871,6 +879,14 @@
     "docs/QA-V066-BROWSER.md": {
       "bytes": 1562,
       "sha256": "6dc6bd7ce9cd4406bfc2eab11486b30feae33a37ad9c4dffd1fae720e1f5a719"
+    },
+    "docs/QA-V066-FORMAL-BROWSER-RECEIPT.json": {
+      "bytes": 2961,
+      "sha256": "8e7fa8dc2b136b3ab0492bc09e6d5b9324d6cdf0c2b808081c64b0495bee3caf"
+    },
+    "docs/QA-V066-FORMAL-BROWSER.md": {
+      "bytes": 900,
+      "sha256": "49129f6926f6067a5a8ad8e9b6a2d5ebb46ffa91f435ce346cf8df2d7ca02f9e"
     },
     "docs/QA-V066-INDEPENDENT.md": {
       "bytes": 3307,
@@ -1057,8 +1073,8 @@
       "sha256": "2df4d68f420ed60622c7ccd6f5a758dbdb1fc23870e16b04b334dc98e12fb6ba"
     },
     "docs/RECOVERY-V066.md": {
-      "bytes": 1451,
-      "sha256": "cdafdb12d25f9e6ce23314e287d43161165fa3f7a1e4bd87ac14a7781d2681ab"
+      "bytes": 1493,
+      "sha256": "0c1017f94504b32518c56e5142580dbc6ea66169bf65370678d8c7ab217f5ea4"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1069,8 +1085,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 54176,
-      "sha256": "7ae75f04a39f6bb67ae40ef01222dba14dfb64db025226a15f34eb928b7fe978"
+      "bytes": 55217,
+      "sha256": "fd348a917d43a37128d66a1035b857e45b0238f3352358887a3d497b4f849288"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1105,8 +1121,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 74121,
-      "sha256": "33deed16578521b2a9497e6c47a4c27c77fd5dad47dc9ded7ea35a12cf530163"
+      "bytes": 75162,
+      "sha256": "c4160596998fa6d6efa9261bb6fe636b71aac15ec31ef3d085d37e761072198b"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2385,5 +2401,5 @@
       "sha256": "41957f57efa8dc19a28faf26cf0df3f8ef831bc56ac4ad5e6dbac36e7411b960"
     }
   },
-  "test_evidence": "Fresh2340 tests+4syntax PASS; runtime/tests unchanged203"
+  "test_evidence": "Inherited unchanged runtime/tests from205 fresh2340+4syntax PASS; no207 rerun claimed"
 }
