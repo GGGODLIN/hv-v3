@@ -31,3 +31,8 @@ describe('rc10 QA: no stun hint while the charging boss resists stuns', () => {
     expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/this\.stage\.play\(ev, b\)[^\n]*\n\s*this\.stage\.refresh\(\)/);
   });
 });
+describe('rc10: vitest strips sim env switches', () => {
+  it('no SIM_* / CP8 / P5 reaches the tests', () => {
+    expect(Object.keys(process.env).filter((k) => /^(SIM_|CP\d+$|P5$)/.test(k))).toEqual([]);
+  });
+});

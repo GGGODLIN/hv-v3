@@ -9,5 +9,6 @@ export default defineConfig({
   define: { __BUILD__: JSON.stringify(hash + dirty) },
   test: {
     include: ['tests/**/*.test.ts'],
+    setupFiles: ['tests/setup-env.ts'], // rc10（自訂）: strip sim env switches so tests always see game defaults
   },
 });
