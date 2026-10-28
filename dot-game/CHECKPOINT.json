@@ -1,24 +1,24 @@
 {
-  "checkpoint": "188-v063-equip-inspection",
+  "checkpoint": "190-v063-browser-accepted",
   "version": "0.63.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "28d074bd5d21988df49c45611661be9aea0116b0",
+  "status": "desktop-browser-accepted-formal-pending",
+  "source_base": "a15522c8ff4dbfe855d2e5ed410cdc40a8035cf9",
   "base_accepted_recovery": "eaf6e784782a781114352d729a11d0b025f3032a",
   "accepted_website": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
-  "scope": "Retain exact equipped item inspector after successful single-item swap; reject stale selection and verify actual equipped ID; UI only.",
+  "scope": "Documentation and acceptance evidence only; all runtime/test/asset bytes unchanged from checkpoint188.",
   "source_tests_passed": 2264,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
   "new_focused_tests": 1,
   "independent_focused_tests_passed": 10,
-  "browser_acceptance": "Pending for v056 through v063. Source/UI-model tests only; zero website writes.",
-  "publication": "Not published; formal v055 remains unchanged.",
+  "browser_acceptance": "PASS normal desktop flows on isolated v063 candidate; edge cases remain unit-only as detailed in receipt.",
+  "publication": "Isolated candidate deployed; formal promotion pending, v055 remains formal.",
   "recovery": "docs/RECOVERY-V063.md",
   "files": {
     "README.md": {
-      "bytes": 61248,
-      "sha256": "a1bc6d64a4827342fddde59ecb221f5aa973ed37758b7544ae5e33f4158690b8"
+      "bytes": 62389,
+      "sha256": "8e72b7e809ba82033a801220159ba6f8e5981529de1a664bdc387ad42cabdd9f"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -728,6 +728,10 @@
       "bytes": 1525,
       "sha256": "679b5bad37dc952948a7c1c202760c7eddb85823762e6392347608f89d7aeaba"
     },
+    "docs/QA-V056-BROWSER-RECEIPT.json": {
+      "bytes": 3707,
+      "sha256": "4d7ad7732969a9c7555c517baa1f90842c25021d5336ec755ad025f5672ab93c"
+    },
     "docs/QA-V056-INDEPENDENT.md": {
       "bytes": 2700,
       "sha256": "7fe510dad3519ff255b5758c185ce524414baf8759ac18726d71614d26e3f61b"
@@ -783,6 +787,14 @@
     "docs/QA-V062.md": {
       "bytes": 1287,
       "sha256": "18f01a81460c26b8479ca43a6740f9775d75b852fa2bebc774d3aa725b19745d"
+    },
+    "docs/QA-V063-BROWSER-RECEIPT.json": {
+      "bytes": 4367,
+      "sha256": "cba3aaf3baa35bc9e7b88132004dfbdb7ae1adca75dd27133fb74dfef2d6d1f3"
+    },
+    "docs/QA-V063-BROWSER.md": {
+      "bytes": 1677,
+      "sha256": "13b53609845e2b51aeb44278141602e22ad851a3da541ba3dea4f5c652d5f70e"
     },
     "docs/QA-V063-INDEPENDENT.md": {
       "bytes": 4147,
@@ -957,8 +969,8 @@
       "sha256": "4561df9a851bdc43953f9cb4bfd199c45fc160c83e522789baa7b54cf90e06b4"
     },
     "docs/RECOVERY-V063.md": {
-      "bytes": 1088,
-      "sha256": "de42b12d857aafa71a5b054752e176a827138db8b95181d69eaa845c2e525f78"
+      "bytes": 1864,
+      "sha256": "889ac479940caeffa72da5900491fec999bfc1711a50f44536ab377e5e9905e0"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -969,8 +981,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 44014,
-      "sha256": "83a648ee535e5a48a6175eff5a2e30e8c9fb5a42758528562e2c119e284c0d56"
+      "bytes": 45155,
+      "sha256": "6cf94c8b7dcf25d6979b4abc8f488d97630873700b65234ce0d351182f3eece3"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1005,8 +1017,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 63959,
-      "sha256": "f9ece85f037357db9de830bc32636b15f1f4e32a3909c89a33a5bade7aeb8def"
+      "bytes": 65100,
+      "sha256": "0ac28a7119bdb7c6f5105925357f9994ee48fd9abefb1fe9d9db719ad6ed2928"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2248,5 +2260,8 @@
       "bytes": 15077,
       "sha256": "1352a08ec68f770f98d1bf299c8033431bd6b8dce6645259d5daef991a95c19e"
     }
-  }
+  },
+  "candidate_website": "073261986b8deadbeaf47390f194ec2a26125783",
+  "candidate_ci": 40736583520,
+  "browser_receipt_sha256": "cba3aaf3baa35bc9e7b88132004dfbdb7ae1adca75dd27133fb74dfef2d6d1f3"
 }

@@ -1,0 +1,151 @@
+{
+  "version": "0.63",
+  "checkedAtUTC": "2026-10-28T17:37:51Z",
+  "sourceCommit": "a15522c8ff4dbfe855d2e5ed410cdc40a8035cf9",
+  "websiteCommit": "073261986b8deadbeaf47390f194ec2a26125783",
+  "ci": {
+    "run": 40736583520,
+    "status": "success",
+    "evidence": "parent publisher verified before QA"
+  },
+  "candidateURL": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.63/",
+  "method": "dot cloud Chrome via cua_repl; normal UI import/export and gameplay; no synthetic state injection",
+  "result": "PASS normal desktop flows; edge-case evidence remains unit-only as noted",
+  "checks": {
+    "v057": {
+      "normalPotionUsed": true,
+      "observed": "normal button click; count 3 to 2, current-run used1",
+      "limitation": "short-lived heal float was not reliably captured; exact truncated heal number remains source/unit evidence, not claimed browser-proven"
+    },
+    "v058": {
+      "observedVictoryIntermission": "通關完成，立即回營 with 4 / 4, kills54 wins9 gold684",
+      "observedNextRun": "0 / 4 then 1 / 4 in combat",
+      "observedCamp": "0 / 4"
+    },
+    "v059": {
+      "normalCommissionPreview": "rapier vs equipped axe: attack -23, crit +2.95 percentage points, parry +11.6402",
+      "noPurchase": true,
+      "tinyNonzeroDelta": "unit-only"
+    },
+    "v060": {
+      "normalPools": "713/713,691/713,735/735,711/735,757/757; MP34/34 to40/40 observed",
+      "belowOneAndRoundedNotFull": "unit-only, not naturally reached"
+    },
+    "v061": {
+      "selectedBefore": [
+        "loot-7",
+        "loot-6"
+      ],
+      "totalBefore": 78,
+      "afterLockLoot7": [
+        "loot-6"
+      ],
+      "remainingPrice": 40,
+      "unlockDoesNotReselect": true,
+      "equipOtherItemPreservesRemaining": true,
+      "departureClearsSelectedSale": true,
+      "noSalePerformed": true,
+      "openConfirmationInvalidation": "unit-only"
+    },
+    "v062": {
+      "normalKeyboardSpaceToggleSameItemFocus": true,
+      "itemId": "loot-6",
+      "twoToggleChecks": true,
+      "focusAfterEquip": "equipped loot-7 card",
+      "generalDisappearanceAndRaceFallbacks": "unit-only; no synthetic rerender"
+    },
+    "v063": {
+      "equippedId": "loot-7",
+      "equippedDetailsRemain": true,
+      "equippedLabel": true,
+      "stalePreviewAndSellEquipButtonsAbsent": true,
+      "focusSameEquippedItem": true,
+      "hpPreviewAndActual": [
+        685,
+        713
+      ]
+    }
+  },
+  "naturalProgress": {
+    "level": [
+      6,
+      8
+    ],
+    "gold": [
+      456,
+      760
+    ],
+    "kills": [
+      36,
+      60
+    ],
+    "wins": [
+      6,
+      10
+    ],
+    "bagCount": [
+      7,
+      15
+    ],
+    "autoRepeatObserved": true,
+    "finishThenCampObserved": true
+  },
+  "reload": {
+    "durableFieldsEqual": true,
+    "changedTransientFields": [
+      "wave",
+      "events",
+      "logs",
+      "battle",
+      "timing",
+      "_eventId",
+      "_turns",
+      "_tuCompensation"
+    ],
+    "safeCampAfterReload": true,
+    "offlineRewardsNotObserved": true
+  },
+  "formalIsolation": {
+    "version": "0.55",
+    "byteIdenticalToInitial": true,
+    "level": 4,
+    "gold": 228,
+    "noGameplayMutations": true
+  },
+  "exports": [
+    {
+      "label": "imported-genuine-v056",
+      "bytes": 6276,
+      "sha256": "d9c6f2135ca75da23e5256e410b8b1aace0cfcc27849fd38999f875d4a9fd9a9"
+    },
+    {
+      "label": "candidate-before-reload",
+      "bytes": 15984,
+      "sha256": "574728990e31e0d5000df14dc7d430d09991b2698f7b3c99ce88ad54935b7b8a"
+    },
+    {
+      "label": "candidate-after-reload",
+      "bytes": 10935,
+      "sha256": "442fc9992a235bc9a0ef157d9ab77536781e266ff994ea7edf0e991ba25ac50f"
+    },
+    {
+      "label": "formal-after",
+      "bytes": 4572,
+      "sha256": "49b4cf1645ed29f4324f6b6ae6bfb7a3ff299d241595a7d0f13a139ba5c0c85d"
+    }
+  ],
+  "visual": {
+    "cloudDesktopScreenshotsInspected": true,
+    "viewportWidth": 1165,
+    "scrollWidth": 1165,
+    "brokenImages": 0
+  },
+  "limitations": [
+    "Not physical mobile or complete accessibility testing",
+    "No fabricated saves used to force tiny-resource/tiny-delta conditions",
+    "Precise potion floating number not captured",
+    "General checkbox invalidation/race focus and pending-loot paths remain source tests",
+    "CI/runtime byte identity is publisher evidence, not browser pass evidence"
+  ],
+  "sourceOrWebsiteWrites": false
+}

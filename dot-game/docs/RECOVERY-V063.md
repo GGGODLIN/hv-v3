@@ -1,3 +1,9 @@
+## 190：最新桌面已驗收來源（正式升版待完成）
+
+取得攜帶CHECKPOINT `190-v063-browser-accepted` 的exact commit，核對全部files bytes/SHA-256並還原完整dot-game/。runtime與188來源a15522c8ff4dbfe855d2e5ed410cdc40a8035cf9逐byte一致；僅新增驗收文件。桌面候選073261986b8deadbeaf47390f194ec2a26125783已PASS，細節與仍unit-only邊界見QA-V063-BROWSER.md。候選index隔離包裝不是source index；來源顯示候選標籤是刻意保留，不影響已驗收runtime對應。
+
+這是最新桌面已驗收來源，不是正式發布或最終恢復收據；正式v055尚未promotion，後續恢復先查是否已有191/192新證據。無Library雙邊同步或公開HTTP逐檔hash聲明。以下188說明保留為歷史基準。
+
 # 恢復 v0.63 來源候選
 
 從 GGGODLIN/hv-v3 bot/dot 取得攜帶 CHECKPOINT.json `188-v063-equip-inspection` 的 exact commit，完整還原 dot-game/，逐檔核對 manifest bytes/SHA-256。包括來源、測試、素材、授權與建置說明；Git 歷史由 repo 保留，網站產物不是完整原始碼。

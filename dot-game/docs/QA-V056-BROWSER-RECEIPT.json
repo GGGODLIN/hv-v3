@@ -1,0 +1,155 @@
+{
+  "version": "0.56",
+  "checkedAtUTC": "2026-10-28T17:29:36Z",
+  "method": "dot cloud Chrome through cua_repl; normal UI only; genuine exported baseline imported through UI; no injected state",
+  "candidateURL": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.56/",
+  "sourceCommit": "36b2be0887262446526e10294869ba1886d2194c",
+  "websiteCommit": "ace951eef915c6c91f98f5dde615028a6f3fb390",
+  "ci": {
+    "run": 40735186992,
+    "status": "success",
+    "evidence": "parent publisher verified before QA"
+  },
+  "result": "PASS within tested scope",
+  "naturalRuns": [
+    {
+      "stage": 1,
+      "durationSeconds": 18.9,
+      "level": [
+        4,
+        5
+      ],
+      "gold": [
+        228,
+        304
+      ],
+      "kills": [
+        18,
+        24
+      ],
+      "wins": [
+        3,
+        4
+      ],
+      "drop": "loot-5 精良・暮鋼戰斧・屠戮"
+    },
+    {
+      "stage": 1,
+      "durationSeconds": 11.6,
+      "level": [
+        5,
+        5
+      ],
+      "gold": [
+        304,
+        380
+      ],
+      "weapon": "loot-5 naturally equipped",
+      "observedReportAttack": 125,
+      "counterDamage": 97,
+      "drop": "loot-6 優良・餘燼護衣・壁壘"
+    },
+    {
+      "stage": 1,
+      "level": [
+        5,
+        6
+      ],
+      "gold": [
+        380,
+        456
+      ],
+      "kills": [
+        30,
+        36
+      ],
+      "wins": [
+        5,
+        6
+      ],
+      "drop": "loot-7 優良・獵隙巡獵皮甲・追風"
+    }
+  ],
+  "nonFinalLevelUp": {
+    "start": "Lv5 XP138/159 HP663/663",
+    "wave2": "Lv5 XP156/159 HP637/663",
+    "nextObservation": "Wave4 still in battle, Lv6 XP24/197 HP685/685, kills35 wins5",
+    "limit": "Observed non-final level-up and HP above old cap; not the exact same clear tick. Precise same-tick regression remains unit-test evidence."
+  },
+  "equip": {
+    "previewADB": [
+      79.72,
+      124.72
+    ],
+    "equippedId": "loot-5",
+    "oldWeaponReturnedToBag": "loot-2",
+    "nextRunConfirmedWeapon": true
+  },
+  "reload": {
+    "durableFieldsEqual": true,
+    "changedTransientFields": [
+      "wave",
+      "events",
+      "logs",
+      "battle",
+      "timing",
+      "_eventId",
+      "_turns",
+      "_tuCompensation"
+    ],
+    "stateAfter": {
+      "level": 6,
+      "xp": 84,
+      "gold": 456,
+      "kills": 36,
+      "wins": 6,
+      "bagCount": 7,
+      "mode": "camp"
+    },
+    "noOfflineRewardsObserved": true
+  },
+  "formalIsolation": {
+    "version": "0.55",
+    "byteIdenticalBeforeAfter": true,
+    "level": 4,
+    "gold": 228,
+    "kills": 18,
+    "wins": 3,
+    "gameplayMutations": false
+  },
+  "exports": [
+    {
+      "label": "formal-before",
+      "bytes": 4572,
+      "sha256": "49b4cf1645ed29f4324f6b6ae6bfb7a3ff299d241595a7d0f13a139ba5c0c85d"
+    },
+    {
+      "label": "candidate-before-reload",
+      "bytes": 10596,
+      "sha256": "53858a521e775f7edcf8912b417d6e20cc258cd0d8f71349af4eaa6197324abf"
+    },
+    {
+      "label": "candidate-after-reload",
+      "bytes": 6276,
+      "sha256": "d9c6f2135ca75da23e5256e410b8b1aace0cfcc27849fd38999f875d4a9fd9a9"
+    },
+    {
+      "label": "formal-after",
+      "bytes": 4572,
+      "sha256": "49b4cf1645ed29f4324f6b6ae6bfb7a3ff299d241595a7d0f13a139ba5c0c85d"
+    }
+  ],
+  "visual": {
+    "viewportWidth": 1165,
+    "documentScrollWidth": 1165,
+    "brokenImages": 0,
+    "combatScreenshotInspected": true
+  },
+  "limitations": [
+    "No physical-mobile or screen-reader validation",
+    "No pending loot or defeat path in this pass",
+    "No controlled DPS comparison claimed",
+    "CI/runtime HTTP identity supplied by publisher, not independently established by this browser pass"
+  ],
+  "sourceOrWebsiteWrites": false
+}
