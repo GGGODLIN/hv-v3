@@ -243,13 +243,14 @@ export function openingOc(p: Player, type: NodeType, run?: RunState): number {
 export const cp4On = (run?: RunState): boolean => RULES.cp4RunBuffs && !!run?.buffs?.length;
 
 /** CP4: attach run-buff battle mods (combo triggers included). No-op with the flag off. */
-export function armBattle(b: BattleState, run: RunState, lean?: string): void {
+export function armBattle(b: BattleState, run: RunState, lean?: string, shield = true): void {
   if (RULES.cp8 && CP9.on && lean === 'blade' && CP9.bladeOc < 1) b.ocCost9 = CP9.bladeOc; // cp9 rc2 (3)（自訂，暫定，無來源）: blade skill OC cost cut
   if (!RULES.cp4RunBuffs) return;
   if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }
   if (!cp4On(run)) return;
   const ids = run.buffs!;
   b.mods = { ...sumMods(ids).b, combo: combos(ids), ...(schoolCounts(ids).bulwark ? { bulwarkN: schoolCounts(ids).bulwark } : {}) };
+  if (!shield) delete b.mods.bashStun; // rc12g item 3（自訂）: 震盪 needs a shield
 }
 
 export function withRng<T>(run: RunState, f: (r: Rng) => T): T {

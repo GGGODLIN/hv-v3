@@ -529,7 +529,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       SIM_DIAG.battles++; if (hp0Pct < 0.5) SIM_DIAG.low50++; if (hp0Pct < 0.3) SIM_DIAG.low30++;
       b.locked = battleLocks(p);
       const oc0 = openingOc(p, type, run);
-      armBattle(b, run, p.lean);
+      armBattle(b, run, p.lean, !!p.equipped?.offHand);
       b.oc += oc0;
       // rc16 item 4 sim only（自訂，非原版 test）: SIM_OPEN_OC=N gives N OC at every abyss battle start (run it on the blade preset).
       if (ENV?.SIM_OPEN_OC && run.abyss) b.oc = Math.min(ocCap(b), b.oc + Number(ENV.SIM_OPEN_OC));

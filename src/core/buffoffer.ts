@@ -50,6 +50,10 @@ export const FIT_MIN = 2;
 export function buffUse(p: Player, id: string): { use: number; dead?: string } {
   if (!buffFit(p, id).ok) return { use: 0 };
   if (id === 'W1' && !p.equipped?.offHand) return { use: 2 / 3, dead: '格擋（搭盾才有）' };
+  // rc12g item 3（自訂，製作人要求）: 磐石 family without a shield. 震盪's only effect (bash stun +1) is off without a shield
+  // (armBattle drops it); 厚皮 / 不滅 keep their own stats, but the 磐石反擊 combo's block trigger is dead.
+  if (id === 'W8' && !p.equipped?.offHand) return { use: 0.25, dead: '盾擊暈眩（搭盾才有）' };
+  if ((id === 'W2' || id === 'W6') && !p.equipped?.offHand) return { use: 0.85, dead: '磐石反擊的格擋觸發（搭盾才有）' };
   return { use: 1 };
 }
 /** rc12f（自訂）: value of another school's buff to a lean (1 = own school). Generic (none) buffs stay useful to all;
