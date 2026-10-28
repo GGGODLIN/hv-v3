@@ -18,7 +18,7 @@ describe('rc12o', () => {
     expect(RUN12O.on && RUN12M.on).toBe(true);
     expect(r12m('blade', 'drop')).toBe(0); expect(r12m('blade', 'chest')).toBe(0);
     expect(RUN12O.bossPot).toBeGreaterThan(0);
-    expect(deepK12g('blade')).toBe(33); expect(deepK12g('bulwark')).toBe(20); expect(r12m('oc', 'bossHp')).toBe(0.5);
+    expect(deepK12g('blade')).toBe(12); expect(deepK12g('bulwark')).toBe(15); // rc12q retune（自訂） expect(r12m('oc', 'bossHp')).toBe(0.5);
   });
   it('boss70: ×1 up to F65, full multiplier from F70', () => {
     expect(boss70(65, 'blade', 'bossHp70')).toBe(1);

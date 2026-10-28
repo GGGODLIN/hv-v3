@@ -143,10 +143,11 @@ const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
  *  drop/chest potions (RUN12O.scatter); deepK/mob* push late pressure, bossHp/bossHp70 keep F30+ boss fights ≤18 turns. */
 const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12p（自訂）: retuned after the capped preview (★ no longer over-defends) + 1 deterministic boss potion; rc12o values in docs/hv-v3-rc12p.md
-  blade: { mobHp: 12, mobDmg: 12, deepK: 33, bossHp70: 0.3 },
-  bulwark: { mobHp: 9, mobDmg: 9, deepK: 20 },
+  // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
+  blade: { mobHp: 11, mobDmg: 11, deepK: 12, bossHp70: 0.2 },
+  bulwark: { mobHp: 9, mobDmg: 9, deepK: 15 },
   oc: { mobHp: 3.5, mobDmg: 3.5, deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
-  arcane: { mobHp: 3, mobDmg: 3, bossHp70: 0.8 },
+  arcane: { mobHp: 2.5, mobDmg: 3, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
@@ -169,7 +170,7 @@ export const RUN12Q = { on: (num('SIM_RUN12Q') ?? 0) === 1, legend: num('SIM_R12
 export const blade12q = (lean: string | null | undefined): boolean => RUN12Q.on && lean === 'blade';
 export const bladeBossHp12q = (F: number, lean: string | null | undefined): number => !blade12q(lean) || F < 30 ? 1 : F <= 65 ? RUN12Q.bossHp : RUN12Q.bossHp + (1 - RUN12Q.bossHp) * Math.min(1, (F - 65) / 5);
 export const mob12m = (F: number, lean: string | null | undefined, k: 'mobHp' | 'mobDmg'): number => { const from = blade12q(lean) ? RUN12Q.mobFrom : RUN12M.mobFrom; return !RUN12M.on || F <= from ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - from) / (100 - from)); };
-export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp * r12m(lean, 'bossHp') : DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
+export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp * r12m(lean, 'bossHp') : DEEP12G.aoBossHp * r12m(lean, 'bossHp') /* rc12q（自訂）: arcane bossHp coefficient too */; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
 /** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
 /** rc12k item 1（製作人，自訂）: after F65 the rise is geometric (same × per floor, ≈ ×1.43 / 5 floors at 0.2→2.5) instead of linear,
  *  so F65→F70 is no longer a ×2.6 step. SIM_BWLINEAR=1 = the rc12i linear ramp (comparison only). */
