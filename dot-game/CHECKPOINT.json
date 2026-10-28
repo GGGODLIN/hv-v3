@@ -1,10 +1,10 @@
 {
-  "checkpoint": "210-v067-accepted",
+  "checkpoint": "212-v067-restorable",
   "version": "0.67.0",
-  "status": "source-browser-accepted-formal-pending",
-  "source_base": "1aa2fa45f0e46ef0965dcab82c39ebd9222290fd",
-  "base_accepted_recovery": "5274e45d6d3204d28fadb2714aac4af762074c88",
-  "accepted_website": "426e77fffe719de19eef7927dcf18e705d081030",
+  "status": "complete-restorable-source-formal-desktop-accepted",
+  "source_base": "2c4c11a8324d1623f5dce33a3bfbdd9339d8942d",
+  "base_accepted_recovery": "2c4c11a8324d1623f5dce33a3bfbdd9339d8942d",
+  "accepted_website": "08020c163037524b8afcab9792d5a34fc1dd3224",
   "scope": "UI bound weapon next-character-level projection using unchanged immutable-anchor scaler; no mutation or new rule.",
   "source_tests_passed": 2360,
   "source_tests_failed": 0,
@@ -12,13 +12,13 @@
   "runtime_syntax_checks": 4,
   "new_focused_tests": 2,
   "independent_focused_tests_passed": 18,
-  "browser_acceptance": "Normal desktop candidate PASS; QA-V067-BROWSER-RECEIPT.json.",
-  "publication": "v067 candidate accepted; formal v066 retained.",
+  "browser_acceptance": "Normal desktop candidate and formal PASS; limits in PUBLICATION-V067.md.",
+  "publication": "v067 formal published/desktop accepted;212 docs only, no extra website writes.",
   "recovery": "docs/RECOVERY-V067.md",
   "files": {
     "README.md": {
-      "bytes": 74511,
-      "sha256": "982d5af5ada6c6b5a1661e6aa0a1aa1951aaf2efada75220b52f5b4219ec9608"
+      "bytes": 75670,
+      "sha256": "52d4ce98416dc242b36ce1989282ce82acdceea4c6736dadfe14d35f354a0907"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -712,6 +712,14 @@
       "bytes": 1335,
       "sha256": "78fabc685029894b57f295c6ea346e0fa3cae89f6a8e8fdf26c3ac23d4eb17e4"
     },
+    "docs/PUBLICATION-V067-RECEIPT.json": {
+      "bytes": 1265,
+      "sha256": "3110ad84377d85482ba2def9a778f0e63e0819d49994886c43277e557eb553a3"
+    },
+    "docs/PUBLICATION-V067.md": {
+      "bytes": 1628,
+      "sha256": "afa663ff5c61f17c20030e4d4fc255aa922f6668a50072b20601dbbbad5f6227"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -901,8 +909,12 @@
       "sha256": "120cbabc2f201779d779cd169baac4b577007affa79c37ba4255492b8f6cf8d8"
     },
     "docs/QA-V067-BROWSER.md": {
-      "bytes": 1662,
-      "sha256": "16316e0281f3dd562371907e2294994cf777ecae5563b30c82668d3e726296f5"
+      "bytes": 2050,
+      "sha256": "9af175cdffddd5b0f14a4131f90e3397c082ff50c0c58a6d5b0e1825798c26f5"
+    },
+    "docs/QA-V067-FORMAL-BROWSER-RECEIPT.json": {
+      "bytes": 4222,
+      "sha256": "1b3e50b3e89aa45f23b8e87b6a15231942f39537bf6a283f2174958647c046cd"
     },
     "docs/QA-V067-INDEPENDENT.md": {
       "bytes": 3308,
@@ -1093,8 +1105,8 @@
       "sha256": "0c1017f94504b32518c56e5142580dbc6ea66169bf65370678d8c7ab217f5ea4"
     },
     "docs/RECOVERY-V067.md": {
-      "bytes": 1367,
-      "sha256": "abe6ec02c1c7ec85806b40e2a69d8015012248643c9f6098509e055fb5911dd4"
+      "bytes": 1968,
+      "sha256": "05d591f0cfa708055caeb29c361a5b13340482a67b9d88ff20961bfeb48382c1"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1105,8 +1117,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 57277,
-      "sha256": "e846caaeb4a28fed60d82dcb80cb641405cb5a05bc686d5eead3dc5435ed451f"
+      "bytes": 58436,
+      "sha256": "19f02f69a3c051a7257d6d9dad899f00bc99b20a0213fdff2e075c4525e30d0d"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1141,8 +1153,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 77222,
-      "sha256": "b7022deb25f2e5f2080a7f2899cc16c6f565179e5fcb37ea9f448e2114c417a7"
+      "bytes": 78381,
+      "sha256": "2323661e49b19feaf37273c93a66580929d45c6f656a562067cd92b58f760e05"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,

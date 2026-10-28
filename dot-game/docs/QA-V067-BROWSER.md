@@ -11,3 +11,6 @@ True formal UI export (Lv6,618gold,wins7,70fragments) was imported into isolated
 
 ## Limits
 IW1, level500, pending, readonly, malformed and unusual timing boundaries were source/DOM tested, not this browser flow. No physical mobile/full accessibility, public HTTP per-file hashes or Library/Space dual-sync claim. This accepted-source checkpoint does not itself publish formal. Formal v066 stays until separate authorized promotion and formal smoke.
+
+## Formal closure
+Formal21108020c163037524b8afcab9792d5a34fc1dd3224 exactPages40771578708success and normal desktop PASS are now complete; see PUBLICATION-V067.md and QA-V067-FORMAL-BROWSER-RECEIPT.json. Original formal profile, no candidate import; naturally Lv9/1074gold/wins13/bag19 versus candidatebag18, not identical profiles. Source212 only retains evidence; no new runtime edit.

@@ -1,0 +1,119 @@
+{
+  "version": "v0.67",
+  "result": "PASS",
+  "tested_at": "2026-10-28T21:27:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "website_commit": "08020c163037524b8afcab9792d5a34fc1dd3224",
+  "pages_run": "40771578708",
+  "ci_evidence": "Parent verified exact success and21runtimebytes before formal reload",
+  "method": "Cloud CUA only, original formal profile normal UI export/reload/battles/bind. No candidate import, synthetic save or state injection. Parent explicitly authorized binding in test profile.",
+  "baseline": {
+    "level": 6,
+    "gold": 618,
+    "wins": 7,
+    "fragments": 70
+  },
+  "checks": [
+    "Pre-upgrade export byte-identical to previous v066 baseline; reload visibly v067 retaining original profile.",
+    "Three natural single expeditions reach Lv8/gold846/wins10/fragments100. Existing explicit confirmation binds current loot-5 axe for100fragments; no automatic equip.",
+    "Preview Lv8→9 attack84→87/+3. Switch to unbound armor (zero preview sections), return to bound axe, exports byte-identical before/after observation.",
+    "Three more full single expeditions naturally gain XP65→170→275 atLv8, then Lv9 XP91/342. Actual weapon attack87 exactly equals prior preview. New preview advances Lv9→10 attack87→91/+4.",
+    "Normal export/reload/export preserves all permanent data and original item anchor Lv3/attack67/roll122. Eight expected transient fields reset; preview reopens87→91.",
+    "No overflow at viewport1180/document1165; zero broken images."
+  ],
+  "session_diff_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 9,
+    "xp": 91,
+    "xpNext": 342,
+    "hp": 751,
+    "mp": 43,
+    "gold": 1074,
+    "proficiency": 10.16,
+    "attributes": {
+      "str": 24,
+      "dex": 24,
+      "agi": 24,
+      "end": 24,
+      "int": 24,
+      "wis": 24
+    }
+  },
+  "final_weapon": {
+    "weaponFamily": "axe",
+    "rolls": {
+      "attack": 122
+    },
+    "prefix": "",
+    "suffix": "屠戮",
+    "id": "loot-5",
+    "name": "精良・暮鋼戰斧・屠戮",
+    "slot": "weapon",
+    "quality": "Exquisite",
+    "rarityColor": "#6ecbff",
+    "level": 9,
+    "roll": 122,
+    "power": 174,
+    "stats": {
+      "attack": 87
+    },
+    "locked": true,
+    "description": "重視基礎斬擊傷害。詞綴：屠戮基底攻擊區間。",
+    "soulbound": {
+      "version": 1,
+      "level": 3,
+      "stats": {
+        "attack": 67
+      }
+    }
+  },
+  "final_wins": 13,
+  "final_kills": 78,
+  "final_bag_count": 19,
+  "final_fragments": 30,
+  "final_seeds": 13,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/3d2aaaee-85e7-4f38-be47-6566bf67ec18",
+      "sha256": "426115f383f5704b23eb3559c969db65446c8076b4e01f4a2a1935d0cdf8370b"
+    },
+    "bound_before_observation": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/26c3af2d-aca9-496e-8c32-ef751384b513",
+      "sha256": "17204f3a19703fe9514695e466568d895e50fb618848218a67d2ee61a612c655"
+    },
+    "bound_after_observation": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/2c621191-d8dc-4335-801a-aee29344afb3",
+      "sha256": "17204f3a19703fe9514695e466568d895e50fb618848218a67d2ee61a612c655"
+    },
+    "after_play": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/a1825c00-18ce-4c46-980b-e46fe8b5f0b7",
+      "sha256": "787c89f82d5b6f1490390553e5e1fc56a3cc290b399989a668e555c72271bd0d"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/9446cbbb-c3c8-4183-95c1-abfcfdc24560",
+      "sha256": "5f4d24f9a99b8267200144fb22638c1add83b1ca31c15578223f7f4f522834e1"
+    }
+  },
+  "source_only_not_browser": [
+    "IW1 projection",
+    "Lv500 cap",
+    "malformed cache/mismatched level",
+    "readonly edge",
+    "inventory/pending bound location",
+    "fractional precision/capped rates"
+  ],
+  "limitations": [
+    "No mobile/full accessibility audit",
+    "Only naturally reachable equipped axe attack growth tested end-to-end; not all stats/families"
+  ],
+  "candidate_profile_imported": false
+}

@@ -1,3 +1,9 @@
+## v067 已正式發布並通過桌面實玩（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 已為v067：website08020c163037524b8afcab9792d5a34fc1dd3224，exact Pages40771578708成功。沿用原正式profile正常遠征累積100碎片並確認綁定loot-5；預覽攻擊84→87與後續自然Lv9真實attack87一致，新預覽87→91。查看往返匯出逐byte不變，重載持久資料一致；最終正式Lv9／1074金／wins13／bag19，未匯入候選進度（候選bag18是各自自然亂數結果，不宣稱兩份相同）。
+
+最新完整恢復來源為攜帶CHECKPOINT `212-v067-restorable` 的exact commit，runtime/tests/assets/index與210來源2c4c11a8324d1623f5dce33a3bfbdd9339d8942d逐byte不變。完整程式、素材授權、測試、候選／正式browser與發布收據及恢復說明均納入。詳見docs/PUBLICATION-V067.md、docs/RECOVERY-V067.md。實玩限自然已裝備戰斧攻擊成長；IW1／Lv500／唯讀／異常／其他部位位置等仍來源測試，不是全武器全屬性、手機或完整無障礙驗收；未宣稱公開HTTP逐檔hash或Library同步。以下狀態保留為歷史。
+
 ## v067 桌面候選已驗收；正式待發布（2026-10-29 台北）
 
 隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.67/ 正常桌面 UI PASS：website7460b65cca9448b5d6f81474be06b1710774ef03、exact Pages40770151342成功。由真實正式匯出進度在隔離候選自然完成三勝，Lv8／100碎片後經正常確認綁定loot-5戰斧；預覽攻擊84→87，查看往返前後匯出逐byte不變。之後自然升Lv9實際攻擊87，下一級預覽87→91；重載持久資料與原始Lv3／attack67 anchor及roll122保留。未綁定護甲無預覽。
