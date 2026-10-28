@@ -367,9 +367,28 @@ export function coolStunKey9(s: BattleState, target = 0): string | null {
 const stunIdOf = (s: BattleState, k: string): SkillId => (skillKit(s)['QWE'.indexOf(k[0]!)] ?? 'shieldBash') as SkillId;
 /** cp9-rc9 item 1（自訂，製作人定案）: minions are not under the post-hit wind-up lock → say so when one is winding up. */
 export const minionLockTag9 = (s: BattleState): string => (s.monsters.some((m) => m.rank !== 'boss' && windingUp(m)) ? '（小怪不受蓄力鎖）' : '');
+/** rc10 spec item 5（自訂，提示層）: QA bulwark b3 — HP 1, no potion, hint A, the boss's 反傷 26 killed the player. Upper-bound reflect of
+ *  a physical hit (A or a physical skill) on `target`, same terms as reflect() with the expected hit (attackValue × 2 for a crit/skill margin). */
+export function reflectRisk9(s: BattleState, target: number): number {
+  const m = s.monsters[target] as CM | undefined; if (!m || m.hp <= 0 || !s.cp5) return 0;
+  const frac = (m.thornTurns ? CP5.thornsFrac : 0) + (m.affixes?.includes('spikes') ? CP5.spikesFrac : 0); if (!frac) return 0;
+  return Math.min(Math.round(s.d.hp * CP5.reflectCapHp), Math.round(attackValue(s, target) * 2 * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType])));
+}
+const physA9 = (s: BattleState, target: number): boolean => quickAttack(s, target).kind !== 'spell';
+export const reflectLethal9 = (s: BattleState, target: number): boolean => RULES.cp8 && CP9.on && physA9(s, target) && reflectRisk9(s, target) >= Math.round(s.hp);
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
-  const a1 = chargeAdvice1(s, target), tag = minionLockTag9(s);
+  const a1 = chargeAdvice2(s, target), tag = minionLockTag9(s);
   return tag && !a1.text.includes(tag) ? { ...a1, text: a1.text + tag } : a1;
+}
+function chargeAdvice2(s: BattleState, target: number): ChargeAdvice {
+  const a = chargeAdvice1(s, target);
+  if (!reflectLethal9(s, target) || !a.keys.length) return a;
+  const keep = a.keys.filter((k) => k !== 'A' && !/^[QWE]·/.test(k) && !/盾擊|震盪打擊/.test(k)); // A and every skill hit physically → all reflect
+  if (keep.length === a.keys.length) return a;
+  const r = reflectRisk9(s, target), alt = s.monsters.findIndex((m, i) => i !== target && m.hp > 0 && reflectRisk9(s, i) < Math.round(s.hp));
+  const keys = keep.length ? keep : canUse(s, { kind: 'defend' }) ? ['D'] : ['A'];
+  const why = `攻擊${s.monsters[target]!.name ?? '目標'}會吃反傷約 ${r} ≥ HP ${Math.round(s.hp)}，會自殺`;
+  return { ...a, keys, text: `${keys[0] === 'D' ? 'D·防禦' : keys[0]}（${why}${alt >= 0 ? `；或切換目標打 ${s.monsters[alt]!.name}` : ''}）` };
 }
 function chargeAdvice1(s: BattleState, target = 0): ChargeAdvice {
   const a = chargeAdvice0(s, target), k = drainStunKey(s, target);
@@ -440,7 +459,7 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
  *  school (bulwark sim boss 3–5 turns vs QA 8–10). No lean gate here: every school gets the skill hint; staff users get the spell hint. */
 export function turnHints(s: BattleState, target: number): { adv: ChargeAdvice | null; danger: boolean; skill: SkillId | null; spell: { id: SpellId; type: string; pct: number } | null } {
   const adv = RULES.cp8 ? chargeAdvice(s, target) : null, danger = !!adv?.danger;
-  const skill = !danger ? suggestSkill(s, target) : null; // pre-cp8: no danger gate (as before)
+  const skill = !danger && !reflectLethal9(s, target) ? suggestSkill(s, target) : null; // rc10 spec 5: no physical skill into a lethal reflect; pre-cp8: no danger gate (as before)
   const spell = !danger && quickAttack(s, target).kind === 'spell' ? suggestSpell(s, target) : null;
   return { adv, danger, skill, spell };
 }
