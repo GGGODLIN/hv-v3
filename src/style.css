@@ -372,3 +372,10 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
 .primarybar { color: #ffd84a; }
 .decide.calm { border-color: #ffd84a66; background: rgba(40,30,5,.55); animation: none; }
 .decide .why { opacity: .85; }
+/* rc12s item 4（自訂）: boss-win growth panel */
+.growth { margin: 8px 0; padding: 6px 10px; border: 1px solid #c9a227; border-radius: 6px; background: rgba(201, 162, 39, 0.08); }
+.growth h3 { margin: 2px 0 6px; color: #e8c547; }
+.growth table { border-collapse: collapse; }
+.growth td { padding: 1px 8px; }
+.growth tr.up td:last-child { color: #4cd964; font-weight: bold; }
+.growthgear { margin: 4px 0 0; padding-left: 18px; }

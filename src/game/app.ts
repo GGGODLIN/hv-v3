@@ -1,3 +1,4 @@
+import { levelForExp } from '../core/formulas';
 import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
 import { CP8, CP9, curveSchool12g } from '../core/cp8';
 import { iconKey } from './icons';
@@ -498,7 +499,7 @@ export class App {
     if (this.pending.loot) {
       const l = this.pending.loot;
       const pots = Object.entries(l.potions).filter(([, v]) => v).map(([k, v]) => `${POTION_ZH[k as PotionId]} ×${v}`).join('、');
-      body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>${l.bossReward ? `<div class="hint bossreward" data-bossreward="${l.bossReward.potions}:${l.bossReward.quality}">王戰獎勵：藥水 ×${l.bossReward.potions}、裝備保底 ${QUALITY_ZH[l.bossReward.quality]} 階</div>` : ''}${l.swaps?.length ? `<div class="hint" data-swap>${l.swaps.map(esc).join('<br>')}</div>` : ''}${l.hpDrop ? `<div class="hint" data-hpdrop="${l.hpDrop}">自動換裝：最大 HP −${l.hpDrop}</div>` : ''}
+      body = `<h2>${t === 'chest' ? '寶箱' : '勝利！'}</h2><div class="gain">${[l.exp ? `+${l.exp.toLocaleString()} EXP` : '', `+${l.credits} C`, pots].filter(Boolean).join(' · ')}</div>${growthHtml12s((l as Loot & { growth12s?: Growth12s }).growth12s)}${l.bossReward ? `<div class="hint bossreward" data-bossreward="${l.bossReward.potions}:${l.bossReward.quality}">王戰獎勵：藥水 ×${l.bossReward.potions}、裝備保底 ${QUALITY_ZH[l.bossReward.quality]} 階</div>` : ''}${l.swaps?.length ? `<div class="hint" data-swap>${l.swaps.map(esc).join('<br>')}</div>` : ''}${l.hpDrop ? `<div class="hint" data-hpdrop="${l.hpDrop}">自動換裝：最大 HP −${l.hpDrop}</div>` : ''}
         <div class="inv">${l.equips.map((e) => this.lootCard(e, l)).join('') || '<div class="empty">這次沒有裝備掉落</div>'}</div>`;
     } else if (t === 'merchant') {
       const st = r.merchant!;
@@ -1020,7 +1021,9 @@ export class App {
     const b = this.battle!;
     const r = this.run;
     const nNotes = r.notes?.length ?? 0;
+    const g0 = this.battleType === 'boss' ? growthSnap12s(this.p, r) : null; // rc12s item 4（自訂）: before→after growth panel on boss wins
     const loot = finishBattle(this.p, r, b, this.monsters, this.battleType);
+    if (loot && g0) (loot as Loot & { growth12s?: Growth12s }).growth12s = { before: g0, after: growthSnap12s(this.p, r) };
     // rc10: milestone / checkpoint notes added by this win are shown on the loot screen.
     const fresh = (r.notes ?? []).slice(nNotes); if (fresh.length) this.notice = fresh;
     this.save();
@@ -1100,3 +1103,21 @@ export class App {
 /** CP5 r4: the bulwark 3-set text gains the anti-turtle rule when the flag is on. */
 function comboZh(k: keyof Combos): string { return COMBO_ZH[k] + (k === 'bulwark' && RULES.cp5Bosses ? BULWARK_CP5_ZH : ''); }
 
+
+/** rc12s item 4（自訂）: stats shown in the boss-win growth panel (run-derived, incl. run buffs). */
+export interface GrowthSnap12s { lv: number; hp: number; mp: number; adb: number; mdb: number; mit: number; pw: number; gear: Record<string, string> }
+export interface Growth12s { before: GrowthSnap12s; after: GrowthSnap12s }
+export function growthSnap12s(p: Player, r: RunState): GrowthSnap12s {
+  const d = runDerived(p, r);
+  const gear: Record<string, string> = {};
+  for (const [k, e] of Object.entries(p.equipped)) if (e) gear[k] = `${e.id}\u0000${equipName(e)}`;
+  return { lv: levelForExp(p.exp + (r.exp ?? 0)) /* EXP is banked on return; this is the level the trip's EXP reaches */, hp: Math.round(d.hp), mp: Math.round(d.mp), adb: Math.round(d.adb), mdb: Math.round(d.mdb), mit: Math.round(d.physMit * 100), pw: powerScore(d), gear };
+}
+export function growthHtml12s(g: Growth12s | undefined): string {
+  if (!g) return '';
+  const { before: a, after: b } = g;
+  const row = (k: string, name: string, x: number, y: number, unit = '') => `<tr data-growth-row="${k}"${y > x ? ' class="up"' : ''}><td>${name}</td><td>${x}${unit}</td><td>→</td><td><b>${y}${unit}</b></td><td>${y > x ? `▲ +${y - x}${unit}` : y < x ? `▼ ${y - x}${unit}` : '—'}</td></tr>`;
+  const gear = Object.keys(b.gear).filter((k) => b.gear[k] !== a.gear[k]).map((k) => `<li data-growth-gear="${k}">${SLOT_ZH[k as keyof typeof SLOT_ZH] ?? k}：${esc(a.gear[k]?.split('\u0000')[1] ?? '（空）')} → <b>${esc(b.gear[k]!.split('\u0000')[1]!)}</b></li>`);
+  const head = b.lv > a.lv ? `升級！Lv ${a.lv} → <b>Lv ${b.lv}</b>（本趟 EXP，回城結算）` : `Lv ${b.lv}（本場未升級）`;
+  return `<div class="growth" data-growth="${a.lv}:${b.lv}:${a.pw}:${b.pw}"><h3>成長：${head}${gear.length ? ` · 換上 ${gear.length} 件裝備` : ''}</h3><table>${row('lv', '等級（本趟 EXP）', a.lv, b.lv)}${row('hp', '最大 HP', a.hp, b.hp)}${row('mp', '最大 MP', a.mp, b.mp)}${row('adb', '物理攻擊', a.adb, b.adb)}${row('mdb', '魔法攻擊', a.mdb, b.mdb)}${row('mit', '物理減傷', a.mit, b.mit, '%')}${row('pw', '戰力', a.pw, b.pw)}</table>${gear.length ? `<ul class="growthgear">${gear.join('')}</ul>` : '<p class="hint" data-growth-gear="none">本場沒有換上新裝備（掉落可在下方手動換上）</p>'}</div>`;
+}
