@@ -142,10 +142,11 @@ const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
 /** rc12o（自訂）: overrides on top of R12M_BASE while RUN12O is on (SIM_RUN12O=0 = exact rc12n). Boss reward potions replace scattered
  *  drop/chest potions (RUN12O.scatter); deepK/mob* push late pressure, bossHp/bossHp70 keep F30+ boss fights ≤18 turns. */
 const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
-  blade: { deepK: 26, bossHp70: 0.11 },
-  bulwark: { mobHp: 5, mobDmg: 5, deepK: 20 },
-  oc: { mobHp: 2, mobDmg: 2, deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
-  arcane: { mobHp: 1.5, mobDmg: 1.5, bossHp70: 0.8 },
+  // rc12p（自訂）: retuned after the capped preview (★ no longer over-defends) + 1 deterministic boss potion; rc12o values in docs/hv-v3-rc12p.md
+  blade: { mobHp: 12, mobDmg: 12, deepK: 33, bossHp70: 0.3 },
+  bulwark: { mobHp: 9, mobDmg: 9, deepK: 20 },
+  oc: { mobHp: 3.5, mobDmg: 3.5, deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
+  arcane: { mobHp: 3, mobDmg: 3, bossHp70: 0.8 },
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
@@ -157,7 +158,7 @@ export const r12m = (lean: string | null | undefined, k: R12MK): number => ((RUN
 /** rc12o（自訂，預設開啟；SIM_RUN12O=0 = rc12n）: feel pass. scatter = battle-drop / chest potion chance × (potions move to boss kills);
  *  bossPot = health potions every abyss boss kill from bossPotFrom; bossGear = extra guaranteed piece (guaranteeQuality, +1 quality bump)
  *  per abyss boss kill; arcHp = arcane max-HP floor × refHp9(depth) (less drop-dependent). */
-export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 0.3, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
+export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
 export const boss70 = (F: number, lean: string | null | undefined, k: 'bossHp70' | 'bossDmg70'): number => F <= 65 ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - 65) / 5);
 export const r12mDeepK = (lean?: string): number | undefined => (RUN12M.on && lean ? (RUN12O.on && !R12O_ENV.has(`${lean}.deepK`) ? R12O_BASE[lean]?.deepK : undefined) ?? RUN12M.school[lean]?.deepK : undefined);
