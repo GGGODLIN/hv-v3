@@ -11,10 +11,11 @@ import type { Player } from '../src/core/player';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = true; RULES.cp8 = true;
 const [F0, K0, ...files] = process.argv.slice(2); const F = Number(F0), K = Number(K0 ?? 32);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
-const RUNS: Record<string, string> = { b1: '20261028073040-b8hm', b2: '20261028073627-axyy', b3: '20261028074006-hva3', b4: '20261028074520-g7p5' };
+const RUNS: Record<string, string> = process.env.CROSS_RUNS ? Object.fromEntries(process.env.CROSS_RUNS.split(',').map((x) => x.split('=') as [string, string])) /* rc12d: bulwark bw1–bw4 */ : { b1: '20261028073040-b8hm', b2: '20261028073627-axyy', b3: '20261028074006-hva3', b4: '20261028074520-g7p5' };
 const snap: Record<string, { player: Player; run: RunState }> = {};
 for (const f of files) { const d = JSON.parse(readFileSync(f, 'utf8')) as Record<string, string>;
-  for (const [b, id] of Object.entries(RUNS)) { const v = d[`hv-v3-qa-snap:${id}:F${F}`]; if (v) snap[b] = JSON.parse(v); } }
+  for (const [b, id] of Object.entries(RUNS)) { const v = d[`hv-v3-qa-snap:${id}:F${F}`]; if (v) snap[b] = JSON.parse(v); }
+}
 const med = (a: number[]) => { const s = [...a].sort((x, y) => x - y); return s.length ? (s[(s.length - 1) >> 1]! + s[s.length >> 1]!) / 2 : NaN; };
 const RX = /打斷|抵抗|破甲|暈眩|復活/;
 function fight(cx: string, by: string, seed: number) {
@@ -26,7 +27,7 @@ function fight(cx: string, by: string, seed: number) {
   const rng = new Rng(seed ^ 0x5bd1e995), profs = profsOf(p), pot0 = b.potions.health, tags: Record<string, number> = {}, mix: Record<string, number> = {};
   let zero = 0;
   while (!b.over && b.turn < 400) {
-    const a = decide(b, 'buff:blade' as never, 'counter'); const k = a.kind === 'skill' ? `sk:${(a as { id?: string }).id}` : a.kind; mix[k] = (mix[k] ?? 0) + 1;
+    const a = decide(b, `buff:${process.env.SC ?? 'blade'}` as never, 'counter'); const k = a.kind === 'skill' ? `sk:${(a as { id?: string }).id}` : a.kind; mix[k] = (mix[k] ?? 0) + 1;
     const bh = b.monsters.reduce((t, m) => t + (m.rank === 'boss' ? m.hp : 0), 0);
     for (const e of act(b, a, rng, profs)) { const t = (e as { text?: string }).text; const m = t?.match(RX); if (m) tags[m[0]] = (tags[m[0]] ?? 0) + 1; }
     if (b.monsters.reduce((t, m) => t + (m.rank === 'boss' ? m.hp : 0), 0) >= bh) zero++;
@@ -36,7 +37,7 @@ function fight(cx: string, by: string, seed: number) {
 const info = Object.fromEntries(Object.entries(snap).map(([k, s]) => { const d = runDerived(s.player, s.run) as unknown as Record<string, number>;
   const bm = encounter(structuredClone(s.run), pool, 'boss').find((m) => m.rank === 'boss')!;
   return [k, { hp0: s.run.hp, maxHp: Math.round(d.hp!), adb: Math.round(d.adb!), physCrit: +(+d.physCrit!).toFixed(3), physMit: +(+d.physMit!).toFixed(3), pot: s.player.potions,
-    gear: Object.values(s.player.equipped ?? {}).filter(Boolean).map((e) => (e as { name?: string }).name), bonus: s.run.bonus,
+    gear: Object.values(s.player.equipped ?? {}).filter(Boolean).map((e) => (e as { name?: string }).name), bonus: s.run.bonus, buffs: (s.run as { buffs?: unknown }).buffs,
     boss: { name: bm.name, maxHp: bm.maxHp, phases: (bm as { phases?: number }).phases, res: (bm as { res?: unknown }).res } }]; }));
 console.log(JSON.stringify({ F, info }));
 for (const cx of Object.keys(snap)) for (const by of Object.keys(snap)) {

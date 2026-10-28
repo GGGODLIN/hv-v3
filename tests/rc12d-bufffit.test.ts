@@ -37,4 +37,10 @@ describe('rc12d buff fit', () => {
     }
     expect(unfit).toBeGreaterThan(0);
   });
+  it('bulwark (QA rc12c bw1/3/4 took A-series): spell buffs are unfit and ★ never lands on them', () => {
+    RULES.cp4RunBuffs = true; const bw = () => { const p = structuredClone(P0); p.lean = 'bulwark'; p.equipped.mainHand = { ...(p.equipped.mainHand ?? {}), base: 'mace' } as never; return p; };
+    expect(buffFit(bw(), 'A1')).toEqual({ ok: false, why: '需要法術' });
+    for (let seed = 1; seed <= 200; seed++) { const p = bw(), run = startRun(p, seed); run.buffs = ['A2'];
+      const ids = openOffer(p, run, 'shrine'); const st = offerStar(p, ids); if (st) expect(buffFit(p, st).ok).toBe(true); }
+  });
 });
