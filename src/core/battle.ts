@@ -245,7 +245,7 @@ function cmProc9(s: BattleState, rng: Rng, ti: number, ev: BEvent[]): void {
   const a = s.d.attrs;
   if (!rng.chance(Math.min(STAFF9.cmCap, STAFF9.cmBase + STAFF9.cmAttrK * (a.int + a.wis) + s.d.wprof / STAFF9.cmProfDiv) / 100)) return;
   (s.cm9 ??= {})[ti] = STAFF9.cmTicks;
-  ev.push({ t: 'status', to: ti, text: `魔力合流 ${STAFF9.cmTicks} 回合（對牠施法 MP 消耗減半）` });
+  ev.push({ t: 'status', to: ti, text: `魔力合流（Coalesced Mana）${STAFF9.cmTicks} 回合（對牠施法 MP 消耗減半）` });
 }
 /** rc12e: Ether Tap — Arcane Blow (the staff's normal attack) hit on a Coalesced target. 自訂: a re-proc while active refreshes 4 ticks. */
 function etProc9(s: BattleState, rng: Rng, ti: number, dealt: number, ev: BEvent[]): void {
@@ -254,14 +254,16 @@ function etProc9(s: BattleState, rng: Rng, ti: number, dealt: number, ev: BEvent
   if (!kill && !rng.chance(STAFF9.etChance)) return;
   s.cm9[ti] = 0;
   s.et9 = { turns: STAFF9.etTicks, stacks: Math.min(STAFF9.etMaxStacks, (s.et9?.turns ? s.et9.stacks : 0) + 1) };
-  ev.push({ t: 'msg', text: `以太分流${s.et9.stacks > 1 ? ' x2' : ''}：之後 ${STAFF9.etTicks} 回合每回合回復 ${s.et9.stacks * STAFF9.etPct * 100}% 基礎 MP` });
+  ev.push({ t: 'msg', text: `以太分流（Ether Tap）${s.et9.stacks > 1 ? ' x2' : ''}：之後 ${STAFF9.etTicks} 回合每回合回復 ${s.et9.stacks * STAFF9.etPct * 100}% 基礎 MP` });
 }
 
 /** CP8 rc3 (暫定): what 「A·攻擊」 does — the staff quick spell (CP8.staffQuickSpell) when usable, else a normal attack. */
 // cp8-rc5 (playtest bug: bulwark in 靈動架勢 cast 烈焰爆破 on A): the UI also passes the live main-hand group; both must be a staff.
+/** rc12g 自訂（非原版）: A on a 魔力合流 target = Arcane Blow instead of the quick spell (else Ether Tap was unreachable). */
+export const STAFF_BLOW_ON_CM = true;
 export function quickAttack(s: BattleState, target: number, main?: string): Action {
   const id = CP8.staffQuickSpell as SpellId;
-  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id]) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
+  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id] && !(STAFF_BLOW_ON_CM && coalesced9(s, target))) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
   return { kind: 'attack', target };
 }
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
