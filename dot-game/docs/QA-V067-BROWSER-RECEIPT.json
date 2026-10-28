@@ -1,0 +1,144 @@
+{
+  "version": "v0.67",
+  "result": "PASS",
+  "tested_at": "2026-10-28T21:18:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.67/",
+  "website_commit": "7460b65cca9448b5d6f81474be06b1710774ef03",
+  "pages_run": "40770151342",
+  "ci_evidence": "Parent verified exact success and 21 runtime bytes before browser opening",
+  "method": "Cloud CUA normal UI only; genuine formal UI export imported into isolated candidate; no synthetic save or injected state",
+  "baseline": {
+    "level": 6,
+    "gold": 618,
+    "wins": 7,
+    "fragments": 70
+  },
+  "checks": [
+    {
+      "name": "Earn and bind naturally",
+      "result": "Three full single expeditions reached Lv8/gold846/wins10/100fragments. Existing confirmation permanently bound equipped Exquisite axe loot-5 for100fragments, left0. Original item stayed equipped."
+    },
+    {
+      "name": "Next level preview",
+      "result": "Lv8→9 attack84→87, delta+3; weapon-only and immutable-anchor adaptation disclaimer visible."
+    },
+    {
+      "name": "Observation has no durable effects",
+      "result": "Export, inspect unbound armor (no next-level section), return to bound axe, export: exact same bytes."
+    },
+    {
+      "name": "Actual level-up equals preview",
+      "result": "Three more normal single expeditions led Lv8 XP65→170→275, then Lv9 XP91/342. Bound weapon attack87 exactly matches earlier projected87; new preview Lv9→10 attack87→91 +4."
+    },
+    {
+      "name": "Loot and growth",
+      "result": "Final Lv9/gold1074/wins13/kills78/bag18/fragments30/seeds13; actual loot earned normally."
+    },
+    {
+      "name": "Persistence",
+      "result": "Normal export/reload/export retains all permanent fields and bound item anchor Lv3 attack67, roll122, lock; only8known session fields reset. Reopened detail still87→91."
+    },
+    {
+      "name": "Visual desktop",
+      "result": "Screenshot inspected next-level section, readable two-column layout; viewport1180/document1165/brokenImages0."
+    },
+    {
+      "name": "Formal preserved",
+      "result": "Original formal remainsv066 Lv6/gold618; final export exact bytes equal baseline."
+    }
+  ],
+  "session_diff_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 9,
+    "xp": 91,
+    "xpNext": 342,
+    "hp": 751,
+    "mp": 43,
+    "gold": 1074,
+    "proficiency": 10.08,
+    "attributes": {
+      "str": 24,
+      "dex": 24,
+      "agi": 24,
+      "end": 24,
+      "int": 24,
+      "wis": 24
+    }
+  },
+  "final_weapon": {
+    "weaponFamily": "axe",
+    "rolls": {
+      "attack": 122
+    },
+    "prefix": "",
+    "suffix": "屠戮",
+    "id": "loot-5",
+    "name": "精良・暮鋼戰斧・屠戮",
+    "slot": "weapon",
+    "quality": "Exquisite",
+    "rarityColor": "#6ecbff",
+    "level": 9,
+    "roll": 122,
+    "power": 174,
+    "stats": {
+      "attack": 87
+    },
+    "locked": true,
+    "description": "重視基礎斬擊傷害。詞綴：屠戮基底攻擊區間。",
+    "soulbound": {
+      "version": 1,
+      "level": 3,
+      "stats": {
+        "attack": 67
+      }
+    }
+  },
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/5ec8a0f2-ceaf-434f-a681-36d884e19485",
+      "sha256": "426115f383f5704b23eb3559c969db65446c8076b4e01f4a2a1935d0cdf8370b"
+    },
+    "bound_before_observation": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/5d4e1182-a311-4115-bf3d-b5155afe9567",
+      "sha256": "af1304fc6e08ef84ce168f9e84647db3be07a0680181d65b8e55a5693efa77bb"
+    },
+    "bound_after_observation": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/866c3a93-a11c-4849-be49-dd84f442d198",
+      "sha256": "af1304fc6e08ef84ce168f9e84647db3be07a0680181d65b8e55a5693efa77bb"
+    },
+    "after_play": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/adc1cdca-90e0-4510-8527-bc92762ed3dc",
+      "sha256": "d3cdb61d2cfc6ccc9cf57343adbfadc8700306f02763971fd28a2099f0642dce"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/2e9772a9-da6d-405d-aad9-51ef95618c17",
+      "sha256": "080ab45692c0ae72214dc90873320bffaa3b0f32b42854177979d24e98348336"
+    },
+    "formal_preserved": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/4ed4a7b4-7d19-481e-9b50-a2c2b757b947",
+      "sha256": "426115f383f5704b23eb3559c969db65446c8076b4e01f4a2a1935d0cdf8370b"
+    }
+  },
+  "source_only_not_browser": [
+    "IW1 projection",
+    "Lv500 cap",
+    "malformed cache/mismatched level",
+    "readonly edge",
+    "inventory/pending bound location",
+    "fractional precision/capped rates"
+  ],
+  "limitations": [
+    "No mobile/full accessibility audit",
+    "Only naturally reachable equipped axe attack growth tested end-to-end; not all weapon stats or families"
+  ],
+  "formal_changed": false
+}
