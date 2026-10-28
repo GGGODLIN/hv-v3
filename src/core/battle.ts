@@ -542,8 +542,15 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   if (CP9.dMin > 0 && a.keys[0] === 'D' && a.est < s.d.hp * CP9.dMin && !isLethal(a.est, a.hp)) return alt(`下回合估計 ${a.est} < 最大 HP ${Math.round(CP9.dMin * 100)}%，不必防禦`);
   return a;
 }
+/** rc12r QA bug（bl1 F36 t8 / F46 t2: 「下回合全體暴擊估計」174 vs 實際 349，同面板 「預估傷害」349）: ONE round estimate for the ★ decision
+ *  and the panel — the summed, capped round estimate, never below the biggest single wind-up hit the panel shows (chargeEstimate of a
+ *  non-stunned charger, same caps). Both chargeAdvice and app.chargeExtra read this. */
+export function roundEstimate(s: BattleState, crit = true, def = s.defendTurns > 1, noSave = false): number {
+  const hit = Math.max(0, ...s.monsters.filter((m) => windingUp(m) && !(m.status.stun > 0)).map((m) => chargeEstimate(s, m, def, crit)));
+  return Math.max(nextRoundEstimate(s, crit, def, noSave), hit);
+}
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
-  const est = Math.round(nextRoundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
+  const est = Math.round(roundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
   const lethal = isLethal(est, hp); // cp9-rc5 QA bug 1（自訂）: the same rounded numbers the text shows
   // cp9-rc7 item 4（自訂，暫定）: nothing can hit next round (every monster stunned) and no potion to drink → attack; rc6 hinted D through a 5-turn stun at 1 HP
