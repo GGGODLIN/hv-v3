@@ -327,7 +327,7 @@ export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: nu
  *  key comes first (a stun cancels the drain, battle.ts monstersAct0). The rest of the advice is unchanged. */
 // rc12 scheme 6（SIM_RC12_SHATTER，預設關）: the 2H (blade) interrupt is the sourced Rending Blow → Shatter Strike chain — Skills.md:73-75
 // (Rending Blow: 3 Penetrated Armor stacks, x4, bypasses phys mit; Shatter Strike: x3, stuns 5 ticks targets with Penetrated Armor). No new numbers.
-export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike', ...(RC12.shatter ? ['shatterStrike' as const] : [])];
+export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike', ...(Number((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_RC12_SHATTER ?? 0) > 0 ? ['shatterStrike' as const] : [])]; // = RC12.shatter, read directly: cp8 may not be initialised yet here (import cycle)
 const paOn9 = (m: Monster): boolean => (m.status.pa ?? 0) > 0 && (m.status.paTurns ?? 0) > 0;
 /** rc12 scheme 6: a stun skill that will actually stun `t` now (Shatter Strike only on a Penetrated Armor target). */
 export const stunReady9 = (s: BattleState, id: SkillId, t: number): boolean => canUse(s, { kind: 'skill', id, target: t }) && (id !== 'shatterStrike' || (!!s.monsters[t] && paOn9(s.monsters[t]!)));
