@@ -480,6 +480,8 @@ export const FIGHT_LOG: Record<string, number | string | boolean>[] = []; export
 /** rc11c（僅 sim、純計數、不改行為）: SIM_TURNLOG=<file> → one row per player action in a boss fight, same fields as the UI QA turn log. */
 export const SIM_TURNLOG: { runId: string; lean: string; floor: number; level: number; turn: number; bossDmg: number; bossHp: number; bossMaxHp: number; mode: string }[] = [];
 /** rc12e（自訂，僅測試用）: called with the battle state before each sim turn (tests/rc12e-key-invariant.test.ts renders the UI there). */
+/** rc12s calibration（自訂 diag）: called at every fight start with the live player/run. */
+export const FIGHT_RUN_HOOK: { fn: ((p: Player, run: RunState, type: string) => void) | null } = { fn: null };
 export const TURN_HOOK9: { fn: ((b: BattleState) => void) | null } = { fn: null };
 export function fight(b: BattleState, strategy: Strategy, rng: Rng, profs: Partial<Record<Prof, number>>, mode?: Cp5Sim['mode']): void {
   const dbg = ENV?.DBGFIGHT ? (((b as unknown as { dbg: Record<string, number> }).dbg = {}) as Record<string, number>) : null;
@@ -516,6 +518,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   const rests: number[] = [];
   while (!run.done) {
     if (run.abyss && depthOf(run) > (cp5?.cap ?? 60)) { run.done = 'retreat'; break; }
+    if (ENV?.SIM_ROUTE === 'hint' && ENV?.SIM_RETREAT9 === '1' && run.abyss && routeAdvice9(p, run)?.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type: 'battle', foes: [] } as unknown as RunReport['end']; break; } // rc12s calib: QA follows ★撤退 (4/12 QA runs)
     const opt = pickOption(p, run, strategy);
     if (RC10.on) { const o10 = run.tower.floors[run.floor - 1]!.options, R = RC10.route; R.floors++; if (o10.includes('merchant')) R.mOff++; if (o10.includes('chest')) R.cOff++; if (o10[opt] === 'merchant') R.mIn++; if (o10[opt] === 'chest') R.cIn++; } // cp9-rc10 diag（自訂）: route counters, behaviour-neutral
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
@@ -544,6 +547,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
         alt = { turns: c.turn, potions: pot0 - potCount(c), won: c.over === 'win' };
       }
       FIGHT_BURST.v = 0;
+      FIGHT_RUN_HOOK.fn?.(p, run, type); /* rc12s calibration hook（自訂 diag） */
       FIGHT_CTX.depth = depthOf(run) || run.floor; FIGHT_CTX.mode = depthOf(run) ? 'abyss' : 'main'; /* rc12: main-tower F5–F20 and abyss d5–d20 share labels */ FIGHT_CTX.type = type; FIGHT_CTX.level = levelOf9(p); FIGHT_CTX.lean = p.lean ?? ''; FIGHT_CTX.runId = `${ENV?.SC ?? ''}-${ENV?.SEED0 ?? 0}-${run.seed}`;
       if (cp5) fight(b, strategy, rng, profs, cp5.mode);
       else fight(b, strategy, rng, profs);
