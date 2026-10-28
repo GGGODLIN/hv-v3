@@ -1,0 +1,78 @@
+{
+  "version": "v0.69",
+  "result": "PASS",
+  "tested_at": "2026-10-28T23:12:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.69/",
+  "website_commit": "8647ea6659496500a7471d5aede6b8762959cca0",
+  "pages_run": "40785220830",
+  "ci": "Parent exactsuccess/21bytes/outside verified before opening",
+  "method": "Cloud CUA normalUI only; genuine formal Lv9/1150 export imported to isolatedcandidate; no injectedstate or syntheticprofile",
+  "checks": [
+    "2x growthstart immediately lockedLv10 fromLv9 XP196. Afterfirstwin observedLv9 XP301/gold1226 and nextbattlewave1 withsameLv10target, notreset.",
+    "Secondfullfourwavewin reachedLv10 XP64/gold1302/camp. Targetcleared; remainedcamp samegold at least15seconds later.",
+    "KeyboardEnter starts growthgoal. Clickingcancel leavesbattleactive, removesgoal, and normalrepeat crossedinto nextbattle whileLv10/gold1378. Bookfinish-run tostop.",
+    "New growthgoal then existingfinish-run booking superseded it: fullrewardscampLv10 XP379/gold1530 stillbelowLv11, notwaitingforlevel.",
+    "Normalexport/reload preservesall permanentfields with8expected transient resets.",
+    "ActiveLv11target thenimmediatereload clearsgoal and safe-camps. Subsequentnormal single showsonlyfinish-runbooking, fullfourwavesstops normallyLv11/gold1606 withoutoldgoal.",
+    "Nooverflow viewport1180/document1165, brokenimages0."
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 11,
+    "xp": 83,
+    "xpNext": 464,
+    "hp": 795,
+    "mp": 49,
+    "gold": 1606,
+    "proficiency": 12.4,
+    "attributes": {
+      "str": 28,
+      "dex": 28,
+      "agi": 28,
+      "end": 28,
+      "int": 28,
+      "wis": 28
+    }
+  },
+  "final_wins": 20,
+  "final_kills": 120,
+  "final_bag_count": 32,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/63a6094c-9a83-4985-855b-48fe3b099d73",
+      "sha256": "2b3229e8d9a87541759f5398a91e58f3d4dadc1f99decc56efb7cc95ec84a61d"
+    },
+    "before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/c1446553-a25b-436f-bd41-26e4961adb9e",
+      "sha256": "e2f1f68fdb2b2060020857dd24a2333a7e4d65a1db2b121946270898d7e6e254"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/6e69acaf-2a91-48b7-98c3-be2b0d42b465",
+      "sha256": "8931aad9160d86f3611cf75f897abcaa866b700683fa0eaa442b8da9e9ac6a94"
+    },
+    "final": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/99ec186d-145a-43fc-bf1f-7e7369140744",
+      "sha256": "bd9375537a95a19bd7f5712a42f73eb4c093813c7a1d10b5960e8b1982cf7659"
+    }
+  },
+  "formal_changed": false,
+  "source_only_not_browser": [
+    "Lv500 refusal",
+    "death/fullbag/failedstart",
+    "ownership transfer/read-only lifecycle",
+    "exact2x firstsubstep callbackboundary"
+  ],
+  "limitations": [
+    "No mobile/fullaccessibility audit.",
+    "Immediate reload clearsactivegoal; didnot claim identical battletransients or offlinegains."
+  ]
+}

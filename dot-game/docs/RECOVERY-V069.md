@@ -1,3 +1,7 @@
+# v069 desktop-accepted source checkpoint220
+
+Restore the exact commit carrying CHECKPOINT `220-v069-accepted`. Runtime/tests/assets/index are byte-identical to218 `d50c7adf3fe9260f0a04ad29d3aa6f063389764c`; only acceptance evidence/status/manifest changed. Normal desktop candidate PASS at website8647ea6659496500a7471d5aede6b8762959cca0, Pages40785220830 success. Formal promotion remains pending; retainv068 until root completes it. Source index stays candidate-labeled; see QA-V069-BROWSER.md for bounded evidence and residual limits.
+
 # v069 complete source recovery — candidate only
 
 Restore the exact commit carrying CHECKPOINT `218-v069-source` from personal GGGODLIN/hv-v3 bot/dot, not a moving HEAD. `dot-game/` includes complete source, assets and provenance, tests, docs and SHA256 payload manifest; manifest excludes its own hash. All repository content outside dot-game is unchanged.

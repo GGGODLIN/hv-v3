@@ -1,0 +1,21 @@
+{
+  "status": "isolated-candidate-deployed-browser-pending",
+  "source_commit": "d50c7adf3fe9260f0a04ad29d3aa6f063389764c",
+  "commit": "8647ea6659496500a7471d5aede6b8762959cca0",
+  "tree": "0c51b2188e47cd65d00b9fe5c1bcbbe8f46a9cb8",
+  "expected_head": "c7141473c4d541acdd90e1900b669e3a01983d4b",
+  "candidate_url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.69/",
+  "runtime_exact_git_blob_readbacks": 21,
+  "outside_blobs_modes_preserved": 4274,
+  "formal_runtime_changed": false,
+  "browser_acceptance": false,
+  "force": false,
+  "ci": {
+    "run": 40785220830,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "8647ea6659496500a7471d5aede6b8762959cca0"
+  },
+  "limitations": "No public HTTP per-file hash claim; browser acceptance pending.",
+  "updated_at_utc": "2026-10-28T23:09:37Z"
+}
