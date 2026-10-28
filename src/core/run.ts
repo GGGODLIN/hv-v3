@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, deep12g, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -333,6 +333,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (ab > 20 && rank === 'boss' && RC12.curve > 0) { const now = abyssMult(ab).hp * (run.cp5 ? CP5.bossHp[f] ?? 1 : 1), c20 = abyssMult(20).hp * (run.cp5 ? CP5.bossHp[20] ?? 1 : 1); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * (c20 + RC12.curve * (ab - 20)) / now)); }
         if (RULES.cp7 && type !== 'boss') m.adb *= 1 - CP7.themeK * (1 - (RULES.cp8 && ab > 20 ? cp8ThemeDmg(f) : CP7.themeDmg[f] ?? 1));
         if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
+      if (RULES.cp8 && CP9.on && DEEP12G.k > 0 && (ab || run.floor) > DEEP12G.from) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * deep12g(F, 'hp'))); m.adb *= deep12g(F, 'dmg'); } // rc12g item 1（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
       return m;
     });
