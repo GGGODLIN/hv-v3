@@ -263,7 +263,7 @@ function etProc9(s: BattleState, rng: Rng, ti: number, dealt: number, ev: BEvent
 export const STAFF_BLOW_ON_CM = true, /** only while MP < this share（自訂）: a blow costs ~370 damage vs 烈焰 */ STAFF_BLOW_MP = 0.5;
 export function quickAttack(s: BattleState, target: number, main?: string): Action {
   const id = CP8.staffQuickSpell as SpellId;
-  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id] && !(STAFF_BLOW_ON_CM && coalesced9(s, target) && s.mp < STAFF_BLOW_MP * s.d.mp)) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
+  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id] && !(STAFF_BLOW_ON_CM && coalesced9(s, target) && s.mp < STAFF_BLOW_MP * s.d.mp && s.mp >= spellCost(s, id))) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
   return { kind: 'attack', target };
 }
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */

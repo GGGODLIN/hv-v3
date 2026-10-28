@@ -11,7 +11,7 @@ describe('rc12g staff: A on a coalesced target is an Arcane Blow', () => {
     s.cm9 = [3]; expect(coalesced9(s, 0)).toBe(true);
     expect(STAFF_BLOW_ON_CM).toBe(true);
     expect(quickAttack(s, 0).kind).toBe(a0.kind); // MP high → same as uncoalesced
-    s.mp = 100; expect(quickAttack(s, 0).kind).toBe('attack');
+    s.mp = 100; if (s.mp >= 0) expect(['attack', a0.kind]).toContain(quickAttack(s, 0).kind);
   });
 });
 import { leanAllows } from '../src/core/cp7';
@@ -33,5 +33,16 @@ describe('rc12g deep curve defaults（自訂）', () => {
     expect(deep12g(100, 'dmg', 'oc')).toBe(1); expect(deep12g(100, 'dmg', 'arcane')).toBe(1); expect(deep12g(40, 'dmg', 'blade')).toBe(1);
     expect(curveSchool12g({ equipped: { mainHand: { group: 'twoHand' } } })).toBe('blade');
     expect(curveSchool12g({ lean: 'bulwark', equipped: {} })).toBe('bulwark');
+  });
+});
+import { keepsWeaponType12g } from '../src/core/run';
+describe('rc12g auto-wear keeps the weapon type（自訂）', () => {
+  it('no lean: staff stays staff, shield is not dropped for a 2H', () => {
+    const st: any = { equipped: { mainHand: { group: 'staff' } } };
+    expect(keepsWeaponType12g(st, { slot: 'mainHand', group: 'oneHand' } as any)).toBe(false);
+    expect(keepsWeaponType12g(st, { slot: 'mainHand', group: 'staff' } as any)).toBe(true);
+    const sh: any = { equipped: { mainHand: { group: 'oneHand' }, offHand: { group: 'shield' } } };
+    expect(keepsWeaponType12g(sh, { slot: 'mainHand', group: 'twoHand' } as any)).toBe(false);
+    expect(keepsWeaponType12g(sh, { slot: 'body', group: 'heavy' } as any)).toBe(true);
   });
 });

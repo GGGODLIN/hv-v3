@@ -2,7 +2,7 @@ import { BOSS_SEP, markDuplicates } from './names';
 import { AFFIX_IDS, BOSS_BY_FLOOR, CP5, CP5_FORCE, type AffixId, type Cp5Mon, affixWeight, applyAffixes, compatible, themeOf, themeWeight } from './cp5';
 import { CONSTANTS as C } from './data/constants';
 import { attrCost, monsterExp } from './formulas';
-import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice } from './items';
+import { type Equip, type Quality, QUALITIES, generateEquip, sellPrice, equipName } from './items';
 import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPool, type Rank } from './monsters';
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
@@ -372,7 +372,7 @@ function cp5Monster(rng: Rng, pool: MonsterPool, lo: number, hi: number, L: numb
   applyAffixes(m, ids);
 }
 
-export interface Loot { equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[]; /** rc22 decision (b): max HP lost to auto-wear on this loot (UI 「最大 HP −N」). */ hpDrop?: number }
+export interface Loot { /** rc12g: weapon swap log lines */ swaps?: string[]; equips: Equip[]; credits: number; potions: Partial<Record<PotionId, number>>; exp: number; /** rc10: ids of the boss's guaranteed pieces (UI label only; rc11 adds the main-tower clear-bonus piece). */ guaranteed?: string[]; /** CP7: id of the smart-loot pity piece (UI label). */ better?: string[]; /** rc22 decision (b): max HP lost to auto-wear on this loot (UI 「最大 HP −N」). */ hpDrop?: number }
 
 const LR = C['F-003-loot-rolls'].value;
 export function equipDropChance(pl: number, accel = RULES.dropAccel): number {
@@ -468,10 +468,18 @@ export function chestLoot(run: RunState, p?: Player): Loot {
   });
 }
 
+/** rc12g（自訂）: auto-wear never changes the weapon type or drops a shield — lean → leanAllows (in betterThanWorn); no lean → same main-hand group, and no 2H/staff over a worn shield. */
+export function keepsWeaponType12g(p: Player, e: Equip): boolean {
+  const w = p.equipped.mainHand;
+  if (e.slot === 'mainHand' && w && e.group !== w.group) return false;
+  if (e.slot === 'mainHand' && p.equipped.offHand?.group === 'shield' && (e.group === 'twoHand' || e.group === 'staff')) return false;
+  return true;
+}
 export function applyLoot(p: Player, run: RunState, loot: Loot): void {
   run.bag.push(...loot.equips);
   const hp0 = runDerived(p, run).hp;
-  if (RULES.cp8 && CP8.autoWear) for (const e of loot.equips) if (betterThanWorn(p, e)) {
+  if (RULES.cp8 && CP8.autoWear) for (const e of loot.equips) if (betterThanWorn(p, e) && keepsWeaponType12g(p, e)) {
+    if (e.slot === 'mainHand' || e.slot === 'offHand') (loot.swaps ??= []).push(`自動換武器：${p.equipped[e.slot] ? equipName(p.equipped[e.slot]!) : '空'} → ${equipName(e)}`); // rc12g（自訂）: every weapon swap is logged
     // CP8 P1 (暫定): wear a badged drop at once so it survives death; the replaced piece goes to the (persistent) inventory.
     equip(p, e); run.bag = run.bag.filter((x) => x !== e); (run.worn ??= []).push(e.id);
   }
