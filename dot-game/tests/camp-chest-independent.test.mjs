@@ -1,3 +1,4 @@
+import {beforeWaveGrowth} from './helpers/wave-growth-baseline.mjs';
 import { beforeLoadoutPreview } from './helpers/loadout-preview-baseline.mjs';
 import { beforeGoldCapWarning } from './helpers/gold-cap-warning-baseline.mjs';
 import { beforeManualSaleCap } from './helpers/manual-sale-cap-baseline.mjs';
@@ -18,7 +19,7 @@ import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 
 // Independent source/Canvas-command audit; not browser or pixel evidence.
-const read = path => beforeNameSearch(beforeProtectionFilter(beforeReportExport(beforeClearReport(beforeManualSaleCap(beforeGoldCapWarning(beforeLoadoutPreview(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'),path),path),path),path),path),path),path);
+const read = path => beforeNameSearch(beforeProtectionFilter(beforeReportExport(beforeClearReport(beforeManualSaleCap(beforeGoldCapWarning(beforeLoadoutPreview(beforeWaveGrowth(readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'),path),path),path),path),path),path),path),path);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const source = beforeImportOrdering(beforeDetailActionFocus(beforeQualityFilter(beforeQualitySort(beforeStatDelta(read('src/ui.js'))))));
 const start = source.indexOf('  if(!enemies.length){', source.indexOf('function drawScene('));
@@ -114,9 +115,9 @@ test('chest independent: volume has separate front, side, bevelled lid, paired s
 });
 test('chest independent: HTML and package retain baseline after exact version and v039 dialog-name normalization', () => {
   const currentHtml=read('index.html');
-  assert.equal((currentHtml.match(/v0\.55 · 持續開發/g)||[]).length,1);
-  const html=currentHtml.replace('v0.55 · 持續開發','v0.55 · 來源候選');
-  assert.equal((html.match(/v0\.55/g)||[]).length,2);
-  assert.equal(hash(html.replace('<option value="quality">品質優先（非戰力）</option>', '').replace("<label for=\"quality-filter\">\u54c1\u8cea<select id=\"quality-filter\" aria-describedby=\"inventory-filter-help\"><option value=\"all\">\u5168\u90e8\u54c1\u8cea</option></select></label>", '').replaceAll('v0.55','v0.37').replace(' aria-labelledby="help-title"', '').replace(' id="help-title"', '').replace(' aria-labelledby="settings-title"', '').replace(' id="settings-title"', '')),'5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade');
-  assert.equal(hash(read('package.json').replace('"version": "0.55.0"','"version": "0.37.0"')),'6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3');
+  assert.equal((currentHtml.match(/v0\.56 · 來源候選/g)||[]).length,1);
+  const html=currentHtml;
+  assert.equal((html.match(/v0\.56/g)||[]).length,2);
+  assert.equal(hash(html.replace('<option value="quality">品質優先（非戰力）</option>', '').replace("<label for=\"quality-filter\">\u54c1\u8cea<select id=\"quality-filter\" aria-describedby=\"inventory-filter-help\"><option value=\"all\">\u5168\u90e8\u54c1\u8cea</option></select></label>", '').replaceAll('v0.56','v0.37').replace(' aria-labelledby="help-title"', '').replace(' id="help-title"', '').replace(' aria-labelledby="settings-title"', '').replace(' id="settings-title"', '')),'5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade');
+  assert.equal(hash(read('package.json').replace('"version": "0.56.0"','"version": "0.37.0"')),'6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3');
 });

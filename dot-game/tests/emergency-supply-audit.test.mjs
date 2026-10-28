@@ -1,9 +1,11 @@
+import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
+// v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import * as game from '../src/engine.js';
-import * as old from './fixtures/v0.26/engine.js';
+const old = await withWaveGrowthFix(new URL('./fixtures/v0.26/engine.js',import.meta.url));
 import * as loot from '../src/loot.js';
 const copy=structuredClone;
 const stripPreference=s=>{const out=copy(s);delete out.emergencySupply;return out;};

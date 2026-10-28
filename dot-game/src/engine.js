@@ -1044,10 +1044,15 @@ function settleEnemyDeath(s, enemy, previousHp) {
   if(!(previousHp>0)||enemy.hp!==0)return false;
   clearEnemyStatuses(enemy);defeatEnemy(s,enemy);return true;
 }
-function finishWave(s, maxHp) {
+function finishWave(s) {
   if(s.mode!=='battle'||s._phase!=='fight'||!s.enemies.length||s.enemies.some(enemy=>enemy.hp>0))return false;
   if(s.wave===s.totalWaves)win(s);
-  else{s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(maxHp,s.hero.hp+maxHp*.10);s._enemyClock=0;}
+  else{
+    // The killing hit/pulse may have leveled the hero and grown bound gear.
+    // Wave recovery must use that settled maximum, never a pre-kill snapshot.
+    const maxHp=stats(s).maxHp;
+    s.wave++;s.enemies=enemiesFor(s);s.hero.hp=Math.min(maxHp,s.hero.hp+maxHp*.10);s._enemyClock=0;
+  }
   observeExpeditionHealth(s);
   return true;
 }
@@ -1084,7 +1089,7 @@ function playerTurn(s) {
   if(attack.proc?.type==='penetratedArmor')event(s,'proc',`穿透護甲 ${attack.proc.stacks}/3 層 · ${attack.proc.durationTicks} Tick`,attack.proc.stacks,target.id);
   if(attack.proc?.type==='stun')event(s,'proc',`暈眩 · ${attack.proc.durationTicks} Tick`,attack.proc.durationTicks,target.id,'stun');
   if(attack.proc?.type==='bleeding')event(s,'proc',`流血傷口 ${attack.proc.stacks}/5 層 · ${attack.proc.durationTicks} Tick · 每 Tick ${attack.proc.damagePerTick}`,attack.proc.stacks,target.id,'bleed');
-  settleEnemyDeath(s,target,previousHp);finishWave(s,p.maxHp);
+  settleEnemyDeath(s,target,previousHp);finishWave(s);
 }
 function enemyAttack(s, e) {
   if(s.mode!=='battle'||s._phase!=='fight'||e.hp<=0)return;
@@ -1122,7 +1127,7 @@ function enemyAttack(s, e) {
   settleEnemyDeath(s,e,before);
   // True means the captured old-wave action batch is terminal. Replacement
   // enemies must never inherit a pending strike/recovery from that old batch.
-  return finishWave(s,stats(s).maxHp);
+  return finishWave(s);
 }
 function enemyTurn(s) {
   for(const e of s.enemies){
@@ -1142,7 +1147,6 @@ function tickEnemyStatuses(s, previousTick) {
   for(const enemy of enemies)expireBleeding(enemy,previousTick);
   const lastTick=Math.min(s.timing.ticks,previousTick+AXE_BLEED_RULES.durationTicks);
   for(let tick=previousTick+1;tick<=lastTick;tick++){
-    const maxHp=stats(s).maxHp;
     let killed=false;
     for(const enemy of enemies){
       const wasStunned=stunStatus(enemy,tick-1)?.ticksRemaining>0;
@@ -1163,7 +1167,7 @@ function tickEnemyStatuses(s, previousTick) {
     }
     // Settle only after the captured old-wave batch. New enemies cannot inherit
     // an old pulse, and no new-wave action runs on this terminal boundary.
-    if(killed&&finishWave(s,maxHp))return true;
+    if(killed&&finishWave(s))return true;
   }
   return false;
 }

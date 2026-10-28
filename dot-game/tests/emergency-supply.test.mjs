@@ -1,7 +1,9 @@
+import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
+// v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as game from '../src/engine.js';
-import * as previous from './fixtures/v0.25/src/engine.js';
+const previous = await withWaveGrowthFix(new URL('./fixtures/v0.25/src/engine.js',import.meta.url));
 import {createCommissionWeapon,createSoulboundItem} from '../src/loot.js';
 
 // Synthetic edge fixtures are behavioral tests, not naturally earned play.

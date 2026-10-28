@@ -1,3 +1,5 @@
+import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
+// v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import { legacyState } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -39,7 +41,7 @@ test('independent magic audit: full avoided initiated attacks advance, active st
  assert.equal(game.enemyAttackView(copy(e)).nextKind,'physical');
 });
 
-import * as previous from './fixtures/v0.19/engine.js';
+const previous = await withWaveGrowthFix(new URL('./fixtures/v0.19/engine.js',import.meta.url));
 import {scoreItem} from '../src/loot.js';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';

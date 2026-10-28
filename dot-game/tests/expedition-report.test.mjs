@@ -129,11 +129,11 @@ test('healing and retreat recovery never erase the minimum; existing action coun
   assert.equal(s.hero.hp,stats(s).maxHp);
 });
 
-test('level-up wave cap is observed against new maxHP; non-attack cap is not incoming damage',()=>{
+test('level-up wave recovery retains new maxHP; no fictitious HP loss or minimum',()=>{
   const s=encounter({enemy:{hp:1,maxHp:1},wave:1});s.hero.xp=98;const oldMax=stats(s).maxHp;
-  player(s);assert.equal(s.hero.level,2);assert.equal(s.hero.hp,oldMax);const newMax=stats(s).maxHp;
+  player(s);assert.equal(s.hero.level,2);const newMax=stats(s).maxHp;assert.ok(newMax>oldMax);assert.equal(s.hero.hp,newMax);
   const report=finish(s);assert.equal(report.level,1);assert.equal(report.endLevel,2);
-  assert.equal(report.survival.hpLost,0);near(report.survival.minHpPercent,oldMax/newMax*100);
+  assert.equal(report.survival.hpLost,0);near(report.survival.minHpPercent,100);
 });
 
 test('win includes clear-reward levels but snapshots minimum before full recovery and retains raw processed elapsed',()=>{

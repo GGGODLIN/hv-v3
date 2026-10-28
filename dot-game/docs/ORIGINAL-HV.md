@@ -327,3 +327,7 @@ No original rule or adaptation changes in this presentation-only slice. The equi
 ## v0.40 event observation recovery
 
 This repairs a UI lifecycle defect, not original HV mechanics. Canonical save loading deliberately restores camp state and starts new transient event IDs; the UI now starts a new observed-ID set only on successful state replacement. Equipment, loot, rewards, RNG and save-format rules remain unchanged. No new original-game claim or adaptation is introduced.
+
+## v056 adaptation correction: post-growth wave recovery
+
+The existing 10% inter-wave HP recovery is this game's adaptation, not an original-HV fact. A killing action can award XP, increase attributes and synchronize soulbound equipment before the next wave. Recovery now reads max HP after those updates, preventing the stale pre-kill cap from removing earned health. Counter, ordinary hit and bleed all share this settlement point. Original attribute/proficiency/quality/damage rules are unchanged.

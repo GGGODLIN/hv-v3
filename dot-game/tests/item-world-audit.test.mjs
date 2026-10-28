@@ -1,3 +1,5 @@
+import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
+// v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -5,7 +7,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import * as game from '../src/engine.js';
 import * as loot from '../src/loot.js';
-import * as previous from './fixtures/v0.23/engine.js';
+const previous = await withWaveGrowthFix(new URL('./fixtures/v0.23/engine.js',import.meta.url));
 import {legacyState} from './helpers/soulbind-compat.mjs';
 
 // Independent behavioral audit. Except the ordinary-play parity scenarios,
