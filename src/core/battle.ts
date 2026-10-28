@@ -459,9 +459,9 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
  *  school (bulwark sim boss 3–5 turns vs QA 8–10). No lean gate here: every school gets the skill hint; staff users get the spell hint. */
 export function turnHints(s: BattleState, target: number): { adv: ChargeAdvice | null; danger: boolean; skill: SkillId | null; spell: { id: SpellId; type: string; pct: number } | null } {
   const adv = RULES.cp8 ? chargeAdvice(s, target) : null, danger = !!adv?.danger;
-  const skill = !danger && !reflectLethal9(s, target) ? suggestSkill(s, target) : null; // rc10 spec 5: no physical skill into a lethal reflect; pre-cp8: no danger gate (as before)
+  const skill = !danger ? suggestSkill(s, target) : null; // rc10 spec 5: no physical skill into a lethal reflect; pre-cp8: no danger gate (as before)
   const spell = !danger && quickAttack(s, target).kind === 'spell' ? suggestSpell(s, target) : null;
-  return { adv, danger, skill, spell };
+  return { adv, danger, skill: skill && reflectLethal9(s, target) ? null : skill /* rc10 spec 5 */, spell };
 }
 /** rc19 (a)（自訂，非原版）: the Z·生命藥水 button highlight. QA rc16 oc4 F6: HP 357/792 (45%), biggest hit 44, decision said A, yet Z
  *  lit — the button used potHint, whose "HP < 50%" branch ignores the estimate and so bypassed chargeAdvice. In cp8 the button now
