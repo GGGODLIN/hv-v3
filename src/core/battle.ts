@@ -300,6 +300,8 @@ export function defendVerdict9(estD: number | null, estDR: number | null, hp: nu
   if (isLethal(estD, hp)) return 'fails';
   return estDR !== null && isLethal(estDR, hp) ? 'saveOnly' : 'safe';
 }
+/** rc11 item 2（自訂）: defendVerdict9 on the live state — the same inputs urgentLine gets (defendEst9 / defendRaw9). */
+export const defVerdictAt9 = (s: BattleState, hp: number): DefendVerdict9 => defendVerdict9(defendEst9(s), defendRaw9(s), hp);
 export function hpDanger(s: BattleState): boolean {
   // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
   // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
@@ -416,7 +418,7 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const lethal = isLethal(est, hp); // cp9-rc5 QA bug 1（自訂）: the same rounded numbers the text shows
   // cp9-rc7 item 4（自訂，暫定）: nothing can hit next round (every monster stunned) and no potion to drink → attack; rc6 hinted D through a 5-turn stun at 1 HP
   if (RULES.cp8 && CP9.on && CP9.stunA && est === 0 && !canUse(s, { kind: 'item', id: 'health' })) return { danger: false, est, hp, keys: ['A'], text: `A·攻擊（敵人無法行動：下回合估計 0，趁現在輸出）` };
-  const why = lethal ? `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}` : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
+  const why = lethal ? (defVerdictAt9(s, hp) === 'safe' ? `不防禦會死：下回合全體暴擊估計 ${est} ≥ HP ${hp}` /* rc11 item 2（自訂）: same verdict as urgentLine's orange 「不防禦會死」; 「HP 危險」 is kept only when defending does not save */ : `HP 危險：下回合全體暴擊估計 ${est} ≥ HP ${hp}`) : lowHp(s) ? `HP 偏低：${hp}/${Math.round(s.d.hp)}（≤ ${Math.round(POT_HINT.low * 100)}%）` : `下回合最多可能受 ${est}（≥ 最大 HP ${Math.round(BIG_NEXT * 100)}%）`;
   const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
   // cp9-rc9 item 8（自訂，QA oc2 F30 T38–39）: estD is clamped to hp−1 by 防禦保命, so 「estD < HP」 always held and read 「撐得住」 while HP drained 272→177→1.
   // saveOnly = only the save keeps HP ≥ 1. Then a usable potion beats D, and the text says so.
