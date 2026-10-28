@@ -1,0 +1,182 @@
+{
+  "version": "v0.55",
+  "status": "candidate-normal-desktop-browser-qa-passed",
+  "sourceCommit": "19fbd1772b1aa0a806d093fcd7c3c529dfca302b",
+  "baseline": {
+    "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+    "tab": "2",
+    "version": "v0.54",
+    "method": "normal UI export, no fixture/state injection",
+    "bytes": 3456,
+    "sha256": "ead147d4c3f4cc411f04765312484b9145f7aa17bae2c37aaab0efb0fe24dfc9",
+    "heroLevel": 3,
+    "gold": 152,
+    "wins": 2,
+    "kills": 12,
+    "readableJson": true
+  },
+  "checks": [
+    {
+      "name": "normal-ui-import",
+      "pass": true,
+      "evidence": "v054 normal UI JSON imported via file chooser and confirm; LV3/gold152/HP619/kills12/wins2 retained"
+    },
+    {
+      "name": "preview-seven-rows",
+      "pass": true,
+      "current": [
+        619,
+        81.85,
+        "3.9216%",
+        "8.89%",
+        "3.2%",
+        "4%",
+        "3.5%"
+      ],
+      "next": [
+        619,
+        67.85,
+        "3.9216%",
+        "8.81%",
+        "3.2%",
+        "4%",
+        "13.3553%"
+      ],
+      "notes": "HP,ADB,physical mitigation,crit,evade,block,parry. Original affix comparison preserved; not DPS/win prediction."
+    },
+    {
+      "name": "preview-no-save-or-rng-mutation",
+      "pass": true,
+      "bytes": 3456,
+      "sha256": "ead147d4c3f4cc411f04765312484b9145f7aa17bae2c37aaab0efb0fe24dfc9",
+      "evidence": "Normal export after import and preview byte-identical to baseline."
+    },
+    {
+      "name": "equip-versus-preview",
+      "pass": true,
+      "evidence": "Normal UI equip rapier; subsequent reverse club preview current values exactly equal earlier next values all seven rows. Worn rapier inspection contains zero preview sections."
+    },
+    {
+      "name": "responsive-layout",
+      "pass": true,
+      "desktop": {
+        "width": 1180,
+        "height": 757,
+        "documentScrollWidth": 1165,
+        "eachRowClientAndScrollWidth": 294
+      },
+      "zoomNarrow": {
+        "method": "native cloud Chromium Ctrl+plus 7 times; 300%, restored Ctrl+0",
+        "width": 393,
+        "height": 252,
+        "dpr": 3,
+        "documentScrollWidth": 388,
+        "eachRowClientAndScrollWidth": 266
+      },
+      "evidence": "Desktop screenshot full seven rows read visually. Narrow screenshot observed wrapping physical-mitigation label/value, no horizontal overflow; geometry checked all seven rows. Not a physical mobile device test."
+    },
+    {
+      "name": "natural-battle-preview",
+      "pass": true,
+      "evidence": "Selected club before natural start; battle shows only-preview/camp-required copy and equip button disabled. Normal finish-then-camp chosen."
+    },
+    {
+      "name": "natural-loot-growth",
+      "pass": true,
+      "seconds": 15.8,
+      "level": [
+        3,
+        4
+      ],
+      "gold": [
+        152,
+        228
+      ],
+      "kills": [
+        12,
+        18
+      ],
+      "wins": [
+        2,
+        3
+      ],
+      "loot": [
+        "Superior axe loot-3",
+        "Superior balanced rapier loot-4"
+      ],
+      "evidence": "Selected club preview refreshed HP619→641 and ADB67.85→73.79 after natural growth. New rapier preview ADB+3,crit+3.93pp,parry+2.3906pp; equipped normally."
+    },
+    {
+      "name": "save-reload",
+      "pass": true,
+      "before": {
+        "bytes": 8667,
+        "sha256": "1e1a6fbcf5838699cd44b2cb789512a7d3981a37b46d890a81ad3513ea109105"
+      },
+      "after": {
+        "bytes": 4571,
+        "sha256": "cf901afe4fce744d7356e2fc97b6d45e2476e91b273d1a58da2d616a438116cf"
+      },
+      "equalKeys": [
+        "hero",
+        "inventory",
+        "equipment",
+        "seed",
+        "wins",
+        "kills",
+        "soulFragments",
+        "worldSeeds"
+      ],
+      "resetKeys": [
+        "wave",
+        "events",
+        "logs",
+        "battle",
+        "timing",
+        "_eventId",
+        "_turns",
+        "_tuCompensation"
+      ],
+      "evidence": "Normal export→reload→normal export, JSON readable. Transient battle/report data reset safely, durable progress equal."
+    },
+    {
+      "name": "formal-isolation",
+      "pass": true,
+      "bytes": 3456,
+      "sha256": "ead147d4c3f4cc411f04765312484b9145f7aa17bae2c37aaab0efb0fe24dfc9",
+      "evidence": "Formal tab2 normal export after all candidate actions byte-identical baseline."
+    },
+    {
+      "name": "sampled-console",
+      "pass": true,
+      "sampleCount": 20,
+      "evidence": "20 most recent error/warn entries all known chrome-extension content-script metadata errors; no app-origin errors observed in sample."
+    }
+  ],
+  "notTested": [
+    "pending loot naturally not reached",
+    "defeat naturally not reached",
+    "read-only competing tab preview",
+    "extreme stat caps",
+    "ability and attribute spending refresh separately (natural level/proficiency refresh tested)",
+    "physical mobile devices",
+    "full keyboard or screen reader",
+    "formal v055 smoke (not promoted)",
+    "public HTTP exact byte/hash verification handled by publisher"
+  ],
+  "candidateCommit": "2ed06f9a320729048429d6ed5045a7e965748dd5",
+  "completedAt": "2026-10-28T09:27:27Z",
+  "candidateUrl": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.55/",
+  "candidateTab": "4",
+  "publicationLimit": "Exact candidate CI success reported by publisher; public HTTP byte/hash verification pending independently. Browser QA does not replace HTTP hash verification or authorize formal promotion.",
+  "environmentInterruption": {
+    "observedAt": "2026-10-28T09:20:42Z",
+    "reason": "Parent reported cloud environment unavailable and CUA tool removal; no alternate browser or user-computer access attempted.",
+    "completed": "v054 normal UI export and closed settings; readable baseline only",
+    "pending": "v055 candidate actual browser import, preview, layout, equip, natural combat and export/reload; candidate CI/HTTP readiness awaited separately",
+    "unknownActions": false,
+    "candidateTabOpened": false,
+    "formalProfileMutatedByGameplay": false,
+    "resolvedAt": "2026-10-28T09:21:21Z"
+  }
+}
