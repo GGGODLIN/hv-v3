@@ -15,3 +15,7 @@ export function logTurn(st: St, row: TurnRow): TurnRow[] {
 export function snapBeforeBoss(st: St, floor: number, level: number, player: unknown, run: unknown): string {
   const key = QA_SNAP + 'F' + floor; try { st.setItem(key, JSON.stringify({ at: new Date().toISOString(), floor, level, player, run })); } catch { /* quota */ } return key;
 }
+/** rc11 item 8: damage the player dealt on one action (hits from 'player' to a monster, incl. skills and multi-hits). */
+export function dealtBy(ev: readonly { t: string; from?: unknown; to?: unknown; dmg?: number }[]): number {
+  return ev.reduce((t, e) => t + (e.t === 'hit' && e.from === 'player' && typeof e.to === 'number' ? Math.max(0, e.dmg ?? 0) : 0), 0);
+}

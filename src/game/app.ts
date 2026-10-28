@@ -1,4 +1,4 @@
-import { bossDmg, logTurn, snapBeforeBoss } from './qalog';
+import { bossDmg, dealtBy, logTurn, snapBeforeBoss } from './qalog';
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
 import { stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
@@ -322,7 +322,7 @@ export class App {
       return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}${rw9}</div>${th}`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
-    return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>
+    return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><details class="mapgear" data-mapgear><summary>Lv${level(this.p)} · 裝備</summary>${SLOTS.map((sl) => `<div data-mapslot="${sl}">${SLOT_ZH[sl]}：${this.p.equipped[sl] ? esc(equipName(this.p.equipped[sl]!)) : '—'}</div>`).join('')}</details><span class="spacer"></span>
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${r.startPick && r.offer && !RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${r.hp < d.hp ? `<div class="mappot"><button data-mappot ${this.p.potions.health > 0 ? '' : 'disabled'}>Z·喝生命藥水（剩 ${this.p.potions.health} 瓶，地圖上無冷卻）</button></div>` : RULES.cp8 ? `<div class="mappot" data-mappot-full><button disabled>Z·喝生命藥水（HP 已滿，剩 ${this.p.potions.health} 瓶）</button></div>` : ''}${r.hp <= d.hp * MAP_LOW_HP ? `<div class="potgo" data-lowhp><div class="hint warn">HP ${Math.round(r.hp)}/${d.hp} 只剩一半以下：進戰鬥前先喝藥或走休息節點</div>${this.p.potions.health > 0 ? `<button class="potgobtn" data-potgo>🧪 喝藥再出發（剩 ${this.p.potions.health} 瓶）</button>` : '<div class="hint">沒有生命藥水了：優先走休息節點</div>'}</div>` : ''}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div>${r.startPick && r.offer && RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${RULES.cp8 && r.held && !r.startPick ? this.heldHtml() : ''}<h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
@@ -925,9 +925,10 @@ export class App {
     if (RULES.cp7) {
       const taken = turnDamage(ev); // cp9 (d) bug 1（自訂）: incl. burn/bleed ticks
       const maxHit = ev.reduce((t, e) => Math.max(t, e.t === 'hit' && e.to === 'player' ? e.dmg : 0), 0);
-      const rec = { turn: b.turn, action: a.kind, hpBefore, hpAfter: b.hp, maxHp: b.d.hp, taken, maxHit };
+      const dealt = dealtBy(ev); // rc11 item 8
+      const rec = { turn: b.turn, action: a.kind, hpBefore, hpAfter: b.hp, maxHp: b.d.hp, taken, maxHit, dealt };
       const w = window as unknown as { __turnLog?: (typeof rec)[] }; (w.__turnLog ??= []).push(rec);
-      if (b.turn > turnBefore || taken) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}</span>`);
+      if (b.turn > turnBefore || taken || dealt) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：<span data-dealt>造成 ${dealt}</span>，受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}</span>`);
     }
     const turnHits: { who: string; label?: string; dmg: number; charged: boolean }[] = [];
     for (const e of ev) {

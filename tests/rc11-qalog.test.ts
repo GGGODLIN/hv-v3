@@ -16,3 +16,13 @@ describe('rc11 item 6: QA tools', () => {
     expect(k).toBe('hv-v3-qa-snap:F30'); const o = JSON.parse(s.getItem(k)!); expect(o.level).toBe(14); expect(o.run.floor).toBe(3);
   });
 });
+import { dealtBy } from '../src/game/qalog';
+describe('rc11 item 8: battle log damage dealt', () => {
+  it('sums player hits on monsters only (not reflect onto the player, not monster hits)', () => {
+    expect(dealtBy([{ t: 'hit', from: 'player', to: 0, dmg: 120 }, { t: 'hit', from: 'player', to: 1, dmg: 30 }, { t: 'hit', from: 0, to: 'player', dmg: 99 }, { t: 'status' }])).toBe(150);
+  });
+  it('app map shows level + gear (collapsible) and the turn line prints 造成', () => {
+    const src = require('node:fs').readFileSync('src/game/app.ts', 'utf8');
+    expect(src).toMatch(/<details class="mapgear" data-mapgear><summary>Lv\$\{level\(this\.p\)\}/); expect(src).toMatch(/data-dealt>造成 \$\{dealt\}/);
+  });
+});
