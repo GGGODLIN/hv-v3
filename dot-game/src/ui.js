@@ -573,8 +573,15 @@ function reconcileSelectedSale() {
   const preview = previewSelectedSale(state, [...selectedSaleIds]);
   if (selectedSaleConsent && (!preview.available || preview.quoteBasis !== selectedSaleConsent.quoteBasis)) abortSelectedSale('裝備、比較對象或金幣已變更，請關閉後重新預覽。');
   if (selectedSaleIds.size && !preview.available) {
-    selectedSaleIds.clear(); lastInventorySignature = '';
-    showToast('自選清單已失效，已清除選取；沒有出售任何裝備。');
+    // Keep other explicit choices when one item is equipped, removed or protected.
+    // Never add replacement/overflow items, and never reuse the old confirmation.
+    for (const id of selectedSaleIds) {
+      const item = state.inventory.find(entry => entry.id === id);
+      if (!item || item.locked || Object.hasOwn(item, 'soulbound') || isGearSetProtected(state, id)) selectedSaleIds.delete(id);
+    }
+    if (selectedSaleIds.size && !previewSelectedSale(state, [...selectedSaleIds]).available) selectedSaleIds.clear();
+    lastInventorySignature = '';
+    showToast(selectedSaleIds.size ? `已移除不可出售的選取，保留 ${selectedSaleIds.size} 件；請重新預覽確認。沒有出售任何裝備。` : '自選清單已失效，已清除選取；沒有出售任何裝備。');
   }
 }
 function confirmSelectedSale() {
