@@ -1,24 +1,24 @@
 {
-  "checkpoint": "193-v064-detail-sale-selection",
+  "checkpoint": "195-v064-browser-accepted",
   "version": "0.64.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "361badbe2f5d25ccad528b368f3117cfa727f91b",
+  "status": "desktop-browser-accepted-formal-pending",
+  "source_base": "17d62dc910c987fdd21c8049436ac5afe0ffb5f2",
   "base_accepted_recovery": "361badbe2f5d25ccad528b368f3117cfa727f91b",
   "accepted_website": "a6bbb8f50445686c7291decec44c563e469872b2",
-  "scope": "Detail sale stages explicit existing selection; no instant destructive sale. Engine, economy, RNG, assets unchanged.",
+  "scope": "Browser acceptance and recovery evidence only; runtime/tests/assets byte-identical to193.",
   "source_tests_passed": 2284,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
   "new_focused_tests": 1,
   "independent_focused_tests_passed": 19,
-  "browser_acceptance": "Pending v064; source DOM harness only.",
-  "publication": "v064 not published; formal v063 retained.",
+  "browser_acceptance": "PASS normal desktop candidate; race/protection edges remain unit-only.",
+  "publication": "Formal v063 retained; v064 promotion pending.",
   "recovery": "docs/RECOVERY-V064.md",
   "files": {
     "README.md": {
-      "bytes": 64262,
-      "sha256": "dbd8005c6a3907a69f23d2bbb1b0b8f60096937b2e82e37ea863dca18c489d8b"
+      "bytes": 65291,
+      "sha256": "b6eddadc31af0a8c8f2e94c088debf6a6ee1cb5fd9faf747b70231a7e8fbab1a"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -812,6 +812,14 @@
       "bytes": 922,
       "sha256": "ab4513f3af72c815e7f4f6a97c90f0235b1b589bbb64691240a55e56f65b4969"
     },
+    "docs/QA-V064-BROWSER-RECEIPT.json": {
+      "bytes": 3603,
+      "sha256": "bf6cf787ba66b74e0b4c96ef3cef3783327a7748dbf365dc87c0f07f68d632cc"
+    },
+    "docs/QA-V064-BROWSER.md": {
+      "bytes": 1787,
+      "sha256": "ba1e6cc79b97ac0dad2ddfade5bd40f63935cc4245261d0528106a322f757663"
+    },
     "docs/QA-V064.md": {
       "bytes": 1387,
       "sha256": "c0cee016820a071978ad56b7091f3b4d618b1e716967cd54ea2112cc5d0f4667"
@@ -985,8 +993,8 @@
       "sha256": "4b76746c8f5239d81cb22c6a12ea17a6b7600b7079359099b801029893adfe7f"
     },
     "docs/RECOVERY-V064.md": {
-      "bytes": 1181,
-      "sha256": "938df233f5349d5ae42af0f36c6ce546f11879fbbdeec078001aa69623edf607"
+      "bytes": 2027,
+      "sha256": "0ac2553c8e8f3eca77682916b39c819ab5df4a863f37c6d044fb4dfd482cf7f0"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -997,8 +1005,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 47028,
-      "sha256": "6ebfaa1c15f966ecddba264e19b65fc8b8c0bc96fc85ea1d4a8f36e31ca76ac1"
+      "bytes": 48057,
+      "sha256": "c8c4b74b36398e12bff0d8418cc17ab479e43faf87bfd86d2fb4d75bcf022422"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1033,8 +1041,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 66973,
-      "sha256": "3a35ce2d00edbcf0db6b12c838035762ac464dc29cdd175d96fee9f6567844d1"
+      "bytes": 68002,
+      "sha256": "bf5829685cf6e53501d3c126c6fb9354661ff0f02959e2a5ca806ebda15a2858"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2288,5 +2296,7 @@
       "bytes": 15077,
       "sha256": "f20de95fa6e9b22d64ce18c6db448b89b72e838ca25611b685f0e8c54d9b5a5f"
     }
-  }
+  },
+  "candidate_website": "8d7875b52ed812ac679581f60aa9c6cf318502ed",
+  "candidate_ci": 40743221581
 }

@@ -1,0 +1,92 @@
+{
+  "version": "0.64",
+  "kind": "candidate-browser-qa",
+  "testedAtUtc": "2026-10-28T18:18:51Z",
+  "result": "PASS within normal desktop scope",
+  "sourceCommit": "17d62dc910c987fdd21c8049436ac5afe0ffb5f2",
+  "websiteCommit": "8d7875b52ed812ac679581f60aa9c6cf318502ed",
+  "pagesRun": "40743221581",
+  "ciEvidence": "Parent publisher reported exact commit success and 21 runtime byte verification before opening candidate",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.64/",
+  "method": "dot cloud cua browser, normal UI only; genuine UI export imported via filechooser; no injection or localStorage access",
+  "tabs": {
+    "candidate": "7",
+    "formal": "2"
+  },
+  "baseline": {
+    "level": 5,
+    "gold": 304,
+    "bag": 5,
+    "formalVersion": "0.63",
+    "exportSha256": "9a81b8f53dd1d06c5a75e96b56431871b3f5e72f06fa2be6627cecb94f37f1df"
+  },
+  "checks": [
+    {
+      "name": "detail add/remove and preserve others",
+      "result": "PASS",
+      "observed": "Selected loot-1 checkbox (86g), opened loot-2 detail, added76g ->2items162g. Removed loot-2 ->loot-1 retained1item86g. Detail action kept focus and flipped label. Gold304 bag5 unchanged."
+    },
+    {
+      "name": "preview cancellation persistent no-op",
+      "result": "PASS",
+      "observed": "Readded loot-2, preview listed only loot-1 and loot-2, projected466g. Cancel preserved selection and all goods. Normal export SHA exactly equals imported original save, not just visible totals."
+    },
+    {
+      "name": "confirmation",
+      "result": "PASS",
+      "observed": "Reopened same preview; confirmed2items+162g once. Gold304->466,bag5->3; only loot-1 and loot-2 gone; loot-3,loot-4,locked starter and equippedloot-5 preserved. Selection0, previewdisabled, modal confirmation removed."
+    },
+    {
+      "name": "natural combat loot",
+      "result": "PASS",
+      "observed": "Startedstage1 and checked finish-then-camp. Naturalclear11.6s,XP33->138/159,level5,gold466->542,kills24->30,wins4->5,fragments40->50,seeds4->5,drop loot-6 Superior Ember armor. Bag3->4."
+    },
+    {
+      "name": "export reload persistence",
+      "result": "PASS",
+      "observed": "All fields except expected transient wave/events/logs/battle/timing/_eventId/_turns/_tuCompensation identical. Sold IDs remain absent; drop remains; camp safe."
+    },
+    {
+      "name": "formal preservation",
+      "result": "PASS",
+      "observed": "Formal normal UI export after QA identical bytes to baseline; Lv5/304 remains v063."
+    },
+    {
+      "name": "desktop visual",
+      "result": "PASS",
+      "observed": "Screenshot inspected; viewport1180/document1165, zero broken images."
+    }
+  ],
+  "exports": {
+    "afterPlay": {
+      "sha256": "33d8c9134a44f58d25a7c0b3c57841f6e72233031a3b562d39f16cc448378740",
+      "bytes": 7488
+    },
+    "afterReload": {
+      "sha256": "9cae82eef2dcb2f0633d622dfdb300b9562ed9c106e8500e06d18cbd1b7e2f3f",
+      "bytes": 4560
+    }
+  },
+  "limitations": [
+    "Race/stale button replay, bound/loadout protected item edge cases remain source unit coverage, not browser reproduced.",
+    "No physical mobile or full accessibility audit.",
+    "Wait-for camp heading briefly timed out before natural clear; fresh observed UI then confirmed completed camp; no gameplay workaround."
+  ],
+  "final": {
+    "level": 5,
+    "gold": 542,
+    "bag": 4,
+    "xp": 138,
+    "hp": 663,
+    "mp": 31,
+    "inventoryIds": [
+      "starter-weapon",
+      "loot-3",
+      "loot-4",
+      "loot-6"
+    ],
+    "equippedWeapon": "loot-5",
+    "candidatePreserved": true,
+    "formalUnchanged": true
+  }
+}
