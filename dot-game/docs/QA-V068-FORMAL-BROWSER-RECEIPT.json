@@ -1,0 +1,79 @@
+{
+  "version": "v0.68",
+  "result": "PASS",
+  "tested_at": "2026-10-28T22:26:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "website_commit": "c7141473c4d541acdd90e1900b669e3a01983d4b",
+  "pages_run": "40779625900",
+  "ci": "Parent exactsuccess/21runtimebytes/postref verified before formal reload",
+  "method": "Cloud CUA normal original formal profile; export/reload/selector/single expedition; no candidateimport or injected state.",
+  "baseline": {
+    "level": 9,
+    "gold": 1074,
+    "wins": 13,
+    "xp": 91
+  },
+  "checks": [
+    "Normal pre-upgrade export matches acceptedv067 SHA5f4d24f9…834e1. Reload rendersv068 original profile and1x.",
+    "Camp2x selection normalexport byte-identical to baseline.",
+    "2x single naturally completes all4waves, report9.5simulationseconds, gold1074→1150 XP91→196 fragments30→40 wins13→14, newloot.",
+    "Camp remains stopped with samegold/XP more than15seconds aftercompletion; noautostart.",
+    "Normal export/reload/export preserves all permanentfields and resets2x→1x; only8known transientfields differ.",
+    "No horizontaloverflow viewport1180/document1165; brokenimages0."
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 9,
+    "xp": 196,
+    "xpNext": 342,
+    "hp": 751,
+    "mp": 43,
+    "gold": 1150,
+    "proficiency": 10.8,
+    "attributes": {
+      "str": 24,
+      "dex": 24,
+      "agi": 24,
+      "end": 24,
+      "int": 24,
+      "wis": 24
+    }
+  },
+  "final_wins": 14,
+  "final_kills": 84,
+  "final_bag_count": 20,
+  "final_fragments": 40,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/db3439eb-7cd7-4d65-ab5e-aa971f70aab2",
+      "sha256": "5f4d24f9a99b8267200144fb22638c1add83b1ca31c15578223f7f4f522834e1"
+    },
+    "camp2x": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/4dee973f-e292-4abc-a951-5f42bec2a21e",
+      "sha256": "5f4d24f9a99b8267200144fb22638c1add83b1ca31c15578223f7f4f522834e1"
+    },
+    "after_play": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/4ac00484-b493-428d-a05d-d4d563463069",
+      "sha256": "f05ba05de1ab04b15356acfa8abe4e1bc9c38d1688523a9468c473ca62aafd09"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/5f6dd28d-960c-4b5a-98b6-a51bb43c2a43",
+      "sha256": "2b3229e8d9a87541759f5398a91e58f3d4dadc1f99decc56efb7cc95ec84a61d"
+    }
+  },
+  "limitations": [
+    "Precise wall-clock ratio/callback timing is source-only, not browserproof.",
+    "Candidate separately covered1x/2x same genuinebaseline comparison, keyboard/reducedmotion, normalimportreset andactive2x→1x; not repeatedformal.",
+    "No mobile/fullaccessibility audit."
+  ],
+  "candidate_profile_imported": false
+}

@@ -1,3 +1,7 @@
+# v068 complete restorable release checkpoint217
+
+Use the exact commit carrying CHECKPOINT `217-v068-restorable`, not moving HEAD. This adds complete candidate/formal acceptance and publication evidence without changing215 runtime/tests/assets/index. Formal websitec7141473c4d541acdd90e1900b669e3a01983d4b, exact Pages40779625900 success and original-profile desktop smoke PASS. Runtime test evidence is2152378/2378+4syntax; no217 rerun claimed. Full source/assets/license provenance/tests/recovery are in this manifest; verify every payload byte/hash before recovery. Normal source index remains candidate-labeled by design; website index differs only by accepted phase wrapper. See PUBLICATION-V068.md and formal receipt for limits and results.
+
 # v068 desktop-accepted source checkpoint215
 
 Restore exact commit carrying CHECKPOINT `215-v068-accepted`. Runtime/tests/assets/index are byte-identical to213875cd1378fd3c617c3b9b3368f30127f86159d41; only evidence/status/manifest changed. Normal desktop candidate PASS at website93dc0ba6ff28d8f5ba0622597bc923e383947ffd, Pages40778501336. Formal promotion still pending; retain v067 until root completes it. Source index deliberately remains candidate-labeled, distinct from website wrapper. See QA-V068-BROWSER.md for evidence and limits.

@@ -1,10 +1,10 @@
 {
-  "checkpoint": "215-v068-accepted",
+  "checkpoint": "217-v068-restorable",
   "version": "0.68.0",
-  "status": "desktop-candidate-accepted-formal-pending",
-  "source_base": "875cd1378fd3c617c3b9b3368f30127f86159d41",
-  "base_accepted_recovery": "875cd1378fd3c617c3b9b3368f30127f86159d41",
-  "accepted_website": "08020c163037524b8afcab9792d5a34fc1dd3224",
+  "status": "complete-restorable-source-formal-desktop-accepted",
+  "source_base": "b2a5f99051c2b509d48c7348aa74de367517b2b3",
+  "base_accepted_recovery": "b2a5f99051c2b509d48c7348aa74de367517b2b3",
+  "accepted_website": "c7141473c4d541acdd90e1900b669e3a01983d4b",
   "scope": "Transient 1x/2x simulation tempo using bounded identical existing engine steps; reports retain simulation time.",
   "source_tests_passed": 2378,
   "source_tests_failed": 0,
@@ -12,14 +12,14 @@
   "runtime_syntax_checks": 4,
   "new_focused_tests": 6,
   "independent_focused_tests_passed": 12,
-  "browser_acceptance": "Normal desktop candidate PASS; scope and limits in QA-V068-BROWSER.md.",
-  "publication": "Candidate website93dc0ba6ff28d8f5ba0622597bc923e383947ffd Pages40778501336 success; formal remains accepted v067.",
+  "browser_acceptance": "Normal desktop candidate and formal PASS; scope and limits in PUBLICATION-V068.md.",
+  "publication": "Formal v068 websitec7141473c4d541acdd90e1900b669e3a01983d4b Pages40779625900 success/desktop PASS.217 docs-only; tests evidence215, no217rerun claimed.",
   "recovery": "docs/RECOVERY-V068.md",
   "test_log_sha256": "4bad9100a369304f7ca6a19f7b7ada25968ce4a05cad1afbe4ab8fa56599201a",
   "files": {
     "README.md": {
-      "bytes": 77890,
-      "sha256": "c94dec35b52fdef6918cd3b02ef0ad3a3ddbad79ee9f2ac0e7873879a5d571bd"
+      "bytes": 78872,
+      "sha256": "f4825994d44781777581925cca1d38edda57dc56ae5cc27e47c9070786113000"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -721,6 +721,14 @@
       "bytes": 1628,
       "sha256": "afa663ff5c61f17c20030e4d4fc255aa922f6668a50072b20601dbbbad5f6227"
     },
+    "docs/PUBLICATION-V068-RECEIPT.json": {
+      "bytes": 1265,
+      "sha256": "1f6aee253cdad2792a847a7f9c0cdeda310171970c56001d763d9a3a16ba75d4"
+    },
+    "docs/PUBLICATION-V068.md": {
+      "bytes": 2041,
+      "sha256": "c676743352d349f269c1f29be5fcafa427dc4ae546aedced2c5887cd56290c15"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -933,6 +941,10 @@
       "bytes": 1614,
       "sha256": "6244a4ff488007e9d4b9b9e375cb24813503d9e207bb4bcf0821274a509798a2"
     },
+    "docs/QA-V068-FORMAL-BROWSER-RECEIPT.json": {
+      "bytes": 2923,
+      "sha256": "baf8ad7b5e40e2ee0a75dcd1fa8b7d732adf764200dbd3765b07280afcc92647"
+    },
     "docs/QA-V068-INDEPENDENT.md": {
       "bytes": 3452,
       "sha256": "36c749376a5bf076dd959ee79679bfbb799ee9094c4f0d187e6d05bd9654ebbe"
@@ -1126,8 +1138,8 @@
       "sha256": "05d591f0cfa708055caeb29c361a5b13340482a67b9d88ff20961bfeb48382c1"
     },
     "docs/RECOVERY-V068.md": {
-      "bytes": 2648,
-      "sha256": "d5588884c9fb8e65046a2d0f4fb0c2ce688ec9732067be2daf1dcd4888fb1cd7"
+      "bytes": 3396,
+      "sha256": "7b70507e96e50915c041cc540d35271e8916673d59227a49582bcbea7320f95e"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1138,8 +1150,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 60656,
-      "sha256": "b41908168f885d7db7a4d6ce9fadc188f0784fbc4f4be1a003a63c659628323c"
+      "bytes": 61638,
+      "sha256": "7b1aaf251f9e7f3deab6057fd5995b73091f9501ca19d37d916eb1f3bdf6887b"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1174,8 +1186,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 80601,
-      "sha256": "cc5c3fea480d77123292e8af36c2be2893e65a8bf8226dad5d854d1b27c2456c"
+      "bytes": 81583,
+      "sha256": "d6e0ac4acf71ea87554e1d673d425f6b7e259bb7a9aa840cda2cf9413835f56b"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,

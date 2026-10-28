@@ -1,3 +1,9 @@
+## v068 已正式發布並通過桌面實玩（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 已為v068：websitec7141473c4d541acdd90e1900b669e3a01983d4b，exact Pages40779625900成功。原正式profile營地選2×匯出逐byte不變；2×單次自然四波9.5模擬秒後停營，金1074→1150／wins13→14，超過15秒未自啟。重載回1×且永久欄位一致，最終Lv9／1150金／bag20；沒有匯入候選進度。
+
+最新完整恢復來源為攜帶CHECKPOINT `217-v068-restorable` 的exact commit，runtime/tests/assets/index與215來源b2a5f99051c2b509d48c7348aa74de367517b2b3逐byte不變。完整來源、素材授權、測試、候選／正式browser及發布收據與恢復說明已納入。詳見docs/PUBLICATION-V068.md、docs/RECOVERY-V068.md。精確真實倍速與callback／失鎖／休眠邊界仍來源測試；非手機或完整無障礙驗收，未宣稱公開HTTP逐檔hash或Library同步。以下狀態保留為歷史。
+
 ## v068 桌面候選已驗收；正式待發布（2026-10-29 台北）
 
 隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.68/ 正常 UI 實玩 PASS：website93dc0ba6ff28d8f5ba0622597bc923e383947ffd，exact Pages40778501336成功。營地選2×前後匯出逐byte相同；2×單次自然完整四波、9.5模擬秒停營，金1074→1150。正常重新匯入同一真實基線回1×，對照通關的永久欄位／掉寶／RNG一致，但四項戰鬥時間事件暫態欄位不同；不是全存檔byte一致或精確真實倍速證明。
