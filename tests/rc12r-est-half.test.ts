@@ -14,6 +14,9 @@ const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8
 const mk = (maxHp: number, hp: number): BattleState => { const p = newPlayer(); starterKit(p); const d = derive(p); d.hp = maxHp;
   const m = buildMonster(pool.rows[0]!, 30); m.hp = m.maxHp = 1e6; m.adb = 1e5; // huge hitter: every number below is a cap
   const b = startBattle(d, { hp, mp: d.mp, sp: d.sp }, [m], { health: 3, mana: 0, spirit: 0 }); return b; };
+import { CP9 } from '../src/core/cp8';
+// rc12s: QA scenario recorded under the 40% normal-fight cap — pin the old cap (normalCharge 0 → minionCharge 0.4); 30% is covered by rc12s-normal-charge.test.ts
+let nc12s = 0; beforeAll(() => { nc12s = CP9.normalCharge; (CP9 as { normalCharge: number }).normalCharge = 0; }); afterAll(() => { (CP9 as { normalCharge: number }).normalCharge = nc12s; });
 describe('rc12r QA: ★ estimate vs the charged hit (no defend halving for Z)', () => {
   let o: boolean[] = [];
   beforeAll(() => { o = [RULES.cp7, RULES.cp8]; RULES.cp7 = true; RULES.cp8 = true; });

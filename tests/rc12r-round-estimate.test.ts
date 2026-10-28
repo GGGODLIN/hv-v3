@@ -18,6 +18,9 @@ const mk = (adb: number) => {
   const b = startBattle(d, { hp: 504, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 });
   (m as { heavyNext?: boolean }).heavyNext = true; return b;
 };
+import { CP9 } from '../src/core/cp8';
+// rc12s: QA scenario recorded under the 40% normal-fight cap — pin the old cap (normalCharge 0 → minionCharge 0.4); 30% is covered by rc12s-normal-charge.test.ts
+let nc12s = 0; beforeAll(() => { nc12s = CP9.normalCharge; (CP9 as { normalCharge: number }).normalCharge = 0; }); afterAll(() => { (CP9 as { normalCharge: number }).normalCharge = nc12s; });
 describe('rc12r: one round estimate for ★ and 預估傷害', () => {
   let o: boolean[] = [];
   beforeAll(() => { o = [RULES.cp7, RULES.cp8]; RULES.cp7 = true; RULES.cp8 = true; });

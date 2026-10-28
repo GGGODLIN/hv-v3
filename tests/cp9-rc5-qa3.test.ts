@@ -1,6 +1,6 @@
 // cp9-rc5 QA3（自訂，暫定）: lethal + potion usable → Z before the stun unless the stun surely cancels all damage.
 import { readFileSync } from 'node:fs';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect , beforeAll, afterAll} from 'vitest';
 import { chargeAdvice, startBattle, stunGuaranteed } from '../src/core/battle';
 import { starterKit } from '../src/core/auto';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
@@ -17,6 +17,9 @@ const mk = (n: number) => {
 };
 const withCp8 = (f: () => void) => { const o = RULES.cp8; RULES.cp8 = true; try { f(); } finally { RULES.cp8 = o; } };
 
+import { CP9 } from '../src/core/cp8';
+// rc12s: QA scenario recorded under the 40% normal-fight cap — pin the old cap (normalCharge 0 → minionCharge 0.4); 30% is covered by rc12s-normal-charge.test.ts
+let nc12s = 0; beforeAll(() => { nc12s = CP9.normalCharge; (CP9 as { normalCharge: number }).normalCharge = 0; }); afterAll(() => { (CP9 as { normalCharge: number }).normalCharge = nc12s; });
 describe('cp9-rc5 QA3 stun vs potion order', () => {
   it('lone charger, no phase / reflect / dot: the stun is guaranteed and leads', () => withCp8(() => {
     const b = mk(1); expect(stunGuaranteed(b, 0, 'shieldBash')).toBe(true);
