@@ -45,11 +45,28 @@ export function buffFit(p: Player, id: string): { ok: boolean; why?: '需要法�
 export const FIT_WEIGHT = 3;
 /** rc12d (a)（自訂）: a pick-one offer of OFFER_SIZE has at least this many buffs that fit the build (the rest may be anything). */
 export const FIT_MIN = 2;
-/** rc12d (b)（自訂）: the ★ for an offer — only a buff that fits: own-school core, then own school, then higher rarity, then offer order. */
+/** rc12f（自訂，製作人決定）: how much of a fitting buff the build can actually use (0..1) and which part is dead.
+ *  W1 不動之盾 without a shield: the block third is dead (offHand = shield group only). */
+export function buffUse(p: Player, id: string): { use: number; dead?: string } {
+  if (!buffFit(p, id).ok) return { use: 0 };
+  if (id === 'W1' && !p.equipped?.offHand) return { use: 2 / 3, dead: '格擋（搭盾才有）' };
+  return { use: 1 };
+}
+/** rc12f（自訂）: value of another school's buff to a lean (1 = own school). Generic (none) buffs stay useful to all;
+ *  bulwark ↔ blade share 磐石＋刃鋒, oc stance / opening-OC buffs are worth little to a shield tank. */
+export const SCHOOL_AFF: Record<string, Record<string, number>> = {
+  blade: { blade: 1, oc: 0.5, bulwark: 0.4, arcane: 0.2, none: 0.7 },
+  oc: { oc: 1, blade: 0.5, bulwark: 0.4, arcane: 0.2, none: 0.7 },
+  arcane: { arcane: 1, oc: 0.4, bulwark: 0.4, blade: 0.1, none: 0.7 },
+  bulwark: { bulwark: 1, blade: 0.3, oc: 0.2, arcane: 0.2, none: 0.7 },
+};
+/** rc12d (b) → rc12f（自訂）: the ★ for an offer — only a fitting buff; score = usable share × school affinity (own core +0.5),
+ *  rarity only breaks near-ties (+0.05 / step). A partly-dead buff (W1 without shield) loses to a fully usable own-school one. */
 export function offerStar(p: Player, ids: string[]): string | null {
   const R: Record<Rarity, number> = { common: 0, rare: 1, legend: 2 };
   const fit = ids.filter((id) => buffFit(p, id).ok); if (!fit.length) return null;
-  const sc = (id: string) => { const b = BUFF[id]!; return (b.school === p.lean ? 10 : 0) + (b.school === p.lean && b.core ? 5 : 0) + R[b.rarity]; };
+  const sc = (id: string) => { const b = BUFF[id]!; const aff = p.lean ? (SCHOOL_AFF[p.lean]?.[b.school] ?? 0.5) : 1;
+    const u = buffUse(p, id); return u.use * (u.dead ? 0.6 : 1) /* partly dead: extra ×0.6 so it never beats a fully usable card */ * (aff + (b.school === p.lean && b.core ? 0.5 : 0)) + 0.05 * R[b.rarity]; };
   return fit.reduce((a, x) => (sc(x) > sc(a) ? x : a));
 }
 export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant', n: number, weights?: [number, number, number], exclude: string[] = []): string[] {

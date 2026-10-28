@@ -13,7 +13,7 @@ import { Rng, randomSeed } from '../core/rng';
 import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
-import { buffFit, offerStar, openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
+import { buffFit, buffUse, offerStar, openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { routeAdvice9, lowHpMapText9, mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
@@ -466,8 +466,8 @@ export class App {
     return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}"><i>${GLYPH[b.school]}</i>${esc([...b.zh][0] ?? '')}</span>`; }).join('')}${prog}</div>`;
   }
   buffCard(id: string, btn: string, star?: string | null): string {
-    const b = BUFF[id]!, fit = buffFit(this.p, id); // rc12d (b)（自訂）: unusable buffs are labelled; ★ only on a fitting one
-    return `<div class="buffcard r-${b.rarity}${fit.ok ? '' : ' unfit'}"${fit.ok ? '' : ` data-unfit="${fit.why}"`}${star === id ? ' data-buffstar' : ''}><div class="bh"><b>${star === id ? '★ ' : ''}${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small>${fit.ok ? '' : `<small class="warn">${fit.why}</small>`}</div><div class="bd">${esc(b.desc)}${RULES.cp8 && b.school === 'bulwark' ? '<br><small class="warn" data-shieldnote>搭盾才有格擋</small>' : ''}</div>${btn}</div>`;
+    const b = BUFF[id]!, fit = buffFit(this.p, id), use = buffUse(this.p, id); // rc12d (b)（自訂）: unusable buffs are labelled; ★ only on a fitting one
+    return `<div class="buffcard r-${b.rarity}${fit.ok ? '' : ' unfit'}"${fit.ok ? '' : ` data-unfit="${fit.why}"`}${star === id ? ' data-buffstar' : ''}><div class="bh"><b>${star === id ? '★ ' : ''}${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small>${fit.ok ? '' : `<small class="warn">${fit.why}</small>`}${use.dead ? `<small class="warn" data-partial>部分無效：${use.dead}</small>` /* rc12f（自訂） */ : ''}</div><div class="bd">${esc(b.desc)}${RULES.cp8 && b.school === 'bulwark' ? '<br><small class="warn" data-shieldnote>搭盾才有格擋</small>' : ''}</div>${btn}</div>`;
   }
   /** CP4 r2 step 3: before -> after rows for a buff choice. */
   previewHtml(id: string): string {
