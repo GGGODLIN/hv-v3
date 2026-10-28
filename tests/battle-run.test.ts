@@ -83,6 +83,8 @@ describe('run + save', () => {
     expect(deserialize('garbage')).toBeNull();
     expect(deserialize(JSON.stringify({ ...data, v: 0 }))).toBeNull();
   });
+  // rc12e (same root cause as the cp3 acceptance flake): 16 seeded runs that each build on the previous run's save, so they cannot be
+  // split or memoized; ~2.5 s alone, 4.8 s under full-suite load vs the 5 s default. Deterministic → an explicit 30 s budget.
   it('simulation: later runs reach at least as deep and clear within 16 runs', () => {
     const p = newPlayer(); starterKit(p, 3);
     const floors: number[] = [];
@@ -92,5 +94,5 @@ describe('run + save', () => {
     expect(last).toBeGreaterThanOrEqual(first);
     expect(floors.some((f) => f > 10)).toBe(true);
     expect(derive(p).level).toBeGreaterThan(5);
-  });
+  }, 30000);
 });
