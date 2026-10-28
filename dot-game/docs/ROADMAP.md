@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.50 source-only slice: clear local report baseline
+
+Allow clearing only the pinned comparison baseline while retaining the latest reports and all game/profile state. Keep empty disabled, local readonly/battle access and useful keyboard return. No website writes or actual-browser acceptance.
+
 ## v0.49 source-only slice: keep a completed report
 
 Download the latest completed expedition as a detached JSON report, not a save or a controlled build comparison. Keep no-report disabled, readonly access, temporary link cleanup and honest download feedback. Do not change gameplay, profile storage or pin state. Real-browser download acceptance remains pending; zero website operations.

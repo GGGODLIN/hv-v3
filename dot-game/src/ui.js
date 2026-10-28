@@ -1327,6 +1327,7 @@ function renderExpeditionReports() {
   const reports = expeditionReports(state).slice(0, 2);
   $('pin-report').disabled = !reports.length;
   $('export-report').disabled = !reports.length;
+  $('clear-pinned-report').disabled = !pinnedExpeditionReport;
   const signature = JSON.stringify([reports, pinnedExpeditionReport]);
   if (signature === lastReportSignature) return;
   lastReportSignature = signature;
@@ -1365,6 +1366,13 @@ function pinRecentExpeditionReport() {
   // not a combat action, save mutation, or permission to edit another tab's game.
   pinnedExpeditionReport = latest;
   renderExpeditionReports();
+}
+function clearPinnedExpeditionReport() {
+  if (!pinnedExpeditionReport) return;
+  pinnedExpeditionReport = null;
+  renderExpeditionReports();
+  // Disabled controls cannot remain a useful keyboard destination.
+  $('pin-report').focus({ preventScroll: true });
 }
 function renderInventory() {
   comparisonButtons.inventory.clear();
@@ -2059,6 +2067,7 @@ $('start-button').addEventListener('click',()=>{const previousMode=state.mode;if
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));
 $('pin-report').addEventListener('click', pinRecentExpeditionReport);
+$('clear-pinned-report').addEventListener('click', clearPinnedExpeditionReport);
 $('export-report').addEventListener('click', exportRecentExpeditionReport);
 $('claim-pending').addEventListener('click', claimPendingLoot);
 for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
