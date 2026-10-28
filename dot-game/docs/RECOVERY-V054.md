@@ -1,11 +1,7 @@
-# Recover source-only v0.54
+# Recover browser-accepted v0.54
 
-Restore dot-game/ from the exact commit carrying CHECKPOINT.json checkpoint 170-v054-gold-cap-warning-source on GGGODLIN/hv-v3 bot/dot. Keep all files, tests, scripts, assets and attribution. Check every payload length/SHA-256; manifest excludes itself.
+Restore all dot-game/ files from the exact bot/dot commit carrying CHECKPOINT.json checkpoint 172-v054-browser-accepted. Verify every payload bytes/SHA-256; manifest excludes itself. This checkpoint supersedes source-only 170 and retains full tests, scripts, assets and attribution. Candidate website commit 125bf4ceb2242624c847cdcf2057486944b6ff07 is a runnable output, not the full source backup.
 
-Run `npm test` in dot-game with Node.js; check four src/*.js files using `node --check`. Start `python3 -m http.server 8000`, open index.html. No build/dependencies required. Export a real game save before changing versions. The new report JSON is NOT a restorable game save and must not be used as one; synthetic test fixtures are not personal progress.
+Run npm test with Node.js; node --check each of four src/*.js. No dependencies/build required. Start python3 -m http.server 8000 in dot-game and open index.html. Export a real game save before updating. Report JSON is not a restorable game save. Candidates use separate storage; never replace formal progress with a candidate profile automatically.
 
-Source-tested, not actual-browser accepted or published. Latest complete accepted source remains 2a5354689165d7512d279327db8935c3bbef8570 (v036), formal website f192fec4eff401948d80156f941c01404816cbba. Inherited art and all candidate changes need permitted browser acceptance. Material-scope publication question unresolved: do not retry website writes via another version/host or by removing provenance.
-
-Read ORIGINAL-HV.md for independent research boundaries. Source outside dot-game is not part of this game. No Library dual-sync or platform login/schedule recovery claimed; no raw private play profiles included.
-
-This checkpoint adds a passive full-gold warning beside balances on load/import and play. Below-cap balances clear it. Economy, RNG, transactions and storage format are unchanged; the existing cap remains a local persistence adaptation, not an original HV rule.
+See QA-V054-BROWSER.md for normal desktop acceptance and explicit limits. Only index phase changes from source candidate to continuous development; gameplay/assets remain exact tested source. Full suite is rerun after phase change, with exact phase-label assertions updated and the historical hash audit normalized only for this one label. Formal promotion and smoke evidence will be recorded separately; at this checkpoint formal v036 remains. The latest explicit owner authorization allows Kenney UI Pack, not other people's HV code/assets. No Library dual-sync, platform login or schedule recovery claim. Raw personal save profiles are not in this source.

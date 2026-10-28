@@ -86,7 +86,7 @@ test('IW1 UI: sidebar balances are always discoverable, unique and live without 
     assert.ok(aside.includes(`id="${id}"`)); assert.equal(html.match(new RegExp(`id="${id}"`, 'g')).length, 1);
   }
   for (const copy of ['普通遠征每次通關固定 +1 世界之種', '不是原版掉落率', '不補發', 'Fair／Average／Superior', 'IW2–10', '其他品質尚未實作', '不代表原版不合法', '沒有 CP、護符、鍛造或材料獎勵']) assert.ok(html.includes(copy), copy);
-  assert.match(html, /v0\.54 · 來源候選/); assert.match(html, /v0\.54 使用資料格式 v3/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
+  assert.match(html, /v0\.54 · 持續開發/); assert.match(html, /v0\.54 使用資料格式 v3/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
 });
 
 test('IW1 UI: full exact quote previews seven actual stats, cost and adapted five-round difficulty without mutation', () => {

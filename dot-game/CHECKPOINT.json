@@ -1,8 +1,8 @@
 {
-  "checkpoint": "170-v054-gold-cap-warning-source",
+  "checkpoint": "172-v054-browser-accepted",
   "version": "0.54.0",
-  "status": "source-tested-not-browser-accepted-not-published",
-  "source_base": "0f1292a672f379d029be494c5dee761a50379a8b",
+  "status": "desktop-browser-accepted-awaiting-formal-publication",
+  "source_base": "78d6cbcc393a5599671d42628dd7deb24052ad0f",
   "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
   "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
   "scope": "Passive full-gold warning at load/import and before departure; no economy, RNG, storage or asset changes.",
@@ -12,13 +12,13 @@
   "runtime_syntax_checks": 4,
   "new_focused_tests": 4,
   "independent_focused_tests_passed": 6,
-  "browser_acceptance": "Not performed; full production UI tests simulate browser APIs. Inherited v037/v038 art remains unaccepted.",
-  "publication": "Not attempted; existing Kenney website scope refusal unresolved. Zero website operations.",
+  "browser_acceptance": "Normal desktop candidate flow accepted; see docs/QA-V054-BROWSER.md for evidence and limitations.",
+  "publication": "Isolated candidate 125bf4ceb2242624c847cdcf2057486944b6ff07 verified; formal promotion pending source backup.",
   "recovery": "docs/RECOVERY-V054.md",
   "files": {
     "README.md": {
-      "bytes": 47747,
-      "sha256": "573f3ed62b8e6ade36388eddab67f884db25b680d8c519613eaf1f317b515e4a"
+      "bytes": 48842,
+      "sha256": "9d83b746b0bf83d1e16ebb6b6b2f186cf40e56cb12734944cccd0fd6e55f260c"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -696,6 +696,10 @@
       "bytes": 1503,
       "sha256": "19cdb3809cbc7b2257447efca12b50a886eb7b32cec3aa082303aa3158d80d0e"
     },
+    "docs/QA-V054-BROWSER.md": {
+      "bytes": 4153,
+      "sha256": "fe3c241aaac5817907d9c2203885ecf381e8a0aeecd08793c1f8f3ddb592abf0"
+    },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
@@ -825,8 +829,8 @@
       "sha256": "0971d673363b8d8fff751f1ce81b8182386704b8833a1497416bd1e4e862d978"
     },
     "docs/RECOVERY-V054.md": {
-      "bytes": 1522,
-      "sha256": "bd0105bc7672ade724a3ca93fc0ff659d874e9c752841f6b497dd53f95bd0ef4"
+      "bytes": 1443,
+      "sha256": "6a23fc2f35122c3f92e67cf63f52ebe1c4ca4cfcd3cb8a513236aa41647fa30d"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -873,8 +877,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 50458,
-      "sha256": "806d0079a251fb99e0e1ee86410b1efed4d7f077a0581b66c8b633f62fcbc882"
+      "bytes": 51553,
+      "sha256": "5aae1fa1ba993bb15191e540d3182b44f1cfa4c72677a1f57e692fda53ba8074"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1094,7 +1098,7 @@
     },
     "index.html": {
       "bytes": 46410,
-      "sha256": "c2dc444a14f5a53288a37ecf7cd5895d8059104bbb81bcab291069461223a606"
+      "sha256": "f30ac0cb8b64c25049af7f278e10a53db2d9e2df5080781949134aea089717b0"
     },
     "package.json": {
       "bytes": 207,
@@ -1230,7 +1234,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "5cfebb1d042f2d4563b958361b44130c24d41f0f60ae2d5d895c90338aa78465"
+      "sha256": "a8f1036258ef2193c5d66dcc4b99ea8cd8b81d52574a30806e6ce52bae17b985"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1245,8 +1249,8 @@
       "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
     },
     "tests/camp-chest-independent.test.mjs": {
-      "bytes": 9209,
-      "sha256": "713e3cf97e9072eb114f8e7da099d4af1c64226bc51d24271e36f0cf84edbd19"
+      "bytes": 9376,
+      "sha256": "e0c232a4a048a2f2fdb1a1c35591c2901c07251fe8c7c82b27f89dae1a0dc407"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1306,7 +1310,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18341,
-      "sha256": "2b3fe3335c49917245123961a93f9af382e624c7867bbc2f05ddb1ae5ce6e9bc"
+      "sha256": "09171779e9494809e6f5d61d3144854c0888617dcce4c52473166b829c562e8f"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16705,
@@ -1358,7 +1362,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "d32150612b847f76bbc041501b2905b797a3ba3d02289dfb229d3c1fc9b67373"
+      "sha256": "bedbbe6bec1a36733d53745f00a5e534ff219953865dc0b5d8771e5282fa5628"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11266,
@@ -1718,7 +1722,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "a53edf2054fee9ea3b2b60879eeb94da064f458e7d5bbaf94aa0ae8980513e3d"
+      "sha256": "36423adb791c1431d9fe46fdbb5e8a16acf06ea3ab1dc21010f58e94efdff6fe"
     },
     "tests/loot.test.mjs": {
       "bytes": 4671,
@@ -1814,7 +1818,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "5f0843392ea7d6364d7b67590c11c5b4fec0c65139cdcac454ba5b9a60fc4042"
+      "sha256": "c08c6385da36412374babee8e875588667896941086fcf8549105b9550b21aa3"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1850,7 +1854,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "fdb49d32584e3bc173b8200726146e3d639ae45edb4f1edfddf35483a0a077e6"
+      "sha256": "5b1a41958b81be49d41a028720cd73f0c6be94a9ea933ee528c8d31250ebcc08"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1914,7 +1918,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "2221a226bc2986ce721eb61274455eb3103ccc34df6b1eaf466a4e152e8c9848"
+      "sha256": "0f1abd312a7271671cdd017de7531d509a81dd6b30790ce9f388204d291f0f05"
     },
     "tests/stat-delta-audit.test.mjs": {
       "bytes": 3200,
@@ -2006,8 +2010,10 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "eb921c48936826de630c6896ba29f5ae0cce463579f063e06bda5e748f90ef19"
+      "sha256": "fd65a44792fbca24d5c99b0f6d050064654ff771c68c302fcec56ffaf8d3b11e"
     }
   },
-  "qa": "docs/QA-V052.md"
+  "qa": "docs/QA-V052.md",
+  "candidate_commit": "125bf4ceb2242624c847cdcf2057486944b6ff07",
+  "acceptance_phase_tests": "Full rerun after runtime phase label and exact label assertions: 2114 passed, 0 failed/skipped; four src JS syntax checks passed. Historical hash normalized only for exact phase label; behavioral assertions unchanged."
 }
