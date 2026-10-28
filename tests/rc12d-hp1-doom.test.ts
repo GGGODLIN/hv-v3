@@ -48,3 +48,12 @@ describe('rc12d T60: decision line and urgent line share the 保命 verdict', ()
       } }
   }));
 });
+describe('rc12d+ item 4: 必敗 also in normal fights (QA oc2 F36)', () => {
+  it('HP 1, 0 potions, normal monster that will hit → 必敗', () => withCp8(() => {
+    const p = newPlayer(); starterKit(p); const d = derive(p);
+    const m = buildMonster(pool.rows[0]!, 1, 'normal'); m.hp = m.maxHp = 1e6; m.adb = d.hp; m.charge = 0;
+    const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 }); b.hp = 1; b.oc = 0;
+    if (Math.round(nextRoundEstimate(b, true)) > 0) expect(chargeAdvice(b).text).toMatch(/此戰幾乎必敗/);
+    expect(Math.round(nextRoundEstimate(b, true))).toBeGreaterThan(0);
+  }));
+});

@@ -10,10 +10,10 @@ function at(opts: string[], depth: number, pots: number, hp: number, credits: nu
 }
 describe('rc11 item 7: low-HP route', () => {
   for (const credits of [0, 500]) for (const opts of [['battle', 'chest'], ['battle', 'merchant'], ['elite', 'battle', 'shrine'], ['battle', 'elite', 'rest', 'merchant'], ['battle', 'chest', 'merchant']])
-    it(`HP 10%, 0 potions, ${credits}C: ${opts.join('/')} → not a fight`, () => {
+    it(`HP 10%, 0 potions, ${credits}C: ${opts.join('/')} → retreat (rc12d+)`, () => {
       const a = at(opts, 30, 0, 8, credits)!; // newPlayer HP is small: 8 HP ≈ the QA 80/792 fraction
-      expect(['battle', 'elite']).not.toContain(opts[a.i]);
-      if (opts.includes('rest')) expect(opts[a.i]).toBe('rest');
+      // rc12d+ item 3（製作人）: potions ≤ 1 and HP < 25% → ★ 撤退回城 on every floor (was: rest/merchant first)
+      expect(a.retreat).toBe(true); expect(a.i).toBe(-1);
     });
 });
 describe('rc11 item 7: QA oc-4 F31 (combat-only floor, HP 80/792, 0 potions) → ★ 撤退回城', () => {
@@ -21,7 +21,7 @@ describe('rc11 item 7: QA oc-4 F31 (combat-only floor, HP 80/792, 0 potions) →
     run.floor = 1; run.tower.floors[0] = { n: 1, options: opts }; run.tower.floors.length = 1; run.hp = runDerived(p, run).hp * f; return routeAdvice9(p, run); };
   it('QA case', () => { const a = frac(['battle', 'elite'], 80 / 792)!; expect(a.retreat).toBe(true); expect(a.i).toBe(-1); expect(a.why).toMatch(/撤退回城/); });
   it('with a potion or healthy HP it still advises the fight', () => {
-    expect(frac(['battle', 'elite'], 80 / 792, 1)?.retreat).toBeUndefined();
+    expect(frac(['battle', 'elite'], 80 / 792, 2)?.retreat).toBeUndefined(); // rc12d+: 1 potion now retreats too
     expect(frac(['battle', 'elite'], 0.5)?.retreat).toBeUndefined();
   });
 });

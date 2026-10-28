@@ -400,7 +400,7 @@ export const DOOM9 = '此戰幾乎必敗';
 /** rc12d（製作人）: HP 1 + no usable potion + a live boss, and the first key neither ensures survival (guaranteed stun, est 0, or D with
  *  verdict 'safe' — 保命 alone only buys one hit at HP 1) nor ensures a kill (one hit ≥ every live foe's HP). */
 export function doomed9(s: BattleState, a: ChargeAdvice): boolean {
-  if (!(RULES.cp8 && CP9.on) || Math.round(s.hp) > 1 || canUse(s, { kind: 'item', id: 'health' }) || !s.monsters.some((m) => m.rank === 'boss' && m.hp > 0)) return false;
+  if (!(RULES.cp8 && CP9.on) || Math.round(s.hp) > 1 || canUse(s, { kind: 'item', id: 'health' }) || !s.monsters.some((m) => m.hp > 0)) return false; // rc12d+ item 4（製作人，自訂）: normal fights too (QA oc2 F36), was boss-only
   if (Math.round(nextRoundEstimate(s, true)) === 0) return false;
   const k = a.keys[0] ?? '';
   if (k === 'D' && defVerdictAt9(s, s.hp) === 'safe') return false;
@@ -409,7 +409,7 @@ export function doomed9(s: BattleState, a: ChargeAdvice): boolean {
   return true;
 }
 /** rc12d QA item 2（自訂）: one wording for the 防禦保命-only verdict, shared by the decision line and the red urgent line. */
-export const saveOnlyNote9 = (estDR: number, hp: number): string => `防禦只靠保命剩 1 HP（未保命估 ${estDR} ≥ HP ${hp}）：撐得住這一擊，之後再被打就撐不住`;
+export const saveOnlyNote9 = (estDR: number, hp: number): string => `防禦只靠保命剩 1 HP（未保命估 ${estDR} ≥ HP ${hp}）：這一擊只能靠保命活下來，之後再被打就會倒下`;
 function chargeAdvice2(s: BattleState, target: number): ChargeAdvice {
   const a = chargeAdvice1(s, target);
   if (!reflectLethal9(s, target) || !a.keys.length) return a;

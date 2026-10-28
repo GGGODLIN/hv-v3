@@ -615,7 +615,7 @@ export function mapPotion(p: Player, run: RunState): number {
 /** rc10 spec item 2（自訂，非原版，全部數值無出處）: the route-map recommendation (UI ★建議 + the SIM_ROUTE=hint sim).
  *  QA rc9: merchants entered 6–11 of 11–18 offers (the floor before a boss went to rest) and chests opened 1–2 of 10–14, then every
  *  death was 「藥水用完 → 防禦剩 1 HP → 死」. potLow = health potions below 3（自訂：約一場首領戰的用量，推測）. */
-export const ROUTE9 = { potLow: 3, restBelow: 0.6, preBossRestBelow: 0.9, retreatBelow: 0.25 };
+export const ROUTE9 = { potLow: 3, restBelow: 0.6, preBossRestBelow: 0.9, retreatBelow: 0.25, retreatPots: 1 };
 /** rc11 item 7（自訂）: abyss d%5==1/3 floors offer only battle/elite (abyssFloor), so QA oc-4 at F31 with HP 80/792 and 0 potions had no safe
  *  node and ★ fell on 戰鬥. Below retreatBelow HP with no health potion and only fights on offer, the advice becomes 撤退回城 (keeps 100%). */
 export function nextIsBoss9(run: RunState): boolean {
@@ -630,6 +630,13 @@ export const POTNEED9 = { base: 3, from: 20, per5: 1, cap: 8 };
 export function potNeed9(run: RunState): number {
   const d = (run.abyss ? depthOf(run) : run.floor) + 1, boss = Math.ceil(d / 5) * 5;
   return Math.min(POTNEED9.cap, POTNEED9.base + Math.max(0, Math.floor((boss - POTNEED9.from) / 5)) * POTNEED9.per5);
+}
+/** rc12d+ item 2（自訂）: the low-HP map hint names only nodes this floor actually has (QA oc1 F37: 「優先走休息節點」 with no rest node). */
+export function lowHpMapText9(opts: readonly NodeType[], pots: number, canBuy: boolean): { head: string; noPot: string } {
+  const rest = opts.includes('rest'), merch = opts.includes('merchant'), chest = opts.includes('chest');
+  const head = `進戰鬥前先喝藥${rest ? '或走休息節點' : ''}`;
+  const noPot = pots > 0 ? '' : rest ? '沒有生命藥水了：優先走休息節點' : merch && canBuy ? '沒有生命藥水了：本層沒有休息節點，先去商人補藥' : merch ? '沒有生命藥水了：本層沒有休息節點，金幣也不夠買藥，考慮撤退回城' : chest ? '沒有生命藥水了：本層沒有休息節點，寶箱有機會開出藥水，或撤退回城' : '沒有生命藥水了：本層沒有休息節點也沒有商人，考慮撤退回城';
+  return { head, noPot };
 }
 export function routeAdvice9(p: Player, run: RunState): { i: number; why: string; retreat?: true } | null {
   const opts = run.tower.floors[run.floor - 1]?.options ?? [];
@@ -647,8 +654,9 @@ export function routeAdvice9(p: Player, run: RunState): { i: number; why: string
       default: return [1000, ''];
     }
   };
-  if (frac < ROUTE9.retreatBelow && pots === 0 && opts.every((t) => t === 'battle' || t === 'elite'))
-    return { i: -1, retreat: true, why: `HP ${Math.round(frac * 100)}%、沒有生命藥水，本層只有戰鬥：建議撤退回城（保留 100%）` };
+  // rc12d+ item 3（製作人，自訂，非原版）: retreat ★ when health potions ≤ ROUTE9.retreatPots and HP < retreatBelow, whatever nodes are offered (was: 0 potions + only fights).
+  if (frac < ROUTE9.retreatBelow && pots <= ROUTE9.retreatPots)
+    return { i: -1, retreat: true, why: `HP ${Math.round(frac * 100)}%、生命藥水 ${pots} 瓶（≤ ${ROUTE9.retreatPots}）：建議撤退回城（保留 100%）` };
   let best = 0, bs = -1, why = '';
   opts.forEach((t, i) => { const [s, w] = sc(t); if (s > bs) { bs = s; best = i; why = w; } });
   return { i: best, why };
