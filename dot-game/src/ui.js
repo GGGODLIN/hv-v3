@@ -324,9 +324,9 @@ function dispatch(action, payload) {
     act(state, action, payload);
     // A successful lifecycle change cannot credit time from the previous mode.
     // Rejected/repeated starts and ordinary combat actions keep their interval.
-    if ((action === 'start' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
-    if (action === 'start' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
-    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
+    if ((action === 'start' || action === 'startOnce' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
+    if (action === 'start' || action === 'startOnce' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
+    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'startOnce' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 // Gear-only plans reference owned items; they never copy items or save abilities.
@@ -1218,6 +1218,7 @@ function render(force = false) {
   }
   $('stage-select').value = state.stage; $('stage-select').disabled = state.mode === 'battle' || !tabOwner; $('auto-advance').checked = Boolean(state.autoAdvance); $('auto-advance').disabled = !tabOwner; $('import-save').disabled = !tabOwner;
   const departure = departureReadiness();
+  $('start-once-button').disabled = !tabOwner || state.mode !== 'town' || !departure.ready || itemWorldView(state).active;
   $('start-button').disabled = !tabOwner || state.mode === 'battle' || state.mode === 'defeat' || !departure.ready; $('retreat-button').disabled = !tabOwner || state.mode === 'town'; $('heal-button').disabled = !tabOwner || state.mode !== 'battle' || state.hero.hp >= derived.maxHp || !(state.potions > 0);
   renderFinishCamp();
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
@@ -2132,7 +2133,7 @@ function renderFinishCamp() {
         ? '已取消回營預約；通關後依原設定自動繼續。'
         : view.available
           ? '可預約打完本次再回營；「回營整備」仍會立即撤退。'
-          : '單次回營預約不會保存；出戰後可設定，戰敗或重新載入即清除。';
+          : '單次遠征會完成本層全部四波、領完通關獎勵後回營；連續遠征則自動重刷。回營預約不保存，戰敗或重新載入即清除。';
 }
 $('finish-camp-button').addEventListener('click', () => {
   if (itemWorldView(state).active) return;
@@ -2144,6 +2145,10 @@ $('finish-camp-button').addEventListener('click', () => {
   }
 });
 
+$('start-once-button').addEventListener('click',()=>{
+  if (state.mode !== 'town' || !departureReadiness().ready || itemWorldView(state).active) return;
+  if (dispatch('startOnce') && state.mode === 'battle' && finishThenCampView(state).queued) playSound('win');
+});
 $('start-button').addEventListener('click',()=>{const previousMode=state.mode;if(dispatch('start')&&previousMode!=='battle'&&state.mode==='battle')playSound('win');});
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));

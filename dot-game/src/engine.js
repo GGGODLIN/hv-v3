@@ -1461,6 +1461,13 @@ export function act(s, action, payload) {
   if(action==='heal'&&s.mode==='battle'&&s._phase==='fight'){usePotion(s);return s;}
   if(s.mode==='battle')return s;
   if(action==='selectStage'&&Number.isInteger(payload)&&payload>=1&&payload<=s.unlocked){s.stage=payload;return s;}
+  // Camp-only ordinary expedition: queue only after start succeeds. No durable preference.
+  if(action==='startOnce'){
+    if(s.mode!=='town'||itemWorldSessions.has(s))return s;
+    start(s);
+    if(s.mode==='battle'&&s._phase==='fight')finishThenCampSessions.add(s);
+    return s;
+  }
   if(action==='start'){start(s);return s;}
   const item=s.inventory.find(i=>i.id===payload);
   if(action==='lock'&&item){if(boundMetadata(item)||isGearSetProtected(s,item.id))return s;item.locked=!item.locked;return s;}

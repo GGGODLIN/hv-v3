@@ -104,7 +104,7 @@ test('lethal and final-wave bleed ticks stay visible without a current target an
     assert.equal(h.dom['bleed-notice'].hidden, true);
   }
   assert.match(js, /function syncSelection\(\) \{\s*\$\('bleed-notice'\)\.hidden = true/);
-  assert.match(js, /action === 'start' \|\| action === 'enterItemWorld' \|\| action === 'retreat'\) \$\('bleed-notice'\)\.hidden = true/);
+  assert.match(js, /action === 'start' \|\| action === 'startOnce' \|\| action === 'enterItemWorld' \|\| action === 'retreat'\) \$\('bleed-notice'\)\.hidden = true/);
 });
 
 test('normal-motion bleeding has a separately labeled floating number and burst feedback is bounded', () => {
@@ -148,6 +148,6 @@ test('bleeding readouts remain accessible, narrow-screen wrapping and separate f
   assert.match(css, /\.bleed-damage-notice\[hidden\] \{ display: none; \}/);
   assert.match(css, /@media\(max-width:680px\) \{ \.enemy-status-list \{ grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(css, /\.floating-number\.bleed/);
-  assert.match(html, /v0\.65 · 來源候選/);
+  assert.match(html, /v0\.66 · 來源候選/);
   assert.doesNotMatch(js, /\.innerHTML\s*=/);
 });
