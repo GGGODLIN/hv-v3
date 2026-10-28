@@ -7,6 +7,10 @@ import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
 import { derive, newPlayer } from '../src/core/player';
 import { Rng } from '../src/core/rng';
 import { RULES } from '../src/core/run';
+import { RUN12O as RUN12O_T } from '../src/core/cp8';
+import { afterAll as afterAll_T, beforeAll as beforeAll_T } from 'vitest';
+// rc12o: these pin the rc12n RUN12M table (rc12o layer off here; rc12o values in tests/rc12o.test.ts)
+beforeAll_T(() => { RUN12O_T.on = false; }); afterAll_T(() => { RUN12O_T.on = true; });
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 describe('rc12m RUN12M', () => {
   it('is on by default with per-school potion-source cuts; merchant untouched; boss/monster single hit cap 0.4', () => {

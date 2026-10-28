@@ -971,7 +971,7 @@ export class App {
         if (e.dmg > 0) this.lastHit = { who: who9, ...(e.label && !refl ? { label: e.label } : {}), dmg: e.dmg, maxHp: Math.round(b.d.hp), charged: !refl && !!e.label && /重擊|蓄力一擊/.test(e.label), ...(refl ? { reflect: true } : {}) };
         if (e.dmg > 0) { const hit = { who: who9, ...(e.label && !refl ? { label: e.label } : {}), dmg: e.dmg, charged: !refl && !!e.label && /重擊|脈衝|蓄力一擊/.test(e.label) }; turnHits.push(hit); }
         if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
-        this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}${refl ? '' : rewindNote9(b.monsters[e.from], e.label)}</span>`); // rc10 item 2（自訂）
+        this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}" data-hitturn="${b.turn}">${RULES.cp8 ? `[第 ${b.turn} 回合] ` : ''}${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}${refl ? '' : rewindNote9(b.monsters[e.from], e.label)}</span>`); // rc10 item 2（自訂）
       }
       if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，2 回合後重新蓄力）</span>`);
       // CP3-bugfix 6: skill / stance feedback in the log.

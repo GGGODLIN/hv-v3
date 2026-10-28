@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, boss70, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -263,10 +263,13 @@ export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
   return out;
 }
 
+/** rc12o（自訂）: boss guaranteed piece minimum quality = abyss guarantee + RUN12O.bossGear tiers. */
+export const bossGearQ12o = (q: Quality): Quality => QUALITIES[Math.min(QUALITIES.length - 1, QUALITIES.indexOf(q) + Math.max(0, Math.round(RUN12O.bossGear)))]!;
 /** Derived stats with run bonuses applied. */
 export function runDerived(p: Player, run: RunState) {
   const d = derive(p);
   const out = { ...d, adb: d.adb * (1 + run.bonus.dmg), mdb: d.mdb * (1 + run.bonus.dmg), hp: Math.round(d.hp * (1 + run.bonus.hp)) };
+  if (RULES.cp8 && CP9.on && RUN12M.on && RUN12O.on && RUN12O.arcHp > 0 && p.lean === 'arcane' && run.abyss) out.hp = Math.max(out.hp, Math.round(RUN12O.arcHp * refHp9(depthOf(run) || run.floor))); // rc12o（自訂）: arcane max-HP floor
   if (!cp4On(run)) return out;
   // CP4 step 2: run-buff derived mods (doc §1 variables only; all values 暫定).
   const m = sumMods(run.buffs!).d;
@@ -340,6 +343,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
       if (rank === 'boss' && RULES.cp8 && CP9.on && (lean === 'arcane' || lean === 'oc')) { m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * aoBossHp12j(ab || run.floor, lean))); if (lean === 'oc') { m.adb *= ocDmg12l(ab || run.floor); const pl = ocPlain12l(ab || run.floor); if (pl != null) (m as { plain12h?: number }).plain12h = pl; } } // rc12j item 4 / rc12l（自訂）
       if (RUN12M.on && RULES.cp8 && CP9.on) (m as { hitCap12m?: number }).hitCap12m = RUN12M.hit; // rc12m（自訂）: any monster single hit ≤ 40% max HP
       if (rank !== 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * mob12m(F, lean, 'mobHp'))); m.adb *= mob12m(F, lean, 'mobDmg'); } // rc12m（自訂）
+      if (rank === 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * boss70(F, lean, 'bossHp70'))); m.adb *= boss70(F, lean, 'bossDmg70'); } // rc12o（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
       return m;
     });
@@ -432,7 +436,11 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
       if (!ab) (loot.guaranteed ??= []).push(loot.equips[loot.equips.length - n]!.id);
       loot.credits += 40 * run.floor;
       // CP6 decision 5: guaranteed piece every 5 depths, min quality from the original trophy table (Items.md).
-      if (ab) { const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); }
+      const o12 = !!ab && RULES.cp8 && RUN12M.on && RUN12O.on;
+      if (ab) { const g = generateEquip(rng, L, { minQuality: o12 ? bossGearQ12o(guaranteeQuality(ab)) : guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); }
+      if (o12) { // rc12o（自訂）: every abyss boss kill = a clear reward (guaranteed piece +bossGear quality; potions concentrated here)
+        if (ab >= RUN12O.bossPotFrom && RUN12O.bossPot > 0) { const n = Math.floor(RUN12O.bossPot) + (rng.chance(RUN12O.bossPot % 1) ? 1 : 0); if (n) loot.potions.health = (loot.potions.health ?? 0) + n; }
+      }
       // CP6 r2 decision 9 (暫定): first clear of every 10th depth → 1 more guaranteed piece + a title.
       if (ab && ab % ABYSS.milestoneEvery === 0 && ab > (run.abyss!.ms ?? 0)) {
         const g = generateEquip(rng, L, { minQuality: guaranteeQuality(ab) }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id);

@@ -11,6 +11,10 @@ describe('rc12l oc boss HP', () => {
   });
 });
 import { ocDmg12l, ocPlain12l } from '../src/core/cp8';
+import { RUN12O as RUN12O_T } from '../src/core/cp8';
+import { afterAll as afterAll_T, beforeAll as beforeAll_T } from 'vitest';
+// rc12o: these pin the rc12n RUN12M table (rc12o layer off here; rc12o values in tests/rc12o.test.ts)
+beforeAll_T(() => { RUN12O_T.on = false; }); afterAll_T(() => { RUN12O_T.on = true; });
 describe('rc12l oc F70+ damage (自訂)', () => {
   it('×1 before F70, ramps to ×1.5 at F100; plain raised F70+', () => {
     expect(ocDmg12l(50)).toBe(1); expect(ocDmg12l(69)).toBe(1);

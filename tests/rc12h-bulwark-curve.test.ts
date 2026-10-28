@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { deep12g, plainAt12h, potCdAt12h, deepK12g, CP9 } from '../src/core/cp8';
+import { RUN12O as RUN12O_T } from '../src/core/cp8';
+import { afterAll as afterAll_T, beforeAll as beforeAll_T } from 'vitest';
+// rc12o: these pin the rc12n RUN12M table (rc12o layer off here; rc12o values in tests/rc12o.test.ts)
+beforeAll_T(() => { RUN12O_T.on = false; }); afterAll_T(() => { RUN12O_T.on = true; });
 describe('rc12h bulwark deep curve（自訂）', () => {
   it('bulwark HP grows little, potion pressure and plain cap ramp to F100', () => {
     expect(deep12g(100, 'hp', 'bulwark')).toBeCloseTo(1 + 10 * 0.05, 5); // rc12m RUN12M bulwark deepK 10

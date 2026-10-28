@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { DEEP12G, deep12g, bwBossHp12i } from '../src/core/cp8';
+import { RUN12O as RUN12O_T } from '../src/core/cp8';
+import { afterAll as afterAll_T, beforeAll as beforeAll_T } from 'vitest';
+// rc12o: these pin the rc12n RUN12M table (rc12o layer off here; rc12o values in tests/rc12o.test.ts)
+beforeAll_T(() => { RUN12O_T.on = false; }); afterAll_T(() => { RUN12O_T.on = true; });
 // rc12i（自訂）: blade deep curve is HP-only stronger (k 4, hp ×1.5 → F100 HP ×7, dmg still ×5); bulwark boss-HP knob defaults off.
 describe('rc12i curve', () => {
   it('blade: F100 HP ×1.6, dmg ×13 (rc12k r2)', () => { expect(deep12g(100, 'hp', 'blade')).toBeCloseTo(1.6); expect(deep12g(100, 'dmg', 'blade')).toBeCloseTo(13); });

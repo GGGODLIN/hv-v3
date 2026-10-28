@@ -36,6 +36,10 @@ describe('rc12g deep curve defaults（自訂）', () => {
   });
 });
 import { keepsWeaponType12g } from '../src/core/run';
+import { RUN12O as RUN12O_T } from '../src/core/cp8';
+import { afterAll as afterAll_T, beforeAll as beforeAll_T } from 'vitest';
+// rc12o: these pin the rc12n RUN12M table (rc12o layer off here; rc12o values in tests/rc12o.test.ts)
+beforeAll_T(() => { RUN12O_T.on = false; }); afterAll_T(() => { RUN12O_T.on = true; });
 describe('rc12g auto-wear keeps the weapon type（自訂）', () => {
   it('no lean: staff stays staff, shield is not dropped for a 2H', () => {
     const st: any = { equipped: { mainHand: { group: 'staff' } } };
