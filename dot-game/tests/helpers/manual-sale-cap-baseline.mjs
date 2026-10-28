@@ -21,4 +21,4 @@ const changes={
     ]
   ]
 };
-export function beforeManualSaleCap(source,path){for(const [current,previous] of changes[path]||[])source=source.replace(current,previous);return source;}
+export function beforeManualSaleCap(source,path){if(path==='src/engine.js')source=source.replace("  if(sale&&canCreditManualSale(s,sale.value)){", "  if(sale){").replace("  if(sale)log(s,'自動出售未執行：收益超過金幣保存上限，戰利品完整保留。');\n", "");for(const [current,previous] of changes[path]||[])source=source.replace(current,previous);return source;}

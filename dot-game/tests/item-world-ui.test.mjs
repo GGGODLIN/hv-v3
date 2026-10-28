@@ -86,7 +86,7 @@ test('IW1 UI: sidebar balances are always discoverable, unique and live without 
     assert.ok(aside.includes(`id="${id}"`)); assert.equal(html.match(new RegExp(`id="${id}"`, 'g')).length, 1);
   }
   for (const copy of ['普通遠征每次通關固定 +1 世界之種', '不是原版掉落率', '不補發', 'Fair／Average／Superior', 'IW2–10', '其他品質尚未實作', '不代表原版不合法', '沒有 CP、護符、鍛造或材料獎勵']) assert.ok(html.includes(copy), copy);
-  assert.match(html, /v0\.51 · 來源候選/); assert.match(html, /v0\.51 使用資料格式 v3/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
+  assert.match(html, /v0\.52 · 來源候選/); assert.match(html, /v0\.52 使用資料格式 v3/); assert.match(html, /v0\.23 及更舊版不能讀取新格式/);
 });
 
 test('IW1 UI: full exact quote previews seven actual stats, cost and adapted five-round difficulty without mutation', () => {
@@ -339,7 +339,7 @@ test('IW1 UI: Exquisite legacy rapier preview, cancel and completed import prese
 });
 
 test('IW1 UI: current settings distinguish same-format Exquisite compatibility from v1/v2 migration', () => {
-  assert.match(html, /v0\.51 使用資料格式 v3/);
+  assert.match(html, /v0\.52 使用資料格式 v3/);
   assert.match(html, /v0\.24／v0\.25 不能讀取含 Exquisite IW1 的進度，即使資料格式同為 v3/);
   assert.match(html, /請先匯出備份並重新整理所有舊版分頁，再接手進度/);
   assert.match(html, /仍沿用 v3 儲存命名空間，與資料格式版本不同/);

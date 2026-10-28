@@ -989,12 +989,13 @@ function addLoot(s, slot) {
   // Opt-in affects only this newly generated drop, after the unchanged RNG/ID
   // path. It never sweeps inventory/pending items or bypasses the start guard.
   const sale=s.autoSell===true&&!boundMetadata(item)&&!isGearSetProtected(s,item.id)?safeSaleEntry(item,protectedLootKeepers(s)):null;
-  if(sale){
+  if(sale&&canCreditManualSale(s,sale.value)){
     s.hero.gold+=sale.value;
     event(s,'loot',`自動出售 ${item.name} · +${sale.value} 金幣`,sale.value,item.id);
     log(s,`自動出售：${item.name} · +${sale.value} 金幣；保留同型 ${sale.keeperName}。`);
     return sale;
   }
+  if(sale)log(s,'自動出售未執行：收益超過金幣保存上限，戰利品完整保留。');
   if(s.inventory.length<INVENTORY_LIMIT)s.inventory.push(item);else s.pendingLoot.push(item);
   event(s,'loot',`獲得 ${item.name}`,undefined,item.id);log(s,`戰利品：${item.name}`);
 }

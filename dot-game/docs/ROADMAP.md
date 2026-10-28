@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.52 source-only slice: retain uncreditable automatic-sale loot
+
+Guard the newly generated drop sale with the existing saved-gold ceiling; if full proceeds cannot fit, retain the exact item and normal bag/pending order. Do not cap or redesign unrelated combat gold rewards. Zero website operations, no browser acceptance.
+
 ## v0.51 source-only slice: keep uncreditable sale items
 
 Enforce the existing save gold ceiling before single, safe and legacy-common manual sales mutate anything. Preserve full items/pending queue at overflow, exact-cap success and ordinary prices. Do not claim other reward paths are covered. No website writes or browser acceptance.
