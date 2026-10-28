@@ -771,8 +771,8 @@ function openWeaponCommission(family) {
   heading.append(...['屬性', '委託值', '現用值', '差值'].map(text => node('span', '', text)));
   $('commission-comparison').replaceChildren(heading, ...Object.entries(statNames).map(([key, label]) => {
     const value = Number(item.stats?.[key]) || 0, old = Number(currentWeapon?.stats?.[key]) || 0;
-    const diff = Number((value - old).toFixed(4)), rate = rateStats.has(key);
-    const delta = diff === 0 ? '—' : `${diff > 0 ? '+' : ''}${commissionStat(diff, rate)}${rate ? ' 百分點' : ''}`;
+    const diff = value - old, rate = rateStats.has(key);
+    const delta = statDeltaText(key, diff);
     const row = node('div', 'commission-stat-row');
     row.append(node('span', '', label), node('strong', '', `${commissionStat(value, rate)}${rate ? '%' : ''}`), node('span', '', `${commissionStat(old, rate)}${rate ? '%' : ''}`), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta));
     return row;

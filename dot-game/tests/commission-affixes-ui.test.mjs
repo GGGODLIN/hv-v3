@@ -9,7 +9,7 @@ const js = readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../style.css', import.meta.url), 'utf8');
 const extract = (first, next) => js.slice(js.indexOf(first), js.indexOf(next));
-const controllers = extract('function commissionQuoteSignature(', 'function safeSaleSignature(');
+const controllers = extract('function statDeltaText(', 'function selectedSaleComparison(') + extract('function commissionQuoteSignature(', 'function safeSaleSignature(');
 function node(tag, className = '', text = '') {
   return { tag, className, textContent: String(text), open: false, hidden: false, disabled: false, children: [], events: new Map(), attributes: {},
     append(...items) { this.children.push(...items); }, replaceChildren(...items) { this.children = items; },
