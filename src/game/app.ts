@@ -923,7 +923,7 @@ export class App {
     const can0 = castable();
     const bh0 = b.monsters.map((m) => m.hp);
     const ev = act(b, a, this.rng, profsOf(this.p));
-    if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { runId: this.run.qaId ??= newRunId(), lean: this.p.lean ?? '', floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)) }); // rc11 item 6
+    if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { runId: this.run.qaId ??= newRunId(), lean: this.p.lean ?? '', floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)), bossMaxHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + m.maxHp, 0)) }); // rc11 item 6 (+ bossMaxHp rc11c)
     { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4
       const fresh = castable().filter((id) => !can0.includes(id));
       this.cdPending = [...new Set([...this.cdPending, ...off, ...fresh])].filter((id) => !this.cdShown.includes(id) && b.cooldowns[id] <= 0); }
