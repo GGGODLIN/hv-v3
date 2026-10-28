@@ -13,6 +13,13 @@ const PREF_KEY = `hv-v3-dot-${storageScope}-preferences-v3`;
 const LOCK_NAME = `hv-v3-dot-${storageScope}-writer-v3`;
 const $ = id => document.getElementById(id);
 const format = value => Math.round(Number(value) || 0).toLocaleString('zh-TW');
+// Keep compact whole-number labels without calling a live fraction zero or full.
+function resourcePoolText(current, maximum) {
+  const value = number => number > 0 && number < 1 ? '<1' : format(number);
+  const currentText = value(current), maximumText = value(maximum);
+  const partial = current > 0 && current < maximum && currentText === maximumText;
+  return `${currentText} / ${maximumText}${partial ? '（未滿）' : ''}`;
+}
 const clock = value => `${Math.floor((value || 0) / 60).toString().padStart(2, '0')}:${Math.floor((value || 0) % 60).toString().padStart(2, '0')}`;
 const qualityNames = Object.fromEntries(QUALITY_TIERS.map(tier => [tier.name, tier.label]));
 const qualityName = quality => qualityNames[quality] || quality;
@@ -1165,8 +1172,8 @@ function render(force = false) {
   const derived = stats(state);
   renderPlayerParry(derived);
   $('level-badge').textContent = `LV. ${state.hero.level}`;
-  $('hp-label').textContent = `${format(state.hero.hp)} / ${format(derived.maxHp)}`;
-  $('mp-label').textContent = `${format(state.hero.mp)} / ${format(derived.maxMp)}`;
+  $('hp-label').textContent = resourcePoolText(state.hero.hp, derived.maxHp);
+  $('mp-label').textContent = resourcePoolText(state.hero.mp, derived.maxMp);
   $('xp-label').textContent = `${format(state.hero.xp)} / ${format(state.hero.xpNext)}`;
   setMeter('hp-bar', state.hero.hp, derived.maxHp); setMeter('mp-bar', state.hero.mp, derived.maxMp); setMeter('xp-bar', state.hero.xp, state.hero.xpNext);
   $('stat-attack').textContent = format(derived.attack); $('stat-defense').textContent = format(derived.defense); $('stat-crit').textContent = `${((derived.crit || 0) * 100).toFixed(1)}%`; $('stat-gold').textContent = format(state.hero.gold);

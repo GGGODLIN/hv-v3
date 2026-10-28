@@ -1,24 +1,24 @@
 {
-  "checkpoint": "184-v059-commission-delta",
-  "version": "0.59.0",
+  "checkpoint": "185-v060-resource-pool",
+  "version": "0.60.0",
   "status": "source-tested-browser-pending",
-  "source_base": "638bd0c0adb33d3bd9010ff01685b8e1c200f1c8",
+  "source_base": "92982837d42a084668d17dacd9bd9b803ea81e89",
   "base_accepted_recovery": "eaf6e784782a781114352d729a11d0b025f3032a",
   "accepted_website": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
-  "scope": "Use existing signed stat formatter for commission deltas without rounding nonzero changes into equality; no price/item/RNG/state changes.",
-  "source_tests_passed": 2207,
+  "scope": "Display positive HP/MP fractions and near-full rounded pools honestly; no state/resource/RNG changes.",
+  "source_tests_passed": 2224,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
   "new_focused_tests": 1,
-  "independent_focused_tests_passed": 14,
-  "browser_acceptance": "Pending for v056 through v059. Source/UI-model tests only; zero website writes.",
+  "independent_focused_tests_passed": 16,
+  "browser_acceptance": "Pending for v056 through v060. Source/UI-model tests only; zero website writes.",
   "publication": "Not published; formal v055 remains unchanged.",
-  "recovery": "docs/RECOVERY-V059.md",
+  "recovery": "docs/RECOVERY-V060.md",
   "files": {
     "README.md": {
-      "bytes": 57832,
-      "sha256": "958dd0f0e4ec13b42499bbf275887c3c559d5b8c9b40e9bec3caed5cc3643ad8"
+      "bytes": 58699,
+      "sha256": "51c4dca100ee7228726ff13fd6e5d18073ee11b4288971299f238fff47352071"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -760,6 +760,14 @@
       "bytes": 1196,
       "sha256": "744d128d369716be04a5d6eba5d8cc504dd9f01c9cfb4ea300f715fda45a9dac"
     },
+    "docs/QA-V060-INDEPENDENT.md": {
+      "bytes": 1587,
+      "sha256": "6d31d19fda98d8e3e843d773166cf53f897b73ed721393b9be50cb19ed2809c0"
+    },
+    "docs/QA-V060.md": {
+      "bytes": 1494,
+      "sha256": "487d751824d4f0bd85c7da2a47fad40147def787101a8836e76da051be2d96a3"
+    },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
@@ -912,6 +920,10 @@
       "bytes": 1133,
       "sha256": "52d138fb54e68ee9451bdad4c0e4eff34c8b90d47402a6b6ba115080a2a7cda7"
     },
+    "docs/RECOVERY-V060.md": {
+      "bytes": 1145,
+      "sha256": "afa958f77f38fae9ad8830c0b777caa73776290abc47162197a1fd7553cf7e61"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -921,8 +933,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 41268,
-      "sha256": "6794cb7566b55d3522b3464c1ff68d0bfa14f28380274626eff116895a9510b2"
+      "bytes": 41465,
+      "sha256": "2ae55d7a30735a6fbeda2f9eb397bcf7c968f1781e8a86a49a5ed146e5160af4"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -957,8 +969,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 60543,
-      "sha256": "78af7374e57c52afd190f10e2053ccc6d3223789b474d8e71df16a416f1a43e9"
+      "bytes": 61410,
+      "sha256": "cd763dccec4c483a8862fe9ee1aa48195ba189532ad2df2a55eada307e14f221"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1178,11 +1190,11 @@
     },
     "index.html": {
       "bytes": 46410,
-      "sha256": "2d46e275d283cc64eccb2b81fd8012e98599f9306513fbcc1f3eea71ce5e6302"
+      "sha256": "13aec7fce861b7b5a7f81cebb0afac15ca8bc25da253772ee30a3ba16bca90bc"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "ae8d094db78bec7d457e5700e6aeadd3f5f5ba765adb19b847193bcfd8efe85b"
+      "sha256": "535014d7507a7e7623b4791762c3491cb1bd9985bf7e53841ad5c51b6e81e842"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1269,8 +1281,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 174460,
-      "sha256": "0f06a4daef8e6323b6255845cc09dfe499a6a8190e30d2178833493692d06203"
+      "bytes": 174879,
+      "sha256": "f20f519f5eb33e997b824bded58f1f6ce12064762cf152329551cd146d0837f0"
     },
     "style.css": {
       "bytes": 74711,
@@ -1314,7 +1326,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "dda8f6df36a5c4ae230cc082c70f91d0673c85c7471f3d70fc962ab66af5d50e"
+      "sha256": "9d1b82c8832ddc2280125d74b92f6a956b512c98bcc1cd4801c179af1db13091"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1330,7 +1342,7 @@
     },
     "tests/camp-chest-independent.test.mjs": {
       "bytes": 9615,
-      "sha256": "c841a657f8fac27a8609a8d469e413ce3cec7b8ea8393b6b550873968a4041c4"
+      "sha256": "a538da16665921c6b5c95ee4ceec7bf4e326ccfcf71f22cd341f79755da8d305"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1398,7 +1410,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18414,
-      "sha256": "9d66874b74e1db7f12245cea0811c0d0ceea2b9c5ecfd8965de4ce1e7cf760ec"
+      "sha256": "3bcac6868aa60b84cd75d16b8bd16d856618f6f569d35782e4a82928ad6db48a"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16797,
@@ -1414,7 +1426,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "4996ec411cc1319beffb3ebc8ad9f7191afbe5517f8705e1a656d42092bb5d8d"
+      "sha256": "7f257918837209794cbe16f009966000c31340432e408483d06b51277595db2c"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1450,7 +1462,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "c8b54b90eb343b6f1ab4ae2c4e1808d0f4b7b47c8e84df87e446be5e3618f4fc"
+      "sha256": "f3b5bf8084717750bf2e171d14093c0dfdcc200698c8f8e2425efe1fce927004"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11471,
@@ -1721,8 +1733,8 @@
       "sha256": "d28abedee7fee3cfc0e0f8553399e5530a7c033a50116d8ec406ea205b2f6a67"
     },
     "tests/helpers/commission-delta-baseline.mjs": {
-      "bytes": 579,
-      "sha256": "5dc34865be80b1711ab13b7bc5867af38eed801a9fc3add981568d69936b9a23"
+      "bytes": 685,
+      "sha256": "20f0ad74d8bfd46eed71758ab19940b32e80b1557e63cd770fdf743547932300"
     },
     "tests/helpers/comparison-focus-harness.mjs": {
       "bytes": 9179,
@@ -1775,6 +1787,10 @@
     "tests/helpers/report-export-baseline.mjs": {
       "bytes": 2907,
       "sha256": "15265bda3e6e1eae1527d58b2a5330bb040de642bf6ba189ce29e34d3f42491d"
+    },
+    "tests/helpers/resource-pool-baseline.mjs": {
+      "bytes": 957,
+      "sha256": "6d7b15cbbfe5bc774321219c31d0f84aae174897f8db6ea6fec6063ea06bf4c0"
     },
     "tests/helpers/soulbind-compat.mjs": {
       "bytes": 1684,
@@ -1830,7 +1846,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "5ede27324f3497f4ed3a879ed1c5e332135fe8f69d4a9ee55f4d810925e7e2d9"
+      "sha256": "60f4db2735c4b6104284934d6955a0332cf76831b2d469a2ba2ffd75299b43e4"
     },
     "tests/loadout-preview-audit.test.mjs": {
       "bytes": 7382,
@@ -1942,7 +1958,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "91a772b955020562d8295cbf7810d9cb4ca514d3f2b656491f41f813dc4b6fc6"
+      "sha256": "d01a8d66e7532f91f3fe73806522146232537444698ecb48266f1deccfc50f9c"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1972,13 +1988,21 @@
       "bytes": 15770,
       "sha256": "d984bda812a9cf4798d0d6a1eaebef28b9222381677cc16b7d2eb7acdcd4ba65"
     },
+    "tests/resource-pool-audit.test.mjs": {
+      "bytes": 4133,
+      "sha256": "80e5279ca2026600f13348002fd85520191c987c140626f3d413c124a5cd48da"
+    },
+    "tests/resource-pool.test.mjs": {
+      "bytes": 728,
+      "sha256": "7d9a1c37c467891b316dfa514e51a0685c0c1afaa42117cb4c24f0c8feac6051"
+    },
     "tests/role-balance.test.mjs": {
       "bytes": 10989,
       "sha256": "56d219e8e4695b4545a6b7a43d5109efd2992b9ee135a330b5e0b08290b497b3"
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "e87f0142f8d388bc1334fd4b51cc17fb5b4d3d37ed236de4d5296515af9ef057"
+      "sha256": "1e7a73a099d7284aa43c2b8bc9b8e382cb89e7aa8dd1603d71bd73a7f5f35477"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -2042,7 +2066,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "b6ec5b33821b64a7297b52d8d7968e1f58286bd6da55fe1a6fb7d1d060e6f97a"
+      "sha256": "dc59653a1953f4930b6b95255ad9b9790d8836cf68d5cb67cf1cca3949d5d91e"
     },
     "tests/stat-delta-audit.test.mjs": {
       "bytes": 3200,
@@ -2150,7 +2174,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "a955294e8587c7954309539a7e778076927fe0f7d889162380650c8f0e0c0909"
+      "sha256": "4f92c97cd1c64537c32d67dcc52f8356edd08aa002c6e5310a3666ecbf05cf2c"
     }
   }
 }
