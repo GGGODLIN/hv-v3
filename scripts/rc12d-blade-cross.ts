@@ -35,7 +35,7 @@ function fight(cx: string, by: string, seed: number) {
 }
 const info = Object.fromEntries(Object.entries(snap).map(([k, s]) => { const d = runDerived(s.player, s.run) as unknown as Record<string, number>;
   const bm = encounter(structuredClone(s.run), pool, 'boss').find((m) => m.rank === 'boss')!;
-  return [k, { hp0: s.run.hp, maxHp: Math.round(d.hp), adb: Math.round(d.adb), physCrit: +(+d.physCrit).toFixed(3), physMit: +(+d.physMit).toFixed(3), pot: s.player.potions,
+  return [k, { hp0: s.run.hp, maxHp: Math.round(d.hp!), adb: Math.round(d.adb!), physCrit: +(+d.physCrit!).toFixed(3), physMit: +(+d.physMit!).toFixed(3), pot: s.player.potions,
     gear: Object.values(s.player.equipped ?? {}).filter(Boolean).map((e) => (e as { name?: string }).name), bonus: s.run.bonus,
     boss: { name: bm.name, maxHp: bm.maxHp, phases: (bm as { phases?: number }).phases, res: (bm as { res?: unknown }).res } }]; }));
 console.log(JSON.stringify({ F, info }));
