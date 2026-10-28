@@ -418,6 +418,15 @@ export const stunReady9 = (s: BattleState, id: SkillId, t: number): boolean => c
 /** cp9-rc7 QA item 4（自訂，暫定）: UI keys that are never held or dropped when a boss starts a wind-up — D / Z / X / C / S and the
  *  stun skills (the interrupt the hint asks for). rc6 bug (QA oc F35 T4): Q pressed while the previous turn animated was queued, the boss
  *  then began charging, and the fresh-wind-up rule (app.ts) dropped the queued Q — only the 2nd press ran and showed 「蓄力被打斷」. */
+/** rc12r 製作人決定（自訂）: after a monster phase, decide what happens to buffered keys. ONLY when a monster began a NEW telegraph this
+ *  round (windingUp now, not before the act) every queued key is dropped (dropped = true → UI flashes 「蓄力預告！排隊指令已取消」).
+ *  Otherwise the existing rule stays: on a wind-up turn only windSafeKey keys (D / items / 靈動 / stun skills, rc7 QA item 4) survive. */
+export function queueAfterAct(wasWinding: boolean[], s: BattleState, q: { q: string | null; queued: string | null; queued2: string | null }): { q: string | null; queued: string | null; queued2: string | null; dropped: boolean } {
+  const fresh = s.monsters.some((m, i) => windingUp(m) && !wasWinding[i]);
+  if (fresh) return { q: null, queued: null, queued2: null, dropped: !!(q.q || q.queued || q.queued2) };
+  if (!s.monsters.some(windingUp)) return { ...q, dropped: false };
+  return { q: q.q && windSafeKey(q.q) ? q.q : null, queued: q.queued && windSafeKey(q.queued) ? q.queued : null, queued2: q.queued2, dropped: false };
+}
 export const windSafeKey = (cmd: string): boolean => /^(defend|item:|spirit)/.test(cmd) || STUN_SKILLS.some((id) => cmd === `skill:${id}`);
 export function drainStunKey(s: BattleState, target = 0): string | null {
   if (!RULES.cp8 || !CP9.on || ADVICE_DIAG.revert.has('drainstun')) return null;

@@ -1,7 +1,7 @@
 import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
 import { CP8, CP9, curveSchool12g } from '../core/cp8';
 import { iconKey } from './icons';
-import { saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
+import { saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, queueAfterAct, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -388,7 +388,8 @@ export class App {
     const ids0 = skillKit(b);
     const readyHint = ''; // rc12c item 1: the 💡 「可以用了」 line is gone — the ★ key is the only suggestion
     const elemHint = ''; // rc12c item 1: the element hint's 「建議 n·…」 is folded into ★ (sugtitle keeps the element, no key)
-    const decide = charging ? `<div class="decide" data-decide>⚠ ${chargers.map((m) => `<span data-charger="${esc(m.name)}">${esc(m.name)} ${chargeKind(m)}${RULES.cp8 && CP9.on ? ` <span class="intent" data-intent>下回合意圖：約 ${Math.round(Math.min(chargeEstimate(b, m, false, true), CP9.bossBurst * b.d.hp))} 傷害</span>` : ''}</span>` /* cp9-rc5 (2)（自訂，暫定） */).join('；')}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>`
+    const qd = this.qDrop === b.turn ? `<b class="warn qdrop" data-queuedrop>蓄力預告！排隊指令已取消</b><br>` : ''; // rc12r 製作人決定
+    const decide = charging ? `<div class="decide" data-decide>${qd}⚠ ${chargers.map((m) => `<span data-charger="${esc(m.name)}">${esc(m.name)} ${chargeKind(m)}${RULES.cp8 && CP9.on ? ` <span class="intent" data-intent>下回合意圖：約 ${Math.round(Math.min(chargeEstimate(b, m, false, true), CP9.bossBurst * b.d.hp))} 傷害</span>` : ''}</span>` /* cp9-rc5 (2)（自訂，暫定） */).join('；')}<br>${this.decideLine(b, hpPot)} · HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}${RULES.cp8 ? this.chargeExtra(b, chargers) : ''}</div>`
       : dangerNow && !b.over ? `<div class="decide" data-decide data-lowhp>⚠ HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}<br>${this.decideLine(b, hpPot)}</div>`
       : pk ? `<div class="decide calm" data-decide data-calm>${this.decideLine(b, hpPot)}</div>` : ''; // rc12c item 1: the 決策 line is shown every turn // rc20 item 1: low HP / danger on a non-charge turn
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
@@ -672,6 +673,8 @@ export class App {
 
   queued: string | null = null;
   queued2: string | null = null;
+  /** rc12r: turn on which a NEW telegraph dropped the queued keys (flash shown on that turn's panel) */
+  qDrop = -1;
   /** cp8-rc9 P1-11: why the last key did nothing (shown above the command bar until the next accepted action). */
   refused = '';
   /** cp8-rc9 P2: skills whose cooldown ended on the last action (blade / oc prompt). */
@@ -942,6 +945,7 @@ export class App {
     const castable = () => skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target }));
     const can0 = castable();
     const bh0 = b.monsters.map((m) => m.hp);
+    const wind0 = b.monsters.map((m) => windingUp(m)); // rc12r: which wind-ups existed before this act
     const ev = act(b, a, this.rng, profsOf(this.p));
     if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { runId: this.run.qaId ??= newRunId(), lean: this.p.lean ?? '', floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)), bossMaxHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + m.maxHp, 0)) }); // rc11 item 6 (+ bossMaxHp rc11c)
     if (b.over === 'lose') flushTurnLog(localStorage); // rc12 item 5: the fatal turn is stored before the death screen / export
@@ -1002,7 +1006,7 @@ export class App {
       if (fresh) this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs;
       // cp9-rc9 QA item A（自訂）: every wind-up turn (not only the fresh one) drops queued A / spells, so a key buffered during the
       // D animation cannot run into the announced 蓄力一擊 unseen (oc7 F40 T22: D at T21, buffered A at T22 took 378).
-      if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
+      { const r = RULES.cp8 && CP9.on ? queueAfterAct(wind0, b, { q, queued: this.queued, queued2: this.queued2 }) : null; if (r) { q = r.q; this.queued = r.queued; this.queued2 = r.queued2; if (r.dropped) this.qDrop = b.turn; } else { if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; } } // // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
     } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }

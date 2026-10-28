@@ -128,7 +128,8 @@ describe('cp9-rc8 QA', () => {
   });
   it('rc9 QA A: every wind-up turn drops a queued A / spell (not only the fresh one), D/Z/X/C/Q survive', () => {
     const src = readFileSync('src/game/app.ts', 'utf8');
-    expect(src).toMatch(/if \(fresh\) this\.chargeHoldUntil = performance\.now\(\) \+ CP8\.chargeHoldMs;\n[^\n]*\n[^\n]*\n\s*if \(q && !windSafeKey\(q\)\) q = null; if \(this\.queued && !windSafeKey\(this\.queued\)\) this\.queued = null;/);
+    // rc12r 製作人決定: the rule moved to core queueAfterAct (tests/rc12r-queue-drop.test.ts); a NEW telegraph drops everything.
+    expect(src).toMatch(/if \(fresh\) this\.chargeHoldUntil = performance\.now\(\) \+ CP8\.chargeHoldMs;\n[^\n]*\n[^\n]*\n\s*\{ const r = RULES\.cp8 && CP9\.on \? queueAfterAct\(wind0, b, /);
   });
   it('rc9 QA C: potion on cooldown → no Z in the decision keys / text and no Z highlight, at any HP or threat', () => {
     const o = RULES.cp8; RULES.cp8 = true;

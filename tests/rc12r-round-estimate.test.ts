@@ -57,7 +57,7 @@ describe('rc12r: rendered panel — 暴擊估計 ≥ 預估傷害 crit on every 
           a.battle = b; a.target = Math.max(0, b.monsters.findIndex((m) => m.hp > 0)); a.battleType = 'battle';
           const h = a.battleHtml() as string, t = strip(h); n++;
           const em = t.match(/下回合(?:全體)?暴擊估計\s*(\d+)/), cc = h.match(/data-chargecrit="(\d+)/);
-          if (em && cc && +em[1] < +cc[1] && bad.length < 5) bad.push(`${lean}/${seed} t${b.turn} 估計${em[1]} < 預估${cc[1]}`);
+          if (em && cc && +em[1]! < +cc[1]! && bad.length < 5) bad.push(`${lean}/${seed} t${b.turn} 估計${em[1]} < 預估${cc[1]}`);
         };
         for (let i = 0; i < 2; i++) autoRun(p, pool, seed * 100 + i);
         TURN_HOOK9.fn = null;
