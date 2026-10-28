@@ -1193,7 +1193,7 @@ export const PK_DIAG = { on: false, key: {} as Record<string, number>, spellWhy:
 export function primaryKey(s: BattleState, target: number): PrimaryKey {
   const r = primaryKey0(s, target);
   if (PK_DIAG.on) { PK_DIAG.key[r.key] = (PK_DIAG.key[r.key] ?? 0) + 1;
-    if (s.d.style === 'staff' && !/^[1-5]$/.test(r.key)) { const w = spellWhy9(s, target, r); PK_DIAG.spellWhy[w] = (PK_DIAG.spellWhy[w] ?? 0) + 1; } }
+    if (s.d.style === 'staff' && !/^[1-6]$/.test(r.key)) { const w = spellWhy9(s, target, r); PK_DIAG.spellWhy[w] = (PK_DIAG.spellWhy[w] ?? 0) + 1; } }
   return r;
 }
 function spellWhy9(s: BattleState, target: number, r: PrimaryKey): string {
