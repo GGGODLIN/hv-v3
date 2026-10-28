@@ -1,0 +1,143 @@
+{
+  "version": "0.65",
+  "kind": "candidate-browser-qa",
+  "testedAtUtc": "2026-10-28T19:20:41Z",
+  "result": "PASS within normal desktop scope",
+  "sourceCommit": "e98bee0aaf8d0e8e889ed088ab2acf7c48577bf4",
+  "websiteCommit": "9aa25c92f155881527aabb158af81ff3e6bb717f",
+  "pagesRun": "40752658799",
+  "ciEvidence": "Parent exact commit CI/runtime bytes verified before open",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.65/",
+  "method": "dot cloud cua normal UI and genuine export/import only; no state injection",
+  "tabs": {
+    "candidate": "8",
+    "formal": "2"
+  },
+  "baseline": {
+    "version": "0.64",
+    "level": 5,
+    "gold": 466,
+    "bag": 5,
+    "sha256": "d1c6f8bbce63134082fc2e90ad631ed8ce87328e4f512f3782faa0a3c296e14a"
+  },
+  "checks": [
+    {
+      "name": "seven stat orders",
+      "result": "PASS",
+      "observed": {
+        "attack": [
+          69,
+          25,
+          22,
+          3,
+          0
+        ],
+        "hp": [
+          103,
+          0,
+          0,
+          0,
+          0
+        ],
+        "defense": [
+          11,
+          0,
+          0,
+          0,
+          0
+        ],
+        "critPercent": [
+          5.9,
+          2.0,
+          0,
+          0,
+          0
+        ],
+        "evadePercent": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "blockPercent": [
+          0.7,
+          0,
+          0,
+          0,
+          0
+        ],
+        "parryRating": [
+          12.2,
+          9.9,
+          0,
+          0,
+          0
+        ]
+      },
+      "notes": "Card labels correct units, protected starter included. Zero ties retain newest inventory order loot-6/loot-2/loot-4/loot-3/starter filtered to matching ties. After natural new armor drop evade5.1% sorts first."
+    },
+    {
+      "name": "selection detail focus",
+      "result": "PASS",
+      "observed": "Selectedloot-2 sale76g then opened detail. Across all seven sorts same checked item/detail/pressed card/focus retained; no autoequip/sale."
+    },
+    {
+      "name": "filter intersection",
+      "result": "PASS",
+      "observed": "Weaponfilter4/5 kept only4weapons under parry then HP; allHP0 tied loot-2,loot-4,loot-3,starter newest order. Selection retained."
+    },
+    {
+      "name": "pure presentation and session reset",
+      "result": "PASS",
+      "observed": "Export after seven sorts/filter/selection byte-identical to baseline. Reload selected latest-acquired/allslots, no stat card values; export again byte-identical. No durable inventory/equipment/RNG mutation."
+    },
+    {
+      "name": "natural play growth loot",
+      "result": "PASS",
+      "observed": "Startedstage1 and finish-then-camp;11.6s win,level5->6,HP663->685,MP31->34,XP84/197,gold466->542,kills30->36,wins5->6,fragments50->60,seeds5->6,bag5->6. Drop loot-7 Superior Hunter leather wind. HPsortednewarmor40after103. Evadesortnewarmor5.1%first."
+    },
+    {
+      "name": "post-play persistence",
+      "result": "PASS",
+      "observed": "Export/reload/export all except expected transient wave/events/logs/battle/timing/_eventId/_turns/_tuCompensation equal. Sort again latest afterreload."
+    },
+    {
+      "name": "formal isolation",
+      "result": "PASS",
+      "observed": "PostQA formalUIexport byteidentical baseline;formalv064Lv5/466 unchanged."
+    },
+    {
+      "name": "visual",
+      "result": "PASS",
+      "observed": "Screenshot inspected, cardstat values readable;viewport1180/document1165,brokenimages0."
+    }
+  ],
+  "exports": {
+    "sortedAndReloadedSha256": "d1c6f8bbce63134082fc2e90ad631ed8ce87328e4f512f3782faa0a3c296e14a",
+    "afterPlay": {
+      "sha256": "17d9771cb85ec8bffd1447a466ef4922265f611ff1d2c6ad1cfad486f3b7d587",
+      "bytes": 8613
+    },
+    "afterReload": {
+      "sha256": "03c451d439104d1e2fa029dc34a2af925c0630519c7159fc1613f8a4ca796eb2",
+      "bytes": 5769
+    }
+  },
+  "limitations": [
+    "Tiny fractional ordering beyond displayed precision remains source unit evidence; no synthetic save injection.",
+    "No physical mobile or full accessibility audit.",
+    "Sorting action after starting battle read back already at natural camp; no claim of midcombat sorting coverage."
+  ],
+  "final": {
+    "level": 6,
+    "gold": 542,
+    "bag": 6,
+    "hp": 685,
+    "mp": 34,
+    "xp": 84,
+    "mode": "town",
+    "sort": "newest",
+    "formalUnchanged": true
+  }
+}

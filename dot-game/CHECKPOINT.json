@@ -1,8 +1,8 @@
 {
-  "checkpoint": "198-v065-inventory-stat-sort",
+  "checkpoint": "200-v065-browser-accepted",
   "version": "0.65.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "74811495fc9babf48405f99cf54ec1a0b1a8286c",
+  "status": "source-tested-desktop-browser-accepted-formal-pending",
+  "source_base": "e98bee0aaf8d0e8e889ed088ab2acf7c48577bf4",
   "base_accepted_recovery": "74811495fc9babf48405f99cf54ec1a0b1a8286c",
   "accepted_website": "8002ee77afc3bb2ab9ab80835beb7bc24b727f0c",
   "scope": "Sort inventory by seven actual gear stats; stable ties, transient preference. Engine, economy, RNG, assets unchanged.",
@@ -11,13 +11,13 @@
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
   "independent_focused_tests_passed": 17,
-  "browser_acceptance": "Pending v065; source DOM harness only.",
-  "publication": "v065 not published; formal v064 retained.",
+  "browser_acceptance": "Normal desktop candidate PASS; tiny/midcombat/readonly model-only, no mobile audit.",
+  "publication": "v065 isolated candidate9aa25c92f155881527aabb158af81ff3e6bb717f Pages40752658799 success; formal v064 retained.",
   "recovery": "docs/RECOVERY-V065.md",
   "files": {
     "README.md": {
-      "bytes": 67211,
-      "sha256": "35de5f40a5f9062a2615ebcd70355f079ae3f19094c992905ef8df17ef552efe"
+      "bytes": 68271,
+      "sha256": "49d2e3754cf11c1ab0f3ea1db27e74e50fef5e8a9a5e988b654dd0c14584daa1"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -835,6 +835,14 @@
       "bytes": 1387,
       "sha256": "c0cee016820a071978ad56b7091f3b4d618b1e716967cd54ea2112cc5d0f4667"
     },
+    "docs/QA-V065-BROWSER-RECEIPT.json": {
+      "bytes": 4397,
+      "sha256": "4b49f70d5d03fb3a148d4bf814a1260908ef16c3966b9846f5ce7e681140e218"
+    },
+    "docs/QA-V065-BROWSER.md": {
+      "bytes": 1592,
+      "sha256": "71364024f7b9bba374c8cc0e1501d179846f8b99e30428837560c2aa61bfef0b"
+    },
     "docs/QA-V065-INDEPENDENT.md": {
       "bytes": 2351,
       "sha256": "eb0abe3464bf69b6bafa7679d752977484fdcacf1fed554530d56b3656e3d352"
@@ -1016,8 +1024,8 @@
       "sha256": "de9c55e1a2bb2bf228917a3871bacf319e12b605ab272d9cd847ac622237603f"
     },
     "docs/RECOVERY-V065.md": {
-      "bytes": 1229,
-      "sha256": "53c7780c545a29922bbd7d359fa69f7f96d5a2a27a7727c9eafdc63e8172d48f"
+      "bytes": 2112,
+      "sha256": "22cad43f71d770d78d8b6f6e43625cfd333c94c3d5971edb3341a376dccf2522"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1028,8 +1036,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 49977,
-      "sha256": "d9aa4780c14e60cbc110c72befb20a715836df839238cd893896ba1107530f1f"
+      "bytes": 51037,
+      "sha256": "5c4d09994db64bd40ee30d7861799b160eb2418c7a8f8eb112e3797a42f5b8c0"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1064,8 +1072,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 69922,
-      "sha256": "004e6fd80c057d893b05961f93105d80a0dd3f48b1396c80e24aca4323587b83"
+      "bytes": 70982,
+      "sha256": "6fe56e18766039d093cf17bbfd618ea48b730bb0c2eb1422728f48fa26e7ae2f"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
