@@ -96,12 +96,24 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
  *  × (1 + deep·(F − deepFrom)/60) → F100 ×(1 + deep). Boss adb is still capped by bossAtk (rc12f) afterwards. 0 = off. */
 export const DEEP12G = { k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
-  school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined> };
+  school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined>,
+  /** rc12h（自訂）: per-school HP / attack split of the curve (multiplies k; unset → hpK / 1). */
+  hpS: { bulwark: num('SIM_DEEPHP_BULWARK') ?? 0.05 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  /** rc12h（自訂）: boss un-telegraphed per-turn cap at F100 for this school (linear from bossPlain at `from`; clamped ≤ bossAtk). */
+  plainS: { bulwark: num('SIM_DEEPPLAIN_BULWARK') ?? 0.4 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  /** rc12h（自訂）: extra health-potion cooldown turns in this school's boss fights at F100 (linear from 0 at `from`). */
+  potS: { bulwark: num('SIM_DEEPPOTCD_BULWARK') ?? 30 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  atkS: { bulwark: num('SIM_DEEPATK_BULWARK') ?? 3 /* rc12h 預設（自訂）；adb 仍受 bossAtk 上限 */ } as Record<string, number | undefined> };
 /** rc12g step 3（自訂）: school for the deep curve — lean, else by main hand (presets blade / oc carry no lean): 2H → blade, staff → arcane, 1H → oc. */
 export const curveSchool12g = (p: { lean?: string; equipped: { mainHand?: { group?: string } } }): string | undefined =>
   p.lean ?? ({ twoHand: 'blade', staff: 'arcane', oneHand: 'oc' } as Record<string, string>)[p.equipped.mainHand?.group ?? ''];
 export const deepK12g = (lean?: string): number => (lean ? DEEP12G.school[lean] : undefined) ?? DEEP12G.k;
-export const deep12g = (f: number, part: 'hp' | 'dmg', lean?: string): number => 1 + deepK12g(lean) * (part === 'hp' ? DEEP12G.hpK : 1) * Math.max(0, f - DEEP12G.from) / 60;
+export const deep12g = (f: number, part: 'hp' | 'dmg', lean?: string): number => 1 + deepK12g(lean) * (part === 'hp' ? ((lean ? DEEP12G.hpS[lean] : undefined) ?? DEEP12G.hpK) : ((lean ? DEEP12G.atkS[lean] : undefined) ?? 1)) * Math.max(0, f - DEEP12G.from) / 60;
 export const refHp9 = (f: number): number => 850 + 3.5 * Math.max(0, f - 30);
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */
 export const bossHp9 = (f: number): number => CP9.bossHp * (f <= 5 ? CP9.boss5 : f >= CP9.bossEnd ? CP9.boss30 : f <= 15 ? CP9.boss5 + (CP9.boss15 - CP9.boss5) * (f - 5) / 10 : CP9.boss15 + (CP9.boss30 - CP9.boss15) * (f - 15) / (CP9.bossEnd - 15));
+
+/** rc12h（自訂）: per-school un-telegraphed boss cap at floor f (undefined = default bossPlain). */
+export const plainAt12h = (f: number, lean?: string): number | undefined => { const t = lean ? DEEP12G.plainS[lean] : undefined; if (t == null) return undefined; const r = Math.min(1, Math.max(0, f - DEEP12G.from) / 60); return Math.min(CP9.bossAtk, CP9.bossPlain + (t - CP9.bossPlain) * r); };
+/** rc12h（自訂）: extra potion cooldown at floor f. */
+export const potCdAt12h = (f: number, lean?: string): number => { const t = lean ? DEEP12G.potS[lean] : undefined; return t ? Math.round(t * Math.min(1, Math.max(0, f - DEEP12G.from) / 60)) : 0; };

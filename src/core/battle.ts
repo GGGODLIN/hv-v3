@@ -13,7 +13,11 @@ export const stunResisting9 = (m: Monster): boolean => stunImmOn9(m) && ((m as C
 /** cp9-rc9 item 6（自訂，QA oc1 F65）: persistent stun / stun-resist tag under a monster's HP bar (the log line alone vanished after T2). */
 export const stunTag9 = (m: Monster): string => m.hp <= 0 ? '' : m.status.stun > 0 ? `暈眩 ${m.status.stun}${stunImmOn9(m) ? `（之後抵抗 ${CP9.stunImm}）` : ''}` /* cp9-rc9 step 3（自訂）: upcoming resist shown while stunned */ : stunResisting9(m) ? `暈眩抵抗中（剩 ${(m as CM).stunImm9} 回合）` : ''; // rc10 QA（自訂）
 const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!stunResisting9(m)) return false; ev.push({ t: 'status', to, text: '暈眩抵抗中' }); return true; };
-const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
+/** rc12h（自訂）: a deep-curve boss may raise the un-telegraphed per-turn cap (≤ bossAtk 0.4). */
+export const plain12h = (s: BattleState): number => Math.max(CP9.bossPlain, ...s.monsters.map((m) => (m.hp > 0 && (m as { plain12h?: number }).plain12h) || 0));
+/** rc12h（自訂）: extra health-potion cooldown from a live deep-curve boss. */
+export const potCd12h = (s: BattleState): number => Math.max(0, ...s.monsters.map((m) => (m.hp > 0 && (m as { potCd12h?: number }).potCd12h) || 0));
+const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(plain12h(s) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
 import { CONSTANTS as C } from './data/constants';
@@ -309,7 +313,7 @@ export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTu
   const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
-  const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : CP9.bossPlain) * s.d.hp : Infinity;
+  const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : plain12h(s)) * s.d.hp : Infinity;
   const dc = boss9(s) && def && CP9.defCap > 0 ? Math.min(Math.ceil(CP9.defCap * s.d.hp) - 1, noSave ? Infinity : save9(s, s.hp)) : Infinity; /* cp9-rc9 item 8（自訂）: noSave = without the 防禦保命 clamp (hp−1) */ // cp9-rc7 item 4（自訂）: < defCap, and 防禦保命 (HP ≥ 2 → leaves ≥ 1 HP; at 1 HP once per fight)
   return Math.min(raw, tc, bb, dc);
 }
@@ -917,7 +921,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1;
+      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) + potCd12h(s) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1; // rc12h（自訂）: deep boss potion pressure
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];
