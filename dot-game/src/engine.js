@@ -1009,17 +1009,23 @@ function gainXp(s, amount) {
     event(s,'level',`成長至 Lv.${s.hero.level}`,s.hero.level);log(s,`升級！力量、耐久與資源上限提高。`);
   }
 }
+function creditCombatGold(s, amount, source) {
+  // Local persistence ceiling: report actual credit now, never promise a bank.
+  const credited=Math.min(amount,Math.max(0,1e12-s.hero.gold));
+  s.hero.gold+=credited;
+  if(credited<amount)log(s,`${source}金幣達保存上限：實收 ${credited}，超額 ${amount-credited} 未入帳；請先消費再繼續遠征。`);
+}
 function defeatEnemy(s, e) {
   const stage=encounterStage(s),credits=4+stage*2+(e.boss?15:0);
   // Trial credits use an explicit floor per kill; XP and ordinary drops survive.
-  s.kills++;s.hero.gold+=itemWorldSessions.has(s)?Math.floor(credits/4):credits;gainXp(s,(e.boss?18:7)+stage*2);
+  s.kills++;creditCombatGold(s,itemWorldSessions.has(s)?Math.floor(credits/4):credits,'擊殺');gainXp(s,(e.boss?18:7)+stage*2);
   if(!e.boss&&random(s)<.14)addLoot(s);
 }
 function win(s) {
   if(itemWorldSessions.has(s)){winItemWorld(s);return;}
   s.wins++;s.battle.cleared++;s.unlocked=Math.min(MAX_STAGE,Math.max(s.unlocked,s.stage+1));
   const previous=s.battle.bestTimes[s.stage];if(!previous||s.battle.elapsed<previous)s.battle.bestTimes[s.stage]=round(s.battle.elapsed);
-  const pendingBefore=s.pendingLoot.length,sale=addLoot(s,s.wins===1?'weapon':undefined);s.hero.gold+=20+s.stage*5;gainXp(s,35+s.stage*5);
+  const pendingBefore=s.pendingLoot.length,sale=addLoot(s,s.wins===1?'weapon':undefined);creditCombatGold(s,20+s.stage*5,'通關');gainXp(s,35+s.stage*5);
   const fragments=fragmentBalance(s.soulFragments)?Math.min(SOUL_FRAGMENTS_PER_WIN,SOUL_FRAGMENT_LIMIT-s.soulFragments):0;
   s.soulFragments+=fragments;
   if(seedBalance(s.worldSeeds))s.worldSeeds=Math.min(WORLD_SEED_LIMIT,s.worldSeeds+WORLD_SEEDS_PER_WIN);

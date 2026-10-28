@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const E=await import(process.env.HV_COMBAT_CAP_BASELINE ? new URL(process.env.HV_COMBAT_CAP_BASELINE,import.meta.url) : '../src/engine.js');
+function fixture(gold,final=true){const s=E.createGame(12);E.act(s,'start');s.hero.gold=gold;s.wave=final?4:1;s._clock=1;s.enemies=[{id:'cap-test',name:'受控敵人',boss:true,hp:1,maxHp:1,attack:0,defense:0,evade:0,parry:0,block:0,resist:0}];return s;}
+function kill(s){for(let i=0;i<1000&&!s.kills;i++)E.advance(s,.1);assert.equal(s.kills,1);return s;}
+for(const [gold,credit]of [[1e12,0],[1e12-10,10],[1e12-46,46]])test(`final kill and clear persist within cap from ${gold}`,()=>{const s=kill(fixture(gold));assert.equal(s.wins,1);assert.equal(s.hero.gold,gold+credit);assert.equal(E.validateSave(JSON.parse(JSON.stringify(s))).hero.gold,s.hero.gold);if(credit<46)assert.ok(s.logs.some(t=>t.includes('未入帳')));else assert.ok(!s.logs.some(t=>t.includes('未入帳')));});
+test('ordinary complete reward remains 21 kill plus 25 clear',()=>{const s=kill(fixture(100));assert.equal(s.hero.gold,146);assert.equal(s.wins,1);assert.ok(!s.logs.some(t=>t.includes('未入帳')));});
+test('capping credits leaves noncurrency result and RNG untouched',()=>{const low=kill(fixture(0)),high=kill(fixture(1e12-1));for(const key of ['seed','_itemId','kills','wins','inventory','pendingLoot','events','soulFragments','worldSeeds'])assert.deepEqual(high[key],low[key],key);for(const key of ['xp','level','proficiency','attributes'])assert.deepEqual(high.hero[key],low.hero[key],key);assert.ok(high.logs.some(t=>t.includes('擊殺金幣')&&t.includes('實收 1')&&t.includes('超額 20')));assert.ok(high.logs.some(t=>t.includes('通關金幣')&&t.includes('超額 25')));});
+test('non-final kill alone does not exceed cap',()=>{const s=kill(fixture(1e12-2,false));assert.equal(s.wins,0);assert.equal(s.hero.gold,1e12);assert.ok(s.logs.some(t=>t.includes('實收 2')&&t.includes('超額 19')));});

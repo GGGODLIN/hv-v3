@@ -44,9 +44,9 @@ test('audit: blocked drop never emits successful sale event or clear summary',()
  assert.ok(!s.logs.some(text=>text.includes('保底裝備已自動出售')));
  assert.ok(s.logs.some(text=>text.includes('保底裝備已入背包')));
 });
-test('audit: exact sale capacity succeeds; subsequent clear gold remains explicitly outside this slice',()=>{
+test('audit: exact sale capacity succeeds; subsequent clear gold is transparently capped by v053',()=>{
  const s=final(true,1e12-21-95);advance(s,.1);
  assert.equal(drop(s),undefined);assert.ok(s.events.some(e=>e.target==='loot-1'&&e.value===95));
- // This known remaining reward-cap policy is not claimed fixed by auto-sale retention.
- assert.equal(s.hero.gold,1e12+25);
+ // v053 now caps the subsequent clear reward; the exact-cap sale still succeeds.
+ assert.equal(s.hero.gold,1e12);assert.ok(s.logs.some(text=>text.includes('通關金幣達保存上限：實收 0，超額 25 未入帳')));
 });

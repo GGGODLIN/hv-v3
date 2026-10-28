@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.53 source-only slice: truthful capped combat credit
+
+Enforce the existing save ceiling on kill and normal-clear credits. Report actual credit and explicitly uncredited excess; no bank, deferred claim or legacy balance compensation. Preserve low-balance rewards, IW quarter-floor, RNG, loot and XP. Source tests only; zero website operations.
+
 ## v0.52 source-only slice: retain uncreditable automatic-sale loot
 
 Guard the newly generated drop sale with the existing saved-gold ceiling; if full proceeds cannot fit, retain the exact item and normal bag/pending order. Do not cap or redesign unrelated combat gold rewards. Zero website operations, no browser acceptance.
