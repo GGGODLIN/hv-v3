@@ -7,15 +7,15 @@ import { App } from '../src/game/app';
 import { newPlayer } from '../src/core/player';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { RULES, startAbyss } from '../src/core/run';
-import { act, nextRoundEstimate, chargeEstimate, primaryKey, type BattleState } from '../src/core/battle';
+import { act, nextRoundEstimate, REVIVE12Q, BOSS_PHASE_HP, chargeEstimate, primaryKey, type BattleState } from '../src/core/battle';
 import { Rng } from '../src/core/rng';
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 const noop = () => undefined;
 const stage = new Proxy({ speed: 1 }, { get: (t: any, k) => (k in t ? t[k] : k === 'lootBeams' ? async () => undefined : noop) });
 const mem: Record<string, string> = {};
 (globalThis as any).localStorage ??= { getItem: (k: string) => mem[k] ?? null, setItem: (k: string, v: string) => { mem[k] = String(v); }, removeItem: (k: string) => { delete mem[k]; } };
-async function bossAt(depth: number, seed: number): Promise<BattleState> {
-  const p = newPlayer(); const run = startAbyss(p, seed, depth) as any; run.tower.floors[run.floor - 1] = { n: run.floor, options: ['boss'] };
+async function bossAt(depth: number, seed: number, type = 'boss'): Promise<BattleState> {
+  const p = newPlayer(); const run = startAbyss(p, seed, depth) as any; run.tower.floors[run.floor - 1] = { n: run.floor, options: [type] };
   const a = Object.create(App.prototype) as any;
   Object.assign(a, { data: { player: p, run, settings: { skipAnim: true } }, notice: [], pending: {}, stage, pool, root: { querySelectorAll: () => [] }, recent: [], log: [] });
   a.go = noop; a.render = noop; a.save = noop; await a.enterNode(0); return a.battle as BattleState;
@@ -55,5 +55,45 @@ describe('rc12q next-round estimate', () => {
       n3++; expect(primaryKey(b, 0).action.kind).not.toBe("attack");
     }
     expect(n3).toBeGreaterThan(0);
+  });
+
+  // a previous act that landed damage, then the battle put back exactly as it was → the estimate must not change
+  async function staleInvariant(b: BattleState): Promise<number> {
+    const snap = structuredClone(b); const e0 = nextRoundEstimate(b, true, false);
+    const big = structuredClone(b); big.hp = big.d.hp = 1e7; for (const m of big.monsters) m.status.stun = 0;
+    act(big, { kind: 'defend' }, new Rng(9)); Object.assign(b, structuredClone(snap));
+    expect(nextRoundEstimate(b, true, false)).toBe(e0); return e0;
+  }
+  it('QA bl3 F31 t4 / F33 t1·t4: two charging mobs act together (actual 295 vs est 183–230) → the estimate sums every charging mob', async () => {
+    let checked = 0;
+    for (const depth of [31, 33]) for (let seed = 1; seed <= 30 && checked < 6; seed++) {
+      const b = await bossAt(depth, seed, 'battle'); if (b.monsters.filter((m) => m.hp > 0).length < 2) continue;
+      b.d.hp = 844; b.hp = 676; for (const m of b.monsters) (m as any).heavyNext = true;
+      const each = b.monsters.map((m) => (m.hp > 0 ? chargeEstimate(b, m, false, true) : 0)).filter((x) => x > 0);
+      expect(each.length).toBeGreaterThanOrEqual(2);
+      const e = await staleInvariant(b); const sum = each.reduce((t, x) => t + x, 0);
+      expect(e).toBeGreaterThanOrEqual(Math.min(sum, 0.5 * b.d.hp) - 1); // only the per-turn cap (50%) may clip the sum
+      expect(e).toBeGreaterThan(Math.max(...each)); checked++;
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
+  it('QA bl3 F45 boss t5 (est 155 vs actual 422): with a charging minion the estimate reaches the per-turn cap, not a stale budget', async () => {
+    let checked = 0;
+    for (let seed = 1; seed <= 12; seed++) {
+      const b = await bossAt(45, seed); const minion = b.monsters.find((m) => m.rank !== 'boss'); if (!minion) continue;
+      b.d.hp = 844; b.hp = 422; (minion as any).heavyNext = true;
+      const e = await staleInvariant(b); const raw = b.monsters.reduce((t, m) => t + chargeEstimate(b, m, false, true), 0);
+      expect(e).toBeGreaterThanOrEqual(Math.min(raw, 422) - 1); checked++;
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
+  it('stunned boss: counted only when the player can kill it this action (revive clears the stun and it hits the same round)', async () => {
+    const b = await bossAt(50, 3); const boss = b.monsters.find((m) => m.rank === 'boss')!; for (const m of b.monsters) if (m !== boss) m.hp = 0;
+    (boss as any).phases = 1; boss.status.stun = 3; b.hp = b.d.hp;
+    boss.hp = boss.maxHp; expect(nextRoundEstimate(b, true, false)).toBe(0); // far from a kill: the stun holds → ★ is not made passive
+    boss.hp = 1; const e = nextRoundEstimate(b, true, false); expect(e).toBeGreaterThan(0);
+    expect(boss.hp).toBe(1); expect(boss.status.stun).toBe(3); // the preview restores the boss
+    (boss as any).phases = 0; expect(nextRoundEstimate(b, true, false)).toBe(0); // no phase left → no revive
+    expect(REVIVE12Q).toBeGreaterThanOrEqual(1); expect(BOSS_PHASE_HP).toBeGreaterThan(0);
   });
 });

@@ -334,9 +334,28 @@ export function extra9(s: BattleState, def: boolean): number {
   const refl = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && (!!m.thornTurns || !!m.affixes?.includes('spikes')); }) ? Math.round(s.d.hp * CP5.reflectCapHp) : 0;
   return dot + refl;
 }
+/** rc12q（自訂）: a stunned boss with a phase left whose HP is within REVIVE12Q × the player's best expected action can be killed by the player's action, revive
+ *  (phaseShift clears the stun and the wind-up) and hit in the same round — count that revived, enraged plain hit.
+ *  Above the threshold the stun holds for the round, so ★ is not made passive by every stunned boss. */
+export const REVIVE12Q = 1.25; // margin on the player's best expected action damage (crit variance)（自訂）
+function revive12q(s: BattleState, m: Monster): boolean {
+  if (!RULES.cp8 || !CP9.on || m.rank !== 'boss' || !((m.phases ?? 0) > 0) || !(m.status.stun > 0)) return false;
+  const i = s.monsters.indexOf(m), hp = m.hp; m.hp = 1e12;
+  try {
+    let best = attackValue(s, i);
+    for (const id of skillKit(s)) if (canUse(s, { kind: 'skill', id, target: i })) best = Math.max(best, skillValue(s, id, i));
+    for (const id of Object.keys(SPELLS) as SpellId[]) if (canUse(s, { kind: 'spell', id, target: i })) best = Math.max(best, spellValue(s, id, i));
+    return best * REVIVE12Q >= hp;
+  } finally { m.hp = hp; }
+}
+function reviveHit12q(s: BattleState, m: Monster, def: boolean, crit: boolean): number {
+  const c = m as CM, k = { hp: m.hp, st: m.status, en: m.enraged, ch: c.charge, hn: c.heavyNext, pn: c.pulseNext, dn: c.drainNext };
+  m.hp = Math.round(m.maxHp * BOSS_PHASE_HP); m.status = { stun: 0, bleed: 0, bleedTurns: 0 }; m.enraged = true; c.charge = 0; c.heavyNext = false; c.pulseNext = false; c.drainNext = false;
+  try { return chargeEstimate0(s, m, def, crit); } finally { m.hp = k.hp; m.status = k.st; m.enraged = k.en; c.charge = k.ch; c.heavyNext = k.hn; c.pulseNext = k.pn; c.drainNext = k.dn; }
+}
 export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number { return fresh9(s, () => nextRoundEstimate0(s, crit, def, noSave)); }
 function nextRoundEstimate0(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number {
-  const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
+  const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : m.hp > 0 && revive12q(s, m) ? reviveHit12q(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : plain12h(s)) * s.d.hp : Infinity;
