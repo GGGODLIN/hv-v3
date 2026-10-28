@@ -287,7 +287,13 @@ export const POT_HINT = { hp: 0.5, charging: 0.75, /** rc14 item 4（暫定）: 
 /** cp8-rc6 item 6: estimate of a charging monster's next heavy hit (mult as enemyTurn: drain → CP5.drainMult else BOSS_CHARGE_MULT,
  *  frost ×CP5.frostMult, magMit for elemental attacks; defending applies DEF.mitigation). Excludes avoidance and the per-turn cap.
  *  rc13 item 2: crit = true → the same hit as a monster crit (× 1 + F-002-5.1B critDamageBonus 0.2, Battles.md:45). */
-export function chargeEstimate(s: BattleState, m0: Monster, defending = false, crit = false): number {
+/** rc12q bug fix（QA rc12p bl2 F50 t9: 估計 278 vs 實際 419）: budget9/def9 read ACT9, which still held the PREVIOUS act's damage taken,
+ *  so every preview after a hit shrank the boss-fight burst budget by what had just landed. Estimates are about the NEXT act → read a fresh ACT9. */
+const fresh9 = <T>(s: BattleState, f: () => T): T => { const k = { ...ACT9 }, st = s.stand9; ACT9.taken = 0; ACT9.tele = false; ACT9.hp0 = s.hp;
+  if (RULES.cp8 && CP9.on && CP9.defCap > 0 && s.hp === 1) s.stand9 = true; // rc12q: the act spends the 1-HP 防禦保命 at its start (monstersAct0), so the preview must not count on it
+  try { return f(); } finally { Object.assign(ACT9, k); s.stand9 = st; } };
+export function chargeEstimate(s: BattleState, m0: Monster, defending = false, crit = false): number { return fresh9(s, () => chargeEstimate0(s, m0, defending, crit)); }
+function chargeEstimate0(s: BattleState, m0: Monster, defending = false, crit = false): number {
   const m = m0 as CM;
   const pulse = m.rank === 'boss' && !!m.pulseNext && m.charge === 0; // cp8-rc7 P1 item 3: 元素脈衝 is a telegraphed big move too
   const mult = pulse ? CP5.pulseMult : m.drainNext ? CP5.drainMult : m.charge > 0 ? BOSS_CHARGE_MULT : 1; // rc9 P0-1: heavyNext / plain hit = ×1
@@ -299,7 +305,7 @@ export function chargeEstimate(s: BattleState, m0: Monster, defending = false, c
   const cr = ADVICE_DIAG.critRoll; // rc21 sim diag only (SIM_CRITROLL): null = rc21 top roll; a number = mean roll × that × crit
   const est = crit && cr !== null ? meanHit(raw, mit, spec) * cr * (1 + MCRIT.critDamageBonus) : crit ? maxHit(raw, mit, spec, 1 + MCRIT.critDamageBonus) : meanHit(raw, mit, spec);
   // rc12p（自訂）: after the same single-hit cap and per-turn budget the real hit uses (QA rc12o F70: preview 67670 vs real 335)
-  return Math.min(est, hitCap9(s, m, mult, mult > 1 || !!m.heavyNext), RULES.cp8 && CP9.on ? budget9(s, windingUp(m)) : Infinity);
+  return Math.min(est, hitCap9(s, m, mult, mult > 1 || !!m.heavyNext), RULES.cp8 && CP9.on ? budget9(s, s.monsters.some(windingUp)) : Infinity); // rc12q: same tele test as the real act (a minion wind-up opens the burst budget for the boss hit too)
 }
 /** rc12p（自訂）: single-hit cap for one monster hit — boss plain hit ≤ bossAtk, non-boss telegraph ≤ minionCharge, hitCap12m (rc12m).
  *  Used by the real hit (monster phase) AND chargeEstimate (preview / nextRoundEstimate / ★). */
@@ -328,7 +334,8 @@ export function extra9(s: BattleState, def: boolean): number {
   const refl = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && (!!m.thornTurns || !!m.affixes?.includes('spikes')); }) ? Math.round(s.d.hp * CP5.reflectCapHp) : 0;
   return dot + refl;
 }
-export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number {
+export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number { return fresh9(s, () => nextRoundEstimate0(s, crit, def, noSave)); }
+function nextRoundEstimate0(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number {
   const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
