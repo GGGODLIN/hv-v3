@@ -393,7 +393,7 @@ export class App {
       : dangerNow && !b.over ? `<div class="decide" data-decide data-lowhp>⚠ HP ${Math.round(b.hp)}/${Math.round(b.d.hp)}<br>${this.decideLine(b, hpPot)}</div>`
       : pk ? `<div class="decide calm" data-decide data-calm>${this.decideLine(b, hpPot)}</div>` : ''; // rc12c item 1: the 決策 line is shown every turn // rc20 item 1: low HP / danger on a non-charge turn
     return `<div class="hud"><div class="hudl">${this.bars(b.hp, b.d.hp, b.mp, b.d.mp, b.sp, b.d.sp, b.oc)}
-        <div class="status" data-bfloor="${floorLabel(this.run)}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.et9 && b.et9.turns > 0 ? ` · <b class="ether9">以太分流${b.et9.stacks > 1 ? ' x2' : ''} ${b.et9.turns}</b>` : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging || dangerNow ? ` · <b class="warn" data-chargestatus>${charging ? `${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！` : dangerTag9(b, chargeAdvice(b, this.target)) /* rc12 bug b */}</b>` : ''}${pk ? ` · <b class="primarybar" data-primarybar="${pk.key}">建議 ★${pk.label}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
+        <div class="status" data-bfloor="${floorLabel(this.run)}" data-qdropcount="${this.qDropN}">第 ${floorLabel(this.run)} 層 · ${NODE_ZH[this.battleType]} · 回合 ${b.turn}${b.spirit ? ' · <b class="spirit">靈動架勢</b>' : ''}${b.et9 && b.et9.turns > 0 ? ` · <b class="ether9">以太分流${b.et9.stacks > 1 ? ' x2' : ''} ${b.et9.turns}</b>` : ''}${b.defendTurns > 0 ? ' · 防禦中' : ''}${charging || dangerNow ? ` · <b class="warn" data-chargestatus>${charging ? `${chargers.some((m) => m.rank === 'boss') ? '首領' : '敵人'}蓄力中！` : dangerTag9(b, chargeAdvice(b, this.target)) /* rc12 bug b */}</b>` : ''}${pk ? ` · <b class="primarybar" data-primarybar="${pk.key}">建議 ★${pk.label}</b>` : ''}</div>${this.dotHtml(b.cp5?.pdot)}${this.battleBuffRow()}</div>
         <div class="hudr">${this.cp5TipBox.length ? `<div class="cp5tips" data-cp5tips>${this.cp5TipBox.join('')}</div>` : ''}<div class="weakbox">${spellSug ? `<div class="sugtitle" data-sugtitle="${spellSug.id}">元素：<b>${ELEM_ZH[spellSug.type] ?? TZ[spellSug.type] ?? spellSug.type}</b>（${spellSug.pct > 0 ? `弱${TZ[spellSug.type] ?? spellSug.type}` : `${TZ[spellSug.type] ?? spellSug.type}傷害較高`}）</div>` : ''}</div>${decide}${skillHint}${readyHint}${elemHint}
         </div>${this.refused ? `<div class="warn refused" data-refused>${esc(this.refused)}</div>` : ''}<div class="logwrap">${this.encHtml()}<div class="log">${this.log.slice(-6).map((l) => `<div>${l}</div>`).join('')}</div></div></div>
       <div class="cmdbar ${this.busy ? 'busy' : ''}">
@@ -675,6 +675,8 @@ export class App {
   queued2: string | null = null;
   /** rc12r: turn on which a NEW telegraph dropped the queued keys (flash shown on that turn's panel) */
   qDrop = -1;
+  /** rc12r QA（自訂）: queue drops this session — persistent DOM marker data-qdropcount on the battle status line. */
+  qDropN = 0;
   /** cp8-rc9 P1-11: why the last key did nothing (shown above the command bar until the next accepted action). */
   refused = '';
   /** cp8-rc9 P2: skills whose cooldown ended on the last action (blade / oc prompt). */
@@ -1006,7 +1008,7 @@ export class App {
       if (fresh) this.chargeHoldUntil = performance.now() + CP8.chargeHoldMs;
       // cp9-rc9 QA item A（自訂）: every wind-up turn (not only the fresh one) drops queued A / spells, so a key buffered during the
       // D animation cannot run into the announced 蓄力一擊 unseen (oc7 F40 T22: D at T21, buffered A at T22 took 378).
-      { const r = RULES.cp8 && CP9.on ? queueAfterAct(wind0, b, { q, queued: this.queued, queued2: this.queued2 }) : null; if (r) { q = r.q; this.queued = r.queued; this.queued2 = r.queued2; if (r.dropped) this.qDrop = b.turn; } else { if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; } } // // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
+      { const r = RULES.cp8 && CP9.on ? queueAfterAct(wind0, b, { q, queued: this.queued, queued2: this.queued2 }) : null; if (r) { const was = [q, this.queued, this.queued2].filter(Boolean).join('、'); q = r.q; this.queued = r.queued; this.queued2 = r.queued2; if (r.dropped) { this.qDrop = b.turn; this.qDropN++; this.log.push(`<span class="warn" data-queuedroplog="${b.turn}">蓄力預告！排隊指令已取消（${esc(was)}）</span>`); } } else { if (q && !windSafeKey(q)) q = null; if (this.queued && !windSafeKey(this.queued)) this.queued = null; } } // // cp9-rc7 QA item 4（自訂）: a queued Q (stun) is no longer dropped
     } else this.windWas = false;
     if (q && !b.over) { this.render(); return this.command(q); }
     if (alive(b).length && b.monsters[this.target]?.hp === 0) { this.target = b.monsters.findIndex((m) => m.hp > 0); this.stage.setTarget(this.target); }

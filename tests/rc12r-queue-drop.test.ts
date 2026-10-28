@@ -46,4 +46,20 @@ describe('rc12r: queued keys vs a new telegraph', () => {
     expect(h).toContain('蓄力預告！排隊指令已取消');
     a.qDrop = b.turn - 1; expect(a.battleHtml() as string).not.toContain('排隊指令已取消');
   });
+  it('real command(): a NEW telegraph during the act drops the queued key, writes a persistent log line and bumps data-qdropcount', async () => {
+    const b = mk(1); b.monsters[0]!.adb = 1e5; // worstHit ≥ bigTele → the monster winds up (heavyNext) in this act
+    const p = newPlayer(); starterKit(p); const noop = () => undefined;
+    const stage = new Proxy({ speed: 1 }, { get: (t: any, k) => (k in t ? t[k] : ['lootBeams', 'play'].includes(String(k)) ? async () => undefined : noop) });
+    const a = Object.create(App.prototype) as any; a.data = { player: p, run: { floor: 30 }, settings: { speed: 1, skipAnim: true } };
+    Object.assign(a, { notice: [], pk: null, log: [], pending: {}, enc: [], encAt: 0, cp5TipBox: [], recent: [], cdPending: [], cdShown: [], lastAdvice: null, queued: 'attack:0', queued2: null, windWas: false, holdKey: null, screen: 'battle', battle: b, target: 0, battleType: 'battle', stage, busy: false, chargeHoldUntil: 0, rng: { next: () => 0.5, int: () => 0 }, qDrop: -1, qDropN: 0 });
+    a.render = noop; a.save = noop; a.go = noop; a.endBattle = async () => undefined;
+    a.rng = new (await import('../src/core/rng')).Rng(7);
+    const g = globalThis as any; const hadW = 'window' in g; if (!hadW) g.window = { setTimeout, clearTimeout, addEventListener: noop, removeEventListener: noop };
+    try { await a.command('defend'); } finally { if (!hadW) delete g.window; }
+    expect((b.monsters[0] as { heavyNext?: boolean }).heavyNext).toBe(true);
+    expect(a.queued).toBe(null); expect(a.qDropN).toBe(1); expect(a.qDrop).toBe(b.turn);
+    expect(a.log.join('')).toMatch(/data-queuedroplog="\d+">蓄力預告！排隊指令已取消（attack:0）/);
+    const h = a.battleHtml() as string;
+    expect(h).toContain('data-qdropcount="1"'); expect(h).toContain('data-queuedrop');
+  });
 });
