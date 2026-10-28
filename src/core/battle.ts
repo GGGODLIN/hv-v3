@@ -391,9 +391,25 @@ export function dangerTag9(s: BattleState, a: ChargeAdvice): string {
   return RULES.cp8 && a.keys[0] === 'D' && defVerdictAt9(s, a.hp) === 'safe' ? '不防禦會死！' : 'HP 危險！';
 }
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
-  const a1 = chargeAdvice2(s, target), tag = minionLockTag9(s);
-  return tag && !a1.text.includes(tag) ? { ...a1, text: a1.text + tag } : a1;
+  const a0 = chargeAdvice2(s, target), tag = minionLockTag9(s);
+  const a1 = tag && !a0.text.includes(tag) ? { ...a0, text: a0.text + tag } : a0;
+  return doomed9(s, a1) && !a1.text.includes(DOOM9) ? { ...a1, text: `${DOOM9}（HP 1、沒有藥水，沒有選項能確保存活或擊殺）；${a1.text}` } : a1;
 }
+/** rc12d QA item 1（製作人規則）: 「此戰幾乎必敗」 is added after every filter (reflect / minion tag), so no later rewrite drops it. */
+export const DOOM9 = '此戰幾乎必敗';
+/** rc12d（製作人）: HP 1 + no usable potion + a live boss, and the first key neither ensures survival (guaranteed stun, est 0, or D with
+ *  verdict 'safe' — 保命 alone only buys one hit at HP 1) nor ensures a kill (one hit ≥ every live foe's HP). */
+export function doomed9(s: BattleState, a: ChargeAdvice): boolean {
+  if (!(RULES.cp8 && CP9.on) || Math.round(s.hp) > 1 || canUse(s, { kind: 'item', id: 'health' }) || !s.monsters.some((m) => m.rank === 'boss' && m.hp > 0)) return false;
+  if (Math.round(nextRoundEstimate(s, true)) === 0) return false;
+  const k = a.keys[0] ?? '';
+  if (k === 'D' && defVerdictAt9(s, s.hp) === 'safe') return false;
+  const sk = coolStunKey9(s, 0);
+  if (sk && k === sk && stunGuaranteed(s, 0, stunIdOf(s, sk)) && s.monsters.filter((m) => m.hp > 0).length === 1) return false;
+  return true;
+}
+/** rc12d QA item 2（自訂）: one wording for the 防禦保命-only verdict, shared by the decision line and the red urgent line. */
+export const saveOnlyNote9 = (estDR: number, hp: number): string => `防禦只靠保命剩 1 HP（未保命估 ${estDR} ≥ HP ${hp}）：撐得住這一擊，之後再被打就撐不住`;
 function chargeAdvice2(s: BattleState, target: number): ChargeAdvice {
   const a = chargeAdvice1(s, target);
   if (!reflectLethal9(s, target) || !a.keys.length) return a;
@@ -428,7 +444,7 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
     const sk = coolStunKey9(s, target);
     if (sk && stunGuaranteed(s, target, stunIdOf(s, sk))) return put(sk, `${sk}（HP 1、沒有藥水、首領蓄力中：必中暈眩打斷）`);
     const v = defVerdictAt9(s, s.hp), dOk = canUse(s, { kind: 'defend' });
-    if (dOk && (v === 'safe' || v === 'saveOnly')) return put('D', `D（HP 1、沒有藥水、首領蓄力中：防禦${v === 'saveOnly' ? '（靠保命）' : ''}撐得住）`);
+    if (dOk && (v === 'safe' || v === 'saveOnly')) return put('D', `D（HP 1、沒有藥水、首領蓄力中：${v === 'saveOnly' ? saveOnlyNote9(Math.round(nextRoundEstimate(s, true, true, true)), Math.round(s.hp)) : '防禦撐得住'}）`);
     return put(dOk ? 'D' : 'A', `此戰幾乎必敗（HP 1、沒有藥水、首領蓄力中，防禦也擋不住）；${dOk ? 'D 賭保命' : 'A 拚輸出'}`);
   }
   if (CP9.hp1A && !pot && Math.round(s.hp) <= 1) {
@@ -453,7 +469,7 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const estDR = Math.round(nextRoundEstimate(s, true, true, true)), saveOnly = RULES.cp8 && CP9.on && defendVerdict9(estD, estDR, hp) === 'saveOnly'; // rc10 item 1: same verdict as urgentLine
   const potOk9 = canUse(s, { kind: 'item', id: 'health' });
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp && !(saveOnly && potOk9);
-  const dTxt = saveOnly ? `防禦只靠保命剩 1 HP（未保命估 ${estDR} ≥ HP ${hp}）` : `防禦後估計 ${estD} < HP ${hp}，防禦後撐得住`;
+  const dTxt = saveOnly ? saveOnlyNote9(estDR, hp) : `防禦後估計 ${estD} < HP ${hp}，防禦後撐得住`;
   // rc21 item 1（製作人）: potion usable → Z first; D only when the defended estimate is below HP (blade8: 966 vs 681 → no D).
   const big = !lethal && !lowHp(s); // only the rc21 40% trigger holds
   // rc21 item 2（暫定，自訂）: on a survivable ≥ 40% warning, Z only when at least half of its heal would land (rc14 POT_HINT.minUseful, same rule as potHint).
@@ -1198,7 +1214,7 @@ export function primaryKey(s: BattleState, target: number): PrimaryKey {
 }
 function spellWhy9(s: BattleState, target: number, r: PrimaryKey): string {
   if (r.src !== 'attack') return `pre-empted:${r.src}${turnHints(s, target).spell ? '+spellHint' : ''}`;
-  if (quickAttack(s, target).kind !== 'spell') return 'A-not-spell(no MP?)';
+  if (quickAttack(s, target).kind !== 'spell') return s.d.style !== 'staff' ? `A-not-spell:style=${s.d.style}` : s.locked?.spell ? 'A-not-spell:locked' : `A-not-spell:mp<${spellCost(s, 'fiery')}`;
   const ids = (Object.keys(SPELLS) as SpellId[]).filter((id) => canUse(s, { kind: 'spell', id, target }));
   if (ids.length <= 1) return 'only-quick-castable';
   const q = spellValue(s, (quickAttack(s, target) as { id: SpellId }).id, target), b = Math.max(...ids.map((id) => spellValue(s, id, target)));

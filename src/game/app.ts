@@ -1,7 +1,7 @@
 import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
-import { primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
+import { saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -69,7 +69,7 @@ export function urgentLine(a: { est: number; hp: number }, estD: number | null =
   const e = Math.round(a.est), h = Math.round(a.hp);
   // cp9-rc9 item 8（自訂）: survivable only through 防禦保命 (clamped to HP−1) → say so in red, not 「防禦後 HP−1」.
   const v = defendVerdict9(estD, estDR, h); // rc10 item 1（自訂）: the same verdict chargeAdvice uses
-  if (isLethal(e, h) && v === 'saveOnly') return `<br><b class="warn" data-urgent="${e}:${h}:${estD}:${estDR}">防禦只靠保命剩 1 HP：暴擊估 ${e}、未保命防禦後 ${estDR} ≥ HP ${h}，下一擊撐不住</b>`;
+  if (isLethal(e, h) && v === 'saveOnly') return `<br><b class="warn" data-urgent="${e}:${h}:${estD}:${estDR}">暴擊估 ${e}；${saveOnlyNote9(estDR ?? e, h)}</b>`;
   // cp9-rc8 QA bug b（自訂）: lethal but survivable by defending → orange 「不防禦會死」, not the red banner (the decision line says 撐得住). Red only when defending still dies.
   if (isLethal(e, h) && v === 'safe') return `<br><b class="warn-def" data-urgent="${e}:${h}:${estD}">不防禦會死：暴擊估 ${e} ≥ HP ${h}，防禦後 ${estD}</b>`;
   return isLethal(e, h) ? `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ≥ 目前 HP（${e} ≥ ${h}）：照上面的決策按鍵</b>`
