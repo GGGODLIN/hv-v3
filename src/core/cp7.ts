@@ -28,6 +28,8 @@ export const CP7 = {
   pitySlots: ['head', 'body', 'hands', 'legs', 'feet'] as Slot[],
   /** 暫定（缺原版出處）: abyss only — after a won battle restore this fraction of max HP / MP / SP (P3). 0 = off. */
   winHeal: 0.1,
+  /** rc12t（自訂，非原版）: extra max-HP fraction restored after winning a NORMAL battle (QA rc12s: slow potion attrition in normal fights). Env SIM_RC12T_WINHEAL. */
+  winHealNormal: Number(globalThis.process?.env?.SIM_RC12T_WINHEAL ?? 0.1),
   /** 暫定（缺原版出處）P4 curve: replaces ABYSS.dmgPerDepth. Damage grows `dmgMid` per depth up to `knee`, then `dmgLate`
    *  (low → mid rising → late flat). `dmgScale` multiplies ABYSS.dmgScale. */
   dmgMid: 0.2,

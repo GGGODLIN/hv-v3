@@ -515,7 +515,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
   const loot = battleLoot(run, monsters, type, p);
-  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * CP7.winHeal)); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
+  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' ? CP7.winHealNormal : 0)))); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
   const total = Object.values(b.used).reduce((a, c) => a + (c ?? 0), 0) || 1;
   for (const k of PROFS) {
