@@ -132,6 +132,8 @@ export class Stage extends Phaser.Scene {
     });
   }
 
+  /** rc12e: Coalesced Mana ticks per monster index (BattleState.cm9). */
+  private cm9?: Record<number, number>;
   private drawBar(v: MonView) {
     const top = v.y - (v.kind === 'beast' ? 95 : 148) * v.scale;
     const w = 100, x = v.x - w / 2, y = top - 14;
@@ -145,7 +147,7 @@ export class Stage extends Phaser.Scene {
     if (f > 0) { v.bar.fillStyle(c, 1).fillRoundedRect(x, y, Math.max(2, w * f), 7, 2); v.bar.fillStyle(0xffffff, 0.28).fillRect(x + 1, y + 1, Math.max(0, w * f - 2), 2); }
     v.bar.fillStyle(0x000000, 0.5); for (let k = 1; k < 4; k++) v.bar.fillRect(x + (w * k) / 4, y, 1, 7);
     if (v.m.status.stun > 0) v.bar.fillStyle(0x7fd8ff, 1).fillRect(x, y + 8, 18, 3);
-    { const tag = stunTag9(v.m); v.st9 ??= this.add.text(x, y + 12, '', { fontFamily: '"Noto Sans TC", sans-serif', fontSize: '12px', color: '#7fd8ff', stroke: '#140e1c', strokeThickness: 3 }).setDepth(21); v.st9.setText(tag).setColor(v.m.status.stun > 0 ? '#7fd8ff' : '#b0b0c0').setPosition(x, y + 12); } // cp9-rc9 item 6（自訂）
+    { const tag = stunTag9(v.m); v.st9 ??= this.add.text(x, y + 12, '', { fontFamily: '"Noto Sans TC", sans-serif', fontSize: '12px', color: '#7fd8ff', stroke: '#140e1c', strokeThickness: 3 }).setDepth(21); const cm = this.cm9?.[this.mons.indexOf(v)] ?? 0; v.st9.setText(cm > 0 ? `${tag}${tag ? ' ' : ''}合流${cm}` : tag).setColor(v.m.status.stun > 0 ? '#7fd8ff' : '#b0b0c0').setPosition(x, y + 12); } // cp9-rc9 item 6（自訂）
     if (stunResisting9(v.m)) v.bar.fillStyle(0x8a8a9a, 1).fillRect(x, y + 8, 18, 3); // cp9-rc8 (c)1（自訂）: 暈眩抵抗中 (gray), same helper as the sim
     if (v.m.status.bleed > 0) v.bar.fillStyle(0xd02020, 1).fillRect(x + 20, y + 8, 18, 3);
   }
@@ -176,6 +178,7 @@ export class Stage extends Phaser.Scene {
   private monTop(v: MonView) { return v.y - (v.kind === 'beast' ? 95 : 148) * v.scale; }
 
   async play(events: BEvent[], s: BattleState) {
+    this.cm9 = s.cm9; // rc12e: Coalesced Mana ticks for the monster tag
     this.timings = [];
     for (const e of events) {
       const t0 = performance.now();

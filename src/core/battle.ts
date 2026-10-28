@@ -22,6 +22,7 @@ import type { Monster } from './monsters';
 import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
 import type { Rng } from './rng';
+import { baseMp } from './formulas'; // rc12e: Ether Tap restores 2% of Base_MP
 
 export type SkillId = 'shieldBash' | 'vitalStrike' | 'mercifulBlow' | 'greatCleave' | 'concussiveStrike' | 'rendingBlow' | 'shatterStrike';
 export type SpellId = 'fiery' | 'freeze' | 'shock' | 'gale' | 'smite' | 'corruption';
@@ -195,6 +196,10 @@ export interface BattleState {
   defStreak?: number;
   /** rc7 (c): 1H Overwhelming Strikes — turns left and Counter-Parry stacks. */
   ow?: { turns: number; stacks: number };
+  /** rc12e: staff Coalesced Mana ticks left per monster index (Fighting_Styles.md:151-159). */
+  cm9?: Record<number, number>;
+  /** rc12e: staff Ether Tap buff on the player (Fighting_Styles.md:161-172). */
+  et9?: { turns: number; stacks: number };
 }
 
 export function startBattle(d: Derived, vitals: { hp: number; mp: number; sp: number; oc?: number }, monsters: Monster[], potions: Record<PotionId, number>): BattleState {
@@ -218,10 +223,38 @@ export function skillOc(s: BattleState, id: SkillId): number {
 const skillCd = (s: BattleState, id: SkillId) => (s.mods ? Math.max(0, SKILLS[id].cd + (s.mods.skillCd?.[id] ?? 0)) : SKILLS[id].cd);
 const spPerTurn = (s: BattleState) => (s.mods?.ssSpPct ? Math.max(1, Math.round(SS.spPerTurn * (1 + s.mods.ssSpPct))) : SS.spPerTurn);
 const fire = (s: BattleState) => { if (s.mods) s.mods.comboFires = (s.mods.comboFires ?? 0) + 1; };
-export function spellCost(s: BattleState, id: SpellId): number {
+/** rc12e: staff Coalesced Mana / Ether Tap. Every value is sourced; 自訂 choices are marked.
+ *  cm*: Fighting_Styles.md:153-159 + findings/002:281 — chance = min(35%, 10 + (INT+WIS)*0.01 + Staff/20 %), 5 ticks,
+ *       target's spell cost ×(1-0.5) (Spells.md:84,88 "coalesced 50%", stacks with Spirit Stance as a product).
+ *  et*: Fighting_Styles.md:161-172 + findings/002:281 — 2% Base_MP per turn, stacks once (x2 = 4%), 4 ticks, removes the
+ *       Coalesced Mana, always procs on an Arcane Blow killing blow. etChance: Fighting_Styles.md:165 "based on the staff
+ *       used"; findings/003:114-118 gives staff Ether Tap "~36–40% / 4t" — 0.36 = lower end of that range (取值 自訂). */
+export const STAFF9 = { on: true, cmBase: 10, cmAttrK: 0.01, cmProfDiv: 20, cmCap: 35, cmTicks: 5, cmDisc: 0.5, etChance: 0.36, etPct: 0.02, etMaxStacks: 2, etTicks: 4 };
+export const coalesced9 = (s: BattleState, ti: number | undefined) => ti !== undefined && (s.cm9?.[ti] ?? 0) > 0 && (s.monsters[ti]?.hp ?? 0) > 0;
+export function spellCost(s: BattleState, id: SpellId, target?: number): number {
   const sp = SPELLS[id];
   const x = s.mods?.combo.arcaneOc && s.spirit ? 0.9 : 1;
-  return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1) * x));
+  const cm = coalesced9(s, target) ? 1 - STAFF9.cmDisc : 1; // rc12e: Spells.md:88 (1 - coalesced)
+  return Math.max(1, Math.ceil(((s.d.level * sp.baseCost) / 100) * (1 + 0.005 * s.d.interference) * (1 - s.d.manaCons) * (s.spirit ? 0.75 : 1) * x * cm));
+}
+/** rc12e: Coalesced Mana proc roll on an enemy hit by a spell or Concussive Strike while wielding a staff. 自訂: one roll per
+ *  enemy hit (the source says "on an enemy"); an avoided hit does not roll; a new proc resets the timer to 5. */
+function cmProc9(s: BattleState, rng: Rng, ti: number, ev: BEvent[]): void {
+  if (!STAFF9.on || s.d.style !== 'staff') return;
+  const m = s.monsters[ti]; if (!m || m.hp <= 0) return;
+  const a = s.d.attrs;
+  if (!rng.chance(Math.min(STAFF9.cmCap, STAFF9.cmBase + STAFF9.cmAttrK * (a.int + a.wis) + s.d.wprof / STAFF9.cmProfDiv) / 100)) return;
+  (s.cm9 ??= {})[ti] = STAFF9.cmTicks;
+  ev.push({ t: 'status', to: ti, text: `魔力合流 ${STAFF9.cmTicks} 回合（對牠施法 MP 消耗減半）` });
+}
+/** rc12e: Ether Tap — Arcane Blow (the staff's normal attack) hit on a Coalesced target. 自訂: a re-proc while active refreshes 4 ticks. */
+function etProc9(s: BattleState, rng: Rng, ti: number, dealt: number, ev: BEvent[]): void {
+  if (!STAFF9.on || s.d.style !== 'staff' || dealt <= 0 || !s.cm9 || !((s.cm9[ti] ?? 0) > 0)) return;
+  const kill = (s.monsters[ti]?.hp ?? 1) <= 0;
+  if (!kill && !rng.chance(STAFF9.etChance)) return;
+  s.cm9[ti] = 0;
+  s.et9 = { turns: STAFF9.etTicks, stacks: Math.min(STAFF9.etMaxStacks, (s.et9?.turns ? s.et9.stacks : 0) + 1) };
+  ev.push({ t: 'msg', text: `以太分流${s.et9.stacks > 1 ? ' x2' : ''}：之後 ${STAFF9.etTicks} 回合每回合回復 ${s.et9.stacks * STAFF9.etPct * 100}% 基礎 MP` });
 }
 
 /** CP8 rc3 (暫定): what 「A·攻擊」 does — the staff quick spell (CP8.staffQuickSpell) when usable, else a normal attack. */
@@ -551,8 +584,8 @@ export function suggestSpell(s: BattleState, target: number, mode: 'old' | 'new'
     return null;
   }
   if (!ids.length) return null;
-  const cheap = Math.min(...ids.map((id) => spellCost(s, id)));
-  const score = (id: SpellId) => { const c = spellCost(s, id), v = spellValue(s, id, target); return s.mp - c < cheap * SPELL_HINT_MP_CASTS ? v / c : v; };
+  const cheap = Math.min(...ids.map((id) => spellCost(s, id, target)));
+  const score = (id: SpellId) => { const c = spellCost(s, id, target), v = spellValue(s, id, target); return s.mp - c < cheap * SPELL_HINT_MP_CASTS ? v / c : v; };
   const best = ids.reduce((a, id) => (score(id) > score(a) ? id : a));
   const q = quickAttack(s, target); const qid = q.kind === 'spell' ? q.id : null;
   if (qid && (best === qid || score(best) <= score(qid) * (1 + SPELL_HINT_EDGE))) return null;
@@ -626,7 +659,7 @@ export function canUse(s: BattleState, a: Action): boolean {
       if (s.cooldowns[a.id] > 0 || s.oc < skillOc(s, a.id)) return false;
       return true;
     }
-    case 'spell': return !s.locked?.spell && s.mp >= spellCost(s, a.id);
+    case 'spell': return !s.locked?.spell && s.mp >= spellCost(s, a.id, retarget(s, a.target));
     case 'item': return s.potions[a.id] > 0 && s.itemCd[a.id] <= 0;
     case 'defend': case 'focus': return true;
     case 'spirit': return s.spirit || (!s.locked?.spirit && s.oc >= SPIRIT_MIN_OC && s.sp >= spPerTurn(s));
@@ -638,7 +671,7 @@ export function whyNot(s: BattleState, a: Action): string {
   if ((a.kind === 'skill' && s.locked?.skill) || (a.kind === 'spell' && s.locked?.spell) || (a.kind === 'spirit' && s.locked?.spirit && !s.spirit)) return '尚未解鎖';
   switch (a.kind) {
     case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < skillOc(s, a.id) ? `OC 不足（需 ${skillOc(s, a.id)}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
-    case 'spell': return `MP 不足（需 ${spellCost(s, a.id)}）`;
+    case 'spell': return `MP 不足（需 ${spellCost(s, a.id, retarget(s, a.target))}）`;
     case 'item': return s.potions[a.id] <= 0 ? '藥水用完了' : `藥水冷卻中（${s.itemCd[a.id]} 回合）`;
     case 'spirit': return s.oc < SPIRIT_MIN_OC ? `OC 不足（需 ${SPIRIT_MIN_OC}，現有 ${Math.floor(s.oc)}）` : `SP 不足（需 ${SS.spPerTurn}）`;
     default: return '無法行動';
@@ -753,7 +786,7 @@ function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[
 }
 
 /** cp8-rc12: Concussive Strike — MDB x6 magic damage (findings/002 4.2 "MDB x 6"). The source names no element: untyped here
- *  (no element bonus / specific mitigation; 暫定). Magic mitigation and resist apply like a spell. Coalesced Mana proc not built. */
+ *  (no element bonus / specific mitigation; 暫定). Magic mitigation and resist apply like a spell. rc12e: procs Coalesced Mana (cmProc9). */
 function magicStrike(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[]): void {
   const m = s.monsters[ti]!;
   const r = resolveHit(rng, {
@@ -763,6 +796,7 @@ function magicStrike(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEv
   });
   if (r.avoidMult > 0) m.hp = Math.max(0, m.hp - r.damage);
   ev.push({ t: 'hit', from: 'player', to: ti, dmg: r.avoidMult > 0 ? r.damage : 0, crits: r.crits, avoided: r.avoided, label: '震盪打擊' });
+  if (r.avoidMult > 0) cmProc9(s, rng, ti, ev); // rc12e: Skills.md:79 "Can proc Coalesced Mana"
   if (m.hp <= 0) ev.push({ t: 'death', to: ti });
   if (s.cp5 && r.avoidMult > 0) antimagic(s, ti, r.damage, ev);
 }
@@ -814,7 +848,9 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
   switch (a.kind) {
     case 'attack': {
       const t = retarget(s, a.target);
-      stylePassive(s, rng, t, physHit(s, rng, t, 1, ev), ev);
+      const dealt = physHit(s, rng, t, 1, ev);
+      etProc9(s, rng, t, dealt, ev); // rc12e: Arcane Blow
+      stylePassive(s, rng, t, dealt, ev);
       break;
     }
     case 'skill': {
@@ -866,12 +902,12 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     }
     case 'spell': {
       const def = SPELLS[a.id];
-      const cost = spellCost(s, a.id);
+      const t0 = retarget(s, a.target);
+      const cost = spellCost(s, a.id, t0); // rc12e 自訂: a multi-target spell is priced by its primary target
       s.mp -= cost;
       ev.push({ t: 'msg', text: `${def.zh}：消耗 ${cost} MP（剩 ${Math.floor(s.mp * 100) / 100}）` });
-      const t0 = retarget(s, a.target);
       const order = [t0, ...[t0 - 1, t0 + 1, t0 - 2, t0 + 2].filter((i) => s.monsters[i] && s.monsters[i]!.hp > 0)];
-      for (const ti of order.slice(0, def.targets)) spellHit(s, rng, ti, def, profs[def.school] ?? 0, ev);
+      for (const ti of order.slice(0, def.targets)) { const hp0 = s.monsters[ti]!.hp; spellHit(s, rng, ti, def, profs[def.school] ?? 0, ev); if (s.monsters[ti]!.hp < hp0) cmProc9(s, rng, ti, ev); }
       if (s.mods) s.mods.lastElem = def.element;
       s.used[def.school] = (s.used[def.school] ?? 0) + 1;
       break;
@@ -953,6 +989,12 @@ function endOfPlayerTurn(s: BattleState, ev: BEvent[], noRegen: boolean): void {
     if (r2(s.mp - mp0) > 0) ev.push({ t: 'heal', res: 'mp', amount: r2(s.mp - mp0), label: '自然回復' });
     if (r2(s.sp - sp0) > 0) ev.push({ t: 'heal', res: 'sp', amount: r2(s.sp - sp0), label: '自然回復' });
   }
+  // rc12e: Ether Tap restore (2% Base_MP per stack per turn) and Coalesced Mana countdown. Base_MP = 10 + Lv + WIS (formulas.ts baseMp).
+  if (s.et9 && s.et9.turns > 0) {
+    const mp0 = s.mp; s.mp = Math.min(s.d.mp, s.mp + s.et9.stacks * STAFF9.etPct * baseMp(s.d.level, s.d.attrs.wis)); s.et9.turns--;
+    const g = Math.floor((s.mp - mp0) * 100) / 100; if (g > 0) ev.push({ t: 'heal', res: 'mp', amount: g, label: '以太分流' });
+  }
+  if (s.cm9) for (const k of Object.keys(s.cm9)) if (s.cm9[+k]! > 0) s.cm9[+k]!--;
   s.mp = Math.floor(s.mp * 100) / 100;
   s.sp = Math.floor(s.sp * 100) / 100;
   s.monsters.forEach((m, i) => {
