@@ -19,7 +19,7 @@ describe('rc12d+ map low-HP text and retreat ★', () => {
   afterAll(() => { RULES.cp7 = o[0]!; RULES.cp8 = o[1]!; });
   it('oc1 F37 (merchant/chest/shrine, 0 potions): no 「休息節點」 advice', () => {
     const h = html(['merchant', 'chest', 'shrine'], 0.17, 0, 1e6);
-    expect(h).not.toMatch(/走休息節點/); expect(h).toMatch(/本層沒有休息節點，先去商人補藥/);
+    expect(h).not.toMatch(/走休息節點/); expect(h).toMatch(/沒有生命藥水了：建議撤退回城/); // rc12j item 3: HP 17% + 0 potions → ★ = 撤退, text follows ★
   });
   it('rest present → 優先走休息節點; head mentions rest only when present', () => {
     expect(lowHpMapText9(['rest', 'battle'], 0, true).noPot).toMatch(/優先走休息節點/);

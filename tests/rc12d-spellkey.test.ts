@@ -17,7 +17,7 @@ const mk = (spec: Partial<Record<string, number>>) => {
 const run = (f: () => void) => { const o = [RULES.cp7, RULES.cp8]; RULES.cp7 = RULES.cp8 = true; try { f(); } finally { [RULES.cp7, RULES.cp8] = o as [boolean, boolean]; } };
 
 describe('rc12d spell ★', () => {
-  it('staff, no weakness → A (fiery quick-cast), never a spell key', () => run(() => { expect(mk({}).d.style).toBe('staff'); expect(primaryKey(mk({}), 0).key).toBe('A'); }));
+  it('staff, no weakness → best spell key (rc12j item 2: was A), never 「普通攻擊」', () => run(() => { expect(mk({}).d.style).toBe('staff'); const pk = primaryKey(mk({}), 0); expect(pk.key).toMatch(/^[1-6]$/); expect(pk.action.kind).toBe('spell'); expect(pk.why).not.toBe('普通攻擊'); }));
   it('cold weakness → ★ 2·冰封, and the action is that spell', () => run(() => {
     const pk = primaryKey(mk({ cold: -50 }), 0); expect(pk.key).toBe('2'); expect(pk.action).toMatchObject({ kind: 'spell', id: 'freeze' });
   }));

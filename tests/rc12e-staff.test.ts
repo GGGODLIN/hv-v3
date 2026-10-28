@@ -34,7 +34,7 @@ describe('rc12e Coalesced Mana', () => {
     const o = RULES.cp8; RULES.cp8 = true;
     try {
       const b = fight('staff', 1e6, 2); const id = CP8.staffQuickSpell as typeof spell;
-      b.cm9 = { 0: 3 }; b.mp = spellCost(b, id, 0);
+      b.cm9 = { 0: 3 }; b.et9 = { turns: 2, stacks: 1 }; b.mp = spellCost(b, id, 0); // rc12j: Ether Tap running → no blow
       if (b.mp < spellCost(b, id, 1)) {
         expect(canUse(b, { kind: 'spell', id, target: 0 })).toBe(true); expect(canUse(b, { kind: 'spell', id, target: 1 })).toBe(false);
         expect(quickAttack(b, 0).kind).toBe('spell'); expect(quickAttack(b, 1).kind).toBe('attack');

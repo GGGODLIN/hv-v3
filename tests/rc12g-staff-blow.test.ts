@@ -20,11 +20,12 @@ describe('rc12g staff blow', () => {
     const o = RULES.cp8; RULES.cp8 = true;
     try {
       const b = fight(); const id = CP8.staffQuickSpell as never;
-      b.mp = 9000; b.cm9 = { 0: 3 }; expect(quickAttack(b, 0).kind).toBe('spell');
+      b.mp = 9000; b.cm9 = {}; expect(quickAttack(b, 0).kind).toBe('spell'); b.cm9 = { 0: 3 }; expect(quickAttack(b, 0).kind).toBe('attack'); // rc12j: any MP
+      b.et9 = { turns: 2, stacks: 1 }; expect(quickAttack(b, 0).kind).toBe('spell'); b.et9 = undefined;
       b.mp = Math.max(spellCost(b, id), 100); expect(quickAttack(b, 0).kind).toBe('attack');
       let seen = false; const rng = new Rng(1);
       for (let i = 0; i < 300 && !seen; i++) { b.cm9 = { 0: 3 }; b.mp = Math.max(spellCost(b, id), 100);
-        seen = act(b, { kind: 'attack', target: 0 }, rng, {} as never).some((e) => 'text' in e && /以太分流（Ether Tap）/.test(String(e.text))); }
+        seen = act(b, { kind: 'attack', target: 0 }, rng, {} as never).some((e) => 'text' in e && /你的法杖：以太分流（Ether Tap）/.test(String(e.text))); }
       expect(seen).toBe(true);
     } finally { RULES.cp8 = o; }
   });

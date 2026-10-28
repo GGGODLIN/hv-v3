@@ -7,10 +7,10 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
-import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
+import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
 import { F3_GIFT, F3_GIFT_POTIONS, STARTER_POTIONS, TIPS, carryMult, has, prog, tip, unlock } from './progress';
 import type { BattleState, PotionId } from './battle';
 import { ADVICE_DIAG } from './battle';
@@ -337,6 +337,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
         if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
       if (RULES.cp8 && CP9.on && deepK12g(lean) > 0 && (ab || run.floor) > DEEP12G.from) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * deep12g(F, 'hp', lean))); m.adb *= deep12g(F, 'dmg', lean); if (m.rank === 'boss') { const pl = plainAt12h(F, lean); if (pl != null) (m as { plain12h?: number }).plain12h = pl; const pc = potCdAt12h(F, lean); if (pc) (m as { potCd12h?: number }).potCd12h = pc; } } // rc12g item 1（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && lean === 'bulwark' && DEEP12G.bwBossHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * bwBossHp12i(ab || run.floor))); // rc12i（自訂）
+      if (rank === 'boss' && RULES.cp8 && CP9.on && (lean === 'arcane' || lean === 'oc') && DEEP12G.aoBossHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * aoBossHp12j(ab || run.floor))); // rc12j item 4（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
       return m;
     });
@@ -646,7 +647,15 @@ export function potNeed9(run: RunState): number {
   return Math.min(POTNEED9.cap, POTNEED9.base + Math.max(0, Math.floor((boss - POTNEED9.from) / 5)) * POTNEED9.per5);
 }
 /** rc12d+ item 2（自訂）: the low-HP map hint names only nodes this floor actually has (QA oc1 F37: 「優先走休息節點」 with no rest node). */
-export function lowHpMapText9(opts: readonly NodeType[], pots: number, canBuy: boolean): { head: string; noPot: string } {
+/** rc12j item 3（自訂）: one decision source — when the ★ route advice (routeAdvice9) is given, the red text follows it
+ *  (QA ar3 F49: 「優先走休息節點」 shown while ★ = 撤退回城). Without `ra` the old per-node wording is kept. */
+export function lowHpMapText9(opts: readonly NodeType[], pots: number, canBuy: boolean, ra?: { i: number; retreat?: true } | null): { head: string; noPot: string } {
+  if (ra?.retreat) return { head: '建議撤退回城（保留 100%）', noPot: pots > 0 ? '' : '沒有生命藥水了：建議撤退回城（保留 100%）' };
+  const star = ra ? opts[ra.i] : undefined;
+  if (star && pots <= 0) {
+    const t = star === 'rest' ? '優先走休息節點' : star === 'merchant' ? '先去商人補藥' : star === 'chest' ? '寶箱有機會開出藥水' : `建議走【${NODE_ZH[star]}】`;
+    return { head: `進戰鬥前先喝藥${star === 'rest' ? '或走休息節點' : ''}`, noPot: `沒有生命藥水了：${t}` };
+  }
   const rest = opts.includes('rest'), merch = opts.includes('merchant'), chest = opts.includes('chest');
   const head = `進戰鬥前先喝藥${rest ? '或走休息節點' : ''}`;
   const noPot = pots > 0 ? '' : rest ? '沒有生命藥水了：優先走休息節點' : merch && canBuy ? '沒有生命藥水了：本層沒有休息節點，先去商人補藥' : merch ? '沒有生命藥水了：本層沒有休息節點，金幣也不夠買藥，考慮撤退回城' : chest ? '沒有生命藥水了：本層沒有休息節點，寶箱有機會開出藥水，或撤退回城' : '沒有生命藥水了：本層沒有休息節點也沒有商人，考慮撤退回城';

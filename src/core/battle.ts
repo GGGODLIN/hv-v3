@@ -250,7 +250,7 @@ function cmProc9(s: BattleState, rng: Rng, ti: number, ev: BEvent[]): void {
   const a = s.d.attrs;
   if (!rng.chance(Math.min(STAFF9.cmCap, STAFF9.cmBase + STAFF9.cmAttrK * (a.int + a.wis) + s.d.wprof / STAFF9.cmProfDiv) / 100)) return;
   (s.cm9 ??= {})[ti] = STAFF9.cmTicks;
-  ev.push({ t: 'status', to: ti, text: `魔力合流（Coalesced Mana）${STAFF9.cmTicks} 回合（對牠施法 MP 消耗減半）` });
+  ev.push({ t: 'status', to: ti, text: `你的法杖：魔力合流（Coalesced Mana）→ ${m.name} ${STAFF9.cmTicks} 回合（對牠施法 MP 消耗減半）` }); // rc12j: 「你的法杖：」 = player proc, not an enemy affix
 }
 /** rc12e: Ether Tap — Arcane Blow (the staff's normal attack) hit on a Coalesced target. 自訂: a re-proc while active refreshes 4 ticks. */
 function etProc9(s: BattleState, rng: Rng, ti: number, dealt: number, ev: BEvent[]): void {
@@ -259,16 +259,20 @@ function etProc9(s: BattleState, rng: Rng, ti: number, dealt: number, ev: BEvent
   if (!kill && !rng.chance(STAFF9.etChance)) return;
   s.cm9[ti] = 0;
   s.et9 = { turns: STAFF9.etTicks, stacks: Math.min(STAFF9.etMaxStacks, (s.et9?.turns ? s.et9.stacks : 0) + 1) };
-  ev.push({ t: 'msg', text: `以太分流（Ether Tap）${s.et9.stacks > 1 ? ' x2' : ''}：之後 ${STAFF9.etTicks} 回合每回合回復 ${s.et9.stacks * STAFF9.etPct * 100}% 基礎 MP` });
+  ev.push({ t: 'msg', text: `你的法杖：以太分流（Ether Tap）${s.et9.stacks > 1 ? ' x2' : ''}：之後 ${STAFF9.etTicks} 回合每回合回復 ${s.et9.stacks * STAFF9.etPct * 100}% 基礎 MP` });
 }
 
 /** CP8 rc3 (暫定): what 「A·攻擊」 does — the staff quick spell (CP8.staffQuickSpell) when usable, else a normal attack. */
 // cp8-rc5 (playtest bug: bulwark in 靈動架勢 cast 烈焰爆破 on A): the UI also passes the live main-hand group; both must be a staff.
 /** rc12g 自訂（非原版）: A on a 魔力合流 target = Arcane Blow instead of the quick spell (else Ether Tap was unreachable). */
 export const STAFF_BLOW_ON_CM = true, /** only while MP < this share（自訂）: a blow costs ~370 damage vs 烈焰 */ STAFF_BLOW_MP = 0.5;
+/** rc12j item 1（自訂）: QA rc12g saw 0 Ether Tap in real play (and the sim also logged 0 on the QA arcane snapshots: MP stays
+ *  ≥ 50%, so the rc12g "blow only while MP < 50%" gate never opened). Now: a coalesced target with no Ether Tap running → Arcane
+ *  Blow (one shared predicate for the A button, ★ primaryKey and the sim). */
+export const staffBlow12j = (s: BattleState, target: number | undefined): boolean => STAFF_BLOW_ON_CM && s.d.style === 'staff' && coalesced9(s, target) && !((s.et9?.turns ?? 0) > 0);
 export function quickAttack(s: BattleState, target: number, main?: string): Action {
   const id = CP8.staffQuickSpell as SpellId;
-  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id] && !(STAFF_BLOW_ON_CM && coalesced9(s, target) && s.mp < STAFF_BLOW_MP * s.d.mp && s.mp >= spellCost(s, id))) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
+  if (RULES.cp8 && id && s.d.style === 'staff' && (main === undefined || main === 'staff') && SPELLS[id] && !staffBlow12j(s, target)) { const a: Action = { kind: 'spell', id, target }; if (canUse(s, a)) return a; }
   return { kind: 'attack', target };
 }
 /** cp8-rc4 (decision 2026-10-26, 暫定 thresholds): the health-potion hint — HP < 50%, or < 75% while a foe is charging, and a potion is usable. The UI highlights it and the naive sim AI drinks on it. */
@@ -1271,6 +1275,12 @@ function spellWhy9(s: BattleState, target: number, r: PrimaryKey): string {
   const q = spellValue(s, (quickAttack(s, target) as { id: SpellId }).id, target), b = Math.max(...ids.map((id) => spellValue(s, id, target)));
   return b <= q ? 'fiery-best' : b <= q * (1 + SPELL_HINT_EDGE) ? 'within-edge' : 'mp-per-cost';
 }
+/** rc12j item 2: the usable + affordable spell with the highest spellValue (shared by ★ in the UI and SIM_POLICY=primary). */
+export function bestSpell12j(s: BattleState, target: number): SpellId | undefined {
+  let best: SpellId | undefined, v = -Infinity;
+  for (const id of Object.keys(SPELLS) as SpellId[]) if (canUse(s, { kind: 'spell', id, target })) { const x = spellValue(s, id, target); if (x > v) { v = x; best = id; } }
+  return best;
+}
 function primaryKey0(s: BattleState, target: number): PrimaryKey {
   const th = turnHints(s, target), adv = th.adv, kit = skillKit(s), spells = Object.keys(SPELLS) as SpellId[];
   const qa = (): PrimaryKey => ({ key: 'A', label: 'A·攻擊', action: quickAttack(s, target), why: '普通攻擊', src: 'attack' });
@@ -1286,6 +1296,11 @@ function primaryKey0(s: BattleState, target: number): PrimaryKey {
   if (showDecide) for (const k of adv!.keys) { const p = fromKey(k); if (p) return { ...p, why: adv!.text, src: 'advice' }; }
   if (RULES.cp8 && guardHint(s)) return { key: 'S', label: 'S·靈動架勢', action: { kind: 'spirit' }, why: 'HP 危險、藥水不能用：靈動架勢', src: 'guard' };
   if (th.skill) { const i = kit.indexOf(th.skill); return { key: 'QWE'[i]!, label: `${'QWE'[i]}·${SKILLS[th.skill].zh}`, action: { kind: 'skill', id: th.skill, target }, why: SKILLS[th.skill].desc, src: 'skill' }; }
+  // rc12j item 1/2（自訂）: staff ★ — Arcane Blow on a coalesced target (Ether Tap), else the best affordable spell, never a bare 「普通攻擊」.
+  if (RULES.cp8 && s.d.style === 'staff') {
+    if (staffBlow12j(s, target) && canUse(s, { kind: 'attack', target })) return { key: 'A', label: 'A·秘法打擊', action: { kind: 'attack', target }, why: '目標魔力合流中：秘法打擊可觸發以太分流', src: 'attack' };
+    if (!th.spell) { const best = bestSpell12j(s, target); if (best) { const i = spells.indexOf(best); return { key: String(i + 1), label: `${i + 1}·${SPELLS[best].zh}`, action: { kind: 'spell', id: best, target }, why: '傷害最高的可用法術', src: 'spell' }; } }
+  }
   if (th.spell) { const i = spells.indexOf(th.spell.id); return { key: String(i + 1), label: `${i + 1}·${SPELLS[th.spell.id].zh}`, action: { kind: 'spell', id: th.spell.id, target }, why: `${th.spell.pct > 0 ? '弱點' : '傷害較高'}元素`, src: 'spell' }; }
   return qa();
 }

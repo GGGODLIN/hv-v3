@@ -94,7 +94,7 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
  *  ~850 up to F30, then +3.5 per floor (F100 ≈ 1095). Reference for CP9.bossAtk only. */
 /** rc12g item 1（自訂，製作人開放）: deep-floor curve from F = deepFrom: every monster (normal / elite / boss) HP and damage
  *  × (1 + deep·(F − deepFrom)/60) → F100 ×(1 + deep). Boss adb is still capped by bossAtk (rc12f) afterwards. 0 = off. */
-export const DEEP12G = { /** rc12i（自訂）: bulwark-lean boss per-turn caps (plain & telegraphed) × this F30–65, linear back to ×1 at F100. */ bwCap: num('SIM_BWCAP') ?? 1, /** rc12i（自訂）: bulwark-lean player physical damage × this vs bosses. */ bwOut: num('SIM_BWOUT') ?? 1, /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 0.2 /* rc12i 預設（自訂，製作人方案 b） */, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 2.5 /* rc12i 預設（自訂） */ /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
+export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × this from F30 (QA replay median >18). */ aoBossHp: num('SIM_AOBOSSHP') ?? 0.8, /** rc12i（自訂）: bulwark-lean boss per-turn caps (plain & telegraphed) × this F30–65, linear back to ×1 at F100. */ bwCap: num('SIM_BWCAP') ?? 1, /** rc12i（自訂）: bulwark-lean player physical damage × this vs bosses. */ bwOut: num('SIM_BWOUT') ?? 1, /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 0.2 /* rc12i 預設（自訂，製作人方案 b） */, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 2.5 /* rc12i 預設（自訂） */ /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
   school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: per-school HP / attack split of the curve (multiplies k; unset → hpK / 1). */
@@ -118,6 +118,8 @@ export const plainAt12h = (f: number, lean?: string): number | undefined => { co
 /** rc12h（自訂）: extra potion cooldown at floor f. */
 export const potCdAt12h = (f: number, lean?: string): number => { const t = lean ? DEEP12G.potS[lean] : undefined; return t ? Math.round(t * Math.min(1, Math.max(0, f - DEEP12G.from) / 60)) : 0; };
 
+/** rc12j item 4（自訂）: arcane/oc boss HP × aoBossHp F30–65, linear back to ×1 at F100 (keeps the preset-hint F100 rate near rc12i). */
+export const aoBossHp12j = (F: number): number => { const h = DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
 /** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
 export const bwBossHp12i = (F: number): number => { const h = DEEP12G.bwBossHp, a = DEEP12G.bwBossFlat, e = DEEP12G.bwBoss100; return F < DEEP12G.bwBossFrom ? 1 : F <= a ? h : h + (e - h) * Math.min(1, (F - a) / (100 - a)); };
 /** rc12i（自訂）: bulwark boss-cap factor at floor F. */

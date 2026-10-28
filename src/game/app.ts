@@ -105,7 +105,7 @@ export class App {
   lastAdvice: { turn: number; a: ChargeAdvice; charge?: boolean } | null = null;
   pk: PrimaryKey | null = null; // rc12c: this turn's ★ key (battleHtml)
   retreat9 = false; // rc11 item 7
-  private lowTxt9() { const r = this.run!; return lowHpMapText9(r.tower.floors[r.floor - 1]?.options ?? [], this.p.potions.health ?? 0, this.p.credits >= RULES.potionPrice.health); }
+  private lowTxt9() { const r = this.run!; return lowHpMapText9(r.tower.floors[r.floor - 1]?.options ?? [], this.p.potions.health ?? 0, this.p.credits >= RULES.potionPrice.health, RULES.cp8 ? routeAdvice9(this.p, r) : null); } // rc12j item 3: text follows ★
   /** CP7: chosen abyss start checkpoint. */
   abyssStart: number | null = null;
   noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
