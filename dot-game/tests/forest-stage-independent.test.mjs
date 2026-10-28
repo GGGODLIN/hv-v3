@@ -1,3 +1,4 @@
+import {beforeWaveProgress} from './helpers/wave-progress-baseline.mjs';
 import {beforeWaveGrowth} from './helpers/wave-growth-baseline.mjs';
 import { beforeLoadoutPreview } from './helpers/loadout-preview-baseline.mjs';
 import { beforeGoldCapWarning } from './helpers/gold-cap-warning-baseline.mjs';
@@ -19,7 +20,7 @@ import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 
 // Independent source/Canvas-command checks. No pixels, browser or accessibility claim.
-const read = p => beforeNameSearch(beforeProtectionFilter(beforeReportExport(beforeClearReport(beforeManualSaleCap(beforeGoldCapWarning(beforeLoadoutPreview(beforeWaveGrowth(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'),p),p),p),p),p),p),p),p);
+const read = p => beforeNameSearch(beforeProtectionFilter(beforeReportExport(beforeClearReport(beforeManualSaleCap(beforeGoldCapWarning(beforeLoadoutPreview(beforeWaveGrowth(beforeWaveProgress(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'),p),p),p),p),p),p),p),p),p);
 const source = beforeImportOrdering(beforeDetailActionFocus(beforeQualityFilter(beforeQualitySort(beforeStatDelta(read('src/ui.js'))))));
 const sha = s => createHash('sha256').update(s).digest('hex');
 const actorStart = source.indexOf('function rect('), sceneStart = source.indexOf('function drawScene(');

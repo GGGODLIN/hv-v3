@@ -1,24 +1,24 @@
 {
-  "checkpoint": "182-v057-effective-potion-feedback",
-  "version": "0.57.0",
+  "checkpoint": "183-v058-completed-wave-progress",
+  "version": "0.58.0",
   "status": "source-tested-browser-pending",
-  "source_base": "36b2be0887262446526e10294869ba1886d2194c",
+  "source_base": "6fc777495a79a9ab70b5c336916a742ddce90910",
   "base_accepted_recovery": "eaf6e784782a781114352d729a11d0b025f3032a",
   "accepted_website": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
-  "scope": "Potion event reports rounded effective HP restoration, not capped-away nominal amount. Healing, consumption, RNG and game outcomes unchanged.",
-  "source_tests_passed": 2180,
+  "scope": "Display all completed waves during settled victory intermission only; no combat/reward/RNG/save changes.",
+  "source_tests_passed": 2192,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "new_focused_tests": 7,
-  "independent_focused_tests_passed": 15,
-  "browser_acceptance": "Pending for v056 and v057. Source tests only; no website writes.",
+  "new_focused_tests": 1,
+  "independent_focused_tests_passed": 11,
+  "browser_acceptance": "Pending for v056 through v058. Source/UI-model tests only; zero website writes.",
   "publication": "Not published; formal v055 remains unchanged.",
-  "recovery": "docs/RECOVERY-V057.md",
+  "recovery": "docs/RECOVERY-V058.md",
   "files": {
     "README.md": {
-      "bytes": 56044,
-      "sha256": "a33bacd337322b79dd07684d741dc8988e2bcc0718486848c12456c030b634bc"
+      "bytes": 56876,
+      "sha256": "2014e7b040a46acb007a4a5ce3eaf8a520a377c80d7616ff978f6793f081ee13"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -744,6 +744,14 @@
       "bytes": 1542,
       "sha256": "a9310830bf5142c9a2ba22f9d5b82f899bf8b13d6072611b36f85a4c6931fcea"
     },
+    "docs/QA-V058-INDEPENDENT.md": {
+      "bytes": 1813,
+      "sha256": "9a633ded24bbe961ab55a5fbf9c36a6e887018f673159f74b4b4467a6c50a5f6"
+    },
+    "docs/QA-V058.md": {
+      "bytes": 1173,
+      "sha256": "5bd67ec5ff7ab581999bb3dce8344fcdb4ebbba09df44549724024e0e321c9ab"
+    },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
@@ -888,6 +896,10 @@
       "bytes": 1283,
       "sha256": "d818eaece3189a60ca3f8e146a5c816c064341f56d73f5f672ed8d7c633ee3da"
     },
+    "docs/RECOVERY-V058.md": {
+      "bytes": 1264,
+      "sha256": "b321ece087b77583f897d4547b6fab18d4b631612bcdfe30f0b2afe24d6396e6"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -897,8 +909,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 40624,
-      "sha256": "bd324801c8ba61566ae71182bbb24d5c917c9fea5aac300c401ec3cefc90cf6f"
+      "bytes": 40898,
+      "sha256": "1b77993b1369cd5d0c70aa0f9bea3b689a46bee1b2e76aea76cbec34ff71ee9d"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -933,8 +945,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 58755,
-      "sha256": "4373e7780e5d02a44072c6332c54b8dc79c415dc016f5eb7bf30d15958c54e7a"
+      "bytes": 59587,
+      "sha256": "fbdf0f946ea8ef998b752d967bc8bfcc5d4daaa3f595e0d187233459a9420d7e"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1154,11 +1166,11 @@
     },
     "index.html": {
       "bytes": 46410,
-      "sha256": "0dd0375c99bc5195d0063a5cffb820be9d3937d7615e1f8436a5a5bcf74a1295"
+      "sha256": "8944123f88050b6603ca9dc6100f1b234eb082f408b79a5d25234a57a72c65af"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "51b870783f959c416f32767c3a775cfe7dc2b06f69d22c51e79aa48db27ef93a"
+      "sha256": "c4a4d2af0ea71e3523c3be604bff4aad47114fae6fb00f5b1385abe441bc10a9"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1245,8 +1257,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 174478,
-      "sha256": "bc16b8a75cebfe17bbdedc2d6369ecc264b54d0fb16efeef5e33ab5793eb073a"
+      "bytes": 174558,
+      "sha256": "c39d305515efd906cd57fd71763bdf8fdaefafb4e95cf6bc80b86ae0f410c79a"
     },
     "style.css": {
       "bytes": 74711,
@@ -1290,7 +1302,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "12d5eb358748fc677fbb9331cf62f01ca88ee1e2b627e199daaa0dbff627c5d3"
+      "sha256": "03617a7906117bd0410aa81dc22f646eab64c8246342809c9bf7c8b7ca5ed130"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1305,8 +1317,8 @@
       "sha256": "fe63e12ce9df43ffe61dec4f062c42762698b8783f31760eab5d232b15ca14bd"
     },
     "tests/camp-chest-independent.test.mjs": {
-      "bytes": 9517,
-      "sha256": "a763cc51fa6bc4afabdc631565f2924cd640e4570a8ecd23230ada32385d8dc6"
+      "bytes": 9615,
+      "sha256": "85f3e77d90633dd8fd28d8ab1a473e27554d55353b8377e8049bbe57ee3201b7"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1366,7 +1378,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18341,
-      "sha256": "e7d8e70b64ab2255135c7e533f7771c8b9a52b1687bf6cc12d51136b4838769b"
+      "sha256": "a9411d1009b7bd76cf4de0bbae173ceab0a0293a1c27af40600090615ec5fbc9"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16797,
@@ -1382,7 +1394,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "02417304710dee8608c68fcce2de573760d440c741684f34e3bc736c7da898c1"
+      "sha256": "2a25e07f3c0dd480a9b4d48c0d2a0cf7db2716cd57c3995f378308eb6598ba3b"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1418,7 +1430,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "48357881d93d6253049ade6fa550785031acdd08a1445d02ea414f456c4aba14"
+      "sha256": "0648f8183a5fb55cfe3aaab0fefe231a1a21462619d46374f504aa5e0089e754"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11471,
@@ -1633,8 +1645,8 @@
       "sha256": "458ab1548f806cd8ce1f40b50751164cf4eebaa8538cf2651d47d24603a235fc"
     },
     "tests/forest-stage-independent.test.mjs": {
-      "bytes": 8191,
-      "sha256": "1492a89f8479b78f2295ec73479e2c6c953bb9d2dec3b473a166a2840fc1962e"
+      "bytes": 8286,
+      "sha256": "0f7637bf9419a29c1c2a7ae10de0f4d0f50a5b6367cf020efca36bb65510bee6"
     },
     "tests/forest-stage.test.mjs": {
       "bytes": 4749,
@@ -1752,6 +1764,10 @@
       "bytes": 2107,
       "sha256": "ca27e77ccd7c306d39eddfe01552fea2293aec19318a3785f87da43ab465d99d"
     },
+    "tests/helpers/wave-progress-baseline.mjs": {
+      "bytes": 598,
+      "sha256": "5464615a995680cc89995c493d8b78b82547045d3be3a31a21a950c03d6f3fa2"
+    },
     "tests/import-order-audit.test.mjs": {
       "bytes": 9242,
       "sha256": "579acb7b2af4344d6457affcaaae5b40735fc8914ea70be1d03c63e5a6d55f01"
@@ -1790,7 +1806,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "0254479253cedf2f6a3acb5865450d61a9e371c156942e5584d6135bb3b0037f"
+      "sha256": "918d6d02808a8f9ad930ec222a6e54c589f555e2980281701320f02ff2d17180"
     },
     "tests/loadout-preview-audit.test.mjs": {
       "bytes": 7382,
@@ -1902,7 +1918,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "b863d4c38702caf0f13b031478c1aab57b24e4dbb2f373a4975610763f0c91e7"
+      "sha256": "92b6ff0e5445ff6e89fb8dc8da8f01bad98adebea07389483329d0bb1c09d9bc"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1938,7 +1954,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "2aa6f376dedda4ceca9f822d7cecae6e96aae2603ee34c85217163e9f066ba48"
+      "sha256": "68e0e6883945a0c8b93cdfc9a10fe25f7244028931dbc09f4df456e00ee9d804"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -2002,7 +2018,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "531ba7ff063f3b89706a133dd21323209503d44fe10085a9d7395080f3a37f0d"
+      "sha256": "19a090752943690ff9768b3f4072affb41f947481f982fd68f1a15e039eda44b"
     },
     "tests/stat-delta-audit.test.mjs": {
       "bytes": 3200,
@@ -2092,6 +2108,14 @@
       "bytes": 2197,
       "sha256": "8269b3127ae84e90a937cdcdd3a19abed7d84b9a6d8d5d3e622f8e1290877592"
     },
+    "tests/wave-progress-audit.test.mjs": {
+      "bytes": 4490,
+      "sha256": "00ca0aa16e9da7f73b1bd110bafdeb71363f4190b52a39ca8ae89ae827cbbf1f"
+    },
+    "tests/wave-progress.test.mjs": {
+      "bytes": 803,
+      "sha256": "dcb5e376aa031d055457f8d4ff7d24713e449319e4f5359bb3cad5d4a4b23d4d"
+    },
     "tests/weapon-identity.test.mjs": {
       "bytes": 10045,
       "sha256": "6325c4be04c299d4a1f57fe7e91ba6ffd48ca8a67a7500ea1931345063b3c209"
@@ -2102,7 +2126,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "58ef3ca3b4410c95d46c9196ad8daa5165c2425f9219f2379823ebe9bbf30280"
+      "sha256": "7cfd15f47905b28f907b7d4546a56f333f83a081651f282cde0c04c2b86e427e"
     }
   }
 }

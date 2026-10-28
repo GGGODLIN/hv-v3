@@ -1178,7 +1178,7 @@ function render(force = false) {
   $('wave-label').textContent = trial.active ? `第 ${trial.round} / ${trial.rounds} 回合` : state.mode === 'battle' ? `第 ${state.wave} / ${state.totalWaves} 波` : state.mode === 'defeat' ? '旅者倒下了' : '準備出發';
   $('mode-badge').textContent = trial.active ? '武器試煉進行中' : { town: '整備中', battle: '遠征進行中', defeat: '需要整備' }[state.mode] || '整備中'; $('mode-badge').className = `status-pill ${state.mode}`;
   $('run-time').textContent = clock(state.battle?.elapsed); const best = state.battle?.bestTimes?.[state.stage]; $('best-time').textContent = trial.active ? '不計普通關卡' : best ? clock(best) : '尚無紀錄';
-  $('kill-count').textContent = format(state.kills); $('win-count').textContent = format(state.wins); $('deepest-stage').textContent = String(state.unlocked).padStart(2, '0'); $('progress-label').textContent = `${Math.max(0, state.mode === 'town' ? 0 : state.wave - 1)} / ${state.totalWaves}`;
+  $('kill-count').textContent = format(state.kills); $('win-count').textContent = format(state.wins); $('deepest-stage').textContent = String(state.unlocked).padStart(2, '0'); $('progress-label').textContent = `${Math.max(0, state.mode === 'town' ? 0 : state.mode === 'battle' && state._phase === 'intermission' ? state.totalWaves : state.wave - 1)} / ${state.totalWaves}`;
   $('scene-message').hidden = state.mode === 'battle';
   if (state.mode !== 'battle') {
     const msg = $('scene-message'); msg.querySelector('h3').textContent = state.mode === 'defeat' ? '這不是旅程的終點。' : '下一段旅程，準備好了嗎？'; msg.querySelector('p').textContent = state.mode === 'defeat' ? '回營恢復，換上好裝，再來一次。' : '選好裝備，剩下的交給戰鬥。';
