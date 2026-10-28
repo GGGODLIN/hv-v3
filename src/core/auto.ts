@@ -563,7 +563,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       run.bag = run.bag.filter((e) => !used.includes(e)); }
     } else if (type === 'merchant') {
       const st = merchantStock(run);
-      let left = ENV?.SIM_NOMERCHCAP === '1' ? Infinity : st.hpLeft ?? Infinity; // SIM_NOMERCHCAP: sim diag (rc18 unlimited) // rc19 item 3（自訂，非原版）: per-merchant cap
+      let left = ENV?.SIM_NOMERCHCAP === '1' ? Infinity : ENV?.SIM_MERCH_HP ? Number(ENV.SIM_MERCH_HP) : st.hpLeft ?? Infinity; /* rc12d（sim only）: SIM_MERCH_HP=3 A/B of the per-merchant cap */ // SIM_NOMERCHCAP: sim diag (rc18 unlimited) // rc19 item 3（自訂，非原版）: per-merchant cap
       while (left > 0 && (ENV?.SIM_ROUTE === 'mr' || ENV?.SIM_ROUTE === 'hint' || p.potions.health < 4) && /* cp9-rc8（自訂）: mr buys the merchant out */ p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; POTSRC.merchant++; }
       if (bs) for (const x of merchantBuffs(p, run)) {
         const ok = strategy === 'buff:random' ? prng.chance(0.5) : BUFF[x.id]!.school === buffSchool(strategy as BuffStrategy);
