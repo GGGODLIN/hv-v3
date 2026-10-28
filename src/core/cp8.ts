@@ -86,6 +86,12 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
   /** rc2 (a)（自訂，暫定，無來源）: share of end-of-fight OC kept for the next fight of the trip (0 = off, the CP3 0-start). */ ocCarry: num('SIM_OCCARRY') ?? 1,
   /** rc3 (2)（自訂，暫定）: apply the bossBurst / bossPlain per-turn caps in normal and elite fights too. */ allCap: (num('SIM_ALLCAP') ?? 1) > 0,
   /** rc2 (2)（自訂，暫定，無來源）: per-floor boss HP multiplier: ×boss5 at floor ≤5, linear to ×boss15 at floor 15, linear to ×boss30 at floor bossEnd (25), flat after. */ boss5: num('SIM_BOSS5') ?? 3, boss15: num('SIM_BOSS15') ?? 4.5, bossEnd: num('SIM_BOSSEND') ?? 25, boss30: num('SIM_BOSS30') ?? 1.5/* cp9-rc7 item 1（自訂，暫定）: 2 → 1.5 */ /* cp9-rc5 (3)（自訂，暫定）: 1 → 2 so the preset boss fight is blade ≥3 / others ≥6 turns */,
-  /** rc2 (3)（自訂，暫定，無來源）: blade skill OC cost multiplier (producer cap: ≥0.7). */ bladeOc: num('SIM_BLADEOC') ?? 0.7 };
+  /** rc2 (3)（自訂，暫定，無來源）: blade skill OC cost multiplier (producer cap: ≥0.7). */ bladeOc: num('SIM_BLADEOC') ?? 0.7,
+  /** rc12f item 1（自訂，非原版，CP9 第 5 條）: boss plain-attack adb ≤ bossAtk × refHp9(floor), the typical max HP at that floor (0 = off).
+   *  Charged / 蓄力 / 脈衝 hits scale from this adb and stay under the bossBurst cap. */ bossAtk: num('SIM_BOSSATK') ?? 0,
+  /** rc12f item 2（自訂，sim 單因素對照）: overrides RULES.cp4BossHpPerBuff (null = keep RULES). */ buffHp: num('SIM_BUFFHP') };
+/** rc12f（自訂，非原版）: typical max HP of the four schools at a floor/depth — sim medians (scripts/rc12f-adb-diag.ts, preset+std, ★ policy):
+ *  ~850 up to F30, then +3.5 per floor (F100 ≈ 1095). Reference for CP9.bossAtk only. */
+export const refHp9 = (f: number): number => 850 + 3.5 * Math.max(0, f - 30);
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */
 export const bossHp9 = (f: number): number => CP9.bossHp * (f <= 5 ? CP9.boss5 : f >= CP9.bossEnd ? CP9.boss30 : f <= 15 ? CP9.boss5 + (CP9.boss15 - CP9.boss5) * (f - 5) / 10 : CP9.boss15 + (CP9.boss30 - CP9.boss15) * (f - 15) / (CP9.bossEnd - 15));
