@@ -162,7 +162,13 @@ export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R1
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
 export const boss70 = (F: number, lean: string | null | undefined, k: 'bossHp70' | 'bossDmg70'): number => F <= 65 ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - 65) / 5);
 export const r12mDeepK = (lean?: string): number | undefined => (RUN12M.on && lean ? (RUN12O.on && !R12O_ENV.has(`${lean}.deepK`) ? R12O_BASE[lean]?.deepK : undefined) ?? RUN12M.school[lean]?.deepK : undefined);
-export const mob12m = (F: number, lean: string | null | undefined, k: 'mobHp' | 'mobDmg'): number => !RUN12M.on || F <= RUN12M.mobFrom ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - RUN12M.mobFrom) / (100 - RUN12M.mobFrom));
+/** rc12q CANDIDATE（自訂，預設關；SIM_RUN12Q=1 開）: blade bimodal fix. Blade clears were legend-OC snowballs from boss offers (O8/O9),
+ *  early deaths were mid-run attrition. legend = blade boss-offer legend weight ×; bossHp = blade boss HP × F30–65 (fades to ×1 at F70);
+ *  mobFrom = blade mob ramp start (instead of RUN12M.mobFrom). OFF = exact rc12p. */
+export const RUN12Q = { on: (num('SIM_RUN12Q') ?? 0) === 1, legend: num('SIM_R12Q_LEGEND') ?? 0.1, bossHp: num('SIM_R12Q_BOSSHP') ?? 1, mobFrom: num('SIM_R12Q_MOBFROM') ?? 50 };
+export const blade12q = (lean: string | null | undefined): boolean => RUN12Q.on && lean === 'blade';
+export const bladeBossHp12q = (F: number, lean: string | null | undefined): number => !blade12q(lean) || F < 30 ? 1 : F <= 65 ? RUN12Q.bossHp : RUN12Q.bossHp + (1 - RUN12Q.bossHp) * Math.min(1, (F - 65) / 5);
+export const mob12m = (F: number, lean: string | null | undefined, k: 'mobHp' | 'mobDmg'): number => { const from = blade12q(lean) ? RUN12Q.mobFrom : RUN12M.mobFrom; return !RUN12M.on || F <= from ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - from) / (100 - from)); };
 export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp * r12m(lean, 'bossHp') : DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
 /** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
 /** rc12k item 1（製作人，自訂）: after F65 the rise is geometric (same × per floor, ≈ ×1.43 / 5 floors at 0.2→2.5) instead of linear,

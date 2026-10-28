@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, boss70, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -345,7 +345,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
       if (rank === 'boss' && RULES.cp8 && CP9.on && (lean === 'arcane' || lean === 'oc')) { m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * aoBossHp12j(ab || run.floor, lean))); if (lean === 'oc') { m.adb *= ocDmg12l(ab || run.floor); const pl = ocPlain12l(ab || run.floor); if (pl != null) (m as { plain12h?: number }).plain12h = pl; } } // rc12j item 4 / rc12l（自訂）
       if (RUN12M.on && RULES.cp8 && CP9.on) (m as { hitCap12m?: number }).hitCap12m = RUN12M.hit; // rc12m（自訂）: any monster single hit ≤ 40% max HP
       if (rank !== 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * mob12m(F, lean, 'mobHp'))); m.adb *= mob12m(F, lean, 'mobDmg'); } // rc12m（自訂）
-      if (rank === 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * boss70(F, lean, 'bossHp70'))); m.adb *= boss70(F, lean, 'bossDmg70'); } // rc12o（自訂）
+      if (rank === 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * boss70(F, lean, 'bossHp70') * bladeBossHp12q(F, lean))); m.adb *= boss70(F, lean, 'bossDmg70'); } // rc12o（自訂）; rc12q bladeBossHp12q（自訂，預設關）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
       return m;
     });

@@ -3,6 +3,7 @@ import { BUFF, BUFFS, type BuffDef, type Rarity, schoolCounts, SCHOOLS } from '.
 import { has } from './progress';
 import type { Player } from './player';
 import { Rng } from './rng';
+import { RUN12Q, blade12q } from './cp8';
 import { RULES, runDerived, type RunState } from './run';
 import type { NodeType } from './tower';
 
@@ -94,7 +95,8 @@ export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant
       else if (pool.length) out.push(rng.weighted(pool.map((b) => [b.id, OFFER_RARITY[src][b.rarity === 'common' ? 0 : b.rarity === 'rare' ? 1 : 2] || 1] as [string, number])));
     }
   }
-  const [c, r, l] = weights ?? OFFER_RARITY[src];
+  const [c, r, l0] = weights ?? OFFER_RARITY[src];
+  const l = src === 'boss' && !weights && blade12q(p.lean) ? l0 * RUN12Q.legend : l0; // rc12q（自訂，預設關）
   let needRare = src === 'boss';
   while (out.length < n) {
     const rar: Rarity = needRare ? (rng.chance(l / (r + l)) ? 'legend' : 'rare') : rng.weighted<Rarity>([['common', c], ['rare', r], ['legend', l]].filter((x) => (x[1] as number) > 0) as [Rarity, number][]);
