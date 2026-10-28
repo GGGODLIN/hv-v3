@@ -1,6 +1,6 @@
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
-import { rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -73,6 +73,12 @@ export function urgentLine(a: { est: number; hp: number }, estD: number | null =
   if (isLethal(e, h) && v === 'safe') return `<br><b class="warn-def" data-urgent="${e}:${h}:${estD}">不防禦會死：暴擊估 ${e} ≥ HP ${h}，防禦後 ${estD}</b>`;
   return isLethal(e, h) ? `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ≥ 目前 HP（${e} ≥ ${h}）：照上面的決策按鍵</b>`
     : `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ${e} < 目前 HP ${h}，但仍屬危險（HP 偏低或可能大傷）：照上面的決策按鍵</b>`;
+}
+/** rc10 item 3（自訂）: every turn a live monster is in 暈眩抵抗 (stunResisting9, same helper as the sim / stage bar), the log says so —
+ *  unless this turn already logged a resisted stun on it. Returns [monster index, text]. */
+export function stunResistLines9(b: BattleState, ev: BEvent[]): [number, string][] {
+  return b.monsters.flatMap((m, i): [number, string][] => (m.hp > 0 && stunResisting9(m) && !ev.some((e) => e.t === 'status' && e.to === i && e.text === '暈眩抵抗中')
+    ? [[i, `暈眩抵抗中（剩 ${(m as { stunImm9?: number }).stunImm9} 回合）`]] : []));
 }
 /** rc10 item 1（自訂）: the cooldown line's note after 「這回合按 D·防禦」, from the shared defend verdict. */
 export const cdDefNote9 = (v: DefendVerdict9): string => (v === 'fails' ? '（防禦也擋不住，但能減傷）' : v === 'saveOnly' ? '（防禦只靠保命剩 1 HP）' : '（防禦後估計低於 HP）');
@@ -943,6 +949,7 @@ export class App {
       if (b.cp5) this.cp5Log([e]);
       if (e.t === 'heal' && e.label !== '自然回復') this.log.push(`${e.label} +${e.amount} ${e.res.toUpperCase()}`);
     }
+    for (const [i, t] of stunResistLines9(b, ev)) this.log.push(`<span class="statusfx" data-stunresist>${esc(b.monsters[i]!.name)} ${esc(t)}</span>`); // rc10 item 3（自訂）
     if (b.oc >= 50 && has(this.p, 'spirit') && !b.spirit) { const t = tip(this.p, 'spirit', TIPS.spirit); if (t) this.log.push(`<span class="unlock" data-unlock data-tip="spirit">${esc(t)}</span>`); }
     const g = b.regen;
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);

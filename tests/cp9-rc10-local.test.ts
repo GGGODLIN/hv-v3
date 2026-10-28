@@ -8,7 +8,7 @@ import { derive, newPlayer } from '../src/core/player';
 import { RULES } from '../src/core/run';
 import { Rng } from '../src/core/rng';
 import { CP9 } from '../src/core/cp8';
-import { cdDefNote9, urgentLine } from '../src/game/app';
+import { cdDefNote9, stunResistLines9, urgentLine } from '../src/game/app';
 
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 export const withCp8 = (f: () => void) => { const o = [RULES.cp7, RULES.cp8, SIM_AI.naive]; RULES.cp7 = true; RULES.cp8 = true; SIM_AI.naive = true; try { f(); } finally { RULES.cp7 = o[0]!; RULES.cp8 = o[1]!; SIM_AI.naive = o[2]!; } };
@@ -94,5 +94,23 @@ describe('rc10 item 2: boss heavy-hit turn shows 「1 回合後重新蓄力」',
     expect(landed).toBeGreaterThan(0);
     const mn = buildMonster(pool.rows[1]!, 20, 'normal'); (mn as { windCd?: number }).windCd = 1; expect(rewindNote9(mn, '蓄力一擊！')).toBe('');
     expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/\$\{refl \? '' : rewindNote9\(b\.monsters\[e\.from\], e\.label\)\}/);
+  }));
+});
+
+describe('rc10 item 3: battle log notes 「暈眩抵抗中」 while a monster is stun-resisting', () => {
+  it('a boss whose stun just ran out logs 暈眩抵抗中 each turn of the resist window (not twice when a stun was just resisted)', () => withCp8(() => {
+    const p = newPlayer(); starterKit(p); const d = derive(p);
+    const boss = buildMonster(pool.rows[0]!, 20, 'boss'); boss.hp = boss.maxHp = 1e6; boss.adb = 1; boss.status.stun = 1;
+    const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [boss], { health: 3, mana: 0, spirit: 0 });
+    expect(stunResistLines9(b, [])).toEqual([]);
+    let ev: BEvent[] = act(b, { kind: 'defend' }, new Rng(1)); // stun ends → resist window opens
+    expect(CP9.stunImm).toBeGreaterThan(0);
+    expect(stunResistLines9(b, ev)).toEqual([[0, `暈眩抵抗中（剩 ${(b.monsters[0] as { stunImm9?: number }).stunImm9} 回合）`]]);
+    expect(stunResistLines9(b, [{ t: 'status', to: 0, text: '暈眩抵抗中' } as BEvent])).toEqual([]);
+    ev = act(b, { kind: 'defend' }, new Rng(2));
+    const left = (b.monsters[0] as { stunImm9?: number }).stunImm9 ?? 0;
+    expect(stunResistLines9(b, ev).length).toBe(left > 0 ? 1 : 0);
+    b.monsters[0]!.hp = 0; expect(stunResistLines9(b, [])).toEqual([]);
+    expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/for \(const \[i, t\] of stunResistLines9\(b, ev\)\) this\.log\.push/);
   }));
 });
