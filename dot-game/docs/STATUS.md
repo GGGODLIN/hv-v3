@@ -1,3 +1,13 @@
+## v0.54 已正式發布並驗證（2026-10-28）
+
+正式遊戲：https://gggodlin.github.io/play/hv-v3-dot/
+
+已驗收來源 `9b0832130d92687403da8e1f116cfae858a9b7da` 先完整備份後，正式網站發布 `7bc2b344733ba500429de2a52c3d64d87bbad128`。Pages `40654254739` 成功，21 runtime 加目錄首頁 HTTP 全部位元組一致；僅 5 runtime 更新，隔離候選與其他 4085 檔保留。
+
+正式真瀏覽器沿用原 v036 正常存檔（非候選灌入），自然通關 LV2→3、76→152 金、新刺劍掉落；存檔匯出／重載／再匯出後 hero、inventory、equipment、seed、wins、kills、soulFragments、worldSeeds 八項完全一致。新森林、角色、BOSS 畫面實看，無破圖／水平溢出。詳細證據見 `docs/PUBLICATION-V054.md`；正常桌面驗收不代表極端金幣、競態、手機或完整無障礙皆通過。
+
+以下為之前階段紀錄，當時「未發布／素材待答」不代表目前狀態。完整可恢復最新版為攜帶 `174-v054-publication-receipt` 的 exact source commit；相較已驗收來源只更新文件與 manifest，無 runtime／素材／測試變更。不宣稱 GPT Library 雙邊同步。
+
 ## v0.54 桌面瀏覽器已驗收，待正式發布（2026-10-28）
 
 已驗收隔離候選 `125bf4ceb2242624c847cdcf2057486944b6ff07`，完整來源 `78d6cbcc393a5599671d42628dd7deb24052ad0f`。Pages 40652496659 成功，21 runtime 與目錄首頁 HTTP 位元組一致。使用者已明確允許使用、修改與公開發布 Kenney UI Pack；其他人的 HV 程式與素材仍禁止沿用。

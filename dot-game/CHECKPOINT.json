@@ -1,10 +1,10 @@
 {
-  "checkpoint": "172-v054-browser-accepted",
+  "checkpoint": "174-v054-publication-receipt",
   "version": "0.54.0",
-  "status": "desktop-browser-accepted-awaiting-formal-publication",
-  "source_base": "78d6cbcc393a5599671d42628dd7deb24052ad0f",
+  "status": "desktop-browser-accepted-formal-published-verified",
+  "source_base": "9b0832130d92687403da8e1f116cfae858a9b7da",
   "base_accepted_recovery": "2a5354689165d7512d279327db8935c3bbef8570",
-  "accepted_website": "f192fec4eff401948d80156f941c01404816cbba",
+  "accepted_website": "7bc2b344733ba500429de2a52c3d64d87bbad128",
   "scope": "Passive full-gold warning at load/import and before departure; no economy, RNG, storage or asset changes.",
   "source_tests_passed": 2114,
   "source_tests_failed": 0,
@@ -13,12 +13,12 @@
   "new_focused_tests": 4,
   "independent_focused_tests_passed": 6,
   "browser_acceptance": "Normal desktop candidate flow accepted; see docs/QA-V054-BROWSER.md for evidence and limitations.",
-  "publication": "Isolated candidate 125bf4ceb2242624c847cdcf2057486944b6ff07 verified; formal promotion pending source backup.",
+  "publication": "Formal CI 40654254739 success, 21 runtime+directory bytes exact, normal desktop smoke and save reload passed; see docs/PUBLICATION-V054.md",
   "recovery": "docs/RECOVERY-V054.md",
   "files": {
     "README.md": {
-      "bytes": 48842,
-      "sha256": "9d83b746b0bf83d1e16ebb6b6b2f186cf40e56cb12734944cccd0fd6e55f260c"
+      "bytes": 50019,
+      "sha256": "4485359c2cedc0f506a5c1029a22622c67ddf8d20a3c90369824e2bc76456b5d"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -676,6 +676,10 @@
       "bytes": 3576,
       "sha256": "0c1c60aabb1f96e0a7441a34be0c0959dec29237679e6bf8757087d3765da651"
     },
+    "docs/PUBLICATION-V054.md": {
+      "bytes": 2944,
+      "sha256": "42c220a62f3d3553d32a20280fad15ce6679ed4110ad0fd3ada6658a5c35a684"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -829,8 +833,8 @@
       "sha256": "0971d673363b8d8fff751f1ce81b8182386704b8833a1497416bd1e4e862d978"
     },
     "docs/RECOVERY-V054.md": {
-      "bytes": 1443,
-      "sha256": "6a23fc2f35122c3f92e67cf63f52ebe1c4ca4cfcd3cb8a513236aa41647fa30d"
+      "bytes": 1494,
+      "sha256": "4ae6eae3ff242889cc608b9358995cedf1f2566bb77060849380fe582374a554"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -877,8 +881,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 51553,
-      "sha256": "5aae1fa1ba993bb15191e540d3182b44f1cfa4c72677a1f57e692fda53ba8074"
+      "bytes": 52730,
+      "sha256": "8f0beb3629f432e543017b9783f048bf0dbee6da88c350580f794fd6a124d2f7"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2015,5 +2019,6 @@
   },
   "qa": "docs/QA-V052.md",
   "candidate_commit": "125bf4ceb2242624c847cdcf2057486944b6ff07",
-  "acceptance_phase_tests": "Full rerun after runtime phase label and exact label assertions: 2114 passed, 0 failed/skipped; four src JS syntax checks passed. Historical hash normalized only for exact phase label; behavioral assertions unchanged."
+  "acceptance_phase_tests": "Full rerun after runtime phase label and exact label assertions: 2114 passed, 0 failed/skipped; four src JS syntax checks passed. Historical hash normalized only for exact phase label; behavioral assertions unchanged.",
+  "receipt_only": true
 }
