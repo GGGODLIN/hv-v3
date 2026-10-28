@@ -325,7 +325,12 @@ export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: str
 export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null; revert: Set<string> } = { zRule: 'rc21', critRoll: 1, revert: new Set() }; // rc22 decision (a): mean roll is the default (自訂); null = rc21 top roll (SIM_CRITROLL=max)
 /** cp9-rc4 (C2)（自訂，暫定，無來源）: the targeted monster is winding up a 吸血重擊 and a stun skill is usable on it → that skill
  *  key comes first (a stun cancels the drain, battle.ts monstersAct0). The rest of the advice is unchanged. */
-export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike'];
+// rc12 scheme 6（SIM_RC12_SHATTER，預設關）: the 2H (blade) interrupt is the sourced Rending Blow → Shatter Strike chain — Skills.md:73-75
+// (Rending Blow: 3 Penetrated Armor stacks, x4, bypasses phys mit; Shatter Strike: x3, stuns 5 ticks targets with Penetrated Armor). No new numbers.
+export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike', ...(RC12.shatter ? ['shatterStrike' as const] : [])];
+const paOn9 = (m: Monster): boolean => (m.status.pa ?? 0) > 0 && (m.status.paTurns ?? 0) > 0;
+/** rc12 scheme 6: a stun skill that will actually stun `t` now (Shatter Strike only on a Penetrated Armor target). */
+export const stunReady9 = (s: BattleState, id: SkillId, t: number): boolean => canUse(s, { kind: 'skill', id, target: t }) && (id !== 'shatterStrike' || (!!s.monsters[t] && paOn9(s.monsters[t]!)));
 /** cp9-rc7 QA item 4（自訂，暫定）: UI keys that are never held or dropped when a boss starts a wind-up — D / Z / X / C / S and the
  *  stun skills (the interrupt the hint asks for). rc6 bug (QA oc F35 T4): Q pressed while the previous turn animated was queued, the boss
  *  then began charging, and the fresh-wind-up rule (app.ts) dropped the queued Q — only the 2nd press ran and showed 「蓄力被打斷」. */
@@ -334,7 +339,7 @@ export function drainStunKey(s: BattleState, target = 0): string | null {
   if (!RULES.cp8 || !CP9.on || ADVICE_DIAG.revert.has('drainstun')) return null;
   const m = s.monsters[target] as (Monster & { drainNext?: boolean }) | undefined;
   if (!m || m.hp <= 0 || !(m.drainNext || (CP9.stunAll && windingUp(m))) || m.status.stun > 0 || stunResisting9(m)) return null; // rc10 QA（自訂）: no stun hint while 暈眩抵抗中 · cp9-rc5 (1)（自訂）: any wind-up
-  const kit = skillKit(s), id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target }));
+  const kit = skillKit(s), id = STUN_SKILLS.find((k) => kit.includes(k) && stunReady9(s, k, target));
   return id ? `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}` : null;
 }
 /** cp9-rc5 QA3（自訂，暫定）: true only when a stun on `target` surely cancels every point of next round's damage.
@@ -347,7 +352,7 @@ export function stunGuaranteed(s: BattleState, target: number, id: SkillId): boo
   if (s.monsters.some((o, i) => i !== target && o.hp > 0 && !(o.status.stun > 1))) return false;
   const d = s.cp5?.pdot; if (d && (d.burnTurns > 0 || d.bleedTurns > 0)) return false;
   if (id === 'shieldBash' && (m.thornTurns || m.affixes?.includes('spikes'))) return false;
-  const hitMax = (id === 'shieldBash' ? physExp(s, m, SK.shieldBash.multiplier, { dtype: 'crushing' }) : s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit)) * 2.5; // crit / top-roll margin
+  const hitMax = (id === 'shieldBash' ? physExp(s, m, SK.shieldBash.multiplier, { dtype: 'crushing' }) : id === 'shatterStrike' ? physExp(s, m, SK.shatterStrike.multiplier) : s.d.mdb * SK.concussiveStrike.multiplier * (1 - m.magMit)) * 2.5; // crit / top-roll margin
   if (m.phases && hitMax >= m.hp) return false;
   return true;
 }
@@ -362,7 +367,7 @@ export const potCooling9 = (s: BattleState): boolean => s.potions.health > 0 && 
 export function coolStunKey9(s: BattleState, target = 0): string | null {
   const kit = skillKit(s), order = [target]; // the UI presses skills on the current target
   for (const t of order) { const m = s.monsters[t]; if (!m || m.hp <= 0 || m.status.stun > 0 || stunResisting9(m)) continue;
-    const id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target: t })); if (id) return `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}`; }
+    const id = STUN_SKILLS.find((k) => kit.includes(k) && stunReady9(s, k, t)); if (id) return `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}`; }
   return null;
 }
 /** cp9-rc5 QA3: the stun-skill id behind a drainStunKey label. */
@@ -378,6 +383,13 @@ export function reflectRisk9(s: BattleState, target: number): number {
 }
 const physA9 = (s: BattleState, target: number): boolean => quickAttack(s, target).kind !== 'spell';
 export const reflectLethal9 = (s: BattleState, target: number): boolean => RULES.cp8 && CP9.on && physA9(s, target) && reflectRisk9(s, target) >= Math.round(s.hp);
+/** rc12 bug b（QA bulwark F40 t14）: the status banner said 「不防禦會死！建議 A」 while the decision line said 「不必防禦」. Root cause: the banner
+ *  label checked only defVerdictAt9 === 'safe' (defending survives) and never whether the hit is lethal — hpDanger also fires on low HP / the 40% trigger,
+ *  and then CP9.dMin or the HP 1 rule turns the advice into A. Now 「不防禦會死！」 needs a lethal estimate AND D as the advice. */
+export function dangerTag9(s: BattleState, a: ChargeAdvice): string {
+  if (!isLethal(a.est, a.hp)) return 'HP 偏低！';
+  return RULES.cp8 && a.keys[0] === 'D' && defVerdictAt9(s, a.hp) === 'safe' ? '不防禦會死！' : 'HP 危險！';
+}
 export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
   const a1 = chargeAdvice2(s, target), tag = minionLockTag9(s);
   return tag && !a1.text.includes(tag) ? { ...a1, text: a1.text + tag } : a1;
@@ -572,6 +584,8 @@ export function suggestSkill(s: BattleState, target: number): SkillId | null {
   const H = SKILL_HINT_STATS; if (H.on) H.calls++;
   const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }) && !reserveStun9(s, id));
   if (!ids.length) { if (!H.on) return null; if (skillKit(s).some((id) => !s.locked?.skill && s.cooldowns[id] <= 0 && s.oc < skillOc(s, id))) H.noOc++; else H.other++; return null; }
+  // rc12 scheme 6: keep Penetrated Armor up on a boss so Shatter Strike can interrupt its next wind-up.
+  if (RC12.shatter && ids.includes('rendingBlow') && s.monsters[target]?.rank === 'boss' && !paOn9(s.monsters[target]!)) return 'rendingBlow';
   const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
   const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on && H.ratios.length < 200) H.ratios.push(ratio);
   if (ratio > 1 + SKILL_HINT_EDGE) { if (H.on) H.lit++; return best; } if (H.on) H.belowEdge++; return null;

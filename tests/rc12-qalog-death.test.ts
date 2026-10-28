@@ -26,4 +26,10 @@ describe('rc12 turn log survives a full storage and a death', () => {
     expect(flushTurnLog(st)).toBe(false);
     expect(qaExport(st).turnlog).toEqual([row(7, 45)]);
   });
+  it('bug a (QA log stopped at F45): with every boss snapshot filling storage the log still reaches F60', () => {
+    const st = quotaStore(60000);
+    for (let f = 30; f <= 60; f += 5) { snapBeforeBoss(st, 'r', f, 40, { pad: 'x'.repeat(9000) }, {}); for (let t = 1; t <= 20; t++) logTurn(st, row(t, f)); }
+    const stored = JSON.parse(st.getItem(QA_TURNLOG)!) as { floor: number }[];
+    expect(stored.at(-1)!.floor).toBe(60); expect(new Set(stored.map((r) => r.floor)).size).toBe(7);
+  });
 });

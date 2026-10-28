@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { isLethal, STUN_SKILLS,  SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, turnHints, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, stunResisting9, skillOc, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { isLethal, STUN_SKILLS, stunReady9,  SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, turnHints, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, stunResisting9, skillOc, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -68,7 +68,7 @@ export const allocWeights = (p: Player): Record<string, number> => (RULES.cp8 &&
 function qspam9(b: BattleState, a: Action): Action {
   if (!ENV?.SIM_QSPAM || a.kind === 'item') return a;
   const t = b.monsters.findIndex((m) => m.hp > 0 && m.rank === 'boss'); if (t < 0) return a;
-  const id = skillKit(b).find((k) => STUN_SKILLS.includes(k) && canUse(b, { kind: 'skill', id: k, target: t }));
+  const id = skillKit(b).find((k) => STUN_SKILLS.includes(k) && stunReady9(b, k, t));
   return id ? { kind: 'skill', id, target: t } : a;
 }
 export function autoAllocate(p: Player): void {
