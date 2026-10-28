@@ -349,6 +349,11 @@ export function stunGuaranteed(s: BattleState, target: number, id: SkillId): boo
   if (m.phases && hitMax >= m.hp) return false;
   return true;
 }
+/** rc10 item 2（自訂）: on the turn a boss's telegraphed hit lands (post-hit lock CP9.windHitCd just set), the log says when it can charge again. */
+export function rewindNote9(m: Monster | undefined, label?: string): string {
+  if (!m || m.rank !== 'boss' || !label || !/重擊|蓄力一擊|脈衝/.test(label) || !(RULES.cp8 && CP9.on)) return '';
+  const cd = (m as CM).windCd ?? 0; return cd > 0 ? `（${cd} 回合後重新蓄力）` : '';
+}
 /** rc10 item 0（自訂）: potions left but on cooldown. */
 export const potCooling9 = (s: BattleState): boolean => s.potions.health > 0 && s.itemCd.health > 0;
 /** rc10 item 0（自訂）: a usable stun skill on a live monster that can still be stunned (target first) — the 冷卻中 alternative to Z. */

@@ -1,11 +1,13 @@
 // rc10（自訂，製作人決定）: items 0–3 — potion-cooldown aware tips, banner/decision consistency, post-hit 重新蓄力 text, 暈眩抵抗中 log.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { defendEst9, defendRaw9, defendVerdict9, chargeAdvice, coolStunKey9, deathTip, potCooling9, skillKit, startBattle, turnHints, zHint } from '../src/core/battle';
+import { act, rewindNote9, type BEvent, defendEst9, defendRaw9, defendVerdict9, chargeAdvice, coolStunKey9, deathTip, potCooling9, skillKit, startBattle, turnHints, zHint } from '../src/core/battle';
 import { SIM_AI, starterKit } from '../src/core/auto';
 import { buildMonster, makePool, type MonsterRow } from '../src/core/monsters';
 import { derive, newPlayer } from '../src/core/player';
 import { RULES } from '../src/core/run';
+import { Rng } from '../src/core/rng';
+import { CP9 } from '../src/core/cp8';
 import { cdDefNote9, urgentLine } from '../src/game/app';
 
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
@@ -73,4 +75,24 @@ describe('rc10 item 1: banner 「HP 危險 估計≥HP」 and decision 「防禦
     expect(app).toMatch(/const v = defendVerdict9\(estD, estDR, h\)/);
     expect(readFileSync('src/core/battle.ts', 'utf8')).toMatch(/saveOnly = RULES\.cp8 && CP9\.on && defendVerdict9\(estD, estDR, hp\) === 'saveOnly'/);
   });
+});
+
+describe('rc10 item 2: boss heavy-hit turn shows 「1 回合後重新蓄力」', () => {
+  it('a landed boss 重擊 sets windHitCd and the log note reads it; minions / plain hits get none', () => withCp8(() => {
+    expect(CP9.windHitCd).toBe(1);
+    let landed = 0;
+    for (let seed = 1; seed <= 20; seed++) {
+      const p = newPlayer(); starterKit(p); const d = derive(p);
+      const boss = buildMonster(pool.rows[0]!, 20, 'boss'); boss.hp = boss.maxHp = 1e6; boss.adb = 30; boss.charge = 1;
+      const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [boss], { health: 3, mana: 0, spirit: 0 }); b.d.evade = 0; b.d.parry = 0; b.d.block = 0;
+      const ev: BEvent[] = act(b, { kind: 'defend' }, new Rng(seed));
+      const h = ev.find((e) => e.t === 'hit' && (e as { to?: unknown }).to === 'player' && /重擊/.test((e as { label?: string }).label ?? '')) as { label: string } | undefined;
+      if (!h) continue; landed++;
+      expect(rewindNote9(b.monsters[0], h.label)).toBe('（1 回合後重新蓄力）');
+      expect(rewindNote9(b.monsters[0], undefined)).toBe('');
+    }
+    expect(landed).toBeGreaterThan(0);
+    const mn = buildMonster(pool.rows[1]!, 20, 'normal'); (mn as { windCd?: number }).windCd = 1; expect(rewindNote9(mn, '蓄力一擊！')).toBe('');
+    expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/\$\{refl \? '' : rewindNote9\(b\.monsters\[e\.from\], e\.label\)\}/);
+  }));
 });

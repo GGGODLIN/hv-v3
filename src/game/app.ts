@@ -1,6 +1,6 @@
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
-import { windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -929,7 +929,7 @@ export class App {
         if (e.dmg > 0) this.lastHit = { who: who9, ...(e.label && !refl ? { label: e.label } : {}), dmg: e.dmg, maxHp: Math.round(b.d.hp), charged: !refl && !!e.label && /重擊|蓄力一擊/.test(e.label), ...(refl ? { reflect: true } : {}) };
         if (e.dmg > 0) { const hit = { who: who9, ...(e.label && !refl ? { label: e.label } : {}), dmg: e.dmg, charged: !refl && !!e.label && /重擊|脈衝|蓄力一擊/.test(e.label) }; turnHits.push(hit); }
         if (e.avoided === 'block' || e.avoided === 'parry') this.log.push(`<b class="blockfb" data-blockfb="${e.avoided}:${e.dmg}">${e.avoided === 'block' ? '格擋' : '招架'}！-${e.dmg}</b>`); // cp8-rc6 item 7
-        this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}</span>`);
+        this.log.push(`<span class="enemyhit" data-enemyhit="${e.dmg}">${who}${e.label ? ' ' + esc(e.label) : ''} 對你造成 ${e.dmg} 傷害${how}${refl ? '' : rewindNote9(b.monsters[e.from], e.label)}</span>`); // rc10 item 2（自訂）
       }
       if (e.t === 'status' && e.phase && typeof e.to === 'number') this.log.push(`<span class="phase" data-phase>⚡ ${esc(b.monsters[e.to]!.name)} ${esc(e.text)}（HP 回到 ${Math.round(BOSS_PHASE_HP * 100)}%，2 回合後重新蓄力）</span>`);
       // CP3-bugfix 6: skill / stance feedback in the log.
