@@ -172,6 +172,7 @@ export interface BattleState {
   mods?: BattleMods;
   d: Derived;
   hp: number; mp: number; sp: number; oc: number;
+  /** rc12i（自訂）: bulwark physical damage multiplier vs bosses. */ bwOut12i?: number;
   monsters: Monster[];
   turn: number;
   spirit: boolean;
@@ -762,7 +763,7 @@ function counterAttack(s: BattleState, rng: Rng, ti: number, done: number, ev: B
 function physHit(s: BattleState, rng: Rng, ti: number, mult: number, ev: BEvent[], label?: string, dtype = s.d.damageType, critOverride?: number, noMit = false): number {
   const m = s.monsters[ti]!;
   const M = s.mods;
-  let raw = s.d.adb * mult * (s.spirit ? 1 + SS.damageBonus + (M?.ssDamage ?? 0) : 1);
+  let raw = s.d.adb * mult * (s.bwOut12i && m.rank === 'boss' ? s.bwOut12i : 1) * (s.spirit ? 1 + SS.damageBonus + (M?.ssDamage ?? 0) : 1);
   let critChance = critOverride ?? s.d.physCrit;
   if (M) {
     if (M.weakMult && isWeak(m, dtype)) raw *= 1 + M.weakMult;

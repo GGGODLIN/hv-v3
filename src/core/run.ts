@@ -244,6 +244,7 @@ export const cp4On = (run?: RunState): boolean => RULES.cp4RunBuffs && !!run?.bu
 
 /** CP4: attach run-buff battle mods (combo triggers included). No-op with the flag off. */
 export function armBattle(b: BattleState, run: RunState, lean?: string, shield = true): void {
+  if (RULES.cp8 && CP9.on && lean === 'bulwark' && DEEP12G.bwOut !== 1) b.bwOut12i = DEEP12G.bwOut; // rc12i（自訂）
   if (RULES.cp8 && CP9.on && lean === 'blade' && CP9.bladeOc < 1) b.ocCost9 = CP9.bladeOc; // cp9 rc2 (3)（自訂，暫定，無來源）: blade skill OC cost cut
   if (!RULES.cp4RunBuffs) return;
   if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }

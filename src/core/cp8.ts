@@ -94,7 +94,7 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
  *  ~850 up to F30, then +3.5 per floor (F100 ≈ 1095). Reference for CP9.bossAtk only. */
 /** rc12g item 1（自訂，製作人開放）: deep-floor curve from F = deepFrom: every monster (normal / elite / boss) HP and damage
  *  × (1 + deep·(F − deepFrom)/60) → F100 ×(1 + deep). Boss adb is still capped by bossAtk (rc12f) afterwards. 0 = off. */
-export const DEEP12G = { /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 1, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 1 /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
+export const DEEP12G = { /** rc12i（自訂）: bulwark-lean player physical damage × this vs bosses. */ bwOut: num('SIM_BWOUT') ?? 1, /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 1, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 1 /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
   school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: per-school HP / attack split of the curve (multiplies k; unset → hpK / 1). */
