@@ -1,7 +1,7 @@
 import { CP7, leanAllows } from './cp7';
 import { coreFloor } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
-import { isLethal, STUN_SKILLS, stunReady9,  SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, turnHints, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, stunResisting9, skillOc, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
+import { isLethal, STUN_SKILLS, stunReady9,  SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, turnHints, primaryKey, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, stunResisting9, skillOc, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
 import type { Monster } from './monsters';
 import { ATTRS, attrCost } from './formulas';
@@ -18,6 +18,7 @@ import {
   routeAdvice9,
 } from './run';
 import { generateEquip } from './items';
+import { checkSimEnv } from './simenv';
 import type { NodeType } from './tower';
 
 /** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
@@ -205,6 +206,7 @@ function autoEquip0(p: Player, extra: Equip[], style: GearStyle): Equip[] {
  * decision rc6) play physically: no offensive spells. SIM_AI=omni (env) = the pre-rc6 all-knowing AI (raw spec, every school
  * aims spells at weaknesses), kept as a reference only. */
 const ENV = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env;
+checkSimEnv(ENV); // rc12c item 2: unknown SIM_* names / missing SIM_ prefix fail loudly
 if (ENV?.SIM_HINTSTATS === '1') SKILL_HINT_STATS.on = true; // cp9 rc2 diag (sim only)（自訂）
 if (ENV?.SIM_ZRULE === 'rc20order' || ENV?.SIM_ZRULE === 'lethal') ADVICE_DIAG.zRule = ENV.SIM_ZRULE; // rc21 diag (sim only)
 // rc22 diag (sim only): SIM_REVERT=warn40,zfirst,elitepot,hpclamp,lowz,zuseful,crit|all reverts single rc20/rc21 changes.
@@ -460,6 +462,8 @@ export function decide(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']
   return cur;
 }
 function decide0(b: BattleState, strategy: Strategy, mode?: Cp5Sim['mode']): Action {
+  // rc12c item 2（自訂）: SIM_POLICY=primary = the player presses only the ★ key (battle.ts primaryKey — the same function the UI renders), target = UI default (first live).
+  if (ENV?.SIM_POLICY === 'primary') return primaryKey(b, Math.max(0, b.monsters.findIndex((m) => m.hp > 0))).action;
   // rc20 diagnostic (sim only): SIM_POTPOLICY=ui follows the battle panel's decision (chargeAdvice → Z/D/S) instead of potHint, like a playtester.
   if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTPOLICY === 'ui') { const t0 = b.monsters.findIndex((m) => m.hp > 0), a = chargeAdvice(b, Math.max(0, t0)); { const k = a.keys[0] ?? '', sk = /^[QWE]·/.test(k) && ENV?.SIM_SKILLHINT !== 'off' && SIM_AI.add.has('skills') ? skillKit(b)['QWE'.indexOf(k[0]!)] : undefined; if (sk && canUse(b, { kind: 'skill', id: sk, target: t0 })) return { kind: 'skill', id: sk, target: t0 }; } /* cp9-rc4 (C2)（自訂）: a skill key first in the panel (drain → stun) is pressed */ if (a.danger) { const k = a.keys[0]; if (k === 'Z') return { kind: 'item', id: 'health' }; if (k === 'D') return { kind: 'defend' }; if (k === 'S' && !b.spirit) return { kind: 'spirit' }; if (k === 'A' && ADVICE_DIAG.zRule === 'lethal' && a.text === 'diag lethal-only Z') return chooseNaive(b, true); /* rc21 variant: the player follows A (no own 40% drink) */ } }
   else if (SIM_AI.naive && RULES.cp8 && ENV?.SIM_POTHINT !== '0' && potHint(b)) return { kind: 'item', id: 'health' }; // cp8-rc4: naive drinks when the UI hint lights. SIM_POTHINT=0 (post-rc9 #2): plain naive, potion only below 40% HP

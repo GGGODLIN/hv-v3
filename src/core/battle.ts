@@ -1181,3 +1181,28 @@ export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2T
   if (lastDmg >= maxHp * DEATH_BIG_LAST) return `最後一擊佔最大 HP ${Math.round((lastDmg / maxHp) * 100)}%（≥ ${DEATH_BIG_LAST * 100}%）：HP 低於這一擊的兩倍前就先喝藥或防禦。`;
   return 'HP 被慢慢磨光：HP 剩一半時就喝藥，或在休息點回復後再前進。';
 }
+
+/** rc12c item 1–2（製作人 (c)/(b)，自訂）: the ONE preferred key per turn. The UI shows it in the status bar, the 決策 line and as the only
+ *  ★ button; the sim's 'primary' policy (SIM_POLICY=primary) presses exactly this action. Order:
+ *  1. a telegraph is winding up or HP is in danger → the first usable key of chargeAdvice (the same text the 決策 line explains);
+ *  2. HP danger with the potion unusable → S (guardHint);
+ *  3. the hinted skill (turnHints.skill) → Q/W/E; 4. staff: the hinted spell → 1–5; 5. A (quickAttack: staff A may be a quick-cast). */
+export type PrimaryKey = { key: string; label: string; action: Action; why: string; src: 'advice' | 'guard' | 'skill' | 'spell' | 'attack' };
+export function primaryKey(s: BattleState, target: number): PrimaryKey {
+  const th = turnHints(s, target), adv = th.adv, kit = skillKit(s), spells = Object.keys(SPELLS) as SpellId[];
+  const qa = (): PrimaryKey => ({ key: 'A', label: 'A·攻擊', action: quickAttack(s, target), why: '普通攻擊', src: 'attack' });
+  const fromKey = (k: string): Omit<PrimaryKey, 'why' | 'src'> | null => {
+    if (k === 'A') { const a = qa(); return { key: a.key, label: a.label, action: a.action }; }
+    if (k === 'D') return canUse(s, { kind: 'defend' }) ? { key: 'D', label: 'D·防禦', action: { kind: 'defend' } } : null;
+    if (k === 'Z') return canUse(s, { kind: 'item', id: 'health' }) ? { key: 'Z', label: 'Z·生命藥水', action: { kind: 'item', id: 'health' } } : null;
+    if (k === 'S') return !s.spirit && canUse(s, { kind: 'spirit' }) ? { key: 'S', label: 'S·靈動架勢', action: { kind: 'spirit' } } : null;
+    const m = /^([QWE])·/.exec(k); const id = m ? kit['QWE'.indexOf(m[1]!)] : undefined;
+    return id && canUse(s, { kind: 'skill', id, target }) ? { key: m![1]!, label: `${m![1]}·${SKILLS[id].zh}`, action: { kind: 'skill', id, target } } : null;
+  };
+  const showDecide = !!adv && !s.over && (th.danger || s.monsters.some((m) => windingUp(m)));
+  if (showDecide) for (const k of adv!.keys) { const p = fromKey(k); if (p) return { ...p, why: adv!.text, src: 'advice' }; }
+  if (RULES.cp8 && guardHint(s)) return { key: 'S', label: 'S·靈動架勢', action: { kind: 'spirit' }, why: 'HP 危險、藥水不能用：靈動架勢', src: 'guard' };
+  if (th.skill) { const i = kit.indexOf(th.skill); return { key: 'QWE'[i]!, label: `${'QWE'[i]}·${SKILLS[th.skill].zh}`, action: { kind: 'skill', id: th.skill, target }, why: SKILLS[th.skill].desc, src: 'skill' }; }
+  if (th.spell) { const i = spells.indexOf(th.spell.id); return { key: String(i + 1), label: `${i + 1}·${SPELLS[th.spell.id].zh}`, action: { kind: 'spell', id: th.spell.id, target }, why: `${th.spell.pct > 0 ? '弱點' : '傷害較高'}元素`, src: 'spell' }; }
+  return qa();
+}
