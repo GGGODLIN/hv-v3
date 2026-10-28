@@ -1,0 +1,86 @@
+{
+  "version": "0.64",
+  "kind": "formal-browser-qa",
+  "testedAtUtc": "2026-10-28T18:27:55Z",
+  "result": "PASS within normal desktop scope",
+  "websiteCommit": "8002ee77afc3bb2ab9ab80835beb7bc24b727f0c",
+  "pagesRun": "40744749277",
+  "ciEvidence": "Parent publisher reported exact CI success and runtime byte verification before QA",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "method": "dot cloud cua browser normal UI only; retained existing formal profile, never imported candidate or injected state",
+  "tab": "2",
+  "baseline": {
+    "version": "0.63",
+    "level": 5,
+    "gold": 304,
+    "bag": 5,
+    "sha256": "9a81b8f53dd1d06c5a75e96b56431871b3f5e72f06fa2be6627cecb94f37f1df",
+    "backupDownload": "75efcde3-515a-4bec-8131-abdb789e9a09"
+  },
+  "checks": [
+    {
+      "name": "upgrade original save",
+      "result": "PASS",
+      "observed": "Reload showed v0.64 normal title, retained Lv5/304/XP33/159 and equipment/bag."
+    },
+    {
+      "name": "detail add/remove",
+      "result": "PASS",
+      "observed": "Idle unprotected ordinary club loot-1 added86g; button flipped to remove with focus preserved; removed to0 selected. Gold304 bag5 unchanged."
+    },
+    {
+      "name": "cancel is no-op",
+      "result": "PASS",
+      "observed": "Readdedloot-1, preview exactly1item86g, projected390g. Cancel then normalexport is byte-identical to original backup."
+    },
+    {
+      "name": "confirm exact single idle item",
+      "result": "PASS",
+      "observed": "Reopened preview, confirmedloot-1 only once. Gold304->390,bag5->4,selection0. Starterlocked/equippedloot-5/loot-2/3/4 preserved."
+    },
+    {
+      "name": "natural gameplay",
+      "result": "PASS",
+      "observed": "Normalstage1 expedition with finish-then-camp;11.6s win,drop loot-6 Superior Ember armor,gold390->466,XP33->138/159,kills24->30,wins4->5,fragments40->50,seeds4->5,bag4->5."
+    },
+    {
+      "name": "persistence",
+      "result": "PASS",
+      "observed": "Export/reload/export identical for all fields except expected transient _turns/events/logs/battle/_eventId/wave/timing/_tuCompensation. Soldloot-1 absent;loot-2/3/4 and lockedstarter plus newloot-6 retained;equipment unchanged."
+    },
+    {
+      "name": "visual",
+      "result": "PASS",
+      "observed": "Screenshot inspected,zero broken images,viewport1180/document1165,no horizontal overflow."
+    }
+  ],
+  "exports": {
+    "beforeReload": {
+      "download": "3746f33d-f62c-4743-8bf1-80a1f4e24d07",
+      "sha256": "cb62719c77a7241b41ec683c3b5164cf1e590ea8fba4d53423c5f1fd86617030",
+      "bytes": 8063
+    },
+    "afterReload": {
+      "download": "13c9019a-5f22-41ae-9ee3-504e749b927b",
+      "sha256": "d1c6f8bbce63134082fc2e90ad631ed8ce87328e4f512f3782faa0a3c296e14a",
+      "bytes": 5136
+    }
+  },
+  "final": {
+    "version": "0.64",
+    "level": 5,
+    "gold": 466,
+    "xp": 138,
+    "hp": 663,
+    "mp": 31,
+    "bag": 5,
+    "equippedWeapon": "loot-5",
+    "mode": "town",
+    "saved": true
+  },
+  "limitations": [
+    "Normal desktop smoke and actual gameplay only; no physical mobile/full accessibility audit.",
+    "Race/stale-handler replay and protection boundary cases remain unit evidence; no state injection."
+  ],
+  "candidateSeparation": "Formal never imported candidate save; candidate remains isolated tab7 Lv5/542."
+}

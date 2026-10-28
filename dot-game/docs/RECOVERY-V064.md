@@ -1,3 +1,13 @@
+## 197：最新完整已發布桌面驗收恢復來源
+
+從GGGODLIN/hv-v3 bot/dot取回攜帶CHECKPOINT `197-v064-restorable` 的exact commit，完整恢復dot-game/，核對files中每個bytes及SHA-256。包含完整來源、資產、授權、測試、候選及正式browser收據、發布與恢復說明。runtime/tests/assets/index與195來源b84da78df68b1fe6dc22e37a7a42403ad758bd8a相同；來源index保留原候選標記，正式index僅階段包裝。
+
+正式website8002ee77afc3bb2ab9ab80835beb7bc24b727f0c已exactCI成功及正常桌面實玩PASS，見PUBLICATION-V064.md。依下述npm test、四runtime語法檢查與HTTP server步驟恢復；無依賴安裝／build。先正常匯出玩家存檔，使用隔離環境測試，不覆寫正式進度；保存格式與儲存命名空間仍v3。
+
+先確認是否有更新且完整驗證的checkpoint，不因舊連結方便而倒退。未宣稱手機／完整無障礙、公開HTTP逐檔hash、Library雙邊同步或平台登入／排程恢復。
+
+以下195/193為歷史記錄，以本節及最新exact證據為準。
+
 ## 195：最新桌面已驗收來源，正式發布待完成
 
 從GGGODLIN/hv-v3 bot/dot取得攜帶CHECKPOINT `195-v064-browser-accepted` 的exact commit，完整還原dot-game/並核對files bytes/SHA-256。runtime/tests/assets與193來源17d62dc910c987fdd21c8049436ac5afe0ffb5f2完全相同；包含完整資產授權、測試、恢復與新browser證據。來源index維持v064候選標記，網站index隔離包裝與來源非同bytes。

@@ -1,3 +1,9 @@
+## v064 已正式發布與桌面實玩驗收（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 已為v064：website8002ee77afc3bb2ab9ab80835beb7bc24b727f0c、exact Pages40744749277成功。原正式存檔正常加入／移出選售與取消不改存檔bytes，確認單件出售只移除指定物品並正確加86金，鎖定／現穿保留；後續自然11.6秒通關掉寶、匯出重載持久欄位一致，最終Lv5／466金／背包5件。
+
+最新完整恢復來源為攜帶CHECKPOINT `197-v064-restorable` 的exact commit；runtime/tests/assets/index與195已驗收來源b84da78df68b1fe6dc22e37a7a42403ad758bd8a逐byte相同。完整發布與限制見docs/PUBLICATION-V064.md，恢復見docs/RECOVERY-V064.md。正常桌面不代表手機／完整無障礙，競態仍unit-only；未宣稱公開HTTP逐檔hash或Library雙邊同步。下方未發布狀態保留為歷史，不代表當前正式仍v063。
+
 ## v064 桌面候選已驗收；正式升版待完成（2026-10-29 台北）
 
 隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.64/ 已以 dot 雲端瀏覽器正常 UI 實玩 PASS；website 8d7875b52ed812ac679581f60aa9c6cf318502ed、exact Pages40743221581成功。詳情加入／移出選售保留其他選取及焦點；取消後正常匯出與原始存檔逐 byte 相同；確認僅售兩件共162金、裝備與鎖定品保留，之後自然通關掉寶及匯出重載持久資料一致。
