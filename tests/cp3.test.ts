@@ -103,29 +103,39 @@ describe('CP3-B early unlocks (暫定 gameplay layer)', () => {
       for (const f of t.floors) if (TOWER.combatFloors.includes(f.n) || f.options[0] === 'boss') expect(f.options.every(isCombat)).toBe(true);
     }
   });
-  it('acceptance (16 seeds): >=90% unlocked after trip 3; F5 boss >=80% win, 10-15 turns; median first clear <= 3; avoid not faster', () => {
-    const firstMean: Record<string, number> = {};
-    for (const strat of ['auto', 'human', 'avoid'] as const) {
-      const first: number[] = []; const f5: { won: boolean; turns: number }[] = [];
-      for (let s = 1; s <= 16; s++) {
-        const p = newPlayer(); starterKit(p, s);
-        let fc = 99;
-        for (let i = 1; i <= 8 && (fc === 99 || i <= 3); i++) {
-          const r = autoRun(p, pool, s * 1000 + i, strat);
-          if (fc === 99) f5.push(...r.bosses.filter((b) => b.floor === 5));
-          if (r.floorReached > 10 && fc === 99) fc = i;
-          if (i === 3) expect(unlockRate(p)).toBeGreaterThanOrEqual(0.9);
-        }
-        first.push(fc);
+  // rc12e (cp3 flake root cause): one test ran 3 strategies × 16 seeds × ≥3 seeded autoRuns (~375 runs, ~3.5 s alone) against
+  // vitest's 5 s default, so under full-suite load it timed out. The runs are deterministic (fixed seeds); each strategy is now its
+  // own test over a memoized result, so no single test does more than a third of the work and nothing is recomputed.
+  const acc3 = new Map<string, { first: number[]; f5: { won: boolean; turns: number }[]; unlock3: number[] }>();
+  const accept3 = (strat: 'auto' | 'human' | 'avoid') => {
+    const hit = acc3.get(strat); if (hit) return hit;
+    const first: number[] = []; const f5: { won: boolean; turns: number }[] = []; const unlock3: number[] = [];
+    for (let s = 1; s <= 16; s++) {
+      const p = newPlayer(); starterKit(p, s);
+      let fc = 99;
+      for (let i = 1; i <= 8 && (fc === 99 || i <= 3); i++) {
+        const r = autoRun(p, pool, s * 1000 + i, strat);
+        if (fc === 99) f5.push(...r.bosses.filter((b) => b.floor === 5));
+        if (r.floorReached > 10 && fc === 99) fc = i;
+        if (i === 3) unlock3.push(unlockRate(p));
       }
-      first.sort((a, b) => a - b);
-      expect((first[7]! + first[8]!) / 2).toBeLessThanOrEqual(3);
-      firstMean[strat] = first.reduce((a, b) => a + b, 0) / 16;
-      expect(f5.filter((b) => b.won).length / f5.length).toBeGreaterThanOrEqual(0.8);
-      const t = f5.reduce((a, b) => a + b.turns, 0) / f5.length;
-      expect(t).toBeGreaterThanOrEqual(10); expect(t).toBeLessThanOrEqual(20);
+      first.push(fc);
     }
-    expect(firstMean.avoid!).toBeGreaterThanOrEqual(Math.min(firstMean.auto!, firstMean.human!));
+    const out = { first: first.sort((a, b) => a - b), f5, unlock3 }; acc3.set(strat, out); return out;
+  };
+  const mean3 = (x: number[]) => x.reduce((a, b) => a + b, 0) / x.length;
+  for (const strat of ['auto', 'human', 'avoid'] as const) {
+    it(`acceptance (16 seeds, ${strat}): >=90% unlocked after trip 3; F5 boss >=80% win, 10-20 turns; median first clear <= 3`, () => {
+      const { first, f5, unlock3 } = accept3(strat);
+      for (const u of unlock3) expect(u).toBeGreaterThanOrEqual(0.9);
+      expect((first[7]! + first[8]!) / 2).toBeLessThanOrEqual(3);
+      expect(f5.filter((b) => b.won).length / f5.length).toBeGreaterThanOrEqual(0.8);
+      const t = mean3(f5.map((b) => b.turns));
+      expect(t).toBeGreaterThanOrEqual(10); expect(t).toBeLessThanOrEqual(20);
+    });
+  }
+  it('acceptance (16 seeds): avoid is not faster than auto/human', () => {
+    expect(mean3(accept3('avoid').first)).toBeGreaterThanOrEqual(Math.min(mean3(accept3('auto').first), mean3(accept3('human').first)));
     expect(SYSTEMS).toHaveLength(10);
     void prog;
   });
