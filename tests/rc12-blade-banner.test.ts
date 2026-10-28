@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 
 const setup = async (shatter: boolean) => {
-  vi.resetModules(); if (shatter) process.env.SIM_RC12_SHATTER = '1'; else delete process.env.SIM_RC12_SHATTER;
+  vi.resetModules(); if (shatter) delete process.env.SIM_RC12_SHATTER; else process.env.SIM_RC12_SHATTER = '0'; // rc12 採用: default on, '0' = off
   const B = await import('../src/core/battle'), { starterKit } = await import('../src/core/auto'), M = await import('../src/core/monsters'), P = await import('../src/core/player'), { RULES } = await import('../src/core/run');
   RULES.cp7 = true; RULES.cp8 = true;
   const pool = M.makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')));
@@ -15,8 +15,8 @@ const setup = async (shatter: boolean) => {
   return { B, mk };
 };
 describe('rc12 scheme 6: blade (2H) interrupt', () => {
-  it('off (default): Shatter Strike is not a stun skill', async () => { const { B } = await setup(false); expect(B.STUN_SKILLS).not.toContain('shatterStrike'); });
-  it('on: Shatter Strike is the interrupt only while the boss has Penetrated Armor; Rending Blow keeps it up', async () => {
+  it('SIM_RC12_SHATTER=0: Shatter Strike is not a stun skill', async () => { const { B } = await setup(false); expect(B.STUN_SKILLS).not.toContain('shatterStrike'); delete process.env.SIM_RC12_SHATTER; });
+  it('on (default): Shatter Strike is the interrupt only while the boss has Penetrated Armor; Rending Blow keeps it up', async () => {
     const { B, mk } = await setup(true); const b = mk(1, 0.01); b.d = { ...b.d, style: 'twoHand' }; b.oc = 250; const m = b.monsters[0]!;
     expect(B.STUN_SKILLS).toContain('shatterStrike');
     expect(B.stunReady9(b, 'shatterStrike', 0)).toBe(false);

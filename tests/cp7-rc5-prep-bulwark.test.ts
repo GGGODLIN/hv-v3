@@ -38,7 +38,7 @@ describe('cp7-rc5 bug 1: 裝備欄 ▲ and 出發前整備 share one rule', () =
     expect(prepIssues(p)).not.toContain('equip');
   });
   it('a ▲ at or under betterMargin is labelled 小幅提升 (verdict small) and never nags — no contradictory ▲ vs reminder', () => {
-    const { p, club, delta } = save(4, 1, 6);
+    const { p, club, delta } = save(4, 1, 4) /* rc12: 2b/3/6 default-on change the autoRun save; fixture window narrowed so the club stays ≤ betterMargin */;
     expect(delta).toBeGreaterThan(0);
     expect(gearVerdict(p, club)).toBe('small');
     expect(prepIssues(p)).not.toContain('equip');

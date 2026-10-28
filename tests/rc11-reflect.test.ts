@@ -37,9 +37,9 @@ describe('rc11 item 3: no A / physical skill into a lethal reflect, any branch',
 // rc11 item 4（說明）: QA blade-3/4 F10 t4 — blade's Q is 巨力劈砍 (two-hand kit greatCleave / rendingBlow / shatterStrike), not a stun
 // (STUN_SKILLS = shieldBash / concussiveStrike), so the 「蓄力 + Q 可用 → Q 先」 rule has nothing to press: D/A first is by design.
 import { STUN_SKILLS, drainStunKey } from '../src/core/battle';
-describe('rc11 item 4: blade has no interrupt Q', () => {
-  it('two-hand blade kit carries no stun skill; drainStunKey is null on a charging boss', () => withCp8(() => {
-    expect(['greatCleave', 'rendingBlow', 'shatterStrike'].some((k) => (STUN_SKILLS as string[]).includes(k))).toBe(false);
+describe('rc11 item 4 → rc12 scheme 6: blade interrupt needs Penetrated Armor first', () => {
+  it('two-hand blade kit: Shatter Strike is a stun skill (rc12), but drainStunKey is null on a charging boss without PA', () => withCp8(() => {
+    expect((STUN_SKILLS as string[]).includes('shatterStrike')).toBe(true); // rc12 scheme 6 (Skills.md:73-75)
     const pre = JSON.parse(readFileSync('public/data/cp6-presets.json', 'utf8'))['postF20-blade'].player; // the QA blade preset (Lv14)
     const p = { ...newPlayer(), ...pre }; const d = derive(p);
     const m = buildMonster(pool.rows[0]!, 10, 'boss'); m.charge = 1;

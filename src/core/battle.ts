@@ -325,9 +325,9 @@ export type ChargeAdvice = { danger: boolean; est: number; hp: number; keys: str
 export const ADVICE_DIAG: { zRule: 'rc21' | 'rc20order' | 'lethal'; critRoll: number | null; revert: Set<string> } = { zRule: 'rc21', critRoll: 1, revert: new Set() }; // rc22 decision (a): mean roll is the default (自訂); null = rc21 top roll (SIM_CRITROLL=max)
 /** cp9-rc4 (C2)（自訂，暫定，無來源）: the targeted monster is winding up a 吸血重擊 and a stun skill is usable on it → that skill
  *  key comes first (a stun cancels the drain, battle.ts monstersAct0). The rest of the advice is unchanged. */
-// rc12 scheme 6（SIM_RC12_SHATTER，預設關）: the 2H (blade) interrupt is the sourced Rending Blow → Shatter Strike chain — Skills.md:73-75
+// rc12 scheme 6（預設開，SIM_RC12_SHATTER=0 關）: the 2H (blade) interrupt is the sourced Rending Blow → Shatter Strike chain — Skills.md:73-75
 // (Rending Blow: 3 Penetrated Armor stacks, x4, bypasses phys mit; Shatter Strike: x3, stuns 5 ticks targets with Penetrated Armor). No new numbers.
-export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike', ...(Number((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_RC12_SHATTER ?? 0) > 0 ? ['shatterStrike' as const] : [])]; // = RC12.shatter, read directly: cp8 may not be initialised yet here (import cycle)
+export const STUN_SKILLS: SkillId[] = ['shieldBash', 'concussiveStrike', ...((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_RC12_SHATTER !== '0' ? ['shatterStrike' as const] : [])]; // = RC12.shatter, read directly: cp8 may not be initialised yet here (import cycle)
 const paOn9 = (m: Monster): boolean => (m.status.pa ?? 0) > 0 && (m.status.paTurns ?? 0) > 0;
 /** rc12 scheme 6: a stun skill that will actually stun `t` now (Shatter Strike only on a Penetrated Armor target). */
 export const stunReady9 = (s: BattleState, id: SkillId, t: number): boolean => canUse(s, { kind: 'skill', id, target: t }) && (id !== 'shatterStrike' || (!!s.monsters[t] && paOn9(s.monsters[t]!)));
