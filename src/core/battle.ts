@@ -1298,6 +1298,8 @@ function primaryKey0(s: BattleState, target: number): PrimaryKey {
     return id && canUse(s, { kind: 'skill', id, target }) ? { key: m![1]!, label: `${m![1]}·${SKILLS[id].zh}`, action: { kind: 'skill', id, target } } : null;
   };
   const showDecide = !!adv && !s.over && (th.danger || s.monsters.some((m) => windingUp(m)));
+  // rc12k（自訂）: ★ accounts for the potion cooldown — HP in danger, potion unusable, S ready → S before offensive advice (D advice still wins).
+  if (RULES.cp8 && guardHint(s) && !(showDecide && adv!.keys.find((k) => fromKey(k)) === 'D')) return { key: 'S', label: 'S·靈動架勢', action: { kind: 'spirit' }, why: `HP 危險、藥水冷卻中（還剩 ${s.itemCd.health ?? 0} 回合）：靈動架勢`, src: 'guard' };
   if (showDecide) for (const k of adv!.keys) { const p = fromKey(k); if (p) return { ...p, why: adv!.text, src: 'advice' }; }
   if (RULES.cp8 && guardHint(s)) return { key: 'S', label: 'S·靈動架勢', action: { kind: 'spirit' }, why: 'HP 危險、藥水不能用：靈動架勢', src: 'guard' };
   if (th.skill) { const i = kit.indexOf(th.skill); return { key: 'QWE'[i]!, label: `${'QWE'[i]}·${SKILLS[th.skill].zh}`, action: { kind: 'skill', id: th.skill, target }, why: SKILLS[th.skill].desc, src: 'skill' }; }

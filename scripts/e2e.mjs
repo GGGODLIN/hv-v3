@@ -104,7 +104,7 @@ await pg.evaluate(()=>{for(const m of hv.battle.monsters)m.charge=0;hv.render()}
 // ---- CP2b item 5: potion cooldown as the player sees it (button label, key presses until usable)
 await pg.evaluate(()=>{hv.stage.skip=true;for(const m of hv.battle.monsters){m.adb=0;if(m.hp>0){m.hp=m.maxHp=1e9}}hv.battle.potions.health=Math.max(1,hv.battle.potions.health);hv.battle.itemCd.health=0;hv.battle.hp=Math.round(hv.battle.d.hp/2);hv.render()});
 await pg.keyboard.press('z');await pg.waitForFunction(()=>!hv.busy,{timeout:8000});await w(100);
-R.cp2bPotion=[];for(let i=0;i<15;i++){const lab=await pg.$eval('[data-act="item:health"] small',x=>x.textContent);R.cp2bPotion.push(lab);if(!lab.startsWith('冷卻'))break;await pg.keyboard.press('a');await w(50);await pg.waitForFunction(()=>!hv.busy,{timeout:8000});await w(50);}
+R.cp2bPotion=[];for(let i=0;i<15;i++){const lab=await pg.$eval('[data-act="item:health"] small',x=>x.textContent);R.cp2bPotion.push(lab);if(!lab.startsWith('冷卻')&&!lab.startsWith('藥水冷卻中'))break;await pg.keyboard.press('a');await w(50);await pg.waitForFunction(()=>!hv.busy,{timeout:8000});await w(50);}
 await pg.evaluate(()=>{hv.stage.skip=false});
 // ---- CP2b item 6: one-click reset is checked in town (see cp2b-06)
 // ---- CP2 item 1b: weaker loot asks first
@@ -174,7 +174,7 @@ if(!R.cp2regen.length||!R.cp2regen.every(t=>/HP \+\d+ · MP \+\d+ · SP \+\d+/.t
 if(R.cp2weakHud.length||!R.cp2weakLog.length)fails.push('CP2 weakness');
 if(!R.cp2bResetModal||!R.cp2bResetAttrs)fails.push('CP2b reset all');
 // cp8-rc2: the label became 「冷卻 N 回合」 (spaces + 回合); only the countdown is checked; cp8-rc11: 5..1 (P-health-potion-cd 5, 暫定、非原版).
-{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻')).map(t=>Number(t.match(/\d+/)[0]));if(cd.length!==3||cd[0]!==3||cd[2]!==1)/* rc13: P-health-potion-cd 3 (暫定) */fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
+{const cd=R.cp2bPotion.filter(t=>t.startsWith('冷卻')||t.startsWith('藥水冷卻中')).map(t=>Number(t.match(/\d+/)[0]));if(cd.length!==3||cd[0]!==3||cd[2]!==1)/* rc13: P-health-potion-cd 3 (暫定) */fails.push('CP2b potion cooldown '+R.cp2bPotion.join(','));}
 if(!R.cp2decide||!R.cp2suggest.some(t=>t.includes('防禦')))fails.push('CP2 charge decision');
 {const t=R.cp3town;if(!t.alloc||t.shopTab||t.iwTab)fails.push('CP3 town locks');}
 if(!R.cp3trip||!R.cp3trip.includes('×5'))fails.push('CP3 trip-1 carry multiplier (CARRY_MULT 5)');
