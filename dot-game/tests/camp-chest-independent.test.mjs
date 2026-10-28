@@ -1,3 +1,4 @@
+import {beforeStatSort} from './helpers/stat-sort-baseline.mjs';
 import {beforeWaveProgress} from './helpers/wave-progress-baseline.mjs';
 import {beforeWaveGrowth} from './helpers/wave-growth-baseline.mjs';
 import { beforeLoadoutPreview } from './helpers/loadout-preview-baseline.mjs';
@@ -115,10 +116,10 @@ test('chest independent: volume has separate front, side, bevelled lid, paired s
   assert.ok(keyhole.points[0][1]>=lock.points[0][1]&&keyhole.points[1][1]<=lock.points[1][1]);
 });
 test('chest independent: HTML and package retain baseline after exact version and v039 dialog-name normalization', () => {
-  const currentHtml=read('index.html');
+  const currentHtml=beforeStatSort(read('index.html'),'index.html');
   assert.equal((currentHtml.match(/v0\.64 · 來源候選/g)||[]).length,1);
   const html=currentHtml;
   assert.equal((html.match(/v0\.64/g)||[]).length,2);
   assert.equal(hash(html.replace('<option value="quality">品質優先（非戰力）</option>', '').replace("<label for=\"quality-filter\">\u54c1\u8cea<select id=\"quality-filter\" aria-describedby=\"inventory-filter-help\"><option value=\"all\">\u5168\u90e8\u54c1\u8cea</option></select></label>", '').replaceAll('v0.64','v0.37').replace(' aria-labelledby="help-title"', '').replace(' id="help-title"', '').replace(' aria-labelledby="settings-title"', '').replace(' id="settings-title"', '')),'5dacdb593f9a0258a0b6d82f4c3b2acb4429305df59f02e0640fd0e11ea3dade');
-  assert.equal(hash(read('package.json').replace('"version": "0.64.0"','"version": "0.37.0"')),'6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3');
+  assert.equal(hash(beforeStatSort(read('package.json'),'package.json').replace('"version": "0.64.0"','"version": "0.37.0"')),'6887e11e3512b6bf425572a4ce372f4ed6115318917d145c89d57e698a2d4fa3');
 });

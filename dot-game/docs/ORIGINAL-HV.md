@@ -331,3 +331,7 @@ This repairs a UI lifecycle defect, not original HV mechanics. Canonical save lo
 ## v056 adaptation correction: post-growth wave recovery
 
 The existing 10% inter-wave HP recovery is this game's adaptation, not an original-HV fact. A killing action can award XP, increase attributes and synchronize soulbound equipment before the next wave. Recovery now reads max HP after those updates, preventing the stale pre-kill cap from removing earned health. Counter, ordinary hit and bleed all share this settlement point. Original attribute/proficiency/quality/damage rules are unchanged.
+
+## v065 inventory raw-stat sorting boundary
+
+Descending sorting by the seven existing equipment stat fields is an independent inventory-interface adaptation. It does not assert an original-HV sorting rule or change stat interpretation, item generation, growth, effective character calculations, or combat. It compares owned displayed item values (including existing bound/IW-adjusted values), not hypothetical character deltas, DPS, or win probability. Missing fields compare as zero without adding fields to legacy items. Equal values retain newest-acquired display order. The preference is transient page UI state, not a saved build configuration.

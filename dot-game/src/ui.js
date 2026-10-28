@@ -1419,6 +1419,14 @@ function renderInventory() {
   if (sort === 'level') items.sort((a, b) => b.level - a.level);
   // Stable sort retains latest-acquired order within the same quality.
   if (sort === 'quality') items.sort((a, b) => QUALITY_TIERS.findIndex(tier => tier.name === b.quality) - QUALITY_TIERS.findIndex(tier => tier.name === a.quality));
+  // Raw owned gear values only: not a whole-build recommendation or DPS.
+  const statSort = sort.startsWith('stat-') && Object.hasOwn(statNames, sort.slice(5)) ? sort.slice(5) : null;
+  const statValue = item => Number.isFinite(item.stats?.[statSort]) ? item.stats[statSort] : 0;
+  const statLabel = item => `${statNames[statSort]} ${rateStats.has(statSort) ? `${(statValue(item) * 100).toFixed(1)}%` : statSort === 'parry' ? statValue(item).toFixed(1) : format(statValue(item))}`;
+  if (statSort) {
+    items.sort((a, b) => statValue(b) - statValue(a));
+    $('inventory-filter-status').textContent += ` 按裝備${statNames[statSort]}由高至低（按未四捨五入數值）；未列為 0，同值最新優先；裝備原始屬性，非 DPS／勝率或最佳配裝；只在本分頁排序。`;
+  }
   if (!items.length) {
     const empty = node('div', 'empty-inventory');
     empty.append(node('span', '', labels.length ? '背包中沒有同時符合這些篩選的裝備；已穿裝備不在背包清單內。' : '背包還很輕。出發帶回第一件寶物吧；已穿裝備另列於旅者面板。'));
@@ -1443,7 +1451,8 @@ function renderInventory() {
         button.append(marker);
       }
     }
-    button.setAttribute('aria-label', [itemAccessibleName(item), protectedBySet ? '配裝保護中' : '', comparison, item.id === selectedId ? '比較中' : ''].filter(Boolean).join('，'));
+    if (statSort) button.append(node('span', 'item-sort-stat', statLabel(item)));
+    button.setAttribute('aria-label', [itemAccessibleName(item), protectedBySet ? '配裝保護中' : '', comparison, statSort ? statLabel(item) : '', item.id === selectedId ? '比較中' : ''].filter(Boolean).join('，'));
     button.setAttribute('aria-pressed', String(item.id === selectedId));
     button.addEventListener('click', () => { selectedId = item.id; selectedSlot = null; render(true); });
     const row = node('div', 'inventory-entry');
