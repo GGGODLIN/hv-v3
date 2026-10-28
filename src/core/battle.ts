@@ -341,6 +341,15 @@ export function stunGuaranteed(s: BattleState, target: number, id: SkillId): boo
   if (m.phases && hitMax >= m.hp) return false;
   return true;
 }
+/** rc10 item 0（自訂）: potions left but on cooldown. */
+export const potCooling9 = (s: BattleState): boolean => s.potions.health > 0 && s.itemCd.health > 0;
+/** rc10 item 0（自訂）: a usable stun skill on a live monster that can still be stunned (target first) — the 冷卻中 alternative to Z. */
+export function coolStunKey9(s: BattleState, target = 0): string | null {
+  const kit = skillKit(s), order = [target]; // the UI presses skills on the current target
+  for (const t of order) { const m = s.monsters[t]; if (!m || m.hp <= 0 || m.status.stun > 0 || stunResisting9(m)) continue;
+    const id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target: t })); if (id) return `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}`; }
+  return null;
+}
 /** cp9-rc5 QA3: the stun-skill id behind a drainStunKey label. */
 const stunIdOf = (s: BattleState, k: string): SkillId => (skillKit(s)['QWE'.indexOf(k[0]!)] ?? 'shieldBash') as SkillId;
 /** cp9-rc9 item 1（自訂，製作人定案）: minions are not under the post-hit wind-up lock → say so when one is winding up. */
@@ -404,6 +413,9 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   // rc19 (d)（製作人要求，自訂，非原版）: potion unusable → D if the defended estimate is below HP, else S, else A.
   // rc21 QA (arcane3 F11/F15): give the real reason Z is out — full HP, none left, or on cooldown (never 「冷卻 0 回合」).
   const pn = `生命藥水${s.potions.health <= 0 ? '已用完' : s.itemCd.health > 0 ? `冷卻 ${s.itemCd.health} 回合` : s.hp >= s.d.hp ? '滿血無需喝藥' : '目前不能用'}`;
+  // rc10 item 0（自訂）: lethal while the potion is only cooling down → an interrupting stun skill first, then S / D (never Z).
+  const sk9 = RULES.cp8 && CP9.on && lethal && potCooling9(s) && (!dOk || saveOnly) ? coolStunKey9(s, target) : null;
+  if (sk9) { const rest = [...(guardHint(s) === 'spirit' ? ['S'] : []), ...(canUse(s, { kind: 'defend' }) ? ['D'] : [])]; return { danger, est, hp, keys: [sk9, ...rest], text: `${sk9}（打斷：${pn}；${saveOnly ? dTxt : `防禦後估計 ${estD} ≥ HP ${hp}，防禦也擋不住`}；${why}）${rest.length ? `；否則 ${rest.map((k) => (k === 'S' ? 'S·靈動架勢' : 'D·防禦')).join(' 或 ')}` : ''}` }; }
   if (dOk) return { danger, est, hp, keys: ['D'], text: `D·防禦（${pn}；${saveOnly ? dTxt : `防禦後估計 ${estD} < HP ${hp}`}，${why}）` };
   const sp = guardHint(s) === 'spirit';
   // cp9-rc6 item 3（自訂，暫定）: lethal and Z unavailable → never A; S if it is the guard, else D (still cuts the hit) — never hint Z here.
@@ -1066,8 +1078,8 @@ export function deathCharge<T extends { charged: boolean }>(h2: T[], last: T): T
 export function deathTip(o: { lastDmg: number; maxHp: number; reflect?: boolean; pots: number; potCd: number; charged?: boolean }): string {
   const pct = Math.round((o.lastDmg / Math.max(1, o.maxHp)) * 100);
   if (o.reflect) return `致命的是你自己攻擊時的反傷（${o.lastDmg}，${pct}%）：HP 低於反傷值的兩倍時，先喝藥或改打別的怪，不要再普攻有反傷的敵人。`;
-  if (o.pots > 0 && o.potCd > 0) return `藥水沒用完，是還在冷卻（剩 ${o.pots} 瓶，冷卻還要 ${o.potCd} 回合）：HP 高時不要連喝，HP ≤ ${Math.min(100, pct * 2)}% 時要確定藥水已冷卻好；冷卻中改按 D·防禦。`; // cp9-rc5 bug 2（自訂，暫定）
-  if (o.pots > 0) return `倒下時還剩 ${o.pots} 瓶生命藥水：最後一擊 ${pct}%，HP 低於 ${Math.min(100, pct * 2)}% 時就按 Z。`;
+  if (o.pots > 0 && o.potCd > 0) return `藥水沒用完，是還在冷卻（剩 ${o.pots} 瓶，冷卻還要 ${o.potCd} 回合）：HP 高時不要連喝，HP ≤ ${Math.min(100, pct * 2)}% 時要確定藥水已冷卻好；冷卻中改用打斷技能（暈眩）、S·靈動架勢 或 D·防禦。`; // cp9-rc5 bug 2（自訂，暫定）; rc10 item 0（自訂）: cooldown → stun / S / D
+  if (o.pots > 0) return `倒下時還剩 ${o.pots} 瓶生命藥水：最後一擊 ${pct}%，HP 低於 ${Math.min(100, pct * 2)}% 時就按 Z（藥水冷卻中則改用打斷技能（暈眩）、S·靈動架勢 或 D·防禦）。`; // rc10 item 0（自訂）
   if (o.charged) return `生命藥水已用完，最後是蓄力大招（${pct}%）：看到 ⚠ 蓄力就按 D·防禦，出發前多買藥水。`;
   return `生命藥水已用完：出發前多買藥水，或 HP 低於一半時在休息點回復、撤退。`;
 }
