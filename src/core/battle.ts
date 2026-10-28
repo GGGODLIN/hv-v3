@@ -529,9 +529,18 @@ export function attackValue(s: BattleState, target: number): number {
 /** rc13 item 3(b): the skill worth pressing now, or null when none beats A by more than the edge (e.g. A already kills the target). */
 /** rc16 item 5 diag: why the skill hint did or did not light (counts only, no behaviour). */
 export const SKILL_HINT_STATS = { on: false, calls: 0, lit: 0, noOc: 0, belowEdge: 0, other: 0, ratios: [] as number[] };
+/** rc10 spec item 3/4（自訂，提示層，不改數值）: sim diag — arcane boss wind-ups found the 50-OC stun unaffordable 76% of the time
+ *  because the hint spent it as a damage skill between wind-ups. While a live boss can still be stunned, the stun skill is kept
+ *  for the interrupt (drainStunKey still leads with it on a wind-up). SIM_RESERVEQ=0 = rc9 behaviour (A/B). */
+export const RC10H = { reserveQ: (Number(typeof process !== 'undefined' ? process.env?.SIM_RESERVEQ ?? 1 : 1)) > 0 };
+function reserveStun9(s: BattleState, id: SkillId): boolean {
+  if (!RC10H.reserveQ || !RULES.cp8 || !CP9.on || !STUN_SKILLS.includes(id as never)) return false;
+  const b = s.monsters.find((m) => m.hp > 0 && m.rank === 'boss');
+  return !!b && !windingUp(b) && !stunResisting9(b);
+}
 export function suggestSkill(s: BattleState, target: number): SkillId | null {
   const H = SKILL_HINT_STATS; if (H.on) H.calls++;
-  const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }));
+  const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }) && !reserveStun9(s, id));
   if (!ids.length) { if (!H.on) return null; if (skillKit(s).some((id) => !s.locked?.skill && s.cooldowns[id] <= 0 && s.oc < skillOc(s, id))) H.noOc++; else H.other++; return null; }
   const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
   const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on && H.ratios.length < 200) H.ratios.push(ratio);
