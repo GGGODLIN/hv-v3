@@ -128,7 +128,7 @@ test('role and defense strings stay text-only, bounded and explicit about tradeo
   for (const text of ['刺劍可能有助於較高的一般物理減傷', '戰棍須先打出傷害', '不能忽略格擋', '戰斧的直接攻擊力仍有價值', '沒有通吃所有敵人的最佳武器', '不是最終完全迴避率', '本作改編']) assert.ok(html.includes(text), text);
   assert.match(html, /<details class="route-advice"><summary>/, 'touch and keyboard users can read hints without hover');
   assert.match(css, /\.route-preview\[hidden\]\s*\{\s*display:\s*none/);
-  assert.match(html, /v0\.53 · 來源候選/);
+  assert.match(html, /v0\.54 · 來源候選/);
   for (const key of ['save', 'writer', 'preferences']) assert.ok(js.includes(`${key}-v3`));
   assert.doesNotMatch(js, /save-v5|writer-v5|preferences-v5|\.innerHTML\s*=/);
 });

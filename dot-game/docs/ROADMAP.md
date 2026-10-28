@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.54 source-only slice: pre-departure full-gold hint
+
+Show the existing cap's consequence next to current balances on load/import and throughout play; clear it after spending below cap. It is passive guidance, not a new economy or a departure gate. No banking/deferred-credit claim; no source mechanics or asset changes. Actual browser/layout acceptance remains pending; zero website operations.
+
 ## v0.53 source-only slice: truthful capped combat credit
 
 Enforce the existing save ceiling on kill and normal-clear credits. Report actual credit and explicitly uncredited excess; no bank, deferred claim or legacy balance compensation. Preserve low-balance rewards, IW quarter-floor, RNG, loot and XP. Source tests only; zero website operations.

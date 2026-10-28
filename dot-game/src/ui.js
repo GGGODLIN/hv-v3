@@ -1170,6 +1170,9 @@ function render(force = false) {
   $('xp-label').textContent = `${format(state.hero.xp)} / ${format(state.hero.xpNext)}`;
   setMeter('hp-bar', state.hero.hp, derived.maxHp); setMeter('mp-bar', state.hero.mp, derived.maxMp); setMeter('xp-bar', state.hero.xp, state.hero.xpNext);
   $('stat-attack').textContent = format(derived.attack); $('stat-defense').textContent = format(derived.defense); $('stat-crit').textContent = `${((derived.crit || 0) * 100).toFixed(1)}%`; $('stat-gold').textContent = format(state.hero.gold);
+  const goldAtCapacity = state.hero.gold >= 1e12;
+  $('gold-cap-warning').hidden = !goldAtCapacity;
+  $('gold-cap-warning').textContent = goldAtCapacity ? '金幣已達保存上限。擊殺與通關超額不入帳，也不會補發；建議先消費再遠征。出售若無法完整入帳會保留裝備。' : '';
   $('zone-title').textContent = trial.active ? 'Item World · 武器試煉' : stageName(state.stage);
   $('stage-label').textContent = trial.active ? `IW1 · 本作強度 ${trial.strengthStage}` : `遠征 ${String(state.stage).padStart(2, '0')}`;
   $('wave-label').textContent = trial.active ? `第 ${trial.round} / ${trial.rounds} 回合` : state.mode === 'battle' ? `第 ${state.wave} / ${state.totalWaves} 波` : state.mode === 'defeat' ? '旅者倒下了' : '準備出發';

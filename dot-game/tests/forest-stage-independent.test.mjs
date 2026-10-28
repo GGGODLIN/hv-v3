@@ -1,3 +1,4 @@
+import { beforeGoldCapWarning } from './helpers/gold-cap-warning-baseline.mjs';
 import { beforeManualSaleCap } from './helpers/manual-sale-cap-baseline.mjs';
 import { beforeClearReport } from './helpers/clear-report-baseline.mjs';
 import { beforeReportExport } from './helpers/report-export-baseline.mjs';
@@ -16,7 +17,7 @@ import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 
 // Independent source/Canvas-command checks. No pixels, browser or accessibility claim.
-const read = p => beforeNameSearch(beforeProtectionFilter(beforeReportExport(beforeClearReport(beforeManualSaleCap(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'),p),p),p),p),p);
+const read = p => beforeNameSearch(beforeProtectionFilter(beforeReportExport(beforeClearReport(beforeManualSaleCap(beforeGoldCapWarning(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'),p),p),p),p),p),p);
 const source = beforeImportOrdering(beforeDetailActionFocus(beforeQualityFilter(beforeQualitySort(beforeStatDelta(read('src/ui.js'))))));
 const sha = s => createHash('sha256').update(s).digest('hex');
 const actorStart = source.indexOf('function rect('), sceneStart = source.indexOf('function drawScene(');
