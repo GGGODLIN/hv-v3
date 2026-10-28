@@ -157,6 +157,20 @@ function restoreDetailActionFocus(previous) {
   const sameItem = Object.values(comparisonButtons).map(buttons => buttons.get(previous.id));
   [sameAction, ...sameItem, $('slot-filter'), $('settings-toggle')].find(comparisonButtonVisible)?.focus({ preventScroll: true });
 }
+// Sale checkboxes retain their exact item identity across passive repaint.
+function captureSaleCheckboxFocus() {
+  const button = document.activeElement;
+  if (!comparisonButtonVisible(button)) return null;
+  for (const [id, rendered] of selectedSaleCheckboxes) if (rendered === button) return { id, button };
+  return null;
+}
+function restoreSaleCheckboxFocus(previous) {
+  if (!previous || previous.button.isConnected === true) return;
+  const active = document.activeElement;
+  if (active && active !== previous.button && active !== document.body && active !== document.documentElement) return;
+  [selectedSaleCheckboxes.get(previous.id), $('slot-filter'), $('settings-toggle')]
+    .find(comparisonButtonVisible)?.focus({ preventScroll: true });
+}
 let selectedSaleConsent = null;
 let safeSaleBatch = null;
 let commissionConsent = null;
@@ -1163,6 +1177,7 @@ function renderTargetPriority() {
   live.textContent = view.targetId === null ? '' : `目前集火：${view.targetName} · ${view.reason}。普攻與攻擊技能適用；治癒／護盾仍優先，反擊仍打攻擊者。`;
 }
 function render(force = false) {
+  const saleCheckboxFocus = captureSaleCheckboxFocus();
   const comparisonFocus = captureComparisonFocus();
   const detailActionFocus = captureDetailActionFocus();
   renderSoulbindStatus();
@@ -1227,6 +1242,7 @@ function render(force = false) {
   eventEffects();
   restoreComparisonFocus(comparisonFocus);
   restoreDetailActionFocus(detailActionFocus);
+  restoreSaleCheckboxFocus(saleCheckboxFocus);
 }
 // Local original artwork: family is resolved from owned item data, never a name guess.
 // Images are decorative; the adjacent full name/type/quality remain readable text.
