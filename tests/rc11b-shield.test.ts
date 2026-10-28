@@ -32,3 +32,7 @@ describe('rc11b item 2', () => {
     expect(chargeAdvice(b, 0).keys[0]).toBe('A');
   }));
 });
+import { SIG_TEXT } from '../src/core/cp5';
+describe('rc11c: telegraph wording', () => {
+  it('◈ telegraph says the shield is only being prepared', () => { expect(SIG_TEXT.thorns.tele).toBe('守門者準備舉起尖刺盾（下回合起物理攻擊會被反彈）'); expect(SIG_TEXT.thorns.icon).toBe('◈'); });
+});
