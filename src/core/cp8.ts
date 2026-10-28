@@ -109,7 +109,7 @@ export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × th
 /** rc12g step 3（自訂）: school for the deep curve — lean, else by main hand (presets blade / oc carry no lean): 2H → blade, staff → arcane, 1H → oc. */
 export const curveSchool12g = (p: { lean?: string; equipped: { mainHand?: { group?: string } } }): string | undefined =>
   p.lean ?? ({ twoHand: 'blade', staff: 'arcane', oneHand: 'oc' } as Record<string, string>)[p.equipped.mainHand?.group ?? ''];
-export const deepK12g = (lean?: string): number => (lean ? DEEP12G.school[lean] : undefined) ?? DEEP12G.k;
+export const deepK12g = (lean?: string): number => (lean ? DEEP12G.school[lean] : undefined) ?? (lean === 'oc' && OC12M.on ? OC12M.deepK : undefined) ?? DEEP12G.k; // rc12m 候選: oc deep k only when OC12M.on
 export const deep12g = (f: number, part: 'hp' | 'dmg', lean?: string): number => 1 + deepK12g(lean) * (part === 'hp' ? ((lean ? DEEP12G.hpS[lean] : undefined) ?? DEEP12G.hpK) : ((lean ? DEEP12G.atkS[lean] : undefined) ?? 1)) * Math.max(0, f - DEEP12G.from) / 60;
 export const refHp9 = (f: number): number => 850 + 3.5 * Math.max(0, f - 30);
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */
@@ -125,6 +125,14 @@ export const potCdAt12h = (f: number, lean?: string): number => { const t = lean
 export const OC12L = { bossHp: num('SIM_AOBOSSHP_OC') ?? 1, /** rc12l（自訂）: oc boss adb × 1 at F70, linear to × dmg100 at F100. */ dmg100: num('SIM_OCDMG100') ?? 1.5, /** rc12l（自訂）: oc boss un-telegraphed per-turn cap at F100 (bossPlain at F70, linear; ≤ bossAtk). */ plain100: num('SIM_OCPLAIN100') ?? 0.3 };
 export const ocPlain12l = (F: number): number | undefined => OC12L.plain100 > 0 && F >= 70 ? Math.min(CP9.bossAtk, CP9.bossPlain + (OC12L.plain100 - CP9.bossPlain) * Math.min(1, (F - 70) / 30)) : undefined;
 export const ocDmg12l = (F: number): number => F < 70 ? 1 : 1 + (OC12L.dmg100 - 1) * Math.min(1, (F - 70) / 30);
+/** rc12m 候選（自訂，預設關閉）: oc-only run-wide pressure. on=0 (default) = rc12l unchanged; SIM_OC12M=1 turns it on for the sim.
+ *  mobHp/mobDmg: non-boss monster × at F100 (×1 up to mobFrom, linear); rest: rest-node heal × ; potDrop: battle potion-drop chance ×.
+ *  deepK: oc deep boss curve k (SIM_DEEP_OC still overrides). hit: one boss hit (incl. charged) ≤ hit × max HP. Merchant potions stay 1 per shop.
+ *  Defaults = the rc12m candidate picked by scripts/rc12m-fullrun.ts (mob ×2/×2 at F100, deepK 1, hit 0.4; rest/potDrop ×1 — measured too weak alone). */
+export const OC12M = { on: (num('SIM_OC12M') ?? 0) === 1, mobFrom: num('SIM_OCMOBFROM') ?? 30, mobHp: num('SIM_OCMOBHP') ?? 2, mobDmg: num('SIM_OCMOBDMG') ?? 2, rest: num('SIM_OCREST') ?? 1, potDrop: num('SIM_OCPOTDROP') ?? 1, deepK: num('SIM_OCDEEPK') ?? 1, hit: num('SIM_OCHIT') ?? 0.4 };
+export const ocMob12m = (F: number, k: 'mobHp' | 'mobDmg'): number => !OC12M.on || F <= OC12M.mobFrom ? 1 : 1 + (OC12M[k] - 1) * Math.min(1, (F - OC12M.mobFrom) / (100 - OC12M.mobFrom));
+export const ocRest12m = (lean?: string | null): number => OC12M.on && lean === 'oc' ? OC12M.rest : 1;
+export const ocPotDrop12m = (lean?: string | null): number => OC12M.on && lean === 'oc' ? OC12M.potDrop : 1;
 export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp : DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
 /** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
 /** rc12k item 1（製作人，自訂）: after F65 the rise is geometric (same × per floor, ≈ ×1.43 / 5 floors at 0.2→2.5) instead of linear,
