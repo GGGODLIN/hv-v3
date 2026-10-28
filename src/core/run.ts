@@ -326,6 +326,9 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType): Mon
       if (run.cp5 && !ab && type === 'boss' && rank === 'normal') m.adb *= CP5.bossMinionAdb[f] ?? 1; // CP5 rc2 fix 5
       if (ab) { const k = abyssMult(ab); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * k.hp)); m.adb *= k.dmg * (rank === 'boss' ? (RULES.cp8 && ab === 25 ? CP8.boss25Dmg : ABYSS.bossDmgAt[ab] ?? 1) : 1);
       // rc12 scheme 1（自訂，SIM_RC12_CURVE，預設關）: deep abyss boss HP = smooth c(d) = c(20) + slope·(d−20) instead of the abyssMult.hp × CP5.bossHp[bossKey] sawtooth (d30 jump).
+      // rc12 smooth（自訂，製作人：鋸齒可改平滑但各層不得變弱；SIM_RC12_SMOOTH=0 關）: boss HP = running max of the upper concave hull of
+      // the sawtooth points c(d)=abyssMult(d).hp×CP5.bossHp[bossKey(d)] for d≥20 → every floor ≥ its original value, no dips.
+      if (ab > 20 && rank === 'boss' && RC12.smooth && !(RC12.curve > 0)) { const c = (d: number) => abyssMult(d).hp * (run.cp5 ? CP5.bossHp[bossKey(d)] ?? 1 : 1); const now = c(ab), env = smoothEnv12(c, ab); if (env > now) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * env / now)); }
       if (ab > 20 && rank === 'boss' && RC12.curve > 0) { const now = abyssMult(ab).hp * (run.cp5 ? CP5.bossHp[f] ?? 1 : 1), c20 = abyssMult(20).hp * (run.cp5 ? CP5.bossHp[20] ?? 1 : 1); m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * (c20 + RC12.curve * (ab - 20)) / now)); }
         if (RULES.cp7 && type !== 'boss') m.adb *= 1 - CP7.themeK * (1 - (RULES.cp8 && ab > 20 ? cp8ThemeDmg(f) : CP7.themeDmg[f] ?? 1));
         if (ABYSS.physResScale !== 1) { m.physMit *= ABYSS.physResScale; for (const t of ['piercing', 'crushing', 'slashing'] as const) if (m.spec[t] > 0) m.spec[t] = Math.round(m.spec[t] * ABYSS.physResScale); } }
@@ -649,4 +652,12 @@ export function routeAdvice9(p: Player, run: RunState): { i: number; why: string
   let best = 0, bs = -1, why = '';
   opts.forEach((t, i) => { const [s, w] = sc(t); if (s > bs) { bs = s; best = i; why = w; } });
   return { i: best, why };
+}
+
+/** rc12 smooth（自訂）: running max of the upper hull of c(d) over boss floors 20,25,…,max(100,ab+20); ≥ c(ab) by construction. */
+export function smoothEnv12(c: (d: number) => number, ab: number): number {
+  const top = Math.max(100, Math.ceil((ab + 20) / 5) * 5), P: [number, number][] = []; for (let d = 20; d <= top; d += 5) P.push([d, c(d)]);
+  const H: [number, number][] = []; for (const p of P) { while (H.length >= 2) { const [a, b] = [H[H.length - 2]!, H[H.length - 1]!]; if ((b[1] - a[1]) * (p[0] - a[0]) <= (p[1] - a[1]) * (b[0] - a[0])) H.pop(); else break; } H.push(p); }
+  const at = (d: number) => { for (let i = 1; i < H.length; i++) if (d <= H[i]![0]) { const [a, b] = [H[i - 1]!, H[i]!]; return a[1] + ((b[1] - a[1]) * (d - a[0])) / (b[0] - a[0]); } return H[H.length - 1]![1]; };
+  let mx = 0; for (let d = 20; d <= ab; d += 5) mx = Math.max(mx, at(d)); mx = Math.max(mx, at(ab)); return Math.max(mx, c(ab));
 }

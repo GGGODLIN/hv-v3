@@ -62,7 +62,7 @@ export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, 
  *  chargeEvery: boss charge interval (0 = BOSS_CHARGE_EVERY 4). dCounter: D during a boss telegraph hits back adb×K (0 = off).
  *  preMerch: d%5==4 abyss floors always offer a merchant (0 = off). */
 export const RC12 = { curve: num('SIM_RC12_CURVE') ?? 0, chargeEvery: num('SIM_RC12_CHARGEEVERY') ?? 0, dCounter: num('SIM_RC12_DCOUNTER') ?? 0.5 /* 2b 自訂, 製作人採用 rc12 */,
-  preMerch: num('SIM_RC12_PREMERCH') ?? 1, shatter: num('SIM_RC12_SHATTER') !== 0 /* scheme 6: 2H Rending→Shatter as interrupt (Skills.md:73-75) */, hp1Tele: num('SIM_RC12_HP1TELE') !== 0 };
+  preMerch: num('SIM_RC12_PREMERCH') ?? 1, shatter: num('SIM_RC12_SHATTER') !== 0 /* scheme 6: 2H Rending→Shatter as interrupt (Skills.md:73-75) */, hp1Tele: num('SIM_RC12_HP1TELE') !== 0, smooth: num('SIM_RC12_SMOOTH') !== 0 /* 自訂 abyss boss HP hull, never below original */ };
 export const CP9 = { on: num('SIM_CP9') !== 0,
   /** cp9-rc7 items 2/3（自訂，暫定，無來源）: boss turns after a charged/telegraphed hit lands, and after a revive, during which it cannot start a new wind-up (charge / 蓄力 / 脈衝). */ windCd: num('SIM_WINDCD') ?? 2,
   /** cp9-rc7 item 4（自訂，暫定，無來源）: in capped fights a defending turn takes strictly < defCap × max HP (0 = off). */ defCap: num('SIM_DEFCAP') ?? 0.35,
