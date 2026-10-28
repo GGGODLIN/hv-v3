@@ -1214,7 +1214,7 @@ export function primaryKey(s: BattleState, target: number): PrimaryKey {
 }
 function spellWhy9(s: BattleState, target: number, r: PrimaryKey): string {
   if (r.src !== 'attack') return `pre-empted:${r.src}${turnHints(s, target).spell ? '+spellHint' : ''}`;
-  if (quickAttack(s, target).kind !== 'spell') return s.d.style !== 'staff' ? `A-not-spell:style=${s.d.style}` : s.locked?.spell ? 'A-not-spell:locked' : `A-not-spell:mp<${spellCost(s, 'fiery')}`;
+  if (quickAttack(s, target).kind !== 'spell') return s.d.style !== 'staff' ? `A-not-spell:style=${s.d.style}` : s.locked?.spell ? 'A-not-spell:locked' : `A-not-spell:mp<${spellCost(s, 'fiery')} ${Math.floor(s.mp)}/${s.d.mp}`;
   const ids = (Object.keys(SPELLS) as SpellId[]).filter((id) => canUse(s, { kind: 'spell', id, target }));
   if (ids.length <= 1) return 'only-quick-castable';
   const q = spellValue(s, (quickAttack(s, target) as { id: SpellId }).id, target), b = Math.max(...ids.map((id) => spellValue(s, id, target)));
