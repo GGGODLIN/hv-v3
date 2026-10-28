@@ -13,7 +13,7 @@ import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
 import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
-import { mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
+import { routeAdvice9, mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
 import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, MERCHANT_HP_POTIONS, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
@@ -298,6 +298,7 @@ export class App {
     const floors = [...r.tower.floors].reverse().map((f) => {
       const cur = f.n === r.floor;
       const past = f.n < r.floor;
+      const ra9 = cur && RULES.cp8 ? routeAdvice9(this.p, r) : null; // rc10 spec item 2（自訂）
       const opts = f.options.map((t, i) => {
         const chosen = past && r.path[f.n - 1] === i;
         const ic = `<b class="ni">${NODE_ICON[t]}</b>`;
@@ -305,17 +306,18 @@ export class App {
         const ew = r.abyss && RULES.cp6Abyss && t === 'elite' ? `<b class="ewarn warn" data-elitemark title="深淵精英可能帶 3 個詞綴，或克制物理的【尖刺】【堅硬】">⚔</b>` : r.cp5 && !r.abyss && t === 'elite' && f.n >= 3 ? `<b class="ewarn warn" data-elitemark title="可能帶【法抗】或【反魔】（法術幾乎無效）">⚔</b>` : '';
         // rc21 item 4（製作人，自訂，非原版）: merchant nodes are marked on the route map (they restock health potions). No numbers changed.
         const mm = RULES.cp8 && t === 'merchant' ? '<small class="mmark" data-merchantmark>🧪 可補藥</small>' : '';
-        return cur ? `<button class="node n-${t}${mm ? ' mhl' : ''}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t}${mm ? ' mhl' : ''} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
+        return cur ? `<button class="node n-${t}${mm ? ' mhl' : ''}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}${ra9?.i === i ? '<small class="rhint" data-routehint>★建議</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t}${mm ? ' mhl' : ''} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
+      const rw9 = ra9 ? `<div class="hint" data-routewhy>🧭 建議走【${NODE_ZH[f.options[ra9.i]!]}】：${ra9.why}</div>` : '';
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
         const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
         const bh = bt ? `<small class="bosst" data-bosstitle="${dn}">${bt.title}</small>` : '';
-        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small data-mlv>Lv${abyssMonLevel(dn, r.plv ?? 0, abyssLvFollow(r))}</small>${bh}</span>${opts}</div>`;
+        return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}" data-depth="${dn}"><span class="fn">深淵 ${dn} <small data-mlv>Lv${abyssMonLevel(dn, r.plv ?? 0, abyssLvFollow(r))}</small>${bh}</span>${opts}${rw9}</div>`;
       }
       const th = r.cp5 && f.n % 5 === 1 ? `<div class="theme-sep" data-themesep="${f.n}">▲ 第 ${f.n}–${f.n + 4} 層：${themeOf(f.n).zh}</div>` : '';
       const boss = r.cp5 && BOSS_BY_FLOOR[f.n] ? `<small class="bosst" data-bosstitle="${f.n}">${BOSS_BY_FLOOR[f.n]!.title}</small>` : '';
-      return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}</div>${th}`;
+      return `<div class="floor ${cur ? 'cur' : ''} ${past ? 'past' : ''}"><span class="fn">${f.n}F <small>Lv${floorLevel(f.n)}</small>${boss}</span>${opts}${rw9}</div>${th}`;
     }).join('');
     const bag = r.bag.map((e) => this.itemCard(e, `${this.betterTag(e)}<button data-bequip="${e.id}">換上</button>`) + this.compare(e)).join('');
     return `<div class="panel map"><div class="head"><h2>${r.abyss ? `深淵塔 · 第 ${depthOf(r)} 層` : `試煉之塔 · 第 ${r.floor} 層`}</h2><span class="spacer"></span>

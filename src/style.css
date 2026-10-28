@@ -365,3 +365,4 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
 /* rc21 item 4: merchant nodes stand out on the route map */
 .node.mhl { border-color: #e0b84a; box-shadow: 0 0 0 2px #e0b84a66; }
 .node .mmark { display: block; color: #ffd76a; font-weight: bold; }
+.node .rhint { display: block; color: #7cf29a; font-weight: bold; } /* rc10 spec item 2 */

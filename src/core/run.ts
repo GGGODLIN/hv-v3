@@ -604,3 +604,33 @@ export function mapPotion(p: Player, run: RunState): number {
   run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * C['F-002-items'].value.healthPotion.fraction));
   return run.hp - before;
 }
+
+/** rc10 spec item 2（自訂，非原版，全部數值無出處）: the route-map recommendation (UI ★建議 + the SIM_ROUTE=hint sim).
+ *  QA rc9: merchants entered 6–11 of 11–18 offers (the floor before a boss went to rest) and chests opened 1–2 of 10–14, then every
+ *  death was 「藥水用完 → 防禦剩 1 HP → 死」. potLow = health potions below 3（自訂：約一場首領戰的用量，推測）. */
+export const ROUTE9 = { potLow: 3, restBelow: 0.6, preBossRestBelow: 0.9 };
+export function nextIsBoss9(run: RunState): boolean {
+  const nx = run.tower.floors[run.floor];
+  if (nx) return nx.options.includes('boss');
+  return !!run.abyss && (depthOf(run) + 1) % 5 === 0;
+}
+export function routeAdvice9(p: Player, run: RunState): { i: number; why: string } | null {
+  const opts = run.tower.floors[run.floor - 1]?.options ?? [];
+  if (opts.length < 2) return null;
+  const frac = run.hp / Math.max(1, runDerived(p, run).hp), pots = p.potions.health ?? 0, low = pots < ROUTE9.potLow;
+  const pre = nextIsBoss9(run), buy = p.credits >= RULES.potionPrice.health;
+  const sc = (t: NodeType): [number, string] => {
+    switch (t) {
+      case 'merchant': return buy && low ? [pre ? 100 : 70, `生命藥水只剩 ${pots} 瓶${pre ? '，下一層是首領' : ''}：先去商人補藥（${RULES.potionPrice.health}C／瓶）`] : buy ? [35, '可補藥水'] : [10, '金幣不足'];
+      case 'rest': return frac < ROUTE9.restBelow ? [80, `HP ${Math.round(frac * 100)}%：先休息回血`] : pre && frac < ROUTE9.preBossRestBelow ? [50, `下一層是首領，HP ${Math.round(frac * 100)}%：休息補滿`] : [15, 'HP 充足'];
+      case 'chest': return [low ? 60 : 45, low ? `藥水只剩 ${pots} 瓶：寶箱有機會開出藥水` : '寶箱：裝備／金幣／藥水，沒有戰鬥風險'];
+      case 'battle': return [frac >= ROUTE9.restBelow ? 30 : 5, '一般戰鬥'];
+      case 'elite': return [frac > 0.8 && !low ? 40 : 0, '精英：HP 與藥水都充足'];
+      case 'shrine': return [30, '神龕'];
+      default: return [1000, ''];
+    }
+  };
+  let best = 0, bs = -1, why = '';
+  opts.forEach((t, i) => { const [s, w] = sc(t); if (s > bs) { bs = s; best = i; why = w; } });
+  return { i: best, why };
+}
