@@ -98,12 +98,12 @@ export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × th
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
   school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: per-school HP / attack split of the curve (multiplies k; unset → hpK / 1). */
-  hpS: { blade: num('SIM_DEEPHP_BLADE') ?? 1.5 /* rc12i 預設（自訂）: blade HP-only boost (k 4 × 1.5 → F100 HP ×7, dmg ×5 unchanged) */, bulwark: num('SIM_DEEPHP_BULWARK') ?? 0.05 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  hpS: { blade: num('SIM_DEEPHP_BLADE') ?? 0.75 /* rc12k item 2 製作人決定（自訂；rc12i 為 1.5）: blade HP-only boost (k 4 × 1.5 → F100 HP ×7, dmg ×5 unchanged) */, bulwark: num('SIM_DEEPHP_BULWARK') ?? 0.05 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: boss un-telegraphed per-turn cap at F100 for this school (linear from bossPlain at `from`; clamped ≤ bossAtk). */
-  plainS: { bulwark: num('SIM_DEEPPLAIN_BULWARK') ?? 0.4 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  plainS: { bulwark: num('SIM_DEEPPLAIN_BULWARK') ?? 0.4 /* rc12h 預設（自訂） */, blade: num('SIM_DEEPPLAIN_BLADE') ?? 0.6 /* rc12k item 2（自訂） */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: extra health-potion cooldown turns in this school's boss fights at F100 (linear from 0 at `from`). */
   potS: { bulwark: num('SIM_DEEPPOTCD_BULWARK') ?? 6 /* rc12k 製作人決定（自訂）: 上限 +6（rc12h 為 30） */ } as Record<string, number | undefined>,
-  atkS: { bulwark: num('SIM_DEEPATK_BULWARK') ?? 3 /* rc12h 預設（自訂）；adb 仍受 bossAtk 上限 */ } as Record<string, number | undefined> };
+  atkS: { bulwark: num('SIM_DEEPATK_BULWARK') ?? 3 /* rc12h 預設（自訂）；adb 仍受 bossAtk 上限 */, blade: num('SIM_DEEPATK_BLADE') ?? 3 /* rc12k item 2（自訂） */ } as Record<string, number | undefined> };
 /** rc12g step 3（自訂）: school for the deep curve — lean, else by main hand (presets blade / oc carry no lean): 2H → blade, staff → arcane, 1H → oc. */
 export const curveSchool12g = (p: { lean?: string; equipped: { mainHand?: { group?: string } } }): string | undefined =>
   p.lean ?? ({ twoHand: 'blade', staff: 'arcane', oneHand: 'oc' } as Record<string, string>)[p.equipped.mainHand?.group ?? ''];
