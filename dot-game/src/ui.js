@@ -1,6 +1,6 @@
 import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
-import { QUALITY_TIERS } from './loot.js';
+import { QUALITY_TIERS, scaleSoulboundItem } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
 import { PENETRATED_ARMOR_RULES, penetratedArmorStatus, CLUB_STUN_RULES, stunStatus, AXE_BLEED_RULES, bleedStatus, previewStage, enemyDefenseView, enemyAttackView, playerMagicDefenseView } from './engine.js';
 
@@ -1529,6 +1529,41 @@ function itemLoadoutPreview(item, pending) {
   return section;
 }
 
+// Observation only: use the same immutable-anchor scaling as actual level-up.
+function soulboundGrowthPreview(item) {
+  const section = node('section', 'soulbound-growth-preview');
+  section.setAttribute('aria-label', '靈魂綁定武器下一級成長預覽');
+  section.append(node('h4', '', '下一級 · 武器成長'));
+  const level = state.hero.level;
+  if (!Number.isInteger(level) || item.level !== level || !scaleSoulboundItem(item, level)) {
+    section.append(node('p', 'muted', '目前綁定資料與角色等級不一致，無法預覽；不會更動裝備。'));
+    return section;
+  }
+  if (level >= 500) {
+    section.append(node('p', 'muted', '已達本作角色等級上限 Lv.500，沒有下一級成長。'));
+    return section;
+  }
+  const next = scaleSoulboundItem(item, level + 1);
+  if (!next) {
+    section.append(node('p', 'muted', '無法計算下一級武器成長；不會更動裝備。'));
+    return section;
+  }
+  const table = node('div', 'compare-table');
+  const heading = node('div', 'compare-heading');
+  heading.append(node('span', '', '武器屬性'), node('span', '', `Lv.${level} → Lv.${level + 1}`), node('span', '', '成長差值'));
+  table.append(heading);
+  for (const key of Object.keys(item.stats)) {
+    if (!statNames[key]) continue;
+    const before = item.stats[key], after = next.stats[key], diff = after - before;
+    const value = number => rateStats.has(key) ? `${Number((number * 100).toFixed(4))}%` : String(Number(number.toFixed(4)));
+    const row = node('div', 'compare-row soulbound-growth-row'); row.dataset.stat = key;
+    row.append(node('span', '', statNames[key]), node('strong', '', `${value(before)} → ${value(after)}`), node('span', `delta ${diff > 0 ? 'positive' : ''}`, statDeltaText(key, diff, '相同')));
+    table.append(row);
+  }
+  section.append(table, node('p', 'muted', `僅預覽這把武器的屬性，不是下一級角色總面板。沿用原始綁定基準${item.itemWorld?.level === 1 ? '與既有 IW1 加成' : ''}，不重抽品質或詞綴；四捨五入或機率上限可能使個別屬性維持相同。實際角色升級後才成長，不花費資源，也不提前換裝或升級。這是本作成長整合預覽。`));
+  return section;
+}
+
 function renderItemDetail() {
   detailActionButtons.clear();
   const inventoryItem = state.inventory.find(item => item.id === selectedId);
@@ -1634,7 +1669,7 @@ function renderItemDetail() {
   const detailHeading = node('div', 'detail-item-heading');
   const identity = node('div', 'detail-identity'); identity.append(quality, name, subtitle);
   detailHeading.append(itemIcon(item), identity);
-  wrap.replaceChildren(detailHeading, actions, ...(!selectedSlot ? [itemLoadoutPreview(item, pending)] : []), table, explanation, description, trait, soulbind, itemWorld);
+  wrap.replaceChildren(detailHeading, actions, ...(!selectedSlot ? [itemLoadoutPreview(item, pending)] : []), table, explanation, description, trait, ...(bound ? [soulboundGrowthPreview(item)] : []), soulbind, itemWorld);
   if (restoreSoulbindFocus && bindButton && !bindButton.disabled) bindButton.focus();
   if (restoreItemWorldFocus && itemWorldButton && !itemWorldButton.disabled) itemWorldButton.focus();
   if (restoreRuleFocus && ruleSummary) ruleSummary.focus({ preventScroll: true });

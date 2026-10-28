@@ -1,24 +1,24 @@
 {
-  "checkpoint": "207-v066-restorable",
-  "version": "0.66.0",
-  "status": "complete-source-formal-desktop-accepted",
-  "source_base": "07dbdb366b99572216b29c355b7010cb21980e6e",
-  "base_accepted_recovery": "07dbdb366b99572216b29c355b7010cb21980e6e",
+  "checkpoint": "208-v067-soulbound-growth-preview",
+  "version": "0.67.0",
+  "status": "source-tested-browser-pending",
+  "source_base": "5274e45d6d3204d28fadb2714aac4af762074c88",
+  "base_accepted_recovery": "5274e45d6d3204d28fadb2714aac4af762074c88",
   "accepted_website": "426e77fffe719de19eef7927dcf18e705d081030",
-  "scope": "Camp one-expedition entry atomically starts ordinary four-wave expedition and queues existing session-only return on complete victory; continuous start unchanged.",
-  "source_tests_passed": 2340,
+  "scope": "UI bound weapon next-character-level projection using unchanged immutable-anchor scaler; no mutation or new rule.",
+  "source_tests_passed": 2360,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "independent_focused_tests_passed": 22,
-  "primary_focused_tests_passed": 4,
-  "browser_acceptance": "Normal desktop candidate and formal PASS; readonly/fullbag/pending/IW/defeat/stale unit-only; no mobile/full accessibility or public HTTP per-file hashes.",
-  "publication": "v066 formal426e77fffe719de19eef7927dcf18e705d081030 Pages40762476547 success; normal desktop smoke PASS",
-  "recovery": "docs/RECOVERY-V066.md",
+  "new_focused_tests": 2,
+  "independent_focused_tests_passed": 18,
+  "browser_acceptance": "Pending v067; source DOM harness only.",
+  "publication": "v067 not published; formal v066 retained.",
+  "recovery": "docs/RECOVERY-V067.md",
   "files": {
     "README.md": {
-      "bytes": 72451,
-      "sha256": "8f04f509b7305fe8dbdfbcea79950bbed1ea157fa1b2efcda3e8566fa9a17cba"
+      "bytes": 73470,
+      "sha256": "43da5a80a1854407815821681509e839c8dd6385c5b1aac3343eeb513f30077c"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -653,8 +653,8 @@
       "sha256": "8744c5ea817eeadd2319d53c4f958be8dff478658117800b01560ea0dbdf2c0e"
     },
     "docs/ORIGINAL-HV.md": {
-      "bytes": 55064,
-      "sha256": "5fd8f94deccfe9c43e418e67d314ba2feb9b230d101cb6a07b07adb988b75b6a"
+      "bytes": 55618,
+      "sha256": "db703727697f36cfc26fbe3bb7aa570d74112dc30238511d93c27f90fd6cd2bf"
     },
     "docs/PARRY-GEAR-GUIDE.md": {
       "bytes": 6825,
@@ -896,6 +896,14 @@
       "bytes": 1989,
       "sha256": "3d4a22adaf201f6cadee36061434c7b889c078968dfda98a4d8227b557b0b5cd"
     },
+    "docs/QA-V067-INDEPENDENT.md": {
+      "bytes": 3308,
+      "sha256": "91675fdb8a2e7a5f3621a375a4aab8979e17f1a59c11d41ed2f1ac8ea8c70992"
+    },
+    "docs/QA-V067.md": {
+      "bytes": 2181,
+      "sha256": "287db1cdc40b73ac9bce1f784e89237109a78cc5adb699c33413482e002cf5a2"
+    },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
@@ -1076,6 +1084,10 @@
       "bytes": 1493,
       "sha256": "0c1017f94504b32518c56e5142580dbc6ea66169bf65370678d8c7ab217f5ea4"
     },
+    "docs/RECOVERY-V067.md": {
+      "bytes": 1727,
+      "sha256": "97b123f01737bce869aa33923a78df55cc8e712fc783d767fe3ddd556bfe6092"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -1085,8 +1097,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 55217,
-      "sha256": "fd348a917d43a37128d66a1035b857e45b0238f3352358887a3d497b4f849288"
+      "bytes": 56236,
+      "sha256": "35eccb30ad42f2685d4406e0f90f88fd775537b958bed871542a12636dbcdcbf"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1121,8 +1133,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 75162,
-      "sha256": "c4160596998fa6d6efa9261bb6fe636b71aac15ec31ef3d085d37e761072198b"
+      "bytes": 76181,
+      "sha256": "51c9a77f4d5bef417ac3363bcadd91bcc0ce5746df53d374cbd921fa5f328d21"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1342,11 +1354,11 @@
     },
     "index.html": {
       "bytes": 46940,
-      "sha256": "25b111a8fb7c02cafd33cbd1fc81eb20dbf6f6afecf91bfc081ae209796234b0"
+      "sha256": "1d5b39287218b768b50bbef38d114cbec346d4338a35cd7d11fed152a6f6e1e0"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "fb81f93208c1c7da9c2e713ae095bc557e7e04527f1f63603e64e8ebb7f5076a"
+      "sha256": "6ea5f62c930b5e332fed288d3246b8265ff462e510aaa18b7ee70dd8c1392dde"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1433,8 +1445,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 178618,
-      "sha256": "d83d35f30cb007987c4abd38a7287d076db082b62d9bc253c9641d57b39eddcb"
+      "bytes": 180931,
+      "sha256": "3e4c14a0b32fa168178fa26f4bc5ffdcf467dec012a969add9535faa5d65c587"
     },
     "style.css": {
       "bytes": 74711,
@@ -1478,7 +1490,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12273,
-      "sha256": "bec8d69692f011ed91985fe4b840b28a769b4b6cf3b24a60c7526359b52089d8"
+      "sha256": "542c7523366c6097c126f64a1ddc1b8253cca485112db82b9feeba591ce88f11"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1562,7 +1574,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18414,
-      "sha256": "ea3e50138e4af0a50f79d08e209a942f90b80301877dd055f41b13caccc44f26"
+      "sha256": "a2a483691f21631b541473f95b62dd72e441c128210c9e6578b932190aae1c37"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16797,
@@ -1578,7 +1590,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "e00c0756c637c69e163b4072958d5882eac8b0262b2f141d416ddbf52ad1f5d0"
+      "sha256": "2b0329f3f7b11d546b80bb032fee52d5ecd5eb2e9dd38c698c5659f44f789362"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1622,7 +1634,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "1455bd1b97e91c7f0957f339716671acd741a07988a6f91473e98170e99e4516"
+      "sha256": "c3408eb8d7a6e3915410c59afb158638be402b5f66b4b435ba331afcc52b328f"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11471,
@@ -1977,12 +1989,16 @@
       "sha256": "08d58931a116c21f919a3f0c997c743739efc33d95cb871324434bcdc9ecc969"
     },
     "tests/helpers/single-expedition-baseline.mjs": {
-      "bytes": 2517,
-      "sha256": "204a5eaa11bfa851521e17774005af276e290a393497680195e70192ca220914"
+      "bytes": 2630,
+      "sha256": "38b253d97575abc03878608a1789cc3fc3d83de0cc2c1453a9c19e97319adb82"
     },
     "tests/helpers/soulbind-compat.mjs": {
       "bytes": 1684,
       "sha256": "91a080ce3908a8a3b2a453f2bbb71aaefd68745eb6dd5525e4ebd1b8b94713fa"
+    },
+    "tests/helpers/soulbound-growth-baseline.mjs": {
+      "bytes": 3025,
+      "sha256": "c8271ff020dc36e43377c5eea1daf1a60dafe8938d8796126c11fd501fccd27b"
     },
     "tests/helpers/stat-delta-baseline.mjs": {
       "bytes": 1246,
@@ -2046,7 +2062,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "52b11fc54b0456c790049a57aecd79e5a17d72e276bfc77dc05320d3cbb8e66c"
+      "sha256": "952a32d018fa06d381420f2f6cca23371298750ee134da6e56edf7633a80c952"
     },
     "tests/loadout-preview-audit.test.mjs": {
       "bytes": 7382,
@@ -2158,7 +2174,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "48af370a17304148bbc6beba526aa6f3dc10f1a08af76778c10d4b3084e58dd1"
+      "sha256": "490cd871e5f3e3274009ad828e0ca5b8a29dfc8a4e499369362efd55356d0ae1"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -2202,7 +2218,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "c687814d8f747705eaed9aeba151063d560a284eb8bcb01b394295227ca380ad"
+      "sha256": "61e44a2d4a802f8e765cc5351cf8a35c8290d53bb8df1d6c6a5ad52e21da63b9"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -2290,7 +2306,15 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18283,
-      "sha256": "9269e1cd7e5a04f18fbd1a93fc8b272f0e6d9816bfeca26ccf3b776d248dc2b3"
+      "sha256": "369b13810f2c60ffb2ce60b6880c57fc593c8d095f3452ccc86f39c917720c61"
+    },
+    "tests/soulbound-growth-audit.test.mjs": {
+      "bytes": 7424,
+      "sha256": "ff29d791a35b3219bfa10245c48a53fa05f17f5a86590aea94049e908a3c4069"
+    },
+    "tests/soulbound-growth.test.mjs": {
+      "bytes": 2421,
+      "sha256": "6ebd60ee785781ecd9a9a936c49c8cd7a3f1889ae49c08d77dea446685a1c546"
     },
     "tests/stat-delta-audit.test.mjs": {
       "bytes": 3200,
@@ -2321,8 +2345,8 @@
       "sha256": "7f8cd0b67251fbaf6cd1f2b4395249f9572c9638afb7768485a5c50e604c2dc2"
     },
     "tests/ui.test.mjs": {
-      "bytes": 3025,
-      "sha256": "62d6075097db0bca556f078192377b04b27e90f43feb40bd2b974270035e998a"
+      "bytes": 3045,
+      "sha256": "6cda73915397a679465ae935b162068cb6f330126a9671f201ea8387655e9c5a"
     },
     "tests/v010-acceptance.test.mjs": {
       "bytes": 18083,
@@ -2398,8 +2422,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "41957f57efa8dc19a28faf26cf0df3f8ef831bc56ac4ad5e6dbac36e7411b960"
+      "sha256": "86a26e56a68d9e64875e8fac055400001dfc339edf24b85dcd3eb5891c3d543b"
     }
-  },
-  "test_evidence": "Inherited unchanged runtime/tests from205 fresh2340+4syntax PASS; no207 rerun claimed"
+  }
 }

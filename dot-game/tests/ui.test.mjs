@@ -35,7 +35,7 @@ test('UI has export/import, keyboard-native buttons, help and actionable equipme
 test('all eight quality labels come from the loot tiers without falling back', () => {
   const declaration = js.match(/const qualityNames = [^;]+;/)?.[0];
   assert.ok(declaration, 'qualityNames declaration exists');
-  assert.match(js, /import \{ QUALITY_TIERS \} from '\.\/loot\.js'/);
+  assert.match(js, /import \{ QUALITY_TIERS, scaleSoulboundItem \} from '\.\/loot\.js'/);
   const labels = runInNewContext(`${declaration} qualityNames`, { QUALITY_TIERS });
   assert.equal(QUALITY_TIERS.length, 8);
   assert.equal(Object.keys(labels).length, 8);

@@ -335,3 +335,7 @@ The existing 10% inter-wave HP recovery is this game's adaptation, not an origin
 ## v065 inventory raw-stat sorting boundary
 
 Descending sorting by the seven existing equipment stat fields is an independent inventory-interface adaptation. It does not assert an original-HV sorting rule or change stat interpretation, item generation, growth, effective character calculations, or combat. It compares owned displayed item values (including existing bound/IW-adjusted values), not hypothetical character deltas, DPS, or win probability. Missing fields compare as zero without adding fields to legacy items. Equal values retain newest-acquired display order. The preference is transient page UI state, not a saved build configuration.
+
+## v067 next-level weapon observation adapter
+
+The original-research-backed soulbinding concept and the existing local immutable-anchor growth integration are unchanged. This view calls the very same `scaleSoulboundItem` used for actual growth at character level + 1, retaining existing IW1. It reports this weapon's stats only, not a future character build, future drops or original-HV UI. Rounding and capped rates can produce unchanged individual values. Level 500 has no next level in this game. No prediction is committed and no resource is spent.
