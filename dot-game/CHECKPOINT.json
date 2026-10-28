@@ -1,24 +1,24 @@
 {
-  "checkpoint": "180-v056-wave-growth-recovery",
-  "version": "0.56.0",
+  "checkpoint": "182-v057-effective-potion-feedback",
+  "version": "0.57.0",
   "status": "source-tested-browser-pending",
-  "source_base": "eaf6e784782a781114352d729a11d0b025f3032a",
+  "source_base": "36b2be0887262446526e10294869ba1886d2194c",
   "base_accepted_recovery": "eaf6e784782a781114352d729a11d0b025f3032a",
   "accepted_website": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
-  "scope": "Post-kill current-max-HP wave recovery; prevents level-up health loss. Existing 10% adaptation, rewards and formulas retained; later combat trajectories may differ because health is corrected.",
-  "source_tests_passed": 2158,
+  "scope": "Potion event reports rounded effective HP restoration, not capped-away nominal amount. Healing, consumption, RNG and game outcomes unchanged.",
+  "source_tests_passed": 2180,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "new_focused_tests": 8,
-  "independent_focused_tests_passed": 16,
-  "browser_acceptance": "Pending for v056. Source/unit validation only; no website writes.",
+  "new_focused_tests": 7,
+  "independent_focused_tests_passed": 15,
+  "browser_acceptance": "Pending for v056 and v057. Source tests only; no website writes.",
   "publication": "Not published; formal v055 remains unchanged.",
-  "recovery": "docs/RECOVERY-V056.md",
+  "recovery": "docs/RECOVERY-V057.md",
   "files": {
     "README.md": {
-      "bytes": 54914,
-      "sha256": "1f7f8ad68952e940d88558fca42d918aeb8b878a9f0ec89b4e7431a5575650ef"
+      "bytes": 56044,
+      "sha256": "a33bacd337322b79dd07684d741dc8988e2bcc0718486848c12456c030b634bc"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -736,6 +736,14 @@
       "bytes": 1618,
       "sha256": "49d945feabb108cd3f9bdd22f23708b011994759b288cb94f52a9c3f822823f8"
     },
+    "docs/QA-V057-INDEPENDENT.md": {
+      "bytes": 2068,
+      "sha256": "7135f031362226b5806b94281c3392533e4ae530aa914299465f5a57ac8c80ce"
+    },
+    "docs/QA-V057.md": {
+      "bytes": 1542,
+      "sha256": "a9310830bf5142c9a2ba22f9d5b82f899bf8b13d6072611b36f85a4c6931fcea"
+    },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
@@ -876,6 +884,10 @@
       "bytes": 1141,
       "sha256": "3d4a5ab4c9dd37bc51b30a58eb403ca77c6d7132de1b55182e2be8820b9ca2bd"
     },
+    "docs/RECOVERY-V057.md": {
+      "bytes": 1283,
+      "sha256": "d818eaece3189a60ca3f8e146a5c816c064341f56d73f5f672ed8d7c633ee3da"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -885,8 +897,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 40190,
-      "sha256": "6aa7653df42dd2ff952d1f17bd452a37ae1f027d81a4f414b1fa37e744cc1b41"
+      "bytes": 40624,
+      "sha256": "bd324801c8ba61566ae71182bbb24d5c917c9fea5aac300c401ec3cefc90cf6f"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -921,8 +933,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 57625,
-      "sha256": "603bbb999c8cd598966fedc9493d06c66ce45489220c5a5e8c3d7151c94b4781"
+      "bytes": 58755,
+      "sha256": "4373e7780e5d02a44072c6332c54b8dc79c415dc016f5eb7bf30d15958c54e7a"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1142,11 +1154,11 @@
     },
     "index.html": {
       "bytes": 46410,
-      "sha256": "6d188a64c0c56e6746e6b73a1e5360c94ff35e0a13495e6c2b14b6b983a53204"
+      "sha256": "0dd0375c99bc5195d0063a5cffb820be9d3937d7615e1f8436a5a5bcf74a1295"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "3e7c5ae9bad41a439f13db0eae82dd3a508293d47a185e44b14d72a186526448"
+      "sha256": "51b870783f959c416f32767c3a775cfe7dc2b06f69d22c51e79aa48db27ef93a"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1221,8 +1233,8 @@
       "sha256": "4e994d9ee6c3e18460889137dfc64fd219b3d6dfd5158313ceb1fecfeaf14696"
     },
     "src/engine.js": {
-      "bytes": 113310,
-      "sha256": "9976035a2b62cad8daf88aa2885c32c20923851f89910545c81de2ae4403d4f0"
+      "bytes": 113436,
+      "sha256": "c52d56e9f1b16a2dee8867b060440bdae77c903f387e91abcce85412c565443c"
     },
     "src/loot.js": {
       "bytes": 30510,
@@ -1278,7 +1290,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "23a52a547c4b2abfd5bb32e96fc470a491841e97d3b5b81ec20cc93f1606a82a"
+      "sha256": "12d5eb358748fc677fbb9331cf62f01ca88ee1e2b627e199daaa0dbff627c5d3"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1294,7 +1306,7 @@
     },
     "tests/camp-chest-independent.test.mjs": {
       "bytes": 9517,
-      "sha256": "e7b6dc39c2d4b127baf43cced6badcce8149f5e1cd376e39442b244006a37e57"
+      "sha256": "a763cc51fa6bc4afabdc631565f2924cd640e4570a8ecd23230ada32385d8dc6"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1354,7 +1366,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18341,
-      "sha256": "38070a0f686a37ba6b69204c8e219403baaa36fa698a20a01f7f7fae023ba8cb"
+      "sha256": "e7d8e70b64ab2255135c7e533f7771c8b9a52b1687bf6cc12d51136b4838769b"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16797,
@@ -1370,7 +1382,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "97f7ec93a69cd68e68465bd74da0a158ef6e8c366e6a8bedf911cd5f3a06c37a"
+      "sha256": "02417304710dee8608c68fcce2de573760d440c741684f34e3bc736c7da898c1"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1406,7 +1418,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "f7b3adcb91158efa471ea8d8cb74a877c60ea74a06f46a2d896f44b176b9eb07"
+      "sha256": "48357881d93d6253049ade6fa550785031acdd08a1445d02ea414f456c4aba14"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11471,
@@ -1708,6 +1720,10 @@
       "bytes": 2336,
       "sha256": "7e3d40fee80a6063ce43ff4636a04555a243adc9cd3b8d433886aa9ff267daf1"
     },
+    "tests/helpers/potion-feedback-baseline.mjs": {
+      "bytes": 865,
+      "sha256": "060ab70105b51f45e54207f366869b4ed54c37b98f8e654057db6337a1215d7e"
+    },
     "tests/helpers/protection-filter-baseline.mjs": {
       "bytes": 4175,
       "sha256": "9b87516d11cd60937617b095a1fbad39090849af71151a222ae89316169e97d0"
@@ -1733,8 +1749,8 @@
       "sha256": "5c71848dffa684c49c3349941400c4333c93f354a39778b6632cdebdb2d8b9ae"
     },
     "tests/helpers/wave-growth-baseline.mjs": {
-      "bytes": 1995,
-      "sha256": "3a6684e82a1cde64f9c37677a27db100920245e9870fbf316a48d0e111e645a6"
+      "bytes": 2107,
+      "sha256": "ca27e77ccd7c306d39eddfe01552fea2293aec19318a3785f87da43ab465d99d"
     },
     "tests/import-order-audit.test.mjs": {
       "bytes": 9242,
@@ -1774,7 +1790,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "5eae02b2d80126929fcd5ce7396dea15000ae549bf8278a0d64573e0d3652f58"
+      "sha256": "0254479253cedf2f6a3acb5865450d61a9e371c156942e5584d6135bb3b0037f"
     },
     "tests/loadout-preview-audit.test.mjs": {
       "bytes": 7382,
@@ -1840,6 +1856,14 @@
       "bytes": 16886,
       "sha256": "18502d1c8b0b8d8be3c89cd9f630216d15527f198d94bc0b5f5df408bae6ff60"
     },
+    "tests/potion-feedback-audit.test.mjs": {
+      "bytes": 3969,
+      "sha256": "66968108942a97278eb1d18e290ae52472a4fe290967574ace1064c796a45140"
+    },
+    "tests/potion-feedback.test.mjs": {
+      "bytes": 2300,
+      "sha256": "2b4c34eff28e6926f506306e6683a66f8341405c67e4a293fadf5a2ed1c42c79"
+    },
     "tests/protection-filter-audit.test.mjs": {
       "bytes": 3966,
       "sha256": "a409ef12607eba4d6a52d2d6b1732873da927049331e9d63096da9f368eeeeea"
@@ -1878,7 +1902,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "d73fa4158a839bcdcf2e85adc8dd540dc270f63cf72e74f02845fa0626bb3376"
+      "sha256": "b863d4c38702caf0f13b031478c1aab57b24e4dbb2f373a4975610763f0c91e7"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -1914,7 +1938,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "f8f8a3fc48dcfa920807cef00890d3e3f6531e9f2d00e65a1ee0439276c0be59"
+      "sha256": "2aa6f376dedda4ceca9f822d7cecae6e96aae2603ee34c85217163e9f066ba48"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -1978,7 +2002,7 @@
     },
     "tests/soulbind-ui.test.mjs": {
       "bytes": 18088,
-      "sha256": "a463747f0a375bb79e3b45943129536598d9902e2bf1472ba04cc2035324312b"
+      "sha256": "531ba7ff063f3b89706a133dd21323209503d44fe10085a9d7395080f3a37f0d"
     },
     "tests/stat-delta-audit.test.mjs": {
       "bytes": 3200,
@@ -2033,8 +2057,8 @@
       "sha256": "3ee63d8b0b07f5790c61ac8672e489e082e1ec12557852cc23d8d4b1566844d2"
     },
     "tests/v05-acceptance.test.mjs": {
-      "bytes": 24343,
-      "sha256": "b7eeb89619dd4bef659208305c2ccbfca00adfad23447fbd71477b2cb25090d7"
+      "bytes": 24458,
+      "sha256": "a857c7a6537c22c6d12def8c45e2c4a6faf6da9b8c8cdf5b7b3016f7d90db609"
     },
     "tests/v06-acceptance.test.mjs": {
       "bytes": 29345,
@@ -2078,7 +2102,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "b97669428af69da040bc7ee5bc3abde09b023e81b03abcc3ede16d5fc6e501ac"
+      "sha256": "58ef3ca3b4410c95d46c9196ad8daa5165c2425f9219f2379823ebe9bbf30280"
     }
   }
 }

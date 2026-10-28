@@ -1,3 +1,4 @@
+import {beforePotionFeedback} from './potion-feedback-baseline.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
@@ -7,6 +8,7 @@ function once(source,from,to){assert.equal(source.split(from).length-1,1,`exact 
 /** Only undo v056 for historical byte-identity audits. Never masks other edits. */
 export function beforeWaveGrowth(source,path){
  if(path!=='src/engine.js')return source;
+ source=beforePotionFeedback(source,path);
  for(const [from,to] of [
   ['function finishWave(s) {','function finishWave(s, maxHp) {'],
   [newRecovery,oldRecovery],

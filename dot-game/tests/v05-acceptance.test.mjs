@@ -1,3 +1,4 @@
+import {beforePotionFeedback} from './helpers/potion-feedback-baseline.mjs';
 import {generateItem as preParryGenerateItem} from './fixtures/v0.14/loot.js';
 import test from 'node:test';
 import * as historicalV08 from './fixtures/v0.8/engine.js';
@@ -238,7 +239,7 @@ test('historical pre-parry: v0.5 independent: unchanged resolver/rewards and his
     ['enemyTurn','d52ac2e7b95ec9c00691851d3a3716a66e3f05a93e12fcb29d6a882a969a1f0b'],
     ['recoverStunnedEnemies','3793f627724f1f5063ada2aa8133bb666fa0304b8ec072fbba06800a94eb33c8'],
     ['usePotion','f206089133516eacdb5c692b555de6909acd22326248522db65ab34c846be842'],
-  ])assert.equal(sha256(region(['resolveAttack','enemyAttack','enemyTurn','recoverStunnedEnemies'].includes(name)?historicalV081Source:source,`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
+  ])assert.equal(sha256(region(['resolveAttack','enemyAttack','enemyTurn','recoverStunnedEnemies'].includes(name)?historicalV081Source:beforePotionFeedback(source,'src/engine.js'),`function ${name}(`,'\n}\n')+'\n}\n'),digest,name);
   // v0.23 adds bound-item synchronization inside gainXp. Preserve the original
   // byte guard against accepted v0.22; current rewards retain behavioral coverage.
   const historicalV022Source=readFileSync(new URL('./fixtures/v0.22/engine.js',import.meta.url),'utf8');

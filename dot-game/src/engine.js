@@ -1250,9 +1250,11 @@ function refillPending(s){while(s.pendingLoot.length&&s.inventory.length<INVENTO
 function usePotion(s) {
   const p=stats(s);
   if(s.potions>0&&s.hero.hp<p.maxHp){
+    const previousHp=s.hero.hp;
     s.potions--;s.battle.actions.potions++;
     s.hero.hp=Math.min(p.maxHp,s.hero.hp+p.maxHp*.4);
-    event(s,'heal','補給藥水',Math.round(p.maxHp*.4),'hero');
+    // Feedback reports effective recovery, not the nominal amount lost to the cap.
+    event(s,'heal','補給藥水',Math.round(s.hero.hp-previousHp),'hero');
   }
 }
 export function act(s, action, payload) {
