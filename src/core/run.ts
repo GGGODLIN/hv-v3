@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, ocMob12m, ocRest12m, ocPotDrop12m, OC12M, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -338,8 +338,8 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
       if (RULES.cp8 && CP9.on && deepK12g(lean) > 0 && (ab || run.floor) > DEEP12G.from) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * deep12g(F, 'hp', lean))); m.adb *= deep12g(F, 'dmg', lean); if (m.rank === 'boss') { const pl = plainAt12h(F, lean); if (pl != null) (m as { plain12h?: number }).plain12h = pl; const pc = potCdAt12h(F, lean); if (pc) (m as { potCd12h?: number }).potCd12h = pc; const ce = lean ? DEEP12G.chgE[lean] : undefined; if (ce && F >= DEEP12G.chgFrom) (m as { chargeEvery12k?: number }).chargeEvery12k = ce; } } // rc12g item 1（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && lean === 'bulwark' && DEEP12G.bwBossHp !== 1) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * bwBossHp12i(ab || run.floor))); // rc12i（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && (lean === 'arcane' || lean === 'oc')) { m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * aoBossHp12j(ab || run.floor, lean))); if (lean === 'oc') { m.adb *= ocDmg12l(ab || run.floor); const pl = ocPlain12l(ab || run.floor); if (pl != null) (m as { plain12h?: number }).plain12h = pl; } } // rc12j item 4 / rc12l（自訂）
-      if (rank === 'boss' && lean === 'oc' && OC12M.on && RULES.cp8 && CP9.on) (m as { hitCap12m?: number }).hitCap12m = OC12M.hit; // rc12m 候選（自訂，預設關閉）
-      if (rank !== 'boss' && lean === 'oc') { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * ocMob12m(F, 'mobHp'))); m.adb *= ocMob12m(F, 'mobDmg'); } // rc12m 候選（自訂，預設關閉）
+      if (RUN12M.on && RULES.cp8 && CP9.on) (m as { hitCap12m?: number }).hitCap12m = RUN12M.hit; // rc12m（自訂）: any monster single hit ≤ 40% max HP
+      if (rank !== 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * mob12m(F, lean, 'mobHp'))); m.adb *= mob12m(F, lean, 'mobDmg'); } // rc12m（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
       return m;
     });
@@ -415,7 +415,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
             // rc19 (b) producer 2026-10-27: potion drops follow the original rolls (F-003-restorative-rolls). Unbuilt items (Draught/Elixir/crystals...) drop nothing.
             const RR = C['F-003-restorative-rolls'].value;
             const ac = RULES.potDropAccel && !ADVICE_DIAG.revert.has('potdrop') ? RULES.dropAccel : 1; // rc10 spec item 1（自訂）
-            if (rng.chance(Math.min(1, RR.restoratives * ac * ocPotDrop12m(p?.lean))) && rng.chance(Math.min(1, RR.potion * ac))) { const k = RR.types[rng.int(0, RR.types.length - 1)] as PotionId; loot.potions[k] = (loot.potions[k] ?? 0) + 1; }
+            if (rng.chance(Math.min(1, RR.restoratives * ac * (RULES.cp8 ? r12m(p && curveSchool12g(p), 'drop') : 1))) && rng.chance(Math.min(1, RR.potion * ac))) { const k = RR.types[rng.int(0, RR.types.length - 1)] as PotionId; loot.potions[k] = (loot.potions[k] ?? 0) + 1; }
           } else {
             const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]); // pre-rc19 (no source)
             loot.potions[k] = (loot.potions[k] ?? 0) + 1;
@@ -423,7 +423,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot')) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
+    if (type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot') && (!RULES.cp8 || r12m(p && curveSchool12g(p), 'elite') >= 1 || rng.chance(r12m(p && curveSchool12g(p), 'elite')))) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
       const n = ab ? ABYSS.bossDrops : run.floor >= 10 ? 3 : 2; // CP6 r2 decision 6 (暫定): abyss bosses 2 + guaranteed
@@ -467,7 +467,7 @@ export function chestLoot(run: RunState, p?: Player): Loot {
   return withRng(run, (rng) => {
     const loot: Loot = {
       equips: Array.from({ length: rng.int(2, 3) }, () => generateEquip(rng, L, { minQuality: 'fair', qualityBump: (rng.chance(0.25) ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) })),
-      credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5) ? { health: 1 } : {}, exp: 0,
+      credits: rng.int(10, 30) * run.floor, potions: rng.chance(0.5 * (RULES.cp8 ? r12m(p && curveSchool12g(p), 'chest') : 1)) ? { health: 1 } : {} /* rc12m（自訂） */, exp: 0,
     };
     if (RULES.cp7 && p) { cp7Pity(rng, p, run, loot, L); }
     return loot;
@@ -531,7 +531,7 @@ export function rest(p: Player, run: RunState, choice: 'heal' | 'upgrade', equip
   const d = runDerived(p, run);
   if (choice === 'heal') {
     if (run.cp5) run.pdot = undefined;
-    run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * RULES.restHeal * ocRest12m(p.lean)));
+    run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * RULES.restHeal * (RULES.cp8 ? r12m(curveSchool12g(p), 'rest') : 1)));
     run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * RULES.restHeal));
     run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * RULES.restHeal));
     return `回復 ${Math.round(RULES.restHeal * 100)}% HP／MP／SP`;

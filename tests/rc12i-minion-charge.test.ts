@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer, derive } from '../src/core/player';
 import { encounter, startRun, RULES } from '../src/core/run';
-import { CP9 } from '../src/core/cp8';
+import { CP9, RUN12M } from '../src/core/cp8';
 import { act, startBattle, windingUp } from '../src/core/battle';
 import { starterKit } from '../src/core/auto';
 import { Rng } from '../src/core/rng';
@@ -29,7 +29,7 @@ describe('rc12i: minion charged-hit cap', () => {
     try { const w = worst(); expect(w).toBeGreaterThan(0); expect(w).toBeLessThanOrEqual(0.4); } finally { RULES.cp8 = o; }
   });
   it('without the cap the same hit goes past 40% (the cap is what holds it)', () => {
-    const o = RULES.cp8, c = CP9.minionCharge; RULES.cp8 = true; (CP9 as { minionCharge: number }).minionCharge = 0;
-    try { expect(worst()).toBeGreaterThan(0.4); } finally { RULES.cp8 = o; (CP9 as { minionCharge: number }).minionCharge = c; }
+    const o = RULES.cp8, c = CP9.minionCharge; RULES.cp8 = true; (CP9 as { minionCharge: number }).minionCharge = 0; RUN12M.on = false; // rc12m: RUN12M.hit also caps it
+    try { expect(worst()).toBeGreaterThan(0.4); } finally { RULES.cp8 = o; (CP9 as { minionCharge: number }).minionCharge = c; RUN12M.on = true; }
   });
 });
