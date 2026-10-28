@@ -5,12 +5,13 @@ import { CP8 } from '../src/core/cp8';
 describe('rc12g staff: A on a coalesced target is an Arcane Blow', () => {
   it('quick spell normally, attack when coalesced', () => {
     RULES.cp8 = true;
-    const s: any = { d: { style: 'staff' }, mp: 999, monsters: [{ hp: 10 }], cm9: [0], locked: new Set() };
+    const s: any = { d: { style: 'staff', mp: 1000 }, mp: 999, monsters: [{ hp: 10 }], cm9: [0], locked: new Set() };
     const a0 = quickAttack(s, 0);
     if (CP8.staffQuickSpell) expect(a0.kind === 'spell' || a0.kind === 'attack').toBe(true);
     s.cm9 = [3]; expect(coalesced9(s, 0)).toBe(true);
     expect(STAFF_BLOW_ON_CM).toBe(true);
-    expect(quickAttack(s, 0).kind).toBe('attack');
+    expect(quickAttack(s, 0).kind).toBe(a0.kind); // MP high → same as uncoalesced
+    s.mp = 100; expect(quickAttack(s, 0).kind).toBe('attack');
   });
 });
 import { leanAllows } from '../src/core/cp7';

@@ -523,7 +523,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     if (type === 'battle' || type === 'elite' || type === 'boss') {
       // rc16 item 3 sim: SIM_MAPPOT=1 drinks map potions (no CD) before a fight while HP < 50% (what the new map warning asks).
       if (ENV?.SIM_MAPPOT === '1') while (run.hp < runDerived(p, run).hp * MAP_LOW_HP && mapPotion(p, run) > 0);
-      const ms = encounter(run, pool, type);
+      const ms = encounter(run, pool, type, p.lean);
       const d = runDerived(p, run);
       const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp, oc: run.oc }, ms, p.potions); const hp0Pct = run.hp / d.hp; DIAG_FLOOR = run.floor; SIM_DIAG.floorBattles[run.floor] = (SIM_DIAG.floorBattles[run.floor] ?? 0) + 1; // sim diag
       SIM_DIAG.battles++; if (hp0Pct < 0.5) SIM_DIAG.low50++; if (hp0Pct < 0.3) SIM_DIAG.low30++;

@@ -94,8 +94,11 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
  *  ~850 up to F30, then +3.5 per floor (F100 ≈ 1095). Reference for CP9.bossAtk only. */
 /** rc12g item 1（自訂，製作人開放）: deep-floor curve from F = deepFrom: every monster (normal / elite / boss) HP and damage
  *  × (1 + deep·(F − deepFrom)/60) → F100 ×(1 + deep). Boss adb is still capped by bossAtk (rc12f) afterwards. 0 = off. */
-export const DEEP12G = { k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40 };
-export const deep12g = (f: number, part: 'hp' | 'dmg'): number => 1 + DEEP12G.k * (part === 'hp' ? DEEP12G.hpK : 1) * Math.max(0, f - DEEP12G.from) / 60;
+export const DEEP12G = { k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
+  /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
+  school: { blade: num('SIM_DEEP_BLADE'), oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') } as Record<string, number | undefined> };
+export const deepK12g = (lean?: string): number => (lean ? DEEP12G.school[lean] : undefined) ?? DEEP12G.k;
+export const deep12g = (f: number, part: 'hp' | 'dmg', lean?: string): number => 1 + deepK12g(lean) * (part === 'hp' ? DEEP12G.hpK : 1) * Math.max(0, f - DEEP12G.from) / 60;
 export const refHp9 = (f: number): number => 850 + 3.5 * Math.max(0, f - 30);
 /** cp9 rc2 (2)（自訂，暫定）: boss HP multiplier for a floor. */
 export const bossHp9 = (f: number): number => CP9.bossHp * (f <= 5 ? CP9.boss5 : f >= CP9.bossEnd ? CP9.boss30 : f <= 15 ? CP9.boss5 + (CP9.boss15 - CP9.boss5) * (f - 5) / 10 : CP9.boss15 + (CP9.boss30 - CP9.boss15) * (f - 15) / (CP9.bossEnd - 15));
