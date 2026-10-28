@@ -42,7 +42,7 @@ export function snapBeforeBoss(st: St, runId: string, floor: number, level: numb
   const key = `${QA_SNAP}${runId}:F${floor}`;
   let idx = readJson<string[]>(st, QA_SNAPIDX, []).filter((k) => k !== key); idx.push(key);
   while (idx.length > QA_SNAPCAP) { const old = idx.shift()!; st.removeItem?.(old); }
-  const body = JSON.stringify({ at: new Date().toISOString(), runId, floor, level, player, run });
+  const body = JSON.stringify({ at: new Date().toISOString(), rngAt: 'pre-encounter' /* rc12f: saved before the boss roll */, runId, floor, level, player, run });
   for (;;) { try { st.setItem(key, body); break; } catch { const old = idx.shift(); if (!old || old === key) break; st.removeItem?.(old); } } // quota: drop oldest
   try { st.setItem(QA_SNAPIDX, JSON.stringify(idx)); } catch { /* ignore */ } return key;
 }
