@@ -122,7 +122,7 @@ export const potCdAt12h = (f: number, lean?: string): number => { const t = lean
 
 /** rc12j item 4（自訂）: arcane/oc boss HP × aoBossHp F30–65, linear back to ×1 at F100 (keeps the preset-hint F100 rate near rc12i). */
 /** rc12l 製作人（自訂）: oc-lean boss HP × this F30–65 instead of aoBossHp (1 = rc12j's 0.8 removed for oc; arcane unchanged). */
-export const OC12L = { bossHp: num('SIM_AOBOSSHP_OC') ?? 1, /** rc12l（自訂）: oc boss adb × 1 at F70, linear to × dmg100 at F100. */ dmg100: num('SIM_OCDMG100') ?? 1, /** rc12l（自訂）: oc boss un-telegraphed per-turn cap at F100 (bossPlain at F70, linear; ≤ bossAtk). */ plain100: num('SIM_OCPLAIN100') ?? 0 };
+export const OC12L = { bossHp: num('SIM_AOBOSSHP_OC') ?? 1, /** rc12l（自訂）: oc boss adb × 1 at F70, linear to × dmg100 at F100. */ dmg100: num('SIM_OCDMG100') ?? 1.5, /** rc12l（自訂）: oc boss un-telegraphed per-turn cap at F100 (bossPlain at F70, linear; ≤ bossAtk). */ plain100: num('SIM_OCPLAIN100') ?? 0.3 };
 export const ocPlain12l = (F: number): number | undefined => OC12L.plain100 > 0 && F >= 70 ? Math.min(CP9.bossAtk, CP9.bossPlain + (OC12L.plain100 - CP9.bossPlain) * Math.min(1, (F - 70) / 30)) : undefined;
 export const ocDmg12l = (F: number): number => F < 70 ? 1 : 1 + (OC12L.dmg100 - 1) * Math.min(1, (F - 70) / 30);
 export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp : DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };

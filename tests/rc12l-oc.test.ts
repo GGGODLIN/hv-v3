@@ -7,3 +7,11 @@ describe('rc12l oc boss HP', () => {
     expect(aoBossHp12j(50, 'arcane')).toBeCloseTo(0.8); expect(aoBossHp12j(100, 'arcane')).toBeCloseTo(1);
   });
 });
+import { ocDmg12l, ocPlain12l } from '../src/core/cp8';
+describe('rc12l oc F70+ damage (自訂)', () => {
+  it('×1 before F70, ramps to ×1.5 at F100; plain raised F70+', () => {
+    expect(ocDmg12l(50)).toBe(1); expect(ocDmg12l(69)).toBe(1);
+    expect(ocDmg12l(100)).toBeCloseTo(1.5); expect(ocDmg12l(85)).toBeGreaterThan(1);
+    expect(ocPlain12l(50)).toBeUndefined(); expect(ocPlain12l(100)).toBeCloseTo(0.3);
+  });
+});
