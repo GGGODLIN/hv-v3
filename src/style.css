@@ -366,3 +366,8 @@ svg.routes .e-past { stroke: var(--gold, #e8b04a); stroke-width: 3.5; }
 .node.mhl { border-color: #e0b84a; box-shadow: 0 0 0 2px #e0b84a66; }
 .node .mmark { display: block; color: #ffd76a; font-weight: bold; }
 .node .rhint { display: block; color: #7cf29a; font-weight: bold; } /* rc10 spec item 2 */
+/* rc12c item 1: the single ★ key */
+.screen-battle .cmdbar button.primary { outline: 3px solid #ffd84a; box-shadow: 0 0 16px #ffd84a; }
+.primarybar { color: #ffd84a; }
+.decide.calm { border-color: #ffd84a66; background: rgba(40,30,5,.55); animation: none; }
+.decide .why { opacity: .85; }

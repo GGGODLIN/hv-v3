@@ -28,7 +28,7 @@ describe('rc19 (a) Z highlight follows chargeAdvice (QA rc16 oc4 F6)', () => {
     expect(chargeAdvice(b).keys).toContain('Z'); expect(zHint(b)).toBe(true);
   }));
   it('the battle UI lights Z through zHint, not potHint', () => {
-    expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/zHint\(b, this\.target\) \? 'class="suggest pothint"/);
+    expect(readFileSync('src/game/app.ts', 'utf8')).toMatch(/pk\?\.key === 'Z' \? 'class="suggest primary pothint"/) // rc12c: Z lights only as the ★ key (primaryKey reads chargeAdvice);
   });
 });
 
