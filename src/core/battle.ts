@@ -685,7 +685,7 @@ export function whyNot(s: BattleState, a: Action): string {
   switch (a.kind) {
     case 'skill': return s.cooldowns[a.id] > 0 ? `冷卻中（${s.cooldowns[a.id]} 回合）` : s.oc < skillOc(s, a.id) ? `OC 不足（需 ${skillOc(s, a.id)}，現有 ${Math.floor(s.oc)}）` : '目標血量未低於門檻';
     case 'spell': return `MP 不足（需 ${spellCost(s, a.id, retarget(s, a.target))}）`;
-    case 'item': return s.potions[a.id] <= 0 ? '藥水用完了' : `藥水冷卻中（${s.itemCd[a.id]} 回合）`;
+    case 'item': return s.potions[a.id] <= 0 ? '藥水用完了' : `藥水冷卻中（還剩 ${s.itemCd[a.id]} 回合）`;
     case 'spirit': return s.oc < SPIRIT_MIN_OC ? `OC 不足（需 ${SPIRIT_MIN_OC}，現有 ${Math.floor(s.oc)}）` : `SP 不足（需 ${SS.spPerTurn}）`;
     default: return '無法行動';
   }

@@ -30,6 +30,6 @@ await pg.evaluate(() => { const hv = window.hv; hv.startRun(); hv.enterNode(0); 
 await pg.evaluate(() => { const hv = window.hv; hv.battle.hp = Math.round(hv.battle.d.hp * 0.3); hv.command('item:health'); }); await w(1500);
 res.b = await pg.evaluate(() => { const b = document.querySelector('[data-act="item:health"]'); return { cd: window.hv.battle?.itemCd.health, potcd: b?.dataset.potcd, aria: b?.getAttribute('aria-disabled'), small: b?.querySelector('small')?.textContent, suggest: b?.classList.contains('suggest'), bg: b && getComputedStyle(b).backgroundImage.slice(0, 24), icon: b && getComputedStyle(b.querySelector('.icon')).filter }; });
 await pg.screenshot({ path: '/tmp/rc2-b.png' });
-if (!(res.b.cd > 0) || res.b.potcd !== String(res.b.cd) || res.b.aria !== 'true' || !new RegExp(`^冷卻 ${res.b.cd}｜剩 \\d+$`).test(res.b.small) || res.b.suggest || !res.b.icon.includes('grayscale')) fail.push('b');
+if (!(res.b.cd > 0) || res.b.potcd !== String(res.b.cd) || res.b.aria !== 'true' || !new RegExp(`^藥水冷卻中（還剩 ${res.b.cd} 回合）｜剩 \\d+ 瓶$`).test(res.b.small) || res.b.suggest || !res.b.icon.includes('grayscale')) fail.push('b');
 res.errs = errs; if (errs.length) fail.push('errs');
 console.log(JSON.stringify(res)); console.log(fail.length ? `E2E FAIL ${fail}` : 'E2E PASS (a)(b)(d)'); await br.close(); process.exit(fail.length ? 1 : 0);

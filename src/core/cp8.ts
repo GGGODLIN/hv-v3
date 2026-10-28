@@ -102,7 +102,7 @@ export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × th
   /** rc12h（自訂）: boss un-telegraphed per-turn cap at F100 for this school (linear from bossPlain at `from`; clamped ≤ bossAtk). */
   plainS: { bulwark: num('SIM_DEEPPLAIN_BULWARK') ?? 0.4 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: extra health-potion cooldown turns in this school's boss fights at F100 (linear from 0 at `from`). */
-  potS: { bulwark: num('SIM_DEEPPOTCD_BULWARK') ?? 30 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  potS: { bulwark: num('SIM_DEEPPOTCD_BULWARK') ?? 6 /* rc12k 製作人決定（自訂）: 上限 +6（rc12h 為 30） */ } as Record<string, number | undefined>,
   atkS: { bulwark: num('SIM_DEEPATK_BULWARK') ?? 3 /* rc12h 預設（自訂）；adb 仍受 bossAtk 上限 */ } as Record<string, number | undefined> };
 /** rc12g step 3（自訂）: school for the deep curve — lean, else by main hand (presets blade / oc carry no lean): 2H → blade, staff → arcane, 1H → oc. */
 export const curveSchool12g = (p: { lean?: string; equipped: { mainHand?: { group?: string } } }): string | undefined =>
@@ -121,6 +121,8 @@ export const potCdAt12h = (f: number, lean?: string): number => { const t = lean
 /** rc12j item 4（自訂）: arcane/oc boss HP × aoBossHp F30–65, linear back to ×1 at F100 (keeps the preset-hint F100 rate near rc12i). */
 export const aoBossHp12j = (F: number): number => { const h = DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
 /** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
-export const bwBossHp12i = (F: number): number => { const h = DEEP12G.bwBossHp, a = DEEP12G.bwBossFlat, e = DEEP12G.bwBoss100; return F < DEEP12G.bwBossFrom ? 1 : F <= a ? h : h + (e - h) * Math.min(1, (F - a) / (100 - a)); };
+/** rc12k item 1（製作人，自訂）: after F65 the rise is geometric (same × per floor, ≈ ×1.43 / 5 floors at 0.2→2.5) instead of linear,
+ *  so F65→F70 is no longer a ×2.6 step. SIM_BWLINEAR=1 = the rc12i linear ramp (comparison only). */
+export const bwBossHp12i = (F: number): number => { const h = DEEP12G.bwBossHp, a = DEEP12G.bwBossFlat, e = DEEP12G.bwBoss100; if (F < DEEP12G.bwBossFrom) return 1; if (F <= a) return h; const r = Math.min(1, (F - a) / (100 - a)); return num('SIM_BWLINEAR') === 1 || h <= 0 || e <= 0 ? h + (e - h) * r : h * (e / h) ** r; };
 /** rc12i（自訂）: bulwark boss-cap factor at floor F. */
 export const bwCap12i = (F: number): number => { const h = DEEP12G.bwCap, a = DEEP12G.bwBossFlat; return F < DEEP12G.bwBossFrom ? 1 : F <= a ? h : h + (1 - h) * Math.min(1, (F - a) / (100 - a)); };

@@ -28,7 +28,7 @@ async function fight(pg) {
   await pg.keyboard.press('KeyZ'); await w(1200); await idle(pg);
   await pg.evaluate(() => { const h = window.hv, s = h.battle; s.hp = 1; h.render(); }); await w(200);
   R.cd = await pg.evaluate(() => ({ n: window.hv.battle.potions.health, cd: window.hv.battle.itemCd.health, z: document.querySelector('[data-act="item:health"] small')?.textContent, pot: !!document.querySelector('[data-pothint]'), guardS: !!document.querySelector('[data-act="spirit"][data-guardhint].suggest'), canS: window.hv.battle.oc }));
-  if (!(R.cd.cd > 0) || R.cd.z !== `冷卻 ${R.cd.cd}｜剩 ${R.cd.n}`) fail.push('item 4 label ' + R.cd.z);
+  if (!(R.cd.cd > 0) || R.cd.z !== `藥水冷卻中（還剩 ${R.cd.cd} 回合）｜剩 ${R.cd.n} 瓶`) fail.push('item 4 label ' + R.cd.z);
   if (R.cd.pot) fail.push('item 5 pothint lit during cooldown');
 
   await pg.evaluate(() => { const h = window.hv, s = h.battle; s.oc = 999; s.spirit = false; s.hp = 1; h.render(); }); await w(200);
