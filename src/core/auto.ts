@@ -1,6 +1,6 @@
 import { curveSchool12g } from './cp8';
 import { CP7, leanAllows } from './cp7';
-import { coreFloor } from './buffoffer';
+import { coreFloor, offerStar } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
 import { isLethal, STUN_SKILLS, stunReady9,  SKILL_HINT_STATS, type Action, type BattleState, type SkillId, skillKit, suggestSkill, turnHints, primaryKey, ocCap, act, alive, armCp5, canUse, potHint, guardHint, chargeAdvice, ADVICE_DIAG, turnDamage, nextRoundEstimate, lowHp, suggestSpell, quickAttack, windingUp, stunResisting9, skillOc, panelSpec, startBattle, SPELLS, type SpellId } from './battle';
 import type { Cp5Mon } from './cp5';
@@ -503,7 +503,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     const sch = buffSchool(strategy as BuffStrategy);
     cp4.offers++; // r2 step 4: offers where core and another own-school buff compete (the only case -nocore can differ)
     if (run.offer.ids.some((x) => BUFF[x]!.school === sch && BUFF[x]!.core) && run.offer.ids.some((x) => BUFF[x]!.school === sch && !BUFF[x]!.core)) cp4.contests++;
-    const id = prefBuff(run.offer.ids, strategy as BuffStrategy, prng);
+    const id = (typeof process !== 'undefined' && process.env?.SIM_BUFFSTAR === '1') ? (offerStar(p, run.offer.ids) ?? run.offer.ids[0]) : prefBuff(run.offer.ids, strategy as BuffStrategy, prng); // rc12m calibration: QA ★ buff picks
     if (id) { takeBuff(p, run, id); cp4.picked[id] = (cp4.picked[id] ?? 0) + 1; cp4.sources[src] = (cp4.sources[src] ?? 0) + 1; }
     run.offer = null;
   };
@@ -567,7 +567,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
     } else if (type === 'merchant') {
       const st = merchantStock(run);
       let left = ENV?.SIM_NOMERCHCAP === '1' ? Infinity : ENV?.SIM_MERCH_HP ? Number(ENV.SIM_MERCH_HP) : st.hpLeft ?? Infinity; /* rc12d（sim only）: SIM_MERCH_HP=3 A/B of the per-merchant cap */ // SIM_NOMERCHCAP: sim diag (rc18 unlimited) // rc19 item 3（自訂，非原版）: per-merchant cap
-      while (left > 0 && (ENV?.SIM_ROUTE === 'mr' || ENV?.SIM_ROUTE === 'hint' || p.potions.health < 4) && /* cp9-rc8（自訂）: mr buys the merchant out */ p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; POTSRC.merchant++; }
+      while (left > 0 && (ENV?.SIM_ROUTE === 'mr' || (ENV?.SIM_ROUTE === 'hint' && !ENV?.SIM_MERCHTHR) || p.potions.health < (ENV?.SIM_MERCHTHR ? Number(ENV.SIM_MERCHTHR) : 4)) /* rc12m calibration: SIM_MERCHTHR = QA buy-to-threshold */ && /* cp9-rc8（自訂）: mr buys the merchant out */ p.credits >= RULES.potionPrice.health) { p.credits -= RULES.potionPrice.health; p.potions.health++; left--; POTSRC.merchant++; }
       if (bs) for (const x of merchantBuffs(p, run)) {
         const ok = strategy === 'buff:random' ? prng.chance(0.5) : BUFF[x.id]!.school === buffSchool(strategy as BuffStrategy);
         if (!ok || run.credits + p.credits < x.price) continue;
