@@ -94,11 +94,11 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
  *  ~850 up to F30, then +3.5 per floor (F100 ≈ 1095). Reference for CP9.bossAtk only. */
 /** rc12g item 1（自訂，製作人開放）: deep-floor curve from F = deepFrom: every monster (normal / elite / boss) HP and damage
  *  × (1 + deep·(F − deepFrom)/60) → F100 ×(1 + deep). Boss adb is still capped by bossAtk (rc12f) afterwards. 0 = off. */
-export const DEEP12G = { k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
+export const DEEP12G = { /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 1, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 1 /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
   school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: per-school HP / attack split of the curve (multiplies k; unset → hpK / 1). */
-  hpS: { bulwark: num('SIM_DEEPHP_BULWARK') ?? 0.05 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
+  hpS: { blade: num('SIM_DEEPHP_BLADE') ?? 1.5 /* rc12i 預設（自訂）: blade HP-only boost (k 4 × 1.5 → F100 HP ×7, dmg ×5 unchanged) */, bulwark: num('SIM_DEEPHP_BULWARK') ?? 0.05 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: boss un-telegraphed per-turn cap at F100 for this school (linear from bossPlain at `from`; clamped ≤ bossAtk). */
   plainS: { bulwark: num('SIM_DEEPPLAIN_BULWARK') ?? 0.4 /* rc12h 預設（自訂） */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: extra health-potion cooldown turns in this school's boss fights at F100 (linear from 0 at `from`). */
@@ -117,3 +117,6 @@ export const bossHp9 = (f: number): number => CP9.bossHp * (f <= 5 ? CP9.boss5 :
 export const plainAt12h = (f: number, lean?: string): number | undefined => { const t = lean ? DEEP12G.plainS[lean] : undefined; if (t == null) return undefined; const r = Math.min(1, Math.max(0, f - DEEP12G.from) / 60); return Math.min(CP9.bossAtk, CP9.bossPlain + (t - CP9.bossPlain) * r); };
 /** rc12h（自訂）: extra potion cooldown at floor f. */
 export const potCdAt12h = (f: number, lean?: string): number => { const t = lean ? DEEP12G.potS[lean] : undefined; return t ? Math.round(t * Math.min(1, Math.max(0, f - DEEP12G.from) / 60)) : 0; };
+
+/** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
+export const bwBossHp12i = (F: number): number => { const h = DEEP12G.bwBossHp, a = DEEP12G.bwBossFlat, e = DEEP12G.bwBoss100; return F < DEEP12G.bwBossFrom ? 1 : F <= a ? h : h + (e - h) * Math.min(1, (F - a) / (100 - a)); };

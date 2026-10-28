@@ -21,7 +21,7 @@ for (const key of Object.keys(snap).sort((a, b) => a.localeCompare(b, 'en', { nu
     const b = startBattle(d, { hp: run.hp, mp: run.mp, sp: run.sp, oc: run.oc }, ms, p.potions);
     b.locked = battleLocks(p); armBattle(b, run, p.lean, !!p.equipped?.offHand); b.oc += openingOc(p, 'boss', run); if (run.cp5) armCp5(b, run.pdot);
     const rng = new Rng((i + 1) ^ 0x5bd1e995), profs = profsOf(p), pot0 = b.potions.health;
-    while (!b.over && b.turn < 400) act(b, decide(b, `buff:${p.lean ?? 'blade'}` as never, 'counter'), rng, profs);
-    return { won: b.over === 'win', turns: b.turn, pots: pot0 - b.potions.health }; });
-  console.log('REPLAY ' + JSON.stringify({ key, turns: med(r.map((x) => x.turns)), win: r.filter((x) => x.won).length / K, pots: med(r.map((x) => x.pots)), max: Math.max(...r.map((x) => x.turns)) }));
+    let hit = 0; while (!b.over && b.turn < 400) { const h0 = b.hp; act(b, decide(b, `buff:${p.lean ?? 'blade'}` as never, 'counter'), rng, profs); hit = Math.max(hit, (h0 - b.hp) / b.d.hp); }
+    return { won: b.over === 'win', turns: b.turn, pots: pot0 - b.potions.health, hit }; });
+  console.log('REPLAY ' + JSON.stringify({ key, turns: med(r.map((x) => x.turns)), win: r.filter((x) => x.won).length / K, pots: med(r.map((x) => x.pots)), max: Math.max(...r.map((x) => x.turns)), hitMed: +med(r.map((x) => x.hit)).toFixed(2), hitMax: +Math.max(...r.map((x) => x.hit)).toFixed(2) }));
 }
