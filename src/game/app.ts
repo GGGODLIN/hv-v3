@@ -1,5 +1,5 @@
 import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
-import { CP8, CP9 } from '../core/cp8';
+import { CP8, CP9, curveSchool12g } from '../core/cp8';
 import { iconKey } from './icons';
 import { saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
@@ -878,7 +878,7 @@ export class App {
     const r = this.run;
     this.battleType = t;
     if (t === 'boss') snapBeforeBoss(localStorage, r.qaId ??= newRunId(), r.abyss ? depthOf(r) : r.floor, level(this.p), this.p, r); // rc11 item 6: mid-run save before each boss; rc12f: taken before encounter() so the saved rng state re-draws the same boss
-    this.monsters = encounter(r, this.pool, t, this.p.lean);
+    this.monsters = encounter(r, this.pool, t, curveSchool12g(this.p));
     this.recent = [];
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp, oc: r.oc }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);

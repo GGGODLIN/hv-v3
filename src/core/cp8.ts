@@ -97,6 +97,9 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
 export const DEEP12G = { k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
   school: { blade: num('SIM_DEEP_BLADE'), oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') } as Record<string, number | undefined> };
+/** rc12g step 3（自訂）: school for the deep curve — lean, else by main hand (presets blade / oc carry no lean): 2H → blade, staff → arcane, 1H → oc. */
+export const curveSchool12g = (p: { lean?: string; equipped: { mainHand?: { group?: string } } }): string | undefined =>
+  p.lean ?? ({ twoHand: 'blade', staff: 'arcane', oneHand: 'oc' } as Record<string, string>)[p.equipped.mainHand?.group ?? ''];
 export const deepK12g = (lean?: string): number => (lean ? DEEP12G.school[lean] : undefined) ?? DEEP12G.k;
 export const deep12g = (f: number, part: 'hp' | 'dmg', lean?: string): number => 1 + deepK12g(lean) * (part === 'hp' ? DEEP12G.hpK : 1) * Math.max(0, f - DEEP12G.from) / 60;
 export const refHp9 = (f: number): number => 850 + 3.5 * Math.max(0, f - 30);
