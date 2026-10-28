@@ -40,9 +40,10 @@ import { STUN_SKILLS, drainStunKey } from '../src/core/battle';
 describe('rc11 item 4: blade has no interrupt Q', () => {
   it('two-hand blade kit carries no stun skill; drainStunKey is null on a charging boss', () => withCp8(() => {
     expect(['greatCleave', 'rendingBlow', 'shatterStrike'].some((k) => (STUN_SKILLS as string[]).includes(k))).toBe(false);
-    const p = newPlayer(); starterKit(p); const d = derive(p);
+    const pre = JSON.parse(readFileSync('public/data/cp6-presets.json', 'utf8'))['postF20-blade'].player; // the QA blade preset (Lv14)
+    const p = { ...newPlayer(), ...pre }; const d = derive(p);
     const m = buildMonster(pool.rows[0]!, 10, 'boss'); m.charge = 1;
     const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 2, mana: 0, spirit: 0 }); b.oc = 250;
-    expect(drainStunKey(b, 0)).toBeNull();
+    expect(drainStunKey(b, 0)).toBeNull(); expect(p.equipped.mainHand?.group).toBe('twoHand');
   }));
 });
