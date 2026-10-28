@@ -292,6 +292,14 @@ export function defendEst9(s: BattleState): number | null { return RULES.cp8 && 
 export function defendRaw9(s: BattleState): number | null { return RULES.cp8 && canUse(s, { kind: 'defend' }) ? Math.round(nextRoundEstimate(s, true, true, true)) : null; }
 /** cp9-rc5 QA bug 1（自訂，暫定）: one rule for 「下回合全體暴擊估計 ≥ HP」 — the rounded estimate vs the rounded HP, exactly what is printed. */
 export const isLethal = (est: number, hp: number): boolean => Math.round(est) >= Math.round(hp);
+/** rc10 item 1（自訂）: the ONE defend verdict behind the 「HP 危險」 banner (urgentLine), the decision line (chargeAdvice) and the cooldown line.
+ *  none = D unavailable; safe = defended estimate < HP; saveOnly = < HP only through 防禦保命 (raw ≥ HP); fails = defended estimate ≥ HP. */
+export type DefendVerdict9 = 'none' | 'safe' | 'saveOnly' | 'fails';
+export function defendVerdict9(estD: number | null, estDR: number | null, hp: number): DefendVerdict9 {
+  if (estD === null) return 'none';
+  if (isLethal(estD, hp)) return 'fails';
+  return estDR !== null && isLethal(estDR, hp) ? 'saveOnly' : 'safe';
+}
 export function hpDanger(s: BattleState): boolean {
   // rc16 item 1（自訂，非原版）: danger when the next round's crit-case estimate reaches current HP.
   // rc20 item 1（自訂，非原版）: …or HP is low (≤ POT_HINT.low), so the hint looks at HP, not only at a charge.
@@ -388,7 +396,7 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const estD = Math.round(nextRoundEstimate(s, true, true)); // cp9（自訂）: capped like est
   // cp9-rc9 item 8（自訂，QA oc2 F30 T38–39）: estD is clamped to hp−1 by 防禦保命, so 「estD < HP」 always held and read 「撐得住」 while HP drained 272→177→1.
   // saveOnly = only the save keeps HP ≥ 1. Then a usable potion beats D, and the text says so.
-  const estDR = Math.round(nextRoundEstimate(s, true, true, true)), saveOnly = RULES.cp8 && CP9.on && estDR >= hp && estD < hp;
+  const estDR = Math.round(nextRoundEstimate(s, true, true, true)), saveOnly = RULES.cp8 && CP9.on && defendVerdict9(estD, estDR, hp) === 'saveOnly'; // rc10 item 1: same verdict as urgentLine
   const potOk9 = canUse(s, { kind: 'item', id: 'health' });
   const dOk = RULES.cp8 && canUse(s, { kind: 'defend' }) && estD < hp && !(saveOnly && potOk9);
   const dTxt = saveOnly ? `防禦只靠保命剩 1 HP（未保命估 ${estDR} ≥ HP ${hp}）` : `防禦後估計 ${estD} < HP ${hp}，防禦後撐得住`;

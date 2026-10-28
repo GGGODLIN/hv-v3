@@ -1,6 +1,6 @@
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
-import { windSafeKey, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
+import { windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -67,12 +67,15 @@ const ENC_MS = 2500; // 2 s 顯示 + 0.5 s 淡出（自訂，非原版）
 export function urgentLine(a: { est: number; hp: number }, estD: number | null = null, estDR: number | null = null): string {
   const e = Math.round(a.est), h = Math.round(a.hp);
   // cp9-rc9 item 8（自訂）: survivable only through 防禦保命 (clamped to HP−1) → say so in red, not 「防禦後 HP−1」.
-  if (isLethal(e, h) && estD !== null && !isLethal(estD, h) && estDR !== null && isLethal(estDR, h)) return `<br><b class="warn" data-urgent="${e}:${h}:${estD}:${estDR}">防禦只靠保命剩 1 HP：暴擊估 ${e}、未保命防禦後 ${estDR} ≥ HP ${h}，下一擊撐不住</b>`;
+  const v = defendVerdict9(estD, estDR, h); // rc10 item 1（自訂）: the same verdict chargeAdvice uses
+  if (isLethal(e, h) && v === 'saveOnly') return `<br><b class="warn" data-urgent="${e}:${h}:${estD}:${estDR}">防禦只靠保命剩 1 HP：暴擊估 ${e}、未保命防禦後 ${estDR} ≥ HP ${h}，下一擊撐不住</b>`;
   // cp9-rc8 QA bug b（自訂）: lethal but survivable by defending → orange 「不防禦會死」, not the red banner (the decision line says 撐得住). Red only when defending still dies.
-  if (isLethal(e, h) && estD !== null && !isLethal(estD, h)) return `<br><b class="warn-def" data-urgent="${e}:${h}:${estD}">不防禦會死：暴擊估 ${e} ≥ HP ${h}，防禦後 ${estD}</b>`;
+  if (isLethal(e, h) && v === 'safe') return `<br><b class="warn-def" data-urgent="${e}:${h}:${estD}">不防禦會死：暴擊估 ${e} ≥ HP ${h}，防禦後 ${estD}</b>`;
   return isLethal(e, h) ? `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ≥ 目前 HP（${e} ≥ ${h}）：照上面的決策按鍵</b>`
     : `<br><b class="warn" data-urgent="${e}:${h}">下回合全體暴擊估計 ${e} < 目前 HP ${h}，但仍屬危險（HP 偏低或可能大傷）：照上面的決策按鍵</b>`;
 }
+/** rc10 item 1（自訂）: the cooldown line's note after 「這回合按 D·防禦」, from the shared defend verdict. */
+export const cdDefNote9 = (v: DefendVerdict9): string => (v === 'fails' ? '（防禦也擋不住，但能減傷）' : v === 'saveOnly' ? '（防禦只靠保命剩 1 HP）' : '（防禦後估計低於 HP）');
 /** cp9-rc9 item 4（自訂）: cp5Tips runs every round (new summons), so the untipped danger warning was appended each round (blade7 F30 T22). */
 export function pushOnce9(box: string[], html: string): void { if (!box.includes(html)) box.push(html); }
 export function chargeKind(m: { charge: number; heavyNext?: boolean }): string {
@@ -522,7 +525,7 @@ export class App {
     return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
       + (urgent && (!RULES.cp8 || hpDanger(b)) ? urgentLine(chargeAdvice(b, this.target), defendEst9(b), defendRaw9(b)) : '')
       + (this.guardOnly(b) || (RULES.cp8 && !hpDanger(b)) ? '' : this.chargePayoff(b, chargers, est, estD))
-      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${((k) => (k === 'D' ? `這回合按 <b>D·防禦</b>${chargeAdvice(b, this.target).text.includes('擋不住') ? '（防禦也擋不住，但能減傷）' : '（防禦後估計低於 HP）'}` : /^[QWE]·/.test(k) ? `這回合按 <b>${k}</b> 打斷` /* cp9-rc6 item 3（自訂）: never Z while on cooldown */ : k === 'S' ? '這回合改用 <b>S·靈動架勢</b>（防禦也擋不住）' : (hpDanger(b) ? '繼續攻擊、儘快收掉怪物（防禦也擋不住）' : '繼續攻擊、儘快收掉怪物')))(chargeAdvice(b, this.target).keys[0] ?? '')}</b>` : '');
+      + (cd > 0 || b.potions.health <= 0 ? `<br><b class="warn" data-cdhint="${cd}">${b.potions.health <= 0 ? '生命藥水已用完' : `生命藥水冷卻中（還要 ${cd} 回合）`}，${((k) => (k === 'D' ? `這回合按 <b>D·防禦</b>${cdDefNote9(defendVerdict9(defendEst9(b), defendRaw9(b), b.hp))}` /* rc10 item 1（自訂）: shared verdict, not a text match */ : /^[QWE]·/.test(k) ? `這回合按 <b>${k}</b> 打斷` /* cp9-rc6 item 3（自訂）: never Z while on cooldown */ : k === 'S' ? '這回合改用 <b>S·靈動架勢</b>（防禦也擋不住）' : (hpDanger(b) ? '繼續攻擊、儘快收掉怪物（防禦也擋不住）' : '繼續攻擊、儘快收掉怪物')))(chargeAdvice(b, this.target).keys[0] ?? '')}</b>` : '');
   }
   /** cp8-rc9 P2 (自訂，非原版 prompt): arcane — the castable spell that hits the target's biggest elemental weakness. */
   /** cp8-rc10 P0-4 */
