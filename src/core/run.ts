@@ -79,6 +79,8 @@ export const MERCHANT_HP_POTIONS = 1;
 
 export interface RunState {
   seed: number;
+  /** rc11b item 1: QA run id (turn log / pre-boss snapshot key). */
+  qaId?: string;
   /** CP3-bugfix 4: player level at trip start (monster level follow). */
   plv?: number;
   /** cp9 rc2 (a)（自訂）: OC carried from the last fight (CP9.ocCarry). */

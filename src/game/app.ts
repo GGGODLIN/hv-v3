@@ -1,4 +1,4 @@
-import { bossDmg, dealtBy, logTurn, snapBeforeBoss } from './qalog';
+import { bossDmg, dealtBy, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
 import { stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
@@ -591,7 +591,7 @@ export class App {
       <div class="inv kept">${s.kept.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>
       ${s.outcome === 'dead' ? `<h3 class="lost-h warn">遺失（${s.lostItems.length} 件${Object.values(s.lostPotions).some((n) => n) ? `，藥水 ${(Object.entries(s.lostPotions) as [PotionId, number][]).filter(([, n]) => n).map(([k, n]) => `${POTION_ZH[k]}×${n}`).join('、')}` : ''}）</h3>
       <div class="inv lost">${s.lostItems.map((e) => this.itemCard(e)).join('') || '<div class="empty">沒有</div>'}</div>` : ''}
-      <div class="foot"><span class="spacer"></span><button class="big" data-town>回到城鎮</button></div></div>`;
+      <div class="foot"><span class="spacer"></span><button class="ghost" data-qaexport>下載 QA 紀錄（JSON）</button><button class="big" data-town>回到城鎮</button></div></div>`;
   }
 
   // ---------- events ----------
@@ -647,6 +647,7 @@ export class App {
     on('[data-bbuy]', (el) => { const r = this.run; const i = Number(el.dataset.bbuy); const x = r.buffStock?.[i]; if (x && this.pay(x.price)) { this.pending.text = takeBuff(this.p, r, x.id); r.buffStock!.splice(i, 1); } this.save(); this.render(); });
     on('[data-mbuyp]', (el) => { const k = el.dataset.mbuyp as PotionId, st = this.run.merchant; const lim = k === 'health' && st?.hpLeft !== undefined; if (lim && st!.hpLeft! <= 0) return; if (this.pay(RULES.potionPrice[k])) { this.p.potions[k]++; if (lim) st!.hpLeft!--; } this.save(); this.render(); });
     on('[data-town]', () => this.go('town'));
+    on('[data-qaexport]', () => this.qaDownload()); // rc11b item 1
   }
 
   queued: string | null = null;
@@ -659,7 +660,13 @@ export class App {
   chargeHoldUntil = 0;
   windWas = false;
 
+  /** rc11b item 1: download the QA turn log + snapshots without page.evaluate (result-screen button, or Shift+L anywhere). */
+  qaDownload() {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(qaExport(localStorage))], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = `hv-v3-qa-${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}.json`; a.setAttribute('data-qadl', ''); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   key(e: KeyboardEvent) {
+    if (e.code === 'KeyL' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); return this.qaDownload(); } // rc11b item 1
     if (this.screen === 'map' && this.run && e.code === 'KeyZ' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); return this.drinkMap(); } // rc16 item 3
     if (this.screen !== 'battle' || !this.battle) return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -797,7 +804,7 @@ export class App {
 
   startRun() {
     this.lastHit = null; this.recent = [];
-    this.data.run = startRun(this.p, randomSeed());
+    this.data.run = startRun(this.p, randomSeed()); this.data.run.qaId = newRunId(); // rc11b item 1
     this.notice = [...(this.data.run.notes ?? [])];
     this.data.stats.runs++;
     this.go('map');
@@ -825,7 +832,7 @@ export class App {
     const rec = loadRecord(localStorage.getItem(ABYSS_KEY));
     let st = checkpointStart(rec.best);
     if (RULES.cp7) { const v = Number((document.querySelector('[data-abyss-start]') as HTMLSelectElement | null)?.value ?? st); if (checkpointOptions(rec.best, ABYSS.checkpoint).includes(v)) st = v; this.abyssStart = st; }
-    this.data.run = startAbyss(this.p, randomSeed(), st, rec.ms);
+    this.data.run = startAbyss(this.p, randomSeed(), st, rec.ms); this.data.run.qaId = newRunId(); // rc11b item 1
     this.notice = [`深淵塔第 ${st} 層：戰死帶回 50%，撤退保留全部。每 5 層一個檢查點。`];
     this.go('map');
   }
@@ -854,7 +861,7 @@ export class App {
     this.battleType = t;
     this.monsters = encounter(r, this.pool, t);
     this.recent = [];
-    if (t === 'boss') snapBeforeBoss(localStorage, r.abyss ? depthOf(r) : r.floor, level(this.p), this.p, r); // rc11 item 6: mid-run save before each boss
+    if (t === 'boss') snapBeforeBoss(localStorage, r.qaId ??= newRunId(), r.abyss ? depthOf(r) : r.floor, level(this.p), this.p, r); // rc11 item 6: mid-run save before each boss
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp, oc: r.oc }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);
     const oc0 = openingOc(this.p, t, r);
@@ -916,7 +923,7 @@ export class App {
     const can0 = castable();
     const bh0 = b.monsters.map((m) => m.hp);
     const ev = act(b, a, this.rng, profsOf(this.p));
-    if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)) }); // rc11 item 6
+    if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { runId: this.run.qaId ??= newRunId(), lean: this.p.lean ?? '', floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)) }); // rc11 item 6
     { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4
       const fresh = castable().filter((id) => !can0.includes(id));
       this.cdPending = [...new Set([...this.cdPending, ...off, ...fresh])].filter((id) => !this.cdShown.includes(id) && b.cooldowns[id] <= 0); }
