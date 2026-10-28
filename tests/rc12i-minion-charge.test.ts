@@ -13,7 +13,7 @@ const worst = (): number => {
   let w = 0;
   for (const f of [40, 60, 80]) for (const seed of [1, 2, 3, 4, 5]) {
     const p = newPlayer(); starterKit(p); const d = derive(p); const r = startRun(p, seed); r.floor = f;
-    const m = encounter(r, pool, 'boss').find((x) => x.rank !== 'boss') ?? encounter(r, pool, 'normal')[0]!;
+    const m = encounter(r, pool, 'boss').find((x) => x.rank !== 'boss') ?? encounter(r, pool, 'battle')[0]!;
     m.hp = m.maxHp = 1e7; m.adb = d.hp * 5; m.charge = 1;
     if (!windingUp(m)) continue; // charge 1 → released on a following enemy phase
     const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 });
