@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -245,6 +245,7 @@ export const cp4On = (run?: RunState): boolean => RULES.cp4RunBuffs && !!run?.bu
 /** CP4: attach run-buff battle mods (combo triggers included). No-op with the flag off. */
 export function armBattle(b: BattleState, run: RunState, lean?: string, shield = true): void {
   if (RULES.cp8 && CP9.on && lean === 'bulwark' && DEEP12G.bwOut !== 1) b.bwOut12i = DEEP12G.bwOut; // rc12i（自訂）
+  if (RULES.cp8 && CP9.on && lean === 'bulwark' && DEEP12G.bwCap !== 1) b.bwCap12i = bwCap12i(depthOf(run) || run.floor); // rc12i（自訂）
   if (RULES.cp8 && CP9.on && lean === 'blade' && CP9.bladeOc < 1) b.ocCost9 = CP9.bladeOc; // cp9 rc2 (3)（自訂，暫定，無來源）: blade skill OC cost cut
   if (!RULES.cp4RunBuffs) return;
   if (run.ocZeroNext) { run.ocZeroNext = false; b.oc = 0; }

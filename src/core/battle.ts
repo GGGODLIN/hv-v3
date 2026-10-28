@@ -17,7 +17,7 @@ const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!st
 export const plain12h = (s: BattleState): number => Math.max(CP9.bossPlain, ...s.monsters.map((m) => (m.hp > 0 && (m as { plain12h?: number }).plain12h) || 0));
 /** rc12h（自訂）: extra health-potion cooldown from a live deep-curve boss. */
 export const potCd12h = (s: BattleState): number => Math.max(0, ...s.monsters.map((m) => (m.hp > 0 && (m as { potCd12h?: number }).potCd12h) || 0));
-const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(plain12h(s) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
+const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * (s.bwCap12i ?? 1) * s.d.hp) : Math.ceil(plain12h(s) * (s.bwCap12i ?? 1) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
 import { CONSTANTS as C } from './data/constants';
@@ -172,7 +172,7 @@ export interface BattleState {
   mods?: BattleMods;
   d: Derived;
   hp: number; mp: number; sp: number; oc: number;
-  /** rc12i（自訂）: bulwark physical damage multiplier vs bosses. */ bwOut12i?: number;
+  /** rc12i（自訂）: bulwark physical damage multiplier vs bosses. */ bwOut12i?: number; /** rc12i（自訂） */ bwCap12i?: number;
   monsters: Monster[];
   turn: number;
   spirit: boolean;
