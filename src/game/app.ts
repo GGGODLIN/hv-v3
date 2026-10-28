@@ -13,7 +13,7 @@ import { Rng, randomSeed } from '../core/rng';
 import { carryMult, has, prog, tip, TIPS } from '../core/progress';
 import { BUFF, RARITY_ZH, SCHOOL_ZH, SCHOOLS, COMBO_AT, COMBO_ZH, combos, formed, schoolCounts, type Combos } from '../core/buffs';
 import { buffPreview } from './buffpreview';
-import { openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
+import { buffFit, offerStar, openOffer, openShrine, takeBuff, takeRisk, skipOffer, merchantBuffs, winOffers, RISKS, type RiskId } from '../core/buffoffer';
 import { routeAdvice9, mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
@@ -458,9 +458,9 @@ export class App {
     const prog = SCHOOLS.filter((s) => cnt[s] > 0).map((s) => `<span class="bprog ${c[s as keyof Combos] ? 'on' : ''}" data-tip="${esc(`${SCHOOL_ZH[s]} ${cnt[s]}/${COMBO_AT}：${comboZh(s as keyof Combos)}${RULES.cp8 && s === 'bulwark' ? '（搭盾才有格擋）' : ''}`)}">${GLYPH[s]}${cnt[s]}/${COMBO_AT}</span>`).join('');
     return `<div class="bbuffs" data-bbuffs="${ids.length}">${ids.map((id) => { const b = BUFF[id]!; return `<span class="bic r-${b.rarity} s-${b.school}" data-bic="${id}" data-tip="${esc(`【${b.zh}】${RARITY_ZH[b.rarity]}·${SCHOOL_ZH[b.school]}\n${b.desc}`)}"><i>${GLYPH[b.school]}</i>${esc([...b.zh][0] ?? '')}</span>`; }).join('')}${prog}</div>`;
   }
-  buffCard(id: string, btn: string): string {
-    const b = BUFF[id]!;
-    return `<div class="buffcard r-${b.rarity}"><div class="bh"><b>${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small></div><div class="bd">${esc(b.desc)}${RULES.cp8 && b.school === 'bulwark' ? '<br><small class="warn" data-shieldnote>搭盾才有格擋</small>' : ''}</div>${btn}</div>`;
+  buffCard(id: string, btn: string, star?: string | null): string {
+    const b = BUFF[id]!, fit = buffFit(this.p, id); // rc12d (b)（自訂）: unusable buffs are labelled; ★ only on a fitting one
+    return `<div class="buffcard r-${b.rarity}${fit.ok ? '' : ' unfit'}"${fit.ok ? '' : ` data-unfit="${fit.why}"`}${star === id ? ' data-buffstar' : ''}><div class="bh"><b>${star === id ? '★ ' : ''}${b.zh}</b><small>${RARITY_ZH[b.rarity]} · ${SCHOOL_ZH[b.school]}${b.core ? ' · 核心' : ''}</small>${fit.ok ? '' : `<small class="warn">${fit.why}</small>`}</div><div class="bd">${esc(b.desc)}${RULES.cp8 && b.school === 'bulwark' ? '<br><small class="warn" data-shieldnote>搭盾才有格擋</small>' : ''}</div>${btn}</div>`;
   }
   /** CP4 r2 step 3: before -> after rows for a buff choice. */
   previewHtml(id: string): string {
@@ -471,7 +471,7 @@ export class App {
     const r = this.run;
     if (!RULES.cp4RunBuffs) return '';
     let out = '';
-    if (r.offer) out += `<div class="offer" data-offer="${r.offer.src}"><h3>選擇一個 buff（本趟有效）${r.offersLeft ? `　還有 ${r.offersLeft} 次` : ''}</h3><div class="buffrow">${r.offer.ids.map((id) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-buff="${id}">選這個</button>`)).join('')}</div>
+    if (r.offer) out += `<div class="offer" data-offer="${r.offer.src}"><h3>選擇一個 buff（本趟有效）${r.offersLeft ? `　還有 ${r.offersLeft} 次` : ''}</h3><div class="buffrow">${r.offer.ids.map((id, _i, a) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-buff="${id}">選這個</button>`, offerStar(this.p, a))).join('')}</div>
       <div class="row"><button class="ghost" data-buffskip>不拿</button></div></div>`;
     if (r.risk) {
       const k = r.risk, x = RISKS[k];
@@ -1029,7 +1029,7 @@ export class App {
   /** cp8-rc5: 「待選」 start-pick buffs the player walked past; they stay pickable for the rest of the trip. */
   heldHtml(): string {
     const h = this.run.held!, left = this.run.heldLeft ?? 0;
-    return `<div class="offer held" data-heldpick><h3>待選 buff（本趟有效，隨時可選）${left ? `　之後還有 ${left} 次` : ''}</h3><div class="buffrow">${h.ids.map((id) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-heldbuff="${id}">選這個</button>`)).join('')}</div>
+    return `<div class="offer held" data-heldpick><h3>待選 buff（本趟有效，隨時可選）${left ? `　之後還有 ${left} 次` : ''}</h3><div class="buffrow">${h.ids.map((id, _i, a) => this.buffCard(id, `${this.previewHtml(id)}<button class="big" data-heldbuff="${id}">選這個</button>`, offerStar(this.p, a))).join('')}</div>
       <div class="row"><button class="ghost" data-heldskip>不拿</button></div></div>`;
   }
   /** rc5: resolve the held offer (take `id` or skip), then roll the next owed one into 待選 without touching an open offer. */

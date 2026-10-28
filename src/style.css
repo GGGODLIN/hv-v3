@@ -133,6 +133,7 @@ button.suggest { outline: 3px solid #ffb040; box-shadow: 0 0 14px #ffb040; backg
 .buffrow { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
 .buffcard { border: 1px solid #ffffff44; border-radius: 6px; padding: 8px; background: #241a30; display: flex; flex-direction: column; gap: 6px; }
 .buffcard .bh { display: flex; justify-content: space-between; gap: 6px; } .buffcard .bh small { color: #b8a8c8; }
+.buffcard.unfit { opacity: .6; } .buffcard[data-buffstar] { outline: 2px solid #ffd54a; }
 .buffcard .bd { font-size: 13px; flex: 1; }
 .log .phase{color:#ff6060;font-weight:bold}
 .log .statusfx{color:#ffcc66}.log .skillhit{color:#9fd3ff}.log .spirit{color:#c9a0ff}

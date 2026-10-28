@@ -31,6 +31,27 @@ export function eligible(p: Player, b: BuffDef): boolean {
   if (b.needs === 'skill') return has(p, 'ocSkill');
   return true;
 }
+/** rc12d (a)(b)（自訂，製作人決定）: does this buff's effect apply to the player's build?
+ *  Casts spells = lean arcane or a staff in hand. Arcane / needs:'spell' buffs → 需要法術 for non-casters;
+ *  blade (physical-damage) buffs → 對你無效 for an arcane caster. oc / bulwark / none apply to everyone. No lean → everything fits. */
+export function buffFit(p: Player, id: string): { ok: boolean; why?: '需要法術' | '對你無效' } {
+  const b = BUFF[id]; if (!b || !p.lean) return { ok: true };
+  const caster = p.lean === 'arcane' || (p.equipped?.mainHand as { base?: string } | undefined)?.base === 'staff';
+  if ((b.school === 'arcane' || b.needs === 'spell') && !caster) return { ok: false, why: '需要法術' };
+  if (b.school === 'blade' && p.lean === 'arcane' && caster) return { ok: false, why: '對你無效' };
+  return { ok: true };
+}
+/** rc12d (a)（自訂）: weight of a buff the build can use vs one it cannot, in the open draw (weighted, not a hard filter). */
+export const FIT_WEIGHT = 3;
+/** rc12d (a)（自訂）: a pick-one offer of OFFER_SIZE has at least this many buffs that fit the build (the rest may be anything). */
+export const FIT_MIN = 2;
+/** rc12d (b)（自訂）: the ★ for an offer — only a buff that fits: own-school core, then own school, then higher rarity, then offer order. */
+export function offerStar(p: Player, ids: string[]): string | null {
+  const R: Record<Rarity, number> = { common: 0, rare: 1, legend: 2 };
+  const fit = ids.filter((id) => buffFit(p, id).ok); if (!fit.length) return null;
+  const sc = (id: string) => { const b = BUFF[id]!; return (b.school === p.lean ? 10 : 0) + (b.school === p.lean && b.core ? 5 : 0) + R[b.rarity]; };
+  return fit.reduce((a, x) => (sc(x) > sc(a) ? x : a));
+}
 export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant', n: number, weights?: [number, number, number], exclude: string[] = []): string[] {
   const rng = offerRng(run);
   const held = run.buffs ?? [];
@@ -58,8 +79,16 @@ export function rollBuffs(p: Player, run: RunState, src: OfferSource | 'merchant
     const rar: Rarity = needRare ? (rng.chance(l / (r + l)) ? 'legend' : 'rare') : rng.weighted<Rarity>([['common', c], ['rare', r], ['legend', l]].filter((x) => (x[1] as number) > 0) as [Rarity, number][]);
     const pool = BUFFS.filter((b) => b.rarity === rar && eligible(p, b) && !out.includes(b.id) && (b.id.startsWith('S-') || (!held.includes(b.id) && !exclude.includes(b.id))));
     if (!pool.length) { if (rar === 'common') break; needRare = false; continue; }
-    out.push(rng.weighted(pool.map((b) => [b.id, b.school !== 'none' && cnt[b.school] > 0 ? SAME_SCHOOL_WEIGHT : 1] as [string, number])));
+    out.push(rng.weighted(pool.map((b) => [b.id, (b.school !== 'none' && cnt[b.school] > 0 ? SAME_SCHOOL_WEIGHT : 1) * (buffFit(p, b.id).ok ? FIT_WEIGHT : 1)] as [string, number])));
     if (BUFF[out[out.length - 1]!]!.rarity !== 'common') needRare = false;
+  }
+  // rc12d (a)（自訂）: pick-one offers keep ≥ FIT_MIN fitting buffs — replace non-fitting ones from the end with a fitting draw.
+  if (src !== 'merchant' && !weights && n >= OFFER_SIZE) {
+    for (let i = out.length - 1; i >= 0 && out.filter((id) => buffFit(p, id).ok).length < FIT_MIN; i--) {
+      if (buffFit(p, out[i]!).ok) continue;
+      const pool = BUFFS.filter((b) => buffFit(p, b.id).ok && eligible(p, b) && !out.includes(b.id) && (src === 'boss' || b.rarity !== 'legend') && (b.id.startsWith('S-') || (!held.includes(b.id) && !exclude.includes(b.id))));
+      if (pool.length) out[i] = rng.weighted(pool.map((b) => [b.id, (b.school !== 'none' && cnt[b.school] > 0 ? SAME_SCHOOL_WEIGHT : 1) * (OFFER_RARITY[src][b.rarity === 'common' ? 0 : b.rarity === 'rare' ? 1 : 2] || 1)] as [string, number]));
+    }
   }
   return out;
 }
