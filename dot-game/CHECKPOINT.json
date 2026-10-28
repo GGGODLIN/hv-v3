@@ -1,11 +1,11 @@
 {
-  "checkpoint": "190-v063-browser-accepted",
+  "checkpoint": "192-v063-restorable",
   "version": "0.63.0",
-  "status": "desktop-browser-accepted-formal-pending",
-  "source_base": "a15522c8ff4dbfe855d2e5ed410cdc40a8035cf9",
+  "status": "complete-desktop-browser-accepted-formal-published",
+  "source_base": "672cedf44b8df9480dfd50877832adbc8f49d7c7",
   "base_accepted_recovery": "eaf6e784782a781114352d729a11d0b025f3032a",
-  "accepted_website": "a99ec0252386bb21b94cdec3ae54645805a6b94f",
-  "scope": "Documentation and acceptance evidence only; all runtime/test/asset bytes unchanged from checkpoint188.",
+  "accepted_website": "a6bbb8f50445686c7291decec44c563e469872b2",
+  "scope": "Final recovery/publication documentation only; runtime/tests/assets unchanged from190 and188.",
   "source_tests_passed": 2264,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
@@ -13,12 +13,12 @@
   "new_focused_tests": 1,
   "independent_focused_tests_passed": 10,
   "browser_acceptance": "PASS normal desktop flows on isolated v063 candidate; edge cases remain unit-only as detailed in receipt.",
-  "publication": "Isolated candidate deployed; formal promotion pending, v055 remains formal.",
+  "publication": "Formal v063 deployed; exact CI and normal desktop gameplay/persistence PASS.",
   "recovery": "docs/RECOVERY-V063.md",
   "files": {
     "README.md": {
-      "bytes": 62389,
-      "sha256": "8e72b7e809ba82033a801220159ba6f8e5981529de1a664bdc387ad42cabdd9f"
+      "bytes": 63244,
+      "sha256": "ab9355d3651339770450a53d70964dc3deeeef787b4287ed97bc1f1f8b299a66"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -684,6 +684,10 @@
       "bytes": 2118,
       "sha256": "81ad667b75d0c83a165a0cf1f5908398a5ee100433d91a996c394d8f9a22fa01"
     },
+    "docs/PUBLICATION-V063.md": {
+      "bytes": 1738,
+      "sha256": "5e75ec19328d19ccd969eaadd6fe26d5a412b268825e1d31fb0df155623e8d79"
+    },
     "docs/PUMP-BOUNDARY.md": {
       "bytes": 4852,
       "sha256": "682413726f7ba3bb9a1abf735fbbeeb80a6c8e168fb08588d47c665e4d47bf6c"
@@ -795,6 +799,10 @@
     "docs/QA-V063-BROWSER.md": {
       "bytes": 1677,
       "sha256": "13b53609845e2b51aeb44278141602e22ad851a3da541ba3dea4f5c652d5f70e"
+    },
+    "docs/QA-V063-FORMAL-BROWSER-RECEIPT.json": {
+      "bytes": 2746,
+      "sha256": "1547671d0bf0ccfe8cd42599d3f9763d523c1a0f86dd3700a8e6ab48473e2a69"
     },
     "docs/QA-V063-INDEPENDENT.md": {
       "bytes": 4147,
@@ -969,8 +977,8 @@
       "sha256": "4561df9a851bdc43953f9cb4bfd199c45fc160c83e522789baa7b54cf90e06b4"
     },
     "docs/RECOVERY-V063.md": {
-      "bytes": 1864,
-      "sha256": "889ac479940caeffa72da5900491fec999bfc1711a50f44536ab377e5e9905e0"
+      "bytes": 3071,
+      "sha256": "4b76746c8f5239d81cb22c6a12ea17a6b7600b7079359099b801029893adfe7f"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -981,8 +989,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 45155,
-      "sha256": "6cf94c8b7dcf25d6979b4abc8f488d97630873700b65234ce0d351182f3eece3"
+      "bytes": 46010,
+      "sha256": "e1d41c3e3a0f1d3e96e96b560f4860c39fefd1987e127fe4b669d063224b768a"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1017,8 +1025,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 65100,
-      "sha256": "0ac28a7119bdb7c6f5105925357f9994ee48fd9abefb1fe9d9db719ad6ed2928"
+      "bytes": 65955,
+      "sha256": "6dd4b0316b9c4953c41f128fe8f929de341d111f9a16d06bd098353ff390d529"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2263,5 +2271,7 @@
   },
   "candidate_website": "073261986b8deadbeaf47390f194ec2a26125783",
   "candidate_ci": 40736583520,
-  "browser_receipt_sha256": "cba3aaf3baa35bc9e7b88132004dfbdb7ae1adca75dd27133fb74dfef2d6d1f3"
+  "browser_receipt_sha256": "cba3aaf3baa35bc9e7b88132004dfbdb7ae1adca75dd27133fb74dfef2d6d1f3",
+  "formal_ci": 40738324314,
+  "formal_browser_receipt_sha256": "1547671d0bf0ccfe8cd42599d3f9763d523c1a0f86dd3700a8e6ab48473e2a69"
 }

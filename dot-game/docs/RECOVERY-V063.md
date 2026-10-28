@@ -1,3 +1,13 @@
+## 192：最新完整桌面已驗收恢復來源
+
+取回攜帶CHECKPOINT `192-v063-restorable` 的exact commit並完整還原dot-game/；逐檔驗證CHECKPOINT files的bytes/SHA-256。包含完整來源、素材、授權、測試、恢復與發布證據；Git歷史在GGGODLIN/hv-v3 bot/dot保留。先比較是否已有更新且完整驗證checkpoint，不因舊連結方便而倒退。
+
+正式website a6bbb8f50445686c7291decec44c563e469872b2、Pages40738324314成功與正常桌面實玩PASS已完成；見PUBLICATION-V063.md及QA-V063-FORMAL-BROWSER-RECEIPT.json。192 runtime/tests/assets不變：21網站runtime中20檔與來源完全相同，index僅發布標記包裝差異，來源index維持188標籤。
+
+無依賴安裝／build：`npm test`與四項`node --check src/{engine,loot,session,ui}.js`（逐檔執行）；`python3 -m http.server 8000`，開localhost:8000。先備份玩家正常匯出存檔，隔離環境測試勿覆寫正式。保存格式v3及正常儲存命名空間保留。桌面之外與精確邊界仍有QA限制；無公開HTTP逐檔hash、Library雙邊同步或登入／權限／排程恢復承諾。
+
+以下為190／188歷史說明，以本節與最新完整證據為準。
+
 ## 190：最新桌面已驗收來源（正式升版待完成）
 
 取得攜帶CHECKPOINT `190-v063-browser-accepted` 的exact commit，核對全部files bytes/SHA-256並還原完整dot-game/。runtime與188來源a15522c8ff4dbfe855d2e5ed410cdc40a8035cf9逐byte一致；僅新增驗收文件。桌面候選073261986b8deadbeaf47390f194ec2a26125783已PASS，細節與仍unit-only邊界見QA-V063-BROWSER.md。候選index隔離包裝不是source index；來源顯示候選標籤是刻意保留，不影響已驗收runtime對應。

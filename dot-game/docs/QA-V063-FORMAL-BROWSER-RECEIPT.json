@@ -1,0 +1,108 @@
+{
+  "version": "0.63",
+  "checkedAtUTC": "2026-10-28T17:46:51Z",
+  "formalURL": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "websiteCommit": "a6bbb8f50445686c7291decec44c563e469872b2",
+  "ci": {
+    "run": 40738324314,
+    "status": "success",
+    "evidence": "publisher verified exact CI and 21 runtime Git bytes before formal QA"
+  },
+  "method": "dot cloud Chrome normal UI; original formal profile exported/backed up then reloaded; no candidate save import or injected state",
+  "result": "PASS normal desktop formal gameplay and persistence",
+  "baseline": {
+    "originalVersion": "0.55",
+    "level": 4,
+    "gold": 228,
+    "exportMatchesPreCandidateBaseline": true
+  },
+  "naturalRun": {
+    "stage": 1,
+    "durationSeconds": 18.9,
+    "level": [
+      4,
+      5
+    ],
+    "xpAfter": 33,
+    "xpNextAfter": 159,
+    "gold": [
+      228,
+      304
+    ],
+    "kills": [
+      18,
+      24
+    ],
+    "wins": [
+      3,
+      4
+    ],
+    "drop": "loot-5 精良・暮鋼戰斧・屠戮",
+    "finishThenCamp": true
+  },
+  "equip": {
+    "naturallyDroppedItem": "loot-5",
+    "previewADB": [
+      79.72,
+      124.72
+    ],
+    "previewHP": [
+      663,
+      663
+    ],
+    "equippedDetailsRetained": true,
+    "focusedSameEquippedItem": true,
+    "oldWeaponReturnedToBag": "loot-2",
+    "equippedDetailsWithoutStaleEquipOrSaleButtons": true
+  },
+  "reload": {
+    "durableFieldsEqual": true,
+    "changedTransientFields": [
+      "wave",
+      "events",
+      "logs",
+      "battle",
+      "timing",
+      "_eventId",
+      "_turns",
+      "_tuCompensation"
+    ],
+    "level": 5,
+    "gold": 304,
+    "hp": 663,
+    "mp": 31,
+    "bagCount": 5,
+    "safeCamp": true,
+    "offlineRewardsNotObserved": true
+  },
+  "exports": [
+    {
+      "label": "original-formal-backup",
+      "bytes": 4572,
+      "sha256": "49b4cf1645ed29f4324f6b6ae6bfb7a3ff299d241595a7d0f13a139ba5c0c85d"
+    },
+    {
+      "label": "formal-after-play-before-reload",
+      "bytes": 9043,
+      "sha256": "5502c8a493c867362fa124f97ff5a8e14df16bd15aaaa92d29e4fc838de87068"
+    },
+    {
+      "label": "formal-after-reload",
+      "bytes": 5078,
+      "sha256": "9a81b8f53dd1d06c5a75e96b56431871b3f5e72f06fa2be6627cecb94f37f1df"
+    }
+  ],
+  "visual": {
+    "screenshotInspected": true,
+    "width": 1165,
+    "scrollWidth": 1165,
+    "brokenImages": 0
+  },
+  "candidateProfilesNotImportedToFormal": true,
+  "limitations": [
+    "Desktop normal path only, not physical mobile or complete accessibility",
+    "Precise potion floating values, tiny commission deltas, below-one pools and race edge cases retain candidate receipt limitations",
+    "Public HTTP per-file hash not independently measured by this browser pass"
+  ],
+  "sourceOrWebsiteWrites": false
+}

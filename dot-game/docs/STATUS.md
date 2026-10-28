@@ -1,3 +1,9 @@
+## v063 已正式發布並完成桌面實玩（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 現為v063，website a6bbb8f50445686c7291decec44c563e469872b2、exact Pages40738324314成功。原正式存檔正常首層通關掉寶、換裝後同件明細／焦點保留，匯出重載durable欄位一致。最新完整桌面已驗收恢復來源為攜帶CHECKPOINT `192-v063-restorable` 的exact commit；runtime/tests/assets與190來源672cedf44b8df9480dfd50877832adbc8f49d7c7逐byte一致。完整發布／限制見docs/PUBLICATION-V063.md、恢復見docs/RECOVERY-V063.md；正式browser收據已保存。
+
+正常桌面不是mobile／全部邊界驗收，unit-only限制、未完成公開HTTP逐檔hash、未宣稱Library雙邊同步均保留。以下190與更早狀態為當時歷史記錄，不再表示現今正式仍v055。
+
 ## v063 桌面瀏覽器已驗收；正式升版待完成（2026-10-29 台北）
 
 v063 隔離候選於 dot 雲端 Chrome 正常 UI／自然遊玩通過，候選網站 commit 073261986b8deadbeaf47390f194ec2a26125783、Pages run 40736583520 success；來源 a15522c8ff4dbfe855d2e5ed410cdc40a8035cf9。正常換裝後保留已裝備明細與同件焦點，無舊預覽／出售換裝按鈕；自然4勝、掉寶、自動重刷、回營、匯出與重新載入 durable欄位一致。來源2264 tests及4語法檢查通過。
