@@ -5,4 +5,4 @@ import { RC10, SIM_DIAG } from '../src/core/auto';
 const kind = process.env.RC10_SIM ?? 'std';
 await import(kind === 'preset' ? './cp9-preset-sim.ts' : './cp7-sim.ts');
 const bt = [...SIM_DIAG.bossTurns].sort((a, b) => a - b);
-console.log('RC10 ' + JSON.stringify({ kind, sc: process.env.SC, S0: Number(process.env.SEED0 ?? 0), route: process.env.SIM_ROUTE, pot: RC10.pot, lc: RC10.lc, rt: RC10.route, buypot: Number(process.env.SIM_BUYPOT ?? 0), trips: RC10.trips, bossTmed: bt.length ? (bt[(bt.length - 1) >> 1]! + bt[bt.length >> 1]!) / 2 : null, bossN: bt.length, dh30: SIM_DIAG.dh30, mix30: SIM_DIAG.mix30 }));
+console.log('RC10 ' + JSON.stringify({ kind, sc: process.env.SC, S0: Number(process.env.SEED0 ?? 0), route: process.env.SIM_ROUTE, pot: RC10.pot, lc: RC10.lc, rt: RC10.route, q: RC10.q, bossAct: RC10.bossAct, buypot: Number(process.env.SIM_BUYPOT ?? 0), trips: RC10.trips, bossTmed: bt.length ? (bt[(bt.length - 1) >> 1]! + bt[bt.length >> 1]!) / 2 : null, bossN: bt.length, dh30: SIM_DIAG.dh30, mix30: SIM_DIAG.mix30 }));
