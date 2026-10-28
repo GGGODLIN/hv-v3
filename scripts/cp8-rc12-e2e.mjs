@@ -17,7 +17,7 @@ async function fight(pg) {
   for (let i = 0; i < 6 && (await pg.$('[data-startpick] [data-buff],[data-heldskip]')); i++) { const c = await pg.$('[data-startpick] [data-buff],[data-heldskip]'); await c.click(); await w(150); }
   const ni = await pg.$$eval('button[data-node]', (n) => Math.max(0, n.findIndex((x) => /n-battle/.test(x.className))));
   await pg.click(`button[data-node="${ni}"]`); await w(600);
-  for (let k = 0; k < 3 && !(await pg.$('.cmdbar')); k++) { const c = await pg.$('[data-continue],[data-fight],[data-modal-ok]'); if (c) await c.click(); await w(400); }
+  for (let k = 0; k < 10 && !(await pg.evaluate(() => !!window.hv.battle)); k++) { const c = await pg.$('[data-continue],[data-fight],[data-modal-ok],[data-startpick] [data-buff],[data-heldskip]'); if (c) await c.click(); else await pg.evaluate(() => (document.querySelector('button.n-battle[data-node]') ?? document.querySelector('button[data-node]'))?.click()); await w(400); } // rc12k r2: wait for the battle (was flaky)
 }
 // cp8-rc12 e2e: item 4 potion button shows 「冷卻 N｜剩 M」 during cooldown; item 5 pothint never lit during cooldown, and with HP in
 // danger + potion on cooldown the D button is suggested (data-guardhint); Q/W/E follow the style kit (blade 2H → Q = 巨力劈砍).

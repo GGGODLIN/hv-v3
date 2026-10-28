@@ -16,6 +16,8 @@ const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!st
 /** rc12h（自訂）: a deep-curve boss may raise the un-telegraphed per-turn cap (≤ bossAtk 0.4). */
 export const plain12h = (s: BattleState): number => Math.max(CP9.bossPlain, ...s.monsters.map((m) => (m.hp > 0 && (m as { plain12h?: number }).plain12h) || 0));
 /** rc12h（自訂）: extra health-potion cooldown from a live deep-curve boss. */
+/** rc12k round 2 製作人決定（自訂）: health-potion cooldown never exceeds this many turns (any school / floor / mods). */
+export const POT_CD_MAX12K = 8;
 export const potCd12h = (s: BattleState): number => Math.max(0, ...s.monsters.map((m) => (m.hp > 0 && (m as { potCd12h?: number }).potCd12h) || 0));
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * (s.bwCap12i ?? 1) * s.d.hp) : Math.ceil(plain12h(s) * (s.bwCap12i ?? 1) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
@@ -928,7 +930,7 @@ export function act(s: BattleState, a: Action, rng: Rng, profs: Partial<Record<P
     case 'item': {
       const f = ITEMS[`${a.id}Potion` as 'healthPotion'];
       s.potions[a.id]--;
-      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) + potCd12h(s) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1; // rc12h（自訂）: deep boss potion pressure
+      s.itemCd[a.id] = Math.max(0, (a.id === 'health' ? (RULES.cp8 && RC22.potCd !== null ? RC22.potCd : HEALTH_POTION_CD) + potCd12h(s) : ITEM_CD) + (s.mods?.itemCd ?? 0)) + 1; if (a.id === 'health' && RULES.cp8) s.itemCd.health = Math.min(POT_CD_MAX12K, s.itemCd.health!); // rc12h（自訂）: deep boss potion pressure; rc12k（自訂）: total ≤ 8
       const res = f.resource as 'hp' | 'mp' | 'sp';
       const max = s.d[res];
       const before = s[res];
@@ -1159,7 +1161,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     if (m.rank === 'boss' && m.pulseNext && m.charge === 0) { m.pulseNext = false; mult = CP5.pulseMult; el = m.shieldEl; label = '元素脈衝！'; }
     else if (m.rank === 'boss') {
       if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; mult = CP5.drainMult; label = '吸血重擊！'; } }
-      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : RC12.chargeEvery || BOSS_CHARGE_EVERY) === 0 && !lock9) {
+      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : (m as { chargeEvery12k?: number }).chargeEvery12k || RC12.chargeEvery || BOSS_CHARGE_EVERY) === 0 && !lock9) {
         m.charge = 1;
         if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; CP5_STAT.drainTele++; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
         else ev.push({ t: 'charge', from: i });
