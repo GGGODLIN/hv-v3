@@ -94,7 +94,7 @@ export const CP9 = { on: num('SIM_CP9') !== 0,
  *  ~850 up to F30, then +3.5 per floor (F100 ≈ 1095). Reference for CP9.bossAtk only. */
 /** rc12g item 1（自訂，製作人開放）: deep-floor curve from F = deepFrom: every monster (normal / elite / boss) HP and damage
  *  × (1 + deep·(F − deepFrom)/60) → F100 ×(1 + deep). Boss adb is still capped by bossAtk (rc12f) afterwards. 0 = off. */
-export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × this from F30 (QA replay median >18). */ aoBossHp: num('SIM_AOBOSSHP') ?? 0.8, /** rc12i（自訂）: bulwark-lean boss per-turn caps (plain & telegraphed) × this F30–65, linear back to ×1 at F100. */ bwCap: num('SIM_BWCAP') ?? 1, /** rc12i（自訂）: bulwark-lean player physical damage × this vs bosses. */ bwOut: num('SIM_BWOUT') ?? 1, /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 0.45 /* rc12k r2 製作人（自訂；原 0.2） */ /* rc12i 預設（自訂，製作人方案 b） */, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 0.3 /* rc12k r2（自訂；原 2.5，F70+ 不靠 HP 拉長） */ /* rc12i 預設（自訂） */ /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
+export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × this from F30 (QA replay median >18). */ aoBossHp: num('SIM_AOBOSSHP') ?? 0.8, /** rc12i（自訂）: bulwark-lean boss per-turn caps (plain & telegraphed) × this F30–65, linear back to ×1 at F100. */ bwCap: num('SIM_BWCAP') ?? 1, /** rc12i（自訂）: bulwark-lean player physical damage × this vs bosses. */ bwOut: num('SIM_BWOUT') ?? 1, /** rc12i（自訂）: bulwark-lean boss HP × this from F30 (QA real-snapshot replay: turns too long). */ bwBossHp: num('SIM_BWBOSSHP') ?? 0.3 /* rc12t（自訂；原 0.45，QA bw1 F45/F50 boss 32/24 回合） */ /* rc12k r2 製作人（自訂；原 0.2） */ /* rc12i 預設（自訂，製作人方案 b） */, bwBossFrom: 30, bwBossFlat: 65, bwBoss100: num('SIM_BWBOSS100') ?? 0.3 /* rc12k r2（自訂；原 2.5，F70+ 不靠 HP 拉長） */ /* rc12i 預設（自訂） */ /* linear from ×bwBossHp at F65 to this at F100 */, k: num('SIM_DEEP') ?? 0, hpK: num('SIM_DEEPHP') ?? 1, from: num('SIM_DEEPFROM') ?? 40,
   /** rc12g step 3（自訂）: per-school strength (overrides k when set; no lean → k). */
   school: { blade: num('SIM_DEEP_BLADE') ?? 4, oc: num('SIM_DEEP_OC'), arcane: num('SIM_DEEP_ARCANE'), bulwark: num('SIM_DEEP_BULWARK') ?? 7 /* rc12g 預設（自訂，非原版）: blade 4、bulwark 7、oc/arcane 0 */ } as Record<string, number | undefined>,
   /** rc12h（自訂）: per-school HP / attack split of the curve (multiplies k; unset → hpK / 1). */
@@ -144,10 +144,10 @@ const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
 const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12p（自訂）: retuned after the capped preview (★ no longer over-defends) + 1 deterministic boss potion; rc12o values in docs/hv-v3-rc12p.md
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
-  blade: { mobHp: 13, mobDmg: 13, deepK: 12, bossHp70: 0.2 }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
-  bulwark: { mobHp: 16, mobDmg: 16, deepK: 30 }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
-  oc: { mobHp: 3.5, mobDmg: 3.5, deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
-  arcane: { mobHp: 2.6, mobDmg: 3 /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
+  blade: { mobHp: 15, mobDmg: 15, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 12, bossHp70: 0.2 }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
+  bulwark: { mobHp: 21, mobDmg: 21, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 30 }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
+  oc: { mobHp: 5, mobDmg: 5, /* rc12t（自訂）: 3.5→5 */ deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
+  arcane: { mobHp: 2.9, mobDmg: 3.3 /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
