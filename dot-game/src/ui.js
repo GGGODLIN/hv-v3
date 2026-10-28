@@ -273,7 +273,18 @@ const ownership = createOwnership({
 });
 let channel;
 try { channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(LOCK_NAME) : null; } catch { channel = null; }
-const pump = createPump({ now: () => performance.now(), active: () => claimLease(), step: seconds => advance(state, seconds) });
+// Local simulation tempo, not a combat stat or durable preference. Each extra
+// step uses the same bounded duration; the existing pump remains the only clock.
+let battleTempo = 1;
+function advanceBattleTempo(seconds) {
+  advance(state, seconds);
+  if (battleTempo === 2 && state.mode === 'battle' && claimLease()) advance(state, seconds);
+}
+function renderBattleTempo() {
+  $('battle-tempo').value = String(battleTempo);
+  $('battle-tempo').disabled = !tabOwner;
+}
+const pump = createPump({ now: () => performance.now(), active: () => claimLease(), step: advanceBattleTempo });
 if (channel) channel.onmessage = event => {
   if (event.data?.type === 'takeover' && event.data.id !== tabId && tabOwner) {
     handoff = true; releaseLease();
@@ -301,6 +312,7 @@ function syncSelection() {
   closeWeaponCommission(); // Ownership transfer, reload and import never retain consent.
   closeSoulbindWeapon(); // Permanent investment always needs fresh local consent.
   closeItemWorld(); // A paid trial never inherits consent from another journey or owner.
+  battleTempo = 1; renderBattleTempo(); // Import, takeover or ownership loss clears tempo.
   if (selectedId && ![...state.inventory, ...state.pendingLoot].some(item => item.id === selectedId)) selectedId = null;
   lastInventorySignature = ''; lastEquipmentSignature = ''; lastLogSignature = ''; lastEnemyStatusSignature = ''; lastStageCount = 0; lastPreviewStage = null;
 }
@@ -1177,6 +1189,7 @@ function renderTargetPriority() {
   live.textContent = view.targetId === null ? '' : `目前集火：${view.targetName} · ${view.reason}。普攻與攻擊技能適用；治癒／護盾仍優先，反擊仍打攻擊者。`;
 }
 function render(force = false) {
+  renderBattleTempo();
   const saleCheckboxFocus = captureSaleCheckboxFocus();
   const comparisonFocus = captureComparisonFocus();
   const detailActionFocus = captureDetailActionFocus();
@@ -2180,6 +2193,13 @@ $('finish-camp-button').addEventListener('click', () => {
   }
 });
 
+$('battle-tempo').addEventListener('change', event => {
+  const requested = event.target.value;
+  if (!claimLease() || !['1', '2'].includes(requested)) { renderBattleTempo(); return; }
+  battleTempo = Number(requested);
+  pump.reset(); // Never revalue time accumulated under the previous tempo.
+  renderBattleTempo();
+});
 $('start-once-button').addEventListener('click',()=>{
   if (state.mode !== 'town' || !departureReadiness().ready || itemWorldView(state).active) return;
   if (dispatch('startOnce') && state.mode === 'battle' && finishThenCampView(state).queued) playSound('win');

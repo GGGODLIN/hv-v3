@@ -339,3 +339,7 @@ Descending sorting by the seven existing equipment stat fields is an independent
 ## v067 next-level weapon observation adapter
 
 The original-research-backed soulbinding concept and the existing local immutable-anchor growth integration are unchanged. This view calls the very same `scaleSoulboundItem` used for actual growth at character level + 1, retaining existing IW1. It reports this weapon's stats only, not a future character build, future drops or original-HV UI. Rounding and capped rates can produce unchanged individual values. Level 500 has no next level in this game. No prediction is committed and no resource is spent.
+
+## v068 simulation-tempo adapter
+
+A local 1× / 2× timer option changes real waiting time, not the original TU/action-speed formulas or equipment stats. At 2× each accepted bounded timer interval can execute two identical engine calls. The second is skipped after camp, defeat or writer loss. Per-expedition loot/reward rules and RNG remain unchanged for the same simulated steps. Report elapsed time, best records and countdowns are simulated time, not wall-clock timing. The existing no-offline-credit gap rule remains; no durable preference or new save schema is introduced. This is an explicit idle-game adaptation, not an original-HV feature.

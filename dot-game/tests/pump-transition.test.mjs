@@ -23,7 +23,7 @@ function harness(state = createGame(42)) {
     claimLease: () => lease, reconcileWeaponCommission() {}, reconcileItemWorld() {}, render() {}, save() {},
     $: () => bleedNotice, showToast: message => toasts.push(message), console,
   });
-  const { dispatch, pump } = runInContext(`${pumpSource}\n${dispatchSource}\n({ dispatch, pump });`, context);
+  const { dispatch, pump } = runInContext(`let battleTempo = 1;\n${source.slice(source.indexOf('function advanceBattleTempo('), source.indexOf('function renderBattleTempo('))}\n${pumpSource}\n${dispatchSource}\n({ dispatch, pump });`, context);
   const reset = pump.reset;
   pump.reset = () => { resets++; reset(); };
   const at = milliseconds => {

@@ -1,0 +1,9 @@
+{
+  "src/ui.js": "3e4c14a0b32fa168178fa26f4bc5ffdcf467dec012a969add9535faa5d65c587",
+  "src/engine.js": "1130f326f5be555b0db0afa40f5fdaa2deb5837981d7356afc2a4182569ab526",
+  "src/loot.js": "2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7",
+  "src/session.js": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a",
+  "index.html": "1d5b39287218b768b50bbef38d114cbec346d4338a35cd7d11fed152a6f6e1e0",
+  "style.css": "d31722ee0ac457455f10464d2ad454aa6cc0d72e89afb2ac74ea2561164c2203",
+  "package.json": "6ea5f62c930b5e332fed288d3246b8265ff462e510aaa18b7ee70dd8c1392dde"
+}

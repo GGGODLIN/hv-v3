@@ -119,7 +119,7 @@ test('v0.2 integration source contract: rAF renders only; import and persistence
   const ui=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8');
   const frame=ui.slice(ui.indexOf('function frame(now)'),ui.indexOf('if (loadProblem)'));
   assert.doesNotMatch(frame,/advance\(|pump\.tick\(/);
-  assert.equal((ui.match(/step: seconds => advance\(state, seconds\)/g)||[]).length,1);
+  assert.equal((ui.match(/step: advanceBattleTempo/g)||[]).length,1);
   assert.match(ui,/if \(!ownership.supported \|\| !tabOwner/);
   const imports=ui.slice(ui.indexOf("let importGeneration = 0;"),ui.indexOf("window.addEventListener('pagehide'"));
   assert.ok(imports.indexOf('if(!claimLease')<imports.indexOf('state=restored'));

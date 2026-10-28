@@ -51,7 +51,7 @@ test('all eight quality labels come from the loot tiers without falling back', (
  test('simulation timer is separate from rAF, safe fallback never writes saves', () => {
   const frame = js.slice(js.indexOf('function frame(now)'));
   assert.doesNotMatch(frame, /advance\(state/);
-  assert.match(js, /step: seconds => advance\(state, seconds\)/);
+  assert.match(js, /step: advanceBattleTempo/);
   assert.match(js, /if \(!ownership.supported \|\| !tabOwner \|\| preventOverwrite/);
   assert.match(html, /background-toggle/);
   assert.match(html, /takeover-button/);
