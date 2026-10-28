@@ -764,3 +764,12 @@ dialog::backdrop { background: #071016d9; backdrop-filter: none; }
 .inventory-name-filter label { display: grid; gap: 5px; min-width: 0; font-size: 12px; }
 .inventory-name-filter input { width: 100%; min-width: 0; min-height: 40px; padding: 9px 10px; color: var(--text); background: #17282e; border: 1px solid var(--line); border-radius: 7px; }
 .inventory-name-filter input::placeholder { color: var(--muted); }
+
+/* v055: same-slot character projection, separated from raw equipment affixes. */
+.loadout-preview { margin: 12px 0; padding: 12px; border: 1px solid var(--border, #735c38); background: #211e17; min-width: 0; }
+.loadout-preview h4 { margin: 0 0 8px; color: #efdfba; font-size: 1rem; }
+.loadout-preview .compare-row { font-variant-numeric: tabular-nums; }
+.loadout-preview-note, .loadout-preview-condition { margin: 8px 0 0; line-height: 1.55; overflow-wrap: anywhere; }
+.loadout-preview-condition { color: #e3c991; font-size: .8rem; }
+.loadout-preview .compare-row, .loadout-preview .compare-heading { grid-template-columns: minmax(0, .85fr) minmax(0, 1.35fr) minmax(0, 1fr); gap: 6px; }
+.loadout-preview .compare-row > *, .loadout-preview .compare-heading > * { min-width: 0; overflow-wrap: anywhere; }

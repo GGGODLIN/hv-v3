@@ -1194,7 +1194,7 @@ function render(force = false) {
   $('heal-button').textContent = `補給藥水 · ${state.potions ?? 0}`;
   $('control-hint').textContent = trial.active ? `目標：${trial.targetName} · 完成五回合才獲 IW1；結束必回營，不自動重刷。` : state.mode === 'battle' ? (state.autoAdvance ? '自動推進中 · 隨時可回營整備' : '自動重刷本關 · 回營後才能換裝與出售') : state.mode === 'defeat' ? '點「回營整備」恢復，再挑戰較適合的關卡。' : departure.reason || '自動戰鬥 · 不考手速 · 隨時回營換裝';
   reconcileSelectedSale();
-  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, state.pendingLoot, selectedId, selectedSlot, inventoryFilters(), $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.soulFragments, state.worldSeeds]);
+  const inventorySignature = JSON.stringify([[...selectedSaleIds], tabOwner, state.inventory, state.pendingLoot, selectedId, selectedSlot, inventoryFilters(), $('sort-select').value, state.equipment, state.gearSets, state.mode, state.hero.level, state.hero.attributes, state.hero.proficiency, state.abilities, state.soulFragments, state.worldSeeds]);
   if (force || inventorySignature !== lastInventorySignature) { lastInventorySignature = inventorySignature; renderInventory(); renderPendingLoot(); renderItemDetail(); }
   const equipmentSignature = JSON.stringify(state.equipment);
   if (force || equipmentSignature !== lastEquipmentSignature) { lastEquipmentSignature = equipmentSignature; renderEquipment(); }
@@ -1461,6 +1461,34 @@ function claimPendingLoot() {
   if (selectedWasPending && state.inventory.some(item => item.id === selectedId)) $('item-detail').querySelector('.detail-name')?.focus?.();
   else if (!state.pendingLoot.length) $('slot-filter').focus();
 }
+// A detached equipment-map projection only; never dispatch an equip action,
+// recover HP, consume RNG, alter inventory, or write progress to inspect gear.
+function itemLoadoutPreview(item, pending) {
+  const before = stats(state);
+  const after = stats({ ...state, equipment: { ...state.equipment, [item.slot]: item } });
+  const section = node('section', 'loadout-preview');
+  section.setAttribute('aria-label', '換裝後角色面板預覽');
+  section.append(node('h4', '', '換上後，角色會怎麼變？'));
+  const table = node('div', 'compare-table loadout-preview-table');
+  const heading = node('div', 'compare-heading');
+  heading.append(node('span', '', '角色面板'), node('span', '', '目前 → 換上後'), node('span', '', '差值'));
+  table.append(heading);
+  for (const [key, label, rate] of [['maxHp', '生命上限', false], ['attack', '攻擊 ADB', false], ['mitigation', '一般物理減傷', true], ['crit', '暴擊率', true], ['evade', '閃避判定率', true], ['block', '格擋判定率', true], ['parry', '招架判定率', true]]) {
+    const diff = after[key] - before[key];
+    const value = number => rate ? `${Number((number * 100).toFixed(4))}%` : String(Number(number.toFixed(4)));
+    // Use the rate formatter explicitly: equipment parry is a rating, but the
+    // derived parry value here (and mitigation) is a bounded probability.
+    const delta = statDeltaText(rate ? 'crit' : key, diff, '相同');
+    const row = node('div', 'compare-row loadout-preview-row'); row.dataset.stat = key;
+    row.append(node('span', '', label), node('strong', '', `${value(before[key])} → ${value(after[key])}`), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta));
+    table.append(row);
+  }
+  section.append(table, node('p', 'muted loadout-preview-note', '只替換這個部位，保留目前等級、屬性與已裝配能力；機率差是百分點，各判定率不是整體免傷率。這不是 DPS 或勝率預測，不含武器特效、敵人狀態與 Protection 等戰鬥效果。'));
+  const condition = pending ? '待領裝備：先領入背包，再回營換裝。' : !tabOwner ? '唯讀預覽：接手並回營後才能換裝。' : state.mode === 'battle' ? '僅預覽：回營後才能換裝。' : '僅預覽，尚未換裝；確認後使用「換上裝備」。';
+  section.append(node('p', 'loadout-preview-condition', condition));
+  return section;
+}
+
 function renderItemDetail() {
   detailActionButtons.clear();
   const inventoryItem = state.inventory.find(item => item.id === selectedId);
@@ -1555,7 +1583,7 @@ function renderItemDetail() {
   const detailHeading = node('div', 'detail-item-heading');
   const identity = node('div', 'detail-identity'); identity.append(quality, name, subtitle);
   detailHeading.append(itemIcon(item), identity);
-  wrap.replaceChildren(detailHeading, table, actions, explanation, description, trait, soulbind, itemWorld);
+  wrap.replaceChildren(detailHeading, actions, ...(!selectedSlot ? [itemLoadoutPreview(item, pending)] : []), table, explanation, description, trait, soulbind, itemWorld);
   if (restoreSoulbindFocus && bindButton && !bindButton.disabled) bindButton.focus();
   if (restoreItemWorldFocus && itemWorldButton && !itemWorldButton.disabled) itemWorldButton.focus();
   if (restoreRuleFocus && ruleSummary) ruleSummary.focus({ preventScroll: true });
