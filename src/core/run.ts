@@ -614,14 +614,22 @@ export function nextIsBoss9(run: RunState): boolean {
   if (nx) return nx.options.includes('boss');
   return !!run.abyss && (depthOf(run) + 1) % 5 === 0;
 }
+/** rc11 item 5（自訂，非原版，估算無出處）: health potions the next boss fight is expected to need. Method: QA rc9/rc10 boss fights drank
+ *  about 2–4 potions up to F20 and 4–19 from F30 on (median rising with depth), so need = 3 up to depth 20, +1 per 5 depths after, capped at 8
+ *  (= the merchant's useful top-up in one visit, 推測). Depth = the next boss depth (multiple of 5) in the abyss, else the floor number. */
+export const POTNEED9 = { base: 3, from: 20, per5: 1, cap: 8 };
+export function potNeed9(run: RunState): number {
+  const d = (run.abyss ? depthOf(run) : run.floor) + 1, boss = Math.ceil(d / 5) * 5;
+  return Math.min(POTNEED9.cap, POTNEED9.base + Math.max(0, Math.floor((boss - POTNEED9.from) / 5)) * POTNEED9.per5);
+}
 export function routeAdvice9(p: Player, run: RunState): { i: number; why: string } | null {
   const opts = run.tower.floors[run.floor - 1]?.options ?? [];
   if (opts.length < 2) return null;
-  const frac = run.hp / Math.max(1, runDerived(p, run).hp), pots = p.potions.health ?? 0, low = pots < ROUTE9.potLow;
+  const frac = run.hp / Math.max(1, runDerived(p, run).hp), pots = p.potions.health ?? 0, need = ROUTE9.potLow > 0 ? potNeed9(run) : 0, low = pots < need; // rc11 item 5: was a fixed potLow 3
   const pre = nextIsBoss9(run), buy = p.credits >= RULES.potionPrice.health;
   const sc = (t: NodeType): [number, string] => {
     switch (t) {
-      case 'merchant': return buy && low ? [pre ? 100 : 70, `生命藥水只剩 ${pots} 瓶${pre ? '，下一層是首領' : ''}：先去商人補藥（${RULES.potionPrice.health}C／瓶）`] : buy ? [35, '可補藥水'] : [10, '金幣不足'];
+      case 'merchant': return buy && low ? [pre ? 100 : 70, `生命藥水 ${pots} 瓶 < 下一隻首領預估 ${need} 瓶${pre ? '（下一層是首領）' : ''}：先去商人補藥（${RULES.potionPrice.health}C／瓶）`] : buy ? [35, '可補藥水'] : [10, '金幣不足'];
       case 'rest': return frac < ROUTE9.restBelow ? [80, `HP ${Math.round(frac * 100)}%：先休息回血`] : pre && frac < ROUTE9.preBossRestBelow ? [50, `下一層是首領，HP ${Math.round(frac * 100)}%：休息補滿`] : [15, 'HP 充足'];
       case 'chest': return [low ? 60 : 45, low ? `藥水只剩 ${pots} 瓶：寶箱有機會開出藥水` : '寶箱：裝備／金幣／藥水，沒有戰鬥風險'];
       case 'battle': return [frac >= ROUTE9.restBelow ? 30 : 5, '一般戰鬥'];
