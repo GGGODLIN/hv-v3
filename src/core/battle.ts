@@ -1030,7 +1030,9 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   s.monsters.forEach((m0, i) => {
     const m = m0 as CM;
     if (m.hp <= 0 || s.hp <= 0) return;
-    if (s.cp5) { if (m.thornTurns) m.thornTurns--; if (m.ironTurns) m.ironTurns--; }
+    if (s.cp5) { // rc11b item 2: expiry lines (QA could not tell when the 尖刺盾 / 鐵壁 ended)
+      if (m.thornTurns && --m.thornTurns === 0) ev.push({ t: 'status', to: i, text: '尖刺盾消失了（物理攻擊不再反彈）' });
+      if (m.ironTurns && --m.ironTurns === 0) ev.push({ t: 'status', to: i, text: '鐵壁消失了' }); }
     if ((m.status.paTurns ?? 0) > 0 && --m.status.paTurns! <= 0) m.status.pa = 0;
     const lock9 = (m.windCd ?? 0) > 0; if (lock9) m.windCd!--; // cp9-rc7 items 2/3（自訂）: wind-up lockout (counts every boss turn, stunned or not)
     if ((m.stunImm9 ?? 0) > 0 && m.status.stun <= 0) m.stunImm9!--; // cp9-rc8 (c)1（自訂）: stun-immunity countdown (boss turns)
