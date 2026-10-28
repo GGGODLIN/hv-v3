@@ -23,6 +23,10 @@ export const RULES = {
   dropAccel: 8,
   /** rc19 (b): battle potion drops use the original Restoratives rolls when cp8 is on. false = rc18 (3:1:1 on every non-equip drop). */
   origPotionDrop: true,
+  /** rc10 spec item 1（自訂，非原版）: QA rc9 runs got 0 potions from battles — the original rolls (F-003-restorative-rolls 0.35 × 0.19,
+   *  Draught/Elixir unbuilt) give ~0.2–0.4% health per monster. Like equipmentRoll × dropAccel, each consumable roll is multiplied by
+   *  dropAccel (8×, the single-player drop boost) and capped at 1. The type split stays the original equal 1/3. false = original rate. */
+  potDropAccel: true,
   /** rc20 item 4（自訂，非原版）: with origPotionDrop the original rolls give ~0.5% potion per monster, so an elite battle also guarantees 1 health potion. */
   eliteHealthPotion: true,
   /** CP3: EXP multiplier back to the original x1 (P-exp-multiplier). Early pacing comes from the trip carry-back multiplier. */
@@ -394,7 +398,8 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
           if (RULES.cp8 && RULES.origPotionDrop) {
             // rc19 (b) producer 2026-10-27: potion drops follow the original rolls (F-003-restorative-rolls). Unbuilt items (Draught/Elixir/crystals...) drop nothing.
             const RR = C['F-003-restorative-rolls'].value;
-            if (rng.chance(RR.restoratives) && rng.chance(RR.potion)) { const k = RR.types[rng.int(0, RR.types.length - 1)] as PotionId; loot.potions[k] = (loot.potions[k] ?? 0) + 1; }
+            const ac = RULES.potDropAccel && !ADVICE_DIAG.revert.has('potdrop') ? RULES.dropAccel : 1; // rc10 spec item 1（自訂）
+            if (rng.chance(Math.min(1, RR.restoratives * ac)) && rng.chance(Math.min(1, RR.potion * ac))) { const k = RR.types[rng.int(0, RR.types.length - 1)] as PotionId; loot.potions[k] = (loot.potions[k] ?? 0) + 1; }
           } else {
             const k = rng.weighted<PotionId>([['health', 3], ['mana', 1], ['spirit', 1]]); // pre-rc19 (no source)
             loot.potions[k] = (loot.potions[k] ?? 0) + 1;
