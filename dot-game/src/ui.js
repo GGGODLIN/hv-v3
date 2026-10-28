@@ -1326,6 +1326,7 @@ function buildAbilityList(entries) {
 function renderExpeditionReports() {
   const reports = expeditionReports(state).slice(0, 2);
   $('pin-report').disabled = !reports.length;
+  $('export-report').disabled = !reports.length;
   const signature = JSON.stringify([reports, pinnedExpeditionReport]);
   if (signature === lastReportSignature) return;
   lastReportSignature = signature;
@@ -1335,6 +1336,27 @@ function renderExpeditionReports() {
   $('pinned-report').replaceChildren(...(pinnedExpeditionReport ? [expeditionReportCard(pinnedExpeditionReport, '比較基準 · 手動保留')] : []));
   const latest = reports[0];
   $('report-status').textContent = latest ? `${latest.itemWorld ? '已記錄最近一次 Item World 試煉' : `已記錄第 ${format(latest.stage)} 層的最近一次遠征`}；新遠征開始後仍可查看。${pinnedExpeditionReport ? '比較基準已保留，不會隨新戰報替換。' : ''}` : '遠征通關、戰敗或中途回營後，戰報會自動出現在這裡。';
+}
+// Export a detached, completed report only: this is not a restorable save.
+function exportRecentExpeditionReport() {
+  const report = expeditionReports(state)[0];
+  if (!report) { showToast('還沒有已結束戰報；先完成或結束一場遠征。'); return; }
+  let url = null, link = null;
+  try {
+    const exportedAt = new Date().toISOString();
+    const record = { format: 'hv-v3-dot-expedition-report', version: 1, exportedAt,
+      notice: '僅最新已結束遠征的觀測快照，不是遊戲存檔，不能匯入恢復；不是受控配裝比較，未列全部影響因素。', report };
+    const blob = new Blob([JSON.stringify(record, null, 2)], { type: 'application/json' });
+    url = URL.createObjectURL(blob); link = node('a'); link.href = url;
+    link.download = `hv-v3-dot-report-${exportedAt.replace(/[:.]/g, '-')}.json`;
+    document.body.append(link); link.click();
+    const completedUrl = url; setTimeout(() => URL.revokeObjectURL(completedUrl), 10000);
+    url = null;
+    showToast('戰報已準備下載，請確認檔案保存位置；這不是遊戲存檔。');
+  } catch {
+    if (url) URL.revokeObjectURL(url);
+    showToast('戰報匯出失敗，請稍後再試；遊戲進度未變更。');
+  } finally { link?.remove(); }
 }
 function pinRecentExpeditionReport() {
   const latest = expeditionReports(state)[0];
@@ -2037,6 +2059,7 @@ $('start-button').addEventListener('click',()=>{const previousMode=state.mode;if
 $('retreat-button').addEventListener('click',()=>dispatch('retreat'));
 $('heal-button').addEventListener('click',()=>dispatch('heal'));
 $('pin-report').addEventListener('click', pinRecentExpeditionReport);
+$('export-report').addEventListener('click', exportRecentExpeditionReport);
 $('claim-pending').addEventListener('click', claimPendingLoot);
 for (const strategy of STRATEGIES) { const option = node('option', '', strategy.label); option.value = strategy.id; $('strategy-select').append(option); }
 $('strategy-select').addEventListener('change', event => dispatch('setStrategy', event.target.value));

@@ -72,7 +72,7 @@ test('extra supply uses an unchecked native checkbox with truthful bounded adapt
   assert.match(html,/aria-labelledby="emergency-supply-heading"/);
   for(const cue of ['均衡／猛攻 · 額外緊急補給','剛好 30% 不使用','可以用到最後 1 瓶','不受此開關控制','每次出征補到 3 瓶','每瓶恢復最大 HP 的 40%','不是原版 HV 藥水公式','不會自動購買'])assert.ok(html.includes(cue),cue);
   assert.match(css,/#emergency-supply:focus-visible/);assert.match(css,/\.emergency-supply-live\[hidden\]/);assert.match(css,/\.emergency-supply-panel \{ min-width: 0/);
-  assert.match(html,/v0\.48 · 來源候選/);
+  assert.match(html,/v0\.49 · 來源候選/);
 });
 test('default OFF keeps manual-only wording and repeated renders never spend stock or move focus',async t=>{
   const {h}=await ready(t);const before=JSON.stringify(h.state),toggle=h.dom['emergency-supply'];

@@ -1,5 +1,10 @@
 # Independent development roadmap
 
+## v0.49 source-only slice: keep a completed report
+
+Download the latest completed expedition as a detached JSON report, not a save or a controlled build comparison. Keep no-report disabled, readonly access, temporary link cleanup and honest download feedback. Do not change gameplay, profile storage or pin state. Real-browser download acceptance remains pending; zero website operations.
+
+
 ## v0.48 source-only slice: honest fractional comparisons
 
 Keep signed nonzero equipment differences visible rather than formatting them as zero/equality; mark probability differences as percentage points. Four decimals and an explicit sub-precision bound are view formatting, not a gameplay change. Same behavior in manual-sale comparison. No website writes or browser acceptance claim.

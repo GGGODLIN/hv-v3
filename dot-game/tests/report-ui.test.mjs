@@ -188,9 +188,10 @@ test('report markup is persistent, accessible, narrow-screen wrapping, and expli
   const section = html.slice(html.indexOf('<section class="expedition-reports'), html.indexOf('<section class="weapon-commission'));
   assert.match(section, /aria-labelledby="report-heading"/); assert.doesNotMatch(section.slice(0, section.indexOf('>')), /\bhidden\b/);
   assert.match(section, /id="report-status"[^>]*role="status"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
-  assert.match(section, /<details class="report-rules"><summary>/); assert.equal((section.match(/<button\b/g) || []).length, 1);
+  assert.match(section, /<details class="report-rules"><summary>/); assert.equal((section.match(/<button\b/g) || []).length, 2);
   for (const text of ['不寫入存檔', '重新整理、匯入或載入其他進度後清空', '進度控制權變更時清空', '關卡、出發等級、裝備、戰術或隨機判定不同', '不能直接推論差異由換裝造成', '同關也不是受控比較',
     '超過剩餘生命的部分不計', '不扣回治療量', '成功施加／刷新，不是層數或命中率', '沒有估算穿透護甲多打多少、暈眩擋下多少傷害', '不能直接與通關時間相比', '自動重刷也會更新']) assert.ok(section.includes(text), text);
+  assert.match(section, /id="export-report"[^>]*disabled/);
   assert.doesNotMatch(section, /<table|最佳配裝|更高分.*更好|每秒傷害\s*\d/);
   assert.match(css, /\.expedition-report-card \{[^}]*min-width: 0[^}]*overflow-wrap: anywhere/);
   assert.match(css, /@media\(max-width:680px\) \{ \.expedition-report-list \{ grid-template-columns: minmax\(0, 1fr\)/);
