@@ -354,6 +354,8 @@ export class App {
     // rc20 items 1–2（自訂，非原版）: while HP is in danger / low the only hint is chargeAdvice (no skill / spell suggestion: QA rc19 oc2 HP 3/1044 → Q·盾擊).
     // cp9-rc4 (A)（自訂，暫定）: every hint comes from core turnHints — the same function the sim's naive/ui policy presses — with no lean
     // gate (rc3: bulwark / arcane never saw the skill hint the sim used). The skill hint lights whenever turnHints suggests a skill.
+    // rc12k item 3（自訂）: ★ avoids a lethal 反傷 by switching target — the A / skill buttons press this.target, so follow ★'s target.
+    if (RULES.cp8 && !b.over) { const a0 = primaryKey(b, this.target).action as { target?: number }; if (a0.target != null && a0.target !== this.target && b.monsters[a0.target]?.hp) this.target = a0.target; }
     const th = turnHints(b, this.target), adv = th.adv, dangerNow = th.danger;
     // rc12c item 1（製作人 (c)/(b)，自訂）: exactly one ★ key per turn (core primaryKey, shared with the sim's SIM_POLICY=primary).
     // Status bar, 決策 line and the single ★ button all show it; the 💡 「可以用了」 line is gone.

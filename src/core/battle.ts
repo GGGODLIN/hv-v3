@@ -426,7 +426,9 @@ export function reflectRisk9(s: BattleState, target: number): number {
   return Math.min(Math.round(s.d.hp * CP5.reflectCapHp), Math.round(attackValue(s, target) * 2 * frac * (1 - s.d.physMit) * (1 - s.d.specMit[m.attackType])));
 }
 const physA9 = (s: BattleState, target: number): boolean => quickAttack(s, target).kind !== 'spell';
-export const reflectLethal9 = (s: BattleState, target: number): boolean => RULES.cp8 && CP9.on && physA9(s, target) && reflectRisk9(s, target) >= Math.round(s.hp);
+/** rc12k item 3（自訂）: QA rc12j bulwark-1 F75 — ★ pressed Q/A into a 尖刺盾 boss at HP 283–374 because the reflect alone (≤ 107) was below HP,
+ *  but the monsters still swing after the reflect in the same round. Lethal = reflect + this round's incoming estimate ≥ HP. */
+export const reflectLethal9 = (s: BattleState, target: number): boolean => { if (!(RULES.cp8 && CP9.on) || !physA9(s, target)) return false; const r = reflectRisk9(s, target); return r > 0 && r + nextRoundEstimate(s) >= Math.round(s.hp); };
 /** rc12 bug b（QA bulwark F40 t14）: the status banner said 「不防禦會死！建議 A」 while the decision line said 「不必防禦」. Root cause: the banner
  *  label checked only defVerdictAt9 === 'safe' (defending survives) and never whether the hit is lethal — hpDanger also fires on low HP / the 40% trigger,
  *  and then CP9.dMin or the HP 1 rule turns the advice into A. Now 「不防禦會死！」 needs a lethal estimate AND D as the advice. */
@@ -1282,6 +1284,9 @@ export function bestSpell12j(s: BattleState, target: number): SpellId | undefine
   return best;
 }
 function primaryKey0(s: BattleState, target: number): PrimaryKey {
+  // rc12k item 3（自訂）: target reflects lethally → ★ switches to a live foe it can hit safely (UI and SIM_POLICY=primary share this).
+  if (reflectLethal9(s, target)) { const alt = s.monsters.findIndex((m, i) => i !== target && m.hp > 0 && !reflectLethal9(s, i));
+    if (alt >= 0) { const r = primaryKey0(s, alt); if (r.action.kind !== 'defend' && r.action.kind !== 'item' && r.action.kind !== 'spirit') return { ...r, why: `改打${s.monsters[alt]!.name ?? '其他敵人'}（攻擊${s.monsters[target]!.name ?? '目標'}的反傷可能致命）；${r.why}` }; } }
   const th = turnHints(s, target), adv = th.adv, kit = skillKit(s), spells = Object.keys(SPELLS) as SpellId[];
   const qa = (): PrimaryKey => ({ key: 'A', label: 'A·攻擊', action: quickAttack(s, target), why: '普通攻擊', src: 'attack' });
   const fromKey = (k: string): Omit<PrimaryKey, 'why' | 'src'> | null => {
@@ -1302,5 +1307,6 @@ function primaryKey0(s: BattleState, target: number): PrimaryKey {
     if (!th.spell) { const best = bestSpell12j(s, target); if (best) { const i = spells.indexOf(best); return { key: String(i + 1), label: `${i + 1}·${SPELLS[best].zh}`, action: { kind: 'spell', id: best, target }, why: '傷害最高的可用法術', src: 'spell' }; } }
   }
   if (th.spell) { const i = spells.indexOf(th.spell.id); return { key: String(i + 1), label: `${i + 1}·${SPELLS[th.spell.id].zh}`, action: { kind: 'spell', id: th.spell.id, target }, why: `${th.spell.pct > 0 ? '弱點' : '傷害較高'}元素`, src: 'spell' }; }
+  if (reflectLethal9(s, target) && canUse(s, { kind: 'defend' })) return { key: 'D', label: 'D·防禦', action: { kind: 'defend' }, why: `攻擊會吃反傷約 ${reflectRisk9(s, target)}，加上本回合敵方攻擊可能致命：先防禦`, src: 'advice' }; // rc12k item 3（自訂）
   return qa();
 }
