@@ -955,6 +955,7 @@ export class App {
     this.log.push(`<span class="regen">自然回復 HP +${g.hp} · MP +${g.mp} · SP +${g.sp}</span>`);
     { const big = turnHits.length ? turnHits.reduce((x, y) => (y.charged && !x.charged) || (y.charged === x.charged && y.dmg > x.dmg) ? y : x) : undefined; this.recent = [...this.recent, { turn: b.turn, taken: turnDamage(ev), big }] /* cp9 (d) bug 1（自訂） */.slice(-3); this.potSnap = { pots: b.potions.health, cd: b.itemCd.health }; } // rc21 item 3: 0-damage turns are recorded too. // cp8-rc7 P1 item 5
     await capped(this.stage.play(ev, b), 2000 + ev.length * 300); // cp8-rc10 P1-9
+    this.stage.refresh(); // rc10 QA（自訂）: end-of-round status (stunImm9 countdown/start) emits no event → redraw bars + 暈眩抵抗 tag
     if (b.cp5) { if (this.stage.mons.length < b.monsters.length) { this.stage.setMonsters(b.monsters); this.stage.setTarget(this.target); } this.cp5Tips(b); }
     this.busy = false;
     let q = this.queued; this.queued = this.queued2; this.queued2 = null; // rc16 item 7
