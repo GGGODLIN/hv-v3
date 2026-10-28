@@ -1,5 +1,9 @@
 # Independent development roadmap
 
+## v0.51 source-only slice: keep uncreditable sale items
+
+Enforce the existing save gold ceiling before single, safe and legacy-common manual sales mutate anything. Preserve full items/pending queue at overflow, exact-cap success and ordinary prices. Do not claim other reward paths are covered. No website writes or browser acceptance.
+
 ## v0.50 source-only slice: clear local report baseline
 
 Allow clearing only the pinned comparison baseline while retaining the latest reports and all game/profile state. Keep empty disabled, local readonly/battle access and useful keyboard return. No website writes or actual-browser acceptance.

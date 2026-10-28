@@ -674,6 +674,10 @@ function safeSaleEntry(item, keepers) {
 /** Pure, detached exact-ID preview. Only equipped or locked inventory items can
  * witness a sale; pending loot and other sale candidates are never keepers.
  */
+// Manual sale must never consume items for proceeds that cannot round-trip a save.
+function canCreditManualSale(s, total) {
+  return Number.isFinite(s.hero.gold) && s.hero.gold >= 0 && Number.isSafeInteger(total) && total >= 0 && s.hero.gold + total <= 1e12;
+}
 export function previewSafeSale(s) {
   const empty={items:[],total:0};
   try {
@@ -1429,6 +1433,7 @@ export function act(s, action, payload) {
     // Validate the whole exact set before any gold/item mutation. Requested
     // keepers cannot be candidates, so every witness survives this transaction.
     const requested=new Set(ids),total=ids.reduce((sum,id)=>sum+eligible.get(id).value,0);
+    if(!canCreditManualSale(s,total))return s;
     s.hero.gold+=total;s.inventory=s.inventory.filter(item=>!requested.has(item.id));refillPending(s);
     log(s,`安全出售 ${ids.length} 件低品質裝備 · +${total} 金幣；同型保留裝備與鎖定裝備均保留。`);
     return s;
@@ -1447,8 +1452,8 @@ export function act(s, action, payload) {
   const item=s.inventory.find(i=>i.id===payload);
   if(action==='lock'&&item){if(boundMetadata(item)||isGearSetProtected(s,item.id))return s;item.locked=!item.locked;return s;}
   if(action==='equip'&&item){const old=s.equipment[item.slot];s.inventory.splice(s.inventory.indexOf(item),1,old);s.equipment[item.slot]=item;recover(s);event(s,'loot',`已裝備 ${item.name}`);return s;}
-  if(action==='sell'&&item&&!boundMetadata(item)&&!item.locked&&!isGearSetProtected(s,item.id)){s.hero.gold+=Math.max(1,Math.round(item.level*3+item.power));s.inventory.splice(s.inventory.indexOf(item),1);refillPending(s);return s;}
-  if(action==='sellCommon'){const sold=s.inventory.filter(i=>!boundMetadata(i)&&!i.locked&&!isGearSetProtected(s,i.id)&&['Crude','Fair','Average'].includes(i.quality));s.hero.gold+=sold.reduce((n,i)=>n+Math.max(1,Math.round(i.level*3+i.power)),0);s.inventory=s.inventory.filter(i=>!sold.includes(i));refillPending(s);log(s,`整理了 ${sold.length} 件普通裝備；鎖定裝備均保留。`);}
+  if(action==='sell'&&item&&!boundMetadata(item)&&!item.locked&&!isGearSetProtected(s,item.id)){const total=Math.max(1,Math.round(item.level*3+item.power));if(!canCreditManualSale(s,total))return s;s.hero.gold+=total;s.inventory.splice(s.inventory.indexOf(item),1);refillPending(s);return s;}
+  if(action==='sellCommon'){const sold=s.inventory.filter(i=>!boundMetadata(i)&&!i.locked&&!isGearSetProtected(s,i.id)&&['Crude','Fair','Average'].includes(i.quality));const total=sold.reduce((n,i)=>n+Math.max(1,Math.round(i.level*3+i.power)),0);if(!canCreditManualSale(s,total))return s;s.hero.gold+=total;s.inventory=s.inventory.filter(i=>!sold.includes(i));refillPending(s);log(s,`整理了 ${sold.length} 件普通裝備；鎖定裝備均保留。`);}
   return s;
 }
 function sanitizeItem(raw, expectedSlot) {

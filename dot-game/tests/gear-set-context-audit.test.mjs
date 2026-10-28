@@ -1,3 +1,4 @@
+import {beforeManualSaleCap} from './helpers/manual-sale-cap-baseline.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -54,12 +55,12 @@ function fixture(level=30){
 const policies=s=>copy({strategy:s.strategy,targetPriority:s.targetPriority,autoProtection:s.autoProtection,emergencySupply:s.emergencySupply,abilities:s.abilities});
 const itemIds=s=>[...Object.values(s.equipment),...s.inventory,...s.pendingLoot].map(i=>i.id).sort();
 
-test('v029 audit: gameplay and save/session inputs remain exact v028 bytes (v031 intentionally changes styles)',()=>{
+test('v029 audit: gameplay and save/session inputs remain exact v028 bytes (v031 changes styles; v051 sale guard reversed for historical hash)',()=>{
   for(const [path,expected] of Object.entries({
     'src/engine.js':'020c1717d24c20bd914241b3f30adbc091c5a2a851cec8917dca7fc403f21a6d',
     'src/loot.js':'2ee338bfd17388746784cda8788afdc18e45afcbf0a1a32808a34b4bf3783ce7',
     'src/session.js':'821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a',
-  }))assert.equal(createHash('sha256').update(readFileSync(new URL('../'+path,import.meta.url))).digest('hex'),expected,path);
+  }))assert.equal(createHash('sha256').update(beforeManualSaleCap(readFileSync(new URL('../'+path,import.meta.url),'utf8'),path)).digest('hex'),expected,path);
 });
 
 test('v029 audit: apply context observes current choices, never the choices at preset save',()=>{
