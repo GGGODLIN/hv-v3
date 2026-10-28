@@ -1182,7 +1182,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1), spec: s.d.specMit[el ?? m.attackType], // cp9-rc5 (1)（自訂）
     });
     const plain12g = RULES.cp8 && CP9.on && CP9.bossAtk > 0 && m.rank === 'boss' && mult === 1 && !label ? Math.floor(CP9.bossAtk * s.d.hp) : Infinity; // rc12g step 4（自訂）: an unlabelled boss hit (incl. crit) ≤ bossAtk × max HP — QA oc2 F80 496/1163 was a crit on the refHp-capped adb under the 50% telegraphed budget
-    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, plain12g, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
+    const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || !!label) ? Math.floor(CP9.minionCharge * s.d.hp) : Infinity; // rc12i item 2（自訂）: a non-boss charged / labelled hit ≤ 40% of actual max HP (QA bw2 F60 610/1221)
+    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, plain12g, minion12i, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
     s.hp = Math.max(0, s.hp - dmg); took9 += dmg; ACT9.taken += dmg; // cp9 (b): reflect / burn / bleed later this act share the budget;（自訂）: count hits, not net HP (mid-round heals no longer reopen the cap)
     RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
