@@ -1,4 +1,4 @@
-import { bossDmg, dealtBy, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
+import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
 import { stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
@@ -924,6 +924,7 @@ export class App {
     const bh0 = b.monsters.map((m) => m.hp);
     const ev = act(b, a, this.rng, profsOf(this.p));
     if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { runId: this.run.qaId ??= newRunId(), lean: this.p.lean ?? '', floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)), bossMaxHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + m.maxHp, 0)) }); // rc11 item 6 (+ bossMaxHp rc11c)
+    if (b.over === 'lose') flushTurnLog(localStorage); // rc12 item 5: the fatal turn is stored before the death screen / export
     { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4
       const fresh = castable().filter((id) => !can0.includes(id));
       this.cdPending = [...new Set([...this.cdPending, ...off, ...fresh])].filter((id) => !this.cdShown.includes(id) && b.cooldowns[id] <= 0); }
