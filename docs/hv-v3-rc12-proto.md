@@ -63,3 +63,49 @@ SIM_CAP=100：從 checkpoint 100 出發的 trip 會反覆打 d100 boss；主塔 
 ## 推測／待決
 - 派差主因應從 preset bulwark 的藥水剩餘下手（例如 preset 藥水量或 bulwark 減傷），不屬於本輪方案，需製作人指示。
 - 建議組合：c1（1a+2b+3）+ 削弱版 6；需再跑一輪。
+
+## rc12 迭代（13:13 製作人定案後）
+
+基準 r1 = 新預設（2b dCounter 0.5 自訂、3 商人先於休息、4 HP1 提示、5、bug a/b、方案6 原值、平滑曲線 自訂）。每輪只動一個自訂旋鈕（env，未改程式預設）。
+
+### r2
+旋鈕 SIM_STUNIMM=4（自訂，原 2）
+```
+r2   std    battle spread 16.5 | arc m40.0 F100 0.05 bt   13 z 0.31 D 0.28 pot 0.8 | bla m51.0 F100 0.32 bt  7.0 z 0.22 D 0.12 pot 3.6 | bul m35.0 F100 0.02 bt   17 z 0.22 D 0.25 pot 0.7 | oc m34.5 F100 0.03 bt   15 z 0.38 D 0.28 pot 0.7
+r2   std    hint   spread 35.0 | arc m65.0 F100 0.29 bt 17.0 z 0.31 D 0.28 pot 3.9 | bla m100.0 F100 0.75 bt    7 z 0.21 D 0.13 pot 22.9 | bul m89.5 F100 0.49 bt 20.0 z 0.23 D 0.26 pot 12.8 | oc m100.0 F100 0.52 bt 17.0 z 0.39 D 0.28 pot 14.5
+r2   preset battle spread 10.0 | arc m35.0 F100 0.00 bt 13.0 z 0.28 D 0.34 pot 0.0 | bla m35.0 F100 0.03 bt    9 z 0.25 D 0.31 pot 0.2 | bul m40.0 F100 0.04 bt   14 z 0.19 D 0.27 pot 0.1 | oc m30.0 F100 0.02 bt 11.0 z 0.33 D 0.35 pot 0.2
+r2   preset hint   spread 49.5 | arc m55.0 F100 0.12 bt 18.0 z 0.29 D 0.31 pot 0.8 | bla m65.0 F100 0.36 bt   10 z 0.25 D 0.28 pot 7.9 | bul m100.0 F100 0.87 bt   15 z 0.20 D 0.26 pot 21.7 | oc m50.5 F100 0.34 bt 13.0 z 0.35 D 0.32 pot 9.7
+```
+### r3
+旋鈕 SIM_STUNIMM=8（自訂）
+```
+r3   std    battle spread 15.5 | arc m40.0 F100 0.04 bt   13 z 0.31 D 0.28 pot 0.7 | bla m50.5 F100 0.31 bt    7 z 0.22 D 0.12 pot 3.3 | bul m35.0 F100 0.04 bt   17 z 0.22 D 0.26 pot 0.9 | oc m35.0 F100 0.04 bt 15.0 z 0.38 D 0.28 pot 0.7
+r3   std    hint   spread 35.0 | arc m65.0 F100 0.27 bt   18 z 0.31 D 0.28 pot 3.4 | bla m100.0 F100 0.78 bt  7.0 z 0.21 D 0.13 pot 24.7 | bul m84.5 F100 0.48 bt   21 z 0.23 D 0.28 pot 11.4 | oc m92.5 F100 0.50 bt   17 z 0.39 D 0.29 pot 12.4
+r3   preset battle spread  5.5 | arc m35.0 F100 0.00 bt   13 z 0.28 D 0.35 pot 0.0 | bla m35.0 F100 0.03 bt    9 z 0.25 D 0.31 pot 0.2 | bul m35.5 F100 0.04 bt 14.0 z 0.18 D 0.28 pot 0.1 | oc m30.0 F100 0.02 bt   11 z 0.32 D 0.35 pot 0.2
+r3   preset hint   spread 50.0 | arc m55.0 F100 0.09 bt 18.0 z 0.29 D 0.31 pot 0.6 | bla m65.0 F100 0.35 bt   10 z 0.25 D 0.28 pot 7.9 | bul m100.0 F100 0.86 bt   15 z 0.20 D 0.27 pot 20.4 | oc m50.0 F100 0.34 bt   13 z 0.34 D 0.32 pot 9.2
+```
+### r4
+旋鈕 SIM_DEFCAP=0.25（自訂，原 0.35）
+```
+r4   std    battle spread 24.0 | arc m45.0 F100 0.07 bt 14.0 z 0.32 D 0.28 pot 1.1 | bla m59.0 F100 0.38 bt    7 z 0.21 D 0.12 pot 4.6 | bul m35.0 F100 0.02 bt 18.0 z 0.22 D 0.26 pot 0.9 | oc m35.0 F100 0.05 bt   15 z 0.38 D 0.28 pot 0.8
+r4   std    hint   spread  5.0 | arc m95.0 F100 0.48 bt   18 z 0.30 D 0.27 pot 7.0 | bla m100.0 F100 0.85 bt    7 z 0.20 D 0.13 pot 27.3 | bul m100.0 F100 0.55 bt   20 z 0.23 D 0.27 pot 15.2 | oc m100.0 F100 0.61 bt 16.0 z 0.38 D 0.28 pot 21.3
+r4   preset battle spread  7.0 | arc m35.0 F100 0.00 bt 14.0 z 0.28 D 0.35 pot 0.0 | bla m36.0 F100 0.03 bt  9.0 z 0.24 D 0.32 pot 0.2 | bul m37.0 F100 0.05 bt   15 z 0.18 D 0.27 pot 0.1 | oc m30.0 F100 0.02 bt   11 z 0.32 D 0.34 pot 0.2
+r4   preset hint   spread 40.0 | arc m61.5 F100 0.23 bt   18 z 0.28 D 0.30 pot 2.0 | bla m100.0 F100 0.51 bt 10.0 z 0.24 D 0.29 pot 12.2 | bul m100.0 F100 0.91 bt   15 z 0.20 D 0.26 pot 24.9 | oc m60.0 F100 0.42 bt 13.0 z 0.33 D 0.32 pot 13.0
+```
+### Bulwark 稽核
+| 項目 | 狀態 | 出處 |
+|---|---|---|
+| Defend −25%×2 回合、25% OC 回 25% HP | 合原版 | 002-07, Skills.md:31 |
+| Block/Parry 兩次判定 ×1/×0.5/×0 | 合原版 | 002-01b, Damage.md:99 |
+| Parry = DEX×0.4 | 合原版 | F-002-1.2G |
+| 減傷公式 base 900、屬性上限 80% | 合原版 | F-002-1.2H |
+| 1H Counter 機率/次數 | 合原版 | Fighting_Styles.md:71-84 |
+| Counter 附帶暈眩 | 原版有、sim 缺（無數值，不補） | Fighting_Styles.md |
+| evade/parry/block/resist cap 0.9 | 自訂 | — |
+| defCap 0.35、bulwarkDefCounter 1、bwdcBoss 0.5、bwOpt 2、bulwarkDefDecay 0.5、NoRiposteDef、COUNTER_MULT 1.5、riposte 0.5 | 自訂 | — |
+| stunImm 2 | 自訂 | — |
+| 預設藥水 health3/mana4/spirit1 | 自訂（sim 中位快照，與 blade 同） | — |
+結論：無「偏離原版」可回退。
+
+### 結論
+4 輪未達標（std battle 派差最佳 15.5 >10；hint F100 0.27–0.85 ≫15%）。依規則停止：不 tag、不開 5360。所有旋鈕維持原預設。
