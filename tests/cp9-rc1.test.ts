@@ -29,8 +29,10 @@ describe('cp9 rc1', () => {
     }
   }));
   it('(c) telegraphed charge, HP above 50% and D keeps HP > estimate → D, not Z', () => withCp8(() => {
+    // rc12p（自訂）: the estimate is now capped by the 50% burst budget like the real hit, so at 80% HP the charge is no longer flagged lethal;
+    // below the cap the potion still comes first.
     const b = fresh(1e5); b.monsters[0]!.charge = 1; b.hp = Math.round(b.d.hp * 0.8);
-    const a = chargeAdvice(b); expect(a.danger).toBe(true); expect(a.est).toBeLessThanOrEqual(b.d.hp * 0.5); expect(a.keys[0]).toBe('D'); b.hp = Math.round(b.d.hp * 0.3); expect(chargeAdvice(b).keys[0]).toBe('Z');
+    const a = chargeAdvice(b); expect(a.est).toBeLessThanOrEqual(b.d.hp * 0.5); expect(a.keys[0]).not.toBe('Z'); b.hp = Math.round(b.d.hp * 0.3); expect(chargeAdvice(b).keys[0]).toBe('Z');
   }));
   it('(a) a stun skill is worth more when its target is winding up', () => withCp8(() => {
     const b = fresh(300); b.monsters[0]!.rank = 'elite'; const v0 = skillValue(b, 'shieldBash', 0); b.monsters[0]!.charge = 1;

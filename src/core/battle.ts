@@ -22,7 +22,7 @@ export const POT_CD_MAX12K = 8;
  *  turn the Z button showed no cooldown (QA rc12l bl3 F70+). SIM_POTFLOOR=0 restores the rc12l behaviour for calibration. */
 export const POT_FLOOR12M = Number(typeof process !== 'undefined' ? process.env?.SIM_POTFLOOR ?? 1 : 1);
 export const potCd12h = (s: BattleState): number => Math.max(0, ...s.monsters.map((m) => (m.hp > 0 && (m as { potCd12h?: number }).potCd12h) || 0));
-const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * (s.bwCap12i ?? 1) * s.d.hp) : Math.ceil(plain12h(s) * (s.bwCap12i ?? 1) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
+export const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * (s.bwCap12i ?? 1) * s.d.hp) : Math.ceil(plain12h(s) * (s.bwCap12i ?? 1) * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
 import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
 import { CONSTANTS as C } from './data/constants';
@@ -297,8 +297,17 @@ export function chargeEstimate(s: BattleState, m0: Monster, defending = false, c
   // rc21 item 2（暫定，自訂，非原版）: the crit case is the worst hit — top roll (F-002-5.1D 120%) × monster crit, the same definition
   // worstHit / bigTele use. rc16–rc20 used the mean roll (100%) × crit, which under-reads a real top-roll crit by up to 1/6 (QA rc20 oc1 F16).
   const cr = ADVICE_DIAG.critRoll; // rc21 sim diag only (SIM_CRITROLL): null = rc21 top roll; a number = mean roll × that × crit
-  if (crit && cr !== null) return meanHit(raw, mit, spec) * cr * (1 + MCRIT.critDamageBonus);
-  return crit ? maxHit(raw, mit, spec, 1 + MCRIT.critDamageBonus) : meanHit(raw, mit, spec);
+  const est = crit && cr !== null ? meanHit(raw, mit, spec) * cr * (1 + MCRIT.critDamageBonus) : crit ? maxHit(raw, mit, spec, 1 + MCRIT.critDamageBonus) : meanHit(raw, mit, spec);
+  // rc12p（自訂）: after the same single-hit cap and per-turn budget the real hit uses (QA rc12o F70: preview 67670 vs real 335)
+  return Math.min(est, hitCap9(s, m, mult, mult > 1 || !!m.heavyNext), RULES.cp8 && CP9.on ? budget9(s, windingUp(m)) : Infinity);
+}
+/** rc12p（自訂）: single-hit cap for one monster hit — boss plain hit ≤ bossAtk, non-boss telegraph ≤ minionCharge, hitCap12m (rc12m).
+ *  Used by the real hit (monster phase) AND chargeEstimate (preview / nextRoundEstimate / ★). */
+export function hitCap9(s: BattleState, m: Monster, mult: number, labelled: boolean): number {
+  const plain12g = RULES.cp8 && CP9.on && CP9.bossAtk > 0 && m.rank === 'boss' && mult === 1 && !labelled ? Math.floor(CP9.bossAtk * s.d.hp) : Infinity;
+  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor(CP9.minionCharge * s.d.hp) : Infinity;
+  const hit12m = (m as { hitCap12m?: number }).hitCap12m ? Math.floor((m as { hitCap12m?: number }).hitCap12m! * s.d.hp) : Infinity;
+  return Math.min(plain12g, minion12i, hit12m);
 }
 /** cp8-rc10 P0-3: the biggest plain (×1) hit this monster can land now: top roll, monster crit (+ its crit bonus damage), current mitigation. */
 export function worstHit(s: BattleState, m0: Monster, defending = false): number {
@@ -1193,10 +1202,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       critChance: 0, critMod: 0, flatCrit: { chance: MCRIT.critChance + (m.critBonus ?? 0), bonus: MCRIT.critDamageBonus },
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1), spec: s.d.specMit[el ?? m.attackType], // cp9-rc5 (1)（自訂）
     });
-    const plain12g = RULES.cp8 && CP9.on && CP9.bossAtk > 0 && m.rank === 'boss' && mult === 1 && !label ? Math.floor(CP9.bossAtk * s.d.hp) : Infinity; // rc12g step 4（自訂）: an unlabelled boss hit (incl. crit) ≤ bossAtk × max HP — QA oc2 F80 496/1163 was a crit on the refHp-capped adb under the 50% telegraphed budget
-    const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || !!label) ? Math.floor(CP9.minionCharge * s.d.hp) : Infinity; // rc12i item 2（自訂）: a non-boss charged / labelled hit ≤ 40% of actual max HP (QA bw2 F60 610/1221)
-    const hit12m = (m as { hitCap12m?: number }).hitCap12m ? Math.floor((m as { hitCap12m?: number }).hitCap12m! * s.d.hp) : Infinity; // rc12m 候選（自訂，預設關閉）: oc boss single hit cap
-    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, plain12g, minion12i, hit12m, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
+    const hc9 = hitCap9(s, m, mult, !!label); // rc12p（自訂）: the ONE single-hit cap (shared with chargeEstimate → preview and ★)
+    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, hc9, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
     s.hp = Math.max(0, s.hp - dmg); took9 += dmg; ACT9.taken += dmg; // cp9 (b): reflect / burn / bleed later this act share the budget;（自訂）: count hits, not net HP (mid-round heals no longer reopen the cap)
     RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });

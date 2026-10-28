@@ -13,7 +13,7 @@ const mk = (n: number) => {
   const d = { ...derive(p), style: 'oneHand' } as ReturnType<typeof derive>;
   const ms = Array.from({ length: n }, () => { const m = buildMonster(pool.rows[0]!, 1); m.hp = m.maxHp = 1e6; return m; });
   const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, ms, { health: 3, mana: 0, spirit: 0 }); b.oc = 300; b.itemCd.health = 0;
-  ms[0]!.charge = 1; ms[0]!.adb = d.hp * 3; b.hp = Math.round(d.hp * 0.5); return b;
+  ms[0]!.charge = 1; ms[0]!.adb = d.hp * 3; b.hp = Math.round(d.hp * 0.3); return b; // rc12p: estimate now capped at minionCharge (0.4) like the real hit, so 30% HP keeps it lethal
 };
 const withCp8 = (f: () => void) => { const o = RULES.cp8; RULES.cp8 = true; try { f(); } finally { RULES.cp8 = o; } };
 
@@ -32,6 +32,6 @@ describe('cp9-rc5 QA3 stun vs potion order', () => {
     expect(chargeAdvice(b, 0).keys[0]).toBe('Z');
   }));
   it('no potion usable: rc12b — lethal unless D and stun not guaranteed → D first, the stun second', () => withCp8(() => {
-    const b = mk(2); b.itemCd.health = 3; const a = chargeAdvice(b, 0); expect(a.keys[0]).toBe('D'); expect(a.keys[1]).toMatch(/^Q·/);
+    const b = mk(2); b.itemCd.health = 3; b.hp = Math.round(b.d.hp * 0.4); /* rc12p: D still saves here under the capped estimate */ const a = chargeAdvice(b, 0); expect(a.keys[0]).toBe('D'); expect(a.keys[1]).toMatch(/^Q·/);
   }));
 });

@@ -21,9 +21,9 @@ const setup = (rank: 'elite' | 'normal', adb: number) => {
 describe('cp8-rc9 P0-1 big single hit is wound up first (自訂，非原版)', () => {
   it('elite hit ≥ 50% max HP: 1 round wind-up (shown as windingUp with its estimate), then the hit', () => {
     cp8(); const b = setup('elite', 1); const m = b.monsters[0]!;
-    m.adb = 1; while (chargeEstimate(b, m) < CP8.bigTele * b.d.hp) m.adb *= 1.5;
+    m.adb = 1; while (worstHit(b, m) < CP8.bigTele * b.d.hp) m.adb *= 1.5; // rc12p: chargeEstimate is now capped like the real hit, so the wind-up trigger (worstHit) drives the loop
     const hp0 = b.hp; act(b, { kind: 'focus' }, new Rng(3), {});
-    expect(b.hp).toBe(hp0); expect(windingUp(m)).toBe(true); expect(chargeEstimate(b, m)).toBeGreaterThanOrEqual(CP8.bigTele * b.d.hp);
+    expect(b.hp).toBe(hp0); expect(windingUp(m)).toBe(true); expect(chargeEstimate(b, m)).toBeLessThanOrEqual(worstHit(b, m) * 3); // rc12p: estimate after cap
     act(b, { kind: 'focus' }, new Rng(3), {});
     expect(windingUp(m)).toBe(false);
   });
@@ -47,9 +47,9 @@ describe('cp8-rc9 P0-2 potion hint uses HP − next hit estimate', () => {
   it('lights at 80% HP when the next hit leaves < potAfter, not at 80% HP vs a weak hit', () => {
     cp8(); const b = setup('normal', 1); b.hp = b.d.hp * 0.8; b.itemCd.health = 0;
     expect(potHint(b)).toBe(false);
-    const m = b.monsters[0]!; while (chargeEstimate(b, m) < b.d.hp * 0.6) m.adb *= 1.5;
+    const m = b.monsters[0]!; while (worstHit(b, m) < b.d.hp * 0.6) m.adb *= 1.5; // rc12p: estimate is capped
     expect(potHint(b)).toBe(false); // rc14 item 4: at 80% HP a full-heal potion would mostly be wasted
-    { const o5 = CP9.bossPlain; CP9.bossPlain = 0.3; b.hp = b.d.hp * 0.5; expect(potHint(b)).toBe(true); CP9.bossPlain = o5; } // cp9-rc5（自訂）: rc9 premise = 30% plain cap (at 20% a plain hit can no longer be deadly here); 50% missing: lights on the deadly-hit estimate
+    { const o5 = CP9.bossPlain; CP9.bossPlain = 0.3; b.hp = Math.ceil(chargeEstimate(b, m, false, true) * 1.05); expect(potHint(b)).toBe(true); /* rc12p: the capped hit is the deadly one */ CP9.bossPlain = o5; } // cp9-rc5（自訂）: rc9 premise = 30% plain cap (at 20% a plain hit can no longer be deadly here); 50% missing: lights on the deadly-hit estimate
   });
 });
 import { autoAllocate, allocWeights, autoEquip, leanStyle } from '../src/core/auto';
