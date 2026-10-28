@@ -1,6 +1,6 @@
 import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
-import { CP8, CP9, RC22 } from './cp8';
+import { CP8, CP9, RC12, RC22 } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
@@ -407,6 +407,15 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
   if (!(RULES.cp8 && CP9.on)) return a;
   const pot = canUse(s, { kind: 'item', id: 'health' });
   const alt = (why: string): ChargeAdvice => { const g = a.danger ? null /* rc20 item 2: potion-unusable danger → never a skill */ : suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; return { ...a, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（${why}）` }; };
+  // rc12 item 4（自訂）: HP 1 + no potion + a boss winding up → never plain A. Guaranteed stun > D that holds (incl. 保命) > 「此戰幾乎必敗」. No in-battle retreat exists.
+  if (RC12.hp1Tele && CP9.hp1A && !pot && Math.round(s.hp) <= 1 && s.monsters.some((m) => m.rank === 'boss' && windingUp(m))) {
+    const put = (k: string, text: string): ChargeAdvice => ({ ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text });
+    const sk = coolStunKey9(s, target);
+    if (sk && stunGuaranteed(s, target, stunIdOf(s, sk))) return put(sk, `${sk}（HP 1、沒有藥水、首領蓄力中：必中暈眩打斷）`);
+    const v = defVerdictAt9(s, s.hp), dOk = canUse(s, { kind: 'defend' });
+    if (dOk && (v === 'safe' || v === 'saveOnly')) return put('D', `D（HP 1、沒有藥水、首領蓄力中：防禦${v === 'saveOnly' ? '（靠保命）' : ''}撐得住）`);
+    return put(dOk ? 'D' : 'A', `此戰幾乎必敗（HP 1、沒有藥水、首領蓄力中，防禦也擋不住）；${dOk ? 'D 賭保命' : 'A 拚輸出'}`);
+  }
   if (CP9.hp1A && !pot && Math.round(s.hp) <= 1 && a.keys[0] !== 'A') return alt(`HP ${a.hp}、沒有可用藥水：直接輸出`);
   // cp9-rc9 item 7（自訂，QA oc1 F73）: lethal vs current HP wins over the 20%-of-max exemption.
   if (CP9.dMin > 0 && a.keys[0] === 'D' && a.est < s.d.hp * CP9.dMin && !isLethal(a.est, a.hp)) return alt(`下回合估計 ${a.est} < 最大 HP ${Math.round(CP9.dMin * 100)}%，不必防禦`);
@@ -1055,7 +1064,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     if (m.rank === 'boss' && m.pulseNext && m.charge === 0) { m.pulseNext = false; mult = CP5.pulseMult; el = m.shieldEl; label = '元素脈衝！'; }
     else if (m.rank === 'boss') {
       if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; if (m.drainNext) { m.drainNext = false; drain = true; mult = CP5.drainMult; label = '吸血重擊！'; } }
-      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : BOSS_CHARGE_EVERY) === 0 && !lock9) {
+      else if (++s.bossTurns % (m.enraged ? BOSS_ENRAGED_EVERY : RC12.chargeEvery || BOSS_CHARGE_EVERY) === 0 && !lock9) {
         m.charge = 1;
         if (m.sig === 'drain' && (m.charges = (m.charges ?? 0) + 1) % CP5.drainEvery === 0) { m.drainNext = true; CP5_STAT.drainTele++; ev.push({ t: 'charge', from: i, drain: true }); ev.push({ t: 'sig', from: i, sig: 'drain', text: SIG_TEXT.drain.tele }); }
         else ev.push({ t: 'charge', from: i });
@@ -1090,6 +1099,13 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
     ev.push({ t: 'hit', from: i, to: 'player', dmg, crits: r.crits, avoided: r.avoided, label, ...(el ? { element: el } : {}) });
     if (s.cp5 && dmg > 0) cp5OnHit(s, m, i, dmg, drain, ev, defending);
+    // rc12 2b（自訂，sim 開關 SIM_RC12_DCOUNTER，預設關）: D against a boss telegraph still deals adb×K (counterAttack-style physical hit).
+    if (RC12.dCounter > 0 && defending && m.rank === 'boss' && (mult > 1 || label) && s.hp > 0 && m.hp > 0) {
+      const rc = resolveHit(rng, { raw: s.d.adb * RC12.dCounter, magic: false, acc: s.d.physAcc, evade: 0, parry: 0, block: 0, resist: 0, critChance: 0, critMod: 0, mit: ironMit(m, m.physMit), spec: m.spec[s.d.damageType] / 100 });
+      m.hp = Math.max(0, m.hp - rc.damage);
+      ev.push({ t: 'hit', from: 'player', to: i, dmg: rc.damage, crits: 0, avoided: null, label: '防禦反擊', weak: false, spirit: s.spirit });
+      if (m.hp <= 0) ev.push({ t: 'death', to: i });
+    }
     if (STYLE_PASSIVES.on && s.d.style === 'oneHand' && (r.avoided === 'parry' || r.avoided === 'block') && !(bw1x9 && counters + ripostes >= 1) && s.hp > 0 && m.hp > 0 && counterAttack(s, rng, i, counters, ev, defBonus, (m.rank === 'boss' || CP9.bwOpt === 1) && RULES.cp8 && CP9.on ? CP9.bwdcBoss : 1)) counters++;
     // Decision 2026-10-25 #1: bulwark combo riposte after a block/evade/parry, a normal physHit at a 暫定 multiplier.
     if (s.mods?.combo.bulwark && !(bw1x9 && counters + ripostes >= 1) && !(s.cp5 && defending && CP5.bulwarkNoRiposteDef && !defBonus) && r.avoided && r.avoided !== 'resist' && s.hp > 0 && m.hp > 0 && ripostes++ < BULWARK_RIPOSTE.perTurn + defBonus) {

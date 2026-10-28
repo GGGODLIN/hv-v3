@@ -57,6 +57,12 @@ export const startBuffs = (start: number): number => Math.min(CP8.startBuffMax, 
  *  bossBurst: in a boss fight, everything the player takes in one act() (hits, reflects, burn/bleed) ≤ this × max HP on a turn
  *  that was telegraphed (any monster winding up at the start of the enemy phase). bossPlain: the same cap on an un-telegraphed
  *  turn, so a big turn always has a one-turn warning. */
+/** rc12 prototypes（自訂，非原版，待製作人挑選）. All sim knobs default off (= current behaviour) except hp1Tele (approved hint logic, SIM_RC12_HP1TELE=0 restores rc11).
+ *  curve: abyss boss d>20 HP slope per depth replacing abyssMult.hp×CP5.bossHp sawtooth (0 = off; 自訂 0.017 / 0.012).
+ *  chargeEvery: boss charge interval (0 = BOSS_CHARGE_EVERY 4). dCounter: D during a boss telegraph hits back adb×K (0 = off).
+ *  preMerch: d%5==4 abyss floors always offer a merchant (0 = off). */
+export const RC12 = { curve: num('SIM_RC12_CURVE') ?? 0, chargeEvery: num('SIM_RC12_CHARGEEVERY') ?? 0, dCounter: num('SIM_RC12_DCOUNTER') ?? 0,
+  preMerch: num('SIM_RC12_PREMERCH') ?? 0, hp1Tele: num('SIM_RC12_HP1TELE') !== 0 };
 export const CP9 = { on: num('SIM_CP9') !== 0,
   /** cp9-rc7 items 2/3（自訂，暫定，無來源）: boss turns after a charged/telegraphed hit lands, and after a revive, during which it cannot start a new wind-up (charge / 蓄力 / 脈衝). */ windCd: num('SIM_WINDCD') ?? 2,
   /** cp9-rc7 item 4（自訂，暫定，無來源）: in capped fights a defending turn takes strictly < defCap × max HP (0 = off). */ defCap: num('SIM_DEFCAP') ?? 0.35,

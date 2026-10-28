@@ -1,4 +1,4 @@
-import { CP8 } from './cp8';
+import { CP8, RC12 } from './cp8';
 import { RULES } from './run';
 import { CP7, cp7DepthDmg } from './cp7';
 /**
@@ -159,6 +159,9 @@ export function abyssFloor(rng: Rng, d: number, n: number): Floor {
     if (!left.length) break;
     options.push(rng.weighted(left));
   }
+  // rc12 scheme 3（自訂，SIM_RC12_PREMERCH，預設關）: the pre-boss floor always offers a merchant, listed before rest (rng stream untouched).
+  if (r === 4 && RC12.preMerch && !options.includes('merchant')) options.pop();
+  if (r === 4 && RC12.preMerch) { const o = options.filter((t) => t !== 'merchant'); return { n, options: ['merchant', ...o] }; }
   return { n, options };
 }
 
