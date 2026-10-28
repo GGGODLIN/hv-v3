@@ -232,7 +232,7 @@ function diag10(b: BattleState, a: Action): void {
   const why = !id ? 'noKit' : stunResisting9(m) ? 'resist' : b.locked?.skill ? 'locked' : b.cooldowns[id] > 0 ? 'cd' : b.oc < skillOc(b, id) ? 'oc' : alive(b)[0] !== m ? 'tgt' : isStunKey(chargeAdvice(b, bi).keys[0]) ? 'qFirst' : 'other:' + (chargeAdvice(b, bi).keys[0] ?? '');
   RC10.q[why] = (RC10.q[why] ?? 0) + 1; if (k === 'stun') RC10.q.pressed = (RC10.q.pressed ?? 0) + 1;
 }
-const isStunKey = (k: string | undefined): boolean => /盾擊|震盪打擊/.test(k ?? '');
+const isStunKey = (k: string | undefined): boolean => /盾擊|震盪打擊|粉碎擊/.test(k ?? '');
 export function chooseNaive(b: BattleState, noDrink = false): Action {
   const live = alive(b);
   // cp8-rc5 (blade sim d22 vs playtest d11–20): naive = what 「A」 hits with no clicking — the UI default target, the first live

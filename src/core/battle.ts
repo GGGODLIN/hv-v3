@@ -397,7 +397,7 @@ export function chargeAdvice(s: BattleState, target = 0): ChargeAdvice {
 function chargeAdvice2(s: BattleState, target: number): ChargeAdvice {
   const a = chargeAdvice1(s, target);
   if (!reflectLethal9(s, target) || !a.keys.length) return a;
-  const keep = a.keys.filter((k) => k !== 'A' && !/^[QWE]·/.test(k) && !/盾擊|震盪打擊/.test(k)); // A and every skill hit physically → all reflect
+  const keep = a.keys.filter((k) => k !== 'A' && !/^[QWE]·/.test(k) && !/盾擊|震盪打擊|粉碎擊/.test(k)); // A and every skill hit physically → all reflect
   if (keep.length === a.keys.length) return a;
   const r = reflectRisk9(s, target), alt = s.monsters.findIndex((m, i) => i !== target && m.hp > 0 && reflectRisk9(s, i) < Math.round(s.hp));
   const keys = keep.length ? keep : canUse(s, { kind: 'defend' }) ? ['D'] : ['A'];
@@ -410,6 +410,9 @@ function chargeAdvice1(s: BattleState, target = 0): ChargeAdvice {
   // cp9-rc5 QA3（自訂）: lethal + potion usable → Z before the stun unless the stun surely cancels all incoming damage
   if (isLethal(a.est, a.hp) && canUse(s, { kind: 'item', id: 'health' }) && !stunGuaranteed(s, target, stunIdOf(s, k)))
     return { ...a, keys: ['Z', k, ...a.keys.filter((x) => x !== k && x !== 'Z')], text: `Z·喝藥（下回合全體暴擊估計 ${a.est} ≥ HP ${a.hp}，${k} 不保證擋下全部傷害）；否則 ${k}` };
+  // rc12b item 1（製作人）: lethal unless defending and the stun is not guaranteed → survival (D) first, the interrupt second.
+  if (isLethal(a.est, a.hp) && a.keys[0] === 'D' && !stunGuaranteed(s, target, stunIdOf(s, k)))
+    return { ...a, keys: ['D', k, ...a.keys.filter((x) => x !== k && x !== 'D')], text: `${a.text}；${k} 打斷不保證擋下全部傷害，存活優先` };
   return { ...a, keys: [k, ...a.keys.filter((x) => x !== k)], text: `${k}（打斷${(s.monsters[target] as { drainNext?: boolean } | undefined)?.drainNext ? '吸血重擊' : '蓄力'}）；否則 ${a.text}` };
 }
 /** cp9-rc7 producer items 1/2（自訂，暫定）: post-filter of the shared hint (UI + sim use this same function).
@@ -428,7 +431,11 @@ function chargeAdvice0(s: BattleState, target = 0): ChargeAdvice {
     if (dOk && (v === 'safe' || v === 'saveOnly')) return put('D', `D（HP 1、沒有藥水、首領蓄力中：防禦${v === 'saveOnly' ? '（靠保命）' : ''}撐得住）`);
     return put(dOk ? 'D' : 'A', `此戰幾乎必敗（HP 1、沒有藥水、首領蓄力中，防禦也擋不住）；${dOk ? 'D 賭保命' : 'A 拚輸出'}`);
   }
-  if (CP9.hp1A && !pot && Math.round(s.hp) <= 1 && a.keys[0] !== 'A') return alt(`HP ${a.hp}、沒有可用藥水：直接輸出`);
+  if (CP9.hp1A && !pot && Math.round(s.hp) <= 1) {
+    const r = a.keys[0] !== 'A' ? alt(`HP ${a.hp}、沒有可用藥水：直接輸出`) : a;
+    // rc12b item 3（製作人）: HP 1, no potion, a boss alive (not winding up — that case is above) → still A (design), but say the fight is nearly lost.
+    return s.monsters.some((m) => m.rank === 'boss' && m.hp > 0) && !r.text.includes('此戰幾乎必敗') ? { ...r, text: `此戰幾乎必敗（HP 1、沒有藥水）；${r.text}` } : r;
+  }
   // cp9-rc9 item 7（自訂，QA oc1 F73）: lethal vs current HP wins over the 20%-of-max exemption.
   if (CP9.dMin > 0 && a.keys[0] === 'D' && a.est < s.d.hp * CP9.dMin && !isLethal(a.est, a.hp)) return alt(`下回合估計 ${a.est} < 最大 HP ${Math.round(CP9.dMin * 100)}%，不必防禦`);
   return a;
@@ -585,7 +592,10 @@ export function suggestSkill(s: BattleState, target: number): SkillId | null {
   const ids = skillKit(s).filter((id) => canUse(s, { kind: 'skill', id, target }) && !reserveStun9(s, id));
   if (!ids.length) { if (!H.on) return null; if (skillKit(s).some((id) => !s.locked?.skill && s.cooldowns[id] <= 0 && s.oc < skillOc(s, id))) H.noOc++; else H.other++; return null; }
   // rc12 scheme 6: keep Penetrated Armor up on a boss so Shatter Strike can interrupt its next wind-up.
-  if (RC12.shatter && ids.includes('rendingBlow') && s.monsters[target]?.rank === 'boss' && !paOn9(s.monsters[target]!)) return 'rendingBlow';
+  // rc12b item 1（製作人）: the chain's second half — Penetrated Armor on the target and Shatter Strike usable → Shatter (stun 5 ticks), even with no wind-up yet.
+  const tm = s.monsters[target];
+  if (RC12.shatter && STUN_SKILLS.includes('shatterStrike') && skillKit(s).includes('shatterStrike') && tm && tm.status.stun <= 0 && !stunResisting9(tm) && stunReady9(s, 'shatterStrike', target)) return 'shatterStrike';
+  if (RC12.shatter && ids.includes('rendingBlow') && tm?.rank === 'boss' && !paOn9(tm)) return 'rendingBlow';
   const best = ids.reduce((a, id) => (skillValue(s, id, target) > skillValue(s, a, target) ? id : a));
   const ratio = skillValue(s, best, target) / Math.max(1e-9, attackValue(s, target)); if (H.on && H.ratios.length < 200) H.ratios.push(ratio);
   if (ratio > 1 + SKILL_HINT_EDGE) { if (H.on) H.lit++; return best; } if (H.on) H.belowEdge++; return null;

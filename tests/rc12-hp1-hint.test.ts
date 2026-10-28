@@ -26,7 +26,7 @@ describe('rc12 item 4: HP 1 + no potion + boss charging', () => {
   it('the hint names a survivable option or says the fight is lost — never 「直接輸出」 while the boss charges', () => withCp8(() => {
     for (const k of [0.001, 0.05, 0.5, 3]) { const a = chargeAdvice(fight(k, true)); expect(a.text).not.toMatch(/直接輸出/); expect(a.text).toMatch(/此戰幾乎必敗|撐得住|必中暈眩/); }
   }));
-  it('boss not charging → rc11 rule unchanged (A, 「直接輸出」)', () => withCp8(() => {
-    const a = chargeAdvice(fight(0.05, false)); if (a.keys[0] === 'A') expect(a.text).not.toMatch(/此戰幾乎必敗/);
+  it('boss not charging → still A (design), rc12b: text says 此戰幾乎必敗', () => withCp8(() => {
+    const a = chargeAdvice(fight(0.05, false)); expect(a.keys[0]).toBe('A'); expect(a.text).toMatch(/此戰幾乎必敗/);
   }));
 });

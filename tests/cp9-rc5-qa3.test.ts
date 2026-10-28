@@ -31,7 +31,7 @@ describe('cp9-rc5 QA3 stun vs potion order', () => {
     const b = mk(2); b.monsters[1]!.adb = b.d.hp; expect(stunGuaranteed(b, 0, 'shieldBash')).toBe(false);
     expect(chargeAdvice(b, 0).keys[0]).toBe('Z');
   }));
-  it('no potion usable: the stun stays first', () => withCp8(() => {
-    const b = mk(2); b.itemCd.health = 3; expect(chargeAdvice(b, 0).keys[0]).toMatch(/^Q·/);
+  it('no potion usable: rc12b — lethal unless D and stun not guaranteed → D first, the stun second', () => withCp8(() => {
+    const b = mk(2); b.itemCd.health = 3; const a = chargeAdvice(b, 0); expect(a.keys[0]).toBe('D'); expect(a.keys[1]).toMatch(/^Q·/);
   }));
 });
