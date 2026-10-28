@@ -1,5 +1,10 @@
 # Independent development roadmap
 
+## v0.48 source-only slice: honest fractional comparisons
+
+Keep signed nonzero equipment differences visible rather than formatting them as zero/equality; mark probability differences as percentage points. Four decimals and an explicit sub-precision bound are view formatting, not a gameplay change. Same behavior in manual-sale comparison. No website writes or browser acceptance claim.
+
+
 ## v0.47 source-only slice: protection collection view
 
 Expose existing locked, soulbound and saved-set protection as a transient AND filter. Preserve exact IDs, sale consent and all transaction constraints. Unprotected is not an immediate-sale guarantee. No website operations or browser acceptance claim.

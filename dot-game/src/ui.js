@@ -514,13 +514,21 @@ function toggleSelectedSale(id, checked) {
   render(true);
   if (restoreFocus) selectedSaleCheckboxes.get(id)?.focus();
 }
+// Signed absolute stat changes, not a relative percentage gain. Never round a
+// real change into a zero or equal sign; tiny changes remain directionally clear.
+function statDeltaText(key, difference, equal = '—') {
+  if (difference === 0) return equal;
+  const magnitude = Math.abs(difference) * (rateStats.has(key) ? 100 : 1);
+  const digits = magnitude < 0.0001 ? '<0.0001' : String(Number(magnitude.toFixed(4)));
+  return `${difference > 0 ? '+' : '-'}${digits}${rateStats.has(key) ? ' 百分點' : ''}`;
+}
 function selectedSaleComparison(entry) {
   const table = node('div', 'compare-table');
   for (const key of Object.keys(statNames)) {
     const value = Number(entry.item.stats?.[key]) || 0, old = Number(entry.currentEquipment?.stats?.[key]) || 0;
     const diff = value - old;
     const number = amount => rateStats.has(key) ? `${Number((amount * 100).toFixed(4))}%` : String(Number(amount.toFixed(4)));
-    const delta = diff === 0 ? '相同' : `${diff > 0 ? '+' : ''}${number(diff)}${rateStats.has(key) ? ' 點' : ''}`;
+    const delta = statDeltaText(key, diff, '相同');
     const row = node('div', 'compare-row');
     row.append(node('span', '', statNames[key]), node('strong', '', number(value)), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta));
     table.append(row);
@@ -1470,7 +1478,7 @@ function renderItemDetail() {
     if (!statNames[key]) continue;
     const value = Number(item.stats?.[key]) || 0, old = Number(current?.stats?.[key]) || 0, diff = value - old;
     const display = rateStats.has(key) ? `${(value * 100).toFixed(1)}%` : key === 'parry' ? value.toFixed(1) : format(value);
-    const delta = selectedSlot || Math.abs(diff) < .0001 ? '—' : `${diff > 0 ? '+' : ''}${rateStats.has(key) ? `${(diff * 100).toFixed(1)}%` : key === 'parry' ? diff.toFixed(1) : Math.round(diff)}`;
+    const delta = selectedSlot ? '—' : statDeltaText(key, diff);
     const oldDisplay = rateStats.has(key) ? `${(old * 100).toFixed(1)}%` : key === 'parry' ? old.toFixed(1) : format(old);
     const row = node('div', 'compare-row'); row.append(node('span', '', statNames[key]), node('strong', '', selectedSlot ? display : `${oldDisplay} → ${display}`), node('span', `delta ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : ''}`, delta)); table.append(row);
   }

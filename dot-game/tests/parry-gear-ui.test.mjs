@@ -92,7 +92,7 @@ test('item detail preserves fractional rating and shows negative missing-stat co
  assert.equal(row.children[1].textContent,'12.3');assert.equal(row.children[2].textContent,'—');
  h.run("state.inventory.push({...state.equipment.weapon,id:'old-no-parry',stats:{attack:99}});selectedSlot=null;selectedId='old-no-parry';renderItemDetail();");
  table=h.dom['item-detail'].children.find(row=>row.className==='compare-table');row=rowByLabel(table,'招架值');
- assert.equal(row.children[1].textContent,'12.3 → 0.0');assert.equal(row.children[2].textContent,'-12.3');assert.doesNotMatch(collect(row),/%/);
+ assert.equal(row.children[1].textContent,'12.3 → 0.0');assert.equal(row.children[2].textContent,'-12.345');assert.doesNotMatch(collect(row),/%/);
  assert.match(collect(h.dom['item-detail']),/招架值是裝備評級，不是機率百分比/);
 });
 test('preset preview shows final chance without changing conditional counter chance',()=>{

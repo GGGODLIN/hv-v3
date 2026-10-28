@@ -1,3 +1,4 @@
+import { beforeStatDelta } from './helpers/stat-delta-baseline.mjs';
 import { beforeProtectionFilter } from './helpers/protection-filter-baseline.mjs';
 import { beforeNameSearch } from './helpers/name-search-baseline.mjs';
 import { beforeQualitySort } from './helpers/quality-sort-baseline.mjs';
@@ -13,7 +14,7 @@ import { runInNewContext } from 'node:vm';
 
 // Independent source/Canvas-command checks. No pixels, browser or accessibility claim.
 const read = p => beforeNameSearch(beforeProtectionFilter(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'),p),p);
-const source = beforeImportOrdering(beforeDetailActionFocus(beforeQualityFilter(beforeQualitySort(read('src/ui.js')))));
+const source = beforeImportOrdering(beforeDetailActionFocus(beforeQualityFilter(beforeQualitySort(beforeStatDelta(read('src/ui.js'))))));
 const sha = s => createHash('sha256').update(s).digest('hex');
 const actorStart = source.indexOf('function rect('), sceneStart = source.indexOf('function drawScene(');
 const helperSource = source.slice(actorStart, sceneStart);
