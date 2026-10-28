@@ -3,7 +3,10 @@ type St = Pick<Storage, 'getItem' | 'setItem'> & Partial<Pick<Storage, 'removeIt
 type Mon = { hp: number; rank?: string };
 // rc11b item 1: rows carry runId + lean, kept across runs (never cleared); snapshots are keyed by run (hv-v3-qa-snap:<runId>:F<n>) and the
 // oldest are evicted past QA_SNAPCAP (a snapshot is a full player+run JSON, tens of KB; localStorage is ~5 MB shared with the save).
-export const QA_SNAP = 'hv-v3-qa-snap:', QA_SNAPIDX = 'hv-v3-qa-snapidx', QA_TURNLOG = 'hv-v3-qa-turnlog', QA_TURNCAP = 5000, QA_SNAPCAP = 24;
+export const QA_SNAP = 'hv-v3-qa-snap:', QA_SNAPIDX = 'hv-v3-qa-snapidx', QA_TURNLOG = 'hv-v3-qa-turnlog', QA_TURNCAP = 8000, QA_SNAPCAP = 12;
+/** rc12b item 2（自訂）: one run is never cut — an F100 run is 20 bosses; even at 200 turns each (QA max seen ≈ 40) it fits QA_RUNCAP.
+ *  Past QA_TURNCAP rows (or on a quota error after every snapshot is gone) whole older runs are evicted first, oldest first. ~120 B/row → ~1 MB. */
+export const QA_RUNCAP = 4000;
 export const newRunId = (now = Date.now(), r = Math.random()): string => `${new Date(now).toISOString().slice(0, 19).replace(/[-:T]/g, '')}-${Math.floor(r * 36 ** 4).toString(36).padStart(4, '0')}`;
 export interface TurnRow { runId: string; lean: string; floor: number; level: number; turn: number; bossDmg: number; bossHp: number; bossMaxHp?: number }
 /** HP the boss(es) lost on one player action (sum over rank 'boss'; heals are not counted). */
@@ -26,8 +29,11 @@ function writeLog(st: St, log: TurnRow[]): boolean {
 export function logTurn(st: St, row: TurnRow): TurnRow[] {
   let log: TurnRow[] = readJson<TurnRow[]>(st, QA_TURNLOG, []);
   const mem = MEM.get(st); if (mem && mem.length >= log.length) log = mem; // rows a failed write kept only in memory
-  log = [...log, row]; if (log.length > QA_TURNCAP) log = log.slice(-QA_TURNCAP);
-  MEM.set(st, log); writeLog(st, log); return log;
+  log = trimRuns([...log, row], QA_TURNCAP, row.runId);
+  if (!writeLog(st, log)) { // quota with no snapshot left: drop whole older runs until it fits
+    while (log.some((r) => r.runId !== row.runId)) { log = dropOldestRun(log, row.runId); try { st.setItem(QA_TURNLOG, JSON.stringify(log)); break; } catch { /* still full */ } }
+  }
+  MEM.set(st, log); return log;
 }
 /** rc12 item 5: write the in-memory log again (called when the player dies, before the result screen). true = stored. */
 export const flushTurnLog = (st: St): boolean => { const m = MEM.get(st); return m ? writeLog(st, m) : true; };
@@ -48,4 +54,17 @@ export function qaExport(st: St): { exportedAt: string; turnlog: TurnRow[]; snap
 /** rc11 item 8: damage the player dealt on one action (hits from 'player' to a monster, incl. skills and multi-hits). */
 export function dealtBy(ev: readonly { t: string; from?: unknown; to?: unknown; dmg?: number }[]): number {
   return ev.reduce((t, e) => t + (e.t === 'hit' && e.from === 'player' && typeof e.to === 'number' ? Math.max(0, e.dmg ?? 0) : 0), 0);
+}
+
+/** rc12b item 2: drop the oldest run (by first appearance) other than `keep`. Rows without runId (pre-rc11b) count as one oldest run. */
+export function dropOldestRun(log: TurnRow[], keep: string): TurnRow[] {
+  const victim = log.find((r) => r.runId !== keep); if (!victim) return log;
+  return log.filter((r) => r.runId !== victim.runId);
+}
+/** rc12b item 2: keep ≤ cap rows by evicting whole older runs; the current run keeps its newest QA_RUNCAP rows. */
+export function trimRuns(log: TurnRow[], cap: number, keep: string): TurnRow[] {
+  const cur = log.filter((r) => r.runId === keep);
+  if (cur.length > QA_RUNCAP) { let n = cur.length - QA_RUNCAP; log = log.filter((r) => !(r.runId === keep && n-- > 0)); }
+  while (log.length > cap && log.some((r) => r.runId !== keep)) log = dropOldestRun(log, keep);
+  return log;
 }

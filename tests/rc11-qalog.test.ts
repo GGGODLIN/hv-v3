@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bossDmg, logTurn, newRunId, qaExport, snapBeforeBoss, QA_SNAPCAP, QA_TURNLOG, QA_TURNCAP } from '../src/game/qalog';
+import { bossDmg, logTurn, newRunId, qaExport, snapBeforeBoss, QA_SNAPCAP, QA_TURNLOG, QA_RUNCAP } from '../src/game/qalog';
 const mem = (quota = Infinity) => { const m = new Map<string, string>(); const size = () => [...m.values()].reduce((t, v) => t + v.length, 0);
   return { getItem: (k: string) => m.get(k) ?? null, removeItem: (k: string) => void m.delete(k), setItem: (k: string, v: string) => { if (size() - (m.get(k)?.length ?? 0) + v.length > quota) throw new Error('quota'); m.set(k, v); }, m }; };
 describe('rc11 item 6: QA tools', () => {
@@ -9,8 +9,8 @@ describe('rc11 item 6: QA tools', () => {
     expect(bossDmg([30], [{ hp: -10, rank: 'boss' }])).toBe(30);
   });
   it('turn log persists, appends and is capped', () => {
-    const s = mem(); for (let i = 0; i < QA_TURNCAP + 5; i++) logTurn(s, { runId: 'r1', lean: 'blade', floor: 30, level: 14, turn: i, bossDmg: 1, bossHp: 9 });
-    const log = JSON.parse(s.getItem(QA_TURNLOG)!); expect(log.length).toBe(QA_TURNCAP); expect(log.at(-1).turn).toBe(QA_TURNCAP + 4);
+    const s = mem(); for (let i = 0; i < QA_RUNCAP + 5; i++) logTurn(s, { runId: 'r1', lean: 'blade', floor: 30, level: 14, turn: i, bossDmg: 1, bossHp: 9 });
+    const log = JSON.parse(s.getItem(QA_TURNLOG)!); expect(log.length).toBe(QA_RUNCAP); expect(log.at(-1).turn).toBe(QA_RUNCAP + 4); // rc12b: one run keeps its newest QA_RUNCAP rows
   }, 60000);
   it('pre-boss snapshot is a re-loadable JSON with level and run', () => {
     const s = mem(); const k = snapBeforeBoss(s, 'r1', 30, 14, { exp: 1 }, { floor: 3 });
