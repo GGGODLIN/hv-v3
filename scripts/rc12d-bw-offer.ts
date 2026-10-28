@@ -7,7 +7,7 @@ import type { Player } from '../src/core/player';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = true; RULES.cp8 = true;
 const [F, ...files] = process.argv.slice(2); const RUNS = Object.fromEntries(process.env.CROSS_RUNS!.split(',').map((x) => x.split('=') as [string, string]));
 for (const f of files) { const d = JSON.parse(readFileSync(f, 'utf8')) as Record<string, string>;
-  for (const [b, id] of Object.entries(RUNS)) { const v = d[`hv-v3-qa-snap:${id}:F${F}`]; if (!v || !f.includes(`bulwark-${b.slice(2)}`)) continue;
+  for (const [b, id] of Object.entries(RUNS)) { const v = d[`hv-v3-qa-snap:${id}:F${F}`]; if (!v) continue;
     const s = JSON.parse(v) as { player: Player; run: RunState }; const c: Record<string, number> = {}; let n = 0, unfit = 0, opts = 0;
     for (let seed = 1; seed <= 300; seed++) { const run = structuredClone(s.run) as RunState & { seed?: number }; run.rng = (seed * 2654435761) >>> 0;
       const ids = openOffer(s.player, run, 'shrine'); if (!ids.length) continue; n++; opts += ids.length; unfit += ids.filter((i) => !buffFit(s.player, i).ok).length;
