@@ -28,3 +28,39 @@ describe('rc12f: pre-boss QA snapshot is taken before the boss is drawn', () => 
     expect(body.indexOf('snapBeforeBoss(')).toBeGreaterThan(-1); expect(body.indexOf('snapBeforeBoss(')).toBeLessThan(body.indexOf('encounter('));
   });
 });
+
+import { CP9, refHp9 } from '../src/core/cp8';
+import { RULES } from '../src/core/run';
+import { act, startBattle, windingUp, BOSS_CHARGE_MULT } from '../src/core/battle';
+import { starterKit } from '../src/core/auto';
+import { derive } from '../src/core/player';
+import { Rng } from '../src/core/rng';
+// rc12f item 1（自訂，製作人決定）: boss plain attack ≤ 40% of the floor's typical max HP; 蓄力 hit announced, and ≤ 50% max HP after D.
+describe('rc12f: boss attack cap (CP9 rule 5)', () => {
+  it('boss plain-attack adb is capped at bossAtk × refHp9(floor) from F30 on (default 0.40)', () => {
+    expect(CP9.bossAtk).toBe(0.4);
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      for (const f of [30, 40, 60, 100]) for (const seed of [1, 2, 3, 4, 5]) {
+        const p = newPlayer(); const r = startRun(p, seed); r.floor = f;
+        const boss = encounter(r, pool, 'boss').find((m) => m.rank === 'boss')!;
+        expect(boss.adb).toBeLessThanOrEqual(0.4 * refHp9(f) + 1e-9);
+      }
+    } finally { RULES.cp8 = o; }
+  });
+  it('a 蓄力 hit is announced (windingUp) and with D costs ≤ 50% max HP', () => {
+    const o = RULES.cp8; RULES.cp8 = true;
+    try {
+      for (const f of [30, 50, 80]) for (const seed of [1, 2, 3, 4, 5, 6]) {
+        const p = newPlayer(); starterKit(p); const d = derive(p); const r = startRun(p, seed); r.floor = f;
+        const ms = encounter(r, pool, 'boss').filter((m) => m.rank === 'boss');
+        const m = ms[0]!; m.hp = m.maxHp = 1e7; m.charge = 1;
+        expect(windingUp(m)).toBe(true); // announced before the hit lands
+        expect(BOSS_CHARGE_MULT * m.adb).toBeGreaterThan(m.adb); // the charged hit may exceed the plain cap
+        const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 0, mana: 0, spirit: 0 });
+        act(b, { kind: 'defend' } as never, new Rng(seed));
+        expect(d.hp - b.hp).toBeGreaterThan(0); expect(d.hp - b.hp).toBeLessThanOrEqual(0.5 * d.hp);
+      }
+    } finally { RULES.cp8 = o; }
+  });
+});
