@@ -1,24 +1,24 @@
 {
-  "checkpoint": "192-v063-restorable",
-  "version": "0.63.0",
-  "status": "complete-desktop-browser-accepted-formal-published",
-  "source_base": "672cedf44b8df9480dfd50877832adbc8f49d7c7",
-  "base_accepted_recovery": "eaf6e784782a781114352d729a11d0b025f3032a",
+  "checkpoint": "193-v064-detail-sale-selection",
+  "version": "0.64.0",
+  "status": "source-tested-browser-pending",
+  "source_base": "361badbe2f5d25ccad528b368f3117cfa727f91b",
+  "base_accepted_recovery": "361badbe2f5d25ccad528b368f3117cfa727f91b",
   "accepted_website": "a6bbb8f50445686c7291decec44c563e469872b2",
-  "scope": "Final recovery/publication documentation only; runtime/tests/assets unchanged from190 and188.",
-  "source_tests_passed": 2264,
+  "scope": "Detail sale stages explicit existing selection; no instant destructive sale. Engine, economy, RNG, assets unchanged.",
+  "source_tests_passed": 2284,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
   "new_focused_tests": 1,
-  "independent_focused_tests_passed": 10,
-  "browser_acceptance": "PASS normal desktop flows on isolated v063 candidate; edge cases remain unit-only as detailed in receipt.",
-  "publication": "Formal v063 deployed; exact CI and normal desktop gameplay/persistence PASS.",
-  "recovery": "docs/RECOVERY-V063.md",
+  "independent_focused_tests_passed": 19,
+  "browser_acceptance": "Pending v064; source DOM harness only.",
+  "publication": "v064 not published; formal v063 retained.",
+  "recovery": "docs/RECOVERY-V064.md",
   "files": {
     "README.md": {
-      "bytes": 63244,
-      "sha256": "ab9355d3651339770450a53d70964dc3deeeef787b4287ed97bc1f1f8b299a66"
+      "bytes": 64262,
+      "sha256": "dbd8005c6a3907a69f23d2bbb1b0b8f60096937b2e82e37ea863dca18c489d8b"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -812,6 +812,10 @@
       "bytes": 922,
       "sha256": "ab4513f3af72c815e7f4f6a97c90f0235b1b589bbb64691240a55e56f65b4969"
     },
+    "docs/QA-V064.md": {
+      "bytes": 1387,
+      "sha256": "c0cee016820a071978ad56b7091f3b4d618b1e716967cd54ea2112cc5d0f4667"
+    },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
       "sha256": "79227b93563cc91c9f6494879fde82c89a1b763f6830bb962769013e71b35a77"
@@ -980,6 +984,10 @@
       "bytes": 3071,
       "sha256": "4b76746c8f5239d81cb22c6a12ea17a6b7600b7079359099b801029893adfe7f"
     },
+    "docs/RECOVERY-V064.md": {
+      "bytes": 1181,
+      "sha256": "938df233f5349d5ae42af0f36c6ce546f11879fbbdeec078001aa69623edf607"
+    },
     "docs/RELEASES.md": {
       "bytes": 54254,
       "sha256": "1f8bde24dce837d1667d213fd1a9340b472f1dd9ba83fbab0ec17b2cc7298d7f"
@@ -989,8 +997,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 46010,
-      "sha256": "e1d41c3e3a0f1d3e96e96b560f4860c39fefd1987e127fe4b669d063224b768a"
+      "bytes": 47028,
+      "sha256": "6ebfaa1c15f966ecddba264e19b65fc8b8c0bc96fc85ea1d4a8f36e31ca76ac1"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1025,8 +1033,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 65955,
-      "sha256": "6dd4b0316b9c4953c41f128fe8f929de341d111f9a16d06bd098353ff390d529"
+      "bytes": 66973,
+      "sha256": "3a35ce2d00edbcf0db6b12c838035762ac464dc29cdd175d96fee9f6567844d1"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1246,11 +1254,11 @@
     },
     "index.html": {
       "bytes": 46410,
-      "sha256": "7319f9aa55acfbb00a8d5e1da1b6503d316b9a120fa484ce76492f0bc14eddee"
+      "sha256": "44b0cfd31425b1bae3b1413e7ad98196350f5d9bb45c2781bcac43d3a09f83de"
     },
     "package.json": {
       "bytes": 207,
-      "sha256": "a64112ddc8c31bef3a3cc52e6f46f72877a47557bda478a0a9706cccbd1e30f9"
+      "sha256": "0265fd38ef3f11ee1af763de9473527f8f44e429150bc187342ef5f2335a820b"
     },
     "scripts/battle-actors-measurement.mjs": {
       "bytes": 20689,
@@ -1337,8 +1345,8 @@
       "sha256": "821ae6b192933435b0139e7557eaa08e0712a174a3961a66bf963fc03e524a6a"
     },
     "src/ui.js": {
-      "bytes": 176664,
-      "sha256": "958a5b53318bcdc68884d658b48bb2fe061770e5f053f58b8434d75890aa8454"
+      "bytes": 177160,
+      "sha256": "163e7307c4d54a2ffbce6b6602caf7b83d83fe07d3a5bd91c07811dbd965ef87"
     },
     "style.css": {
       "bytes": 74711,
@@ -1382,7 +1390,7 @@
     },
     "tests/bleed-ui.test.mjs": {
       "bytes": 12245,
-      "sha256": "bebeeada6a9566e2bd566808d5dc65999223da1b39320b285e1030c7271f7142"
+      "sha256": "89764d7a8e28ac52b5d728a4ff4bc03472b1095ba5dcc08c2054c0232013132c"
     },
     "tests/bleed.test.mjs": {
       "bytes": 17345,
@@ -1398,7 +1406,7 @@
     },
     "tests/camp-chest-independent.test.mjs": {
       "bytes": 9615,
-      "sha256": "1060f83a22b2645f9457549ac7567d4415ca794e3b6ee33d442b95e8f2501fd7"
+      "sha256": "70ace3ef294a0a9d4c87d98c9906d54e82296142978315a9ce788ee84e44d135"
     },
     "tests/camp-navigation.test.mjs": {
       "bytes": 5520,
@@ -1466,7 +1474,7 @@
     },
     "tests/commission-ui.test.mjs": {
       "bytes": 18414,
-      "sha256": "d494b37e5d1a52c00c78ac71a61f060bdbb7c2a15a5ade80be942b4e22a6fbfc"
+      "sha256": "1ff73bb548ea409d33ecc65708848427bcc8f38d36c120d60e816d0578528b1b"
     },
     "tests/comparison-focus-audit.test.mjs": {
       "bytes": 16797,
@@ -1482,7 +1490,7 @@
     },
     "tests/counterattack-ui.test.mjs": {
       "bytes": 7102,
-      "sha256": "ab18b412a8eac6114c1c88bc46c453aae7cbc2751efd52ea554e7534dcec567d"
+      "sha256": "05a1358bc9bcc6bd0bbf4c2850861c802c6acd4e9f4b5f3f136e3865613d6236"
     },
     "tests/counterattack.test.mjs": {
       "bytes": 10824,
@@ -1493,12 +1501,20 @@
       "sha256": "008e9cd603f3ec751574ec59295b1e53eb734cf13a0a12f4253f8c7d31bda5f5"
     },
     "tests/detail-action-focus-audit.test.mjs": {
-      "bytes": 3668,
-      "sha256": "505248b82eb55dcd386359893b11d46124aa25bc312995791942c3061ecf6ff4"
+      "bytes": 3916,
+      "sha256": "e8246105636b41202498cdf77dbd997fd90ef02360436648f0ad6949bf7acf7d"
     },
     "tests/detail-action-focus.test.mjs": {
-      "bytes": 3296,
-      "sha256": "158d925458210b98ec7fd30975462304ef75990e433d6ea0f87d3fb4bbf25797"
+      "bytes": 3544,
+      "sha256": "122abe1dc3c5ef67d765c6e6b94bfdc888d6efc631b26cc6e9a14dc61418fbd4"
+    },
+    "tests/detail-sale-audit.test.mjs": {
+      "bytes": 5622,
+      "sha256": "ec20213d7c55cc2051f4285faf803fa6f233be526af2d936e648ae965ce353a3"
+    },
+    "tests/detail-sale.test.mjs": {
+      "bytes": 529,
+      "sha256": "88d5406827b99b14300ca13c176c8764781746ae2801ddd5855db8501147ed00"
     },
     "tests/dialog-names.test.mjs": {
       "bytes": 1344,
@@ -1518,7 +1534,7 @@
     },
     "tests/emergency-supply-ui.test.mjs": {
       "bytes": 15014,
-      "sha256": "0ac6f993723b979bccb6626f540a15579a1d21f3bf72059c23967274dae90401"
+      "sha256": "d38ee47c180331ecded148bc7a690c207332f6acd514431b057e78f829a0730a"
     },
     "tests/emergency-supply.test.mjs": {
       "bytes": 11471,
@@ -1808,9 +1824,13 @@
       "bytes": 1627,
       "sha256": "e75ec8829808494e29fe59793dd1afb9642ced09d60114cef63acb971637afa3"
     },
+    "tests/helpers/detail-sale-baseline.mjs": {
+      "bytes": 1836,
+      "sha256": "4909b0d696077e6434ef2dad3acd2dcc2d43448b87dace55e7334c8b73b005d9"
+    },
     "tests/helpers/equip-inspection-baseline.mjs": {
-      "bytes": 752,
-      "sha256": "0e10ac7f87a6ac45a1fb240ae7505eb64c8520f78a4bbf37dbda781c5e856df9"
+      "bytes": 850,
+      "sha256": "caa3a1e215a141da377efaf32c2b07c2407c3f545f3eb97028fa23d43aa13969"
     },
     "tests/helpers/event-observation-baseline.mjs": {
       "bytes": 640,
@@ -1922,7 +1942,7 @@
     },
     "tests/item-world-ui.test.mjs": {
       "bytes": 28407,
-      "sha256": "74eb1723f3ba6ad3f67d75d031dac879d11f1802d52714464af0734c6936ca8b"
+      "sha256": "825f5a7b2f1270ab17a5e8b36806f2af256400e751e2096656913e8da05271e4"
     },
     "tests/loadout-preview-audit.test.mjs": {
       "bytes": 7382,
@@ -1949,8 +1969,8 @@
       "sha256": "f2a01aea094369b47cee8757794e0c72837501a037a82236a808aba609f58875"
     },
     "tests/manual-sale-cap-audit.test.mjs": {
-      "bytes": 3903,
-      "sha256": "de2be90305dfc1099c3ae90f7e95d1fb0fecdad0ecd288725be33770e071274e"
+      "bytes": 4220,
+      "sha256": "d4334669b76b01c94712b398fb0e88bf0e93ad0faa2ae9bbce540b1f31a436ba"
     },
     "tests/manual-sale-cap.test.mjs": {
       "bytes": 1546,
@@ -2034,7 +2054,7 @@
     },
     "tests/ranked-abilities-ui.test.mjs": {
       "bytes": 19564,
-      "sha256": "91082a7ec9d69a0d248cb1821bd0c29cc9b1933c9b678734fb8592d9d804f9b2"
+      "sha256": "2a640a814b4ebdc3af15a3b3da5bea6b41114be8b4f2bc2432917f33f98ae24c"
     },
     "tests/ranked-abilities.test.mjs": {
       "bytes": 15949,
@@ -2078,7 +2098,7 @@
     },
     "tests/role-ui.test.mjs": {
       "bytes": 9589,
-      "sha256": "1d646eeb11db0ce16e5eb6f8deacf2b081cdeea03b24f37a6a5bec408d984958"
+      "sha256": "dfa2dd22ff5b80bc66321f0a9a640ce63ed41ea097a7c6dff07d879aa0f5b72f"
     },
     "tests/rpg-interface-ui.test.mjs": {
       "bytes": 5130,
@@ -2157,8 +2177,8 @@
       "sha256": "7de80f2bcdec90e9254eaece574d1a269e2083ef9821ddd065ac8e3ae0fb39e9"
     },
     "tests/soulbind-ui.test.mjs": {
-      "bytes": 18088,
-      "sha256": "798e930b5e00f0311ed2d5cf2278df6ef058983d5de39d17880c0b24333a6284"
+      "bytes": 18283,
+      "sha256": "51ee5cc0932d5f77be7029479f6e3f52f4996d641f45bc53e15946e431fd5779"
     },
     "tests/stat-delta-audit.test.mjs": {
       "bytes": 3200,
@@ -2266,12 +2286,7 @@
     },
     "tests/weapon-ui.test.mjs": {
       "bytes": 15077,
-      "sha256": "1352a08ec68f770f98d1bf299c8033431bd6b8dce6645259d5daef991a95c19e"
+      "sha256": "f20de95fa6e9b22d64ce18c6db448b89b72e838ca25611b685f0e8c54d9b5a5f"
     }
-  },
-  "candidate_website": "073261986b8deadbeaf47390f194ec2a26125783",
-  "candidate_ci": 40736583520,
-  "browser_receipt_sha256": "cba3aaf3baa35bc9e7b88132004dfbdb7ae1adca75dd27133fb74dfef2d6d1f3",
-  "formal_ci": 40738324314,
-  "formal_browser_receipt_sha256": "1547671d0bf0ccfe8cd42599d3f9763d523c1a0f86dd3700a8e6ab48473e2a69"
+  }
 }

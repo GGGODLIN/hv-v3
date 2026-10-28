@@ -1,9 +1,11 @@
+// Historical direct-sale behavior is checked against the exact reversible v063 UI projection.
+import {beforeDetailSale} from './helpers/detail-sale-baseline.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import * as engine from '../src/engine.js';
 import {fullUI,clone,find} from './helpers/comparison-focus-harness.mjs';
-const source=process.env.HV_DETAIL_AUDIT_BASELINE?readFileSync(process.env.HV_DETAIL_AUDIT_BASELINE,'utf8'):undefined;
+const source=process.env.HV_DETAIL_AUDIT_BASELINE?readFileSync(process.env.HV_DETAIL_AUDIT_BASELINE,'utf8'):beforeDetailSale(readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8'), 'src/ui.js');
 function make(){
  const s=engine.createGame(77);
  s.inventory=[{...clone(s.equipment.armor),id:'same-\"\\[]:#',name:'完全同名',locked:false},{...clone(s.equipment.armor),id:'another',name:'完全同名',locked:false}];

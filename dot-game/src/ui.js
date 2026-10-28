@@ -1579,7 +1579,18 @@ function renderItemDetail() {
     const equip = node('button', 'primary-button', state.mode === 'battle' ? '回營後換裝' : '換上裝備'); equip.disabled = state.mode === 'battle' || !tabOwner; equip.addEventListener('click', () => { if (selectedId !== item.id || selectedSlot || !state.inventory.some(current => current.id === item.id)) return; if (!dispatch('equip', item.id)) return; if (state.equipment[item.slot]?.id !== item.id) { showToast('未換上這件裝備；請回營後重新選取。'); render(true); return; } selectedId = null; selectedSlot = item.slot; showToast(`已裝備「${item.name}」`); render(true); });
     const protectedBySet = isGearSetProtected(state,item.id);
     const lock = node('button', 'secondary-button', bound ? '永久綁定' : protectedBySet ? '配裝保護中' : item.locked ? '解鎖' : '鎖定'); lock.disabled = state.mode === 'battle' || !tabOwner || protectedBySet || bound; lock.addEventListener('click', () => { if (!Object.hasOwn(item, 'soulbound')) dispatch('lock', item.id); });
-    const sell = node('button', 'secondary-button', '出售'); sell.disabled = !tabOwner || bound || item.locked || isGearSetProtected(state,item.id) || state.mode === 'battle'; sell.addEventListener('click', () => { if (Object.hasOwn(item, 'soulbound')) return; if (!dispatch('sell', item.id)) return; if (state.inventory.some(current => current.id === item.id)) { showToast('未出售這件裝備；請確認保護狀態及金幣保存上限。'); render(true); return; } selectedId = null; render(true); }); actions.append(equip, lock, sell);
+    const saleQuote = previewSelectedSale(state, [item.id]);
+    const alreadySelected = selectedSaleIds.has(item.id);
+    const sell = node('button', 'secondary-button', alreadySelected ? '移出選售' : `加入選售 · ${format(saleQuote.total)} 金幣`);
+    sell.disabled = !tabOwner || state.mode !== 'town' || !saleQuote.available;
+    sell.addEventListener('click', () => {
+      if (selectedId !== item.id || selectedSlot || !state.inventory.some(current => current.id === item.id)) return;
+      if (selectedSaleIds.has(item.id) !== alreadySelected) return;
+      toggleSelectedSale(item.id, !alreadySelected);
+      if (selectedSaleIds.has(item.id) !== alreadySelected) showToast(alreadySelected ? '已移出選售；未出售任何裝備。' : '已加入選售；請點「預覽自選出售」核對清單，再確認出售。');
+    });
+    actions.append(equip, lock, sell);
+    actions.append(node('p', 'muted', '加入選售不會立即出售；請在背包的「預覽自選出售」核對售價與清單，再確認。'));
     for (const [action, button] of [['equip', equip], ['lock', lock], ['sell', sell]]) detailActionButtons.set(action, { id: item.id, button });
   }
   if (pending) explanation.append(node('span', 'pending-loot-detail', '待領裝備只供比較，不占背包顯示件數，也不受背包篩選影響。領入背包前不能換裝、鎖定、出售、綁定或挑戰裝備界；領取依取得先後順序，不會跳過前面的裝備。'));

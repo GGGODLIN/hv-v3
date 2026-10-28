@@ -1,3 +1,6 @@
+// Historical single-sale UI test retains its exact v063 behavior; v064 selection tests cover the new flow.
+import {beforeDetailSale} from './helpers/detail-sale-baseline.mjs';
+import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { pathToFileURL } from 'node:url';
@@ -25,5 +28,5 @@ test('audit: sufficient funds do not remove locked gear and successful FIFO refi
  const s=fixture();s.hero.gold=123;const keeper=structuredClone(s.inventory[0]);engine.act(s,'sell','keeper');assert.equal(s.hero.gold,123);assert.deepEqual(s.inventory[0],keeper);const price=itemSalePrice(s.inventory[1]);engine.act(s,'sell','candidate-a');assert.equal(s.hero.gold,123+price);assert.deepEqual(s.inventory.map(i=>i.id),['keeper','candidate-b','pending-a','pending-b']);assert.equal(s.pendingLoot.length,0);
 });
 test('audit: single-sale overflow UI retains inspected item rather than pretending it disappeared',async()=>{
- const s=fixture();s.hero.gold=cap;const h=fullUI(s);await h.card('inventory','candidate-a').click();const before=JSON.stringify(h.state);const button=find(h.dom['item-detail'],e=>e.tag==='button'&&e.textContent==='出售');assert.ok(button);await button.click();assert.equal(JSON.stringify(h.state),before);assert.equal(h.run('selectedId'),'candidate-a');assert.ok(h.card('inventory','candidate-a'));assert.match(h.dom.toast.textContent,/未出售|尚未出售|未完成/);assert.deepEqual(clone(h.faults),[]);
+ const s=fixture();s.hero.gold=cap;const h=fullUI(s,{source:beforeDetailSale(readFileSync(new URL('../src/ui.js', import.meta.url), 'utf8'),'src/ui.js')});await h.card('inventory','candidate-a').click();const before=JSON.stringify(h.state);const button=find(h.dom['item-detail'],e=>e.tag==='button'&&e.textContent==='出售');assert.ok(button);await button.click();assert.equal(JSON.stringify(h.state),before);assert.equal(h.run('selectedId'),'candidate-a');assert.ok(h.card('inventory','candidate-a'));assert.match(h.dom.toast.textContent,/未出售|尚未出售|未完成/);assert.deepEqual(clone(h.faults),[]);
 });
