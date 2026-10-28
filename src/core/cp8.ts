@@ -144,10 +144,10 @@ const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
 const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12p（自訂）: retuned after the capped preview (★ no longer over-defends) + 1 deterministic boss potion; rc12o values in docs/hv-v3-rc12p.md
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
-  blade: { mobHp: 11, mobDmg: 11, deepK: 12, bossHp70: 0.2 },
-  bulwark: { mobHp: 9, mobDmg: 9, deepK: 15 },
+  blade: { mobHp: 13, mobDmg: 13, deepK: 12, bossHp70: 0.2 }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
+  bulwark: { mobHp: 16, mobDmg: 16, deepK: 30 }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
   oc: { mobHp: 3.5, mobDmg: 3.5, deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
-  arcane: { mobHp: 2.5, mobDmg: 3, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
+  arcane: { mobHp: 2.6, mobDmg: 3 /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
