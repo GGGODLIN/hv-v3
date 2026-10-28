@@ -97,6 +97,7 @@ export class App {
   notice: string[] = [];
   /** rc16 item 2: last charge-turn decision shown in battle (reused by the death screen). */
   lastAdvice: { turn: number; a: ChargeAdvice; charge?: boolean } | null = null;
+  retreat9 = false; // rc11 item 7
   /** CP7: chosen abyss start checkpoint. */
   abyssStart: number | null = null;
   noticeHtml(): string { return this.notice.length ? `<div class="unlocks" data-unlock>${this.notice.map((n) => `<div>${esc(n)}</div>`).join('')}</div>` : ''; }
@@ -309,7 +310,7 @@ export class App {
         const mm = RULES.cp8 && t === 'merchant' ? '<small class="mmark" data-merchantmark>🧪 可補藥</small>' : '';
         return cur ? `<button class="node n-${t}${mm ? ' mhl' : ''}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}${ra9?.i === i ? '<small class="rhint" data-routehint>★建議</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t}${mm ? ' mhl' : ''} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
-      const rw9 = ra9 ? `<div class="hint" data-routewhy>🧭 建議走【${NODE_ZH[f.options[ra9.i]!]}】：${ra9.why}</div>` : '';
+      const rw9 = ra9 ? `<div class="hint" data-routewhy>🧭 ${ra9.retreat ? '' : `建議走【${NODE_ZH[f.options[ra9.i]!]}】：`}${ra9.why}</div>` : ''; this.retreat9 = !!ra9?.retreat;
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
         const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
@@ -325,7 +326,7 @@ export class App {
       <span>本趟：EXP ${Math.round(r.exp).toLocaleString()} · ${r.credits}C · 擊殺 ${r.kills}${r.bonus.dmg ? ` · 傷害+${Math.round(r.bonus.dmg * 100)}%` : ''}${r.bonus.hp ? ` · HP+${Math.round(r.bonus.hp * 100)}%` : ''}</span></div>
       ${r.startPick && r.offer && !RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${this.themeHtml()}${this.bars(r.hp, d.hp, r.mp, d.mp, r.sp, d.sp)}${this.dotHtml(r.pdot)}${r.hp < d.hp ? `<div class="mappot"><button data-mappot ${this.p.potions.health > 0 ? '' : 'disabled'}>Z·喝生命藥水（剩 ${this.p.potions.health} 瓶，地圖上無冷卻）</button></div>` : RULES.cp8 ? `<div class="mappot" data-mappot-full><button disabled>Z·喝生命藥水（HP 已滿，剩 ${this.p.potions.health} 瓶）</button></div>` : ''}${r.hp <= d.hp * MAP_LOW_HP ? `<div class="potgo" data-lowhp><div class="hint warn">HP ${Math.round(r.hp)}/${d.hp} 只剩一半以下：進戰鬥前先喝藥或走休息節點</div>${this.p.potions.health > 0 ? `<button class="potgobtn" data-potgo>🧪 喝藥再出發（剩 ${this.p.potions.health} 瓶）</button>` : '<div class="hint">沒有生命藥水了：優先走休息節點</div>'}</div>` : ''}${this.buffStrip()}${r.floor === 1 && !r.path.length ? this.noticeHtml() : ''}${r.cp5 && r.tower.floors[r.floor - 1]?.options.includes('elite') && r.floor >= 3 ? `<div class="hint warn" data-elitewarn>⚔ 本層精英可能帶【法抗】或【反魔】（法術幾乎無效），還可能疊上嗜血／分裂等詞綴。法術為主又沒把握時，可以選別條路或先撤退回城補強。</div>` : ''}${r.abyss ? `<div class="hint" data-carry-abyss="${abyssCarryAt(r)}">深淵帶回倍率 ×${abyssCarryAt(r)}（1＋0.05×難度階，依目前深度）</div>` : ''}${r.trip && !r.abyss ? `<div class="hint" data-trip="${r.trip}">第 ${r.trip} 趟：帶回 EXP／Credits ×${carryMult(r.trip)}${carryMult(r.trip) > 1 ? '' : '（新手加成已結束）'}</div>` : ''}
       <div class="cols"><div class="tower">${floors}</div><div>${r.startPick && r.offer && RULES.cp8 ? `<div data-startpick><div class="hint">從第 ${r.abyss?.start} 層出發：先選 run buff（本趟有效）</div>${this.offerHtml()}</div>` : ''}${RULES.cp8 && r.held && !r.startPick ? this.heldHtml() : ''}<h3>背包（${r.bag.length}）· 藥水 ❤${this.p.potions.health} ✦${this.p.potions.mana} ☯${this.p.potions.spirit}</h3><div class="inv">${bag || '<div class="empty">還沒有戰利品</div>'}</div></div></div>
-      <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）</button><span class="spacer"></span><span class="hint">選擇本層一個節點。${r.abyss ? `<span data-bossnext>每 5 層是首領（下一個：深淵 ${Math.ceil(depthOf(r) / 5) * 5} 層）。</span>` : `第 ${towerRules(r.cp5).bossFloors.join('、')} 層是首領。`}</span></div></div>`;
+      <div class="foot"><button data-retreat class="ghost">撤退回城（保留 100%）${this.retreat9 ? '<small class="rhint" data-routehint>★建議</small>' : ''}</button><span class="spacer"></span><span class="hint">選擇本層一個節點。${r.abyss ? `<span data-bossnext>每 5 層是首領（下一個：深淵 ${Math.ceil(depthOf(r) / 5) * 5} 層）。</span>` : `第 ${towerRules(r.cp5).bossFloors.join('、')} 層是首領。`}</span></div></div>`;
   }
 
   enc: string[] = []; encAt = 0;

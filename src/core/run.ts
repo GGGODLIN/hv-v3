@@ -608,7 +608,9 @@ export function mapPotion(p: Player, run: RunState): number {
 /** rc10 spec item 2（自訂，非原版，全部數值無出處）: the route-map recommendation (UI ★建議 + the SIM_ROUTE=hint sim).
  *  QA rc9: merchants entered 6–11 of 11–18 offers (the floor before a boss went to rest) and chests opened 1–2 of 10–14, then every
  *  death was 「藥水用完 → 防禦剩 1 HP → 死」. potLow = health potions below 3（自訂：約一場首領戰的用量，推測）. */
-export const ROUTE9 = { potLow: 3, restBelow: 0.6, preBossRestBelow: 0.9 };
+export const ROUTE9 = { potLow: 3, restBelow: 0.6, preBossRestBelow: 0.9, retreatBelow: 0.25 };
+/** rc11 item 7（自訂）: abyss d%5==1/3 floors offer only battle/elite (abyssFloor), so QA oc-4 at F31 with HP 80/792 and 0 potions had no safe
+ *  node and ★ fell on 戰鬥. Below retreatBelow HP with no health potion and only fights on offer, the advice becomes 撤退回城 (keeps 100%). */
 export function nextIsBoss9(run: RunState): boolean {
   const nx = run.tower.floors[run.floor];
   if (nx) return nx.options.includes('boss');
@@ -622,7 +624,7 @@ export function potNeed9(run: RunState): number {
   const d = (run.abyss ? depthOf(run) : run.floor) + 1, boss = Math.ceil(d / 5) * 5;
   return Math.min(POTNEED9.cap, POTNEED9.base + Math.max(0, Math.floor((boss - POTNEED9.from) / 5)) * POTNEED9.per5);
 }
-export function routeAdvice9(p: Player, run: RunState): { i: number; why: string } | null {
+export function routeAdvice9(p: Player, run: RunState): { i: number; why: string; retreat?: true } | null {
   const opts = run.tower.floors[run.floor - 1]?.options ?? [];
   if (opts.length < 2) return null;
   const frac = run.hp / Math.max(1, runDerived(p, run).hp), pots = p.potions.health ?? 0, need = ROUTE9.potLow > 0 ? potNeed9(run) : 0, low = pots < need; // rc11 item 5: was a fixed potLow 3
@@ -638,6 +640,8 @@ export function routeAdvice9(p: Player, run: RunState): { i: number; why: string
       default: return [1000, ''];
     }
   };
+  if (frac < ROUTE9.retreatBelow && pots === 0 && opts.every((t) => t === 'battle' || t === 'elite'))
+    return { i: -1, retreat: true, why: `HP ${Math.round(frac * 100)}%、沒有生命藥水，本層只有戰鬥：建議撤退回城（保留 100%）` };
   let best = 0, bs = -1, why = '';
   opts.forEach((t, i) => { const [s, w] = sc(t); if (s > bs) { bs = s; best = i; why = w; } });
   return { i: best, why };

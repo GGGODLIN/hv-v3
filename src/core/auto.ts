@@ -349,7 +349,7 @@ export function pickOption(p: Player, run: RunState, strategy: Strategy = 'auto'
   const calm: NodeType[] = ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'];
   const lr = (RULES.cp8 && p.lean && LEAN_ROUTE[p.lean]) || { restBelow: 0.55, eliteAbove: 0 };
   const pref: NodeType[] = (ENV?.SIM_ROUTE === 'battle' || ENV?.SIM_ROUTE === 'mr') /* rc14: QA-like route, fights 戰 before 菁英 — sim acceptance baseline (scripts set it; SIM_ROUTE=elite / unset = elite-first reference) */ ? (frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : strategy === 'avoid' ? calm : strategy === 'human' || strategy === 'noweak' ? (frac < 0.55 || !coin ? calm : ['battle', 'chest', 'shrine', 'rest', 'merchant', 'elite', 'boss']) : frac < lr.restBelow ? ['rest', 'shrine', 'chest', 'merchant', 'battle', 'elite', 'boss'] : frac < lr.eliteAbove ? ['rest', 'chest', 'battle', 'shrine', 'merchant', 'elite', 'boss'] : ['elite', 'chest', 'battle', 'shrine', 'rest', 'merchant', 'boss'];
-  if (ENV?.SIM_ROUTE === 'hint') { const r9 = routeAdvice9(p, run); if (r9) return r9.i; } // rc10 spec item 2: follow the UI ★建議
+  if (ENV?.SIM_ROUTE === 'hint') { const r9 = routeAdvice9(p, run); if (r9 && !r9.retreat) return r9.i; } // rc11 item 7: a ★撤退 hint is not modelled (the sim keeps fighting) // rc10 spec item 2: follow the UI ★建議
   if (ENV?.SIM_ROUTE === 'mr' && opts.includes('merchant')) return opts.indexOf('merchant'); // cp9-rc8（自訂）: mr = QA-like 'enter every merchant'
   for (const t of pref) { const i = opts.indexOf(t); if (i >= 0) return i; }
   return 0;
