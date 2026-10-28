@@ -877,9 +877,9 @@ export class App {
   async startBattle(t: NodeType) {
     const r = this.run;
     this.battleType = t;
+    if (t === 'boss') snapBeforeBoss(localStorage, r.qaId ??= newRunId(), r.abyss ? depthOf(r) : r.floor, level(this.p), this.p, r); // rc11 item 6: mid-run save before each boss; rc12f: taken before encounter() so the saved rng state re-draws the same boss
     this.monsters = encounter(r, this.pool, t);
     this.recent = [];
-    if (t === 'boss') snapBeforeBoss(localStorage, r.qaId ??= newRunId(), r.abyss ? depthOf(r) : r.floor, level(this.p), this.p, r); // rc11 item 6: mid-run save before each boss
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp, oc: r.oc }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);
     const oc0 = openingOc(this.p, t, r);
