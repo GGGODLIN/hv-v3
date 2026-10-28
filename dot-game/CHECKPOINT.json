@@ -1,9 +1,9 @@
 {
-  "checkpoint": "213-v068-source",
+  "checkpoint": "215-v068-accepted",
   "version": "0.68.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "73b143ba7038ca184a947f2682170a023b865bb3",
-  "base_accepted_recovery": "73b143ba7038ca184a947f2682170a023b865bb3",
+  "status": "desktop-candidate-accepted-formal-pending",
+  "source_base": "875cd1378fd3c617c3b9b3368f30127f86159d41",
+  "base_accepted_recovery": "875cd1378fd3c617c3b9b3368f30127f86159d41",
   "accepted_website": "08020c163037524b8afcab9792d5a34fc1dd3224",
   "scope": "Transient 1x/2x simulation tempo using bounded identical existing engine steps; reports retain simulation time.",
   "source_tests_passed": 2378,
@@ -12,14 +12,14 @@
   "runtime_syntax_checks": 4,
   "new_focused_tests": 6,
   "independent_focused_tests_passed": 12,
-  "browser_acceptance": "Pending; source and DOM model only.",
-  "publication": "Not published; formal remains accepted v067. Root owns candidate and formal release.",
+  "browser_acceptance": "Normal desktop candidate PASS; scope and limits in QA-V068-BROWSER.md.",
+  "publication": "Candidate website93dc0ba6ff28d8f5ba0622597bc923e383947ffd Pages40778501336 success; formal remains accepted v067.",
   "recovery": "docs/RECOVERY-V068.md",
-  "test_log_sha256": "874fbe98f2b1599b55263242c5e9de72befcfbdc9283d00c27a02bc7673d9982",
+  "test_log_sha256": "4bad9100a369304f7ca6a19f7b7ada25968ce4a05cad1afbe4ab8fa56599201a",
   "files": {
     "README.md": {
-      "bytes": 76790,
-      "sha256": "812f9622f17772782b05854077e4faeea227c5de06ca78e29a9f167b5138a162"
+      "bytes": 77890,
+      "sha256": "c94dec35b52fdef6918cd3b02ef0ad3a3ddbad79ee9f2ac0e7873879a5d571bd"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -925,6 +925,14 @@
       "bytes": 2181,
       "sha256": "287db1cdc40b73ac9bce1f784e89237109a78cc5adb699c33413482e002cf5a2"
     },
+    "docs/QA-V068-BROWSER-RECEIPT.json": {
+      "bytes": 3939,
+      "sha256": "0c70847b35d3bf04ef306205090f8d21b7a3b3cd50f1e1c1685effed794f98c8"
+    },
+    "docs/QA-V068-BROWSER.md": {
+      "bytes": 1614,
+      "sha256": "6244a4ff488007e9d4b9b9e375cb24813503d9e207bb4bcf0821274a509798a2"
+    },
     "docs/QA-V068-INDEPENDENT.md": {
       "bytes": 3452,
       "sha256": "36c749376a5bf076dd959ee79679bfbb799ee9094c4f0d187e6d05bd9654ebbe"
@@ -1118,8 +1126,8 @@
       "sha256": "05d591f0cfa708055caeb29c361a5b13340482a67b9d88ff20961bfeb48382c1"
     },
     "docs/RECOVERY-V068.md": {
-      "bytes": 2106,
-      "sha256": "3fbfa780cca737a014770ae740452f9e040638c7196af207617b4ba5932c7559"
+      "bytes": 2648,
+      "sha256": "d5588884c9fb8e65046a2d0f4fb0c2ce688ec9732067be2daf1dcd4888fb1cd7"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1130,8 +1138,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 59556,
-      "sha256": "6a761af011902f983047fab47b19702498fb07647a5965328c9b286f932cd06f"
+      "bytes": 60656,
+      "sha256": "b41908168f885d7db7a4d6ce9fadc188f0784fbc4f4be1a003a63c659628323c"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1166,8 +1174,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 79501,
-      "sha256": "b83fd2951057be6554c9da4ae0fd03eb77e7d117e0d97082b45bae8fc07cb9b8"
+      "bytes": 80601,
+      "sha256": "cc5c3fea480d77123292e8af36c2be2893e65a8bf8226dad5d854d1b27c2456c"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,

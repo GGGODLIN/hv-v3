@@ -1,0 +1,87 @@
+{
+  "version": "v0.68",
+  "result": "PASS",
+  "tested_at": "2026-10-28T22:19:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.68/",
+  "website_commit": "93dc0ba6ff28d8f5ba0622597bc923e383947ffd",
+  "pages_run": "40778501336",
+  "ci": "Parent exact success/21runtime bytes verified before opening",
+  "method": "Cloud CUA normal UI only. Genuine formal Lv9/1074/wins13 save imported into isolated candidate; same genuine export re-imported once for comparison. No injected state or local browser.",
+  "checks": [
+    "Camp2x selection export exactly same bytes as baseline.",
+    "2x single expedition naturally completed all4waves and returnedcamp once: gold1074→1150 XP91→196 fragments30→40 wins13→14, report9.5simulationseconds. Did not auto-start during subsequent camp observations.",
+    "Normal genuine baseline re-import reset selector2x→1x. 1x run reported9.5simulationseconds and same permanent fields/RNG/loot as2x; four timing/event sessionfields differed.",
+    "Keyboard ArrowDown changed native selector1x→2x; reduced-motion normal settings checkbox enabled. Started single at2x then immediately switched1x while firstwave active; completed once, gold1226/wins15/bag21/XP301, no duplicated rewards.",
+    "After selecting2x atcamp, normal export/reload reset1x and preserved every permanentfield; only8expected sessionfields differ.",
+    "Desktop screenshot inspected focused selector, disclaimer simulationtime/notattackspeed, full-width usable control. viewport1180/document1165/brokenImages0."
+  ],
+  "comparison_different_keys": [
+    "_tuCompensation",
+    "battle",
+    "events",
+    "timing"
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 9,
+    "xp": 301,
+    "xpNext": 342,
+    "hp": 751,
+    "mp": 43,
+    "gold": 1226,
+    "proficiency": 10.8,
+    "attributes": {
+      "str": 24,
+      "dex": 24,
+      "agi": 24,
+      "end": 24,
+      "int": 24,
+      "wis": 24
+    }
+  },
+  "final_wins": 15,
+  "final_kills": 90,
+  "final_bag_count": 21,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/ade446ec-671b-4d8e-8631-98ebf3e6b714",
+      "sha256": "5f4d24f9a99b8267200144fb22638c1add83b1ca31c15578223f7f4f522834e1"
+    },
+    "camp_2x": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/489f4695-69f4-48e0-bb75-0d6e93aaf90a",
+      "sha256": "5f4d24f9a99b8267200144fb22638c1add83b1ca31c15578223f7f4f522834e1"
+    },
+    "two_x_run": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/f41ae0d9-c2c0-44a7-a25c-6f65ea0a286c",
+      "sha256": "a6225425db50aa2b2c8bf813d4c221cb3c843e713b88c1d4d8a9260bb652be61"
+    },
+    "one_x_same_baseline_run": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/331633ff-fa3c-4c57-b736-72f517000df6",
+      "sha256": "a63fd15bbf491683713c18d88c74fc091b7730914b25088adb2c6bf0ff62695b"
+    },
+    "mixed_run_before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/6e4150bc-32de-4712-a8db-2fd7e5e05670",
+      "sha256": "138c4a6bbc33f20928e447d8cb70a656b9381fa7491f38261cbf9664ede3b4e5"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/09c7c11e-7180-4edf-a19b-f9122b272ee2",
+      "sha256": "b0effd55b3940bbc29eabfbb523154e4f8c8d47c4ad512bef73b850bf1c0d7af"
+    }
+  },
+  "limitations": [
+    "Browser observations are not controlled callback timing or precise wall-clock2x proof; exact callbackratio is source-only.",
+    "Mid-interval discard, takeover/readonly and sleeping boundaries source-only.",
+    "No mobile/full accessibility audit.",
+    "Reduced-motion setting enabled and gameplay functional; animation suppression not quantitatively assessed."
+  ],
+  "formal_changed": false
+}

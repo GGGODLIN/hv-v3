@@ -1,3 +1,7 @@
+# v068 desktop-accepted source checkpoint215
+
+Restore exact commit carrying CHECKPOINT `215-v068-accepted`. Runtime/tests/assets/index are byte-identical to213875cd1378fd3c617c3b9b3368f30127f86159d41; only evidence/status/manifest changed. Normal desktop candidate PASS at website93dc0ba6ff28d8f5ba0622597bc923e383947ffd, Pages40778501336. Formal promotion still pending; retain v067 until root completes it. Source index deliberately remains candidate-labeled, distinct from website wrapper. See QA-V068-BROWSER.md for evidence and limits.
+
 # v068 complete source recovery — candidate only
 
 Restore the exact commit carrying CHECKPOINT `213-v068-source` from GGGODLIN/hv-v3 bot/dot; do not substitute a moving branch. `dot-game/` contains complete source, original/licensed assets and credits, all tests, this recovery guide and SHA256 payload manifest (CHECKPOINT excludes its own hash). `dot-probe/` and all other existing repository files are retained without changes.
