@@ -297,6 +297,7 @@ export class App {
   mapHtml(): string {
     const r = this.run;
     const d = runDerived(this.p, r);
+    this.retreat9 = false;
     const floors = [...r.tower.floors].reverse().map((f) => {
       const cur = f.n === r.floor;
       const past = f.n < r.floor;
@@ -310,7 +311,7 @@ export class App {
         const mm = RULES.cp8 && t === 'merchant' ? '<small class="mmark" data-merchantmark>🧪 可補藥</small>' : '';
         return cur ? `<button class="node n-${t}${mm ? ' mhl' : ''}" data-f="${f.n}" data-i="${i}" data-node="${i}"${r.startPick && r.offer && !RULES.cp8 ? ' disabled' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${RULES.cp8 && t === 'elite' ? '<small class="warn" data-elitedanger>危險，先備好藥</small>' : ''}${ra9?.i === i ? '<small class="rhint" data-routehint>★建議</small>' : ''}</button>` : `<span data-f="${f.n}" data-i="${i}" class="node n-${t}${mm ? ' mhl' : ''} ${chosen ? 'chosen' : ''} ${past && !chosen ? 'faded' : ''}" ${chosen ? 'data-visited' : ''}>${ic}${NODE_ZH[t]}${ew}${mm}${chosen ? '<i class="tick">✓ 走過</i>' : ''}</span>`;
       }).join('');
-      const rw9 = ra9 ? `<div class="hint" data-routewhy>🧭 ${ra9.retreat ? '' : `建議走【${NODE_ZH[f.options[ra9.i]!]}】：`}${ra9.why}</div>` : ''; this.retreat9 = !!ra9?.retreat;
+      const rw9 = ra9 ? `<div class="hint" data-routewhy>🧭 ${ra9.retreat ? '' : `建議走【${NODE_ZH[f.options[ra9.i]!]}】：`}${ra9.why}</div>` : ''; if (cur) this.retreat9 = !!ra9?.retreat; // rc12 fix: floors map top→bottom, so non-current floors used to reset it to false
       if (r.abyss) {
         const dn = r.abyss.start + f.n - 1;
         const bt = dn % 5 === 0 ? BOSS_BY_FLOOR[bossKey(dn)] : undefined;
