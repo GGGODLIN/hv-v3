@@ -1,0 +1,83 @@
+{
+  "version": "0.65",
+  "kind": "formal-browser-qa",
+  "testedAtUtc": "2026-10-28T19:34:35Z",
+  "result": "PASS within normal desktop scope",
+  "websiteCommit": "018d4c3a1068c58ea2546752b63ccab2336a6f35",
+  "pagesRun": "40754182027",
+  "ciEvidence": "Parent publisher exact CI/main verification before reload",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "method": "dot cloud cua normal UI only, retained existing formal profile; no candidate import/state injection",
+  "environmentRecovery": "After interruption read fresh documentation and inventory; tab2 formal and tab8 candidate persisted. Re-read originalv064 profile and fresh export hash before proceeding.",
+  "baseline": {
+    "version": "0.64",
+    "level": 5,
+    "gold": 466,
+    "bag": 5,
+    "exportSha256": "d1c6f8bbce63134082fc2e90ad631ed8ce87328e4f512f3782faa0a3c296e14a",
+    "download": "17e58856-94df-493c-8572-b26260f76b68"
+  },
+  "checks": [
+    {
+      "name": "upgrade",
+      "result": "PASS",
+      "observed": "Reloadv065 title retained originalLv5/466/XP138/159/equipment."
+    },
+    {
+      "name": "sorting",
+      "result": "PASS",
+      "observed": "Attack69>25>22>3>0;HP103>0 withlatestties;parry12.2>9.9>0. Rawitem/nonDPS explanation visible. No equip or sale actions."
+    },
+    {
+      "name": "sort durable no-op",
+      "result": "PASS",
+      "observed": "Exportafter3sortswitches exactly samebytes as originalbaseline;gear/inventory/RNG unaffected."
+    },
+    {
+      "name": "natural growth loot",
+      "result": "PASS",
+      "observed": "Stage1 finish-then-camp11.6s,level5->6,HP663->685,MP31->34,XP84/197,gold466->542,kills30->36,wins5->6,fragments50->60,seeds5->6,drop loot-7 Superior Hunter leather wind,bag5->6. Gear unchanged."
+    },
+    {
+      "name": "persistence and sort reset",
+      "result": "PASS",
+      "observed": "Export/reload/export all durablefields equal;only expectedtransient battle/_tuCompensation/_eventId/_turns/logs/wave/events/timing reset. Sortlatestselectedafterreload."
+    },
+    {
+      "name": "visual",
+      "result": "PASS",
+      "observed": "Screenshotinspected,viewport1180/document1165,brokenimages0."
+    }
+  ],
+  "exports": {
+    "afterPlay": {
+      "sha256": "05dd81c28e9b0fd152fdcacfdd25e0b7f6819578497f8eb57352de006dc1f9c8",
+      "bytes": 8610,
+      "download": "833605a6-51ef-4ef8-a481-d57ec7e3588d"
+    },
+    "afterReload": {
+      "sha256": "03c451d439104d1e2fa029dc34a2af925c0630519c7159fc1613f8a4ca796eb2",
+      "bytes": 5769,
+      "download": "d25f44af-6dc9-4307-9223-89a442a41bc4"
+    }
+  },
+  "final": {
+    "tab": "2",
+    "version": "0.65",
+    "level": 6,
+    "gold": 542,
+    "hp": 685,
+    "mp": 34,
+    "xp": 84,
+    "bag": 6,
+    "equippedWeapon": "loot-5",
+    "mode": "town",
+    "sort": "newest",
+    "saved": true
+  },
+  "limitations": [
+    "Formaldesktop smoke uses3sorts;all7 plusselection/filterfocus tested in candidate receipt.",
+    "Tinyfractional edge ordering remains unit-only;no physicalmobile/fullaccessibility certification."
+  ],
+  "candidateSeparation": "No candidate imported into formal. Candidate tab8 retained separately."
+}

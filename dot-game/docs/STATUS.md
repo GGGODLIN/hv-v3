@@ -1,3 +1,9 @@
+## v065 已正式發布並通過桌面實玩（2026-10-29 台北）
+
+正式 https://gggodlin.github.io/play/hv-v3-dot/ 已為v065：website018d4c3a1068c58ea2546752b63ccab2336a6f35，exact Pages40754182027成功。原正式存檔延續，切換裝備屬性排序不改匯出bytes；自然11.6秒通關升Lv6／542金、獲得loot7護甲，重載持久資料一致、排序回最新。沒有將候選進度匯入正式。
+
+最新完整桌面已驗收恢復來源為攜帶CHECKPOINT `202-v065-restorable` 的exact commit；runtime/tests/assets/index與200來源86f47c863a3f6439c73805327a55f3d8bfefe5b8逐byte一致。完整來源、素材授權、測試、候選與正式browser收據及恢復說明均納入。詳見docs/PUBLICATION-V065.md、docs/RECOVERY-V065.md。正式桌面smoke測三種排序，全七種與篩選／選售／焦點於候選驗收；微小差值、競態、戰鬥／唯讀邊界仍來源模型，不代表手機或完整無障礙；未宣稱公開HTTP逐檔hash或Library同步。以下各輪待發布文字保留為歷史。
+
 ## v065 桌面候選已驗收，正式升版待完成（2026-10-29 台北）
 
 隔離候選 https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.65/ 已正常瀏覽器實玩 PASS：website9aa25c92f155881527aabb158af81ff3e6bb717f，exact Pages40752658799成功。七種裝備屬性降序、全零與零值平手最新順序、武器篩選4/5、選售與比較焦點保留均驗過；排序／篩選後匯出與原始存檔逐byte相同，重載排序回最新。正常通關升Lv6／542金、掉新護甲並在閃避排序首位；持久資料重載一致，正式v064存檔未改。

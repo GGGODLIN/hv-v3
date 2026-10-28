@@ -1,3 +1,9 @@
+## 202: latest complete formally published desktop-accepted recovery
+
+Retrieve the exact bot/dot commit bearing CHECKPOINT202-v065-restorable; restore all dot-game/ files and verify every payload bytes/SHA256. Includes source, assets/license, tests, browser receipts, publication and recovery instructions. Runtime/tests/assets/index unchanged from200 source86f47c863a3f6439c73805327a55f3d8bfefe5b8. Sourceindex retains candidate phase label; formalindex uses its documented wrapper only.
+
+Formalwebsite018d4c3a1068c58ea2546752b63ccab2336a6f35 exactPages40754182027 success and desktop smoke PASS; seePUBLICATION-V065.md. Restore with npm test and the four syntax commands below, no install/build required. Export real saves first, use isolation for tests, retainv3 namespace and never inject candidateprofile into formal. Check newer complete checkpoints before rollback. Does not certify mobile/fullaccessibility, allunit-onlyedges, publicHTTP hashes, Library synchronization or platform schedules/login restoration. Following200/198 sections are historical.
+
 ## 200: desktop accepted complete source, formal promotion pending
 
 Restore full dot-game/ from the exact bot/dot commit bearing CHECKPOINT200-v065-browser-accepted, verifying every files entry bytes/SHA256. Runtime/tests/assets/index equal source198 e98bee0aaf8d0e8e889ed088ab2acf7c48577bf4. Includes browser evidence, all source/assets/licenses/tests and recovery instructions. Use npm test and the four syntax checks below; source index retains its candidate label. No install/build is required.
