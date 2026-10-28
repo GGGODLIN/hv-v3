@@ -1,3 +1,4 @@
+import { bossDmg, logTurn, snapBeforeBoss } from './qalog';
 import { CP8, CP9 } from '../core/cp8';
 import { iconKey } from './icons';
 import { stunResisting9, rewindNote9, windSafeKey, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
@@ -852,6 +853,7 @@ export class App {
     this.battleType = t;
     this.monsters = encounter(r, this.pool, t);
     this.recent = [];
+    if (t === 'boss') snapBeforeBoss(localStorage, r.abyss ? depthOf(r) : r.floor, level(this.p), this.p, r); // rc11 item 6: mid-run save before each boss
     this.battle = startBattle(runDerived(this.p, r), { hp: r.hp, mp: r.mp, sp: r.sp, oc: r.oc }, this.monsters, this.p.potions);
     this.battle.locked = battleLocks(this.p);
     const oc0 = openingOc(this.p, t, r);
@@ -911,7 +913,9 @@ export class App {
     // cp8-rc11 4(a): a player who only presses A never puts a skill on cooldown, so also count a skill that just became castable (OC crossed its cost)
     const castable = () => skillKit(b).filter((id) => canUse(b, { kind: 'skill', id, target: this.target }));
     const can0 = castable();
+    const bh0 = b.monsters.map((m) => m.hp);
     const ev = act(b, a, this.rng, profsOf(this.p));
+    if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)) }); // rc11 item 6
     { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4
       const fresh = castable().filter((id) => !can0.includes(id));
       this.cdPending = [...new Set([...this.cdPending, ...off, ...fresh])].filter((id) => !this.cdShown.includes(id) && b.cooldowns[id] <= 0); }
