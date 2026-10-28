@@ -11,7 +11,7 @@ const save9 = (s: BattleState, hp: number): number => !CP9.save9 ? Infinity : CP
 export const stunImmOn9 = (m: Monster): boolean => RULES.cp8 && CP9.on && CP9.stunImm > 0 && m.rank === 'boss';
 export const stunResisting9 = (m: Monster): boolean => stunImmOn9(m) && ((m as CM).stunImm9 ?? 0) > 0;
 /** cp9-rc9 item 6（自訂，QA oc1 F65）: persistent stun / stun-resist tag under a monster's HP bar (the log line alone vanished after T2). */
-export const stunTag9 = (m: Monster): string => m.hp <= 0 ? '' : m.status.stun > 0 ? `暈眩 ${m.status.stun}${stunImmOn9(m) ? `（之後抵抗 ${CP9.stunImm}）` : ''}` /* cp9-rc9 step 3（自訂）: upcoming resist shown while stunned */ : stunResisting9(m) ? `暈眩抵抗 ${(m as CM).stunImm9}` : '';
+export const stunTag9 = (m: Monster): string => m.hp <= 0 ? '' : m.status.stun > 0 ? `暈眩 ${m.status.stun}${stunImmOn9(m) ? `（之後抵抗 ${CP9.stunImm}）` : ''}` /* cp9-rc9 step 3（自訂）: upcoming resist shown while stunned */ : stunResisting9(m) ? `暈眩抵抗中（剩 ${(m as CM).stunImm9} 回合）` : ''; // rc10 QA（自訂）
 const stunResist9 = (m: Monster, ev: BEvent[], to: number): boolean => { if (!stunResisting9(m)) return false; ev.push({ t: 'status', to, text: '暈眩抵抗中' }); return true; };
 const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Math.max(0, def9(s, tele ? Math.floor(CP9.bossBurst * s.d.hp) : Math.ceil(CP9.bossPlain * s.d.hp) - 1 /* cp9-rc5 (2)（自訂）: an unannounced turn stays strictly below bossPlain */) - ACT9.taken) : Infinity);
 import type { BMods, Combos } from './buffs';
@@ -331,7 +331,7 @@ export const windSafeKey = (cmd: string): boolean => /^(defend|item:|spirit)/.te
 export function drainStunKey(s: BattleState, target = 0): string | null {
   if (!RULES.cp8 || !CP9.on || ADVICE_DIAG.revert.has('drainstun')) return null;
   const m = s.monsters[target] as (Monster & { drainNext?: boolean }) | undefined;
-  if (!m || m.hp <= 0 || !(m.drainNext || (CP9.stunAll && windingUp(m))) || m.status.stun > 0) return null; // cp9-rc5 (1)（自訂）: any wind-up
+  if (!m || m.hp <= 0 || !(m.drainNext || (CP9.stunAll && windingUp(m))) || m.status.stun > 0 || stunResisting9(m)) return null; // rc10 QA（自訂）: no stun hint while 暈眩抵抗中 · cp9-rc5 (1)（自訂）: any wind-up
   const kit = skillKit(s), id = STUN_SKILLS.find((k) => kit.includes(k) && canUse(s, { kind: 'skill', id: k, target }));
   return id ? `${'QWE'[kit.indexOf(id)]}·${SKILLS[id].zh}` : null;
 }
@@ -504,7 +504,7 @@ const physExp = (s: BattleState, m: Monster, mult: number, opts: { noMit?: boole
 /** cp9 (a)（自訂，非原版）: a stun that lands on a monster winding up (蓄力／重擊預告) is worth the hit it cancels for a turn,
  *  so the skill hint lights at that moment instead of always 「A」. Counted as damage-equivalent (×CP9.stunW). */
 function stunWorth9(s: BattleState, m: Monster): number {
-  if (!RULES.cp8 || !CP9.on || m.hp <= 0 || !windingUp(m)) return 0;
+  if (!RULES.cp8 || !CP9.on || m.hp <= 0 || !windingUp(m) || stunResisting9(m)) return 0; // rc10 QA（自訂）: a resisted stun is worth nothing
   return CP9.stunW * Math.min(chargeEstimate(s, m, s.defendTurns > 1, false), s.hp);
 }
 export function skillValue(s: BattleState, id: SkillId, target: number): number {
