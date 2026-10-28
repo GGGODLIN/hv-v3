@@ -1188,7 +1188,23 @@ export function deathHint(topDmg: number, lastDmg: number, maxHp: number, last2T
  *  2. HP danger with the potion unusable → S (guardHint);
  *  3. the hinted skill (turnHints.skill) → Q/W/E; 4. staff: the hinted spell → 1–5; 5. A (quickAttack: staff A may be a quick-cast). */
 export type PrimaryKey = { key: string; label: string; action: Action; why: string; src: 'advice' | 'guard' | 'skill' | 'spell' | 'attack' };
+/** rc12d diag（自訂，僅統計，不改行為）: which key primaryKey returned and, for staff users, why no spell (1–5) was chosen. */
+export const PK_DIAG = { on: false, key: {} as Record<string, number>, spellWhy: {} as Record<string, number> };
 export function primaryKey(s: BattleState, target: number): PrimaryKey {
+  const r = primaryKey0(s, target);
+  if (PK_DIAG.on) { PK_DIAG.key[r.key] = (PK_DIAG.key[r.key] ?? 0) + 1;
+    if (s.d.style === 'staff' && !/^[1-5]$/.test(r.key)) { const w = spellWhy9(s, target, r); PK_DIAG.spellWhy[w] = (PK_DIAG.spellWhy[w] ?? 0) + 1; } }
+  return r;
+}
+function spellWhy9(s: BattleState, target: number, r: PrimaryKey): string {
+  if (r.src !== 'attack') return `pre-empted:${r.src}${turnHints(s, target).spell ? '+spellHint' : ''}`;
+  if (quickAttack(s, target).kind !== 'spell') return 'A-not-spell(no MP?)';
+  const ids = (Object.keys(SPELLS) as SpellId[]).filter((id) => canUse(s, { kind: 'spell', id, target }));
+  if (ids.length <= 1) return 'only-quick-castable';
+  const q = spellValue(s, (quickAttack(s, target) as { id: SpellId }).id, target), b = Math.max(...ids.map((id) => spellValue(s, id, target)));
+  return b <= q ? 'fiery-best' : b <= q * (1 + SPELL_HINT_EDGE) ? 'within-edge' : 'mp-per-cost';
+}
+function primaryKey0(s: BattleState, target: number): PrimaryKey {
   const th = turnHints(s, target), adv = th.adv, kit = skillKit(s), spells = Object.keys(SPELLS) as SpellId[];
   const qa = (): PrimaryKey => ({ key: 'A', label: 'A·攻擊', action: quickAttack(s, target), why: '普通攻擊', src: 'attack' });
   const fromKey = (k: string): Omit<PrimaryKey, 'why' | 'src'> | null => {

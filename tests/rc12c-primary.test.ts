@@ -21,7 +21,7 @@ describe('rc12c primaryKey', () => {
     let skill = 0;
     for (const b of states()) {
       const pk = primaryKey(b, 0); expect(canUse(b, pk.action)).toBe(true);
-      expect(pk.key).toMatch(/^[ADZSQWE1-5]$/);
+      expect(pk.key).toMatch(/^[ADZSQWE1-6]$/);
       const th = turnHints(b, 0);
       if (pk.src === 'skill') { skill++; expect(pk.action).toEqual({ kind: 'skill', id: th.skill, target: 0 }); }
     }
