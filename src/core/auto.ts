@@ -32,7 +32,7 @@ export const SIM_DIAG = { zHpNL: {} as Record<number, number> /* cp9 rc2 (c)（�
 let DIAG_FLOOR = 0;
 /** cp9-rc9 item 5 diag（自訂，僅 sim）: health-potion income by source and in-fight use. */
 /** cp9-rc10 diag（自訂，僅 sim，只計數、不影響任何決策或亂數）: abyss-trip potion ledger and 「致命＋藥水冷卻」 turns. */
-export const RC10 = { on: false /* set only while an abyss trip runs */, pot: { runs: 0, start: 0, town: 0, merchant: 0, drop: 0, elite: 0, chest: 0, used: 0 }, lc: { turns: 0, fights: 0, act: {} as Record<string, number>, survTurn: 0, fightWon: 0, fightLost: 0 }, trips: [] as number[] /* abyss trip: cleared (+1 if dead), same as cp9-preset-sim */ };
+export const RC10 = { on: false /* set only while an abyss trip runs */, pot: { runs: 0, start: 0, town: 0, merchant: 0, drop: 0, elite: 0, chest: 0, used: 0, left: 0, deadPot: 0, dead: 0 }, lc: { turns: 0, fights: 0, act: {} as Record<string, number>, survTurn: 0, fightWon: 0, fightLost: 0 }, route: { floors: 0, mOff: 0, mIn: 0, cOff: 0, cIn: 0 }, trips: [] as number[] /* abyss trip: cleared (+1 if dead), same as cp9-preset-sim */ };
 export const POTSRC = { town: 0, merchant: 0, drop: 0, elite: 0, chest: 0, used: 0 };
 /** cp9-rc9 item 4 diag（自訂，僅 sim）: actual damage taken in a boss turn vs the hint's crit estimate (for the action taken). */
 export const EST9: { all: number[]; keen: number[]; under: Record<string, number>; n: number; nUnder: number; heal: number[] } = { all: [], keen: [], under: {}, n: 0, nUnder: 0, heal: [] };
@@ -434,7 +434,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   if (bs) RULES.cp4RunBuffs = true;
   if (cp5) RULES.cp5Bosses = true;
   if (strategy.endsWith('-nofloor')) coreFloor.on = false; // r3 step 2 control: both core guarantees off for this run
-  try { RC10.on = !!cp5?.abyss; const r10 = autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); if (cp5?.abyss) { const P = RC10.pot; P.runs++; P.start += h10; for (const k of ['town', 'merchant', 'drop', 'elite', 'chest', 'used'] as const) P[k] += POTSRC[k] - s10[k]; RC10.trips.push((r10.abyss?.cleared ?? 0) + (r10.settlement.outcome === 'dead' ? 1 : 0)); } return r10; } finally { RC10.on = false; RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; SIM_DIAG.cbRun.push(SIM_DIAG.cb - cb5); /* cp9-rc5 diag（自訂） */ }
+  try { RC10.on = !!cp5?.abyss; const r10 = autoRunInner(p, pool, seed, strategy, level, power, bs, cp5); if (cp5?.abyss) { const P = RC10.pot; P.runs++; P.start += h10; for (const k of ['town', 'merchant', 'drop', 'elite', 'chest', 'used'] as const) P[k] += POTSRC[k] - s10[k]; P.left += p.potions.health; if (r10.settlement.outcome === 'dead') { P.dead++; if (p.potions.health > 0) P.deadPot++; } RC10.trips.push((r10.abyss?.cleared ?? 0) + (r10.settlement.outcome === 'dead' ? 1 : 0)); } return r10; } finally { RC10.on = false; RULES.cp4RunBuffs = flag0; RULES.cp5Bosses = flag5; coreFloor.on = true; SIM_DIAG.cbRun.push(SIM_DIAG.cb - cb5); /* cp9-rc5 diag（自訂） */ }
 }
 /** Play one battle to the end with a strategy (+ CP5 layer). */
 /** One sim decision for a strategy (the same call fight() makes each turn). */
@@ -494,6 +494,7 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
   while (!run.done) {
     if (run.abyss && depthOf(run) > (cp5?.cap ?? 60)) { run.done = 'retreat'; break; }
     const opt = pickOption(p, run, strategy);
+    if (RC10.on) { const o10 = run.tower.floors[run.floor - 1]!.options, R = RC10.route; R.floors++; if (o10.includes('merchant')) R.mOff++; if (o10.includes('chest')) R.cOff++; if (o10[opt] === 'merchant') R.mIn++; if (o10[opt] === 'chest') R.cIn++; } // cp9-rc10 diag（自訂）: route counters, behaviour-neutral
     const type = run.tower.floors[run.floor - 1]!.options[opt]!;
     cp5?.snap?.(p, run);
     enterNode(p, run, type);
