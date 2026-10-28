@@ -2,6 +2,7 @@
  *  or SC=<school> → public/data/cp6-presets.json postF20-<school>. One abyss trip F1→F100, ★ only (SIM_POLICY=primary), potions/HP/credits
  *  carried across floors by autoRun. Usage: SIM_POLICY=primary [SC=oc] npx tsx scripts/rc12m-fullrun.ts [seedsPerStart=16] files... */
 import { readFileSync } from 'node:fs';
+import { presetPlayer, type Preset } from '../src/core/preset';
 import { SIM_DIAG, RC10, autoRun, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { RULES } from '../src/core/run';
@@ -12,7 +13,7 @@ for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_
 const [K0, ...files] = process.argv.slice(2); const K = Number(K0 ?? 16), E = process.env;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const starts: Record<string, Player> = {};
-if (E.SC) starts[`preset-${E.SC}`] = (JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8')) as Record<string, { player: Player }>)[`postF20-${E.SC}`]!.player;
+if (E.SC) starts[`preset-${E.SC}`] = presetPlayer((JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8')) as Record<string, Preset>)[`postF20-${E.SC}`]!); // rc12n: same lean as the game's applyPreset
 else for (const f of files) { const d = JSON.parse(readFileSync(f, 'utf8')) as Record<string, string>; const best: Record<string, [number, Player]> = {};
   for (const [k, v] of Object.entries(d)) { const m = k.match(/^hv-v3-qa-snap:(.+):F(\d+)$/); if (!m) continue; const o = JSON.parse(v); if (o.player?.lean !== 'oc') continue; if (!best[m[1]!] || +m[2]! < best[m[1]!]![0]) best[m[1]!] = [+m[2]!, o.player]; }
   for (const [r, [F, p]] of Object.entries(best)) starts[`${r}@F${F}`] ??= p; }

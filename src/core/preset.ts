@@ -10,10 +10,16 @@ export const GAME_KEYS = [SAVE_KEY, ABYSS_KEY] as const;
  * rc10: load a debug preset as a complete replacement of the local save (character, run, stats and the abyss
  * record / trip count). Old keys are removed first so nothing from a previous save survives.
  */
-export function applyPreset(kv: KV, pr: Preset): SaveData {
-  for (const k of GAME_KEYS) kv.removeItem(k);
+/** rc12n: the player a preset loads as (cp8-rc5 lean = preset school). Shared by applyPreset and the full-run sim so both agree. */
+export function presetPlayer(pr: Preset): SaveData['player'] {
   const player = structuredClone(pr.player) as SaveData['player']; const sc = (pr as { school?: string }).school;
   if (RULES.cp8 && (sc === 'blade' || sc === 'oc' || sc === 'arcane' || sc === 'bulwark')) player.lean = sc; // cp8-rc5
+  return player;
+}
+
+export function applyPreset(kv: KV, pr: Preset): SaveData {
+  for (const k of GAME_KEYS) kv.removeItem(k);
+  const player = presetPlayer(pr);
   const save: SaveData = { v: SAVE_VERSION, player, run: null, settings: { speed: 1, skipAnim: false }, stats: { runs: (pr.player as { prog?: { trips?: number } }).prog?.trips ?? 0, bestFloor: 20, clears: 1 } }; // cp7 fix: town sortie count = the character's trip count (banner 第 N 趟 = trips+1)
   kv.setItem(SAVE_KEY, JSON.stringify(save));
   kv.setItem(ABYSS_KEY, JSON.stringify(pr.record));

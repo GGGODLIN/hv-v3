@@ -128,15 +128,15 @@ export const ocDmg12l = (F: number): number => F < 70 ? 1 : 1 + (OC12L.dmg100 - 
 /** rc12m（自訂，預設開啟）: run-wide pressure for all four schools (producer scope change; supersedes the oc-only OC12M flag).
  *  Per school: drop = battle potion-drop chance ×, chest = chest health-potion chance ×, elite = elite +1 potion chance,
  *  rest = rest-node heal ×, mobHp/mobDmg = non-boss monster × at F100 (×1 up to mobFrom, linear), deepK = deep boss curve k
- *  (undefined = DEEP12G default; SIM_DEEP_<S> still overrides). hit: one boss hit (incl. charged) ≤ hit × max HP. Merchant stays 1 potion.
+ *  (undefined = DEEP12G default; SIM_DEEP_<S> still overrides). bossHp (rc12n) = oc boss HP × F30–65. hit: one boss hit (incl. charged) ≤ hit × max HP. Merchant stays 1 potion.
  *  SIM_RUN12M=0 = rc12l behaviour; SIM_R12M_<KEY>_<SCHOOL> overrides one coefficient (sim sweeps). */
 export const R12M_SCHOOLS = ['blade', 'bulwark', 'oc', 'arcane'] as const;
-export const R12M_KEYS = ['drop', 'chest', 'elite', 'rest', 'mobHp', 'mobDmg', 'deepK'] as const;
+export const R12M_KEYS = ['drop', 'chest', 'elite', 'rest', 'mobHp', 'mobDmg', 'deepK', 'bossHp'] as const;
 type R12MK = (typeof R12M_KEYS)[number];
 const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
-  blade: { drop: 0.5, chest: 0.5, elite: 0.4, rest: 0.7, mobHp: 1, mobDmg: 1 },
+  blade: { drop: 0.3, chest: 0.3, elite: 0.2, rest: 0.5, mobHp: 3.5, mobDmg: 3.5 }, // rc12n（自訂）: retuned with lean-correct sim (was 0.5/0.5/0.4/0.7/1/1)
   bulwark: { drop: 0.2, chest: 0.2, elite: 0, rest: 0.4, mobHp: 3.5, mobDmg: 3.5, deepK: 10 },
-  oc: { drop: 0.4, chest: 0.4, elite: 0.3, rest: 0.6, mobHp: 1.3, mobDmg: 1.3, deepK: 1 },
+  oc: { drop: 0.4, chest: 0.4, elite: 0.3, rest: 0.6, mobHp: 1.3, mobDmg: 1.3, deepK: 1, bossHp: 0.7 }, // rc12n（自訂）: bossHp = oc boss HP × F30–65 (fades to ×1 by F100 with aoBossHp12j)
   arcane: { drop: 1, chest: 1, elite: 0.5, rest: 1, mobHp: 1, mobDmg: 1 },
 };
 export const RUN12M = {
@@ -146,7 +146,7 @@ export const RUN12M = {
 export const r12m = (lean: string | null | undefined, k: R12MK): number => (RUN12M.on && lean ? RUN12M.school[lean]?.[k] : undefined) ?? 1;
 export const r12mDeepK = (lean?: string): number | undefined => (RUN12M.on && lean ? RUN12M.school[lean]?.deepK : undefined);
 export const mob12m = (F: number, lean: string | null | undefined, k: 'mobHp' | 'mobDmg'): number => !RUN12M.on || F <= RUN12M.mobFrom ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - RUN12M.mobFrom) / (100 - RUN12M.mobFrom));
-export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp : DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
+export const aoBossHp12j = (F: number, lean?: string): number => { const h = lean === 'oc' ? OC12L.bossHp * r12m(lean, 'bossHp') : DEEP12G.aoBossHp; return F < 30 ? 1 : F <= 65 ? h : h + (1 - h) * Math.min(1, (F - 65) / 35); };
 /** rc12i（自訂）: bulwark-lean boss HP multiplier at floor F (×bwBossHp F30–65, then linear to ×bwBoss100 at F100). */
 /** rc12k item 1（製作人，自訂）: after F65 the rise is geometric (same × per floor, ≈ ×1.43 / 5 floors at 0.2→2.5) instead of linear,
  *  so F65→F70 is no longer a ×2.6 step. SIM_BWLINEAR=1 = the rc12i linear ramp (comparison only). */
