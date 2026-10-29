@@ -35,3 +35,6 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
 { const nb = fs.filter((f) => f.type === 'battle').map((f) => f.turns + 1).sort((x, y) => x - y), q = (p: number) => nb[Math.min(nb.length - 1, Math.floor(p * nb.length))];
   const nb45 = fs.filter((f) => f.type === 'battle' && f.d >= 45).map((f) => f.turns + 1).sort((x, y) => x - y);
   console.log(`NRM ${E.SC} n=${nb.length} med=${med(nb)} p90=${q(0.9)} gt20=${(100 * nb.filter((x) => x > 20).length / Math.max(1, nb.length)).toFixed(1)}% f45med=${med(nb45)} f45p90=${nb45[Math.floor(0.9 * nb45.length)]}`); }
+// rc12ae（自訂，僅 sim 診斷）: 一般戰回合中位／p90／場數，依樓層帶分組（排除「樣本移往深樓層」的影響）
+{ const band = (lo: number, hi: number) => { const a = fs.filter((f) => f.type === 'battle' && f.d >= lo && f.d <= hi).map((f) => f.turns + 1).sort((x, y) => x - y); return `F${lo}-${hi}:${a.length ? `${a[(a.length - 1) >> 1]}/${a[Math.floor(0.9 * a.length)]}(n=${a.length})` : '-'}`; };
+  console.log(`BAND ${E.SC} ${[[1, 29], [30, 44], [45, 59], [60, 74], [75, 89], [90, 100]].map(([a, b]) => band(a!, b!)).join(' ')}`); }
