@@ -1,6 +1,6 @@
 import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
-import { CP8, CP9, RC12, RC22, RUN12Z } from './cp8';
+import { CP8, CP9, RC12, RC22, RUN12AB, RUN12Z } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
@@ -188,6 +188,8 @@ export interface BattleState {
   /** CP3: systems not yet unlocked (early-unlock layer). */
   locked?: { skill: boolean; spell: boolean; spirit: boolean };
   defendTurns: number;
+  /** rc12ab 1（自訂）: 每場共用蓄力鎖剩餘回合（非首領蓄力一擊命中後設 1）. */ chgLock12ab?: number;
+  /** rc12ab（自訂）: consecutive enemy phases with ≥1 charged hit taken (dmg > 0), and its max this fight. */ chgRun12ab?: number; chgRunMax12ab?: number;
   /** cp9-rc7 item 4（自訂）: the once-per-fight 1-HP 防禦保命 was used. */ stand9?: boolean;
   /** cp9-rc8（自訂）: the once-per-fight 防禦保命 (CP9.saveOnce) was used. */ used9?: boolean;
   focusTurn: boolean;
@@ -311,7 +313,7 @@ function chargeEstimate0(s: BattleState, m0: Monster, defending = false, crit = 
  *  Used by the real hit (monster phase) AND chargeEstimate (preview / nextRoundEstimate / ★). */
 export function hitCap9(s: BattleState, m: Monster, mult: number, labelled: boolean): number {
   const plain12g = RULES.cp8 && CP9.on && CP9.bossAtk > 0 && m.rank === 'boss' && mult === 1 && !labelled ? Math.floor(CP9.bossAtk * s.d.hp) : Infinity;
-  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor((s.monsters.some((e) => e.rank === 'elite' || e.rank === 'boss') ? CP9.minionCharge : Math.min(CP9.normalCharge || CP9.minionCharge, (m as { chg12aa?: number }).chg12aa || 1) /* rc12aa 1（自訂） */) * s.d.hp) : Infinity; // rc12s item 3（自訂）: normal fight 30%, elite/boss fight 40%
+  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor((s.monsters.some((e) => e.rank === 'boss') || (s.monsters.some((e) => e.rank === 'elite') && (m.rank === 'elite' || !RUN12AB.eliteMinion)) ? CP9.minionCharge /* rc12ab 2（自訂）: 精英戰小怪改用一般戰上限 */ : Math.min(CP9.normalCharge || CP9.minionCharge, (m as { chg12aa?: number }).chg12aa || 1) /* rc12aa 1（自訂） */) * s.d.hp) : Infinity; // rc12s item 3（自訂）: normal fight 30%, elite/boss fight 40%
   const hit12m = (m as { hitCap12m?: number }).hitCap12m ? Math.floor((m as { hitCap12m?: number }).hitCap12m! * s.d.hp) : Infinity;
   return Math.min(plain12g, minion12i, hit12m);
 }
@@ -1184,6 +1186,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   const defending = s.defendTurns > 0;
   if (RULES.cp8 && CP9.on && CP9.defCap > 0 && defending && s.hp === 1) s.stand9 = true; // cp9-rc7 item 4（自訂）: the 1-HP 防禦保命 is spent
   let ripostes = 0, counters = 0;
+  const lockOn12ab = RULES.cp8 && CP9.on && RUN12AB.chgLock > 0, locked12ab = lockOn12ab && (s.chgLock12ab ?? 0) > 0; if (lockOn12ab) s.chgLock12ab = 0; let started12ab = false; // rc12ab 1（自訂）
+  const chgCap12ab = RULES.cp8 && CP9.on && RUN12AB.chgBudget > 0 && !s.monsters.some((e) => e.rank === 'boss') ? Math.floor(RUN12AB.chgBudget * s.d.hp) : Infinity; let chgTook12ab = 0, chgN12ab = 0; // rc12ab 1（自訂）: 一般/精英戰每回合蓄力傷害預算
   const bw1x9 = RULES.cp8 && CP9.on && CP9.bwOpt === 2 && defending; // cp9-rc8 (c)2 option ii（自訂）: ≤1 counter per defending turn
   const defBonus = RULES.cp8 && defending && (s.mods?.combo.bulwark || (s.d.style === 'oneHand' && s.d.block > 0)) ? CP8.bulwarkDefCounter : 0; // bulwark = 1H + shield layout (or the bulwark combo) // cp8-rc8 P2-1 自訂，非原版
   // CP8 P5 (暫定): the monsters' hits in one round add up to at most CP8.turnCap × max HP (multi-monster burst, cp7 d20/d23 724/1034).
@@ -1209,6 +1213,8 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (RULES.cp8 && CP9.on && CP9.stunAll && m.charge > 0) { m.charge = 0; ev.push({ t: 'status', to: i, text: '蓄力被打斷！' }); } // cp9-rc5 (1)（自訂）
       return;
     }
+    const may12ab = (): boolean => !lockOn12ab || m.rank === 'boss' || !(locked12ab || started12ab || s.monsters.some((e, j) => j !== i && windingUp(e))); // rc12ab 1（自訂）
+    let held12ab = false; // rc12ab 1（自訂）: 被蓄力鎖擋下的怪改普攻，單擊 ≤ RUN12AB.heldHit × maxHP（不可變成未預告大招）
     let mult = 1;
     let label: string | undefined;
     let drain = false;
@@ -1226,7 +1232,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       if (!m.enraged && m.hp < m.maxHp * 0.5) { m.enraged = true; m.ownTurns = 0; ev.push({ t: 'status', to: i, text: '狂戰：狂暴！' }); }
       if (m.enraged) {
         if (m.charge > 0) { mult = BOSS_CHARGE_MULT; m.charge = 0; label = '重擊！'; }
-        else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0 && !(lock9 && MIN9)) { /* cp9-rc9 item 2（自訂） */ m.charge = 1; ev.push({ t: 'charge', from: i }); return; }
+        else if ((m.ownTurns = (m.ownTurns ?? 0) + 1) % BOSS_ENRAGED_EVERY === 0 && !(lock9 && MIN9) && may12ab()) { /* cp9-rc9 item 2（自訂） */ m.charge = 1; started12ab = true; ev.push({ t: 'charge', from: i }); return; }
       }
     }
     // rc9 P0-1（自訂，非原版，暫定）: a boss / elite plain hit estimated ≥ CP8.bigTele × max HP winds up for 1 round first.
@@ -1234,7 +1240,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
     if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
-      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && !(m as { noWind12y?: boolean }).noWind12y /* rc12y r2（自訂） */ && !(m as { tired12z?: boolean }).tired12z /* rc12z 3（自訂） */ && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && !(m as { noWind12y?: boolean }).noWind12y /* rc12y r2（自訂） */ && !(m as { tired12z?: boolean }).tired12z /* rc12z 3（自訂） */ && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp && (may12ab() || !(held12ab = true))) { m.heavyNext = true; started12ab = true; ev.push({ t: 'charge', from: i }); return; }
     }
     if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && (m.rank === 'boss' || MIN9) && (mult !== 1 || label)) { if (ARCINT9 && m.int9) m.int9 = false; else m.windCd = CP9.windHitCd; } // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
     // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns
@@ -1246,7 +1252,9 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
       mit: 1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1), spec: s.d.specMit[el ?? m.attackType], // cp9-rc5 (1)（自訂）
     });
     const hc9 = hitCap9(s, m, mult, !!label); // rc12p（自訂）: the ONE single-hit cap (shared with chargeEstimate → preview and ★)
-    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, hc9, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))));
+    const chg12ab = mult !== 1 || !!label;
+    const dmg = Math.min(r.avoidMult > 0 ? r.damage : 0, hc9, Math.max(0, Math.floor(cap - Math.max(hp0 - s.hp, took9))), chg12ab ? Math.max(0, chgCap12ab - chgTook12ab) : Infinity, held12ab ? Math.floor(RUN12AB.heldHit * s.d.hp) : Infinity);
+    if (chg12ab) { chgTook12ab += dmg; if (dmg > 0) chgN12ab++; if (lockOn12ab) s.chgLock12ab = 1; } // rc12ab 1（自訂）: 任何蓄力一擊（含首領）命中後下一回合非首領不得起手
     s.hp = Math.max(0, s.hp - dmg); took9 += dmg; ACT9.taken += dmg; // cp9 (b): reflect / burn / bleed later this act share the budget;（自訂）: count hits, not net HP (mid-round heals no longer reopen the cap)
     RDMG.clip += (r.avoidMult > 0 ? r.damage : 0) - dmg;
     hits.push({ rank: m.rank, raw: Math.round(m.adb * mult), label, avoided: r.avoided, avoidMult: r.avoidMult, crit: r.crits, mit: +(1 - (1 - (el ? s.d.magMit : s.d.physMit)) * (defending ? defFactor(mult > 1 || label === '蓄力一擊！') : 1)).toFixed(3), spec: s.d.specMit[el ?? m.attackType], dmg, def: defending });
@@ -1270,6 +1278,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
   });
   if (CP9.saveOnce && defending && boss9(s) && s.hp === 1 && ACT9.taken < ACT9.hp0) s.used9 = true; // cp9-rc8（自訂）: survived a defended act at 1 HP → save spent for this fight
   if (s.stand9 && !defending && ACT9.taken === 0) s.stand9 = false; // cp9-rc7 item 4（自訂）: a non-defending act that took no damage (stun / evade / kill) re-arms the 1-HP 防禦保命
+  s.chgRun12ab = chgN12ab > 0 ? (s.chgRun12ab ?? 0) + 1 : 0; s.chgRunMax12ab = Math.max(s.chgRunMax12ab ?? 0, s.chgRun12ab); // rc12ab（自訂）: 連續吃到蓄力一擊的回合數（驗收用）
   if (s.defendTurns > 0) s.defendTurns--;
 }
 

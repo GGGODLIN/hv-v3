@@ -184,7 +184,11 @@ export const ocBoss12aa = (F: number): number => { const A = RUN12AA; if (F <= A
 /** rc12ab（自訂，遊戲與 sim 同路徑、預設開啟）: 深層消耗改從資源端。勝利回血 F≤healFrom 為 healHi，線性降到 healTo 的 healLo，之後維持 healLo；
  *  首領 +1 藥只到 bossPotTo 之前；精英掉藥 F≥elite70From 機率改 elite70P。 */
 export const RUN12AB = { healFrom: num('SIM_R12AB_HEALFROM') ?? 60, healTo: num('SIM_R12AB_HEALTO') ?? 80, healHi: num('SIM_R12AB_HEALHI') ?? 0.2, healLo: num('SIM_R12AB_HEALLO') ?? 0.05,
-  bossPotTo: num('SIM_R12AB_BOSSPOTTO') ?? 70, elite70From: num('SIM_R12AB_ELITE70FROM') ?? 70, elite70P: num('SIM_R12AB_ELITE70P') ?? 0.2 };
+  bossPotTo: num('SIM_R12AB_BOSSPOTTO') ?? 70,
+  /** rc12ab 1（自訂）: 每場共用蓄力鎖：每回合最多一隻非首領開始蓄力；任何非首領蓄力一擊命中後的下一回合，非首領都不得開始蓄力；已有其他怪在蓄力時也不得開始. 0 = 關. */ chgLock: num('SIM_R12AB_CHGLOCK') ?? 1,
+  /** rc12ab 1（自訂）: 一般戰與精英戰（場上無首領）每回合蓄力傷害總和 ≤ chgBudget × maxHP. 0 = 關. */ chgBudget: num('SIM_R12AB_CHGBUDGET') ?? 0.4,
+  /** rc12ab 1（自訂）: 想蓄力卻被鎖擋下的怪，這回合普攻單擊上限 × maxHP（避免鎖把大招變成未預告重擊）. */ heldHit: num('SIM_R12AB_HELDHIT') ?? 0.15,
+  /** rc12ab 2（自訂）: 精英戰中非精英小怪的蓄力單擊上限 = 一般戰上限（30%，arcane 20%）；精英本體維持 40%. 0 = 關. */ eliteMinion: num('SIM_R12AB_ELITEMINION') ?? 1, elite70From: num('SIM_R12AB_ELITE70FROM') ?? 70, elite70P: num('SIM_R12AB_ELITE70P') ?? 0.2 };
 /** rc12ab（自訂）: 勝利回血比例（最大 HP），連續。 */
 export const winHeal12ab = (F: number): number => { const A = RUN12AB; if (F <= A.healFrom) return A.healHi; if (F >= A.healTo) return A.healLo; return A.healHi + (A.healLo - A.healHi) * (F - A.healFrom) / (A.healTo - A.healFrom); };
 export const RUN12X = { gamePath: num('SIM_R12X_GAMEPATH') ?? 1, winHealAll: num('SIM_R12X_WINHEALALL') ?? 1 };

@@ -41,7 +41,7 @@ describe('cp9-rc8 QA', () => {
       }
       expect(WIND9.hits).toBeGreaterThan(0);
       expect(WIND9.viol, WIND9.ex.join('\n')).toBe(0);
-      expect(WIND9.minHits).toBeGreaterThan(0); expect(WIND9.minViol).toBeGreaterThan(0); // cp9-rc9 step 1: minion lock reverted — minions may wind up right after their own hit
+      expect(WIND9.minHits).toBeGreaterThan(0); expect(WIND9.minViol).toBe(0); // rc12ab 1（自訂）: 每場共用蓄力鎖 — 蓄力一擊命中後下一回合小怪不得起手（cp9-rc9 的 per-monster 鎖仍不用）
     } finally { RULES.cp8 = o; }
   });
   it('rc9 item 1: estimate includes burn/bleed tick and 反傷 cap; defended estimate drops both', () => {

@@ -33,9 +33,10 @@ describe('rc12k item 3: ★ never hits a 反傷 target when reflect + this round
     let bad = 0;
     for (let i = 0; i < 64; i++) { const { b, profs } = fight(75); const rng = new Rng((i + 1) ^ 0x5bd1e995);
       while (!b.over && b.turn < 400) { const t = b.monsters.findIndex((m) => m.hp > 0); const pk = primaryKey(b, t); const tg = (pk.action as { target?: number }).target ?? t;
-        const hpBefore = b.hp; void tg;
-        const ev = act(b, pk.action, rng, profs) as { label?: string }[];
-        if (b.over === 'lose' && Math.round(hpBefore) > 1 && ev.some((e) => /^反傷/.test(e.label ?? '')) ) bad++; } }
+        const hpBefore = b.hp;
+        const ev = act(b, pk.action, rng, profs) as { label?: string; from?: unknown }[];
+        // rc12ab（自訂）: only a 反傷 from the ★ action's own target counts — a bulwark 反擊 riposte into the thorns boss while ★ hit another target is not a ★ choice.
+        if (b.over === 'lose' && Math.round(hpBefore) > 1 && ev.some((e) => /^反傷/.test(e.label ?? '') && e.from === tg) ) bad++; } }
     expect(bad).toBe(0);
   } finally { off(); } });
 });
