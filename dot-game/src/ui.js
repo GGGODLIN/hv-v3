@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView, qualityThenCampView, QUALITY_HUNT_SLOTS } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView, qualityThenCampView, QUALITY_HUNT_SLOTS, QUALITY_HUNT_THRESHOLDS } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS, scaleSoulboundItem } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -276,6 +276,7 @@ try { channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(LO
 // Local simulation tempo, not a combat stat or durable preference. Each extra
 // step uses the same bounded duration; the existing pump remains the only clock.
 let battleTempo = 1;
+let qualityCampThreshold = 'Superior';
 let qualityCampSlot = 'any'; // Local preparation choice; never written to a save.
 function advanceBattleTempo(seconds) {
   advance(state, seconds);
@@ -304,7 +305,7 @@ function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
   resetInventoryFilters(); // A newly imported/adopted journey must not inherit a hidden subset.
   if ($('magic-notice')) $('magic-notice').hidden = true;
-  clearFinishThenCamp(state); finishCampCancelled = false; qualityCampSlot = 'any';
+  clearFinishThenCamp(state); finishCampCancelled = false; qualityCampSlot = 'any'; qualityCampThreshold = 'Superior';
   closeGearSetDialog(); lastGearSetSignature = ''; $('gear-set-feedback').textContent = '';
   $('counter-notice').hidden = true; clearTimeout(counterTimer);
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
@@ -2212,13 +2213,17 @@ function renderQualityCamp() {
   const select=$('quality-camp-slot');
   select.value=goal.active?goal.slot:qualityCampSlot;
   select.disabled=!tabOwner||!goal.available;
+  const thresholdSelect=$('quality-camp-threshold');
+  thresholdSelect.value=goal.active?goal.threshold:qualityCampThreshold;
+  thresholdSelect.disabled=!tabOwner||!goal.available;
+  const thresholdLabel=goal.active?goal.thresholdLabel:QUALITY_HUNT_THRESHOLDS.find(option=>option.id===qualityCampThreshold).label;
   const slotLabel=goal.active?goal.slotLabel:QUALITY_HUNT_SLOTS.find(option=>option.id===qualityCampSlot).label;
-  button.textContent=goal.active?'取消掉寶回營目標':'刷到優良裝備回營';
+  button.textContent=goal.active?'取消掉寶回營目標':(qualityCampThreshold==='Exquisite'?'刷到精良裝備回營':'刷到優良裝備回營');
   button.disabled=!tabOwner||(!goal.active&&(!goal.available||!departureReadiness().ready));
   button.setAttribute('aria-pressed',String(goal.active));
   $('quality-camp-status').textContent=goal.active
-    ? `目標 ${slotLabel} · 優良（Superior）以上（出發時鎖定） · ${goal.reached?`已取得「${goal.matched.name}」；完成本次全部四波並領完獎勵後回營。`:'等待本次出發後的新掉落；未達標則連續遠征。'} 只計出發後的新掉落，入包或待領都算；既有自動出售規則不變。取消只恢復連刷，不撤退。`
-    : `刷寶遠征：本次出發後取得${slotLabel}的優良（Superior）以上裝備，打完當場才回營；${qualityCampSlot==='any'?'所有部位都可達標。':'其他部位掉落照常取得但不達標。'}既有裝備不計，入包或待領都算；既有自動出售規則不變。不提高掉率、不保證掉落時間，滿包或戰敗仍停止；只限本分頁，重載／匯入／接手清除並重設任何部位。`;
+    ? `目標 ${slotLabel} · ${thresholdLabel}以上（出發時鎖定） · ${goal.reached?`已取得「${goal.matched.name}」；完成本次全部四波並領完獎勵後回營。`:'等待本次出發後的新掉落；未達標則連續遠征。'} 只計出發後的新掉落，入包或待領都算；既有自動出售規則不變。取消只恢復連刷，不撤退。`
+    : `刷寶遠征：本次出發後取得${slotLabel}的${thresholdLabel}以上裝備，打完當場才回營；${qualityCampSlot==='any'?'所有部位都可達標。':'其他部位掉落照常取得但不達標。'}既有裝備不計，入包或待領都算；既有自動出售規則不變。不提高掉率、不保證掉落時間，滿包或戰敗仍停止；只限本分頁，重載／匯入／接手清除並重設任何部位及優良門檻。`;
 }
 function renderLevelCamp() {
   const goal=levelThenCampView(state),button=$('level-camp-button');
@@ -2275,12 +2280,18 @@ $('quality-camp-slot').addEventListener('change',event=>{
   qualityCampSlot=requested;
   renderQualityCamp(); // A target choice never starts, advances, or saves a journey.
 });
+$('quality-camp-threshold').addEventListener('change',event=>{
+  const requested=event.target.value;
+  if (!claimLease()||!qualityThenCampView(state).available||!QUALITY_HUNT_THRESHOLDS.some(option=>option.id===requested)) { renderQualityCamp(); return; }
+  qualityCampThreshold=requested;
+  renderQualityCamp(); // Local goal only: no RNG, advance or save.
+});
 $('quality-camp-button').addEventListener('click',()=>{
   if (!claimLease()) { renderQualityCamp(); return; }
   const goal=qualityThenCampView(state);
   if (goal.active) { dispatch('cancelQualityThenCamp'); return; }
   if (!goal.available||!departureReadiness().ready) return;
-  if (dispatch('startUntilQuality',qualityCampSlot)&&qualityThenCampView(state).active) playSound('win');
+  if (dispatch('startUntilQuality',{slot:qualityCampSlot,threshold:qualityCampThreshold})&&qualityThenCampView(state).active) playSound('win');
 });
 $('level-camp-button').addEventListener('click',()=>{
   if (!claimLease()) { renderLevelCamp(); return; }

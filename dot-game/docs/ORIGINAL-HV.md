@@ -360,3 +360,7 @@ Stopping after the first post-departure Superior-or-better equipment acquisition
 ## v073 slot-specific quality hunt adapter
 
 A camp-selected desired equipment slot narrows the existing session-only quality-hunt stop condition. It does not influence loot generation, slot probability, quality, rewards or saved state, and makes no original-HV farming-system claim. Default any slot preserves prior behavior. Nonmatching equipment is still delivered normally; only the stop condition waits for a newly acquired qualifying item in the selected slot. The entire ordinary expedition is settled before camping.
+
+## v074 selected quality hunt threshold adapter
+
+Selecting Superior+ or Exquisite+ narrows only the existing session-scoped stop condition, combined with the desired slot. It is an original implementation UX adaptation, not an original HV drop mechanic. No change to item generation, quality distribution, economics, RNG or persistent save. Lower-quality items remain normal rewards, and the entire expedition settles before camping.

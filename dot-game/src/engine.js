@@ -113,18 +113,23 @@ export const QUALITY_HUNT_SLOTS = Object.freeze([
   Object.freeze({id:'armor',label:'護甲'}),
   Object.freeze({id:'accessory',label:'飾品'})
 ]);
+export const QUALITY_HUNT_THRESHOLDS = Object.freeze([
+  Object.freeze({id:'Superior',label:'優良（Superior）'}),
+  Object.freeze({id:'Exquisite',label:'精良（Exquisite）'})
+]);
+const validQualityHuntThreshold = value => typeof value==='string'&&QUALITY_HUNT_THRESHOLDS.some(option=>option.id===value);
 const validQualityHuntSlot = value => typeof value==='string'&&QUALITY_HUNT_SLOTS.some(option=>option.id===value);
 export function qualityThenCampView(s) {
   const goal=qualityThenCampSessions.get(s);
   const active=!!goal&&s?.mode==='battle'&&!itemWorldSessions.has(s);
-  const slot=active?goal.slot:'any';
-  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),threshold:'Superior',slot,slotLabel:QUALITY_HUNT_SLOTS.find(option=>option.id===slot).label,
+  const slot=active?goal.slot:'any',threshold=active?goal.threshold:'Superior';
+  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),threshold,thresholdLabel:QUALITY_HUNT_THRESHOLDS.find(option=>option.id===threshold).label,slot,slotLabel:QUALITY_HUNT_SLOTS.find(option=>option.id===slot).label,
     reached:active&&!!goal.matched,matched:active&&goal.matched?{...goal.matched}:null};
 }
 function observeQualityGoal(s,item,disposition) {
   const goal=qualityThenCampSessions.get(s);
   if(!goal||goal.matched||itemWorldSessions.has(s)||s.mode!=='battle')return;
-  if((goal.slot==='any'||item.slot===goal.slot)&&QUALITY.indexOf(item.quality)>=QUALITY.indexOf('Superior'))
+  if((goal.slot==='any'||item.slot===goal.slot)&&QUALITY.indexOf(item.quality)>=QUALITY.indexOf(goal.threshold))
     goal.matched=Object.freeze({id:text(item.id,'未知 ID').slice(0,100),name:text(item.name,'未知裝備').slice(0,100),quality:item.quality,disposition});
 }
 export function levelThenCampView(s) {
@@ -1522,10 +1527,12 @@ export function act(s, action, payload) {
     return s;
   }
   if(action==='startUntilQuality'){
-    const slot=payload===undefined?'any':payload;
-    if(!validQualityHuntSlot(slot)||!qualityThenCampView(s).available)return s;
+    const object=payload!==null&&typeof payload==='object'&&!Array.isArray(payload);
+    const slot=object?payload.slot:(payload===undefined?'any':payload);
+    const threshold=object?payload.threshold:'Superior';
+    if((object&&(Object.keys(payload).length!==2||!Object.hasOwn(payload,'slot')||!Object.hasOwn(payload,'threshold')))||!validQualityHuntThreshold(threshold)||!validQualityHuntSlot(slot)||!qualityThenCampView(s).available)return s;
     clearFinishThenCamp(s);start(s);
-    if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{slot,matched:null});
+    if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{slot,threshold,matched:null});
     return s;
   }
   if(action==='startUntilLevel'){
