@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -348,7 +348,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
       if (RUN12M.on && RULES.cp8 && CP9.on) (m as { hitCap12m?: number }).hitCap12m = RUN12M.hit;
       if (RULES.cp8 && CP9.on && type === 'boss' && rank !== 'boss' && ((lean === 'oc' && RUN12Y.ocNoWind) || (RUN12Z.noWind && (lean === 'bulwark' || lean === 'arcane'))) && ab >= RUN12Y.ocSoloFrom && ab <= RUN12Y.ocSoloTo) /* rc12z（自訂）: bulwark/arcane 同 oc */ (m as { noWind12y?: boolean }).noWind12y = true; // rc12y r2（自訂） // rc12m（自訂）: any monster single hit ≤ 40% max HP
       if (rank !== 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor, ad = type === 'boss', kh = ad ? RUN12U.addHpK : 1, kd = ad ? RUN12U.addDmgK : 1; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * (1 + (mob12m(F, lean, 'mobHp') - 1) * kh))); m.adb *= 1 + (mob12m(F, lean, 'mobDmg') - 1) * kd; } /* rc12u（自訂）: boss-fight adds take RUN12U.addHpK / addDmgK of the mob layer */ // rc12m（自訂）
-      if (rank === 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * boss70(F, lean, 'bossHp70') * bladeBossHp12q(F, lean))); m.adb *= boss70(F, lean, 'bossDmg70'); } // rc12o（自訂）; rc12q bladeBossHp12q（自訂，預設關）
+      if (rank === 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * boss70(F, lean, 'bossHp70') * bladeBossHp12q(F, lean) * bladeBoss12af(F, lean) /* rc12af（自訂） */)); m.adb *= boss70(F, lean, 'bossDmg70'); } // rc12o（自訂）; rc12q bladeBossHp12q（自訂，預設關）
       if (RULES.cp8 && CP9.on && type === 'boss' && rank !== 'boss' && lean === 'bulwark' && (ab || run.floor) >= RUN12Z.bwAddFrom && (ab || run.floor) <= RUN12Z.bwAddTo && RUN12Z.bwAddCap > 0) (m as { hitCap12m?: number }).hitCap12m = Math.min((m as { hitCap12m?: number }).hitCap12m || 1, RUN12Z.bwAddCap); // rc12z 1（自訂）
       if (RULES.cp8 && CP9.on && rank === 'boss' && lean === 'oc') m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * ocBoss12aa(ab || run.floor))); // rc12aa 2（自訂）: 取代 rc12z 2 的 F45–65 固定 ×0.6，改平滑曲線
       if (RULES.cp8 && CP9.on && (type === 'battle' || (type === 'elite' && RUN12AB.eliteMinion > 0 && rank !== 'elite')) && lean === 'arcane' && RUN12AA.arcChg > 0) /* rc12ab 2（自訂）: 精英戰小怪也 20% */ (m as { chg12aa?: number }).chg12aa = RUN12AA.arcChg; // rc12aa 1（自訂）
@@ -524,7 +524,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
   const loot = battleLoot(run, monsters, type, p);
-  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' || RUN12X.winHealAll ? CP7.winHealNormal : 0) /* rc12x（自訂）: every win 20% (was normal fights only) */) * winHeal12ab(depthOf(run) || run.floor) / RUN12AB.healHi /* rc12ab（自訂）: F60+ 線性降 */)); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
+  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' || RUN12X.winHealAll ? CP7.winHealNormal : 0) /* rc12x（自訂）: every win 20% (was normal fights only) */) * winHeal12ab(depthOf(run) || run.floor) / RUN12AB.healHi /* rc12ab（自訂）: F60+ 線性降 */ * (p.lean === 'blade' ? RUN12AF.bladeHeal : 1) /* rc12af（自訂）: blade 勝利回血 × bladeHeal */)); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
   const total = Object.values(b.used).reduce((a, c) => a + (c ?? 0), 0) || 1;
   for (const k of PROFS) {

@@ -38,3 +38,6 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
 // rc12ae（自訂，僅 sim 診斷）: 一般戰回合中位／p90／場數，依樓層帶分組（排除「樣本移往深樓層」的影響）
 { const band = (lo: number, hi: number) => { const a = fs.filter((f) => f.type === 'battle' && f.d >= lo && f.d <= hi).map((f) => f.turns + 1).sort((x, y) => x - y); return `F${lo}-${hi}:${a.length ? `${a[(a.length - 1) >> 1]}/${a[Math.floor(0.9 * a.length)]}(n=${a.length})` : '-'}`; };
   console.log(`BAND ${E.SC} ${[[1, 29], [30, 44], [45, 59], [60, 74], [75, 89], [90, 100]].map(([a, b]) => band(a!, b!)).join(' ')}`); }
+// rc12af（自訂，僅 sim 診斷）: F45+ 王戰 p90／最大／>30 回合場數
+{ const a = t(boss(45, 100)).sort((x, y) => x - y);
+  console.log(`AF ${E.SC} boss45upMed=${med(a)} boss45upP90=${a[Math.floor(0.9 * a.length)]} boss45upMax=${a[a.length - 1]} boss45upGt30=${a.filter((x) => x > 30).length}/${a.length}`); }

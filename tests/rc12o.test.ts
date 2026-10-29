@@ -25,7 +25,7 @@ describe('rc12o', () => {
     expect(boss70(65, 'blade', 'bossHp70')).toBe(1);
     expect(boss70(70, 'blade', 'bossHp70')).toBeCloseTo(r12m('blade', 'bossHp70'));
     expect(boss70(90, 'oc', 'bossHp70')).toBeCloseTo(r12m('oc', 'bossHp70'));
-    expect(r12m('blade', 'bossHp70')).toBeLessThan(1);
+    expect(r12m('oc', 'bossHp70')).toBeLessThan(1); // rc12af（自訂）: blade bossHp70 0.4→1，改檢 oc
   });
   it('boss kill: guaranteed piece one quality tier higher + concentrated health potions', () => {
     RULES.cp8 = true; RUN12O.bossPot = 2;
