@@ -1,3 +1,9 @@
+## v073 來源候選：指定部位獵寶（2026-10-29 台北）
+
+營地可替「刷到優良裝備回營」選任何部位、武器、護甲或飾品。目標固定為出發時所選部位的新 Superior（優良）以上掉落；其他部位的優良裝備仍正常取得，但不提早結束獵寶。達標後仍完整結算當場四波及獎勵，再回營。預設任何部位保持 v072；不改掉率、不保證所需時間，不是指定部位掉落加成或自動換裝。
+
+目標與部位選擇只在本分頁，重載／成功匯入／控制權變更重設。取消恢復連刷，既有本次通關後回營優先；與升級目標／單次遠征互斥。入包與待領均按新取得判斷，舊背包不算，裝備界不使用本目標。來源及獨立審查見 QA-V073.md、QA-V073-INDEPENDENT.md；恢復見 RECOVERY-V073.md。正式仍為已驗收 v072 c38bd2de429c5dc3e52edbad2cb7ea92365cacf3，完整恢復237 b4f137ca108aa41161f8fd961e3fa6d867499f04。候選瀏覽器／發布待接續，以下為歷史記錄。
+
 # v072 formal verified and restorable — checkpoint 237
 
 Formal website c38bd2de429c5dc3e52edbad2cb7ea92365cacf3; exact Pages40806517253 SUCCESS. Publisher verified21 runtime files and4337 outside website files unchanged. Accepted source235 cd050f4dadf91c3c02d654207eefd8fb79c97fa5 remains the runtime baseline. Public game: https://gggodlin.github.io/play/hv-v3-dot/

@@ -107,16 +107,24 @@ const finishThenCampSessions = new WeakSet();
 const levelThenCampSessions = new WeakMap();
 // Quality hunting is a transient idle goal, not an original-HV loot rule.
 const qualityThenCampSessions = new WeakMap();
+export const QUALITY_HUNT_SLOTS = Object.freeze([
+  Object.freeze({id:'any',label:'任何部位'}),
+  Object.freeze({id:'weapon',label:'武器'}),
+  Object.freeze({id:'armor',label:'護甲'}),
+  Object.freeze({id:'accessory',label:'飾品'})
+]);
+const validQualityHuntSlot = value => typeof value==='string'&&QUALITY_HUNT_SLOTS.some(option=>option.id===value);
 export function qualityThenCampView(s) {
   const goal=qualityThenCampSessions.get(s);
   const active=!!goal&&s?.mode==='battle'&&!itemWorldSessions.has(s);
-  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),threshold:'Superior',
+  const slot=active?goal.slot:'any';
+  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),threshold:'Superior',slot,slotLabel:QUALITY_HUNT_SLOTS.find(option=>option.id===slot).label,
     reached:active&&!!goal.matched,matched:active&&goal.matched?{...goal.matched}:null};
 }
 function observeQualityGoal(s,item,disposition) {
   const goal=qualityThenCampSessions.get(s);
   if(!goal||goal.matched||itemWorldSessions.has(s)||s.mode!=='battle')return;
-  if(QUALITY.indexOf(item.quality)>=QUALITY.indexOf('Superior'))
+  if((goal.slot==='any'||item.slot===goal.slot)&&QUALITY.indexOf(item.quality)>=QUALITY.indexOf('Superior'))
     goal.matched=Object.freeze({id:text(item.id,'未知 ID').slice(0,100),name:text(item.name,'未知裝備').slice(0,100),quality:item.quality,disposition});
 }
 export function levelThenCampView(s) {
@@ -1514,9 +1522,10 @@ export function act(s, action, payload) {
     return s;
   }
   if(action==='startUntilQuality'){
-    if(payload!==undefined||!qualityThenCampView(s).available)return s;
+    const slot=payload===undefined?'any':payload;
+    if(!validQualityHuntSlot(slot)||!qualityThenCampView(s).available)return s;
     clearFinishThenCamp(s);start(s);
-    if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{matched:null});
+    if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{slot,matched:null});
     return s;
   }
   if(action==='startUntilLevel'){

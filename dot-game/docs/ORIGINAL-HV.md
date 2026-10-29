@@ -356,3 +356,7 @@ Receipt-to-current-owned-item inspection is a local presentation adapter. Histor
 ## v072 quality-hunt idle adaptation
 
 Stopping after the first post-departure Superior-or-better equipment acquisition is an independent idle-game control, not an original-HV automatic farming mechanic. It observes existing delivery only, counts inventory or pending loot, and settles the entire current ordinary expedition before stopping. Existing low-quality-only automatic sale, item generation, quality probabilities, combat and rewards are unchanged. No improved drop rate, guaranteed duration, automatic equip, or additional persistent setting is introduced.
+
+## v073 slot-specific quality hunt adapter
+
+A camp-selected desired equipment slot narrows the existing session-only quality-hunt stop condition. It does not influence loot generation, slot probability, quality, rewards or saved state, and makes no original-HV farming-system claim. Default any slot preserves prior behavior. Nonmatching equipment is still delivered normally; only the stop condition waits for a newly acquired qualifying item in the selected slot. The entire ordinary expedition is settled before camping.

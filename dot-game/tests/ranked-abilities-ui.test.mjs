@@ -254,7 +254,7 @@ test('rendering ranked previews is pure and keyboard focus survives learning and
 });
 
 test('rank copy is bounded, native-keyboard accessible, responsive, and warns about old writer tabs before takeover', async () => {
-  assert.match(html, /v0\.72 · 來源候選/);
+  assert.match(html, /v0\.73 · 來源候選/);
   assert.match(html, /HP Tank（10 階）、MP Tank（10 階）與 1H Damage（3 階）/);
   assert.match(html, /仍不是完整能力樹/);
   assert.doesNotMatch(html, /目前只實作三項 Rank 1|這裡先實作.*的 Rank 1，非/);
