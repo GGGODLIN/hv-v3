@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, ocBoss12aa, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -19,6 +19,8 @@ import { combos, formed, schoolCounts, sumMods } from './buffs';
 import { ABYSS, abyssCarry, titleFor, abyssBaseLevel, abyssMonLevel, abyssFloor, abyssMult, abyssPl, affixCount, bossAffixCount, bossKey, guaranteeQuality, pickAffixes, themeKey, TRIPLE_BANNED, type AbyssSchool } from './abyss';
 
 /** Approved design defaults + provisional tuning. */
+/** rc12aa 4（自訂，診斷用計數，不影響行為）: abyss F15+ elite wins rolled / potion drops. */
+export const ELITE_POT12AA = { n: 0, drop: 0 };
 export const RULES = {
   dropAccel: 8,
   /** rc19 (b): battle potion drops use the original Restoratives rolls when cp8 is on. false = rc18 (3:1:1 on every non-equip drop). */
@@ -348,8 +350,11 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
       if (rank !== 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor, ad = type === 'boss', kh = ad ? RUN12U.addHpK : 1, kd = ad ? RUN12U.addDmgK : 1; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * (1 + (mob12m(F, lean, 'mobHp') - 1) * kh))); m.adb *= 1 + (mob12m(F, lean, 'mobDmg') - 1) * kd; } /* rc12u（自訂）: boss-fight adds take RUN12U.addHpK / addDmgK of the mob layer */ // rc12m（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && RUN12M.on) { const F = ab || run.floor; m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * boss70(F, lean, 'bossHp70') * bladeBossHp12q(F, lean))); m.adb *= boss70(F, lean, 'bossDmg70'); } // rc12o（自訂）; rc12q bladeBossHp12q（自訂，預設關）
       if (RULES.cp8 && CP9.on && type === 'boss' && rank !== 'boss' && lean === 'bulwark' && (ab || run.floor) >= RUN12Z.bwAddFrom && (ab || run.floor) <= RUN12Z.bwAddTo && RUN12Z.bwAddCap > 0) (m as { hitCap12m?: number }).hitCap12m = Math.min((m as { hitCap12m?: number }).hitCap12m || 1, RUN12Z.bwAddCap); // rc12z 1（自訂）
-      if (RULES.cp8 && CP9.on && rank === 'boss' && lean === 'oc' && (ab || run.floor) >= 45 && (ab || run.floor) <= 65) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * RUN12Z.ocBossHp)); // rc12z 2（自訂）
+      if (RULES.cp8 && CP9.on && rank === 'boss' && lean === 'oc') m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * ocBoss12aa(ab || run.floor))); // rc12aa 2（自訂）: 取代 rc12z 2 的 F45–65 固定 ×0.6，改平滑曲線
+      if (RULES.cp8 && CP9.on && type === 'battle' && lean === 'arcane' && RUN12AA.arcChg > 0) (m as { chg12aa?: number }).chg12aa = RUN12AA.arcChg; // rc12aa 1（自訂）
+      if (RULES.cp8 && CP9.on && rank === 'boss' && (ab || run.floor) >= 70) { m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * RUN12AA.b70Hp)); if (RUN12AA.b70Plain > 0) (m as { plain12h?: number }).plain12h = Math.max((m as { plain12h?: number }).plain12h ?? 0, RUN12AA.b70Plain); } // rc12aa 3（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
+      if (RULES.cp8 && CP9.on && rank === 'boss' && (ab || run.floor) >= 70 && RUN12AA.b70Dmg !== 1) m.adb *= RUN12AA.b70Dmg; // rc12aa 3（自訂）: F70+ 首領傷害 ×（在 bossAtk 上限之後；單擊仍受 hitCap 40%）
       return m;
     });
     if (RULES.cp8 && ab && ab > 17 && type !== 'boss' && out.length >= 2 && RC22.multiK !== 1) { const k = 1 - (1 - RC22.multiK) * Math.min(1, (ab - 17) / 3); for (const m of out) m.adb *= k; } // rc22 item 2（自訂，非原版）: ramps d18→d20 to multiK
@@ -432,7 +437,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite' && run.abyss && RUN12M.on && RUN12O.on && RULES.cp8 && RUN12U.elitePot > 0 && depthOf(run) >= RUN12U.elitePotFrom && rng.chance(RUN12U.elitePotP) /* rc12v（自訂） */) loot.potions.health = (loot.potions.health ?? 0) + RUN12U.elitePot; // rc12u（自訂，非原版）: abyss elite win → 1 health potion from F15
+    if (type === 'elite' && run.abyss && RUN12M.on && RUN12O.on && RULES.cp8 && RUN12U.elitePot > 0 && depthOf(run) >= RUN12U.elitePotFrom && ++ELITE_POT12AA.n && rng.chance(RUN12U.elitePotP) /* rc12v（自訂） */ && ++ELITE_POT12AA.drop) loot.potions.health = (loot.potions.health ?? 0) + RUN12U.elitePot; // rc12u（自訂，非原版）: abyss elite win → 1 health potion from F15
     if (type === 'elite' && !(run.abyss && RUN12M.on && RUN12O.on && RULES.cp8) /* rc12p（自訂）: abyss potions only from boss kills (QA rc12o 'normal' drops were elites) */ && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot') && (!RULES.cp8 || r12m(p && curveSchool12g(p), 'elite') >= 1 || rng.chance(r12m(p && curveSchool12g(p), 'elite')))) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {

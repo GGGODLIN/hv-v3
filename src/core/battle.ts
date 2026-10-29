@@ -311,7 +311,7 @@ function chargeEstimate0(s: BattleState, m0: Monster, defending = false, crit = 
  *  Used by the real hit (monster phase) AND chargeEstimate (preview / nextRoundEstimate / ★). */
 export function hitCap9(s: BattleState, m: Monster, mult: number, labelled: boolean): number {
   const plain12g = RULES.cp8 && CP9.on && CP9.bossAtk > 0 && m.rank === 'boss' && mult === 1 && !labelled ? Math.floor(CP9.bossAtk * s.d.hp) : Infinity;
-  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor((s.monsters.some((e) => e.rank === 'elite' || e.rank === 'boss') ? CP9.minionCharge : CP9.normalCharge || CP9.minionCharge) * s.d.hp) : Infinity; // rc12s item 3（自訂）: normal fight 30%, elite/boss fight 40%
+  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor((s.monsters.some((e) => e.rank === 'elite' || e.rank === 'boss') ? CP9.minionCharge : Math.min(CP9.normalCharge || CP9.minionCharge, (m as { chg12aa?: number }).chg12aa || 1) /* rc12aa 1（自訂） */) * s.d.hp) : Infinity; // rc12s item 3（自訂）: normal fight 30%, elite/boss fight 40%
   const hit12m = (m as { hitCap12m?: number }).hitCap12m ? Math.floor((m as { hitCap12m?: number }).hitCap12m! * s.d.hp) : Infinity;
   return Math.min(plain12g, minion12i, hit12m);
 }

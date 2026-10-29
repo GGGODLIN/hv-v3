@@ -15,7 +15,8 @@ describe('rc12z fixes (game path, defaults on)', () => {
     const run = readFileSync('src/core/run.ts', 'utf8'), bat = readFileSync('src/core/battle.ts', 'utf8');
     expect(run).toContain("lean === 'bulwark' && (ab || run.floor) >= RUN12Z.bwAddFrom && (ab || run.floor) <= RUN12Z.bwAddTo && RUN12Z.bwAddCap > 0)");
     expect(run.indexOf('// rc12z 1（自訂）')).toBeGreaterThan(run.indexOf('hitCap12m = RUN12M.hit;'));
-    expect(run).toContain("rank === 'boss' && lean === 'oc' && (ab || run.floor) >= 45 && (ab || run.floor) <= 65) m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * RUN12Z.ocBossHp));");
+    // rc12aa 2：oc 王 ×0.6 階梯改為 ocBoss12aa 平滑曲線（自訂）
+    expect(run).toContain('ocBoss12aa(ab || run.floor)');
     expect(bat).toContain("s.turn > RUN12Z.tiredAt && !s.monsters.some((m) => m.rank === 'boss')");
     expect(bat).toContain('!(m as { tired12z?: boolean }).tired12z /* rc12z 3（自訂） */');
     for (const f of ['src/game/app.ts', 'src/main.ts']) expect(readFileSync(f, 'utf8')).not.toMatch(/SIM_R12Z/);

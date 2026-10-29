@@ -146,7 +146,7 @@ const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
   blade: { mobHp: 15, mobDmg: 24 /* rc12x（自訂）: 15→24（每勝 20% 回血後） */, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 60 /* rc12x（自訂）: 55→60 */, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
   bulwark: { mobHp: 1.5 /* rc12u（自訂）: 21→1.5 (net ≤0.3/normal fight) */, mobDmg: 28 /* rc12x（自訂）: 21→28 */, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 100 /* rc12x（自訂）: 60→100（根因＝精英/首領只回 10%，修正後過易）; rc12u: 30→60 */ }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
-  oc: { mobHp: 1.5, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 14 /* rc12y r2（自訂）: 10→14 補償小怪不蓄力; rc12x: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
+  oc: { mobHp: 8 /* rc12aa 2（自訂）: 1.5→8 降低 oc 整體推進（傷害倍率被單擊上限吃掉，只有 HP 有效） */, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 14 /* rc12y r2（自訂）: 10→14 補償小怪不蓄力; rc12x: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
   arcane: { deepK: 50 /* rc12x（自訂）: 14→50; rc12v: 18→14 */, mobHp: 2.9, mobDmg: 14 /* rc12x（自訂）: 3.3→14 */ /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
@@ -172,6 +172,15 @@ export const RUN12Z = { noWind: num('SIM_R12Z_NOWIND') ?? 1,
   /** rc12z 1（自訂）: bulwark 首領戰小怪單擊上限 bwAddCap × maxHP，F≥bwAddFrom（QA rc12y：bulwark F65 王戰 0/3，小怪原始傷害遠超上限、每擊都打在 40% 上限附近）. 0 = rc12y. */ bwAddCap: num('SIM_R12Z_BWADDCAP') ?? 0.15, bwAddFrom: num('SIM_R12Z_BWADDFROM') ?? 45, bwAddTo: num('SIM_R12Z_BWADDTO') ?? 65,
   /** rc12z 2（自訂）: oc 首領 HP 額外 × ocBossHp，F45–65（QA oc F50–60 王戰中位 21–28）. 1 = rc12y. */ ocBossHp: num('SIM_R12Z_OCBOSSHP') ?? 0.6,
   /** rc12z 3（自訂）: 非首領戰第 tiredAt 回合後，敵人疲憊：不再蓄力、單擊上限 tiredCap × maxHP（不再無限連發 30% 蓄力）. tiredAt 0 = 關. */ tiredAt: num('SIM_R12Z_TIREDAT') ?? 25, tiredCap: num('SIM_R12Z_TIREDCAP') ?? 0.15 };
+/** rc12aa（自訂，遊戲與 sim 同路徑、預設開啟）. R12AA 系列 sim 變數 只供 sim 掃描。
+ *  1 arcChg: arcane 一般戰（場上無精英/首領）蓄力單擊上限 × maxHP（原 CP9.normalCharge 0.3；QA ar2 F76 / ar3 F48 0 瓶被 30% 蓄力打死）. 0 = 關.
+ *  2 ocLo/ocFrom/ocMid/ocTo: oc 首領 HP 平滑係數（取代 rc12z 的 F45–65 固定 ×0.6）：F≤ocFrom ×1 → 線性降到 ocMid 層 ×ocLo → 線性回到 ocTo 層 ×1；oc 整體推進改由 R12O_BASE oc.mobHp 1.5→8.
+ *  3 b70Hp/b70Dmg/b70Plain: F70+ 首領 HP ×、傷害 ×、未預告每回合上限（壓短 F70+ 王戰、維持壓力）. */
+export const RUN12AA = { arcChg: num('SIM_R12AA_ARCCHG') ?? 0.2,
+  ocLo: num('SIM_R12AA_OCLO') ?? 0.4, ocFrom: num('SIM_R12AA_OCFROM') ?? 40, ocMid: num('SIM_R12AA_OCMID') ?? 65, ocTo: num('SIM_R12AA_OCTO') ?? 70,
+  b70Hp: num('SIM_R12AA_B70HP') ?? 0.3, b70Dmg: num('SIM_R12AA_B70DMG') ?? 1, b70Plain: num('SIM_R12AA_B70PLAIN') ?? 0.35 };
+/** rc12aa 2（自訂）: oc 首領 HP 係數，連續、分段線性。 */
+export const ocBoss12aa = (F: number): number => { const A = RUN12AA; if (F <= A.ocFrom || F >= A.ocTo) return 1; return F <= A.ocMid ? 1 + (A.ocLo - 1) * (F - A.ocFrom) / (A.ocMid - A.ocFrom) : A.ocLo + (1 - A.ocLo) * (F - A.ocMid) / (A.ocTo - A.ocMid); };
 export const RUN12X = { gamePath: num('SIM_R12X_GAMEPATH') ?? 1, winHealAll: num('SIM_R12X_WINHEALALL') ?? 1 };
 export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
