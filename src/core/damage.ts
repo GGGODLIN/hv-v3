@@ -29,6 +29,7 @@ const TWO_ROLL = C['002-01b'].value.multipliersBySuccesses;
 const RESIST = [1, 0.5, 0.25, 0.1];
 const CRIT = C['F-002-1.2F-crit'].value;
 const ROLL = C['F-002-5.1D-roll'].value;
+export const ROLL_MIN = ROLL.min / 100; // rc12ae 1: bottom of the existing damage roll (data constant, not new)
 
 function rolls(rng: Rng, n: number, p: number): number {
   let k = 0;

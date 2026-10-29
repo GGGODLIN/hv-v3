@@ -14,7 +14,7 @@ const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8
 const mk = (maxHp: number, hp: number): BattleState => { const p = newPlayer(); starterKit(p); const d = derive(p); d.hp = maxHp;
   const m = buildMonster(pool.rows[0]!, 30); m.hp = m.maxHp = 1e6; m.adb = 1e5; // huge hitter: every number below is a cap
   const b = startBattle(d, { hp, mp: d.mp, sp: d.sp }, [m], { health: 3, mana: 0, spirit: 0 }); return b; };
-import { CP9 } from '../src/core/cp8';
+import { CP9, RUN12AB } from '../src/core/cp8';
 // rc12s: QA scenario recorded under the 40% normal-fight cap — pin the old cap (normalCharge 0 → minionCharge 0.4); 30% is covered by rc12s-normal-charge.test.ts
 let nc12s = 0; beforeAll(() => { nc12s = CP9.normalCharge; (CP9 as { normalCharge: number }).normalCharge = 0; }); afterAll(() => { (CP9 as { normalCharge: number }).normalCharge = nc12s; });
 describe('rc12r QA: ★ estimate vs the charged hit (no defend halving for Z)', () => {
@@ -35,7 +35,7 @@ describe('rc12r QA: ★ estimate vs the charged hit (no defend halving for Z)', 
       const hit = ev.find((e) => e.t === 'hit' && e.to === 'player') as { dmg: number } | undefined;
       expect(hit?.dmg ?? 0).toBeLessThanOrEqual(full); expect(hp0 - b.hp).toBeLessThanOrEqual(full);
       // the QA-observed 「half」: the decision AFTER that hit, with no wind-up → plain per-turn cap
-      expect(b.monsters.some(windingUp)).toBe(false); b.hp = Math.round(mx * 0.17); expect(chargeAdvice(b, 0).est).toBe(plain);
+      expect(b.monsters.some(windingUp)).toBe(false); b.hp = Math.round(mx * 0.17); expect(chargeAdvice(b, 0).est).toBe((b.chgLock12ab ?? 0) > 0 && RUN12AB.chgLock > 0 ? Math.min(plain, Math.floor(RUN12AB.heldHit * mx)) : plain); // rc12ae（自訂）: right after a charged hit the shared lock holds this monster to heldHit (real act loop)
     });
   }
   it('defend halves only for D: estimate with def=true never used as the ★ estimate', () => {

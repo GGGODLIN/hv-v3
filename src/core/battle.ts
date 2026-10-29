@@ -2,7 +2,7 @@ import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
 import { CP8, CP9, RC12, RC22, RUN12AB, RUN12AC, RUN12AD, RUN12Z } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
-const ACT9 = { taken: 0, tele: false, hp0: 0 };
+export const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
 const def9 = (s: BattleState, x: number): number => (CP9.defCap > 0 && s.defendTurns > 0 ? Math.min(x, Math.ceil(CP9.defCap * s.d.hp) - 1, save9(s, ACT9.hp0) /* 防禦保命: a defending act at HP ≥ 2 leaves ≥ 1 HP; at 1 HP it holds once per fight (stand9), so it cannot stall */) : x); // cp9-rc7 item 4（自訂，暫定）: a defending turn takes < defCap × max HP
 /** cp9-rc8（自訂，暫定）: 防禦保命 cap for a defending act that starts at hp. save9 off → no cap; saveOnce → at most once per fight regardless of HP (used9). */
@@ -26,7 +26,7 @@ export const budget9 = (s: BattleState, tele: boolean): number => (boss9(s) ? Ma
 import type { BMods, Combos } from './buffs';
 import { ABL9 } from './buffs'; // cp9-rc7 ablation diag（自訂）
 import { CONSTANTS as C } from './data/constants';
-import { maxHit, meanHit, resolveHit, type Avoid } from './damage';
+import { maxHit, meanHit, resolveHit, ROLL_MIN, type Avoid } from './damage';
 import type { Monster } from './monsters';
 import { CP5, CP5_STAT, SIG_TEXT, type BossSig, type Cp5Mon, type PDot, emptyDot } from './cp5';
 import type { Derived, Element, Prof } from './player';
@@ -356,8 +356,28 @@ function reviveHit12q(s: BattleState, m: Monster, def: boolean, crit: boolean): 
   try { return chargeEstimate0(s, m, def, crit); } finally { m.hp = k.hp; m.status = k.st; m.enraged = k.en; c.charge = k.ch; c.heavyNext = k.hn; c.pulseNext = k.pn; c.drainNext = k.dn; }
 }
 export function nextRoundEstimate(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number { return fresh9(s, () => nextRoundEstimate0(s, crit, def, noSave)); }
+/** rc12ae 1（自訂，bug fix，不改數值）: per-monster next-round hit, replaying monstersAct0's order (battle.ts monster phase):
+ *  a non-boss monster that is NOT winding up and whose worst plain hit ≥ CP8.bigTele × maxHP never lands that hit unannounced —
+ *  it starts a wind-up (0 damage) when the rc12ab shared lock allows, else it is held to RUN12AB.heldHit × maxHP. Non-boss charged hits
+ *  share RUN12AB.chgBudget. rc12ad summed every monster at its full plain/charged value (QA rc12ad: 352/354 rounds actual < lo, ×0.50). */
+export function actHits12ae(s: BattleState, def: boolean, crit: boolean): number[] {
+  const on = RULES.cp8 && CP9.on, lockOn = on && RUN12AB.chgLock > 0, noBoss = !s.monsters.some((e) => e.rank === 'boss' && e.hp > 0);
+  const wound = s.monsters.map((m) => windingUp(m)); let started = false;
+  const chgCap = on && RUN12AB.chgBudget > 0 && noBoss ? Math.floor(RUN12AB.chgBudget * s.d.hp) : Infinity; let chgTook = 0;
+  return s.monsters.map((m0, i) => {
+    const m = m0 as CM;
+    if (m.hp <= 0) return 0;
+    if (m.status.stun > 0) return revive12q(s, m) ? reviveHit12q(s, m, def, crit) : 0; // same as rc12q: a stunned boss the player can kill now revives and hits
+    const e = chargeEstimate(s, m, def, crit);
+    if (wound[i]) { wound[i] = false; if (m.rank === 'boss') return e; const d = Math.min(e, Math.max(0, chgCap - chgTook)); chgTook += d; return d; }
+    if (!on || m.rank === 'boss' || !(CP8.bigTele > 0) || (m as { noWind12y?: boolean }).noWind12y || (m as { tired12z?: boolean }).tired12z || worstHit(s, m, def) < CP8.bigTele * s.d.hp) return e;
+    const may = !lockOn || !((s.chgLock12ab ?? 0) > 0 || started || wound.some((w, j) => j !== i && w));
+    if (may) { started = true; return 0; } // winds up this round, no hit
+    return Math.min(e, Math.floor(RUN12AB.heldHit * s.d.hp)); // held by the shared lock → plain hit ≤ heldHit
+  });
+}
 function nextRoundEstimate0(s: BattleState, crit = false, def = s.defendTurns > 1, noSave = false): number {
-  const raw = s.monsters.reduce((t, m) => t + (m.hp > 0 && !(m.status.stun > 0) ? chargeEstimate(s, m, def, crit) : m.hp > 0 && revive12q(s, m) ? reviveHit12q(s, m, def, crit) : 0), 0) + (RULES.cp8 ? extra9(s, def) : 0);
+  const raw = actHits12ae(s, def, crit).reduce((t, x) => t + x, 0) + (RULES.cp8 ? extra9(s, def) : 0);
   // cp9 (b/c)（自訂）: the estimate knows the per-round caps (CP8.turnCap, boss-fight burst budget) so Z/D advice is not scared by damage that cannot land
   if (!RULES.cp8 || !CP9.on) return raw;
   const tc = CP8.turnCap > 0 ? CP8.turnCap * s.d.hp : Infinity, bb = boss9(s) ? (s.monsters.some(windingUp) ? CP9.bossBurst : plain12h(s)) * s.d.hp : Infinity;
@@ -514,7 +534,7 @@ function chargeAdvice2(s: BattleState, target: number): ChargeAdvice {
   if (keep.length === a.keys.length) return a;
   const r = reflectRisk9(s, target), alt = s.monsters.findIndex((m, i) => i !== target && m.hp > 0 && reflectRisk9(s, i) < Math.round(s.hp));
   const keys = keep.length ? keep : canUse(s, { kind: 'defend' }) ? ['D'] : ['A'];
-  const why = `攻擊${s.monsters[target]!.name ?? '目標'}會吃反傷約 ${r} ≥ HP ${Math.round(s.hp)}，會自殺`;
+  const e12ae = Math.round(nextRoundEstimate(s)); const why = `攻擊${s.monsters[target]!.name ?? '目標'}會吃反傷約 ${r}，加上下回合敵方估計 ${e12ae}，合計 ${r + e12ae} ≥ HP ${Math.round(s.hp)}，會自殺` /* rc12ae 2（自訂）: reflectLethal9 比的是 r + nextRoundEstimate，文字原本只印 r */;
   return { ...a, keys, text: `${keys[0] === 'D' ? 'D·防禦' : keys[0]}（${why}${alt >= 0 ? `；或切換目標打 ${s.monsters[alt]!.name}` : ''}）` };
 }
 function chargeAdvice1(s: BattleState, target = 0): ChargeAdvice {
@@ -564,7 +584,7 @@ export function roundEstimate(s: BattleState, crit = true, def = s.defendTurns >
  *  whole-round range (all monsters, same caps as ★) — QA bw2 F53 「278 → 390」 was charger 223 + another monster's plain 167. null = single actor. */
 export function roundRange12ad(s: BattleState): { lo: number; hi: number } | null {
   if (s.monsters.filter((m) => m.hp > 0 && !(m.status.stun > 0)).length < 2) return null;
-  return { lo: Math.round(nextRoundEstimate(s, false, false)), hi: Math.round(roundEstimate(s, true, false)) };
+  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(roundEstimate(s, true, false)) };
 }
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(roundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
@@ -1380,6 +1400,6 @@ function primaryKey0(s: BattleState, target: number): PrimaryKey {
     if (!th.spell) { const best = bestSpell12j(s, target); if (best) { const i = spells.indexOf(best); return { key: String(i + 1), label: `${i + 1}·${SPELLS[best].zh}`, action: { kind: 'spell', id: best, target }, why: '傷害最高的可用法術', src: 'spell' }; } }
   }
   if (th.spell) { const i = spells.indexOf(th.spell.id); return { key: String(i + 1), label: `${i + 1}·${SPELLS[th.spell.id].zh}`, action: { kind: 'spell', id: th.spell.id, target }, why: `${th.spell.pct > 0 ? '弱點' : '傷害較高'}元素`, src: 'spell' }; }
-  if (reflectLethal9(s, target) && canUse(s, { kind: 'defend' })) return { key: 'D', label: 'D·防禦', action: { kind: 'defend' }, why: `攻擊會吃反傷約 ${reflectRisk9(s, target)}，加上本回合敵方攻擊可能致命：先防禦`, src: 'advice' }; // rc12k item 3（自訂）
+  if (reflectLethal9(s, target) && canUse(s, { kind: 'defend' })) return { key: 'D', label: 'D·防禦', action: { kind: 'defend' }, why: ((r, e) => `攻擊會吃反傷約 ${r}，加上本回合敵方估計 ${e}，合計 ${r + e} ≥ HP ${Math.round(s.hp)}：先防禦`)(reflectRisk9(s, target), Math.round(nextRoundEstimate(s))) /* rc12ae 2（自訂） */, src: 'advice' }; // rc12k item 3（自訂）
   return qa();
 }

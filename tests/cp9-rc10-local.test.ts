@@ -14,7 +14,7 @@ const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8
 export const withCp8 = (f: () => void) => { const o = [RULES.cp7, RULES.cp8, SIM_AI.naive]; RULES.cp7 = true; RULES.cp8 = true; SIM_AI.naive = true; try { f(); } finally { RULES.cp7 = o[0]!; RULES.cp8 = o[1]!; SIM_AI.naive = o[2]!; } };
 const lethalCooling = () => {
   const p = newPlayer(); starterKit(p); const d = derive(p);
-  const m = buildMonster(pool.rows[0]!, 1); m.hp = m.maxHp = 5000; m.adb = d.hp * 3; m.charge = 0;
+  const m = buildMonster(pool.rows[0]!, 1); m.hp = m.maxHp = 5000; m.adb = d.hp * 0.25; /* rc12ae（自訂）: adb ≥ bigTele would wind up first (0 this round, real act loop) → keep the plain hit below bigTele */ m.charge = 0;
   const b = startBattle(d, { hp: d.hp, mp: d.mp, sp: d.sp }, [m], { health: 3, mana: 0, spirit: 0 }); b.oc = 300; b.hp = Math.round(d.hp * 0.08); b.itemCd.health = 2; return b;
 };
 
