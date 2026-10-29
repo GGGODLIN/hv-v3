@@ -1,0 +1,72 @@
+{
+  "version": "v0.72",
+  "result": "PASS",
+  "tested_at": "2026-10-29T02:30:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "website_commit": "c38bd2de429c5dc3e52edbad2cb7ea92365cacf3",
+  "pages_run": "40806517253",
+  "method": "Cloud CUA normal UI on original formal profile. No import, injected seed/state or candidate overwrite. Publisher separately supplied exact CI/runtime evidence.",
+  "checks": [
+    "Fresh baseline byte-identical to prior v071 final save; reload displayed formal v072.",
+    "Keyboard Enter started hunt at1x from Lv10/gold1454/XP274/wins18/bag29. Existing Superior inventory did not qualify: waiting-for-new-drop visible.",
+    "First full expedition ended gold1530/wins19 with only Average loot31; observed next expedition wave1 and unchanged waiting goal.",
+    "Second expedition wave4 visibly acquired Superior loot32 but remained in combat, promising full-four-wave reward settlement.",
+    "Then camp Lv11/XP83/gold1606/wins20/bag32, fragments100/seeds20. Report outcome win with new loot32 Superior armor and loot33 Exquisite accessory; inventory IDs agree.",
+    "Camp remained stable gold1606/wins20 for at least17seconds across report/export and later observation, no repeat.",
+    "Normal reload left goal unarmed and retained all permanent progression/items; only eight known transient fields changed."
+  ],
+  "final_hero": {
+    "level": 11,
+    "xp": 83,
+    "xpNext": 464,
+    "hp": 795,
+    "mp": 49,
+    "gold": 1606,
+    "proficiency": 12.4,
+    "attributes": {
+      "str": 28,
+      "dex": 28,
+      "agi": 28,
+      "end": 28,
+      "int": 28,
+      "wis": 28
+    }
+  },
+  "final_wins": 20,
+  "final_inventory_count": 32,
+  "final_fragments": 100,
+  "final_seeds": 20,
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/6c3f625a-67c9-44db-8353-b261f963cd04",
+      "sha256": "bd361bf524e1fb335e1e7f9a04e21dfda790ce891d3a94ef09300bb640ec4df3"
+    },
+    "report": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/43a387b0-2c01-4aaa-9d0d-3b53000547ff",
+      "sha256": "2c900ae6e8ca2fe8ba2767964c3c5eee16b483f3318e3d74e6feee28ee063db1"
+    },
+    "before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/fb3d4ec7-49f6-4359-b2d6-ea5716b42fee",
+      "sha256": "a6163e3de19eca2e3a76d8335490c944aebe0f558646a4151c52244ac7767a1e"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/09b5524d-75c5-4332-8a3b-a4fa30bc58e4",
+      "sha256": "cc27352a62de693023a25fbf6d57f27a7b786f5ba78db51e0b5ed74206975751"
+    }
+  },
+  "limits": [
+    "Formal used1x; cancellation/2x repeat/finish-current override/active-goal reload exercised separately on candidate.",
+    "Match observed wave4, not proven nonfinal-wave. Pending/fullbag, auto-sale, defeat, failed start, IW and ownership/import boundaries source-only.",
+    "No mobile/fullaccessibility or independent public HTTP per-file hashing claim."
+  ]
+}

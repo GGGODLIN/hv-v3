@@ -1,3 +1,16 @@
+# v072 formal verified and restorable — checkpoint 237
+
+Formal website c38bd2de429c5dc3e52edbad2cb7ea92365cacf3; exact Pages40806517253 SUCCESS. Publisher verified21 runtime files and4337 outside website files unchanged. Accepted source235 cd050f4dadf91c3c02d654207eefd8fb79c97fa5 remains the runtime baseline. Public game: https://gggodlin.github.io/play/hv-v3-dot/
+
+Normal cloud UI used the ORIGINAL formal profile, with no import/candidate overwrite/seed injection. Baseline export was byte-identical to prior v071 final save. Keyboard Enter started hunt at1× from Lv10/gold1454/wins18/bag29; existing Superior gear did not qualify. First full win yielded only Average loot31 and repeated. In second expedition wave4, new Superior loot32 qualified while battle continued; full victory then stopped at camp Lv11/XP83/gold1606/wins20/bag32/fragments100/seeds20. Report and inventory matched Superior loot32 plus Exquisite loot33. Camp remained stable for at least17seconds. Reload retained all permanent progression and items, differing only in eight known transient keys.
+
+Formal receipt docs/QA-V072-BROWSER-FORMAL.json SHA256 3e53e9d58b0a6ff42abe9b0ba7250852720bbd4c345875f63229964e38122e70. Formal used1×; cancellation/2×/finish-current override/active-goal reload were tested separately on candidate. Both observed qualifying drops were wave4, NOT proven nonfinal-wave. Pending/fullbag, auto-sale, defeat, failed-start, Item World and ownership/import boundaries remain source-only. No mobile/full accessibility, independent public HTTP per-file hashing, or Library-sync claim.
+
+This is docs/QA/recovery/manifest-only closure: runtime/tests/assets remain unchanged. 2470/2470 tests plus4 syntax checks were freshly run at235, NOT rerun at237. Complete exact-commit manifest retains all source, tests, assets/provenance and recovery instructions. Historical candidate/source records below remain chronological evidence, not current pending status.
+
+## Current complete recovery
+Restore the exact commit carrying CHECKPOINT237-v072-restorable (not mutable HEAD). Verify all payload lengths/SHA256 in CHECKPOINT; run npm test and four node --check commands as described below, then serve dot-game independently. Use accepted runtime235 to reproduce formal236; source237 differs only in evidence/recovery. Save format3 unchanged; hunt remains transient and intentionally clears on reload/import/takeover. Do not overwrite original formal progress with candidate exports. Rollback source232 08f6694a221ef6ea106347823647d421d3dd051f / website v071 1dedaca6c1dc56f4e9e29241f5902e86835b62d6 if needed, within authorized paths only.
+
 # v072 candidate accepted — checkpoint 235
 
 Source candidate 1c0d13d773eef6a381c0c48f7d4d68916cdfca34; candidate website b32a93ab46856da231e75cd2649a29419e62f7bc, exact Pages 40805448256 SUCCESS. Normal isolated cloud browser accepted the new quality-hunt control using a genuine formal export, without synthetic saves or RNG/state injection. Formal v071 remains unchanged pending promotion.
