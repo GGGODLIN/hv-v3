@@ -372,3 +372,7 @@ A session-only three-successful-expedition budget is a local automatic-battle co
 ## v076 expedition count choice adapter
 
 Choosing 3, 5 or 10 ordinary successful expedition settlements is a session-only idle-control extension, not an original HV rule. It fixes the selected count at departure, preserves full rewards and RNG, and grants neither guaranteed wins nor any extra loot. Default 3 maintains prior behavior. Selection is not persisted.
+
+## v077 drop summary observation adapter
+
+Quality and acquisition-outcome totals summarize the existing session report receipts, not current ownership or original HV probabilities. Automatic-sale income reports only actual receipt saleGold, never later manual sales, and grants no extra currency. Engine, loot generation, rewards and persistence are unchanged.

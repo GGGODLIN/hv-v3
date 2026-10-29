@@ -1335,13 +1335,39 @@ function expeditionLootContext(loot) {
     return details;
   }
   details.append(node('p', 'report-build-note', '記錄取得當時的處理，不代表目前仍持有；查看或匯出不會再發獎。只記本場掉落，委託與先前裝備不計。'));
+  // Aggregate the detached receipt, not live ownership or the character's gold.
+  const qualities = ['Crude', 'Fair', 'Average', 'Superior', 'Exquisite', 'Magnificent', 'Legendary', 'Peerless'];
+  const qualityCounts = new Map(qualities.map(quality => [quality, 0]));
+  const counts = { inventory: 0, pending: 0, autoSold: 0, unknown: 0 };
+  let unknownQuality = 0, saleTotal = 0, unknownSale = 0;
+  for (const item of loot) {
+    if (qualityCounts.has(item?.quality)) qualityCounts.set(item.quality, qualityCounts.get(item.quality) + 1);
+    else unknownQuality++;
+    if (['inventory', 'pending', 'autoSold'].includes(item?.disposition)) counts[item.disposition]++;
+    else counts.unknown++;
+    if (item?.disposition === 'autoSold') {
+      if (Number.isSafeInteger(item.saleValue) && item.saleValue >= 0 && Number.isSafeInteger(saleTotal + item.saleValue)) saleTotal += item.saleValue;
+      else unknownSale++;
+    }
+  }
+  const qualityText = [...qualityCounts].filter(([, count]) => count).map(([quality, count]) => `${qualityName(quality)} ${format(count)} 件`);
+  if (unknownQuality) qualityText.push(`未辨識品質 ${format(unknownQuality)} 件`);
+  details.append(node('p', 'report-loot-summary', `品質件數：${qualityText.join(' · ') || '0 件'}`));
+  details.append(node('p', 'report-loot-summary', `取得時：入包 ${format(counts.inventory)} 件 · 待領 ${format(counts.pending)} 件 · 自動出售 ${format(counts.autoSold)} 件${counts.unknown ? ` · 處理未記錄 ${format(counts.unknown)} 件` : ''}`));
+  details.append(node('p', 'report-loot-summary', `本場掉寶自售實收合計：${format(saleTotal)} 金幣${unknownSale ? `（另有 ${format(unknownSale)} 件金額未記錄）` : ''}；已計入當時金幣，不含擊殺、通關或後續手動出售。`));
   if (!loot.length) details.append(node('p', 'report-build-note', '本場沒有取得裝備。'));
   const list = node('ul', 'report-build-list');
   const slots = {weapon: '武器', armor: '護甲', accessory: '飾品'};
-  for (const item of loot) {
-    const handling = item.disposition === 'autoSold' ? `取得時自動出售 · 實收 ${format(item.saleValue)} 金幣`
-      : item.disposition === 'pending' ? '取得時送至待領區' : '取得時收入背包';
-    const entry = node('li', '', `${item.name} · ${slots[item.slot] || '未辨識部位'} · ${qualityName(item.quality) || '未記錄品質'} · Lv.${format(item.level)} · ID：${item.id} · ${handling}`);
+  for (const record of loot) {
+    const item = record && typeof record === 'object' ? record : {};
+    const saleText = Number.isSafeInteger(item.saleValue) && item.saleValue >= 0 ? `實收 ${format(item.saleValue)} 金幣` : '金額未記錄';
+    const handling = item.disposition === 'autoSold' ? `取得時自動出售 · ${saleText}`
+      : item.disposition === 'pending' ? '取得時送至待領區' : item.disposition === 'inventory' ? '取得時收入背包' : '取得時處理未記錄';
+    const label = value => typeof value === 'string' && value.trim() ? value : '未記錄';
+    const slotLabel = Object.hasOwn(slots, item.slot) ? slots[item.slot] : '未辨識部位';
+    const qualityLabel = qualityCounts.has(item.quality) ? qualityName(item.quality) : '未記錄品質';
+    const levelLabel = Number.isSafeInteger(item.level) && item.level > 0 ? format(item.level) : '未記錄';
+    const entry = node('li', '', `${label(item.name)} · ${slotLabel} · ${qualityLabel} · Lv.${levelLabel} · ID：${label(item.id)} · ${handling}`);
     // Resolve current ownership by ID each time; receipt snapshots are never equipment.
     const owned = () => {
       if (typeof item.id !== 'string' || !item.id) return null;
