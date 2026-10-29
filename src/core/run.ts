@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -516,7 +516,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
   const loot = battleLoot(run, monsters, type, p);
-  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' ? CP7.winHealNormal : 0)))); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
+  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' || RUN12X.winHealAll ? CP7.winHealNormal : 0) /* rc12x（自訂）: every win 20% (was normal fights only) */))); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
   const total = Object.values(b.used).reduce((a, c) => a + (c ?? 0), 0) || 1;
   for (const k of PROFS) {

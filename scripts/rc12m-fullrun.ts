@@ -9,7 +9,7 @@ import { RULES } from '../src/core/run';
 import type { Player } from '../src/core/player';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = true; RULES.cp8 = true;
 // rc12m calibration（自訂 sim settings, matched to QA rc12l real play）: ★ route, ★ buffs, ★ keys, 忽略並出發 (no town prep), +10 potions bought in town.
-for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_POLICY: 'primary', SIM_NOPREP: '1', SIM_BUYPOT: '10', SIM_MERCHTHR: '7', SIM_RETREAT9: '1' })) process.env[k] ??= v;
+for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_POLICY: 'primary', SIM_NOPREP: 'alloc' /* rc12x: 自動分配 then go (QA no-alloc = SIM_NOPREP=1) */, SIM_BUYPOT: '10', SIM_MERCHTHR: '7', SIM_RETREAT9: '1' })) process.env[k] ??= v;
 const [K0, ...files] = process.argv.slice(2); const K = Number(K0 ?? 16), E = process.env;
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const starts: Record<string, Player> = {};

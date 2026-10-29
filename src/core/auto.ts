@@ -1,4 +1,4 @@
-import { curveSchool12g } from './cp8';
+import { curveSchool12g, RUN12X } from './cp8';
 import { CP7, leanAllows } from './cp7';
 import { coreFloor, offerStar } from './buffoffer';
 /** Headless auto-player used by the simulation and tests. Plays like a reasonable human, not optimally. */
@@ -25,7 +25,7 @@ import type { NodeType } from './tower';
 /** Physical weights (pre-rc6 rule for everyone). cp8-rc6 bug 3: an arcane-leaning player mirrors them onto the caster stats
  *  (INT takes STR's 3, WIS takes DEX's 2, STR/DEX drop to INT/WIS's 1; END/AGI unchanged). 暫定（缺原版出處：findings 無配點建議）. */
 /** sim diag only (never read by the game): battle-entry HP buckets and HP potions left at each death. */
-export const SIM_DIAG = { tele12s: {} as Record<string, number>, zHpNL: {} as Record<number, number> /* cp9 rc2 (c)（自訂）: potion HP deciles, telegraphed-lethal drinks excluded */, skillHint: SKILL_HINT_STATS, battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number>,
+export const SIM_DIAG = { r12x: { eliteN: 0, eliteP: 0, heal: {} as Record<string, number[]> } /* rc12x diag（自訂）: elite wins ≥F15 / elite potions, win-heal fraction by fight type */, tele12s: {} as Record<string, number>, zHpNL: {} as Record<number, number> /* cp9 rc2 (c)（自訂）: potion HP deciles, telegraphed-lethal drinks excluded */, skillHint: SKILL_HINT_STATS, battles: 0, low50: 0, low30: 0, deathPots: {} as Record<number, number>,
   /** rc21 diag: health potions drunk in battle — by HP% decile at the drink, by floor, and by reason (lethal / low / big). */
   zHp: {} as Record<number, number>, zFloor: {} as Record<number, number>, zWhy: {} as Record<string, number>, floorBattles: {} as Record<number, number>,
   /** cp9 diag（自訂）: boss fight turns, worst single enemy turn in a boss fight (share of max HP), player action mix in normal fights. */
@@ -438,6 +438,7 @@ export function autoRun(p: Player, pool: MonsterPool, seed: number, strategy: St
   // Town prep. CP8 naive: the 出發前整備 「全部處理」 button (prepAll: alloc → equip (slot by slot, no school layout) → potions).
   // rc14 diagnosis (sim only): SIM_NOPREP=1 = the player pressed 「忽略並出發」 (no alloc / equip / potion top-up).
   if (ENV?.SIM_NOPREP === '1') { /* skip town prep */ }
+  else if (ENV?.SIM_NOPREP === 'alloc') { if (has(p, 'alloc')) autoAllocate(p); } // rc12x（自訂）: 出發前整備只按「自動分配」(= prep.ts prepAlloc), then 出發
   else if (SIM_AI.naive && !SIM_AI.add.has('equip')) { if (has(p, 'alloc')) autoAllocate(p); if (SIM_AI.add.has('townstyle')) autoEquip(p, [], gearStyle(strategy)); naivePrep.equip(p); if (has(p, 'shop')) (RULES.cp8 ? buyPotionsTo : buyHealthTo)(p, TOWN_HP_POTIONS); }
   else {
   if (has(p, 'alloc')) autoAllocate(p);
@@ -558,15 +559,15 @@ function autoRunInner(p: Player, pool: MonsterPool, seed: number, strategy: Stra
       if (type === 'elite') elites.push({ floor: run.floor, won: b.over === 'win', hpPct: b.hp / b.d.hp });
       if (type === 'boss') { SIM_DIAG.bossTurns.push(b.turn); (SIM_DIAG.bossByDepth[depthOf(run) || run.floor] ??= []).push(b.turn); SIM_DIAG.bossBurst.push(+FIGHT_BURST.v.toFixed(3)); } else SIM_DIAG.normBurst.push(+FIGHT_BURST.v.toFixed(3)); // cp9 rc3 diag（自訂）
       if (type === 'boss') bosses.push({ floor: depthOf(run) || run.floor, turns: b.turn, potions: pot0 - potCount(b), won: b.over === 'win', spirit: !!b.spiritUsed, ...(bs ? { buffs: run.buffs?.length ?? 0 } : {}), ...(alt ? { alt } : {}) });
-      const h9 = b.potions.health; const loot = finishBattle(p, run, b, ms, type); { const g9 = p.potions.health - h9; if (g9 > 0) { const e9 = type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion ? 1 : 0; POTSRC.elite += Math.min(e9, g9); POTSRC.drop += g9 - Math.min(e9, g9); } }
+      const h9 = b.potions.health, hpb12x = b.hp; const loot = finishBattle(p, run, b, ms, type); if (loot && run.abyss) { const X = SIM_DIAG.r12x, mx = runDerived(p, run).hp; if (hpb12x < mx * 0.75) (X.heal[type] ??= []).push((run.hp - hpb12x) / mx); if (type === 'elite' && depthOf(run) >= 15) { X.eliteN++; X.eliteP += loot.potions.health ?? 0; } } { const g9 = p.potions.health - h9; if (g9 > 0) { const e9 = type === 'elite' && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion ? 1 : 0; POTSRC.elite += Math.min(e9, g9); POTSRC.drop += g9 - Math.min(e9, g9); } }
       if (!loot) { SIM_DIAG.deathPots[b.potions.health] = (SIM_DIAG.deathPots[b.potions.health] ?? 0) + 1; end = { why: 'dead', floor: run.floor, type, hpPots: b.potions.health, bturns: b.turn, mp: b.mp, mpMax: b.d.mp, mpPots: b.potions.mana, hpCd: b.itemCd.health, mpCd: b.itemCd.mana, hp0: hp0Pct, foes: ms.map((m) => { const x = m as Monster & Cp5Mon; return { name: m.name, rank: m.rank, ...(x.affixes?.length ? { affixes: [...x.affixes] } : {}), ...(x.sig ? { sig: x.sig } : {}) }; }) }; break; }
-      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
+      if ((!SIM_AI.naive && !(RUN12X.gamePath && RULES.cp8)) || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { /* rc12x（自訂）: game path = no in-run bag autoEquip */ const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e)); }
       if (bs) for (let k = winOffers(type, run); k > 0; k--) { openOffer(p, run, type as 'elite'); resolve(type); }
       if (cp5?.retreat && type === 'boss' && (run.abyss || run.floor < run.tower.floors.length) && run.hp < runDerived(p, run).hp * cp5.retreat) { run.done = 'retreat'; end = { why: 'retreat', floor: run.floor, type, foes: [] }; break; }
     } else if (type === 'chest') {
       { const h9 = p.potions.health; applyLoot(p, run, chestLoot(run, p)); POTSRC.chest += p.potions.health - h9; }
-      if (!SIM_AI.naive || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
+      if ((!SIM_AI.naive && !(RUN12X.gamePath && RULES.cp8)) || SIM_AI.add.has('equip') || SIM_AI.add.has('runequip')) { /* rc12x（自訂）: game path = no in-run bag autoEquip */ const used = autoEquip(p, run.bag, SIM_AI.naive && !SIM_AI.add.has('equip') ? leanStyle(p) : gearStyle(strategy));
       run.bag = run.bag.filter((e) => !used.includes(e)); }
     } else if (type === 'merchant') {
       const st = merchantStock(run);

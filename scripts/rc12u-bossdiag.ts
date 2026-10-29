@@ -3,12 +3,12 @@
  *  Usage: SC=bulwark npx tsx scripts/rc12u-bossdiag.ts [seeds=32] */
 import { readFileSync } from 'node:fs';
 import { presetPlayer, type Preset } from '../src/core/preset';
-import { autoRun, FIGHT_CTX, TURN_HOOK9, type Strategy } from '../src/core/auto';
+import { autoRun, SIM_DIAG, FIGHT_CTX, TURN_HOOK9, type Strategy } from '../src/core/auto';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { RULES } from '../src/core/run';
 import { windingUp, type BattleState } from '../src/core/battle';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = true; RULES.cp8 = true;
-for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_POLICY: 'primary', SIM_NOPREP: '1', SIM_BUYPOT: '10', SIM_MERCHTHR: '7', SIM_RETREAT9: '1' })) process.env[k] ??= v;
+for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_POLICY: 'primary', SIM_NOPREP: 'alloc' /* rc12x: 自動分配 then go (QA no-alloc = SIM_NOPREP=1) */, SIM_BUYPOT: '10', SIM_MERCHTHR: '7', SIM_RETREAT9: '1' })) process.env[k] ??= v;
 const E = process.env, K = Number(process.argv[2] ?? 32), LO = Number(E.LO ?? 35), HI = Number(E.HI ?? 65);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const P0 = presetPlayer((JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8')) as Record<string, Preset>)[`postF20-${E.SC}`]!);
@@ -34,4 +34,6 @@ const q = (a: number[], f: number) => [...a].sort((x, y) => x - y)[Math.floor(a.
 console.log(`normalNet>F50 n=${nets.length} med=${med(nets).toFixed(3)} p75=${q(nets, 0.75).toFixed(3)} p90=${q(nets, 0.9).toFixed(3)} (maxHP 分數; 蓄力上限 0.30) potsPerNormal=${(npots.reduce((t, x) => t + x, 0) / Math.max(1, npots.length)).toFixed(2)}`);
 console.log('potAtDepth ' + Object.entries(potAt).map(([d, a]) => `F${d}:${med(a)}(n${a.length})`).join(' '));
 const b3565 = Object.entries(by).filter(([d]) => +d >= 35 && +d <= 65).flatMap(([, g]) => g.map((f) => f.turns + 1));
+const b4565 = Object.entries(by).filter(([d]) => +d >= 45 && +d <= 65).flatMap(([, g]) => g.map((f) => f.turns + 1)); const X12 = SIM_DIAG.r12x;
+console.log(`R12X ${E.SC} boss45_65Med=${med(b4565)} p75=${q(b4565, 0.75)} eliteDrop=${X12.eliteP}/${X12.eliteN}=${(X12.eliteP / Math.max(1, X12.eliteN)).toFixed(3)} heal=${Object.entries(X12.heal).map(([k, a]) => `${k}:${med(a).toFixed(3)}(n${a.length})`).join(',')}`);
 console.log(`SUMMARY ${E.SC} n=${cl.length} deathMed=${med(cl.filter((x) => x < 100))} floorMed=${med(cl)} f100=${(cl.filter((x) => x >= 100).length / cl.length).toFixed(3)} boss35_65Med=${med(b3565)} p25=${q(b3565, 0.25)} p75=${q(b3565, 0.75)} netMed=${med(nets).toFixed(3)}`);
