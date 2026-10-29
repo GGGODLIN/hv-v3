@@ -1233,7 +1233,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
     if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
-      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && !(m as { noWind12y?: boolean }).noWind12y /* rc12y r2（自訂） */ && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
     if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && (m.rank === 'boss' || MIN9) && (mult !== 1 || label)) { if (ARCINT9 && m.int9) m.int9 = false; else m.windCd = CP9.windHitCd; } // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
     // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns

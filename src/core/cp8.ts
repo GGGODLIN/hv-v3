@@ -146,7 +146,7 @@ const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
   blade: { mobHp: 15, mobDmg: 24 /* rc12x（自訂）: 15→24（每勝 20% 回血後） */, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 60 /* rc12x（自訂）: 55→60 */, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
   bulwark: { mobHp: 1.5 /* rc12u（自訂）: 21→1.5 (net ≤0.3/normal fight) */, mobDmg: 28 /* rc12x（自訂）: 21→28 */, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 100 /* rc12x（自訂）: 60→100（根因＝精英/首領只回 10%，修正後過易）; rc12u: 30→60 */ }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
-  oc: { mobHp: 1.5, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 10 /* rc12x（自訂）: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
+  oc: { mobHp: 1.5, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 14 /* rc12y r2（自訂）: 10→14 補償小怪不蓄力; rc12x: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
   arcane: { deepK: 50 /* rc12x（自訂）: 14→50; rc12v: 18→14 */, mobHp: 2.9, mobDmg: 14 /* rc12x（自訂）: 3.3→14 */ /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
@@ -166,7 +166,7 @@ export const RUN12U = { addHpK: num('SIM_R12U_ADDHPK') ?? 0, addDmgK: num('SIM_R
 /** rc12x（自訂，sim 與遊戲同路徑）: gamePath 1 = autoRun 不在跑中從背包 autoEquip（遊戲只會由 applyLoot 的 CP8.autoWear 穿上 ▲ 掉落）;
  *  winHealAll 1 = 每場勝利（一般/精英/首領）都回 winHeal + winHealNormal（製作人規格：每勝共 20%）. 0 = rc12w 行為（診斷用）. */
 /** rc12y 候選（自訂）: oc 首領戰 F45–65 不帶小怪（診斷：小怪 98% 回合存活、蓄力回合 55% → 防禦/零傷回合）. 0 = rc12x. */
-export const RUN12Y = { ocSolo: num('SIM_R12Y_OCSOLO') ?? 1, ocSoloFrom: num('SIM_R12Y_OCSOLOFROM') ?? 45, ocSoloTo: num('SIM_R12Y_OCSOLOTO') ?? 65 };
+export const RUN12Y = { ocSolo: num('SIM_R12Y_OCSOLO') ?? 0 /* rc12y r2（自訂）: 製作人否決 → 預設關 */, /** rc12y r2（自訂）: oc F45–65 首領戰小怪不蓄力（一般擊仍受 hitCap12m 40% 上限） */ ocNoWind: num('SIM_R12Y_OCNOWIND') ?? 1, ocSoloFrom: num('SIM_R12Y_OCSOLOFROM') ?? 45, ocSoloTo: num('SIM_R12Y_OCSOLOTO') ?? 65 };
 export const RUN12X = { gamePath: num('SIM_R12X_GAMEPATH') ?? 1, winHealAll: num('SIM_R12X_WINHEALALL') ?? 1 };
 export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
