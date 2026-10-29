@@ -582,9 +582,11 @@ export function roundEstimate(s: BattleState, crit = true, def = s.defendTurns >
 }
 /** rc12ad 4（自訂）: 「預估傷害」 line is ONE charger; when ≥ 2 live non-stunned monsters act next round the panel also prints the
  *  whole-round range (all monsters, same caps as ★) — QA bw2 F53 「278 → 390」 was charger 223 + another monster's plain 167. null = single actor. */
+/** rc12af 4b（自訂）: run f with the crit estimate at the top roll (ADVICE_DIAG.critRoll = null) — panel upper bound only; ★/Z/D advice keeps the rc22 mean-roll crit. */
+export const topRoll12af = <T>(f: () => T): T => { const k = ADVICE_DIAG.critRoll; ADVICE_DIAG.critRoll = null; try { return f(); } finally { ADVICE_DIAG.critRoll = k; } };
 export function roundRange12ad(s: BattleState): { lo: number; hi: number } | null {
   if (s.monsters.filter((m) => m.hp > 0 && !(m.status.stun > 0)).length < 2) return null;
-  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(roundEstimate(s, true, false)) };
+  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(topRoll12af(() => roundEstimate(s, true, false))) /* rc12af 4b（自訂，非數值）: 面板上限用最高擲骰暴擊（QA rc12ae bl2 F45 T12: 平均擲骰暴擊 353 < 實際 381） */ };
 }
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(roundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
