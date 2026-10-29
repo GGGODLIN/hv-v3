@@ -1364,27 +1364,45 @@ function expeditionLootContext(loot) {
   filters.setAttribute('aria-label', '本場掉寶部位篩選');
   const filterStatus = node('p', 'report-build-note');
   filterStatus.setAttribute('role', 'status');
-  const entries = [], filterButtons = [];
-  const applyFilter = selected => {
+  const qualityFilters = node('div', 'report-loot-filters');
+  qualityFilters.setAttribute('role', 'group');
+  qualityFilters.setAttribute('aria-label', '本場掉寶品質篩選');
+  const qualityOptions = [['all', '全部品質'], ['Superior', `${qualityName('Superior')}以上`], ['Exquisite', `${qualityName('Exquisite')}以上`]];
+  const entries = [], filterButtons = [], qualityButtons = [];
+  let selectedLootSlot = 'all', selectedQuality = 'all';
+  const applyFilter = () => {
     let visible = 0;
-    for (const {entry, slot} of entries) {
-      entry.hidden = selected !== 'all' && slot !== selected;
+    for (const {entry, slot, quality} of entries) {
+      const matchesQuality = selectedQuality === 'all' || qualities.indexOf(quality) >= qualities.indexOf(selectedQuality);
+      entry.hidden = (selectedLootSlot !== 'all' && slot !== selectedLootSlot) || !matchesQuality;
       if (!entry.hidden) visible++;
     }
-    for (const {button, slot} of filterButtons) button.setAttribute('aria-pressed', String(slot === selected));
-    const label = selected === 'all' ? '全部' : slots[selected];
-    filterStatus.textContent = `顯示${label}：${format(visible)} / ${format(loot.length)} 件${visible ? '' : ' · 沒有符合部位的掉寶'}。上方摘要為本場全部掉寶，不受篩選影響。`;
+    for (const {button, slot} of filterButtons) button.setAttribute('aria-pressed', String(slot === selectedLootSlot));
+    for (const {button, quality} of qualityButtons) button.setAttribute('aria-pressed', String(quality === selectedQuality));
+    const label = selectedLootSlot === 'all' ? '全部' : slots[selectedLootSlot];
+    const qualityLabel = selectedQuality === 'all' ? '' : ` · ${qualityName(selectedQuality)}以上`;
+    const emptyLabel = selectedQuality === 'all' ? '沒有符合部位的掉寶' : '沒有符合部位與品質的掉寶';
+    filterStatus.textContent = `顯示${label}${qualityLabel}：${format(visible)} / ${format(loot.length)} 件${visible ? '' : ` · ${emptyLabel}`}。上方摘要為本場全部掉寶，不受篩選影響。`;
   };
   for (const [slot, label] of [['all', '全部'], ...Object.entries(slots)]) {
     const button = node('button', 'secondary-button', label);
     button.type = 'button';
     button.dataset.reportLootSlot = slot;
     button.setAttribute('aria-label', `本場掉寶：${label}`);
-    button.addEventListener('click', () => applyFilter(slot));
+    button.addEventListener('click', () => { selectedLootSlot = slot; applyFilter(); });
     filterButtons.push({button, slot});
     filters.append(button);
   }
-  details.append(filters, filterStatus);
+  for (const [quality, label] of qualityOptions) {
+    const button = node('button', 'secondary-button', label);
+    button.type = 'button';
+    button.dataset.reportLootQuality = quality;
+    button.setAttribute('aria-label', `本場掉寶品質：${label}`);
+    button.addEventListener('click', () => { selectedQuality = quality; applyFilter(); });
+    qualityButtons.push({button, quality});
+    qualityFilters.append(button);
+  }
+  details.append(filters, qualityFilters, filterStatus);
   for (const record of loot) {
     const item = record && typeof record === 'object' ? record : {};
     const saleText = Number.isSafeInteger(item.saleValue) && item.saleValue >= 0 ? `實收 ${format(item.saleValue)} 金幣` : '金額未記錄';
@@ -1417,10 +1435,10 @@ function expeditionLootContext(loot) {
       });
       entry.append(inspect);
     } else entry.append(node('span', 'report-build-note', ' · 目前未持有'));
-    entries.push({entry, slot: item.slot});
+    entries.push({entry, slot: item.slot, quality: item.quality});
     list.append(entry);
   }
-  applyFilter('all');
+  applyFilter();
   details.append(list);
   return details;
 }
