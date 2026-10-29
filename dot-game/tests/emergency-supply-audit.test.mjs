@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
 // v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
@@ -42,13 +43,13 @@ test('v027 audit: default-OFF ordinary state, RNG, reports and outcomes equal ex
         api.act(s,'selectStage',Math.min(8,s.unlocked));api.act(s,'start');api.act(s,'finishThenCamp',true);
       }
       assert.deepEqual(now,before);let n=0;
-      while(now.mode==='battle'&&n++<20000){game.advance(now,.25);old.advance(before,.25);assert.deepEqual(now,before);assert.deepEqual(game.expeditionReports(now),old.expeditionReports(before));pulses++;}
+      while(now.mode==='battle'&&n++<20000){game.advance(now,.25);old.advance(before,.25);assert.deepEqual(now,before);assert.deepEqual(withoutLootReceipts(game.expeditionReports(now)),old.expeditionReports(before));pulses++;}
       assert.ok(n<20000,'run settles');assert.deepEqual(now,before);runs++;
       if(now.mode!=='town'){game.act(now,'retreat');old.act(before,'retreat');}
     }
     wins+=now.wins;
   }
-  t.diagnostic(JSON.stringify({runs,wins,pulses,strategies:3,exact:'whole state, RNG and reports; no exclusions'}));
+  t.diagnostic(JSON.stringify({runs,wins,pulses,strategies:3,exact:'whole state and RNG exact; historical reports exclude only v070 loot observations'}));
 });
 
 test('v027 audit: old v026 accepts supported inventory but drops new true preference rather than preserving it',()=>{

@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
 // v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
@@ -169,7 +170,7 @@ test('OFF full state/RNG/reports remain exact against portable v0.25 baseline ac
     game.act(a,'setEmergencySupply',false);
     for(let pulse=0;pulse<300;pulse++){
       game.advance(a,.25);previous.advance(b,.25);assert.deepEqual(a,b,`${seed}/${stage}/${strategy}/${pulse}`);
-      assert.deepEqual(game.expeditionReports(a),previous.expeditionReports(b));
+      assert.deepEqual(withoutLootReceipts(game.expeditionReports(a)),previous.expeditionReports(b));
     }
   }
 });

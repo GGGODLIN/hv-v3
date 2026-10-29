@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as game from '../src/engine.js';
@@ -147,7 +148,7 @@ test('no-overflow normal runs retain exact v0.26 state RNG events logs and repor
     for(let n=0;n<500&&current.wins<2&&current.mode==='battle';n++){
       game.advance(current,.25);previous.advance(old,.25);pulses++;
       assert.deepEqual(current,old,`${seed}/${strategy}/${n}`);
-      assert.deepEqual(game.expeditionReports(current),previous.expeditionReports(old));
+      assert.deepEqual(withoutLootReceipts(game.expeditionReports(current)),previous.expeditionReports(old));
     }
     assert.equal(current.wins,2);assert.equal(current.pendingLoot.length,0);
   }

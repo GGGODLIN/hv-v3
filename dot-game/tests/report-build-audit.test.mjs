@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import { legacyState } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +11,7 @@ const copy=structuredClone;
 const baselineRoot=new URL('./fixtures/v0.21/',import.meta.url);
 // Historical report delta is build; v023 state comparisons project only root version/currency.
 // No item/stat, RNG, damage, event, log or historical reward is omitted.
-const historicalReports=s=>game.expeditionReports(s).map(({build,...report})=>report);
+const historicalReports=s=>withoutLootReceipts(game.expeditionReports(s)).map(({build,...report})=>report);
 function equalPair(a,b){assert.deepEqual(legacyState(a),legacyState(b));assert.equal(a.seed,b.seed);assert.equal(JSON.stringify(legacyState(a)),JSON.stringify(legacyState(b)));assert.deepEqual(historicalReports(a),baseline.expeditionReports(b));}
 const enemy=(extra={})=>({id:'audit-actor',name:'Audit actor',hp:100000,maxHp:100000,attack:35,defense:0,evade:0,parry:0,block:0,...extra});
 

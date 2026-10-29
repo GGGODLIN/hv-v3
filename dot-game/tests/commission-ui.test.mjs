@@ -61,7 +61,7 @@ test('commission UI: distinct adaptation with first-clear/camp gate and no autom
   h.run("openWeaponCommission('axe'); confirmWeaponCommission();");
   assert.deepEqual(h.state, before); assert.equal(h.calls.length, 0);
   for (const text of ['本作獨立機制', '不是原版商店庫存、訓練或鍛造', '品質骰 R110', '屠戮（Slaughter）', '無前綴', '不會據此推薦購買', '刷寶仍可能取得更適合或更強的裝備', '不自動裝備、不自動出售', '遠征不收金幣', '委託可能用盡餘額', '不必購買才能繼續']) assert.ok(html.includes(text), text);
-  assert.match(html, /v0\.69 · 來源候選/);
+  assert.match(html, /v0\.70 · 來源候選/);
   for (const key of ['save','preferences','writer']) assert.ok(js.includes(`${key}-v3`));
   assert.doesNotMatch(controllers, /\.power|scoreItem|\.innerHTML|insertAdjacentHTML/);
 });

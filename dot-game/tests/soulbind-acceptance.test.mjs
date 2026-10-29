@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
 // v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
@@ -23,8 +24,8 @@ function earned(seed=42){const s=game.createGame(seed);for(let n=0;n<10;n++){equ
 function progress(s){const c=clone(s);delete c.version;delete c.soulFragments;delete c.worldSeeds;return c;}
 // The only allowed ordinary-play deltas are the explicit save version and
 // root fragment currency. Events, logs, event IDs, RNG, all combat state,
-// timing, gear, rewards and complete reports compare exactly at every step.
-function parityChecker(a,b){return()=>{assert.equal(a.version,3);assert.equal(b.version,1);assert.equal(a.soulFragments,10*a.wins);assert.deepEqual(progress(a),progress(b));assert.deepEqual(game.expeditionReports(a),previous.expeditionReports(b));};}
+// timing, gear and rewards compare exactly; historical reports project only v070 loot.
+function parityChecker(a,b){return()=>{assert.equal(a.version,3);assert.equal(b.version,1);assert.equal(a.soulFragments,10*a.wins);assert.deepEqual(progress(a),progress(b));assert.deepEqual(withoutLootReceipts(game.expeditionReports(a)),previous.expeditionReports(b));};}
 
 test('v023 independent: accepted v022 fixture identities are fixed, not regenerated goldens',()=>{for(const [name,hash] of Object.entries({'engine.js':'64eec991d435029aa08990837cb85df5feb5d240dcc3220c1751980fad2144d7','loot.js':'db841ff9d52a2a0d6e58458351ca3c3f59ec8c3bc8b4d7a8baf78c3bbc28f38d'}))assert.equal(createHash('sha256').update(readFileSync(new URL(`./fixtures/v0.22/${name}`,import.meta.url))).digest('hex'),hash);});
 

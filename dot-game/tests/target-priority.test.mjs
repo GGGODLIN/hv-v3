@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import { legacyState } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -69,7 +70,7 @@ test('default state after root version/currency projection, RNG and reports matc
   const digest=createHash('sha256');
   for(let seed=1;seed<=12;seed++)for(const stage of [1,3,5,6,10]){
     const s=createGame(seed);s.unlocked=stage;s.stage=stage;act(s,'targetPriority','front');act(s,'start');
-    for(let n=0;n<200;n++){advance(s,.25);digest.update(JSON.stringify({state:legacyState(s),reports:expeditionReports(s).map(({build,...legacyReport})=>legacyReport)}));}
+    for(let n=0;n<200;n++){advance(s,.25);digest.update(JSON.stringify({state:legacyState(s),reports:withoutLootReceipts(expeditionReports(s)).map(({build,...legacyReport})=>legacyReport)}));}
   }
   assert.equal(digest.digest('hex'),'a741b6841bc295dbfcd7e091055341ee4cf70e054892cf2ee46ace54cd0f9618');
 });

@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import { legacyState } from './helpers/soulbind-compat.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -207,7 +208,7 @@ const baselines = [
 ];
 for(const row of baselines)test(`finish camp first-four-route default-off parity: ${row.seed}/${row.family}/${row.protection}`,()=>{
  const s=g.createGame(row.seed);s.hero.level=10;s.equipment.weapon.weaponFamily=row.family;s.autoAdvance=true;if(row.protection)s.autoProtection=true;g.act(s,'start');
- const hash=createHash('sha256');let observations=0;for(let i=0;i<600;i++){g.advance(s,i%3===0?2:.1);if(s.stage>=5)break;hash.update(JSON.stringify([legacyState(s),g.expeditionReports(s).map(({build,...legacyReport})=>legacyReport)]));observations++;}
+ const hash=createHash('sha256');let observations=0;for(let i=0;i<600;i++){g.advance(s,i%3===0?2:.1);if(s.stage>=5)break;hash.update(JSON.stringify([legacyState(s),withoutLootReceipts(g.expeditionReports(s)).map(({build,...legacyReport})=>legacyReport)]));observations++;}
  assert.equal(observations,row.firstFourObservations);assert.equal(hash.digest('hex'),row.firstFourSha256);
 });
 const copy=structuredClone;

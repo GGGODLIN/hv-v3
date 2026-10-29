@@ -343,3 +343,7 @@ The original-research-backed soulbinding concept and the existing local immutabl
 ## v068 simulation-tempo adapter
 
 A local 1× / 2× timer option changes real waiting time, not the original TU/action-speed formulas or equipment stats. At 2× each accepted bounded timer interval can execute two identical engine calls. The second is skipped after camp, defeat or writer loss. Per-expedition loot/reward rules and RNG remain unchanged for the same simulated steps. Report elapsed time, best records and countdowns are simulated time, not wall-clock timing. The existing no-offline-credit gap rule remains; no durable preference or new save schema is introduced. This is an explicit idle-game adaptation, not an original-HV feature.
+
+## v070 expedition drop receipt adapter
+
+The session-only drop list observes this game's existing generated-loot delivery and completed automatic sales. It adds no original-HV loot claim, probability, reward, storage or economic rule. Entries describe the handling at acquisition time, not current item ownership. Later equip/sale/claim operations do not rewrite the historical receipt. Ordinary and Item World reward differences are retained; no additional loot is granted by reporting.

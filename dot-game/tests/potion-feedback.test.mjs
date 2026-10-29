@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -28,6 +29,6 @@ test('effective potion feedback: ordinary seeded expeditions preserve all state 
   const a=current.createGame(seed),b=previous.createGame(seed);
   for(const [g,s] of [[current,a],[previous,b]]){g.act(s,'setStrategy',strategy);g.act(s,'start');}
   for(let n=0;n<900&&!a.wins&&a.mode==='battle';n++){current.advance(a,.1);previous.advance(b,.1);assert.deepEqual(a,b);}
-  assert.deepEqual(current.expeditionReports(a),previous.expeditionReports(b));
+  assert.deepEqual(withoutLootReceipts(current.expeditionReports(a)),previous.expeditionReports(b));
  }
 });

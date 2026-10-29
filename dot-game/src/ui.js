@@ -1318,8 +1318,28 @@ function expeditionReportCard(report, label) {
   row('魔力消耗', format(report.actions.manaSpent));
   if (report.protection) row('護盾取捨', `施放 ${format(report.protection.casts)} 次（各取代一次攻擊） · 減免 ${format(report.protection.damagePrevented)} 傷害`);
   row('特效成功施加／刷新', `流血 ${format(report.procs.bleeding)} · 穿透護甲 ${format(report.procs.penetratedArmor)} · 暈眩 ${format(report.procs.stun)}`);
-  card.append(metrics);
+  card.append(metrics, expeditionLootContext(report.loot));
   return card;
+}
+// Historical drop handling is a receipt, never a claim about current ownership.
+function expeditionLootContext(loot) {
+  const details = node('details', 'report-build-details report-loot-details');
+  details.append(node('summary', '', `本場掉寶${Array.isArray(loot) ? ` · ${loot.length} 件` : ''}`));
+  if (!Array.isArray(loot)) {
+    details.append(node('p', 'report-build-note', '本份戰報未記錄掉寶明細；不以目前背包推測。'));
+    return details;
+  }
+  details.append(node('p', 'report-build-note', '記錄取得當時的處理，不代表目前仍持有；查看或匯出不會再發獎。只記本場掉落，委託與先前裝備不計。'));
+  if (!loot.length) details.append(node('p', 'report-build-note', '本場沒有取得裝備。'));
+  const list = node('ul', 'report-build-list');
+  const slots = {weapon: '武器', armor: '護甲', accessory: '飾品'};
+  for (const item of loot) {
+    const handling = item.disposition === 'autoSold' ? `取得時自動出售 · 實收 ${format(item.saleValue)} 金幣`
+      : item.disposition === 'pending' ? '取得時送至待領區' : '取得時收入背包';
+    list.append(node('li', '', `${item.name} · ${slots[item.slot] || '未辨識部位'} · ${qualityName(item.quality) || '未記錄品質'} · Lv.${format(item.level)} · ID：${item.id} · ${handling}`));
+  }
+  details.append(list);
+  return details;
 }
 // Read only the detached departure snapshot, never today's live loadout.
 function expeditionBuildContext(build) {

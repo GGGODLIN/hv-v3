@@ -353,7 +353,7 @@ function expeditionBuild(s) {
 }
 function copyExpeditionReport(report) {
   return {...report,build:{...report.build,abilities:report.build.abilities.map(entry=>({...entry})),equipment:report.build.equipment.map(entry=>({...entry}))},
-    weapon:{...report.weapon},startStats:{...report.startStats},
+    weapon:{...report.weapon},startStats:{...report.startStats},loot:report.loot.map(entry=>({...entry})),
     ...(report.protection?{protection:{...report.protection}}:{}),...(report.itemWorld?{itemWorld:{...report.itemWorld}}:{}),actions:{...report.actions},damage:{...report.damage},survival:{...report.survival},procs:{...report.procs}};
 }
 /** Detached newest-first completed expeditions, at most two for this state in
@@ -369,9 +369,19 @@ function beginExpeditionReport(s) {
     weapon:{family:resolveWeaponFamily(s.equipment.weapon),name:text(s.equipment.weapon?.name,'未知武器')},
     strategy:validStrategy(s.strategy)?s.strategy:'balanced',
     startStats:{attack:reportNumber(p.attack),maxHp:reportNumber(p.maxHp),mitigation:chance(p.mitigation)},
-    damage:{basic:0,skill:0,bleed:0},survival:{hpLost:0,minHpPercent:100},
+    loot:[],damage:{basic:0,skill:0,bleed:0},survival:{hpLost:0,minHpPercent:100},
     procs:{penetratedArmor:0,stun:0,bleeding:0}};
   expeditionFeedback.set(s,feedback);
+}
+// Normal four-wave runs have five nonboss drop chances + one clear drop;
+// IW1 has seven nonboss chances and no clear drop. Seven covers both routes.
+function observeExpeditionLoot(s, item, disposition, saleValue=0) {
+  const active=expeditionFeedback.get(s)?.active;
+  if(!active||active.loot.length>=7)return;
+  active.loot.push(Object.freeze({id:text(item.id,'未知 ID').slice(0,100),
+    name:text(item.name,'未知裝備').slice(0,100),slot:SLOTS.includes(item.slot)?item.slot:null,
+    quality:QUALITY.includes(item.quality)?item.quality:null,level:integer(item.level,1,1000),
+    disposition,saleValue:disposition==='autoSold'?reportNumber(saleValue):0}));
 }
 function observeExpeditionHit(s, source, hpRemoved, proc) {
   const active=expeditionFeedback.get(s)?.active;if(!active)return;
@@ -1000,12 +1010,14 @@ function addLoot(s, slot) {
   const sale=s.autoSell===true&&!boundMetadata(item)&&!isGearSetProtected(s,item.id)?safeSaleEntry(item,protectedLootKeepers(s)):null;
   if(sale&&canCreditManualSale(s,sale.value)){
     s.hero.gold+=sale.value;
+    observeExpeditionLoot(s,item,'autoSold',sale.value);
     event(s,'loot',`自動出售 ${item.name} · +${sale.value} 金幣`,sale.value,item.id);
     log(s,`自動出售：${item.name} · +${sale.value} 金幣；保留同型 ${sale.keeperName}。`);
     return sale;
   }
   if(sale)log(s,'自動出售未執行：收益超過金幣保存上限，戰利品完整保留。');
-  if(s.inventory.length<INVENTORY_LIMIT)s.inventory.push(item);else s.pendingLoot.push(item);
+  if(s.inventory.length<INVENTORY_LIMIT){s.inventory.push(item);observeExpeditionLoot(s,item,'inventory');}
+  else{s.pendingLoot.push(item);observeExpeditionLoot(s,item,'pending');}
   event(s,'loot',`獲得 ${item.name}`,undefined,item.id);log(s,`戰利品：${item.name}`);
 }
 function gainXp(s, amount) {

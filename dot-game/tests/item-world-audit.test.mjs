@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
 // v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
@@ -36,7 +37,7 @@ function expectedStats(anchor,level){return Object.fromEntries(Object.entries(an
   return [key,rate?Math.round(Math.min(.16,raw)*10000)/10000:key==='parry'?Math.round(raw*10000)/10000:Math.round(raw)];
 }));}
 const progress=s=>{const c=clone(s);delete c.version;delete c.worldSeeds;return c;};
-function equalNormal(a,b){assert.equal(a.version,3);assert.equal(b.version,2);assert.deepEqual(progress(a),progress(b));assert.deepEqual(game.expeditionReports(a),previous.expeditionReports(b));}
+function equalNormal(a,b){assert.equal(a.version,3);assert.equal(b.version,2);assert.deepEqual(progress(a),progress(b));assert.deepEqual(withoutLootReceipts(game.expeditionReports(a)),previous.expeditionReports(b));}
 function equipBest(api,s){for(const slot of slots){const best=[s.equipment[slot],...s.inventory.filter(i=>i.slot===slot)].reduce((a,b)=>loot.scoreItem(a)>=loot.scoreItem(b)?a:b);if(best.id!==s.equipment[slot].id)api.act(s,'equip',best.id);}}
 function oneNormal(api,s,step=()=>{}){const wins=s.wins;api.act(s,'start');step();assert.equal(s.mode,'battle');let n=0;while(s.mode==='battle'&&s.wins===wins&&n++<4000){api.advance(s,.25);step();}assert.ok(n<4000);api.act(s,'retreat');step();return s.wins===wins+1;}
 const normalContext=s=>({stage:s.stage,unlocked:s.unlocked,wins:s.wins,cleared:s.battle.cleared,bestTimes:clone(s.battle.bestTimes),autoAdvance:s.autoAdvance,soulFragments:s.soulFragments});

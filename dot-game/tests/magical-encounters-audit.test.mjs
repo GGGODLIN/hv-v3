@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
 // v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import { legacyState } from './helpers/soulbind-compat.mjs';
@@ -52,7 +53,7 @@ test('independent magic audit: first four stages retain exact state/RNG/reports'
  for(const seed of [1,29,42,77,100])for(const stage of [1,2,3,4]){
   const s=game.createGame(seed),old=previous.createGame(seed);s.unlocked=old.unlocked=4;s.stage=old.stage=stage;
   game.act(s,'start');previous.act(old,'start');
-  for(let i=0;i<600;i++){game.advance(s,.1);previous.advance(old,.1);assert.deepEqual(legacyState(s),legacyState(old));assert.deepEqual(game.expeditionReports(s).map(({build,...legacyReport})=>legacyReport),previous.expeditionReports(old));}
+  for(let i=0;i<600;i++){game.advance(s,.1);previous.advance(old,.1);assert.deepEqual(legacyState(s),legacyState(old));assert.deepEqual(withoutLootReceipts(game.expeditionReports(s)).map(({build,...legacyReport})=>legacyReport),previous.expeditionReports(old));}
  }
 });
 function equipBest(api,s){for(const slot of ['weapon','armor','accessory']){const best=[s.equipment[slot],...s.inventory.filter(i=>i.slot===slot)].reduce((a,b)=>scoreItem(a)>=scoreItem(b)?a:b);if(best.id!==s.equipment[slot].id)api.act(s,'equip',best.id);}}

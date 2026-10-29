@@ -1,3 +1,4 @@
+import {withoutLootReceipts} from './helpers/without-loot-receipts.mjs';
 import {withWaveGrowthFix} from './helpers/wave-growth-baseline.mjs';
 // v056: historical parity includes the isolated post-kill HP correction, not its old defect.
 import test from 'node:test';
@@ -135,10 +136,10 @@ test('v026 audit: 36 natural ordinary runs match exact v025 state/RNG/rewards at
         api.act(s,'start');api.act(s,'finishThenCamp',true);
       }
       assert.deepEqual(now,old);let n=0;
-      while(now.mode==='battle'&&n++<20000){game.advance(now,.25);previous.advance(old,.25);assert.deepEqual(now,old);assert.deepEqual(game.expeditionReports(now),previous.expeditionReports(old));pulses++;}
+      while(now.mode==='battle'&&n++<20000){game.advance(now,.25);previous.advance(old,.25);assert.deepEqual(now,old);assert.deepEqual(withoutLootReceipts(game.expeditionReports(now)),previous.expeditionReports(old));pulses++;}
       assert.ok(n<20000);assert.deepEqual(now,old);
     }
     totalWins+=now.wins;
   }
-  t.diagnostic(JSON.stringify({seeds:[1,42,77],attempts:36,totalWins,pulses,exact:'entire state, RNG and completed reports; no excluded fields'}));
+  t.diagnostic(JSON.stringify({seeds:[1,42,77],attempts:36,totalWins,pulses,exact:'entire state and RNG exact; historical reports exclude only v070 loot observations'}));
 });
