@@ -144,10 +144,10 @@ const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
 const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12p（自訂）: retuned after the capped preview (★ no longer over-defends) + 1 deterministic boss potion; rc12o values in docs/hv-v3-rc12p.md
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
-  blade: { mobHp: 20 /* rc12ab 調整1（自訂）: 30→20（共用蓄力鎖後 blade sim 70→61，掃 12/18/22＝70.5/70/64） */ /* rc12ab 輪1（自訂）: 15→30 */, mobDmg: 24 /* rc12x（自訂）: 15→24（每勝 20% 回血後） */, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 60 /* rc12x（自訂）: 55→60 */, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
+  blade: { mobHp: 23 /* rc12ad 調整2（自訂）: 20→23（★ 小怪蓄力改推 A 後 sim 73→70；掃 16/20/22/23/24＝75/73/72/70/70） */ /* rc12ab 調整1（自訂）: 30→20（共用蓄力鎖後 blade sim 70→61，掃 12/18/22＝70.5/70/64） */ /* rc12ab 輪1（自訂）: 15→30 */, mobDmg: 24 /* rc12x（自訂）: 15→24（每勝 20% 回血後） */, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 60 /* rc12x（自訂）: 55→60 */, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
   bulwark: { mobHp: 11 /* rc12ac 調整1（自訂）: 8→11（小怪蓄力 25% 後 sim 68→71；掃 11/14＝68/65） */ /* rc12ab 輪1（自訂）: 1.5→8 */ /* rc12u（自訂）: 21→1.5 (net ≤0.3/normal fight) */, mobDmg: 28 /* rc12x（自訂）: 21→28 */, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 100 /* rc12x（自訂）: 60→100（根因＝精英/首領只回 10%，修正後過易）; rc12u: 30→60 */ }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
-  oc: { mobHp: 10 /* rc12ac 調整1（自訂）: 8→10（sim 70→66；掃 10/12＝66/65.5） */ /* rc12aa 2（自訂）: 1.5→8 降低 oc 整體推進（傷害倍率被單擊上限吃掉，只有 HP 有效） */, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 14 /* rc12y r2（自訂）: 10→14 補償小怪不蓄力; rc12x: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
-  arcane: { deepK: 50 /* rc12x（自訂）: 14→50; rc12v: 18→14 */, mobHp: 8 /* rc12ab 輪1（自訂）: 2.9→8 */, mobDmg: 14 /* rc12x（自訂）: 3.3→14 */ /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
+  oc: { mobHp: 8 /* rc12ad 調整2（自訂）: 10→8（實機 oc 58 偏低，sim 68→71；掃 6/8＝76/71） */ /* rc12ac 調整1（自訂）: 8→10（sim 70→66；掃 10/12＝66/65.5） */ /* rc12aa 2（自訂）: 1.5→8 降低 oc 整體推進（傷害倍率被單擊上限吃掉，只有 HP 有效） */, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 14 /* rc12y r2（自訂）: 10→14 補償小怪不蓄力; rc12x: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
+  arcane: { deepK: 50 /* rc12x（自訂）: 14→50; rc12v: 18→14 */, mobHp: 10 /* rc12ad 調整2（自訂）: 8→10（★ 改動後 sim 72→68，避免 arcane 上升；掃 10/12＝68/65） */ /* rc12ab 輪1（自訂）: 2.9→8 */, mobDmg: 14 /* rc12x（自訂）: 3.3→14 */ /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
@@ -213,3 +213,6 @@ export const bwCap12i = (F: number): number => { const h = DEEP12G.bwCap, a = DE
 
 /** rc12ac（自訂）: minion = 一般戰／精英戰非精英小怪蓄力單擊上限 × maxHP（arcane 仍取 chg12aa 0.2 較小者）；bossMinion = 首領戰非首領怪蓄力上限（0 = 沿用 minionCharge 0.4）。 */
 export const RUN12AC = { minion: num('SIM_R12AC_MINION') ?? 0.25, bossMinion: num('SIM_R12AC_BOSSMINION') ?? 0.3 };
+/** rc12ad 1（自訂）: teleA = 非首領戰、只有非精英本體小怪蓄力且不致死 → ★ 改推 A·攻擊（D 為次選），避免長戰 ★ 防禦循環輸出 0。 */
+/** rc12ad 3（自訂）: bossPot70 = F70+ 首領保底：樓層為此數倍數（F70/80/90/100）的首領勝利 +1 生命藥水（確定，不擲骰）；0 = 關。 */
+export const RUN12AD = { teleA: num('SIM_R12AD_TELEA') ?? 1, bossPot70: num('SIM_R12AD_BOSSPOT70') ?? 10 };

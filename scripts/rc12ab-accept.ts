@@ -31,3 +31,7 @@ console.log(`ACCEPT ${E.SC} n=${cl.length} floorMed=${med(cl)} f100=${(100 * cl.
 const lost = fs.filter((f) => f.b.over === 'lose');
 const runs = lost.map((f) => f.b.chgRunMax12ab ?? 0);
 console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).length}) deaths=${lost.length} deathTypes=${JSON.stringify(lost.reduce((o, f) => ({ ...o, [f.type]: (o[f.type] ?? 0) + 1 }), {} as Record<string, number>))} maxChgRunBeforeDeath=${Math.max(0, ...runs)} deathsChgRun3=${runs.filter((r) => r >= 3).length} allFightsMaxChgRun=${Math.max(0, ...fs.map((f) => f.b.chgRunMax12ab ?? 0))}`);
+// rc12ad（自訂）: 一般戰（type battle）回合中位 / p90 / >20 回合比例
+{ const nb = fs.filter((f) => f.type === 'battle').map((f) => f.turns + 1).sort((x, y) => x - y), q = (p: number) => nb[Math.min(nb.length - 1, Math.floor(p * nb.length))];
+  const nb45 = fs.filter((f) => f.type === 'battle' && f.d >= 45).map((f) => f.turns + 1).sort((x, y) => x - y);
+  console.log(`NRM ${E.SC} n=${nb.length} med=${med(nb)} p90=${q(0.9)} gt20=${(100 * nb.filter((x) => x > 20).length / Math.max(1, nb.length)).toFixed(1)}% f45med=${med(nb45)} f45p90=${nb45[Math.floor(0.9 * nb45.length)]}`); }

@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -267,7 +267,7 @@ export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
 
 /** rc12o（自訂）: boss guaranteed piece minimum quality = abyss guarantee + RUN12O.bossGear tiers. */
 /** rc12p（自訂）: health potions for an abyss boss kill at depth ab — deterministic, shared by sim and game. */
-export const bossPot12p = (ab: number): number => (RUN12M.on && RUN12O.on && ab >= RUN12O.bossPotFrom && ab < RUN12AB.bossPotTo /* rc12ab（自訂）: F70+ 停 */ ? Math.round(RUN12O.bossPot) : 0);
+export const bossPot12p = (ab: number): number => (RUN12M.on && RUN12O.on && ab >= RUN12O.bossPotFrom && ab < RUN12AB.bossPotTo /* rc12ab（自訂）: F70+ 停 */ ? Math.round(RUN12O.bossPot) : RUN12M.on && RUN12O.on && ab >= RUN12AB.bossPotTo && RUN12AD.bossPot70 > 0 && ab % RUN12AD.bossPot70 === 0 ? 1 /* rc12ad 3（自訂）: F70+ 保底 */ : 0);
 export const bossGearQ12o = (q: Quality): Quality => QUALITIES[Math.min(QUALITIES.length - 1, QUALITIES.indexOf(q) + Math.max(0, Math.round(RUN12O.bossGear)))]!;
 /** Derived stats with run bonuses applied. */
 export function runDerived(p: Player, run: RunState) {

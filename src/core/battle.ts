@@ -1,6 +1,6 @@
 import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
-import { CP8, CP9, RC12, RC22, RUN12AB, RUN12AC, RUN12Z } from './cp8';
+import { CP8, CP9, RC12, RC22, RUN12AB, RUN12AC, RUN12AD, RUN12Z } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
@@ -560,6 +560,12 @@ export function roundEstimate(s: BattleState, crit = true, def = s.defendTurns >
   const hit = Math.max(0, ...s.monsters.filter((m) => windingUp(m) && !(m.status.stun > 0)).map((m) => chargeEstimate(s, m, def, crit)));
   return Math.max(nextRoundEstimate(s, crit, def, noSave), hit);
 }
+/** rc12ad 4（自訂）: 「預估傷害」 line is ONE charger; when ≥ 2 live non-stunned monsters act next round the panel also prints the
+ *  whole-round range (all monsters, same caps as ★) — QA bw2 F53 「278 → 390」 was charger 223 + another monster's plain 167. null = single actor. */
+export function roundRange12ad(s: BattleState): { lo: number; hi: number } | null {
+  if (s.monsters.filter((m) => m.hp > 0 && !(m.status.stun > 0)).length < 2) return null;
+  return { lo: Math.round(nextRoundEstimate(s, false, false)), hi: Math.round(roundEstimate(s, true, false)) };
+}
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(roundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);
   if (!danger) { const g = suggestSkill(s, target), gk = g ? `${'QWE'[skillKit(s).indexOf(g)] ?? '?'}·${SKILLS[g].zh}` : ''; /* rc20 item 5: skill names carry their hotkey */ return { danger, est, hp, keys: g ? [gk, 'A'] : ['A'], text: `${g ? `${gk} 或 ` : ''}A·攻擊（HP 安全：下回合全體暴擊估計 ${est} < HP ${hp}，不需防禦）` }; }
@@ -586,7 +592,7 @@ function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   // cp9 (c)（自訂，非原版）: Z only when the estimate ≥ HP or HP ≤ 50%; a telegraphed charge above that → D (else A).
   // a lethal estimate that D brings under HP also gets D (the potion is kept for when D is not enough).
   if (RULES.cp8 && CP9.on && (!lethal || dOk) && s.hp > s.d.hp * CP9.zHp) {
-    const tele = s.monsters.some(windingUp), dCan = canUse(s, { kind: 'defend' });
+    const tele = s.monsters.some(windingUp) && !(RUN12AD.teleA && !lethal && !s.monsters.some((m) => m.rank === 'boss' && m.hp > 0) && !s.monsters.some((m) => m.rank === 'elite' && windingUp(m))) /* rc12ad 1（自訂）: 小怪蓄力不致死 → 不推 D */, dCan = canUse(s, { kind: 'defend' });
     if ((tele || lethal) && dCan) return { danger, est, hp, keys: ['D'], text: lethal ? `D·防禦（${why}；${dTxt}${saveOnly ? '' : '，先不喝藥'}）` /* cp9-rc7 QA item 5（自訂）: same judgement as the 「HP 危險」 line — only the defended estimate is survivable */ : `D·防禦（敵人蓄力中，HP ${hp} 撐得住，不必喝藥；${why}）` };
     return { danger, est, hp, keys: dOk ? ['A', 'D'] : ['A'], text: `A·攻擊${dOk ? ` 或 D·防禦（防禦後估計 ${estD}）` : ''}（${why}，HP ${hp} 還夠，不必喝藥）` };
   }
