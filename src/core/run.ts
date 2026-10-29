@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -313,7 +313,7 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
   const { lo, hi } = plWindow(pool, ab ? abyssPl(ab) : floorPl(f));
   return withRng(run, (rng) => {
     const plan: Rank[] =
-      type === 'boss' ? ['boss', 'normal'] /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
+      type === 'boss' ? (RULES.cp8 && lean === 'oc' && RUN12Y.ocSolo && ab >= RUN12Y.ocSoloFrom && ab <= RUN12Y.ocSoloTo ? ['boss'] /* rc12y 候選（自訂）: oc F45–65 boss fights alone */ : ['boss', 'normal']) /* 暫定 (round 6): floor-10 boss has at most 1 minion */ :
       type === 'elite' ? (run.weakNext || (run.cp5 && CP5.eliteSolo) ? ['elite'] /* 暫定 (CP3-7): tutorial elite fights alone */ : ['elite', 'normal']) :
       (['normal', 'normal'] as Rank[]).slice(0, RULES.cp8 && RC22.normalCap > 0 ? RC22.normalCap : 2) /* rc22 normalCap（自訂）;  暫定 (CP2b/CP2c): at most 2 per wave on every floor (CP2c: floors 1-4 too, was 2-3) */;
     const th = run.cp5 && !CP5_FORCE.themeOff ? themeOf(f) : null;

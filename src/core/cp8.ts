@@ -165,6 +165,8 @@ export const r12m = (lean: string | null | undefined, k: R12MK): number => ((RUN
 export const RUN12U = { addHpK: num('SIM_R12U_ADDHPK') ?? 0, addDmgK: num('SIM_R12U_ADDDMGK') ?? 1, elitePot: num('SIM_R12U_ELITEPOT') ?? 1, elitePotFrom: num('SIM_R12U_ELITEPOTFROM') ?? 15, /** rc12v（自訂）: elite potion drop chance, one rule for all schools */ elitePotP: num('SIM_R12U_ELITEPOTP') ?? 0.35 };
 /** rc12x（自訂，sim 與遊戲同路徑）: gamePath 1 = autoRun 不在跑中從背包 autoEquip（遊戲只會由 applyLoot 的 CP8.autoWear 穿上 ▲ 掉落）;
  *  winHealAll 1 = 每場勝利（一般/精英/首領）都回 winHeal + winHealNormal（製作人規格：每勝共 20%）. 0 = rc12w 行為（診斷用）. */
+/** rc12y 候選（自訂）: oc 首領戰 F45–65 不帶小怪（診斷：小怪 98% 回合存活、蓄力回合 55% → 防禦/零傷回合）. 0 = rc12x. */
+export const RUN12Y = { ocSolo: num('SIM_R12Y_OCSOLO') ?? 1, ocSoloFrom: num('SIM_R12Y_OCSOLOFROM') ?? 45, ocSoloTo: num('SIM_R12Y_OCSOLOTO') ?? 65 };
 export const RUN12X = { gamePath: num('SIM_R12X_GAMEPATH') ?? 1, winHealAll: num('SIM_R12X_WINHEALALL') ?? 1 };
 export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
