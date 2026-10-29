@@ -42,8 +42,9 @@ describe('rc12p game path', () => {
       expect(h).toMatch(/王戰獎勵：藥水 ×1、裝備保底 .+ 階/); expect(h).toMatch(new RegExp(`data-bossreward="1:${q}"`));
     }
   });
-  it('normal / chest in the abyss give no potions; elite gives 1 from F15 (rc12u 自訂)', async () => {
-    for (const seed of [1, 2, 3]) { const a = app(40, 'elite', seed); const { finish } = await win(a, 'elite'); const { gained } = await finish(); expect(gained).toBe(1); }
+  it('normal / chest in the abyss give no potions; elite drops 0 or 1 from F15 (rc12v 自訂: chance)', async () => {
+    const g: number[] = []; for (let seed = 1; seed <= 12; seed++) { const a = app(40, 'elite', seed); const { finish } = await win(a, 'elite'); const { gained } = await finish(); g.push(gained); }
+    expect(g.every((x) => x === 0 || x === 1)).toBe(true); expect(g).toContain(0); expect(g).toContain(1);
     for (const t of ['battle']) for (const seed of [1, 2, 3, 4, 5, 6]) {
       const a = app(40, t, seed); const { finish } = await win(a, t); const { loot, gained } = await finish();
       expect(gained).toBe(0); expect(Object.values(loot.potions).every((v) => !v)).toBe(true); expect(loot.bossReward).toBeUndefined();

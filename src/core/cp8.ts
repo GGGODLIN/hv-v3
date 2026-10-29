@@ -146,8 +146,8 @@ const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
   blade: { mobHp: 15, mobDmg: 15, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 55, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
   bulwark: { mobHp: 1.5 /* rc12u（自訂）: 21→1.5 (net ≤0.3/normal fight) */, mobDmg: 21, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 60 /* rc12u（自訂）: 30→60 */ }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
-  oc: { mobHp: 2, mobDmg: 7 /* rc12u（自訂）: 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 2.2, bossHp: 0.5, bossHp70: 0.5 },
-  arcane: { deepK: 18 /* rc12u（自訂） */, mobHp: 2.9, mobDmg: 3.3 /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
+  oc: { mobHp: 1.5, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 5 /* rc12v（自訂）: 2.2→5 */, bossHp: 0.5, bossHp70: 0.5 },
+  arcane: { deepK: 14 /* rc12v（自訂）: 18→14 */, mobHp: 2.9, mobDmg: 3.3 /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
@@ -162,7 +162,7 @@ export const r12m = (lean: string | null | undefined, k: R12MK): number => ((RUN
 /** rc12u（自訂，非原版）: addHpK = how much of the normal-fight mob12m HP layer the ADDS in a boss fight get (0 = none, 1 = rc12t).
  *  Diagnosis (scripts/rc12u-bossdiag.ts): bulwark F35–65 boss fights spent ~55% of turns hitting adds whose HP carried mobHp ×21.
  *  elitePotFrom = abyss depth from which an elite win gives elitePot health potions (deterministic). */
-export const RUN12U = { addHpK: num('SIM_R12U_ADDHPK') ?? 0, addDmgK: num('SIM_R12U_ADDDMGK') ?? 1, elitePot: num('SIM_R12U_ELITEPOT') ?? 1, elitePotFrom: num('SIM_R12U_ELITEPOTFROM') ?? 15 };
+export const RUN12U = { addHpK: num('SIM_R12U_ADDHPK') ?? 0, addDmgK: num('SIM_R12U_ADDDMGK') ?? 1, elitePot: num('SIM_R12U_ELITEPOT') ?? 1, elitePotFrom: num('SIM_R12U_ELITEPOTFROM') ?? 15, /** rc12v（自訂）: elite potion drop chance, one rule for all schools */ elitePotP: num('SIM_R12U_ELITEPOTP') ?? 0.35 };
 export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
 export const boss70 = (F: number, lean: string | null | undefined, k: 'bossHp70' | 'bossDmg70'): number => F <= 65 ? 1 : 1 + (r12m(lean, k) - 1) * Math.min(1, (F - 65) / 5);

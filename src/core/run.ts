@@ -429,7 +429,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite' && run.abyss && RUN12M.on && RUN12O.on && RULES.cp8 && RUN12U.elitePot > 0 && depthOf(run) >= RUN12U.elitePotFrom) loot.potions.health = (loot.potions.health ?? 0) + RUN12U.elitePot; // rc12u（自訂，非原版）: abyss elite win → 1 health potion from F15
+    if (type === 'elite' && run.abyss && RUN12M.on && RUN12O.on && RULES.cp8 && RUN12U.elitePot > 0 && depthOf(run) >= RUN12U.elitePotFrom && rng.chance(RUN12U.elitePotP) /* rc12v（自訂） */) loot.potions.health = (loot.potions.health ?? 0) + RUN12U.elitePot; // rc12u（自訂，非原版）: abyss elite win → 1 health potion from F15
     if (type === 'elite' && !(run.abyss && RUN12M.on && RUN12O.on && RULES.cp8) /* rc12p（自訂）: abyss potions only from boss kills (QA rc12o 'normal' drops were elites) */ && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot') && (!RULES.cp8 || r12m(p && curveSchool12g(p), 'elite') >= 1 || rng.chance(r12m(p && curveSchool12g(p), 'elite')))) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
