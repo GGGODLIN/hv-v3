@@ -376,3 +376,7 @@ Choosing 3, 5 or 10 ordinary successful expedition settlements is a session-only
 ## v077 drop summary observation adapter
 
 Quality and acquisition-outcome totals summarize the existing session report receipts, not current ownership or original HV probabilities. Automatic-sale income reports only actual receipt saleGold, never later manual sales, and grants no extra currency. Engine, loot generation, rewards and persistence are unchanged.
+
+## v078 report slot filter boundary
+
+Filtering detached report receipts by equipment slot is local presentation only, not an original HV mechanic or drop-probability claim. Full expedition totals do not change. No research facts, combat, loot generation, RNG or save schema are changed.

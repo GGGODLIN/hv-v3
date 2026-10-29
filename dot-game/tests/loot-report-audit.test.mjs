@@ -66,7 +66,7 @@ test('audit v070 partial retreat preserves only actual pre-retreat drops and dup
 });
 test('audit v070 report loot UI is collapsed safe text with historical and missing-data distinctions',()=>{
  const ui=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8');const fn=ui.slice(ui.indexOf('function expeditionLootContext('),ui.indexOf('// Read only the detached departure snapshot'));
- const node=(tag,className='',text='')=>({tag,className,textContent:String(text),children:[],append(...items){this.children.push(...items);}});
+ const node=(tag,className='',text='')=>({tag,className,textContent:String(text),children:[],dataset:{},setAttribute(){},addEventListener(){},append(...items){this.children.push(...items);}});
  const ctx=createContext({state:{equipment:{},inventory:[],pendingLoot:[]},node,format:String,qualityName:q=>QUALITY_TIERS.find(t=>t.name===q)?.label||q});runInContext(fn,ctx);const render=arg=>{ctx.arg=arg;return runInContext('expeditionLootContext(arg)',ctx);};const text=n=>n.textContent+' '+n.children.map(text).join(' ');
  assert.match(text(render(undefined)),/未記錄掉寶明細/);assert.match(text(render([])),/本場沒有取得裝備/);
  const n=render([{id:'x',name:'<img onerror=attack>',slot:'weapon',quality:'Superior',level:3,disposition:'pending',saleValue:0}]);

@@ -56,12 +56,12 @@ test('IW1 records only actual drops, not its existing upgraded target or phantom
  const r=game.expeditionReports(s)[0];assert.equal(r.outcome,'win');assert.ok(r.loot.length<=7);assert.deepEqual(r.loot.map(i=>i.id),s.inventory.map(i=>i.id));assert.ok(!r.loot.some(i=>i.id==='bound-target'));
 });
 function renderLoot(value){const js=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8');const source=js.slice(js.indexOf('function expeditionLootContext('),js.indexOf('// Read only the detached departure snapshot'));
- const node=(tag,className,text='')=>({tag,className,textContent:text,children:[],append(...children){this.children.push(...children);}});
+ const node=(tag,className,text='')=>({tag,className,textContent:text,children:[],dataset:{},setAttribute(){},addEventListener(){},append(...children){this.children.push(...children);}});
  return runInNewContext(`${source};expeditionLootContext(value)`,{value,node,state:{inventory:[],pendingLoot:[],equipment:{}},format:n=>String(n),qualityName:q=>QUALITY_TIERS.find(t=>t.name===q)?.label||q});
 }
 const text=n=>[n.textContent,...n.children.map(text)].join(' ');
-test('UI uses collapsed receipt details with historical-destination caveat and no actions',()=>{
+test('UI uses collapsed receipt details with historical-destination caveat and no phantom inspection',()=>{
  const node=renderLoot([{id:'loot-1',name:'<script>not HTML</script>',slot:'weapon',quality:'Superior',level:3,disposition:'autoSold',saleValue:86}]);
- assert.equal(node.tag,'details');assert.equal(node.open,undefined);assert.match(text(node),/取得時自動出售 · 實收 86/);assert.match(text(node),/不代表目前仍持有/);assert.match(text(node),/不會再發獎/);assert.ok(!JSON.stringify(node).includes('"tag":"button"'));
+ assert.equal(node.tag,'details');assert.equal(node.open,undefined);assert.match(text(node),/取得時自動出售 · 實收 86/);assert.match(text(node),/不代表目前仍持有/);assert.match(text(node),/不會再發獎/);assert.ok(!JSON.stringify(node).includes('"reportLootId"'));
  assert.match(text(renderLoot([])),/本場沒有取得裝備/);assert.match(text(renderLoot(undefined)),/未記錄掉寶明細/);
 });

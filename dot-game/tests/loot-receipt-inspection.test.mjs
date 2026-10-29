@@ -13,7 +13,7 @@ function harness(state){
  return {ctx,calls,make:value=>ctx.make(value)};
 }
 const walk=n=>[n,...n.children.flatMap(walk)];
-const button=n=>walk(n).find(n=>n.tag==='button');
+const button=n=>walk(n).find(n=>n.tag==='button'&&typeof n.dataset.reportLootId==='string');
 const text=n=>walk(n).map(n=>n.textContent).join(' ');
 const empty=()=>({inventory:[],pendingLoot:[],equipment:{}});
 test('owned receipt opens current item without mutating state or historical record',()=>{
