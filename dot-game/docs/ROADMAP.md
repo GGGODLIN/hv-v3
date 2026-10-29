@@ -1,3 +1,9 @@
+## v071 來源候選：從掉寶戰報檢視目前裝備（2026-10-29 台北）
+
+本場掉寶明細新增明確的檢視入口。仍在背包、已裝備或待領區的同 ID 裝備可開啟既有檢視／比較；使用當下實際持有裝備，不把歷史掉落數值當成目前數值。已售出／不再持有者不提供幽靈裝備操作，點擊時重新查核 ID。取得當時的歷史文字及報表 JSON 不因檢視或後續持有狀態而改寫。
+
+此為本作掉寶回饋與整理介面適配，不是原版 HV 機制；不自動配裝、不修改獎勵、RNG、戰鬥數值或存檔格式。來源測試及獨立檢查見 docs/QA-V071.md、QA-V071-INDEPENDENT.md，恢復見 RECOVERY-V071.md。瀏覽器實玩／發布仍待完成；正式保持 v070 b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f，完整來源227 c1c2953a4e7865f9e50deded9dc1f35b071e10f5。以下是歷史記錄。
+
 # v070 formal verified and fully restorable — checkpoint 227
 
 Formal website `b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f`, exact Pages `40793957047` SUCCESS. Publisher verified 21 runtime files byte-exact and 4295 outside files retained. Original formal profile was played via cloud normal UI, with no candidate save import: a natural 2× single expedition produced 3 new items (loot-26/27/28), 17 wins, 1378 gold, Lv10 and 27 bag items. Every receipt ID/name/slot/quality/level matched actual inventory and normal report JSON. Reload cleared report history while preserving permanent progress. Desktop 1180 px: no overflow or broken images.

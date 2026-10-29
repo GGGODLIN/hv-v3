@@ -347,3 +347,8 @@ A local 1× / 2× timer option changes real waiting time, not the original TU/ac
 ## v070 expedition drop receipt adapter
 
 The session-only drop list observes this game's existing generated-loot delivery and completed automatic sales. It adds no original-HV loot claim, probability, reward, storage or economic rule. Entries describe the handling at acquisition time, not current item ownership. Later equip/sale/claim operations do not rewrite the historical receipt. Ordinary and Item World reward differences are retained; no additional loot is granted by reporting.
+
+
+## v071 historical loot navigation adaptation
+
+Receipt-to-current-owned-item inspection is a local presentation adapter. Historical acquisition outcomes remain detached; present inventory/equipment/pending ownership is rechecked by exact ID before inspection. No original-HV formula, probability, reward, automatic equip or persistent data field is introduced.

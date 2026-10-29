@@ -1336,7 +1336,30 @@ function expeditionLootContext(loot) {
   for (const item of loot) {
     const handling = item.disposition === 'autoSold' ? `取得時自動出售 · 實收 ${format(item.saleValue)} 金幣`
       : item.disposition === 'pending' ? '取得時送至待領區' : '取得時收入背包';
-    list.append(node('li', '', `${item.name} · ${slots[item.slot] || '未辨識部位'} · ${qualityName(item.quality) || '未記錄品質'} · Lv.${format(item.level)} · ID：${item.id} · ${handling}`));
+    const entry = node('li', '', `${item.name} · ${slots[item.slot] || '未辨識部位'} · ${qualityName(item.quality) || '未記錄品質'} · Lv.${format(item.level)} · ID：${item.id} · ${handling}`);
+    // Resolve current ownership by ID each time; receipt snapshots are never equipment.
+    const owned = () => {
+      if (typeof item.id !== 'string' || !item.id) return null;
+      const slot = Object.keys(state.equipment).find(key => state.equipment[key]?.id === item.id);
+      if (slot) return {slot};
+      if (state.inventory.some(current => current.id === item.id) || state.pendingLoot.some(current => current.id === item.id)) return {id: item.id};
+      return null;
+    };
+    if (owned()) {
+      const inspect = node('button', 'secondary-button', '查看目前裝備');
+      inspect.dataset.reportLootId = item.id;
+      inspect.setAttribute('aria-label', `查看目前持有的「${item.name}」，ID：${item.id}`);
+      inspect.addEventListener('click', () => {
+        const current = owned();
+        if (!current) { showToast('這件掉寶目前已不在持有或待領裝備中。'); lastReportSignature = ''; render(true); return; }
+        selectedSlot = current.slot || null; selectedId = current.id || null;
+        lastInventorySignature = ''; render(true);
+        $('camp-tab-gear').click();
+        $('item-detail').querySelector('.detail-name')?.focus?.();
+      });
+      entry.append(inspect);
+    } else entry.append(node('span', 'report-build-note', ' · 目前未持有'));
+    list.append(entry);
   }
   details.append(list);
   return details;
@@ -1396,7 +1419,7 @@ function renderExpeditionReports() {
   $('pin-report').disabled = !reports.length;
   $('export-report').disabled = !reports.length;
   $('clear-pinned-report').disabled = !pinnedExpeditionReport;
-  const signature = JSON.stringify([reports, pinnedExpeditionReport]);
+  const signature = JSON.stringify([reports, pinnedExpeditionReport, state.inventory.map(item => item.id), state.pendingLoot.map(item => item.id), Object.values(state.equipment).map(item => item.id)]);
   if (signature === lastReportSignature) return;
   lastReportSignature = signature;
   $('report-empty').hidden = reports.length > 0;

@@ -57,7 +57,7 @@ test('IW1 records only actual drops, not its existing upgraded target or phantom
 });
 function renderLoot(value){const js=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8');const source=js.slice(js.indexOf('function expeditionLootContext('),js.indexOf('// Read only the detached departure snapshot'));
  const node=(tag,className,text='')=>({tag,className,textContent:text,children:[],append(...children){this.children.push(...children);}});
- return runInNewContext(`${source};expeditionLootContext(value)`,{value,node,format:n=>String(n),qualityName:q=>QUALITY_TIERS.find(t=>t.name===q)?.label||q});
+ return runInNewContext(`${source};expeditionLootContext(value)`,{value,node,state:{inventory:[],pendingLoot:[],equipment:{}},format:n=>String(n),qualityName:q=>QUALITY_TIERS.find(t=>t.name===q)?.label||q});
 }
 const text=n=>[n.textContent,...n.children.map(text)].join(' ');
 test('UI uses collapsed receipt details with historical-destination caveat and no actions',()=>{
