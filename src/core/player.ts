@@ -102,7 +102,7 @@ export function derive(p: Player): Derived {
   const edb = {} as Record<Element, number>;
   for (const el of ['fire', 'cold', 'elec', 'wind', 'holy', 'dark'] as Element[]) edb[el] = s(`${el}Edb`);
   const armorProfs = [...new Set(items.filter((e) => ['cloth', 'light', 'heavy'].includes(e.group)).map((e) => e.group as Prof))];
-  return {
+  return bw12w(p, {
     level: L, attrs,
     hp: baseHp(L, attrs.end), mp: baseMp(L, attrs.wis), sp: baseSp(attrs),
     adb: adbFromAttrs(attrs.str, attrs.dex) + s('attackDamage') + (weapon ? 0 : UNARMED.attackDamage) + wprof * PROF_ADB,
@@ -125,7 +125,15 @@ export function derive(p: Player): Derived {
     counterResist: s('counterResist') / 100,
     damageType: weapon?.damageType ?? (UNARMED.damageType as DmgType),
     style, weaponProf, wprof, armorProfs,
-  };
+  });
+}
+
+const envN = (k: string): number | null => { const v = globalThis.process?.env?.[k]; return v === undefined || v === '' ? null : Number(v); };
+/** rc12w（自訂，非原版）: bulwark-lean PLAYER stat scales (sim lever sweep; 1 = rc12v). hp = max HP, block = block+parry, mit = phys/mag mitigation. */
+export const BW12W = { hp: envN('SIM_BW12W_HP') ?? 1, block: envN('SIM_BW12W_BLOCK') ?? 0.6 /* rc12w（自訂）: 1→0.6 */, mit: envN('SIM_BW12W_MIT') ?? 1 };
+function bw12w<T extends { hp: number; block: number; parry: number; physMit: number; magMit: number }>(p: Player, d: T): T {
+  if (p.lean !== 'bulwark') return d;
+  return { ...d, hp: Math.max(1, Math.round(d.hp * BW12W.hp)), block: d.block * BW12W.block, parry: d.parry * BW12W.block, physMit: d.physMit * BW12W.mit, magMit: d.magMit * BW12W.mit };
 }
 
 export function equip(p: Player, e: Equip): void {
