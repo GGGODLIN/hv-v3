@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView, qualityThenCampView, threeThenCampView, QUALITY_HUNT_SLOTS, QUALITY_HUNT_THRESHOLDS } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView, qualityThenCampView, threeThenCampView, EXPEDITION_COUNTS, QUALITY_HUNT_SLOTS, QUALITY_HUNT_THRESHOLDS } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS, scaleSoulboundItem } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -276,6 +276,7 @@ try { channel = typeof BroadcastChannel === 'function' ? new BroadcastChannel(LO
 // Local simulation tempo, not a combat stat or durable preference. Each extra
 // step uses the same bounded duration; the existing pump remains the only clock.
 let battleTempo = 1;
+let threeCampCount = 3; // Local preparation choice, captured only on successful departure.
 let qualityCampThreshold = 'Superior';
 let qualityCampSlot = 'any'; // Local preparation choice; never written to a save.
 function advanceBattleTempo(seconds) {
@@ -305,7 +306,7 @@ function syncSelection() {
   $('bleed-notice').hidden = true; // Imported/reloaded journeys never inherit recent damage feedback.
   resetInventoryFilters(); // A newly imported/adopted journey must not inherit a hidden subset.
   if ($('magic-notice')) $('magic-notice').hidden = true;
-  clearFinishThenCamp(state); finishCampCancelled = false; qualityCampSlot = 'any'; qualityCampThreshold = 'Superior';
+  clearFinishThenCamp(state); finishCampCancelled = false; qualityCampSlot = 'any'; qualityCampThreshold = 'Superior'; threeCampCount = 3;
   closeGearSetDialog(); lastGearSetSignature = ''; $('gear-set-feedback').textContent = '';
   $('counter-notice').hidden = true; clearTimeout(counterTimer);
   pinnedExpeditionReport = null; lastReportSignature = ''; // Local comparisons never cross adopted journeys or ownership changes.
@@ -338,9 +339,9 @@ function dispatch(action, payload) {
     act(state, action, payload);
     // A successful lifecycle change cannot credit time from the previous mode.
     // Rejected/repeated starts and ordinary combat actions keep their interval.
-    if ((action === 'start' || action === 'startOnce' || action === 'startThree' || action === 'startUntilLevel' || action === 'startUntilQuality' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
-    if (action === 'start' || action === 'startOnce' || action === 'startThree' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
-    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'startOnce' || action === 'startThree' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
+    if ((action === 'start' || action === 'startOnce' || action === 'startThree' || action === 'startCount' || action === 'startUntilLevel' || action === 'startUntilQuality' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
+    if (action === 'start' || action === 'startOnce' || action === 'startThree' || action === 'startCount' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
+    reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'startOnce' || action === 'startThree' || action === 'startCount' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
 }
 // Gear-only plans reference owned items; they never copy items or save abilities.
@@ -2227,13 +2228,17 @@ function renderQualityCamp() {
     : `刷寶遠征：本次出發後取得${slotLabel}的${thresholdLabel}以上裝備，打完當場才回營；${qualityCampSlot==='any'?'所有部位都可達標。':'其他部位掉落照常取得但不達標。'}既有裝備不計，入包或待領都算；既有自動出售規則不變。不提高掉率、不保證掉落時間，滿包或戰敗仍停止；只限本分頁，重載／匯入／接手清除並重設任何部位及優良門檻。`;
 }
 function renderThreeCamp() {
-  const goal=threeThenCampView(state),button=$('three-camp-button');
-  button.textContent=goal.active?'取消三場回營目標':'三場遠征後回營';
+  const goal=threeThenCampView(state),button=$('three-camp-button'),select=$('three-camp-count');
+  const total=goal.active?goal.total:threeCampCount;
+  select.value=String(total);
+  select.disabled=!tabOwner||!goal.available;
+  button.textContent=goal.active?'取消三場回營目標':(total===3?'三場遠征後回營':`${total} 場遠征後回營`);
+  if(goal.active&&total!==3)button.textContent=`取消 ${total} 場回營目標`;
   button.disabled=!tabOwner||(!goal.active&&(!goal.available||!departureReadiness().ready));
   button.setAttribute('aria-pressed',String(goal.active));
   $('three-camp-status').textContent=goal.active
-    ? `本次已完成 ${goal.completed}／3 場，尚餘 ${goal.remaining} 場；每場全部四波與獎勵結算後才計數。取消只恢復連刷，不撤退；「本次通關後回營」會取代此目標。`
-    : '完成三場普通遠征後回營；沿用目前路線及自動推進設定。舊勝場不計；滿包或戰敗可提前停止，不保證完成三場。只限本分頁，重載／匯入／接手清除。';
+    ? `本次已完成 ${goal.completed}／${total} 場，尚餘 ${goal.remaining} 場；每場全部四波與獎勵結算後才計數。取消只恢復連刷，不撤退；「本次通關後回營」會取代此目標。`
+    : `完成 ${total} 場普通遠征後回營；沿用目前路線及自動推進設定。舊勝場不計；滿包或戰敗可提前停止，不保證完成 ${total} 場。只限本分頁，重載／匯入／接手清除。`;
 }
 function renderLevelCamp() {
   const goal=levelThenCampView(state),button=$('level-camp-button');
@@ -2303,12 +2308,18 @@ $('quality-camp-button').addEventListener('click',()=>{
   if (!goal.available||!departureReadiness().ready) return;
   if (dispatch('startUntilQuality',{slot:qualityCampSlot,threshold:qualityCampThreshold})&&qualityThenCampView(state).active) playSound('win');
 });
+$('three-camp-count').addEventListener('change',event=>{
+  const requested=EXPEDITION_COUNTS.find(count=>String(count)===event.target.value);
+  if(!claimLease()||!threeThenCampView(state).available||requested===undefined){renderThreeCamp();return;}
+  threeCampCount=requested;
+  renderThreeCamp(); // Preparation only: no departure, simulation or save.
+});
 $('three-camp-button').addEventListener('click',()=>{
   if (!claimLease()) { renderThreeCamp(); return; }
   const goal=threeThenCampView(state);
   if (goal.active) { dispatch('cancelThreeThenCamp'); return; }
   if (!goal.available||!departureReadiness().ready) return;
-  if (dispatch('startThree')&&threeThenCampView(state).active) playSound('win');
+  if (dispatch('startCount',threeCampCount)&&threeThenCampView(state).active) playSound('win');
 });
 $('level-camp-button').addEventListener('click',()=>{
   if (!claimLease()) { renderLevelCamp(); return; }

@@ -368,3 +368,7 @@ Selecting Superior+ or Exquisite+ narrows only the existing session-scoped stop 
 ## v075 three-clear expedition adapter
 
 A session-only three-successful-expedition budget is a local automatic-battle convenience, not an original HV mechanic. It observes ordinary complete settlements from this departure, preserving each reward and the selected automatic route progression. It does not grant wins, increase rewards, modify probabilities or save a persistent setting. Defeat or interruption does not count as a successful clear and ends the transient intent.
+
+## v076 expedition count choice adapter
+
+Choosing 3, 5 or 10 ordinary successful expedition settlements is a session-only idle-control extension, not an original HV rule. It fixes the selected count at departure, preserves full rewards and RNG, and grants neither guaranteed wins nor any extra loot. Default 3 maintains prior behavior. Selection is not persisted.

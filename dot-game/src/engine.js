@@ -105,12 +105,14 @@ const protectionSessions = new WeakMap();
 const finishThenCampSessions = new WeakSet();
 // Growth-goal farming is a local idle adaptation, not original HV or save data.
 const levelThenCampSessions = new WeakMap();
-// Fixed three-clear budget is transient idle UX, not saved or original HV.
+// Chosen clear budget is transient idle UX, not saved or original HV.
+export const EXPEDITION_COUNTS = Object.freeze([3,5,10]);
 const threeThenCampSessions = new WeakMap();
 export function threeThenCampView(s) {
-  const completed=threeThenCampSessions.get(s);
-  const active=Number.isInteger(completed)&&s?.mode==='battle'&&!itemWorldSessions.has(s);
-  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),completed:active?completed:0,total:3,remaining:active?Math.max(0,3-completed):3,reached:active&&completed>=3};
+  const goal=threeThenCampSessions.get(s);
+  const active=!!goal&&s?.mode==='battle'&&!itemWorldSessions.has(s);
+  const completed=active?goal.completed:0,total=active?goal.total:3;
+  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),completed,total,remaining:Math.max(0,total-completed),reached:active&&completed>=total};
 }
 // Quality hunting is a transient idle goal, not an original-HV loot rule.
 const qualityThenCampSessions = new WeakMap();
@@ -1091,7 +1093,7 @@ function win(s) {
   // or evicts historical event/log entries from their bounded buffers.
   settleExpeditionReport(s,'win');
   protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
-  if(threeThenCampSessions.has(s))threeThenCampSessions.set(s,threeThenCampSessions.get(s)+1);
+  if(threeThenCampSessions.has(s))threeThenCampSessions.get(s).completed++;
   if(finishThenCampSessions.has(s)||levelThenCampView(s).reached||qualityThenCampView(s).reached||threeThenCampView(s).reached){finishThenCamp(s);return;}
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){clearFinishThenCamp(s);s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
@@ -1547,10 +1549,11 @@ export function act(s, action, payload) {
     if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{slot,threshold,matched:null});
     return s;
   }
-  if(action==='startThree'){
-    if(payload!==undefined||!threeThenCampView(s).available)return s;
+  if(action==='startThree'||action==='startCount'){
+    const total=action==='startThree'?3:payload;
+    if((action==='startThree'&&payload!==undefined)||!EXPEDITION_COUNTS.includes(total)||!threeThenCampView(s).available)return s;
     clearFinishThenCamp(s);start(s);
-    if(s.mode==='battle'&&s._phase==='fight')threeThenCampSessions.set(s,0);
+    if(s.mode==='battle'&&s._phase==='fight')threeThenCampSessions.set(s,{completed:0,total});
     return s;
   }
   if(action==='startUntilLevel'){
