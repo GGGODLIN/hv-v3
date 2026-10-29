@@ -1,8 +1,8 @@
 {
-  "checkpoint": "223-v070-source",
+  "checkpoint": "225-v070-accepted",
   "version": "0.70.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "abe095ff5c59f112cbed55b07dedd3fa910c6d7a",
+  "status": "candidate-browser-accepted-formal-pending",
+  "source_base": "cf41a9e0b47d2138951cb10031bed45612071302",
   "base_accepted_recovery": "abe095ff5c59f112cbed55b07dedd3fa910c6d7a",
   "accepted_website": "e5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84",
   "scope": "Session-only acquisition-time drop receipts in ended expedition reports; inventory/pending/actual automatic sale outcomes.",
@@ -10,14 +10,14 @@
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "browser_acceptance": "Pending; source and DOM model only.",
-  "publication": "Not published; formal remains accepted v069. Root owns candidate and formal release.",
+  "browser_acceptance": "PASS: genuine normal UI desktop; bounded checks and limitations in QA-V070-BROWSER-RECEIPT.json",
+  "publication": "Candidate accepted. Formal v069 unchanged; promotion and formal smoke pending.",
   "recovery": "docs/RECOVERY-V070.md",
-  "test_log_sha256": "21945bb645fbb9f04cd70913bff460c4064db525b0d68fb79f0032adbb763150",
+  "test_log_sha256": "8d5411bcefe6a9ccfbc99810e18d75d6d803ecbb297e688512a7764dd18fa79a",
   "files": {
     "README.md": {
-      "bytes": 83412,
-      "sha256": "553af701d929fe8cbc1e36501c7e0fe705324ac83a6f5b421bb8d790680ae95f"
+      "bytes": 84766,
+      "sha256": "c9ad4da475fb57dd9eb5310f8454a591677199cbb0f02f4dfb4afc2b8ac6f9b1"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -983,13 +983,17 @@
       "bytes": 2008,
       "sha256": "575526146859386f72518579cdde194bdb27fcd234ba9c09c71e094ea8c650bf"
     },
+    "docs/QA-V070-BROWSER-RECEIPT.json": {
+      "bytes": 4614,
+      "sha256": "e3d833107914fa8a09ad95c0db62ec99cebe5e2aeeee8bb65f4b872fd7de5207"
+    },
     "docs/QA-V070-INDEPENDENT.md": {
       "bytes": 2960,
       "sha256": "3a0ac53c9801dc726bf9eacd0eb439d33b00cbce619427895d666bf849612422"
     },
     "docs/QA-V070.md": {
-      "bytes": 2147,
-      "sha256": "10dac2abfeb51168241947a4c904f0337ffb1bda6f8d6c825587bceaae48e174"
+      "bytes": 3501,
+      "sha256": "f5fbefabf9919b3a337b9348094b359f0749da6030a81cef720a89ed6d2ebdfe"
     },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
@@ -1184,8 +1188,8 @@
       "sha256": "612784837fa84916dd964c8bc353b449d647ab7be212d71ff987198574a9ac18"
     },
     "docs/RECOVERY-V070.md": {
-      "bytes": 1651,
-      "sha256": "23169c0f1010d9d1dc3620d86607f0a6be1b81c3542e062c4c316a7a9e944365"
+      "bytes": 3005,
+      "sha256": "cdd6b3354a5e532fadbe6da51e226eac3aa53f2b6be042d0487b34e1a2dcdac9"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1196,8 +1200,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 66178,
-      "sha256": "9195d78074f6bb45c3fbb0a04ebf0604e3d77362d3388fc2318ca79dd70277cf"
+      "bytes": 67532,
+      "sha256": "04f35db91f1335315079fea248765737c64471467c83c467e772e4adcf38fe6a"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1232,8 +1236,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 86123,
-      "sha256": "f308f4bd816acf782221104379876bced8cbfc861d39b79b4c180643580ae115"
+      "bytes": 87477,
+      "sha256": "eb233d3aaff61b7ef888f1dd691c17e5fac41b970c8380a7fb086d46cff5369d"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -2575,5 +2579,7 @@
       "bytes": 15077,
       "sha256": "d012b06a15632b8d9f510d1b7a6f3707241ebe1f3f553896c861301eaeb11aa1"
     }
-  }
+  },
+  "candidate_website": "631e972ac5f5e20a523a5b2e99f2aa24d3edee34",
+  "candidate_pages_run": "40793004431"
 }

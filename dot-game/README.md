@@ -1,3 +1,13 @@
+# v070 candidate accepted — checkpoint 225
+
+Candidate `631e972ac5f5e20a523a5b2e99f2aa24d3edee34`, exact Pages run `40793004431` success, was played through cloud normal UI using genuine progress. Source runtime `cf41a9e0b47d2138951cb10031bed45612071302` is unchanged. This checkpoint backs up acceptance evidence; formal remains v069 `e5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84` until separate promotion/smoke.
+
+Verified: normal victory acquired loot-26/27/28, all receipt identity/name/slot/quality/level fields matched actual inventory; pin/export JSON; manual sale of loot-28 for 35 gold left the entire historical report unchanged; backpack filtering did not hide historical armor; empty retreat produced zero receipts while prior/pinned report retained three; reload cleared transient reports and retained permanent progress. Desktop 1180 px viewport: no horizontal overflow, zero broken images.
+
+Automatic-sale proceeds, pending pickup/full bag, Item World, defeat with earlier loot and controlled RNG parity remain source-test-only. Mobile, full accessibility, public HTTP per-file hashing and Library synchronization were not verified. Manual sale is not automatic-sale coverage. Evidence: `docs/QA-V070-BROWSER-RECEIPT.json`, SHA256 `e3d833107914fa8a09ad95c0db62ec99cebe5e2aeeee8bb65f4b872fd7de5207`.
+
+Earlier source-stage record (historical):
+
 ## v070 來源候選：本場掉寶明細（2026-10-29 台北）
 
 遠征戰報新增可展開的「本場掉寶」：逐件記錄自然掉落的名稱、品質、部位、等級與 ID，以及取得當時入包、待領或已自動出售的結果；自動出售只列實際成交金額。這是歷史收據，不代表物品目前仍持有，也不會再次發獎。之後換裝、出售或領取不改寫本場記錄；戰敗或中途回營仍保留當場已取得的掉寶。

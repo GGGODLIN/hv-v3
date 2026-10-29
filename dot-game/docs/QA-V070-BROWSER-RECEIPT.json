@@ -1,0 +1,119 @@
+{
+  "version": "v0.70",
+  "result": "PASS",
+  "tested_at": "2026-10-29T00:21:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.70/",
+  "website_commit": "631e972ac5f5e20a523a5b2e99f2aa24d3edee34",
+  "pages_run": "40793004431",
+  "source_commit": "cf41a9e0b47d2138951cb10031bed45612071302",
+  "method": "Cloud CUA normalUI only, genuine originalformal export imported into isolatedcandidate. No syntheticstate/injection.",
+  "checks": [
+    "One normal2x singleexpedition wins17/gold1378 fromwins16/gold1302. Three newitems acquired.",
+    "Expanded本場掉寶3件 exactlymatches genuine export newinventory IDs26/27/28,name,slot,quality,level. All dispositioninventory/saleValue0.",
+    "Pinned andexported report normalUI. Sold explicitlyselectedloot28 via existingpreviewconfirmation +35gold to1413. Fullreport object before/after sale EXACTLYequal; onlyexportedAt envelope changes. Itemabsentfrombackpack, history acquisition status remainsinventory.",
+    "Weaponfilter hidesarmorbackpack butnot historicalarmorentries. Disclaimer saysacquisitiontime/notcurrentlyheld/noextrareward.",
+    "Immediate normalstart/retreat produceslatestreportloot[] and visible本場沒有取得裝備; previousreport andpinnedbaseline retain3items.",
+    "Normalexport/reload/export preservesall permanentfields; reports/pin cleared, export/pinclearcontrolsdisabled andfirstexpeditionprompt returns.",
+    "Nooverflow viewport1180/document1165; brokenimages0."
+  ],
+  "loot_receipts": [
+    {
+      "id": "loot-26",
+      "name": "優良・銳意巡獵皮甲・追風",
+      "slot": "armor",
+      "quality": "Superior",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    },
+    {
+      "id": "loot-27",
+      "name": "優良・巡獵皮甲・追風",
+      "slot": "armor",
+      "quality": "Superior",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    },
+    {
+      "id": "loot-28",
+      "name": "普通・堅守巡獵皮甲",
+      "slot": "armor",
+      "quality": "Average",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    }
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 10,
+    "xp": 169,
+    "xpNext": 401,
+    "hp": 773,
+    "mp": 46,
+    "gold": 1413,
+    "proficiency": 11.84,
+    "attributes": {
+      "str": 26,
+      "dex": 26,
+      "agi": 26,
+      "end": 26,
+      "int": 26,
+      "wis": 26
+    }
+  },
+  "final_wins": 17,
+  "final_kills": 102,
+  "final_bag_count": 26,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/5fe9a419-61c3-43e1-88d2-5003b8bb3ab2",
+      "sha256": "60879a7eb3d1d5edbe8052458dfbca17d4bda62b03601c1575f3c8e6df4def36"
+    },
+    "report_before_sale": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/5cbc8f65-42b6-4d8c-bd3b-1c9445e15c14",
+      "sha256": "0373900a6e5104b2ae483dcb98e4c4f2d5330722ba7bd46c8dc2e19f9b6783df"
+    },
+    "save_before_sale": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/e9b63cb1-03b0-40a4-a447-3012aa6ec831",
+      "sha256": "cf71f73146b1db7eb0e03fae123e0d4659990a1e28afd0ed1fb648d384e52336"
+    },
+    "report_after_sale": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/8a882bbe-9443-417d-a897-f09eaf8c898b",
+      "sha256": "7adba27a8e65703ae346da3d9d0e0e1e43e49ebc941cd2a3083bf8935044c426"
+    },
+    "empty_retreat_report": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/79559e6d-40e9-40f7-9f05-8a048afdd1ad",
+      "sha256": "ccbfc3222ef040d91a1175453ce49a2501ef718a83d6d2baf4bf848e92279dda"
+    },
+    "before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/be227f0a-14d1-43a0-92f6-aa86b1f3385c",
+      "sha256": "7cdd20d18aa664e6a5181eaab23fea545d8071cc9da934054984b65b7bdf3870"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/88f504c1-91d5-4a80-98ab-95d4dbc402a1",
+      "sha256": "3800ce973d2ca99a12852efd080282b89050913bba9afcebacbc757861ebf06e"
+    }
+  },
+  "formal_changed": false,
+  "source_only_not_browser": [
+    "autoSold actualproceeds receipt",
+    "pendingpickup/fullbag",
+    "IW reward edge",
+    "defeat withprecedingloot",
+    "RNG noninterference exactcontrolledreplay"
+  ],
+  "limitations": [
+    "Manualsale tested historicalimmutability; thisdoesnotclaimautomatic-sale acquisitioncoverage.",
+    "No mobile/fullaccessibilityaudit."
+  ]
+}
