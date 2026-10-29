@@ -1,6 +1,6 @@
 import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
-import { CP8, CP9, RC12, RC22, RUN12AB, RUN12Z } from './cp8';
+import { CP8, CP9, RC12, RC22, RUN12AB, RUN12AC, RUN12Z } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
@@ -313,7 +313,7 @@ function chargeEstimate0(s: BattleState, m0: Monster, defending = false, crit = 
  *  Used by the real hit (monster phase) AND chargeEstimate (preview / nextRoundEstimate / ★). */
 export function hitCap9(s: BattleState, m: Monster, mult: number, labelled: boolean): number {
   const plain12g = RULES.cp8 && CP9.on && CP9.bossAtk > 0 && m.rank === 'boss' && mult === 1 && !labelled ? Math.floor(CP9.bossAtk * s.d.hp) : Infinity;
-  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor((s.monsters.some((e) => e.rank === 'boss') || (s.monsters.some((e) => e.rank === 'elite') && (m.rank === 'elite' || !RUN12AB.eliteMinion)) ? CP9.minionCharge /* rc12ab 2（自訂）: 精英戰小怪改用一般戰上限 */ : Math.min(CP9.normalCharge || CP9.minionCharge, (m as { chg12aa?: number }).chg12aa || 1) /* rc12aa 1（自訂） */) * s.d.hp) : Infinity; // rc12s item 3（自訂）: normal fight 30%, elite/boss fight 40%
+  const minion12i = RULES.cp8 && CP9.on && CP9.minionCharge > 0 && m.rank !== 'boss' && (mult > 1 || labelled) ? Math.floor((s.monsters.some((e) => e.rank === 'boss') && RUN12AC.bossMinion > 0 ? RUN12AC.bossMinion /* rc12ac 2（自訂）: 首領戰小怪 30% */ : s.monsters.some((e) => e.rank === 'boss') || (s.monsters.some((e) => e.rank === 'elite') && (m.rank === 'elite' || !RUN12AB.eliteMinion)) ? CP9.minionCharge /* rc12ab 2（自訂）: 精英戰小怪改用一般戰上限 */ : Math.min(CP9.normalCharge ? RUN12AC.minion || CP9.normalCharge : CP9.minionCharge /* rc12ac 1（自訂）: 非 arcane 一般/精英戰小怪 25%（normalCharge 0 = 舊 40% 測試釘選） */, (m as { chg12aa?: number }).chg12aa || 1) /* rc12aa 1（自訂） */) * s.d.hp) : Infinity; // rc12s item 3（自訂）: normal fight 30%, elite/boss fight 40%
   const hit12m = (m as { hitCap12m?: number }).hitCap12m ? Math.floor((m as { hitCap12m?: number }).hitCap12m! * s.d.hp) : Infinity;
   return Math.min(plain12g, minion12i, hit12m);
 }

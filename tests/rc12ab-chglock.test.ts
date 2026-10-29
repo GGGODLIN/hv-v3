@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { makePool, type MonsterRow } from '../src/core/monsters';
 import { newPlayer, derive } from '../src/core/player';
 import { encounter, startRun, RULES } from '../src/core/run';
-import { CP9, RUN12AB } from '../src/core/cp8';
+import { CP9, RUN12AB, RUN12AC } from '../src/core/cp8';
 import { act, startBattle, hitCap9, type BattleState } from '../src/core/battle';
 import { autoRun, TURN_HOOK9, starterKit, type Strategy } from '../src/core/auto';
 import { presetPlayer, type Preset } from '../src/core/preset';
@@ -37,12 +37,12 @@ describe('rc12ab: shared charge lock & budget', () => {
       expect(maxPer).toBe(1); expect(maxRun).toBeLessThanOrEqual(2); expect(maxDmg).toBeLessThanOrEqual(0.4 + 1e-9);
     } finally { RULES.cp8 = o; }
   });
-  it('item 2: elite fight — minion charged cap = normal cap (30%, arcane chg12aa 20%), elite body 40%', () => {
+  it('item 2: elite fight — minion charged cap = normal cap (rc12ac 25%（自訂）, arcane chg12aa 20%), elite body 40%', () => {
     const o = RULES.cp8; RULES.cp8 = true;
     try {
       const { b, d } = fight(2, true, 7); const [e, m] = b.monsters as [never, never];
       expect(hitCap9(b, e, 2, true)).toBe(Math.floor(CP9.minionCharge * d.hp));
-      expect(hitCap9(b, m, 2, true)).toBe(Math.floor(CP9.normalCharge * d.hp));
+      expect(hitCap9(b, m, 2, true)).toBe(Math.floor(RUN12AC.minion * d.hp)); // rc12ac 1（自訂）
       (m as { chg12aa?: number }).chg12aa = 0.2; expect(hitCap9(b, m, 2, true)).toBe(Math.floor(0.2 * d.hp));
     } finally { RULES.cp8 = o; }
   });

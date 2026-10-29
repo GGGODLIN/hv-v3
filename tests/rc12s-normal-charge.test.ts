@@ -29,10 +29,10 @@ describe('rc12s: normal-fight charged-hit cap 30%', () => {
   it('defaults: normal 0.30, elite/boss 0.40', () => { expect(CP9.normalCharge).toBe(0.3); expect(CP9.minionCharge).toBe(0.4); });
   it('normal fight: real hit ≤ 30%, estimate ≤ the same cap', () => {
     const o = RULES.cp8; RULES.cp8 = true;
-    try { const { w, estOk } = worst(false); expect(w).toBeGreaterThan(0.2); expect(w).toBeLessThanOrEqual(0.3 + 1e-9); expect(estOk).toBe(true); } finally { RULES.cp8 = o; }
+    try { const { w, estOk } = worst(false); expect(w).toBeGreaterThan(0.2); expect(w).toBeLessThanOrEqual(0.25 + 1e-9) /* rc12ac（自訂）: 30%→25% */; expect(estOk).toBe(true); } finally { RULES.cp8 = o; }
   });
-  it('elite on the field: the cap is 40% (> 30%)', () => {
+  it('elite on the field: minion cap = rc12ac RUN12AC.minion 25%（自訂；rc12s 原為 40%）', () => {
     const o = RULES.cp8; RULES.cp8 = true;
-    try { const { w, estOk } = worst(true); expect(w).toBeGreaterThan(0.3); expect(w).toBeLessThanOrEqual(0.41) /* + the 0-adb elite chip hit */; expect(estOk).toBe(true); } finally { RULES.cp8 = o; }
+    try { const { w, estOk } = worst(true); expect(w).toBeGreaterThan(0.2); expect(w).toBeLessThanOrEqual(0.26) /* rc12ac（自訂）: 25% + the 0-adb elite chip hit */; expect(estOk).toBe(true); } finally { RULES.cp8 = o; }
   });
 });

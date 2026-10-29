@@ -210,3 +210,6 @@ export const aoBossHp12j = (F: number, lean?: string): number => { const h = lea
 export const bwBossHp12i = (F: number): number => { const h = DEEP12G.bwBossHp, a = DEEP12G.bwBossFlat, e = DEEP12G.bwBoss100; if (F < DEEP12G.bwBossFrom) return 1; if (F <= a) return h; const r = Math.min(1, (F - a) / (100 - a)); return num('SIM_BWLINEAR') === 1 || h <= 0 || e <= 0 ? h + (e - h) * r : h * (e / h) ** r; };
 /** rc12i（自訂）: bulwark boss-cap factor at floor F. */
 export const bwCap12i = (F: number): number => { const h = DEEP12G.bwCap, a = DEEP12G.bwBossFlat; return F < DEEP12G.bwBossFrom ? 1 : F <= a ? h : h + (1 - h) * Math.min(1, (F - a) / (100 - a)); };
+
+/** rc12ac（自訂）: minion = 一般戰／精英戰非精英小怪蓄力單擊上限 × maxHP（arcane 仍取 chg12aa 0.2 較小者）；bossMinion = 首領戰非首領怪蓄力上限（0 = 沿用 minionCharge 0.4）。 */
+export const RUN12AC = { minion: num('SIM_R12AC_MINION') ?? 0.25, bossMinion: num('SIM_R12AC_BOSSMINION') ?? 0.3 };
