@@ -105,6 +105,13 @@ const protectionSessions = new WeakMap();
 const finishThenCampSessions = new WeakSet();
 // Growth-goal farming is a local idle adaptation, not original HV or save data.
 const levelThenCampSessions = new WeakMap();
+// Fixed three-clear budget is transient idle UX, not saved or original HV.
+const threeThenCampSessions = new WeakMap();
+export function threeThenCampView(s) {
+  const completed=threeThenCampSessions.get(s);
+  const active=Number.isInteger(completed)&&s?.mode==='battle'&&!itemWorldSessions.has(s);
+  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),completed:active?completed:0,total:3,remaining:active?Math.max(0,3-completed):3,reached:active&&completed>=3};
+}
 // Quality hunting is a transient idle goal, not an original-HV loot rule.
 const qualityThenCampSessions = new WeakMap();
 export const QUALITY_HUNT_SLOTS = Object.freeze([
@@ -142,7 +149,7 @@ export function finishThenCampView(s) {
   const available=!itemWorldSessions.has(s)&&s?.mode==='battle'&&['fight','intermission'].includes(s?._phase);
   return {available,queued:available&&finishThenCampSessions.has(s)};
 }
-export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); levelThenCampSessions.delete(s); qualityThenCampSessions.delete(s); }
+export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); levelThenCampSessions.delete(s); qualityThenCampSessions.delete(s); threeThenCampSessions.delete(s); }
 function finishThenCamp(s) {
   clearFinishThenCamp(s);s.mode='town';s._phase='idle';s._rest=0;
   s._clock=0;s._enemyClock=0;s.enemies=[];
@@ -1084,7 +1091,8 @@ function win(s) {
   // or evicts historical event/log entries from their bounded buffers.
   settleExpeditionReport(s,'win');
   protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
-  if(finishThenCampSessions.has(s)||levelThenCampView(s).reached||qualityThenCampView(s).reached){finishThenCamp(s);return;}
+  if(threeThenCampSessions.has(s))threeThenCampSessions.set(s,threeThenCampSessions.get(s)+1);
+  if(finishThenCampSessions.has(s)||levelThenCampView(s).reached||qualityThenCampView(s).reached||threeThenCampView(s).reached){finishThenCamp(s);return;}
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){clearFinishThenCamp(s);s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 // Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
@@ -1322,6 +1330,10 @@ export function act(s, action, payload) {
     if(payload===undefined)qualityThenCampSessions.delete(s);
     return s;
   }
+  if(action==='cancelThreeThenCamp'){
+    if(payload===undefined)threeThenCampSessions.delete(s);
+    return s;
+  }
   if(action==='cancelLevelThenCamp'){
     if(payload===undefined)levelThenCampSessions.delete(s);
     return s;
@@ -1329,7 +1341,7 @@ export function act(s, action, payload) {
   if(action==='finishThenCamp'){
     if(typeof payload!=='boolean'||!finishThenCampView(s).available)return s;
     if(!payload){clearFinishThenCamp(s);return s;}
-    levelThenCampSessions.delete(s); qualityThenCampSessions.delete(s); // Explicit current-expedition stop supersedes farming goals.
+    levelThenCampSessions.delete(s); qualityThenCampSessions.delete(s); threeThenCampSessions.delete(s); // Explicit current-expedition stop supersedes farming goals.
     // Intermission already settled the win. Only leave; never settle it again.
     if(s._phase==='intermission')finishThenCamp(s);
     else finishThenCampSessions.add(s);
@@ -1533,6 +1545,12 @@ export function act(s, action, payload) {
     if((object&&(Object.keys(payload).length!==2||!Object.hasOwn(payload,'slot')||!Object.hasOwn(payload,'threshold')))||!validQualityHuntThreshold(threshold)||!validQualityHuntSlot(slot)||!qualityThenCampView(s).available)return s;
     clearFinishThenCamp(s);start(s);
     if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{slot,threshold,matched:null});
+    return s;
+  }
+  if(action==='startThree'){
+    if(payload!==undefined||!threeThenCampView(s).available)return s;
+    clearFinishThenCamp(s);start(s);
+    if(s.mode==='battle'&&s._phase==='fight')threeThenCampSessions.set(s,0);
     return s;
   }
   if(action==='startUntilLevel'){

@@ -364,3 +364,7 @@ A camp-selected desired equipment slot narrows the existing session-only quality
 ## v074 selected quality hunt threshold adapter
 
 Selecting Superior+ or Exquisite+ narrows only the existing session-scoped stop condition, combined with the desired slot. It is an original implementation UX adaptation, not an original HV drop mechanic. No change to item generation, quality distribution, economics, RNG or persistent save. Lower-quality items remain normal rewards, and the entire expedition settles before camping.
+
+## v075 three-clear expedition adapter
+
+A session-only three-successful-expedition budget is a local automatic-battle convenience, not an original HV mechanic. It observes ordinary complete settlements from this departure, preserving each reward and the selected automatic route progression. It does not grant wins, increase rewards, modify probabilities or save a persistent setting. Defeat or interruption does not count as a successful clear and ends the transient intent.
