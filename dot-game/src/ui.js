@@ -1,4 +1,4 @@
-import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView } from './engine.js';
+import { createGame, advance, act, stats, validateSave, STRATEGIES, MAJOR_ABILITIES, TARGET_PRIORITIES, targetPriorityView, INVENTORY_LIMIT, pendingLootView, previewSelectedSale, previewSafeSale, previewWeaponCommission, previewSoulbindWeapon, previewItemWorld, itemWorldView, expeditionReports, abilityView, growthReadiness, protectionView, emergencySupplyView, counterattackView, gearSetsView, previewGearSet, isGearSetProtected, finishThenCampView, clearFinishThenCamp, levelThenCampView, qualityThenCampView } from './engine.js';
 import { createPump, createOwnership, loadVersionedSave } from './session.js';
 import { QUALITY_TIERS, scaleSoulboundItem } from './loot.js';
 import { resolveWeaponFamily, describeWeaponTrait, describeItemFlavor, COMMISSION_WEAPON_FAMILIES, COMMISSION_WEAPON_SUFFIXES } from './loot.js';
@@ -336,7 +336,7 @@ function dispatch(action, payload) {
     act(state, action, payload);
     // A successful lifecycle change cannot credit time from the previous mode.
     // Rejected/repeated starts and ordinary combat actions keep their interval.
-    if ((action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
+    if ((action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'startUntilQuality' || action === 'enterItemWorld' || action === 'retreat' || action === 'finishThenCamp') && state.mode !== previousMode) pump.reset();
     if (action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') finishCampCancelled = false;
     reconcileWeaponCommission(); reconcileItemWorld(); render(true); if (action === 'start' || action === 'startOnce' || action === 'startUntilLevel' || action === 'enterItemWorld' || action === 'retreat') $('bleed-notice').hidden = true; save(true); return true;
   } catch (error) { console.error('Action failed', error); showToast('此操作目前無法完成，進度仍保留。'); }
@@ -1190,6 +1190,7 @@ function renderTargetPriority() {
 }
 function render(force = false) {
   renderLevelCamp();
+  renderQualityCamp();
   renderBattleTempo();
   const saleCheckboxFocus = captureSaleCheckboxFocus();
   const comparisonFocus = captureComparisonFocus();
@@ -2205,6 +2206,15 @@ function drawScene(t, dt) {
 }
 
 // One-shot idle adaptation: not a saved policy or original HV mechanic.
+function renderQualityCamp() {
+  const goal=qualityThenCampView(state),button=$('quality-camp-button');
+  button.textContent=goal.active?'取消掉寶回營目標':'刷到優良裝備回營';
+  button.disabled=!tabOwner||(!goal.active&&(!goal.available||!departureReadiness().ready));
+  button.setAttribute('aria-pressed',String(goal.active));
+  $('quality-camp-status').textContent=goal.active
+    ? `目標 優良（Superior）以上 · ${goal.reached?`已取得「${goal.matched.name}」；完成本次全部四波並領完獎勵後回營。`:'等待本次出發後的新掉落；未達標則連續遠征。'} 只計出發後的新掉落，入包或待領都算；既有自動出售規則不變。取消只恢復連刷，不撤退。`
+    : '刷寶遠征：本次出發後取得優良（Superior）以上裝備，打完當場才回營；既有裝備不計，入包或待領都算；既有自動出售規則不變。不保證掉落時間，滿包或戰敗仍停止；只限本分頁，重載／匯入／接手清除。';
+}
 function renderLevelCamp() {
   const goal=levelThenCampView(state),button=$('level-camp-button');
   button.textContent=goal.active?'取消升級回營目標':'升級後回營';
@@ -2253,6 +2263,13 @@ $('battle-tempo').addEventListener('change', event => {
   battleTempo = Number(requested);
   pump.reset(); // Never revalue time accumulated under the previous tempo.
   renderBattleTempo();
+});
+$('quality-camp-button').addEventListener('click',()=>{
+  if (!claimLease()) { renderQualityCamp(); return; }
+  const goal=qualityThenCampView(state);
+  if (goal.active) { dispatch('cancelQualityThenCamp'); return; }
+  if (!goal.available||!departureReadiness().ready) return;
+  if (dispatch('startUntilQuality')&&qualityThenCampView(state).active) playSound('win');
 });
 $('level-camp-button').addEventListener('click',()=>{
   if (!claimLease()) { renderLevelCamp(); return; }

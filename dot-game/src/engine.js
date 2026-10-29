@@ -105,6 +105,20 @@ const protectionSessions = new WeakMap();
 const finishThenCampSessions = new WeakSet();
 // Growth-goal farming is a local idle adaptation, not original HV or save data.
 const levelThenCampSessions = new WeakMap();
+// Quality hunting is a transient idle goal, not an original-HV loot rule.
+const qualityThenCampSessions = new WeakMap();
+export function qualityThenCampView(s) {
+  const goal=qualityThenCampSessions.get(s);
+  const active=!!goal&&s?.mode==='battle'&&!itemWorldSessions.has(s);
+  return {active,available:s?.mode==='town'&&!itemWorldSessions.has(s),threshold:'Superior',
+    reached:active&&!!goal.matched,matched:active&&goal.matched?{...goal.matched}:null};
+}
+function observeQualityGoal(s,item,disposition) {
+  const goal=qualityThenCampSessions.get(s);
+  if(!goal||goal.matched||itemWorldSessions.has(s)||s.mode!=='battle')return;
+  if(QUALITY.indexOf(item.quality)>=QUALITY.indexOf('Superior'))
+    goal.matched=Object.freeze({id:text(item.id,'未知 ID').slice(0,100),name:text(item.name,'未知裝備').slice(0,100),quality:item.quality,disposition});
+}
 export function levelThenCampView(s) {
   const targetLevel=levelThenCampSessions.get(s);
   const active=Number.isInteger(targetLevel)&&s?.mode==='battle'&&!itemWorldSessions.has(s);
@@ -115,7 +129,7 @@ export function finishThenCampView(s) {
   const available=!itemWorldSessions.has(s)&&s?.mode==='battle'&&['fight','intermission'].includes(s?._phase);
   return {available,queued:available&&finishThenCampSessions.has(s)};
 }
-export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); levelThenCampSessions.delete(s); }
+export function clearFinishThenCamp(s) { finishThenCampSessions.delete(s); levelThenCampSessions.delete(s); qualityThenCampSessions.delete(s); }
 function finishThenCamp(s) {
   clearFinishThenCamp(s);s.mode='town';s._phase='idle';s._rest=0;
   s._clock=0;s._enemyClock=0;s.enemies=[];
@@ -376,6 +390,7 @@ function beginExpeditionReport(s) {
 // Normal four-wave runs have five nonboss drop chances + one clear drop;
 // IW1 has seven nonboss chances and no clear drop. Seven covers both routes.
 function observeExpeditionLoot(s, item, disposition, saleValue=0) {
+  observeQualityGoal(s,item,disposition);
   const active=expeditionFeedback.get(s)?.active;
   if(!active||active.loot.length>=7)return;
   active.loot.push(Object.freeze({id:text(item.id,'未知 ID').slice(0,100),
@@ -1056,7 +1071,7 @@ function win(s) {
   // or evicts historical event/log entries from their bounded buffers.
   settleExpeditionReport(s,'win');
   protectionSessions.delete(s);counterBudgets.delete(s);recover(s);s._phase='intermission';s._rest=3;s.enemies=[];
-  if(finishThenCampSessions.has(s)||levelThenCampView(s).reached){finishThenCamp(s);return;}
+  if(finishThenCampSessions.has(s)||levelThenCampView(s).reached||qualityThenCampView(s).reached){finishThenCamp(s);return;}
   if(s.inventory.length>INVENTORY_LIMIT-5||s.pendingLoot.length){clearFinishThenCamp(s);s.mode='town';s._phase='idle';log(s,s.autoSell===true?'背包接近滿額，已安全回營；未出售的戰利品均保留。':'背包接近滿額，已安全回營，所有戰利品均保留。');}
 }
 // Only the live-to-dead damage edge settles a kill. Re-reading a dead enemy,
@@ -1290,6 +1305,10 @@ export function act(s, action, payload) {
     s.inventory=inventory;s.pendingLoot=pendingLoot;return s;
   }
   if(action==='enterItemWorld'){enterItemWorld(s,payload);return s;}
+  if(action==='cancelQualityThenCamp'){
+    if(payload===undefined)qualityThenCampSessions.delete(s);
+    return s;
+  }
   if(action==='cancelLevelThenCamp'){
     if(payload===undefined)levelThenCampSessions.delete(s);
     return s;
@@ -1297,7 +1316,7 @@ export function act(s, action, payload) {
   if(action==='finishThenCamp'){
     if(typeof payload!=='boolean'||!finishThenCampView(s).available)return s;
     if(!payload){clearFinishThenCamp(s);return s;}
-    levelThenCampSessions.delete(s); // Explicit current-expedition stop supersedes growth goal.
+    levelThenCampSessions.delete(s); qualityThenCampSessions.delete(s); // Explicit current-expedition stop supersedes farming goals.
     // Intermission already settled the win. Only leave; never settle it again.
     if(s._phase==='intermission')finishThenCamp(s);
     else finishThenCampSessions.add(s);
@@ -1492,6 +1511,12 @@ export function act(s, action, payload) {
     if(s.mode!=='town'||itemWorldSessions.has(s))return s;
     clearFinishThenCamp(s);start(s);
     if(s.mode==='battle'&&s._phase==='fight')finishThenCampSessions.add(s);
+    return s;
+  }
+  if(action==='startUntilQuality'){
+    if(payload!==undefined||!qualityThenCampView(s).available)return s;
+    clearFinishThenCamp(s);start(s);
+    if(s.mode==='battle'&&s._phase==='fight')qualityThenCampSessions.set(s,{matched:null});
     return s;
   }
   if(action==='startUntilLevel'){

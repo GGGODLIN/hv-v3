@@ -352,3 +352,7 @@ The session-only drop list observes this game's existing generated-loot delivery
 ## v071 historical loot navigation adaptation
 
 Receipt-to-current-owned-item inspection is a local presentation adapter. Historical acquisition outcomes remain detached; present inventory/equipment/pending ownership is rechecked by exact ID before inspection. No original-HV formula, probability, reward, automatic equip or persistent data field is introduced.
+
+## v072 quality-hunt idle adaptation
+
+Stopping after the first post-departure Superior-or-better equipment acquisition is an independent idle-game control, not an original-HV automatic farming mechanic. It observes existing delivery only, counts inventory or pending loot, and settles the entire current ordinary expedition before stopping. Existing low-quality-only automatic sale, item generation, quality probabilities, combat and rewards are unchanged. No improved drop rate, guaranteed duration, automatic equip, or additional persistent setting is introduced.

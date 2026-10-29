@@ -1,3 +1,11 @@
+## v072 來源候選：刷到優良裝備回營（2026-10-29 台北）
+
+營地可選「刷到優良裝備回營」：從這次出發後，首次取得 Superior（優良）或更高品質的新掉落即達標，但仍完成當場全部四波與完整通關獎勵，才停止連刷回營。舊背包或已裝備不計；入包或待領都算。既有自動出售僅處理低品質，規則不改；不提高掉率、不保證所需時間，也不是自動換裝。
+
+可取消目標恢復連刷，不撤退；本次通關後回營會優先取代目標。與升級後回營／單次遠征互斥；只在本分頁有效，戰敗、撤退、滿包停止、重載、匯入或控制權變更清除。裝備界不使用本目標。本作刷寶操作適配，不是原版 HV 規則。戰鬥、品質生成、RNG、獎勵與存檔格式不變。
+
+來源測試與獨立審查見 docs/QA-V072.md、QA-V072-INDEPENDENT.md，恢復見 RECOVERY-V072.md。真實候選／正式瀏覽器驗收待接續；正式保持已驗收 v071 website 1dedaca6c1dc56f4e9e29241f5902e86835b62d6，完整恢復232為 08f6694a221ef6ea106347823647d421d3dd051f。以下為歷史記錄。
+
 # v071 formal verified and fully restorable — checkpoint 232
 
 Formal website 1dedaca6c1dc56f4e9e29241f5902e86835b62d6, exact Pages40800246154 SUCCESS; publisher verified21 runtime bytes and4316 outside files/modes retained. Normal cloud UI on original formal profile (no candidate import) completed a natural2× single expedition:18wins, Lv10/XP274/401,1454gold,29bag items. New loot-29/30 appeared in report. Enter on loot-30 resolved same current inventory item, selected gear tab and focused detail H3; HP773→831 was a comparison preview, not an applied equipment change. Before/after inspection exports were byte-identical. Reload changed only8 known transient keys and preserved permanent progress. Desktop1180/document1165, no broken images.
