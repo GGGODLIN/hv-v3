@@ -1,0 +1,21 @@
+{
+  "status": "isolated-candidate-deployed-browser-pending",
+  "source_commit": "d6dae543083e4179c7abd25d9400a0eface9588e",
+  "commit": "7a4c44b1ae141602eb22b51f702da30198324bde",
+  "tree": "7ce436e4e2e5e63116230adc9654a8756b5a9241",
+  "expected_head": "58651a9060a63c8e5a56066bdae1e836a92ce4b5",
+  "candidate_url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.79/",
+  "runtime_exact_git_blob_readbacks": 21,
+  "outside_blobs_modes_preserved": 4379,
+  "formal_runtime_changed": false,
+  "browser_acceptance": false,
+  "force": false,
+  "ci": {
+    "run": 40853632238,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "7a4c44b1ae141602eb22b51f702da30198324bde"
+  },
+  "limitations": "No public HTTP per-file hash claim; browser acceptance pending. External canonical config preserved. QA reports new origin blog.gggodlin.com redirect; formal storage migration must be explicitly tested, not assumed seamless.",
+  "updated_at_utc": "2026-10-29T09:59:06.956640+00:00"
+}

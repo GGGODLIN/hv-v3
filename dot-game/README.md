@@ -1,3 +1,16 @@
+## 2026-10-29 13:00 UTC · checkpoint247 documentation update (v079 unchanged)
+
+This current status supersedes earlier historical “not published / all browser pending” entries below. No runtime, tests, assets, index or version changed; no suite was rerun for this documentation checkpoint. v079 source remains a candidate, not accepted.
+
+- User approved publication (“發布阿”) at 09:51:55 UTC. v073 isolated candidate website commit `58651a9060a63c8e5a56066bdae1e836a92ce4b5`, Pages run `40853181431` succeeded. Cloud UI gameplay receipt records PASS at 10:16 UTC, with its stated limited coverage; this is not promotion of the formal v072 route. Exact receipt: `docs/evidence/qa-v073-browser-receipt.json`, SHA256 `4588c5ab5065e8d642af82c738c5fcf8e7008656d99e4d6f21e19223291f4501`.
+- v079 source `d6dae543083e4179c7abd25d9400a0eface9588e` was published ONLY as an isolated candidate in website commit `7a4c44b1ae141602eb22b51f702da30198324bde`; Pages run `40853632238` succeeded. Publication evidence verifies 21 runtime Git blobs and preserves 4379 outside blobs/modes; this is not public HTTP per-file hashing. See `docs/evidence/v079-candidate-publication.json`.
+- v079 actual gameplay remains pending: its second import tool confirmation is awaiting approval. This is a specific tool confirmation, NOT missing general publication authorization. Do not retry/bypass it or label v079 accepted. Formal route remains v072. Previous source tests 2595 PASS + 4 syntax belong to checkpoint245, not a new run here.
+- Candidate links: https://blog.gggodlin.com/play/hv-v3-dot/candidates/v0.73/ and https://blog.gggodlin.com/play/hv-v3-dot/candidates/v0.79/ . External canonical configuration redirects github.io to blog.gggodlin.com; this checkpoint does not alter that configuration.
+
+### Cross-origin save precaution
+
+Browser saves do not automatically migrate to a new origin. Keep the old-origin tab open and **do not reload it first**; export a normal game save there, then import it through the new-origin game's normal UI and confirmation. Import replaces rather than merges current progress. The report JSON export is NOT a save and cannot restore progress. QA preserved old formal tab2 and exported its genuine save, SHA256 `cc27352a62de693023a25fbf6d57f27a7b786f5ba78db51e0b5ed74206975751`; this proves that QA profile's export only, not every player's recovery. Without an old tab or an exported game save, the game has no cross-origin recovery interface. Do not claim progress definitely deleted or definitely recoverable. Preserve existing tabs/exports before further action.
+
 ## 2026-10-29 09:00 UTC · v079 source candidate / checkpoint245
 
 戰報新增掉寶品質篩選「全部／Superior+／Exquisite+」，與部位條件交集；每份報告獨立，摘要仍為全場，未知品質只出現在全部。這是本作 UI 適配，不是原版 HV 新機制，不改戰鬥、掉落、RNG 或存檔。來源測試與獨立稽核見 docs/QA-V079.md；完整恢復見 docs/RECOVERY-V079.md。未做實際瀏覽器遊玩驗收，不可稱已發布；正式版仍 v072，網站未操作。v073 被拒發布不以本版本繞過。

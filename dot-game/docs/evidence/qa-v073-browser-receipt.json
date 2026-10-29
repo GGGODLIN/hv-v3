@@ -1,0 +1,94 @@
+{
+  "version": "v0.73",
+  "result": "PASS",
+  "tested_at": "2026-10-29T10:16:00Z",
+  "url": "https://blog.gggodlin.com/play/hv-v3-dot/candidates/v0.73/",
+  "website_commit": "58651a9060a63c8e5a56066bdae1e836a92ce4b5",
+  "pages_run": "40853181431",
+  "method": "Cloud CUA normal UI, preserved old-origin formal tab2. Current inventory verified formal v072 Lv11/1606/wins20/bag32, genuine export imported only isolated canonical blog candidate. No injected state.",
+  "checks": [
+    "Keyboard ArrowDown selected weapon target. Selection export equals baseline JSON entirely: no durable mutation.",
+    "Departure target weapon Superior+ locked; selector disabled.",
+    "First complete win dropped Magnificent accessory loot34 and continued; observed waiting weapon goal during next expedition.",
+    "Second expedition acquired Superior club, status matched while battle still active. Full completion camp gold1758 wins22 with2 new receipt drops (2 wins earned from baseline20).",
+    "Normal reload resets any slot and clears goal while preserving all permanent data.",
+    "Formal original not reloaded/navigated or modified beyond normal export."
+  ],
+  "final_hero": {
+    "level": 11,
+    "xp": 293,
+    "xpNext": 464,
+    "hp": 795,
+    "mp": 49,
+    "gold": 1758,
+    "proficiency": 13.2,
+    "attributes": {
+      "str": 28,
+      "dex": 28,
+      "agi": 28,
+      "end": 28,
+      "int": 28,
+      "wis": 28
+    }
+  },
+  "final_wins": 22,
+  "final_inventory_count": 35,
+  "report_loot": [
+    {
+      "id": "loot-35",
+      "name": "優良・裂岩戰棍・平衡",
+      "slot": "weapon",
+      "quality": "Superior",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    },
+    {
+      "id": "loot-36",
+      "name": "精良・逐風刺劍・屠戮",
+      "slot": "weapon",
+      "quality": "Exquisite",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    }
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/2fb43e6d-f9bf-4244-a4e1-a7a0b51617df",
+      "sha256": "cc27352a62de693023a25fbf6d57f27a7b786f5ba78db51e0b5ed74206975751"
+    },
+    "selection": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/4c6579d9-2522-44a8-b044-84a06c5a45b5",
+      "sha256": "cc27352a62de693023a25fbf6d57f27a7b786f5ba78db51e0b5ed74206975751"
+    },
+    "report": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/dfad4930-6bb6-408f-a22a-f92ef0d7a5c9",
+      "sha256": "57abac413b35c0617a75f3eab732724ae0760fc82d390cc9a6029e689e2bfb36"
+    },
+    "before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/05bb5748-2dcc-432e-ae93-8251bb31f697",
+      "sha256": "434699df3283a16c1f25eb2c7521f3195f97597eb0ea7674e234b6a0ddab4f7a"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/d8457361-8243-4e4c-a84a-67c09c630f59",
+      "sha256": "9317a9e117acad986da7a354906c6a166650c71d05334bfbc8ce1bf40f22df05"
+    }
+  },
+  "limits": [
+    "Only weapon slot natural match tested. Nonfinal-wave matching not claimed. Other slots, pending, IW, readonly/stale races, exact parity source-only.",
+    "No mobile/full accessibility/HTTP allfile hashing.",
+    "Candidate initial navigation redirected github.io to blog.gggodlin.com; new origin started Lv1 before genuine import. Origin saves do not automatically migrate.",
+    "Import tool call took1144seconds before returning website confirmation; then normal OK succeeded, no bypass."
+  ]
+}

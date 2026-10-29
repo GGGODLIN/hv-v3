@@ -1,23 +1,23 @@
 {
-  "checkpoint": "245-v079-source",
+  "checkpoint": "247-v079-docs",
   "version": "0.79.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "4d407723958086b0d10e949bac4627eac8dcf040",
+  "status": "source-candidate-browser-pending",
+  "source_base": "d6dae543083e4179c7abd25d9400a0eface9588e",
   "base_accepted_recovery": "b4f137ca108aa41161f8fd961e3fa6d867499f04",
   "accepted_website": "c38bd2de429c5dc3e52edbad2cb7ea92365cacf3",
-  "scope": "Per-report quality threshold AND equipment-slot filtering of historical drop receipts with invariant whole-run summaries; no reward, RNG, engine or save changes.",
+  "scope": "Documentation/evidence only: v073 limited gameplay PASS, v079 isolated publication and pending import confirmation, cross-origin save precautions.",
   "source_tests_passed": 2595,
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "browser_acceptance": "Pending; source and DOM model only.",
-  "publication": "Not attempted. v073 candidate ref denied, no retry or alternate version bypass. v073 through v079 browser pending; formal remains accepted v072.",
+  "browser_acceptance": "v073 isolated candidate limited PASS per preserved receipt; v079 pending; not accepted.",
+  "publication": "v079 isolated candidate 7a4c44b1ae141602eb22b51f702da30198324bde CI40853632238 success; actual browser QA pending specific second import tool confirmation. General publication user authorization already given. Formal v072 unchanged.",
   "recovery": "docs/RECOVERY-V079.md",
   "test_log_sha256": "a03b5fa8d348a43bb652513da0beafe3e3f427851bf259dc8ae3397f4bb13c1a",
   "files": {
     "README.md": {
-      "bytes": 102026,
-      "sha256": "9641366451fba71d45a3f242364c6fdb1a729960d9a76d276eca7c4b0b071d62"
+      "bytes": 104623,
+      "sha256": "90cc90795842377e43e08e75096053fa83d6fad24dca4104c12fc7d79c81fadb"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -1308,8 +1308,8 @@
       "sha256": "335ba4d49f541e4c154a2f64cab23083e88e65ac02f931bf3dd6146c011011c5"
     },
     "docs/RECOVERY-V079.md": {
-      "bytes": 900,
-      "sha256": "e4228ae9c105383910c9b0f3d626915770bac7f15e5ff7d64a1dc1a81605306e"
+      "bytes": 3566,
+      "sha256": "04ba4e84ef6d32c78db1d03c9799cdd65f1239c118a2d664acb554ce6e15f380"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1364,8 +1364,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 104737,
-      "sha256": "9f2fb378203b1e96c7ee7d12d6edc0c061966ef88b8b1d3f32c43cf2be5d9980"
+      "bytes": 107334,
+      "sha256": "c9071ef5c5c0c2c6f3b7a1d988e1e49c83ecffd2dee50f88da257703579c5a56"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,
@@ -1386,6 +1386,14 @@
     "docs/enemy-nameplates-measurements.json": {
       "bytes": 16962,
       "sha256": "a88d761a503f239f9558c30abe3bb881e46403d02779bd50d6b18ba69c92fa80"
+    },
+    "docs/evidence/qa-v073-browser-receipt.json": {
+      "bytes": 3719,
+      "sha256": "4588c5ab5065e8d642af82c738c5fcf8e7008656d99e4d6f21e19223291f4501"
+    },
+    "docs/evidence/v079-candidate-publication.json": {
+      "bytes": 1002,
+      "sha256": "66d77eea6f29033b12a360f2b829b59ecf88b2d202a6f2f183ecfeb908f1fe7f"
     },
     "docs/forest-stage-measurements.json": {
       "bytes": 17494,
@@ -2851,5 +2859,6 @@
       "bytes": 15077,
       "sha256": "97971949f64573e5822073cfb58e58977e535d607ad535eb3b9f2f803017a6c1"
     }
-  }
+  },
+  "test_evidence_origin": "Inherited unchanged runtime evidence from checkpoint245 d6dae543; tests and syntax NOT rerun for checkpoint247."
 }
