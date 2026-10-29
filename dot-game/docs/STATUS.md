@@ -1,3 +1,13 @@
+# v070 formal verified and fully restorable — checkpoint 227
+
+Formal website `b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f`, exact Pages `40793957047` SUCCESS. Publisher verified 21 runtime files byte-exact and 4295 outside files retained. Original formal profile was played via cloud normal UI, with no candidate save import: a natural 2× single expedition produced 3 new items (loot-26/27/28), 17 wins, 1378 gold, Lv10 and 27 bag items. Every receipt ID/name/slot/quality/level matched actual inventory and normal report JSON. Reload cleared report history while preserving permanent progress. Desktop 1180 px: no overflow or broken images.
+
+Formal evidence: `docs/QA-V070-FORMAL-BROWSER-RECEIPT.json`, SHA256 `ae7e08669cd7326fac8f18c74b391879f62db218505b5df44954b10711c12608`. Candidate separately tested pin, manual-sale historical immutability, filter and empty retreat; these were not repeated on formal. Automatic sale, pending and Item World remain source-only; mobile/full accessibility/public HTTP all-file hashing/Library sync were not verified.
+
+Restore the exact commit carrying `227-v070-restorable`, verifying every CHECKPOINT payload byte length/SHA256. Runtime/tests/assets remain identical to accepted source `e9846684f639ffb8bed1738c1d38252cdd9c24f1`; 2427 tests plus 4 syntax checks were freshly passed at checkpoint 225, NOT rerun at 227 (docs/evidence-only). Use recovery instructions below; candidate and formal progress stay separate. Previous accepted v069 recovery `abe095ff5c59f112cbed55b07dedd3fa910c6d7a` remains available for rollback.
+
+Earlier source-stage record (historical):
+
 # v070 candidate accepted — checkpoint 225
 
 Candidate `631e972ac5f5e20a523a5b2e99f2aa24d3edee34`, exact Pages run `40793004431` success, was played through cloud normal UI using genuine progress. Source runtime `cf41a9e0b47d2138951cb10031bed45612071302` is unchanged. This checkpoint backs up acceptance evidence; formal remains v069 `e5bc70e4a4d2623cdd3536db9ab91b0e1de0cb84` until separate promotion/smoke.

@@ -1,0 +1,105 @@
+{
+  "version": "v0.70",
+  "result": "PASS",
+  "tested_at": "2026-10-29T00:28:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "website_commit": "b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f",
+  "pages_run": "40793957047",
+  "ci": "Parent exactsuccess/21runtimebytes4295outside verified before reload",
+  "method": "Cloud CUA normal original formalprofile export/reload/singleplay/reportexport. No candidateimport or hiddenstate injection.",
+  "baseline": {
+    "level": 10,
+    "gold": 1302,
+    "wins": 16
+  },
+  "checks": [
+    "Baseline normalexport exactlymatches acceptedv069 hash60879a…def36. Reload visuallyv070 retainsoriginalprofile.",
+    "Natural2x single completesallfourwaves, gold1378/wins17 andthreeactualnewitems.",
+    "Expanded本場掉寶3件 displays acquisitiontime disclaimer and threeinventoryreceipts. Normal reportJSON exported. IDs26/27/28 plusname/slot/quality/level match everynewitem in normalgameexport exactly, withdispositioninventory/saleValue0.",
+    "Normalreload clearsrecentreport/exportcontrol while preserving allpermanentitems/resources; only8knownsessionfields differ.",
+    "viewport1180/document1165/nohorizontaloverflow/brokenimages0."
+  ],
+  "loot_receipts": [
+    {
+      "id": "loot-26",
+      "name": "優良・銳意巡獵皮甲・追風",
+      "slot": "armor",
+      "quality": "Superior",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    },
+    {
+      "id": "loot-27",
+      "name": "優良・巡獵皮甲・追風",
+      "slot": "armor",
+      "quality": "Superior",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    },
+    {
+      "id": "loot-28",
+      "name": "普通・堅守巡獵皮甲",
+      "slot": "armor",
+      "quality": "Average",
+      "level": 3,
+      "disposition": "inventory",
+      "saleValue": 0
+    }
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 10,
+    "xp": 169,
+    "xpNext": 401,
+    "hp": 773,
+    "mp": 46,
+    "gold": 1378,
+    "proficiency": 11.84,
+    "attributes": {
+      "str": 26,
+      "dex": 26,
+      "agi": 26,
+      "end": 26,
+      "int": 26,
+      "wis": 26
+    }
+  },
+  "final_wins": 17,
+  "final_kills": 102,
+  "final_bag_count": 27,
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/377179a3-f5ed-423e-977b-6d12f830389a",
+      "sha256": "60879a7eb3d1d5edbe8052458dfbca17d4bda62b03601c1575f3c8e6df4def36"
+    },
+    "report": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/a741a823-abe1-486a-be6e-5f5a3446b6da",
+      "sha256": "5784ee5b6052c02809a1fe61dfbba5041a47ddf73bc05a99c3fa9fa29c86ef25"
+    },
+    "after_play": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/f035c366-60d0-4d44-9635-4d6c2e935a8d",
+      "sha256": "b639ebdedd381b6f7fe2b6ca0cb375fca2b974167b8e11a89d5a9061db7512ba"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/41644cbb-c321-4669-86fa-971258dc8872",
+      "sha256": "ce07ff79f678a94ff62a116b56090a1aa8c03227ebb7d5e56751d9070384dc12"
+    }
+  },
+  "candidate_profile_imported": false,
+  "limitations": [
+    "Automatic-sale/pending/IW notactualbrowser; source-only.",
+    "Candidate separatelyverified manualsale historicalimmutability,pin/filter,emptyretreat; not repeatedformal.",
+    "No mobile/fullaccessibility or publicHTTPallfilehash claim."
+  ]
+}
