@@ -1,8 +1,8 @@
 {
-  "checkpoint": "228-v071-source",
+  "checkpoint": "230-v071-accepted",
   "version": "0.71.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "c1c2953a4e7865f9e50deded9dc1f35b071e10f5",
+  "status": "candidate-browser-accepted",
+  "source_base": "b8404ac6cd4f57af7fa702d73680bc909e6e5543",
   "base_accepted_recovery": "c1c2953a4e7865f9e50deded9dc1f35b071e10f5",
   "accepted_website": "b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f",
   "scope": "Inspect current exact-ID owned equipment from historical loot receipts without changing receipts, rewards, RNG or saves.",
@@ -10,14 +10,14 @@
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "browser_acceptance": "Pending; source and DOM model only.",
-  "publication": "Not published; formal remains accepted v070. Root owns candidate and formal release.",
+  "browser_acceptance": "See exact browser receipts and explicit coverage limits in docs.",
+  "publication": "Candidate accepted; formal pending.",
   "recovery": "docs/RECOVERY-V071.md",
-  "test_log_sha256": "6ac038b3530bb7e47c5ef918bd7cd69208def0692a6429730cd7ae9b66f7c6a8",
+  "test_log_sha256": "efe7d94e3b73f5d3182e47c975ee73fe9c3575c67e9acdbcf4777a2dc0e1f760",
   "files": {
     "README.md": {
-      "bytes": 87273,
-      "sha256": "7a11cdb2c5eb1928980d4fc307fb9bbe3555b40cb555a65e098c3c3ea4b7945d"
+      "bytes": 88937,
+      "sha256": "2324445891fb9735211dc2cd1a5a0ac2b15c6d2ec6eb0530ef7eeb645aa2b226"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -999,13 +999,17 @@
       "bytes": 5110,
       "sha256": "b4b34ed19a7a43f13ecf068ff8eed92be2e05880b3da60dba5de30a3f4a1e86d"
     },
+    "docs/QA-V071-BROWSER-RECEIPT.json": {
+      "bytes": 4108,
+      "sha256": "f76c35739de7d17130d9a65d918e80effaee6760c90e5ac49352d5e17fd5f7c7"
+    },
     "docs/QA-V071-INDEPENDENT.md": {
       "bytes": 1933,
       "sha256": "882f51258230499bc606453cae21b45c1b4ea8621767395aafb7eab2887a7932"
     },
     "docs/QA-V071.md": {
-      "bytes": 1533,
-      "sha256": "06a0f6dd06d9fd00320a50390cf3434c7a88d2fcc6e61176cbfb33ac7f1c56b9"
+      "bytes": 3197,
+      "sha256": "135d1b44ad9598e7a60fc0b0367a9f1bf34b34fac3b255386f12d723b8b7ba93"
     },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
@@ -1204,8 +1208,8 @@
       "sha256": "f496aeed426f891f7005e797d1f27353d0ecb56fa708e621fb388f2fcb10d7b9"
     },
     "docs/RECOVERY-V071.md": {
-      "bytes": 1356,
-      "sha256": "5822adeac4e56ceea7a3beea417aeb85f51267238d46bbb1d9454827608d8744"
+      "bytes": 3020,
+      "sha256": "5c290148487334b27b83a385c3586f0c85aa571b0d71db11a20f84d3631907c1"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1216,8 +1220,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 70039,
-      "sha256": "5014ad24a8b1ac467f006b0fbe25cae5e4a5c63058cb9f71fa9f964c391473b1"
+      "bytes": 71703,
+      "sha256": "35348948f728ea7b0476cbad0a188f5c3a6d26daf7cacd336230862684eb5242"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1252,8 +1256,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 89984,
-      "sha256": "63a4a2dc43f59644f48047f2a1e3f5e6c11be69ee7d51f861df78e5a9dce83bd"
+      "bytes": 91648,
+      "sha256": "63a00bfd4d9f9624b3fc68a64661dc4a09ffe7d641b7ba529f75d566d80a6e30"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,

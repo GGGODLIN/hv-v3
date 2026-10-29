@@ -1,0 +1,91 @@
+{
+  "version": "v0.71",
+  "result": "PASS",
+  "tested_at": "2026-10-29T01:17:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.71/",
+  "website_commit": "db09785c8c6cf2e62cdc87af20a61e1fcfbfb094",
+  "pages_run": "40798915484",
+  "method": "Cloud CUA normalUI genuineformal export importedonlyinto candidate; no injectedstate.",
+  "checks": [
+    "Natural2x singlewin gold1378→1454 wins17→18 yieldedloot29Magnificentarmor andloot30Superioraccessory.",
+    "Openedreceipt2items; weaponfilter active. KeyboardEnter on exactloot30action switchedgear tab, selectedcorrectcurrentaccessory, currentvsreplacementpanel shown andfilter stayedweapon; detailwarnedselecteditemoutsidefilter.",
+    "Focus observedH3 text優良・獵隙守望墜飾・追風 tabindex−1. Before/afterpureinspection/filter exports byteidentical.",
+    "Explicit existing saleconfirm soldonlyloot30+27gold. Receipt retainsoriginalinventory acquisition butcurrently-notheld label andnoinspectaction forloot30. Entire exportedreport unchangedbefore/after sale exceptenvelopeexporttime.",
+    "Receiptloot29action resolvesactualarmor. Normalexplicit換上裝備 equipsit. Returningbattle tab/reopeningreceipt/action renderscurrentequippedarmor notoldcomparison, withattack3/def12/hp140/currentequipmentrows.",
+    "Normalexport/reload/export preservesallpermanentdata includingequip/sale; clearsreporthistory.",
+    "Formalv070 originalprofile visuallystillLv10/1378/wins17/bag27. Noformalchanges.",
+    "viewport1180/document1165/brokenimages0."
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 10,
+    "xp": 274,
+    "xpNext": 401,
+    "hp": 901,
+    "mp": 46,
+    "gold": 1481,
+    "proficiency": 12,
+    "attributes": {
+      "str": 26,
+      "dex": 26,
+      "agi": 26,
+      "end": 26,
+      "int": 26,
+      "wis": 26
+    }
+  },
+  "final_wins": 18,
+  "final_bag_count": 28,
+  "final_equipped_armor": "loot-29",
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/30a37152-7759-4184-9fb1-3222b7e854f0",
+      "sha256": "ce07ff79f678a94ff62a116b56090a1aa8c03227ebb7d5e56751d9070384dc12"
+    },
+    "before_inspection": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/8530ff72-1580-491a-b60b-bb0b7d129066",
+      "sha256": "aae4380d1114ae05f74964473dd0bf5e0250d8717b5ad5375723047a56d9d377"
+    },
+    "after_inspection": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/c8959880-0e32-4386-bb44-02ac9e18751d",
+      "sha256": "aae4380d1114ae05f74964473dd0bf5e0250d8717b5ad5375723047a56d9d377"
+    },
+    "report_before_sale": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/04de7472-a882-41ac-8327-b6c8a4925731",
+      "sha256": "a575a217166f72a2e4a4c12506d15158fd636194197d7893a9c62668bc19bf92"
+    },
+    "report_after_sale": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/6bc238a7-4a11-4243-846f-72bb7687b2ca",
+      "sha256": "562f6c65fba5ca3492f1fc61700823729ca5c4794171038efd30f285bbfa5bf7"
+    },
+    "before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/d2d22cc4-21d9-4e87-a15b-edee57542af8",
+      "sha256": "40ab5dd869752d2f67a119c8772d64c91a7c0296c28f73873a442811e1771aa3"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/6eda3a37-e34e-4e5e-962e-6ec7f9de3f8f",
+      "sha256": "364004d6f8f2837dfcd58bc8aa693fadb911953251f2ad9f1be20af1827c1068"
+    }
+  },
+  "source_only_not_browser": [
+    "pendinglocation",
+    "readonly",
+    "stalecallback racing ownership",
+    "currentboundscaledvalues",
+    "pinned/previous report inspect routing"
+  ],
+  "limitations": [
+    "OneCUAcall timedout/reset whiletrying exporthiddenreport fromgeartab; recoveredcurrenttab, returnedvia normalbattle tab andcompleted. Notgamefailure.",
+    "No mobile/fullaccessibility/publicHTTPallfilehash."
+  ],
+  "formal_changed": false
+}

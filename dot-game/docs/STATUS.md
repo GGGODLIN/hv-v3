@@ -1,3 +1,13 @@
+# v071 candidate accepted — checkpoint 230
+
+Candidate db09785c8c6cf2e62cdc87af20a61e1fcfbfb094 / exact Pages40798915484 SUCCESS passed normal cloud UI acceptance using a genuine formal save only imported into candidate. Source runtime b8404ac6cd4f57af7fa702d73680bc909e6e5543 is unchanged; formal remains accepted v070 b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f until separate promotion and smoke.
+
+Natural 2× single expedition acquired loot-29 armor and loot-30 accessory. Keyboard Enter on loot-30 inspected its current exact ID, focused detail H3, preserved the weapon filter and displayed the outside-filter warning. Pure inspection/filter exports were byte-identical. Explicit manual sale of loot-30 for27 gold retained historical acquisition and removed its inspect action with current-unowned text. Exported report data stayed identical except export envelope time. Normal explicit equip of loot-29 followed by receipt inspection showed current-equipped details, not the old comparison. Reload cleared reports and retained permanent progress; final candidate Lv10/1481 gold/18 wins/bag28. Formal was not changed. Desktop1180/document1165, zero broken images.
+
+Evidence docs/QA-V071-BROWSER-RECEIPT.json SHA256 f76c35739de7d17130d9a65d918e80effaee6760c90e5ac49352d5e17fd5f7c7. Pending location, readonly, stale callback race, bound scaled values and pinned/previous receipt routing remain source-model-only. No mobile/full accessibility/publicHTTP all-file hash/Library sync claim. A CUA timeout/reset during a hidden export attempt recovered through normal battle-tab navigation; not classified as game failure.
+
+Earlier source-stage record (historical):
+
 ## v071 來源候選：從掉寶戰報檢視目前裝備（2026-10-29 台北）
 
 本場掉寶明細新增明確的檢視入口。仍在背包、已裝備或待領區的同 ID 裝備可開啟既有檢視／比較；使用當下實際持有裝備，不把歷史掉落數值當成目前數值。已售出／不再持有者不提供幽靈裝備操作，點擊時重新查核 ID。取得當時的歷史文字及報表 JSON 不因檢視或後續持有狀態而改寫。
