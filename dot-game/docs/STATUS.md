@@ -1,3 +1,13 @@
+# v072 candidate accepted — checkpoint 235
+
+Source candidate 1c0d13d773eef6a381c0c48f7d4d68916cdfca34; candidate website b32a93ab46856da231e75cd2649a29419e62f7bc, exact Pages 40805448256 SUCCESS. Normal isolated cloud browser accepted the new quality-hunt control using a genuine formal export, without synthetic saves or RNG/state injection. Formal v071 remains unchanged pending promotion.
+
+Existing Superior+ inventory did not trigger. First expedition yielded Average loot-31 and repeated; next expedition wave 4 acquired Superior loot-32 while battle remained active, then completed the full win and returned camp. Wins18→20, gold1454→1606; report and owned inventory agree on Superior loot-32 and Exquisite loot-33. Cancel preserved natural repeating battle; finish-current overrode hunt. Reload cleared active hunt and reset tempo1× while permanent save remained equal (eight known transient keys differ). Candidate final Lv12, gold2138, wins27, bag46. No candidate progress is imported into formal.
+
+Evidence: docs/QA-V072-BROWSER-CANDIDATE.json, SHA256 e3f186b39b75dcab2f1aa42718e60fe06dae576608dac202fdb9caa78b3dc3cd. Qualified drop was observed in wave4 ONLY, not a proven nonfinal-wave boundary. Natural full-capacity pending, low-quality auto-sale, defeat, failed-start, Item World exclusion, ownership transfer, import-active, and stale races remain source-test-only. No controlled RNG/timing parity, mobile/full accessibility audit, public HTTP per-file hash, or Library-sync claim.
+
+Fresh accepted-source regression: 2470/2470 tests, zero failed/skipped/cancelled, plus four runtime syntax checks. Runtime, assets and attribution are byte-identical to source233. Complete manifest/recovery accompanies this source acceptance; formal promotion236 and smoke remain pending.
+
 ## v072 來源候選：刷到優良裝備回營（2026-10-29 台北）
 
 營地可選「刷到優良裝備回營」：從這次出發後，首次取得 Superior（優良）或更高品質的新掉落即達標，但仍完成當場全部四波與完整通關獎勵，才停止連刷回營。舊背包或已裝備不計；入包或待領都算。既有自動出售僅處理低品質，規則不改；不提高掉率、不保證所需時間，也不是自動換裝。

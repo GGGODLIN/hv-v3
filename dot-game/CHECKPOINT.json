@@ -1,8 +1,8 @@
 {
-  "checkpoint": "233-v072-source",
+  "checkpoint": "235-v072-accepted",
   "version": "0.72.0",
-  "status": "source-tested-browser-pending",
-  "source_base": "08f6694a221ef6ea106347823647d421d3dd051f",
+  "status": "candidate-browser-accepted",
+  "source_base": "1c0d13d773eef6a381c0c48f7d4d68916cdfca34",
   "base_accepted_recovery": "08f6694a221ef6ea106347823647d421d3dd051f",
   "accepted_website": "1dedaca6c1dc56f4e9e29241f5902e86835b62d6",
   "scope": "Farm until a new Superior-or-better drop and finish its entire ordinary expedition before camping; transient, unchanged rewards and RNG.",
@@ -10,14 +10,14 @@
   "source_tests_failed": 0,
   "source_tests_skipped": 0,
   "runtime_syntax_checks": 4,
-  "browser_acceptance": "Pending; source and DOM model only.",
-  "publication": "Not published; formal remains accepted v071. Root owns candidate and formal release.",
+  "browser_acceptance": "See exact browser receipts and explicit coverage limits in docs.",
+  "publication": "Candidate accepted; formal pending.",
   "recovery": "docs/RECOVERY-V072.md",
-  "test_log_sha256": "c0303f393994e08dcdac5d2dfab78a91aa5aa55bd1cf7d5f24b7834c60b77e3f",
+  "test_log_sha256": "4b8d73b897064d0ff53deecef5d070b0e64b56245f3ef62083b9b437e1f96d5e",
   "files": {
     "README.md": {
-      "bytes": 91806,
-      "sha256": "2c5422070a573a4fba866ee1ee222b4d677dd36f94f37288f6c3ec591bf96fcf"
+      "bytes": 93602,
+      "sha256": "600d3d829bd7fa2fda46dde1a17a63a0c3061a0616879fe0b797f76b7c753251"
     },
     "assets/equipment/PROVENANCE.json": {
       "bytes": 1002,
@@ -1015,13 +1015,17 @@
       "bytes": 4913,
       "sha256": "ca0aafb5e0b038f547537506d04b62d2091a266d168f437108f2c58a3a4882c6"
     },
+    "docs/QA-V072-BROWSER-CANDIDATE.json": {
+      "bytes": 4671,
+      "sha256": "e3f186b39b75dcab2f1aa42718e60fe06dae576608dac202fdb9caa78b3dc3cd"
+    },
     "docs/QA-V072-INDEPENDENT.md": {
       "bytes": 2579,
       "sha256": "80cef9cf25277e5358b2b8be0c1faf49da6105c10a470d4169a7631a1da12f0a"
     },
     "docs/QA-V072.md": {
-      "bytes": 1858,
-      "sha256": "4074afe9676cc4d84e7cb7c7418e13e890e476ebbca158195cb2f26c595e1956"
+      "bytes": 3654,
+      "sha256": "c1da6d8d049476e90e27619134c7b7c5ea52703ef1aad7e15ed9a820d137f7ee"
     },
     "docs/RECOVERY-V015.md": {
       "bytes": 7207,
@@ -1224,8 +1228,8 @@
       "sha256": "edf626a5ef5f1bb0d97aa040c655f24f1f86b90145f7269e0c89d5b5e03397ee"
     },
     "docs/RECOVERY-V072.md": {
-      "bytes": 1325,
-      "sha256": "df83dd90c651506de41a877643c29b132a0b951df8b5ddda225e38651d309661"
+      "bytes": 3728,
+      "sha256": "3da944ab1cb953177deea5b9085dd28de3637be74e224be2cf7e67c9ba16851f"
     },
     "docs/RELEASES.md": {
       "bytes": 54254,
@@ -1236,8 +1240,8 @@
       "sha256": "58581f1b304af350b62b4e81cb8c5f80c5c5ca10d76d79651654a4c6c7c94c3b"
     },
     "docs/ROADMAP.md": {
-      "bytes": 74572,
-      "sha256": "f720bcde61ce08bae80f07567f88a00ecb67d23a57895f11a698c828dad96a70"
+      "bytes": 76368,
+      "sha256": "83ad3e881f12b2e492704d434447c99fecb76a02b142d11a280f2f49875e78cc"
     },
     "docs/RPG-INTERFACE-GUIDE.md": {
       "bytes": 2563,
@@ -1272,8 +1276,8 @@
       "sha256": "8f5834267da5653f937849ca3c7ef2f6acec727ce43e257f7ab34d2d15691e6a"
     },
     "docs/STATUS.md": {
-      "bytes": 94517,
-      "sha256": "3df9ca1d1023afe576acad62e435a3a6a78d6372d32dbd146c03e2b303b9ba75"
+      "bytes": 96313,
+      "sha256": "ca0d160d5e1d0a7fa797d44935e8c333cc66f90e35c2aa920e50fabae7d9902c"
     },
     "docs/TARGET-PRIORITY-GUIDE.md": {
       "bytes": 3386,

@@ -1,0 +1,116 @@
+{
+  "version": "v0.72",
+  "result": "PASS",
+  "tested_at": "2026-10-29T02:22:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/candidates/v0.72/",
+  "website_commit": "b32a93ab46856da231e75cd2649a29419e62f7bc",
+  "pages_run": "40805448256",
+  "source_commit": "1c0d13d773eef6a381c0c48f7d4d68916cdfca34",
+  "method": "Cloud CUA only, isolated candidate imported genuine formal UI export; no synthetic save, RNG seed or hidden state injection. Formal original unchanged.",
+  "checks": [
+    "Keyboard Enter started quality hunt at 1x from Lv10/1454/18wins/bag29; existing Superior+ inventory did not qualify: departure status waiting for new drops.",
+    "First complete expedition yielded only Average loot31 and automatically continued. During next expedition wave4, status displayed newly acquired Superior loot32 and promised complete-all-waves return; combat still active then.",
+    "Second complete win returned camp Lv11 XP83 gold1606 wins20 bag32. Latest report loot32 Superior armor and loot33 Exquisite accessory exactly match newly owned inventory IDs/quality. Previous report separate Average loot31. No repeat during following observation/export/report interaction (~13 sec).",
+    "2x new hunt followed by cancel removed target without retreat. Natural repeated wins continued until normal finish-current booking; camp gold2062 wins26.",
+    "Started another hunt then finish-current immediately overrides target: hunt disabled/unpressed, finish-current pressed; one complete win camp gold2138 wins27.",
+    "Exported camp, started new hunt and observed waiting target; immediate normal reload clears target and tempo resets1x. Permanent save unchanged; only eight known transient keys differ.",
+    "No clipping at viewport1180/document1165 and brokenImages0."
+  ],
+  "goal_result": {
+    "hero": {
+      "level": 11,
+      "xp": 83,
+      "xpNext": 464,
+      "hp": 795,
+      "mp": 49,
+      "gold": 1606,
+      "proficiency": 12.4,
+      "attributes": {
+        "str": 28,
+        "dex": 28,
+        "agi": 28,
+        "end": 28,
+        "int": 28,
+        "wis": 28
+      }
+    },
+    "wins": 20,
+    "inventory_count": 32,
+    "loot": [
+      {
+        "id": "loot-32",
+        "name": "優良・巡獵皮甲・長夜",
+        "slot": "armor",
+        "quality": "Superior",
+        "level": 3,
+        "disposition": "inventory",
+        "saleValue": 0
+      },
+      {
+        "id": "loot-33",
+        "name": "精良・堅守赤晶指環・長夜",
+        "slot": "accessory",
+        "quality": "Exquisite",
+        "level": 3,
+        "disposition": "inventory",
+        "saleValue": 0
+      }
+    ]
+  },
+  "final_hero": {
+    "level": 12,
+    "xp": 354,
+    "xpNext": 533,
+    "hp": 817,
+    "mp": 52,
+    "gold": 2138,
+    "proficiency": 14.4,
+    "attributes": {
+      "str": 30,
+      "dex": 30,
+      "agi": 30,
+      "end": 30,
+      "int": 30,
+      "wis": 30
+    }
+  },
+  "final_wins": 27,
+  "final_inventory_count": 46,
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/ee7548a8-26dc-4cbc-a10f-c46c2098e3fc",
+      "sha256": "bd361bf524e1fb335e1e7f9a04e21dfda790ce891d3a94ef09300bb640ec4df3"
+    },
+    "goal_stopped": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/7ba51752-3314-4daf-b966-e39115a386d4",
+      "sha256": "db6fa20ded3f688481aeb4cdebe852f67052d1aee032d6051a889da2733113e2"
+    },
+    "goal_report": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/b49c4b59-6fa2-4020-99a6-8d48e2d55a5b",
+      "sha256": "b027e1f8818d1aeb850b35b8a8fcaebab74ea0069f35a57c42be96b7728d9acd"
+    },
+    "before_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/e082fe44-087e-45bd-b3ce-211061e4d587",
+      "sha256": "3c8c2d03930ada917feeb84cfc611b43f1d22b30dd4c3468e912d2dcb98cc940"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/87677fee-60ed-4e15-8161-571b257edda9",
+      "sha256": "20d9b29ebfa19bb1503654bb73616327e214342e1d30bb8e86fe5bb4f1bf7458"
+    }
+  },
+  "limits": [
+    "Qualified drop observed in wave4, not a proven nonfinal-wave match.",
+    "No natural full-capacity pending, low-quality automatic sale, defeat, failed-start, IW exclusion, ownership transfer, import-active or stale race exercise; source-only coverage remains distinct.",
+    "No controlled RNG/timing parity claim, mobile/full accessibility audit, public HTTP per-file hashing or Library sync."
+  ]
+}
