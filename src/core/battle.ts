@@ -1,6 +1,6 @@
 import type { DmgType } from './player'; // cp9 rc2 (a)（自訂）
 import { RULES } from './run';
-import { CP8, CP9, RC12, RC22 } from './cp8';
+import { CP8, CP9, RC12, RC22, RUN12Z } from './cp8';
 /** cp9 (b)（自訂）: damage the player already took in the current act() (reflect / antimagic / burn / bleed) and its boss-fight budget. */
 const ACT9 = { taken: 0, tele: false, hp0: 0 };
 const boss9 = (s: BattleState): boolean => RULES.cp8 && CP9.on && (CP9.allCap || s.monsters.some((m) => m.rank === 'boss')); // cp9 rc3 (2)（自訂，暫定）: the 50% telegraphed / 30% plain per-turn cap covers every fight, not only bosses
@@ -1180,6 +1180,7 @@ function monstersAct(s: BattleState, rng: Rng, ev: BEvent[]): void {
 }
 function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<string, unknown>[]): void {
   if (s.over) return;
+  if (RULES.cp8 && CP9.on && RUN12Z.tiredAt > 0 && s.turn > RUN12Z.tiredAt && !s.monsters.some((m) => m.rank === 'boss')) for (const m of s.monsters) if (!(m as { tired12z?: boolean }).tired12z) { (m as { tired12z?: boolean }).tired12z = true; (m as { hitCap12m?: number }).hitCap12m = Math.min((m as { hitCap12m?: number }).hitCap12m || 1, RUN12Z.tiredCap); } // rc12z 3（自訂）: 一般戰長戰敵人疲憊
   const defending = s.defendTurns > 0;
   if (RULES.cp8 && CP9.on && CP9.defCap > 0 && defending && s.hp === 1) s.stand9 = true; // cp9-rc7 item 4（自訂）: the 1-HP 防禦保命 is spent
   let ripostes = 0, counters = 0;
@@ -1233,7 +1234,7 @@ function monstersAct0(s: BattleState, rng: Rng, ev: BEvent[], hits: Record<strin
     // largest possible hit (top roll × monster crit), not the mean, so no unannounced single hit can reach bigTele × max HP.
     if (RULES.cp8 && CP8.bigTele > 0 && mult === 1 && !label) {
       if (m.heavyNext) { m.heavyNext = false; label = '蓄力一擊！'; }
-      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && !(m as { noWind12y?: boolean }).noWind12y /* rc12y r2（自訂） */ && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
+      else if (!(lock9 && (m.rank === 'boss' || MIN9)) && !(m as { noWind12y?: boolean }).noWind12y /* rc12y r2（自訂） */ && !(m as { tired12z?: boolean }).tired12z /* rc12z 3（自訂） */ && worstHit(s, m, defending) >= CP8.bigTele * s.d.hp) { m.heavyNext = true; ev.push({ t: 'charge', from: i }); return; }
     }
     if (RULES.cp8 && CP9.on && CP9.windHit && CP9.windCd > 0 && (m.rank === 'boss' || MIN9) && (mult !== 1 || label)) { if (ARCINT9 && m.int9) m.int9 = false; else m.windCd = CP9.windHitCd; } // cp9-rc8 item 1（自訂）: post-hit lock 2→1 turn (revive keeps CP9.windCd = 2)
     // cp9-rc7 item 2（自訂）: a telegraphed hit landed → no new wind-up for windCd turns

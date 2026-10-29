@@ -168,7 +168,10 @@ export const RUN12U = { addHpK: num('SIM_R12U_ADDHPK') ?? 0, addDmgK: num('SIM_R
 /** rc12y 候選（自訂）: oc 首領戰 F45–65 不帶小怪（診斷：小怪 98% 回合存活、蓄力回合 55% → 防禦/零傷回合）. 0 = rc12x. */
 export const RUN12Y = { ocSolo: num('SIM_R12Y_OCSOLO') ?? 0 /* rc12y r2（自訂）: 製作人否決 → 預設關 */, /** rc12y r2（自訂）: oc F45–65 首領戰小怪不蓄力（一般擊仍受 hitCap12m 40% 上限） */ ocNoWind: num('SIM_R12Y_OCNOWIND') ?? 1, ocSoloFrom: num('SIM_R12Y_OCSOLOFROM') ?? 45, ocSoloTo: num('SIM_R12Y_OCSOLOTO') ?? 65 };
 /** rc12z 候選（自訂）: bulwark / arcane F45–65 首領戰小怪也不蓄力（QA rc12x bulwark：小怪蓄力→防禦佔首領戰決策 54%）. 0 = rc12y r2. */
-export const RUN12Z = { noWind: num('SIM_R12Z_NOWIND') ?? 1 };
+export const RUN12Z = { noWind: num('SIM_R12Z_NOWIND') ?? 1,
+  /** rc12z 1（自訂）: bulwark 首領戰小怪單擊上限 bwAddCap × maxHP，F≥bwAddFrom（QA rc12y：bulwark F65 王戰 0/3，小怪原始傷害遠超上限、每擊都打在 40% 上限附近）. 0 = rc12y. */ bwAddCap: num('SIM_R12Z_BWADDCAP') ?? 0.15, bwAddFrom: num('SIM_R12Z_BWADDFROM') ?? 45, bwAddTo: num('SIM_R12Z_BWADDTO') ?? 65,
+  /** rc12z 2（自訂）: oc 首領 HP 額外 × ocBossHp，F45–65（QA oc F50–60 王戰中位 21–28）. 1 = rc12y. */ ocBossHp: num('SIM_R12Z_OCBOSSHP') ?? 0.6,
+  /** rc12z 3（自訂）: 非首領戰第 tiredAt 回合後，敵人疲憊：不再蓄力、單擊上限 tiredCap × maxHP（不再無限連發 30% 蓄力）. tiredAt 0 = 關. */ tiredAt: num('SIM_R12Z_TIREDAT') ?? 25, tiredCap: num('SIM_R12Z_TIREDCAP') ?? 0.15 };
 export const RUN12X = { gamePath: num('SIM_R12X_GAMEPATH') ?? 1, winHealAll: num('SIM_R12X_WINHEALALL') ?? 1 };
 export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */
