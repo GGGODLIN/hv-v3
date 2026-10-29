@@ -144,10 +144,10 @@ const R12M_BASE: Record<string, Partial<Record<R12MK, number>>> = {
 const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
   // rc12p（自訂）: retuned after the capped preview (★ no longer over-defends) + 1 deterministic boss potion; rc12o values in docs/hv-v3-rc12p.md
   // rc12q（自訂）: retuned on top of the fixed ★ estimate (9a810c7); rc12p values: blade 12/12/33/0.3, bulwark deepK 20, arcane 3/3/—
-  blade: { mobHp: 15, mobDmg: 24 /* rc12x（自訂）: 15→24（每勝 20% 回血後） */, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 60 /* rc12x（自訂）: 55→60 */, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
-  bulwark: { mobHp: 1.5 /* rc12u（自訂）: 21→1.5 (net ≤0.3/normal fight) */, mobDmg: 28 /* rc12x（自訂）: 21→28 */, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 100 /* rc12x（自訂）: 60→100（根因＝精英/首領只回 10%，修正後過易）; rc12u: 30→60 */ }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
+  blade: { mobHp: 30 /* rc12ab 輪1（自訂）: 15→30 */, mobDmg: 24 /* rc12x（自訂）: 15→24（每勝 20% 回血後） */, /* rc12t（自訂）: 13→15 offsets post-win heal */ deepK: 60 /* rc12x（自訂）: 55→60 */, bossHp70: 0.4 /* rc12u（自訂）: deepK 12→55, bossHp70 0.2→0.4 */ }, // rc12s（自訂）: 11→13 after the 30% normal-charge cap (blade sim floorMed 70.5 → 67)
+  bulwark: { mobHp: 8 /* rc12ab 輪1（自訂）: 1.5→8 */ /* rc12u（自訂）: 21→1.5 (net ≤0.3/normal fight) */, mobDmg: 28 /* rc12x（自訂）: 21→28 */, /* rc12t（自訂）: 16→21 offsets post-win heal + boss HP 0.3 */ deepK: 100 /* rc12x（自訂）: 60→100（根因＝精英/首領只回 10%，修正後過易）; rc12u: 30→60 */ }, // rc12s（自訂）: deep suppression (rc12q 9/9/15; with the 30% cap floorMed 92 → 66)
   oc: { mobHp: 8 /* rc12aa 2（自訂）: 1.5→8 降低 oc 整體推進（傷害倍率被單擊上限吃掉，只有 HP 有效） */, mobDmg: 7 /* rc12v（自訂）: mobHp 2→1.5; rc12u 5/5→2/7 */, /* rc12t（自訂）: 3.5→5 */ deepK: 14 /* rc12y r2（自訂）: 10→14 補償小怪不蓄力; rc12x: 5→10; rc12v: 2.2→5 */, bossHp: 0.45 /* rc12x（自訂）: 0.5→0.45 */, bossHp70: 0.5 },
-  arcane: { deepK: 50 /* rc12x（自訂）: 14→50; rc12v: 18→14 */, mobHp: 2.9, mobDmg: 14 /* rc12x（自訂）: 3.3→14 */ /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
+  arcane: { deepK: 50 /* rc12x（自訂）: 14→50; rc12v: 18→14 */, mobHp: 8 /* rc12ab 輪1（自訂）: 2.9→8 */, mobDmg: 14 /* rc12x（自訂）: 3.3→14 */ /* rc12t（自訂）: 2.6/3→2.9/3.3 */ /* rc12s（自訂）: mobHp 2.5→2.6 mild deep suppression */, bossHp: 0.6, bossHp70: 1.2 }, // rc12q（自訂）: bossHp = arcane boss HP × (aoBossHp 0.8 ×) F30–65, pre-F50 deaths were boss fights
 };
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
@@ -181,6 +181,12 @@ export const RUN12AA = { arcChg: num('SIM_R12AA_ARCCHG') ?? 0.2,
   b70Hp: num('SIM_R12AA_B70HP') ?? 0.3, b70Dmg: num('SIM_R12AA_B70DMG') ?? 1, b70Plain: num('SIM_R12AA_B70PLAIN') ?? 0.35 };
 /** rc12aa 2（自訂）: oc 首領 HP 係數，連續、分段線性。 */
 export const ocBoss12aa = (F: number): number => { const A = RUN12AA; if (F <= A.ocFrom || F >= A.ocTo) return 1; return F <= A.ocMid ? 1 + (A.ocLo - 1) * (F - A.ocFrom) / (A.ocMid - A.ocFrom) : A.ocLo + (1 - A.ocLo) * (F - A.ocMid) / (A.ocTo - A.ocMid); };
+/** rc12ab（自訂，遊戲與 sim 同路徑、預設開啟）: 深層消耗改從資源端。勝利回血 F≤healFrom 為 healHi，線性降到 healTo 的 healLo，之後維持 healLo；
+ *  首領 +1 藥只到 bossPotTo 之前；精英掉藥 F≥elite70From 機率改 elite70P。 */
+export const RUN12AB = { healFrom: num('SIM_R12AB_HEALFROM') ?? 60, healTo: num('SIM_R12AB_HEALTO') ?? 80, healHi: num('SIM_R12AB_HEALHI') ?? 0.2, healLo: num('SIM_R12AB_HEALLO') ?? 0.05,
+  bossPotTo: num('SIM_R12AB_BOSSPOTTO') ?? 70, elite70From: num('SIM_R12AB_ELITE70FROM') ?? 70, elite70P: num('SIM_R12AB_ELITE70P') ?? 0.2 };
+/** rc12ab（自訂）: 勝利回血比例（最大 HP），連續。 */
+export const winHeal12ab = (F: number): number => { const A = RUN12AB; if (F <= A.healFrom) return A.healHi; if (F >= A.healTo) return A.healLo; return A.healHi + (A.healLo - A.healHi) * (F - A.healFrom) / (A.healTo - A.healFrom); };
 export const RUN12X = { gamePath: num('SIM_R12X_GAMEPATH') ?? 1, winHealAll: num('SIM_R12X_WINHEALALL') ?? 1 };
 export const RUN12O = { on: (num('SIM_RUN12O') ?? 1) === 1, scatter: num('SIM_R12O_SCATTER') ?? 0, bossPot: num('SIM_R12O_BOSSPOT') ?? 1 /* rc12p: deterministic 1 per boss（自訂） */, bossPotFrom: num('SIM_R12O_BOSSPOTFROM') ?? 25, bossGear: num('SIM_R12O_BOSSGEAR') ?? 1, arcHp: num('SIM_R12O_ARCHP') ?? 1.03 };
 /** rc12o（自訂）: boss HP / dmg × bossHp70 / bossDmg70 from F70 (linear in from F65). */

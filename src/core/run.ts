@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, ocBoss12aa, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -267,7 +267,7 @@ export function withRng<T>(run: RunState, f: (r: Rng) => T): T {
 
 /** rc12o（自訂）: boss guaranteed piece minimum quality = abyss guarantee + RUN12O.bossGear tiers. */
 /** rc12p（自訂）: health potions for an abyss boss kill at depth ab — deterministic, shared by sim and game. */
-export const bossPot12p = (ab: number): number => (RUN12M.on && RUN12O.on && ab >= RUN12O.bossPotFrom ? Math.round(RUN12O.bossPot) : 0);
+export const bossPot12p = (ab: number): number => (RUN12M.on && RUN12O.on && ab >= RUN12O.bossPotFrom && ab < RUN12AB.bossPotTo /* rc12ab（自訂）: F70+ 停 */ ? Math.round(RUN12O.bossPot) : 0);
 export const bossGearQ12o = (q: Quality): Quality => QUALITIES[Math.min(QUALITIES.length - 1, QUALITIES.indexOf(q) + Math.max(0, Math.round(RUN12O.bossGear)))]!;
 /** Derived stats with run bonuses applied. */
 export function runDerived(p: Player, run: RunState) {
@@ -437,7 +437,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
         }
       } else if (rng.chance(0.2)) loot.credits += Math.round((5 + m.level * 2) * (0.8 + rng.next() * 0.4));
     }
-    if (type === 'elite' && run.abyss && RUN12M.on && RUN12O.on && RULES.cp8 && RUN12U.elitePot > 0 && depthOf(run) >= RUN12U.elitePotFrom && ++ELITE_POT12AA.n && rng.chance(RUN12U.elitePotP) /* rc12v（自訂） */ && ++ELITE_POT12AA.drop) loot.potions.health = (loot.potions.health ?? 0) + RUN12U.elitePot; // rc12u（自訂，非原版）: abyss elite win → 1 health potion from F15
+    if (type === 'elite' && run.abyss && RUN12M.on && RUN12O.on && RULES.cp8 && RUN12U.elitePot > 0 && depthOf(run) >= RUN12U.elitePotFrom && ++ELITE_POT12AA.n && rng.chance(depthOf(run) >= RUN12AB.elite70From ? RUN12AB.elite70P : RUN12U.elitePotP) /* rc12v / rc12ab（自訂） */ && ++ELITE_POT12AA.drop) loot.potions.health = (loot.potions.health ?? 0) + RUN12U.elitePot; // rc12u（自訂，非原版）: abyss elite win → 1 health potion from F15
     if (type === 'elite' && !(run.abyss && RUN12M.on && RUN12O.on && RULES.cp8) /* rc12p（自訂）: abyss potions only from boss kills (QA rc12o 'normal' drops were elites) */ && RULES.cp8 && RULES.origPotionDrop && RULES.eliteHealthPotion && !ADVICE_DIAG.revert.has('elitepot') && (!RULES.cp8 || r12m(p && curveSchool12g(p), 'elite') >= 1 || rng.chance(r12m(p && curveSchool12g(p), 'elite')))) loot.potions.health = (loot.potions.health ?? 0) + 1; // rc20 item 4（自訂，非原版）
     if (type === 'elite') loot.equips.push(generateEquip(rng, L, { minQuality: 'fair', qualityBump: (run.floor > 5 ? 1 : 0) + (cp4On(run) ? sumMods(run.buffs!).r.qualityBump ?? 0 : 0) }));
     if (type === 'boss') {
@@ -524,7 +524,7 @@ export function finishBattle(p: Player, run: RunState, b: BattleState, monsters:
   if (run.cp5 && type === 'boss' && run.floor === 10) run.f10 = true;
   run.kills += monsters.length;
   const loot = battleLoot(run, monsters, type, p);
-  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' || RUN12X.winHealAll ? CP7.winHealNormal : 0) /* rc12x（自訂）: every win 20% (was normal fights only) */))); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
+  if (RULES.cp7 && run.abyss && CP7.winHeal > 0) { const d = runDerived(p, run); run.hp = Math.min(d.hp, run.hp + Math.round(d.hp * (CP7.winHeal + (type === 'battle' || RUN12X.winHealAll ? CP7.winHealNormal : 0) /* rc12x（自訂）: every win 20% (was normal fights only) */) * winHeal12ab(depthOf(run) || run.floor) / RUN12AB.healHi /* rc12ab（自訂）: F60+ 線性降 */)); run.mp = Math.min(d.mp, run.mp + Math.round(d.mp * CP7.winHeal)); run.sp = Math.min(d.sp, run.sp + Math.round(d.sp * CP7.winHeal)); }
   // Proficiency EXP (002-02a): battle EXP x4, shared across what was used.
   const total = Object.values(b.used).reduce((a, c) => a + (c ?? 0), 0) || 1;
   for (const k of PROFS) {
