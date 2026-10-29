@@ -1,3 +1,13 @@
+# v071 formal verified and fully restorable — checkpoint 232
+
+Formal website 1dedaca6c1dc56f4e9e29241f5902e86835b62d6, exact Pages40800246154 SUCCESS; publisher verified21 runtime bytes and4316 outside files/modes retained. Normal cloud UI on original formal profile (no candidate import) completed a natural2× single expedition:18wins, Lv10/XP274/401,1454gold,29bag items. New loot-29/30 appeared in report. Enter on loot-30 resolved same current inventory item, selected gear tab and focused detail H3; HP773→831 was a comparison preview, not an applied equipment change. Before/after inspection exports were byte-identical. Reload changed only8 known transient keys and preserved permanent progress. Desktop1180/document1165, no broken images.
+
+Formal receipt docs/QA-V071-FORMAL-BROWSER-RECEIPT.json SHA25675e317f80e33ed97a4bdf3315a550c7aae0f65cc0011aa94d4c9bd1288180080. Candidate separately passed filter-preserving inspection, explicit sale/unowned availability and equipped inspection; formal did not repeat sale/equip/filter. Pending, readonly, stale ownership race, current bound-scaled values and pinned/previous inspection remain source-only. No mobile/full accessibility/publicHTTP all-file hash or Library sync claim.
+
+Restore exact commit carrying232-v071-restorable and verify every CHECKPOINT payload byte length/SHA256. Runtime/tests/assets/index equal accepted source e43d55c596edfd6cd4e17c420cd9e69cf33cf558.2446 tests+4syntax were freshly passed at230, NOT rerun at232 (docs/evidence-only). Prior fully accepted recovery c1c2953a4e7865f9e50deded9dc1f35b071e10f5 remains available. Use recovery instructions below; do not mix candidate/formal saved progress.
+
+Earlier records (historical):
+
 # v071 candidate accepted — checkpoint 230
 
 Candidate db09785c8c6cf2e62cdc87af20a61e1fcfbfb094 / exact Pages40798915484 SUCCESS passed normal cloud UI acceptance using a genuine formal save only imported into candidate. Source runtime b8404ac6cd4f57af7fa702d73680bc909e6e5543 is unchanged; formal remains accepted v070 b2f8c5b5ea65c48fd8e9bf48ce08296cf9ce367f until separate promotion and smoke.

@@ -1,0 +1,125 @@
+{
+  "version": "v0.71",
+  "result": "PASS",
+  "tested_at": "2026-10-29T01:27:00Z",
+  "url": "https://gggodlin.github.io/play/hv-v3-dot/",
+  "website_commit": "1dedaca6c1dc56f4e9e29241f5902e86835b62d6",
+  "pages_run": "40800246154",
+  "method": "Cloud CUA normal UI on original formal profile; genuine baseline export; no candidate import or state injection. Exact CI and 21 runtime byte checks supplied by publisher, not independently HTTP rehashed here.",
+  "checks": [
+    "Baseline v070 Lv10/gold1378/wins17/bag27 exported, then normal reload displayed v071.",
+    "Natural 2x single expedition completed all waves and returned camp: Lv10 XP274/401 gold1454 wins18 bag29; loot29 Magnificent armor and loot30 Superior accessory acquired.",
+    "Expanded two-item drop receipt. Enter on exact loot30 action opened matching current inventory detail and selected gear tab. H3 優良・獵隙守望墜飾・追風 focused with tabindex -1; current-to-replacement HP773→831 preview shown.",
+    "Before/after inspection saves byte-identical: no equip, sale or permanent-state mutation.",
+    "Normal reload preserved all permanent progression and items; only eight known transient keys changed.",
+    "Viewport1180/document1165, broken images0."
+  ],
+  "reload_different_keys": [
+    "_eventId",
+    "_tuCompensation",
+    "_turns",
+    "battle",
+    "events",
+    "logs",
+    "timing",
+    "wave"
+  ],
+  "final_hero": {
+    "level": 10,
+    "xp": 274,
+    "xpNext": 401,
+    "hp": 773,
+    "mp": 46,
+    "gold": 1454,
+    "proficiency": 12,
+    "attributes": {
+      "str": 26,
+      "dex": 26,
+      "agi": 26,
+      "end": 26,
+      "int": 26,
+      "wis": 26
+    }
+  },
+  "final_wins": 18,
+  "final_inventory_count": 29,
+  "new_items": [
+    {
+      "rolls": {
+        "attack": 161,
+        "defense": 171,
+        "hp": 172,
+        "crit": 174,
+        "evade": 167
+      },
+      "prefix": "銳意",
+      "suffix": "追風",
+      "id": "loot-29",
+      "name": "華麗・銳意餘燼護衣・追風",
+      "slot": "armor",
+      "quality": "Magnificent",
+      "rarityColor": "#bd9bff",
+      "level": 3,
+      "roll": 169,
+      "power": 45,
+      "stats": {
+        "attack": 3,
+        "defense": 12,
+        "hp": 140,
+        "crit": 0.0046,
+        "evade": 0.0091
+      },
+      "locked": false,
+      "description": "偏重生命，適合長線消耗戰。詞綴：攻擊加成／閃避與暴擊。"
+    },
+    {
+      "rolls": {
+        "defense": 111,
+        "hp": 129,
+        "crit": 91,
+        "evade": 99
+      },
+      "prefix": "獵隙",
+      "suffix": "追風",
+      "id": "loot-30",
+      "name": "優良・獵隙守望墜飾・追風",
+      "slot": "accessory",
+      "quality": "Superior",
+      "rarityColor": "#80d8a0",
+      "level": 3,
+      "roll": 108,
+      "power": 18,
+      "stats": {
+        "defense": 4,
+        "hp": 63,
+        "crit": 0.0117,
+        "evade": 0.0074
+      },
+      "locked": false,
+      "description": "為防線保留餘裕。詞綴：暴擊機會加成／閃避與暴擊。"
+    }
+  ],
+  "exports": {
+    "baseline": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/67f8c1de-47a8-4238-b502-06ab057d002b",
+      "sha256": "ce07ff79f678a94ff62a116b56090a1aa8c03227ebb7d5e56751d9070384dc12"
+    },
+    "before_inspection": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/1c8bc04c-fcfb-46af-9590-ef08b44a4a11",
+      "sha256": "a1f1bb29b9a07f63a41f3dd2b51f299d07fe0761763a139672cd408c288217b1"
+    },
+    "after_inspection": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/0162d09c-23e6-47e0-9839-fb305f7febc9",
+      "sha256": "a1f1bb29b9a07f63a41f3dd2b51f299d07fe0761763a139672cd408c288217b1"
+    },
+    "after_reload": {
+      "path": "/opt/codex/downloads/3dd8ff4c-e6c1-42bb-b198-85485653b2ca/ee7548a8-26dc-4cbc-a10f-c46c2098e3fc",
+      "sha256": "bd361bf524e1fb335e1e7f9a04e21dfda790ce891d3a94ef09300bb640ec4df3"
+    }
+  },
+  "limits": [
+    "Formal smoke did not sell/equip or test hidden-by-filter; candidate separately passed those real UI flows.",
+    "Pending loot, read-only, stale action race, current soulbound-scaled detail and pinned/previous report inspection remain unit-only here.",
+    "No mobile or full accessibility audit; no claim of all public HTTP runtime hash verification."
+  ]
+}
