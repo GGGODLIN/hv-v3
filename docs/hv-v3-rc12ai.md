@@ -26,3 +26,22 @@ defprobe（128 seeds）：實際 HP 低於 A 的比例 4 派都是 0%。
 - 單次 sweep 的樓層有約 ±3 層的雜訊。oc mobK 0.45 但不加 mobTo 80 時，最大值是 34，所以 oc 長尾對參數很敏感。
 - blade 和 bulwark 的一般戰最大值（38/44）不在目標內，QA 可能會有感。
 - 實玩 bl 100 / bw 86 和 sim 仍有差距，可能來自玩家技術，不只是藥水。
+
+## over-hi probe（cp9-rc12ai / 3e279f9；scripts/rc12af-estprobe.ts，128 seeds，env -i，hint/alloc/MERCHTHR=8）
+over-hi 的定義：整回合的實際受傷 > 面板第一行的 hi。
+
+### 已驗證
+| 派 | BUYPOT=0 回合數 / over-hi | BUYPOT=10 回合數 / over-hi |
+|---|---|---|
+| blade | 11847 / 0 | 13252 / 0 |
+| bulwark | 13540 / **1（0.007%）** | 15085 / **1（0.007%）** |
+| oc | 12854 / 0 | 15581 / 0 |
+| arcane | 12319 / 0 | 13058 / 0 |
+
+- 兩組 BUYPOT 出現的是同一筆。bulwark F55 首領戰 T6，`HI:boss:nokill:nocrit`，hi 351、實際 352，超出 1。
+  - 受傷明細：0:28 + 0:130（標為「反傷」）+ 1:194，三筆都沒有暴擊。
+- rc12ag 時是 0 次；這次是 1 次。
+
+### 推測
+- 超出 1 點可能是捨入（floor 或 ceil）誤差，或「反傷」那一筆沒有算進 hi。
+- 這是面板顯示的問題，不是平衡問題。本輪只記錄，沒有修改。
