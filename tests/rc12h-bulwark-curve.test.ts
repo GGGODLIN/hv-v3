@@ -15,7 +15,7 @@ describe('rc12h bulwark deep curve（自訂）', () => {
   });
   it('arcane / oc stay at 0, blade unchanged', () => {
     expect(deepK12g('arcane')).toBe(0); expect(deepK12g('oc')).toBe(1) /* rc12m RUN12M */; expect(deepK12g('blade')).toBe(4);
-    expect(deep12g(100, 'hp', 'blade')).toBeCloseTo(1.6); // rc12k r2: blade hpS 0.15（自訂）
+    expect(deep12g(100, 'hp', 'blade')).toBeCloseTo(1.76); // rc12ai: blade hpS 0.15→0.19（自訂）
     expect(potCdAt12h(100, 'arcane')).toBe(0); expect(plainAt12h(100, 'oc')).toBeUndefined();
   });
 });

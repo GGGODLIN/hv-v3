@@ -7,7 +7,7 @@ import { makePool, type MonsterRow } from '../src/core/monsters';
 import { RULES, ELITE_POT12AA } from '../src/core/run';
 import type { BattleState } from '../src/core/battle';
 RULES.cp6Abyss = true; RULES.cp5Bosses = true; RULES.cp4RunBuffs = true; RULES.cp7 = true; RULES.cp8 = true;
-for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_POLICY: 'primary', SIM_NOPREP: 'alloc', SIM_BUYPOT: '10', SIM_MERCHTHR: '0' /* rc12ag（自訂）: QA rc12af 9 局在商人皆未買藥（evflush node pot 不增）→ 驗收改不在商人買藥；原 '7' */, SIM_RETREAT9: '1' })) process.env[k] ??= v;
+for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_POLICY: 'primary', SIM_NOPREP: 'alloc', SIM_BUYPOT: '10', SIM_MERCHTHR: '8' /* rc12ai（自訂）: QA rc12ah 179 次商人皆「藥 <8 才買 1 瓶」（evflush merchant thr=8）→ 驗收改買到 8；rc12ag 的 '0' 造成 sim 低估 bl/bw */ /* rc12ag（自訂）: QA rc12af 9 局在商人皆未買藥（evflush node pot 不增）→ 驗收改不在商人買藥；原 '7' */, SIM_RETREAT9: '1' })) process.env[k] ??= v;
 const E = process.env, K = Number(process.argv[2] ?? 128);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const P0 = presetPlayer((JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8')) as Record<string, Preset>)[`postF20-${E.SC}`]!);
@@ -53,3 +53,7 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
 // rc12ah（自訂，僅 sim 診斷）: F58–66 一般戰 中位/p90/最大、F65 王戰 中位/p90/最大
 { const a = fs.filter((f) => f.type === 'battle' && f.d >= 58 && f.d <= 66).map((f) => f.turns + 1).sort((x, y) => x - y), b = t(boss(65, 65)).sort((x, y) => x - y);
   console.log(`AH ${E.SC} n58_66=${a.length} med58_66=${med(a)} p90_58_66=${a[Math.floor(0.9 * a.length)]} p99_58_66=${a[Math.floor(0.99 * a.length)]} max58_66=${a[a.length - 1]} gt30_58_66=${a.filter((x) => x > 30).length} f65n=${b.length} f65Med=${med(b)} f65P90=${b[Math.floor(0.9 * b.length)]} f65Max=${b[b.length - 1]}`); }
+// rc12ai（自訂，僅 sim 診斷）: 每局各樓層帶的戰鬥種類數（與 QA node 比較）、樓層分布
+{ const by = (lo: number, hi: number, ty: string) => { const r = new Set(fs.filter((f) => f.d >= lo && f.d <= hi).map((f) => f.s)); return (fs.filter((f) => f.d >= lo && f.d <= hi && f.type === ty).length / Math.max(1, r.size)).toFixed(2); };
+  const sc = [...cl].sort((x, y) => x - y), q = (p: number) => sc[Math.min(sc.length - 1, Math.floor(p * sc.length))];
+  console.log(`AI ${E.SC} F45-59 battle/elite=${by(45, 59, 'battle')}/${by(45, 59, 'elite')} F60-79=${by(60, 79, 'battle')}/${by(60, 79, 'elite')} floorQ10/25/50/75/90=${q(0.1)}/${q(0.25)}/${q(0.5)}/${q(0.75)}/${q(0.9)} ${(() => { const a = fs.filter((f) => f.type === 'battle' && f.d >= 58 && f.d <= 80).map((f) => f.turns + 1).sort((x, y) => x - y); return `n58_80=${a.length} med58_80=${med(a)} p99_58_80=${a[Math.floor(0.99 * a.length)]} max58_80=${a[a.length - 1]} gt30_58_80=${a.filter((x) => x > 30).length}`; })()}`); }

@@ -3,7 +3,7 @@ import { RUN12AG, mob12ag, boss12ag } from '../src/core/cp8';
 describe('rc12ag 調參', () => {
   it('mob12ag：F55 前為 1，F75 達 mobK', () => {
     expect(mob12ag(50, 'oc')).toBe(1);
-    expect(mob12ag(75, 'oc')).toBeCloseTo(RUN12AG.mobK.oc!);
+    expect(mob12ag(80, 'oc')).toBeCloseTo(RUN12AG.mobK.oc!); // rc12ai: oc mobTo 80
     expect(mob12ag(75, 'arcane')).toBe(1);
   });
   it('boss12ag 只作用 F45–69', () => {

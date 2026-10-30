@@ -28,7 +28,7 @@ describe('rc12ah 3（自訂）: 防禦淨 HP A–B 含同回合其他怪', () =>
 });
 describe('rc12ah 旋鈕（自訂）預設', () => {
   it('預設 mobFrom/mobTo/bossK/bossPot 為中性、blade bossPot 固定 0', () => {
-    for (const s of ['blade', 'bulwark', 'oc', 'arcane']) { expect(RUN12AH.mobFrom[s]).toBe(0); expect(RUN12AH.bossK[s]).toBe(s === 'arcane' ? 0.85 : 1); }
-    expect(RUN12AH.bossPot.blade).toBe(0); expect(mob12ag(50, 'oc')).toBe(1); expect(boss12ag(65, 'arcane')).toBe(0.85); expect(boss12ag(55, 'arcane')).toBe(1);
+    for (const s of ['blade', 'bulwark', 'oc', 'arcane']) { expect(RUN12AH.mobFrom[s]).toBe(0); expect(RUN12AH.bossK[s]).toBe(1); }
+    expect(RUN12AH.bossPot.blade).toBe(0); expect(mob12ag(50, 'oc')).toBe(1); expect(boss12ag(65, 'arcane')).toBe(1) /* rc12ai：arcane bossK 0.85→1 */; expect(RUN12AH.mobTo.oc).toBe(80); expect(boss12ag(55, 'arcane')).toBe(1);
   });
 });

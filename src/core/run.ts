@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, RUN12AG, RUN12AH, mob12ag, boss12ag, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, RUN12AG, RUN12AH, arcMdb12ai, mob12ag, boss12ag, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -274,6 +274,7 @@ export function runDerived(p: Player, run: RunState) {
   const d = derive(p);
   const out = { ...d, adb: d.adb * (1 + run.bonus.dmg), mdb: d.mdb * (1 + run.bonus.dmg), hp: Math.round(d.hp * (1 + run.bonus.hp)) };
   if (RULES.cp8 && CP9.on && RUN12M.on && RUN12O.on && RUN12O.arcHp > 0 && p.lean === 'arcane' && run.abyss) out.hp = Math.max(out.hp, Math.round(RUN12O.arcHp * refHp9(depthOf(run) || run.floor))); // rc12o（自訂）: arcane max-HP floor
+  if (RULES.cp8 && CP9.on && RUN12M.on && p.lean === 'arcane' && run.abyss) out.mdb *= arcMdb12ai(depthOf(run) || run.floor); // rc12ai（自訂）: arcane spell output ramp
   if (!cp4On(run)) return out;
   // CP4 step 2: run-buff derived mods (doc §1 variables only; all values 暫定).
   const m = sumMods(run.buffs!).d;
