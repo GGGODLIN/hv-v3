@@ -60,3 +60,6 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
 // rc12aj（自訂，僅 sim 診斷）: 各首領樓層 回合 中位/p90（n）與首領 maxHp 中位
 { const q = (a: number[], p: number) => { const x = [...a].sort((u, v) => u - v); return x[Math.min(x.length - 1, Math.floor(p * x.length))]; };
   console.log(`AJ ${E.SC} ${[45, 50, 55, 60, 65, 70].map((F) => { const a = boss(F, F); return `F${F}:${med(t(a))}/${q(t(a), 0.9)}(n=${a.length},hp${med(a.map((f) => f.bhp ?? 0))})`; }).join(' ')}`); }
+// rc12aj（自訂，僅 sim 診斷）: F55+ 一般戰回合 中位/p90/最大/>30 場數
+{ const a = fs.filter((f) => f.type === 'battle' && f.d >= 55).map((f) => f.turns + 1).sort((x, y) => x - y);
+  console.log(`AK ${E.SC} n55=${a.length} med55=${med(a)} p90_55=${a[Math.floor(0.9 * a.length)]} max55=${a[a.length - 1]} gt30_55=${a.filter((x) => x > 30).length}`); }
