@@ -590,8 +590,16 @@ export const topRoll12af = <T>(f: () => T): T => { const k = ADVICE_DIAG.critRol
 export function hiRound12ag(s: BattleState): number {
   return topRoll12af(() => {
     const sum = s.monsters.reduce((t, m0) => { const m = m0 as CM; if (m.hp <= 0) return t; if (m.status.stun > 0) return t + (revive12q(s, m) ? reviveHit12q(s, m, false, true) : 0); return t + chargeEstimate(s, m, false, true); }, 0) + (RULES.cp8 ? extra9(s, false) : 0);
-    return Math.max(sum, roundEstimate(s, true, false));
+    return Math.ceil(Math.max(sum, roundEstimate(s, true, false)) + thornPending12aj(s));
   });
+}
+/** rc12aj（自訂，非數值）: QA probe bulwark F55 T6 — hi 351 < 實際 352 = 28 + 反傷 130 + 194。尖刺盾在本回合才展開（sigPending），
+ *  玩家的反擊打在剛展開的盾上吃反傷；extra9 只看已展開的盾 → 漏算。只加進面板 hi（上限 = ⌈maxHp × reflectCapHp⌉），已計入 extra9 時不重複。 */
+export function thornPending12aj(s: BattleState): number {
+  if (!RULES.cp8 || NOEXTRA9) return 0;
+  const on = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && (!!m.thornTurns || !!m.affixes?.includes('spikes')); });
+  const pend = s.monsters.some((m0) => { const m = m0 as CM; return m.hp > 0 && m.sig === 'thorns' && !!m.sigPending; });
+  return !on && pend ? Math.ceil(s.d.hp * CP5.reflectCapHp) : 0;
 }
 /** rc12ag 5（自訂，非數值）: 按 D 時的回血量（同 act 'defend'：OC 足夠才回血，bulwark 連續防禦遞減）。 */
 export function defHeal12ag(s: BattleState): number {
@@ -610,7 +618,7 @@ export function defNet12ah(s: BattleState): { h: number; a: number; b: number; h
 }
 export function roundRange12ad(s: BattleState): { lo: number; hi: number } | null {
   if (s.monsters.filter((m) => m.hp > 0 && !(m.status.stun > 0)).length < 2) return null;
-  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(hiRound12ag(s)) /* rc12ag 5: hiRound12ag； rc12af 4b（自訂，非數值）: 面板上限用最高擲骰暴擊（QA rc12ae bl2 F45 T12: 平均擲骰暴擊 353 < 實際 381） */ };
+  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.ceil(hiRound12ag(s)) /* rc12aj: round→ceil，hi 不可低估 */ /* rc12ag 5: hiRound12ag； rc12af 4b（自訂，非數值）: 面板上限用最高擲骰暴擊（QA rc12ae bl2 F45 T12: 平均擲骰暴擊 353 < 實際 381） */ };
 }
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(roundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);

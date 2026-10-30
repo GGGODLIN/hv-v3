@@ -35,7 +35,7 @@ describe('rc12ag 5：面板上限', () => {
     let pre: { hi: number } | null = null, over = 0, seen = 0, starSame = true;
     TURN_HOOK9.fn = (b) => { const r = roundRange12ad(b); if (!r) { pre = null; return; } seen++;
       const k1 = chargeAdvice(b).text; expect(r.hi).toBeGreaterThanOrEqual(Math.round(topRoll12af(() => roundEstimate(b, true, false))));
-      expect(r.hi).toBe(Math.round(hiRound12ag(b))); expect(defHeal12ag(b)).toBeGreaterThanOrEqual(0); if (chargeAdvice(b).text !== k1) starSame = false; pre = r; };
+      expect(r.hi).toBe(Math.ceil(hiRound12ag(b))); expect(defHeal12ag(b)).toBeGreaterThanOrEqual(0); if (chargeAdvice(b).text !== k1) starSame = false; pre = r; };
     ACT_HOOK12AF.fn = (b, ev) => { if (!pre) return; const t = ev.filter((e) => e.t === 'hit' && (e as { to?: string }).to === 'player').reduce((s, e) => s + (e as { dmg: number }).dmg, 0); if (t > pre.hi) over++; pre = null; };
     try { for (let s = 1; s <= 3; s++) { const p = structuredClone(P0); autoRun(p, pool, s * 1000 + 101, 'buff:oc', { mode: 'counter', retreat: 0, abyss: 1, cap: 40, ms: 0 }); } }
     finally { TURN_HOOK9.fn = null; ACT_HOOK12AF.fn = null; }
