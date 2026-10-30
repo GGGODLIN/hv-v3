@@ -219,3 +219,13 @@ export const RUN12AC = { minion: num('SIM_R12AC_MINION') ?? 0.25, bossMinion: nu
 /** rc12ad 1（自訂）: teleA = 非首領戰、只有非精英本體小怪蓄力且不致死 → ★ 改推 A·攻擊（D 為次選），避免長戰 ★ 防禦循環輸出 0。 */
 /** rc12ad 3（自訂）: bossPot70 = F70+ 首領保底：樓層為此數倍數（F70/80/90/100）的首領勝利 +1 生命藥水（確定，不擲骰）；0 = 關。 */
 export const RUN12AD = { teleA: num('SIM_R12AD_TELEA') ?? 1, bossPot70: num('SIM_R12AD_BOSSPOT70') ?? 10 };
+/** rc12ag（自訂，非原版）: 後段長戰修正。mobK = 非首領怪 HP 倍率（F≤mobFrom ×1 → 線性到 mobTo 層 ×mobK，之後維持）；
+ *  bossK = F45–69 首領 HP 倍率（各派）；bossPot = F45–69 首領勝利額外生命藥水。預設值見 rc12ag 調參紀錄（docs/hv-v3-rc12ag.md）。 */
+const sc12ag = (k: string, d: Record<string, number>): Record<string, number> => Object.fromEntries(['blade', 'bulwark', 'oc', 'arcane'].map((s) => [s, num(`SIM_R12AG_${k}_${s.toUpperCase()}`) ?? d[s] ?? 1]));
+export const RUN12AG = {
+  mobFrom: num('SIM_R12AG_MOBFROM') ?? 55, mobTo: num('SIM_R12AG_MOBTO') ?? 75, /** 0 = 關；否則 F≥backFrom 起線性回到 ×1（backTo 層） */ backFrom: num('SIM_R12AG_BACKFROM') ?? 0, backTo: num('SIM_R12AG_BACKTO') ?? 95,
+  mobK: sc12ag('MOBK', { blade: 0.5, bulwark: 0.6, oc: 0.5 }) /* 自訂 */, bossK: sc12ag('BOSSK', { blade: 0.75, oc: 0.85 }) /* 自訂 */, bossPot: num('SIM_R12AG_BOSSPOT') ?? 0,
+  /** 各派 F25–44 首領勝利藥水倍率（0 = 不給；oc 前中段藥水盈餘） */ potEarly: sc12ag('POTEARLY', { oc: 0 }) /* 自訂 */,
+};
+export const mob12ag = (F: number, lean: string | null | undefined): number => { const k = (lean ? RUN12AG.mobK[lean] : undefined) ?? 1, a = RUN12AG.mobFrom, b = RUN12AG.mobTo; const back = RUN12AG.backFrom > 0 && F > RUN12AG.backFrom ? Math.max(0, 1 - (F - RUN12AG.backFrom) / Math.max(1, RUN12AG.backTo - RUN12AG.backFrom)) : 1; return F <= a ? 1 : 1 + (k - 1) * Math.min(1, (F - a) / Math.max(1, b - a)) * back; };
+export const boss12ag = (F: number, lean: string | null | undefined): number => (F >= 45 && F < 70 && lean ? RUN12AG.bossK[lean] ?? 1 : 1);

@@ -30,7 +30,7 @@ describe('rc12o', () => {
   it('boss kill: guaranteed piece one quality tier higher + concentrated health potions', () => {
     RULES.cp8 = true; RUN12O.bossPot = 2;
     for (const start of [30, 50]) {
-      const p = newPlayer(); starterKit(p); const run = startAbyss(p, 7, start, 0);
+      const p = newPlayer(); starterKit(p); p.lean = 'blade' /* rc12ag：oc 的 F25–44 首領藥水刻意為 0 */; const run = startAbyss(p, 7, start, 0);
       const loot = battleLoot(run, encounter(run, pool, 'boss'), 'boss', p);
       const g = loot.equips.find((e) => loot.guaranteed?.includes(e.id))!;
       const want = bossGearQ12o(guaranteeQuality(start));
