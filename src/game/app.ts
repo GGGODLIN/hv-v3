@@ -1,5 +1,5 @@
 import { levelForExp } from '../core/formulas';
-import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
+import { bossDmg, dealtBy, fightTurn, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss, type FightTally } from './qalog';
 import { CP8, CP9, curveSchool12g } from '../core/cp8';
 import { iconKey } from './icons';
 import { roundRange12ad, defHeal12ag, defNet12ah, topRoll12af, saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, queueAfterAct, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
@@ -143,6 +143,7 @@ export class App {
   }
 
   /** cp8-rc6 (Part A 1): a new character's school is passed to starterKit as its lean, so it gets that school's cp8 starter kit. */
+  private qaFightKey12ak = ''; // rc12ak: 本頁面看過的首領戰（不同 = 新頁面／重新載入後的第一回合）
   static fresh(lean?: Player['lean']): SaveData {
     const p = newPlayer();
     starterKit(p, randomSeed(), RULES.cp8 ? lean : undefined);
@@ -952,6 +953,8 @@ export class App {
     const wind0 = b.monsters.map((m) => windingUp(m)); // rc12r: which wind-ups existed before this act
     const ev = act(b, a, this.rng, profsOf(this.p));
     if (b.monsters.some((m) => m.rank === 'boss')) (window as any).hvTurnLog = logTurn(localStorage, { runId: this.run.qaId ??= newRunId(), lean: this.p.lean ?? '', floor: this.run.abyss ? depthOf(this.run) : this.run.floor, level: level(this.p), turn: turnBefore, bossDmg: bossDmg(bh0, b.monsters), bossHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0)), bossMaxHp: Math.round(b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + m.maxHp, 0)) }); // rc11 item 6 (+ bossMaxHp rc11c)
+    let fight12ak: FightTally | null = null; // rc12ak（自訂，QA 用）: 逐回合對首領傷害，跨重新載入累計
+    if (b.monsters.some((m) => m.rank === 'boss')) { const fl = this.run.abyss ? depthOf(this.run) : this.run.floor, key = `${this.run.qaId}:${fl}`; fight12ak = fightTurn(localStorage, this.run.qaId ?? '', fl, bossDmg(bh0, b.monsters), this.qaFightKey12ak !== key); this.qaFightKey12ak = key; (window as any).hvFight = fight12ak; }
     if (b.over === 'lose') flushTurnLog(localStorage); // rc12 item 5: the fatal turn is stored before the death screen / export
     { const off = (Object.keys(cd0) as SkillId[]).filter((id) => cd0[id] > 0 && b.cooldowns[id] <= 0); // cp8-rc9 P2 / rc10 P0-4
       const fresh = castable().filter((id) => !can0.includes(id));
@@ -964,7 +967,7 @@ export class App {
       const dealt = dealtBy(ev); // rc11 item 8
       const rec = { turn: b.turn, action: a.kind, hpBefore, hpAfter: b.hp, maxHp: b.d.hp, taken, maxHit, dealt };
       const w = window as unknown as { __turnLog?: (typeof rec)[] }; (w.__turnLog ??= []).push(rec);
-      if (b.turn > turnBefore || taken || dealt) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：<span data-dealt>造成 ${dealt}</span>，受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}</span>`);
+      if (b.turn > turnBefore || taken || dealt) this.log.push(`<span class="dim" data-turnlog="${b.turn}">第 ${b.turn} 回合：<span data-dealt>造成 ${dealt}</span>，受到 ${taken}（單擊最大 ${maxHit}）HP ${hpBefore} → ${b.hp} / ${b.d.hp}${fight12ak ? ` / <span data-bossdmg="${fight12ak.bossDmg[fight12ak.bossDmg.length - 1]}" data-bossavg="${fight12ak.avg}" data-bossturns="${fight12ak.turns}">首領受傷 ${fight12ak.bossDmg[fight12ak.bossDmg.length - 1]}（平均 ${fight12ak.avg}／${fight12ak.turns} 回合，含重新載入前）</span>` : ''}</span>`);
     }
     const turnHits: { who: string; label?: string; dmg: number; charged: boolean }[] = [];
     for (const e of ev) {

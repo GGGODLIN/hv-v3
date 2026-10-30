@@ -68,3 +68,15 @@ export function trimRuns(log: TurnRow[], cap: number, keep: string): TurnRow[] {
   while (log.length > cap && log.some((r) => r.runId !== keep)) log = dropOldestRun(log, keep);
   return log;
 }
+/** rc12ak（自訂，QA 用，不影響遊戲）: 每場首領戰的逐回合「對首領造成」紀錄，存在 localStorage，重新載入後接續累計，
+ *  所以 turns 包含重新載入前的回合。key = runId + 樓層；換一場就重開。 */
+export const QA_FIGHT = 'hv-v3-qa-fight';
+export interface FightTally { runId: string; floor: number; turns: number; bossDmg: number[]; sum: number; avg: number; reloads: number }
+export function fightTurn(st: St, runId: string, floor: number, bossDmg: number, fresh = false): FightTally {
+  const o = readJson<FightTally | null>(st, QA_FIGHT, null);
+  const t: FightTally = o && o.runId === runId && o.floor === floor ? o : { runId, floor, turns: 0, bossDmg: [], sum: 0, avg: 0, reloads: 0 };
+  if (fresh && t.turns > 0) t.reloads++;
+  t.bossDmg.push(Math.max(0, Math.round(bossDmg))); t.turns = t.bossDmg.length; t.sum = t.bossDmg.reduce((a, b) => a + b, 0); t.avg = Math.round(t.sum / t.turns);
+  try { st.setItem(QA_FIGHT, JSON.stringify(t)); } catch { /* quota: tally lost only */ }
+  return t;
+}
