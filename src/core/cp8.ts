@@ -224,7 +224,7 @@ export const RUN12AD = { teleA: num('SIM_R12AD_TELEA') ?? 1, bossPot70: num('SIM
 const sc12ag = (k: string, d: Record<string, number>): Record<string, number> => Object.fromEntries(['blade', 'bulwark', 'oc', 'arcane'].map((s) => [s, num(`SIM_R12AG_${k}_${s.toUpperCase()}`) ?? d[s] ?? 1]));
 export const RUN12AG = {
   mobFrom: num('SIM_R12AG_MOBFROM') ?? 55, mobTo: num('SIM_R12AG_MOBTO') ?? 75, /** 0 = 關；否則 F≥backFrom 起線性回到 ×1（backTo 層） */ backFrom: num('SIM_R12AG_BACKFROM') ?? 0, backTo: num('SIM_R12AG_BACKTO') ?? 95,
-  mobK: sc12ag('MOBK', { blade: 0.85, bulwark: 0.9, oc: 0.45 }) /* 自訂；rc12ak：退回 rc12ai（製作人：rc12aj mobK 1.3–1.5 使 F55+ 一般戰過長） */ /* 自訂；rc12ai：oc 0.5→0.45（r2，oc 一般戰 max 34→≤30）、blade 0.5→0.85、bulwark 0.6→0.9（sim 改為商人買到 8 瓶後 bl/bw 過強） */, bossK: sc12ag('BOSSK', { blade: 0.6, oc: 0.75 }) /* rc12ak 輪3（自訂）: blade 0.75→0.6 */ /* 自訂；rc12aj：oc 1.1→0.75（oc F50 首領 HP 14.7k≈bw 1.7 倍，實機 30/47 回合） */ /* 自訂；rc12ai：oc 0.85→1.1（oc 小怪 HP 下修後補首領） */, bossPot: num('SIM_R12AG_BOSSPOT') ?? 0,
+  mobK: sc12ag('MOBK', { blade: 0.85, bulwark: 0.9, oc: 0.45 }) /* 自訂；rc12ak：退回 rc12ai（製作人：rc12aj mobK 1.3–1.5 使 F55+ 一般戰過長） */ /* 自訂；rc12ai：oc 0.5→0.45（r2，oc 一般戰 max 34→≤30）、blade 0.5→0.85、bulwark 0.6→0.9（sim 改為商人買到 8 瓶後 bl/bw 過強） */, bossK: sc12ag('BOSSK', { blade: 0.5 /* rc12ak 輪4（自訂；輪3 0.6） */, oc: 0.75 }) /* rc12ak 輪3（自訂）: blade 0.75→0.6 */ /* 自訂；rc12aj：oc 1.1→0.75（oc F50 首領 HP 14.7k≈bw 1.7 倍，實機 30/47 回合） */ /* 自訂；rc12ai：oc 0.85→1.1（oc 小怪 HP 下修後補首領） */, bossPot: num('SIM_R12AG_BOSSPOT') ?? 0,
   /** 各派 F25–44 首領勝利藥水倍率（0 = 不給；oc 前中段藥水盈餘） */ potEarly: sc12ag('POTEARLY', { oc: 0 }) /* 自訂 */,
 };
 export const mob12ag = (F: number, lean: string | null | undefined): number => { const k = (lean ? RUN12AG.mobK[lean] : undefined) ?? 1, a = (lean ? RUN12AH.mobFrom[lean] : undefined) || RUN12AG.mobFrom, b = (lean ? RUN12AH.mobTo[lean] : undefined) || RUN12AG.mobTo; const back = RUN12AG.backFrom > 0 && F > RUN12AG.backFrom ? Math.max(0, 1 - (F - RUN12AG.backFrom) / Math.max(1, RUN12AG.backTo - RUN12AG.backFrom)) : 1; return F <= a ? 1 : 1 + (k - 1) * Math.min(1, (F - a) / Math.max(1, b - a)) * back; };
@@ -243,5 +243,5 @@ export const arcMdb12ai = (F: number): number => (F <= RUN12AI.arcFrom ? 1 : 1 +
 
 /** rc12ak（自訂，非原版）: 深層首領攻擊 ×（不動 HP）：F≥bossAtkFrom 起各派首領 adb × bossAtk（仍受單擊 hitCap）。 */
 const sc12ak = (k: string, d: Record<string, number>): Record<string, number> => Object.fromEntries(['blade', 'bulwark', 'oc', 'arcane'].map((s) => [s, num(`SIM_R12AK_${k}_${s.toUpperCase()}`) ?? d[s] ?? 1]));
-export const RUN12AK = { bossAtkFrom: num('SIM_R12AK_ATKFROM') ?? 45, bossAtk: sc12ak('BOSSATK', { blade: 2.5, bulwark: 2.5, oc: 2.5, arcane: 2.5 }) /* 自訂；rc12ak 輪3（掃 1.4／1.8／2.5） */ };
+export const RUN12AK = { bossAtkFrom: num('SIM_R12AK_ATKFROM') ?? 45, bossAtk: sc12ak('BOSSATK', { blade: 2.5, bulwark: 4, oc: 3.5, arcane: 2.5 } /* rc12ak 輪4（自訂）: bw 2.5→4、oc 2.5→3.5 */) /* 自訂；rc12ak 輪3（掃 1.4／1.8／2.5） */ };
 export const bossAtk12ak = (F: number, lean: string | null | undefined): number => (F >= RUN12AK.bossAtkFrom && lean ? RUN12AK.bossAtk[lean] ?? 1 : 1);
