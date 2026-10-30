@@ -80,3 +80,10 @@ export function fightTurn(st: St, runId: string, floor: number, bossDmg: number,
   try { st.setItem(QA_FIGHT, JSON.stringify(t)); } catch { /* quota: tally lost only */ }
   return t;
 }
+/** rc12al（自訂，QA 用）: `&fresh` starts a clean QA record — turn log, fight tally and every pre-boss snapshot are removed
+ *  (rc11b kept rows across runs by design, so QA exports after a fresh start still carried earlier runs' rows). */
+export function qaReset(st: St): void {
+  for (const k of readJson<string[]>(st, QA_SNAPIDX, [])) st.removeItem?.(k);
+  for (const k of [QA_SNAPIDX, QA_TURNLOG, QA_FIGHT]) st.removeItem?.(k);
+  MEM.delete(st);
+}

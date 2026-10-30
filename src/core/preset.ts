@@ -1,6 +1,7 @@
 import { SAVE_KEY, SAVE_VERSION, type KV, type SaveData } from './save';
 import { ABYSS_KEY } from './abyss';
 import { RULES } from './run';
+import { qaReset } from '../game/qalog';
 
 export interface Preset { player: SaveData['player']; record: unknown }
 /** Every localStorage key the game owns. A preset must replace all of them, not merge into an old save. */
@@ -39,6 +40,7 @@ export function stripPreset(search: string): string {
 export const SLOT_KEY = 'hv-v3-slot';
 const parked = (slot: string, k: string) => `${SLOT_KEY}:${slot}:${k}`;
 export function switchSlot(kv: KV, name: string, pr: Preset, fresh = false): 'fresh' | 'restored' {
+  if (fresh) qaReset(kv); // rc12al: &fresh also clears the QA turn log / fight tally / snapshots
   const cur = kv.getItem(SLOT_KEY) ?? 'default';
   if (cur !== name) for (const k of GAME_KEYS) { const v = kv.getItem(k); if (v === null) kv.removeItem(parked(cur, k)); else kv.setItem(parked(cur, k), v); }
   kv.setItem(SLOT_KEY, name);
