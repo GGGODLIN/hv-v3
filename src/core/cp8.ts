@@ -108,7 +108,7 @@ export const DEEP12G = { /** rc12j item 4（自訂）: arcane / oc boss HP × th
   atkS: { bulwark: num('SIM_DEEPATK_BULWARK') ?? 3 /* rc12h 預設（自訂）；adb 仍受 bossAtk 上限 */, blade: num('SIM_DEEPATK_BLADE') ?? 3 /* rc12k item 2（自訂） */ } as Record<string, number | undefined> };
 /** rc12g step 3（自訂）: school for the deep curve — lean, else by main hand (presets blade / oc carry no lean): 2H → blade, staff → arcane, 1H → oc. */
 export const curveSchool12g = (p: { lean?: string; equipped: { mainHand?: { group?: string } } }): string | undefined =>
-  p.lean ?? ({ twoHand: 'blade', staff: 'arcane', oneHand: 'oc' } as Record<string, string>)[p.equipped.mainHand?.group ?? ''];
+  p.lean || undefined; // rc12ag 2（bug fix）: 沒選派 = 無派別曲線（舊版依主手武器推派，初始單手武器被當成 oc）
 export const deepK12g = (lean?: string): number => r12mDeepK(lean) ?? (lean ? DEEP12G.school[lean] : undefined) ?? DEEP12G.k; // rc12m（自訂）: per-school deep k (RUN12M first)
 export const deep12g = (f: number, part: 'hp' | 'dmg', lean?: string): number => 1 + deepK12g(lean) * (part === 'hp' ? ((lean ? DEEP12G.hpS[lean] : undefined) ?? DEEP12G.hpK) : ((lean ? DEEP12G.atkS[lean] : undefined) ?? 1)) * Math.max(0, f - DEEP12G.from) / 60;
 export const refHp9 = (f: number): number => 850 + 3.5 * Math.max(0, f - 30);

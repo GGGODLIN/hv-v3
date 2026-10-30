@@ -2,7 +2,7 @@ import { levelForExp } from '../core/formulas';
 import { bossDmg, dealtBy, flushTurnLog, logTurn, newRunId, qaExport, snapBeforeBoss } from './qalog';
 import { CP8, CP9, curveSchool12g } from '../core/cp8';
 import { iconKey } from './icons';
-import { roundRange12ad, topRoll12af, saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, queueAfterAct, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
+import { roundRange12ad, defHeal12ag, topRoll12af, saveOnlyNote9, primaryKey, type PrimaryKey, dangerTag9, stunResisting9, rewindNote9, windSafeKey, queueAfterAct, defendVerdict9, type DefendVerdict9, defendEst9, defendRaw9, isLethal, deathHint, deathTip, deathHeadline, turnDamage, deathCharge, act, alive, armCp5, chargeAdvice, type ChargeAdvice, windingUp, type BEvent, canUse, chargeEstimate, suggestSkill, potHint, zHint, guardHint, hpDanger, suggestSpell, quickAttack, turnHints, whyNot, weaknesses, resistances, BOSS_CHARGE_MULT, BULWARK_COUNTER_MULT, BOSS_PHASE_HP, DEF, SPIRIT_MIN_OC, spellCost, startBattle, SKILLS, skillKit, SPELLS, type Action, type BattleState, type PotionId, type SkillId, type SpellId, defVerdictAt9 } from '../core/battle';
 /** rc15 (2): element names for the encounter log line (display only). */
 const ENC_TZ: Record<string, string> = { piercing: '刺擊', crushing: '打擊', slashing: '斬擊', fire: '火', cold: '冰', elec: '雷', wind: '風', holy: '聖', dark: '暗' };
 import { nextPointCosts, profsOf, starterKit } from '../core/auto';
@@ -553,7 +553,7 @@ export class App {
     const pct = Math.round((est / b.d.hp) * 100), pctC = Math.round((estC / b.d.hp) * 100);
     const cd = b.itemCd.health;
     const urgent = RULES.cp8 ? hpDanger(b) : estC >= b.hp * 0.5; // rc16 item 1: same single rule as the decision // cp8-rc7 P1 item 3: ≥ 50% of current HP; rc13 item 2: judged on the crit value
-    return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦後約 ${estD}–${estDC}</span>`
+    return `<br><span data-chargeest="${est}:${pct}" data-chargecrit="${estC}:${pctC}">預估傷害 一般–暴擊 約 ${est}–${estC}（佔最大 HP ${pct}–${pctC}%）· 防禦時受到的傷害約 ${estD}–${estDC}</span>` + ((h) => `<br><span data-defnet="${h}:${Math.max(0, Math.round(b.hp) + h - estDC)}">防禦回血 +${h} 後的淨 HP 約 ${Math.max(0, Math.round(b.hp) + h - estDC)}–${Math.max(0, Math.round(b.hp) + h - estD)}（現在 HP ${Math.round(b.hp)}）</span>` /* rc12ag 5（自訂，非數值）: 受到的傷害與回血後淨 HP 分開顯示 */)(defHeal12ag(b))
       + ((r) => (r ? `<br><span data-roundest="${r.lo}:${r.hi}">同回合全體（含其他怪）約 ${r.lo}–${r.hi}（佔最大 HP ${Math.round((r.lo / b.d.hp) * 100)}–${Math.round((r.hi / b.d.hp) * 100)}%；閃避／格擋、你這回合擊倒或暈眩怪物、或怪物改為起手蓄力時更低）</span>` /* rc12ad 4（自訂） */ : ''))(roundRange12ad(b))
       + (urgent && (!RULES.cp8 || hpDanger(b)) ? urgentLine(chargeAdvice(b, this.target), defendEst9(b), defendRaw9(b), this.pk) : '')
       + (this.guardOnly(b) || (RULES.cp8 && !hpDanger(b)) ? '' : this.chargePayoff(b, chargers, est, estD))

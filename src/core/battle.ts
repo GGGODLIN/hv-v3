@@ -584,9 +584,24 @@ export function roundEstimate(s: BattleState, crit = true, def = s.defendTurns >
  *  whole-round range (all monsters, same caps as ★) — QA bw2 F53 「278 → 390」 was charger 223 + another monster's plain 167. null = single actor. */
 /** rc12af 4b（自訂）: run f with the crit estimate at the top roll (ADVICE_DIAG.critRoll = null) — panel upper bound only; ★/Z/D advice keeps the rc22 mean-roll crit. */
 export const topRoll12af = <T>(f: () => T): T => { const k = ADVICE_DIAG.critRoll; ADVICE_DIAG.critRoll = null; try { return f(); } finally { ADVICE_DIAG.critRoll = k; } };
+/** rc12ag 5（自訂，非數值）: 面板上限。每隻活著、未暈眩的怪都以「最高擲骰暴擊」計入：正在蓄力的算蓄力一擊（不套 chgBudget 共用額度，
+ *  QA oc1 F25 T1 實際 280 > hi 173 = 兩隻同時蓄力暴擊），可能起手蓄力但還沒蓄的照普攻算（QA F31 T2：actHits12ae 預測起手 0，實際普攻）。
+ *  只影響面板 hi；★／Z／D 建議仍用 roundEstimate。 */
+export function hiRound12ag(s: BattleState): number {
+  return topRoll12af(() => {
+    const sum = s.monsters.reduce((t, m0) => { const m = m0 as CM; if (m.hp <= 0) return t; if (m.status.stun > 0) return t + (revive12q(s, m) ? reviveHit12q(s, m, false, true) : 0); return t + chargeEstimate(s, m, false, true); }, 0) + (RULES.cp8 ? extra9(s, false) : 0);
+    return Math.max(sum, roundEstimate(s, true, false));
+  });
+}
+/** rc12ag 5（自訂，非數值）: 按 D 時的回血量（同 act 'defend'：OC 足夠才回血，bulwark 連續防禦遞減）。 */
+export function defHeal12ag(s: BattleState): number {
+  if (s.oc < DEF.ocCost) return 0;
+  const decay = s.cp5 && (s.mods?.bulwarkN ?? 0) > 0 ? CP5.bulwarkDefDecay ** (s.defStreak ?? 0) : 1;
+  return Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0)) * decay)) - s.hp;
+}
 export function roundRange12ad(s: BattleState): { lo: number; hi: number } | null {
   if (s.monsters.filter((m) => m.hp > 0 && !(m.status.stun > 0)).length < 2) return null;
-  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(topRoll12af(() => roundEstimate(s, true, false))) /* rc12af 4b（自訂，非數值）: 面板上限用最高擲骰暴擊（QA rc12ae bl2 F45 T12: 平均擲骰暴擊 353 < 實際 381） */ };
+  return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(hiRound12ag(s)) /* rc12ag 5: hiRound12ag； rc12af 4b（自訂，非數值）: 面板上限用最高擲骰暴擊（QA rc12ae bl2 F45 T12: 平均擲骰暴擊 353 < 實際 381） */ };
 }
 function chargeAdvice00(s: BattleState, target = 0): ChargeAdvice {
   const est = Math.round(roundEstimate(s, true)), hp = Math.round(s.hp), danger = hpDanger(s);

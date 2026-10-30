@@ -31,7 +31,7 @@ describe('rc12g deep curve defaults（自訂）', () => {
   it('blade ×5 / bulwark HP ×1.35 (rc12h) at F100, oc / arcane off, off below F40', () => {
     expect(deep12g(100, 'dmg', 'blade')).toBeCloseTo(13) /* rc12k atkS 3 */; expect(deep12g(100, 'hp', 'bulwark')).toBeCloseTo(1.5) /* rc12m RUN12M bulwark deepK 10 */;
     expect(deep12g(100, 'dmg', 'oc')).toBeGreaterThan(1) /* rc12m RUN12M oc deepK 1 */; expect(deep12g(100, 'dmg', 'arcane')).toBe(1); expect(deep12g(40, 'dmg', 'blade')).toBe(1);
-    expect(curveSchool12g({ equipped: { mainHand: { group: 'twoHand' } } })).toBe('blade');
+    expect(curveSchool12g({ equipped: { mainHand: { group: 'twoHand' } } })).toBeUndefined() /* rc12ag 2：沒選派不再依武器推派 */;
     expect(curveSchool12g({ lean: 'bulwark', equipped: {} })).toBe('bulwark');
   });
 });
