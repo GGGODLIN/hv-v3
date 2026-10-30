@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, RUN12AG, RUN12AH, arcMdb12ai, mob12ag, boss12ag, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { bossAtk12ak, CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, RUN12AG, RUN12AH, arcMdb12ai, mob12ag, boss12ag, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -79,7 +79,7 @@ export interface MerchantStock { equips: { e: Equip; price: number }[]; hpLeft?:
  *  Potion analysis: merchant-first QA-like route bought 73–80 potions per trip at 3/merchant (net +16…+59) → F100 76–100%. */
 export const MERCHANT_HP_POTIONS = 1;
 /** rc12aj（製作人要求，自訂，非原版）: 深淵 F45+ 商人每位賣 MERCHANT_HP_POTIONS_DEEP 瓶生命藥水（F50 後藥水不足）。 */
-export const MERCHANT_HP_DEEP_FROM = 45;
+export const MERCHANT_HP_DEEP_FROM = Number((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_MERCHFROM ?? 999); // 自訂；rc12ak 輪3：45→999＝關閉（F45/55 起 2 瓶時 sim 樓層過高）（SIM_MERCHFROM 僅 sim 調參）
 export const MERCHANT_HP_POTIONS_DEEP = Number((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_MERCHDEEP ?? 2); // 自訂（輪1 試 3 瓶：sim F100 bl48%/oc58%，過強）；SIM_MERCHDEEP 僅 sim 調參
 export const merchantHp = (run: RunState): number => (depthOf(run) >= MERCHANT_HP_DEEP_FROM ? MERCHANT_HP_POTIONS_DEEP : MERCHANT_HP_POTIONS);
 
@@ -359,7 +359,8 @@ export function encounter(run: RunState, pool: MonsterPool, type: NodeType, lean
       if (RULES.cp8 && CP9.on && (type === 'battle' || (type === 'elite' && RUN12AB.eliteMinion > 0 && rank !== 'elite')) && lean === 'arcane' && RUN12AA.arcChg > 0) /* rc12ab 2（自訂）: 精英戰小怪也 20% */ (m as { chg12aa?: number }).chg12aa = RUN12AA.arcChg; // rc12aa 1（自訂）
       if (RULES.cp8 && CP9.on && rank === 'boss' && (ab || run.floor) >= 70) { m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * RUN12AA.b70Hp)); if (RUN12AA.b70Plain > 0) (m as { plain12h?: number }).plain12h = Math.max((m as { plain12h?: number }).plain12h ?? 0, RUN12AA.b70Plain); } // rc12aa 3（自訂）
       if (rank === 'boss' && RULES.cp8 && CP9.on && CP9.bossAtk > 0) m.adb = Math.min(m.adb, CP9.bossAtk * refHp9(ab || run.floor)); // rc12f item 1（自訂，CP9 第 5 條）
-      if (RULES.cp8 && CP9.on && rank === 'boss' && (ab || run.floor) >= 70 && RUN12AA.b70Dmg !== 1) m.adb *= RUN12AA.b70Dmg; // rc12aa 3（自訂）: F70+ 首領傷害 ×（在 bossAtk 上限之後；單擊仍受 hitCap 40%）
+      if (RULES.cp8 && CP9.on && rank === 'boss' && (ab || run.floor) >= 70 && RUN12AA.b70Dmg !== 1) m.adb *= RUN12AA.b70Dmg;
+      if (RULES.cp8 && CP9.on && rank === 'boss') m.adb *= bossAtk12ak(ab || run.floor, lean); // rc12ak（自訂）: 深層首領攻擊 × // rc12aa 3（自訂）: F70+ 首領傷害 ×（在 bossAtk 上限之後；單擊仍受 hitCap 40%）
       return m;
     });
     if (RULES.cp8 && ab && ab > 17 && type !== 'boss' && out.length >= 2 && RC22.multiK !== 1) { const k = 1 - (1 - RC22.multiK) * Math.min(1, (ab - 17) / 3); for (const m of out) m.adb *= k; } // rc22 item 2（自訂，非原版）: ramps d18→d20 to multiK

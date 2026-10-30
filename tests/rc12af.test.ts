@@ -12,7 +12,7 @@ describe('rc12af blade boss HP / heal', () => {
   });
   it('tuned constants', () => {
     expect(RUN12AF.bladeHeal).toBe(0.27);
-    expect(r12m('blade', 'mobHp')).toBe(6);
+    expect(r12m('blade', 'mobHp')).toBe(4) /* rc12ak（自訂；rc12af 6） */;
     expect(r12m('blade', 'bossHp70')).toBe(1);
   });
 });
