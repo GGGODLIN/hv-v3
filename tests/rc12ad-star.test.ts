@@ -36,6 +36,6 @@ describe('rc12ad（自訂）', () => {
     const a = chargeAdvice(b, 0); if (a.danger && !/不防禦會死|HP 危險|HP 偏低/.test(a.text)) expect(a.keys[0]).toBe('D');
   }));
   it('item 3: F70+ boss potion floor — F70/80/90/100 +1, F75/85/95 0, F45–65 unchanged', () => {
-    expect([65, 70, 75, 80, 85, 90, 95, 100].map(bossPot12p)).toEqual([1, 1, 0, 1, 0, 1, 0, 1]);
+    expect([65, 70, 75, 80, 85, 90, 95, 100].map(bossPot12p)).toEqual([1, 1, 1, 1, 1, 1, 1, 1]); // rc12al 4（自訂）: 首領 +1 藥延伸到 F70+ 每一場
   });
 });

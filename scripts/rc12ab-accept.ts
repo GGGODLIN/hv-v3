@@ -11,11 +11,11 @@ for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_
 const E = process.env, K = Number(process.argv[2] ?? 128);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const P0 = presetPlayer((JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8')) as Record<string, Preset>)[`postF20-${E.SC}`]!);
-type F = { s: number; d: number; type: string; turns: number; b: BattleState; p0: number; maxHit: number; lastHp: number; bhp?: number };
+type F = { s: number; d: number; type: string; turns: number; b: BattleState; p0: number; maxHit: number; lastHp: number; bhp?: number; dealt?: number; lastB?: number };
 const fs: F[] = []; let cur: F | null = null;
 TURN_HOOK9.fn = (b) => {
-  if (!cur || cur.b !== b) { cur = { s: SEED12AG, d: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: 0, b, p0: b.potions.health, maxHit: 0, lastHp: b.hp, bhp: b.monsters.find((m) => m.rank === 'boss')?.maxHp }; fs.push(cur); return; }
-  cur.turns++; cur.maxHit = Math.max(cur.maxHit, (cur.lastHp - b.hp) / b.d.hp); cur.lastHp = b.hp;
+  if (!cur || cur.b !== b) { cur = { s: SEED12AG, d: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: 0, b, p0: b.potions.health, maxHit: 0, lastHp: b.hp, dealt: 0, lastB: b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0), bhp: b.monsters.find((m) => m.rank === 'boss')?.maxHp }; fs.push(cur); return; }
+  cur.turns++; cur.maxHit = Math.max(cur.maxHit, (cur.lastHp - b.hp) / b.d.hp); cur.lastHp = b.hp; { const bh = b.monsters.filter((m) => m.rank === 'boss').reduce((x, m) => x + Math.max(0, m.hp), 0); cur.dealt! += Math.max(0, cur.lastB! - bh); cur.lastB = bh; }
 };
 const cl: number[] = [];
 let SEED12AG = 0;
@@ -63,3 +63,7 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
 // rc12aj（自訂，僅 sim 診斷）: F55+ 一般戰回合 中位/p90/最大/>30 場數
 { const a = fs.filter((f) => f.type === 'battle' && f.d >= 55).map((f) => f.turns + 1).sort((x, y) => x - y);
   console.log(`AK ${E.SC} n55=${a.length} med55=${med(a)} p90_55=${a[Math.floor(0.9 * a.length)]} max55=${a[a.length - 1]} gt30_55=${a.filter((x) => x > 30).length}`); }
+{ const a = boss(45, 100), pr = a.map((f) => f.dealt! / (f.turns + 1)), tt = t(a).sort((x, y) => x - y), mh = Math.max(0, ...a.map((f) => f.maxHit)), mhs = a.map((f) => f.maxHit).sort((x, y) => x - y);
+  console.log(`AL ${E.SC} boss45upDmgPerRound(mean of fights)=${Math.round(pr.reduce((x, y) => x + y, 0) / Math.max(1, pr.length))} med=${Math.round(med(pr))} boss45Med=${med(tt)} p90=${tt[Math.floor(0.9 * tt.length)]} maxRoundLoss%=${(100 * mh).toFixed(0)} p99=${(100 * (mhs[Math.floor(0.99 * mhs.length)] ?? 0)).toFixed(0)}`); }
+{ const a = boss(45, 65), pr = a.map((f) => f.dealt! / (f.turns + 1)), tt = t(a).sort((x, y) => x - y); const tot = a.reduce((x, f) => x + f.dealt!, 0) / Math.max(1, a.reduce((x, f) => x + f.turns + 1, 0));
+  console.log(`AL2 ${E.SC} F45-65 dmgPerRound(fightMean)=${Math.round(pr.reduce((x, y) => x + y, 0) / Math.max(1, pr.length))} pooled=${Math.round(tot)} med=${med(tt)} p90=${tt[Math.floor(0.9 * tt.length)]} max=${tt[tt.length - 1]}`); }

@@ -23,7 +23,7 @@ describe('rc12ac caps（自訂）', () => {
   }));
   it('elite fight: body 40%, minion 25%', () => w(() => {
     const { b, d } = fight(['elite', 'normal']);
-    expect(hitCap9(b, b.monsters[0]!, 2, true)).toBe(Math.floor(CP9.minionCharge * d.hp));
+    expect(hitCap9(b, b.monsters[0]!, 2, true)).toBe(Math.floor(Math.min(CP9.minionCharge, 0.35) * d.hp)); // rc12al（自訂）: 單擊上限 0.35
     expect(hitCap9(b, b.monsters[1]!, 2, true)).toBe(Math.floor(0.25 * d.hp));
   }));
   it('boss fight: minions (incl. elite adds) 30%; boss body uncapped by this rule', () => w(() => {

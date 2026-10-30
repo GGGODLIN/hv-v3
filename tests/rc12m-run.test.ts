@@ -13,9 +13,9 @@ import { afterAll as afterAll_T, beforeAll as beforeAll_T } from 'vitest';
 beforeAll_T(() => { RUN12O_T.on = false; }); afterAll_T(() => { RUN12O_T.on = true; });
 const pool = makePool(JSON.parse(readFileSync('public/data/monsters.json', 'utf8')) as MonsterRow[]);
 describe('rc12m RUN12M', () => {
-  it('is on by default with per-school potion-source cuts; merchant untouched; boss/monster single hit cap 0.4', () => {
+  it('is on by default with per-school potion-source cuts; merchant untouched; boss/monster single hit cap 0.35（rc12al）', () => {
     expect(RUN12M.on).toBe(true);
-    expect(RUN12M.hit).toBe(0.4);
+    expect(RUN12M.hit).toBe(0.35); // rc12al（自訂）: 0.4 → 0.35
     for (const sc of ['blade', 'bulwark', 'oc', 'arcane']) for (const k of ['drop', 'chest', 'elite', 'rest'] as const) expect(r12m(sc, k)).toBeLessThanOrEqual(1);
     expect(r12m('bulwark', 'elite')).toBe(0); expect(r12m(undefined, 'drop')).toBe(1);
     expect(mob12m(30, 'bulwark', 'mobHp')).toBe(1); expect(mob12m(100, 'bulwark', 'mobHp')).toBe(3.5);

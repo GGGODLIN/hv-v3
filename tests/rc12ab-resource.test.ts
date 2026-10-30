@@ -10,7 +10,7 @@ describe('rc12ab resource drain (defaults on)', () => {
     expect(winHeal12ab(80)).toBeCloseTo(0.05); expect(winHeal12ab(100)).toBeCloseTo(0.05);
   });
   it('boss +1 potion stops from F70; elite potion F70+ uses elite70P', () => {
-    expect(bossPot12p(65)).toBe(1); expect(bossPot12p(69)).toBe(1); expect(bossPot12p(75)).toBe(0); expect(bossPot12p(95)).toBe(0); /* rc12ad 3（自訂）: F70/80/90/100 保底 +1，見 rc12ad-star.test */
+    expect(bossPot12p(65)).toBe(1); expect(bossPot12p(69)).toBe(1); expect(bossPot12p(75)).toBe(1); expect(bossPot12p(95)).toBe(1); /* rc12al 4（自訂）: F70+ 每場 +1 */ /* rc12ad 3（自訂）: F70/80/90/100 保底 +1，見 rc12ad-star.test */
     expect(RUN12AB.elite70From).toBe(70); expect(RUN12AB.elite70P).toBe(0.2);
     const run = readFileSync('src/core/run.ts', 'utf8');
     expect(run).toContain('RUN12AB.elite70From ? RUN12AB.elite70P : RUN12U.elitePotP');

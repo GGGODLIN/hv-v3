@@ -152,7 +152,7 @@ const R12O_BASE: Record<string, Partial<Record<R12MK, number>>> = {
 /** env SIM_R12M_<KEY>_<SCHOOL> always wins over the rc12o layer. */
 const R12O_ENV = new Set(R12M_SCHOOLS.flatMap((sc) => R12M_KEYS.filter((k) => num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) !== null).map((k) => `${sc}.${k}`)));
 export const RUN12M = {
-  on: (num('SIM_RUN12M') ?? 1) === 1, mobFrom: num('SIM_R12M_MOBFROM') ?? 30, hit: num('SIM_R12M_HIT') ?? 0.4,
+  on: (num('SIM_RUN12M') ?? 1) === 1, mobFrom: num('SIM_R12M_MOBFROM') ?? 30, hit: num('SIM_R12M_HIT') ?? 0.35 /* rc12al（自訂）: 單擊上限 40%→35% max HP */,
   school: Object.fromEntries(R12M_SCHOOLS.map((sc) => [sc, Object.fromEntries(R12M_KEYS.map((k) => [k, num(`SIM_R12M_${k.toUpperCase()}_${sc.toUpperCase()}`) ?? R12M_BASE[sc]![k]]))])) as Record<string, Partial<Record<R12MK, number>>>,
 };
 export const r12m = (lean: string | null | undefined, k: R12MK): number => ((RUN12M.on && lean ? (RUN12O.on && !R12O_ENV.has(`${lean}.${k}`) ? R12O_BASE[lean]?.[k] : undefined) ?? RUN12M.school[lean]?.[k] : undefined) ?? 1) * (RUN12O.on && RUN12M.on && (k === 'drop' || k === 'chest') ? RUN12O.scatter : 1);
@@ -184,7 +184,7 @@ export const ocBoss12aa = (F: number): number => { const A = RUN12AA; if (F <= A
 /** rc12ab（自訂，遊戲與 sim 同路徑、預設開啟）: 深層消耗改從資源端。勝利回血 F≤healFrom 為 healHi，線性降到 healTo 的 healLo，之後維持 healLo；
  *  首領 +1 藥只到 bossPotTo 之前；精英掉藥 F≥elite70From 機率改 elite70P。 */
 export const RUN12AB = { healFrom: num('SIM_R12AB_HEALFROM') ?? 60, healTo: num('SIM_R12AB_HEALTO') ?? 80, healHi: num('SIM_R12AB_HEALHI') ?? 0.2, healLo: num('SIM_R12AB_HEALLO') ?? 0.05,
-  bossPotTo: num('SIM_R12AB_BOSSPOTTO') ?? 70,
+  bossPotTo: num('SIM_R12AB_BOSSPOTTO') ?? 101 /* rc12al（自訂）: 首領 +1 藥延伸到 F70+ 每一場（原 70） */,
   /** rc12ab 1（自訂）: 每場共用蓄力鎖：每回合最多一隻非首領開始蓄力；任何非首領蓄力一擊命中後的下一回合，非首領都不得開始蓄力；已有其他怪在蓄力時也不得開始. 0 = 關. */ chgLock: num('SIM_R12AB_CHGLOCK') ?? 1,
   /** rc12ab 1（自訂）: 一般戰與精英戰（場上無首領）每回合蓄力傷害總和 ≤ chgBudget × maxHP. 0 = 關. */ chgBudget: num('SIM_R12AB_CHGBUDGET') ?? 0.4,
   /** rc12ab 1（自訂）: 想蓄力卻被鎖擋下的怪，這回合普攻單擊上限 × maxHP（避免鎖把大招變成未預告重擊）. */ heldHit: num('SIM_R12AB_HELDHIT') ?? 0.15,
@@ -243,5 +243,15 @@ export const arcMdb12ai = (F: number): number => (F <= RUN12AI.arcFrom ? 1 : 1 +
 
 /** rc12ak（自訂，非原版）: 深層首領攻擊 ×（不動 HP）：F≥bossAtkFrom 起各派首領 adb × bossAtk（仍受單擊 hitCap）。 */
 const sc12ak = (k: string, d: Record<string, number>): Record<string, number> => Object.fromEntries(['blade', 'bulwark', 'oc', 'arcane'].map((s) => [s, num(`SIM_R12AK_${k}_${s.toUpperCase()}`) ?? d[s] ?? 1]));
-export const RUN12AK = { bossAtkFrom: num('SIM_R12AK_ATKFROM') ?? 45, bossAtk: sc12ak('BOSSATK', { blade: 2.5, bulwark: 4, oc: 3.5, arcane: 2.5 } /* rc12ak 輪4（自訂）: bw 2.5→4、oc 2.5→3.5 */) /* 自訂；rc12ak 輪3（掃 1.4／1.8／2.5） */ };
+export const RUN12AK = { bossAtkFrom: num('SIM_R12AK_ATKFROM') ?? 45, bossAtk: sc12ak('BOSSATK', { blade: 2.5, bulwark: 3, oc: 3, arcane: 3 } /* rc12al（自訂）: bw 4→3、oc 3.5→3、ar 2.5→3 */ /* rc12ak 輪4（自訂）: bw 2.5→4、oc 2.5→3.5 */) /* 自訂；rc12ak 輪3（掃 1.4／1.8／2.5） */ };
 export const bossAtk12ak = (F: number, lean: string | null | undefined): number => (F >= RUN12AK.bossAtkFrom && lean ? RUN12AK.bossAtk[lean] ?? 1 : 1);
+
+/** rc12al（自訂，非原版）: cal = sim 專用「玩家對首領輸出」校準（實機 / sim 每回合對首領傷害；遊戲中無 SIM 環境變數 → 1）。
+ *  sim 以首領 HP ÷ cal 等效（擊殺回合數相同）。首領 HP 倍率（各派，遊戲與 sim 共用）：F45 = hp45，線性到 F65 = hp65，F66–69 維持 hp65，F70+ = deep。 */
+const sc12al = (k: string, d: Record<string, number>): Record<string, number> => Object.fromEntries(['blade', 'bulwark', 'oc', 'arcane'].map((s) => [s, num(`SIM_R12AL_${k}_${s.toUpperCase()}`) ?? d[s] ?? 1]));
+export const RUN12AL = { cal: sc12al('CAL', {}), hp45: sc12al('HP45', { blade: 2.2, bulwark: 1.2, oc: 1.5, arcane: 1.2 }), hp65: sc12al('HP65', { blade: 1.2, bulwark: 0.75, oc: 0.95, arcane: 0.8 }), deep: sc12al('DEEP', { arcane: 1.5 }) };
+export const bossHp12al = (F: number, lean: string | null | undefined): number => {
+  if (!lean) return 1; const A = RUN12AL, a = A.hp45[lean] ?? 1, b = A.hp65[lean] ?? 1;
+  const k = F < 45 ? 1 : F >= 70 ? A.deep[lean] ?? 1 : F >= 65 ? b : a + (b - a) * (F - 45) / 20;
+  return k / (A.cal[lean] ?? 1);
+};

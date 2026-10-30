@@ -41,7 +41,7 @@ describe('rc12ab: shared charge lock & budget', () => {
     const o = RULES.cp8; RULES.cp8 = true;
     try {
       const { b, d } = fight(2, true, 7); const [e, m] = b.monsters as [never, never];
-      expect(hitCap9(b, e, 2, true)).toBe(Math.floor(CP9.minionCharge * d.hp));
+      expect(hitCap9(b, e, 2, true)).toBe(Math.floor(Math.min(CP9.minionCharge, 0.35) * d.hp)); // rc12al（自訂）: 單擊上限 0.35
       expect(hitCap9(b, m, 2, true)).toBe(Math.floor(RUN12AC.minion * d.hp)); // rc12ac 1（自訂）
       (m as { chg12aa?: number }).chg12aa = 0.2; expect(hitCap9(b, m, 2, true)).toBe(Math.floor(0.2 * d.hp));
     } finally { RULES.cp8 = o; }
