@@ -78,6 +78,10 @@ export interface MerchantStock { equips: { e: Equip; price: number }[]; hpLeft?:
 /** cp9-rc8 WIP（自訂，暫定，非原版）: 3 → 1. Original HV has no in-tower merchant (findings 004: only the town shop, Health Potion 50C, unlimited = 原版, kept).
  *  Potion analysis: merchant-first QA-like route bought 73–80 potions per trip at 3/merchant (net +16…+59) → F100 76–100%. */
 export const MERCHANT_HP_POTIONS = 1;
+/** rc12aj（製作人要求，自訂，非原版）: 深淵 F45+ 商人每位賣 MERCHANT_HP_POTIONS_DEEP 瓶生命藥水（F50 後藥水不足）。 */
+export const MERCHANT_HP_DEEP_FROM = 45;
+export const MERCHANT_HP_POTIONS_DEEP = Number((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.SIM_MERCHDEEP ?? 2); // 自訂（輪1 試 3 瓶：sim F100 bl48%/oc58%，過強）；SIM_MERCHDEEP 僅 sim 調參
+export const merchantHp = (run: RunState): number => (depthOf(run) >= MERCHANT_HP_DEEP_FROM ? MERCHANT_HP_POTIONS_DEEP : MERCHANT_HP_POTIONS);
 
 export interface RunState {
   seed: number;
@@ -543,7 +547,7 @@ export function merchantStock(run: RunState): MerchantStock {
       const e = generateEquip(rng, L, { minQuality: i === 0 ? 'average' : 'fair' });
       return { e, price: Math.round(sellPrice(e) * RULES.merchantMarkup * (cp4On(run) ? 1 + (sumMods(run.buffs!).r.priceMult ?? 0) : 1)) };
     }),
-   ...(RULES.cp8 ? { hpLeft: MERCHANT_HP_POTIONS } : {}),
+   ...(RULES.cp8 ? { hpLeft: merchantHp(run) } : {}),
   }));
 }
 

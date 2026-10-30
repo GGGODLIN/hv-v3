@@ -4,7 +4,7 @@ describe('rc12ag 調參', () => {
   it('mob12ag：F55 前為 1，F75 達 mobK', () => {
     expect(mob12ag(50, 'oc')).toBe(1);
     expect(mob12ag(80, 'oc')).toBeCloseTo(RUN12AG.mobK.oc!); // rc12ai: oc mobTo 80
-    expect(mob12ag(75, 'arcane')).toBe(1);
+    expect(mob12ag(75, 'arcane')).toBeCloseTo(RUN12AG.mobK.arcane!); // rc12aj: arcane mobK 1.3（自訂）
   });
   it('boss12ag 只作用 F45–69', () => {
     expect(boss12ag(40, 'blade')).toBe(1);

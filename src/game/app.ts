@@ -18,7 +18,7 @@ import { buffFit, buffUse, offerStar, openOffer, openShrine, takeBuff, takeRisk,
 import { routeAdvice9, lowHpMapText9, mapPotion, MAP_LOW_HP, abyssBestMsg, abyssLvFollow, deathCarryMsg, reachedMsg } from '../core/run';
 import { abyssOpen, abyssCarryAt, abyssCleared, abyssSchool, depthOf, floorLabel, startAbyss } from '../core/run';
 import { ABYSS, ABYSS_KEY, abyssBaseLevel, abyssMonLevel, abyssMult, abyssTier, bossKey, checkpointStart, DIFF, loadRecord, recordTrip, recordTitles, guaranteeQuality, tierZh, abyssDangerHint } from '../core/abyss';
-import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, MERCHANT_HP_POTIONS, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
+import { advance, applyLoot, armBattle, battleLocks, openingOc, enterNode as coreEnterNode, chestLoot, encounter, finishBattle, merchantStock, MERCHANT_HP_POTIONS, MERCHANT_HP_DEEP_FROM, MERCHANT_HP_POTIONS_DEEP, rest, RULES, runDerived, settle, shrine, SHRINES, startRun, type Loot, type RunState, type Settlement } from '../core/run';
 import { loadFrom, saveTo, SAVE_VERSION, type SaveData } from '../core/save';
 import { GAME_KEYS } from '../core/preset';
 import { CP7, betterThanWorn, checkpointOptions, gearVerdict } from '../core/cp7';
@@ -811,7 +811,7 @@ export class App {
     const body = iss.length
       ? `<ul class="prep" data-prepbox>${rows}</ul><p><button data-prep="all">全部處理</button></p>`
       : `<p data-prepbox data-prep-done>整備完成。</p>`;
-    const tip = RULES.cp8 ? `<p class="hint" data-prep-towntip>可在城鎮買藥：生命藥水 ${RULES.potionPrice.health}C，不限量（一趟裡的商人每位只賣 ${MERCHANT_HP_POTIONS} 瓶）。<br><b data-departtip>帶藥 + 優先走商人</b>（rc21，製作人）</p>` : ''; // rc19 item 3（自訂，非原版）
+    const tip = RULES.cp8 ? `<p class="hint" data-prep-towntip>可在城鎮買藥：生命藥水 ${RULES.potionPrice.health}C，不限量（一趟裡的商人每位只賣 ${MERCHANT_HP_POTIONS} 瓶，深淵 F${MERCHANT_HP_DEEP_FROM}+ 每位 ${MERCHANT_HP_POTIONS_DEEP} 瓶）。<br><b data-departtip>帶藥 + 優先走商人</b>（rc21，製作人）</p>` : ''; // rc19 item 3（自訂，非原版）
     if (worn.length) p.lastWorn = []; // shown once
     this.modal = { title: '出發前整備', body: (worn.length && !iss.length ? `<ul class="prep" data-prepbox>${rows}</ul>` : body) + tip, ok: iss.length ? '忽略並出發' : '出發', onOk: go };
     this.render();

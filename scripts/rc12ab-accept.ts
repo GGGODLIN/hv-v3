@@ -11,10 +11,10 @@ for (const [k, v] of Object.entries({ SIM_ROUTE: 'hint', SIM_BUFFSTAR: '1', SIM_
 const E = process.env, K = Number(process.argv[2] ?? 128);
 const pool = makePool(JSON.parse(readFileSync(new URL('../public/data/monsters.json', import.meta.url), 'utf8')) as MonsterRow[]);
 const P0 = presetPlayer((JSON.parse(readFileSync(new URL('../public/data/cp6-presets.json', import.meta.url), 'utf8')) as Record<string, Preset>)[`postF20-${E.SC}`]!);
-type F = { s: number; d: number; type: string; turns: number; b: BattleState; p0: number; maxHit: number; lastHp: number };
+type F = { s: number; d: number; type: string; turns: number; b: BattleState; p0: number; maxHit: number; lastHp: number; bhp?: number };
 const fs: F[] = []; let cur: F | null = null;
 TURN_HOOK9.fn = (b) => {
-  if (!cur || cur.b !== b) { cur = { s: SEED12AG, d: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: 0, b, p0: b.potions.health, maxHit: 0, lastHp: b.hp }; fs.push(cur); return; }
+  if (!cur || cur.b !== b) { cur = { s: SEED12AG, d: FIGHT_CTX.depth, type: FIGHT_CTX.type, turns: 0, b, p0: b.potions.health, maxHit: 0, lastHp: b.hp, bhp: b.monsters.find((m) => m.rank === 'boss')?.maxHp }; fs.push(cur); return; }
   cur.turns++; cur.maxHit = Math.max(cur.maxHit, (cur.lastHp - b.hp) / b.d.hp); cur.lastHp = b.hp;
 };
 const cl: number[] = [];
@@ -57,3 +57,6 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
 { const by = (lo: number, hi: number, ty: string) => { const r = new Set(fs.filter((f) => f.d >= lo && f.d <= hi).map((f) => f.s)); return (fs.filter((f) => f.d >= lo && f.d <= hi && f.type === ty).length / Math.max(1, r.size)).toFixed(2); };
   const sc = [...cl].sort((x, y) => x - y), q = (p: number) => sc[Math.min(sc.length - 1, Math.floor(p * sc.length))];
   console.log(`AI ${E.SC} F45-59 battle/elite=${by(45, 59, 'battle')}/${by(45, 59, 'elite')} F60-79=${by(60, 79, 'battle')}/${by(60, 79, 'elite')} floorQ10/25/50/75/90=${q(0.1)}/${q(0.25)}/${q(0.5)}/${q(0.75)}/${q(0.9)} ${(() => { const a = fs.filter((f) => f.type === 'battle' && f.d >= 58 && f.d <= 80).map((f) => f.turns + 1).sort((x, y) => x - y); return `n58_80=${a.length} med58_80=${med(a)} p99_58_80=${a[Math.floor(0.99 * a.length)]} max58_80=${a[a.length - 1]} gt30_58_80=${a.filter((x) => x > 30).length}`; })()}`); }
+// rc12aj（自訂，僅 sim 診斷）: 各首領樓層 回合 中位/p90（n）與首領 maxHp 中位
+{ const q = (a: number[], p: number) => { const x = [...a].sort((u, v) => u - v); return x[Math.min(x.length - 1, Math.floor(p * x.length))]; };
+  console.log(`AJ ${E.SC} ${[45, 50, 55, 60, 65, 70].map((F) => { const a = boss(F, F); return `F${F}:${med(t(a))}/${q(t(a), 0.9)}(n=${a.length},hp${med(a.map((f) => f.bhp ?? 0))})`; }).join(' ')}`); }
