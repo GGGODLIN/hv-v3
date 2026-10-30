@@ -589,7 +589,7 @@ export const topRoll12af = <T>(f: () => T): T => { const k = ADVICE_DIAG.critRol
  *  只影響面板 hi；★／Z／D 建議仍用 roundEstimate。 */
 export function hiRound12ag(s: BattleState): number {
   return topRoll12af(() => {
-    const sum = s.monsters.reduce((t, m0) => { const m = m0 as CM; if (m.hp <= 0) return t; if (m.status.stun > 0) return t + (revive12q(s, m) ? reviveHit12q(s, m, false, true) : 0); return t + chargeEstimate(s, m, false, true); }, 0) + (RULES.cp8 ? extra9(s, false) : 0);
+    const sum = s.monsters.reduce((t, m0) => { const m = m0 as CM; if (m.hp <= 0) return t + (m.rank === 'boss' && (m.phases ?? 0) > 0 ? reviveHit12q(s, m, false, true) : 0) /* rc12ak（自訂，非數值）: 已倒地待復活的首領本回合會復活出手（bw F45 hi206 < 實際 249） */; if (m.status.stun > 0) return t + (revive12q(s, m) ? reviveHit12q(s, m, false, true) : 0); return t + chargeEstimate(s, m, false, true); }, 0) + (RULES.cp8 ? extra9(s, false) : 0);
     return Math.ceil(Math.max(sum, roundEstimate(s, true, false)) + thornPending12aj(s));
   });
 }
