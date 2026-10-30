@@ -599,6 +599,15 @@ export function defHeal12ag(s: BattleState): number {
   const decay = s.cp5 && (s.mods?.bulwarkN ?? 0) > 0 ? CP5.bulwarkDefDecay ** (s.defStreak ?? 0) : 1;
   return Math.min(s.d.hp, s.hp + Math.round(s.d.hp * DEF.hpRecover * (1 + (s.mods?.defHpPct ?? 0)) * decay)) - s.hp;
 }
+/** rc12ah 3（自訂，非數值）: 「防禦回血後淨 HP 約 A–B」。rc12ag 只扣最大一隻蓄力怪的防禦一擊（QA ar1 F25 T1：同回合塔主 160 + 蓄力 146 = 306 > 262，
+ *  實際落在 A 以下）。A = min(maxHp, hp+h) − 同回合全體防禦時「最高擲骰暴擊」之和（每隻活著、未暈眩的怪：蓄力中算蓄力一擊，其餘算普攻；
+ *  暈眩怪只算復活一擊；加 DoT／反傷）；B = min(maxHp, hp+h) − ⌊全體防禦、不暴擊 × ROLL_MIN⌋（下限擲骰，QA ar1 F31 實際 307 < 估 351）。 */
+export function defNet12ah(s: BattleState): { h: number; a: number; b: number; hiD: number; loD: number } {
+  const h = defHeal12ag(s), base = Math.min(s.d.hp, s.hp + h);
+  const hiD = topRoll12af(() => { const sum = s.monsters.reduce((t, m0) => { const m = m0 as CM; if (m.hp <= 0) return t; if (m.status.stun > 0) return t + (revive12q(s, m) ? reviveHit12q(s, m, true, true) : 0); return t + chargeEstimate(s, m, true, true); }, 0) + (RULES.cp8 ? extra9(s, false) : 0); return Math.max(sum, roundEstimate(s, true, true)); });
+  const loD = Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN);
+  return { h, a: Math.max(0, Math.round(base - hiD)), b: Math.max(0, Math.round(base - loD)), hiD: Math.round(hiD), loD };
+}
 export function roundRange12ad(s: BattleState): { lo: number; hi: number } | null {
   if (s.monsters.filter((m) => m.hp > 0 && !(m.status.stun > 0)).length < 2) return null;
   return { lo: Math.floor(nextRoundEstimate(s, false, true) * ROLL_MIN) /* rc12ae 1（自訂，非數值）: floor = defended, no crit, bottom roll, per actHits12ae */, hi: Math.round(hiRound12ag(s)) /* rc12ag 5: hiRound12ag； rc12af 4b（自訂，非數值）: 面板上限用最高擲骰暴擊（QA rc12ae bl2 F45 T12: 平均擲骰暴擊 353 < 實際 381） */ };

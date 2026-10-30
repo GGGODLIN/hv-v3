@@ -7,7 +7,7 @@ import { buildMonster, pickRows, pickTop, plWindow, type Monster, type MonsterPo
 import { type Player, type Prof, PROFS, allocate, equip, derive, level, profValue, powerScore } from './player';
 import { Rng } from './rng';
 import { CP7, betterThanWorn, pityPiece, pityWeapon } from './cp7';
-import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, RUN12AG, mob12ag, boss12ag, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
+import { CP8, CP9, RC12, RC22, bossHp9, refHp9, DEEP12G, bwBossHp12i, aoBossHp12j, ocDmg12l, ocPlain12l, mob12m, r12m, RUN12M, RUN12O, RUN12U, RUN12X, RUN12Y, RUN12Z, RUN12AA, RUN12AB, RUN12AD, RUN12AF, RUN12AG, RUN12AH, mob12ag, boss12ag, winHeal12ab, ocBoss12aa, boss70, bladeBossHp12q, bladeBoss12af, curveSchool12g, bwCap12i, deep12g, deepK12g, plainAt12h, potCdAt12h, cp8ThemeDmg, startBuffs } from './cp8';
 import { openOffer } from './buffoffer';
 import type { MonsterRow } from './monsters';
 import { type NodeType, type Tower, NODE_ZH, TOWER, floorLevel, floorPl, generateTower } from './tower';
@@ -450,7 +450,7 @@ export function battleLoot(run: RunState, monsters: Monster[], type: NodeType, p
       const o12 = !!ab && RULES.cp8 && RUN12M.on && RUN12O.on;
       if (ab) { const q12 = o12 ? bossGearQ12o(guaranteeQuality(ab)) : guaranteeQuality(ab); const g = generateEquip(rng, L, { minQuality: q12 }); loot.equips.push(g); (loot.guaranteed ??= []).push(g.id); if (o12) loot.bossReward = { potions: 0, quality: q12 }; }
       if (o12) { // rc12o（自訂）: every abyss boss kill = a clear reward (guaranteed piece +bossGear quality; potions concentrated here)
-        if (ab >= RUN12O.bossPotFrom && RUN12O.bossPot > 0) { const n = bossPot12p(ab); const n2 = (ab < 45 ? Math.round(n * (RUN12AG.potEarly[(p ? curveSchool12g(p) : '') ?? ''] ?? 1)) : n) + (ab >= 45 && ab < 70 ? RUN12AG.bossPot : 0) /* rc12ag（自訂） */; if (n2) { loot.potions.health = (loot.potions.health ?? 0) + n2; loot.bossReward!.potions = n2; } } // rc12p: deterministic (no roll)
+        if (ab >= RUN12O.bossPotFrom && RUN12O.bossPot > 0) { const n = bossPot12p(ab); const n2 = (ab < 45 ? Math.round(n * (RUN12AG.potEarly[(p ? curveSchool12g(p) : '') ?? ''] ?? 1)) : n) + (ab >= 45 && ab < 70 ? RUN12AG.bossPot + (RUN12AH.bossPot[(p ? curveSchool12g(p) : '') ?? ''] ?? 0) /* rc12ah（自訂） */ : 0) /* rc12ag（自訂） */; if (n2) { loot.potions.health = (loot.potions.health ?? 0) + n2; loot.bossReward!.potions = n2; } } // rc12p: deterministic (no roll)
       }
       // CP6 r2 decision 9 (暫定): first clear of every 10th depth → 1 more guaranteed piece + a title.
       if (ab && ab % ABYSS.milestoneEvery === 0 && ab > (run.abyss!.ms ?? 0)) {

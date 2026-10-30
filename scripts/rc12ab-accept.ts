@@ -50,3 +50,6 @@ console.log(`AB ${E.SC} boss45upMed=${med(t(boss(45, 100)))}(n=${boss(45, 100).l
   const bb = t(boss(45, 100));
   console.log(`AG ${E.SC} pot60Med=${med(pot60)} pot60MedReached=${med(fs.filter((x, i) => x.d >= 60 && !fs.slice(0, i).some((y) => y.s === x.s && y.d >= 60)).map((x) => x.p0))}(n=${nr}) ${[[1, 29], [30, 44], [45, 59], [60, 74]].map(([a, b]) => use(a!, b!)).join(' ')} bossGt30=${(100 * bb.filter((x) => x > 30).length / Math.max(1, bb.length)).toFixed(2)}% gt30F=${JSON.stringify(boss(45, 100).filter((f) => f.turns + 1 > 30).map((f) => f.d).sort((x, y) => x - y))}`);
   console.log(`AGN ${E.SC} ${[[45, 57], [58, 76], [75, 89], [90, 100]].map(([a, b]) => nb(a!, b!)).join(' ')}`); }
+// rc12ah（自訂，僅 sim 診斷）: F58–66 一般戰 中位/p90/最大、F65 王戰 中位/p90/最大
+{ const a = fs.filter((f) => f.type === 'battle' && f.d >= 58 && f.d <= 66).map((f) => f.turns + 1).sort((x, y) => x - y), b = t(boss(65, 65)).sort((x, y) => x - y);
+  console.log(`AH ${E.SC} n58_66=${a.length} med58_66=${med(a)} p90_58_66=${a[Math.floor(0.9 * a.length)]} p99_58_66=${a[Math.floor(0.99 * a.length)]} max58_66=${a[a.length - 1]} gt30_58_66=${a.filter((x) => x > 30).length} f65n=${b.length} f65Med=${med(b)} f65P90=${b[Math.floor(0.9 * b.length)]} f65Max=${b[b.length - 1]}`); }

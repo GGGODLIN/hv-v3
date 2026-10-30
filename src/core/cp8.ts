@@ -227,5 +227,13 @@ export const RUN12AG = {
   mobK: sc12ag('MOBK', { blade: 0.5, bulwark: 0.6, oc: 0.5 }) /* 自訂 */, bossK: sc12ag('BOSSK', { blade: 0.75, oc: 0.85 }) /* 自訂 */, bossPot: num('SIM_R12AG_BOSSPOT') ?? 0,
   /** 各派 F25–44 首領勝利藥水倍率（0 = 不給；oc 前中段藥水盈餘） */ potEarly: sc12ag('POTEARLY', { oc: 0 }) /* 自訂 */,
 };
-export const mob12ag = (F: number, lean: string | null | undefined): number => { const k = (lean ? RUN12AG.mobK[lean] : undefined) ?? 1, a = RUN12AG.mobFrom, b = RUN12AG.mobTo; const back = RUN12AG.backFrom > 0 && F > RUN12AG.backFrom ? Math.max(0, 1 - (F - RUN12AG.backFrom) / Math.max(1, RUN12AG.backTo - RUN12AG.backFrom)) : 1; return F <= a ? 1 : 1 + (k - 1) * Math.min(1, (F - a) / Math.max(1, b - a)) * back; };
-export const boss12ag = (F: number, lean: string | null | undefined): number => (F >= 45 && F < 70 && lean ? RUN12AG.bossK[lean] ?? 1 : 1);
+export const mob12ag = (F: number, lean: string | null | undefined): number => { const k = (lean ? RUN12AG.mobK[lean] : undefined) ?? 1, a = (lean ? RUN12AH.mobFrom[lean] : undefined) || RUN12AG.mobFrom, b = (lean ? RUN12AH.mobTo[lean] : undefined) || RUN12AG.mobTo; const back = RUN12AG.backFrom > 0 && F > RUN12AG.backFrom ? Math.max(0, 1 - (F - RUN12AG.backFrom) / Math.max(1, RUN12AG.backTo - RUN12AG.backFrom)) : 1; return F <= a ? 1 : 1 + (k - 1) * Math.min(1, (F - a) / Math.max(1, b - a)) * back; };
+export const boss12ag = (F: number, lean: string | null | undefined): number => (F >= 45 && F < 70 && lean ? (RUN12AG.bossK[lean] ?? 1) * (F >= RUN12AH.bossFrom && F <= RUN12AH.bossTo ? RUN12AH.bossK[lean] ?? 1 : 1) : 1);
+/** rc12ah（自訂，非原版）: mobFrom / mobTo = 各派覆寫 RUN12AG.mobFrom / mobTo（0 = 用全域值）；bossK = F bossFrom–bossTo 首領 HP 再乘的倍率；
+ *  bossPot = F45–69 首領勝利額外生命藥水（各派；blade 固定 0，製作人：blade 不再加）。預設值見 docs/hv-v3-rc12ah.md。 */
+const sc12ah = (k: string, d: Record<string, number>, def: number): Record<string, number> => Object.fromEntries(['blade', 'bulwark', 'oc', 'arcane'].map((s) => [s, num(`SIM_R12AH_${k}_${s.toUpperCase()}`) ?? d[s] ?? def]));
+export const RUN12AH = {
+  mobFrom: sc12ah('MOBFROM', {}, 0), mobTo: sc12ah('MOBTO', {}, 0),
+  bossFrom: num('SIM_R12AH_BOSSFROM') ?? 60, bossTo: num('SIM_R12AH_BOSSTO') ?? 69, bossK: sc12ah('BOSSK', { arcane: 0.85 } /* 自訂：rc12ah 4，arcane F60–69 首領 HP ×0.85 */, 1),
+  bossPot: { ...sc12ah('BOSSPOT', {}, 0), blade: 0 } as Record<string, number>,
+};
